@@ -95,6 +95,44 @@ try {
     $global:AoInstallerTestOther = $false
     Assert ((Hash (Join-Path $loader 'ddraw.dll')) -eq $manifest.addon.'ddraw.dll') 'Extra loader absent'
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Preferences changed'
+    # An older DLL-only installation upgrades to the optional pack transactionally.
+    $assetRelative = 'randy-vk/packs/ao-modern-icc/1010004_295992_d.png'
+    $assetSource = Join-Path $package $assetRelative
+    $assetTarget = Join-Path $client $assetRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $assetSource) -Force | Out-Null
+    Write-Bytes $assetSource 'fixture texture one'
+    $manifest.assets = @{ $assetRelative = (Hash $assetSource) }
+    Save-Manifest
+    Write-Bytes $assetSource 'corrupt fixture texture'
+    Reject $arguments 'Package integrity check failed'
+    Write-Bytes $assetSource 'fixture texture one'
+    $global:AoInstallerTestFailTarget = $assetTarget
+    Reject $arguments 'simulated commit failure'
+    $global:AoInstallerTestFailTarget = ''
+    Assert (!(Test-Path -LiteralPath $assetTarget)) 'Asset failure partially installed pack'
+    & $installer @arguments | Out-Null
+    Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset absent'
+    $otherPack = Join-Path $client 'randy-vk/packs/personal/keep.txt'
+    New-Item -ItemType Directory -Path (Split-Path -Parent $otherPack) -Force | Out-Null
+    Write-Bytes $otherPack 'personal pack'
+    Write-Bytes $assetSource 'fixture texture two'
+    $manifest.assets[$assetRelative] = Hash $assetSource
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset update failed'
+    $manifest.assets['../escape.png'] = Hash $assetSource
+    Save-Manifest
+    Reject $arguments 'Invalid optional material pack'
+    $manifest.assets.Remove('../escape.png')
+    Save-Manifest
+    # An unrelated running client may keep an identical shared loader mapped. No replace/move is needed.
+    $global:AoInstallerTestOther = $true
+    $global:AoInstallerTestSharedPath = Join-Path $loader 'ddraw.dll'
+    $sharedLock = [IO.File]::Open($global:AoInstallerTestSharedPath, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+    try { & $installer @arguments | Out-Null } finally { $sharedLock.Dispose() }
+    Assert ((Hash (Join-Path $loader 'ddraw.dll')) -eq $manifest.addon.'ddraw.dll') 'Identical shared loader changed'
+    $global:AoInstallerTestOther = $false
+    $global:AoInstallerTestSharedPath = ''
     Remove-Item -LiteralPath (Join-Path $loader 'AnarchyOnline.exe')
     Write-Bytes (Join-Path $client 'randy31.dll') 'a later official update'
     Write-Bytes (Join-Path $client 'ddraw.dll') 'replacement wrapper not owned by AO-VK'
@@ -102,14 +140,20 @@ try {
     Reject $uninstall 'unrecognized'
     Assert (Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll')) 'Rejected uninstall partially removed addon'
     Copy-Item -LiteralPath (Join-Path $package 'ddraw.dll') -Destination (Join-Path $client 'ddraw.dll') -Force
+    Write-Bytes $assetTarget 'personal modification'
+    Reject $uninstall 'unrecognized'
+    Assert (Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll')) 'Modified pack rejection partially removed addon'
+    Copy-Item -LiteralPath $assetSource -Destination $assetTarget -Force
     & $installer @uninstall | Out-Null
+    Assert (!(Test-Path -LiteralPath $assetTarget)) 'Uninstall left owned pack asset'
+    Assert ([IO.File]::ReadAllText($otherPack) -eq 'personal pack') 'Uninstall changed personal pack'
     foreach ($target in @((Join-Path $client 'ao-vk.dll'), (Join-Path $client 'ddraw.dll'),
             (Join-Path $client 'ao-vk-live.install.json'), (Join-Path $loader 'ddraw.dll'))) {
         Assert (!(Test-Path -LiteralPath $target)) ('Uninstall left ' + $target)
     }
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Uninstall changed preferences'
     Assert ([IO.File]::ReadAllText((Join-Path $client 'randy31.dll')) -eq 'a later official update') 'Uninstall changed stock renderer'
-    Write-Output 'PASS: busy guard, exited-process allowance, unrelated-client allowance, wrapper refusal, build validation, install, duplicate refusal, update rollback, receipt-based update, extra loader, uninstall after client update, modified-file refusal, preferences preserved.'
+    Write-Output 'PASS: process guards, locked identical shared loader, wrapper refusal, build validation, install/update/rollback, optional pack install/update/rollback/uninstall, unsafe path refusal, modified-file refusal, personal packs and preferences preserved.'
 } finally {
     $env:APPDATA = $savedAppData
     Remove-Item Function:\Get-Process -ErrorAction SilentlyContinue

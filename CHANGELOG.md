@@ -6,12 +6,15 @@ What changed in each ao-vk release, newest first. Downloads and install notes: t
 ## Unreleased
 
 ### New
+- Optional modern ICC material preview with six remastered architectural surfaces, generated source artwork, reproducible normal/ORM baking and a saved in-game toggle. The master Enhancements switch temporarily disables it. Pack files are verified and tracked by the transactional installer for safe updates and uninstall; original resource databases and personal packs remain unchanged.
 - Optional Halloween fog inspired by AO's original black Halloween atmosphere, with about 30 metres of visibility by default. Select it in the standalone options panel's Weather category; adjust distance, nearby brightness and drifting patches, or choose pale Mist or your own RGB colour. Chat, menus and held character labels remain outside the effect. Indoors are excluded unless enabled.
 - Local weather selection in Weather: Automatic, Clear, Overcast, Rain and Thunderstorm, with a strength control. Automatic keeps the game's weather and existing manual ini overrides; choosing another mode controls the enhanced clouds, rain and lightning. Return to Automatic to resume the game's weather.
 - Experimental support for the classic live 18.8.62 client: an app-local DirectDraw loader loads AO-VK without replacing the game's renderer on disk. The normal launcher can check and patch the original files. New Engine is not supported.
 - Standalone AO-VK options panel (Ctrl+Shift+F12 or the console's `options` command), with categories, keyboard adjustments, presets and saved settings; no AOReloaded menu required.
 
 ### Fixed
+- Preserve byte-identical graphics DLLs during updates, so an unrelated client using an unchanged shared loader does not need to close. Replacing or removing a shared loader still requires its users to close.
+- Suspend world rendering for minimized or zero-area windows and refresh presentation after restore, including clients that start minimized. Keep retrying swapchain creation if the surface temporarily has no extent. Stop frame recording on device/fence failure and report acquire, submit and present errors. A full GPU device loss still requires restarting the client.
 - Stop the render worker and frame-generation presentation when the render window is destroyed, before Windows tears down DLLs. Queue the worker's stop command to prevent a lost wake-up during shutdown; retained game graphics objects no longer keep presentation active until process termination.
 - Let the installer proceed when Windows still lists already-terminated AO processes, or clients from another installation are open. Active clients using the selected installation or its shared loader continue to block replacement; uninspectable or still-starting clients are also blocked.
 - Generate grass over classic live's original single-pass terrain by capturing its base texture and lightmap from their separate texture stages. Grass no longer depends on the older two-pass terrain layout. Keep grass enabled in the live Classic+ preset as well as Modern and Ultra; performance HUD remains off by default.

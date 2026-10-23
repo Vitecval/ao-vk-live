@@ -849,15 +849,22 @@ bool Device::SetWindow(HWND window)
 bool Device::CreateSwapchain(std::string* error)
 {
     VkSurfaceCapabilitiesKHR caps;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physical, m_surface, &caps);
+    if (!Check(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physical, m_surface, &caps), "surface capabilities", error))
+        return false;
+    if (!caps.maxImageExtent.width || !caps.maxImageExtent.height)
+        return true;                             // minimized: creation is deferred, not permanently disabled
     uint32_t n = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical, m_surface, &n, nullptr);
+    if (!Check(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical, m_surface, &n, nullptr), "surface formats", error) || !n)
+        return false;
     std::vector<VkSurfaceFormatKHR> formats(n);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical, m_surface, &n, formats.data());
+    if (!Check(vkGetPhysicalDeviceSurfaceFormatsKHR(m_physical, m_surface, &n, formats.data()), "surface formats", error))
+        return false;
     VkSurfaceFormatKHR format = formats[0];
     for (auto& f : formats)
         if (f.format == VK_FORMAT_B8G8R8A8_UNORM || f.format == VK_FORMAT_R8G8B8A8_UNORM) { format = f; break; }
-    m_swapExtent = caps.currentExtent.width != UINT32_MAX ? caps.currentExtent : VkExtent2D{m_width, m_height};
+    m_swapExtent = caps.currentExtent.width != UINT32_MAX ? caps.currentExtent : VkExtent2D{
+        std::clamp(m_width, caps.minImageExtent.width, caps.maxImageExtent.width),
+        std::clamp(m_height, caps.minImageExtent.height, caps.maxImageExtent.height)};
     if (!m_swapExtent.width || !m_swapExtent.height)
         return true;                // minimised: keep rendering offscreen, present nothing
     VkSwapchainCreateInfoKHR ci{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
@@ -1308,7 +1315,7 @@ VkDeviceSize Device::Allocate(VkDeviceSize size, VkDeviceSize alignment, void** 
     return offset;
 }
 
-void Device::WaitFrame(Frame& f, const char* what)
+bool Device::WaitFrame(Frame& f, const char* what)
 {
     // Reports a stuck GPU instead of hanging silently; gives up on a lost device.
     for (int seconds = 1; !m_deviceLost; ++seconds) {
@@ -1317,15 +1324,21 @@ void Device::WaitFrame(Frame& f, const char* what)
             if (seconds > 1)
                 Log("%s finished after %d s", what, seconds);
             m_completed = std::max(m_completed, f.serial);
-            return;
+            return true;
         }
         if (r == VK_ERROR_DEVICE_LOST) {
             m_deviceLost = true;
             Log("GPU device lost (while waiting for %s); rendering stops", what);
-            return;
+            return false;
+        }
+        if (r != VK_TIMEOUT) {
+            m_deviceLost = true;
+            Log("GPU fence wait failed (%d, %s); rendering stops (restart the client)", int(r), what);
+            return false;
         }
         Log("still waiting for %s after %d s", what, seconds);
     }
+    return false;
 }
 
 void Device::CollectGarbage()
@@ -1617,6 +1630,8 @@ void Device::SetRenderTarget(Texture* target)
 
 void Device::BeginFrame()
 {
+    if (m_deviceLost)
+        return;
     HeapCheck("the frame's start", 1);
     if (!m_heapBroken && HeapCheckLevel() > 0) m_heapLastOk = "the frame's start";
     // Indoors (a room's playfield: rooms drawn, no terrain) for 10 frames running, or out again: no weather in there
@@ -1650,18 +1665,21 @@ void Device::BeginFrame()
     m_shadowArenaBound = false;                  // ... and the shadow record array unbound
     if (m_swapchain && m_frameGenWanted != (m_fg != nullptr) && !(m_frameGenWanted && m_frameGenFailed))
         m_swapchainStale = true;                 // (RVK_FrameGen switched: the swapchain made again)
-    if (m_swapchainStale) {
+    if (m_surface && !m_swapchain && !IsIconic(m_window))
+        m_swapchainStale = true;                 // retry creation when a zero-area window has been restored
+    if (m_swapchainStale && m_surface && !IsIconic(m_window)) {
         WaitIdle();
         DestroySwapchain();
         std::string error;
         if (!CreateSwapchain(&error))
             Log("swapchain recreation failed: %s\n", error.c_str());
-        m_swapchainStale = false;
+        m_swapchainStale = !m_swapchain;          // keep retrying if creation was deferred or failed
     }
     Frame& f = m_frames[m_frameIndex];
     bool uploadsPending = f.uploadsRecorded;          // recorded between frames, already waited for
     double waitStart = ProfileCpu();
-    WaitFrame(f, "GPU frame work");
+    if (!WaitFrame(f, "GPU frame work"))
+        return;
     // The render thread waiting for the GPU to finish this slot's last frame: large means GPU-bound (profile).
     double waitMs = ProfileCpu() - waitStart;
     vkResetFences(m_device, 1, &f.fence);
@@ -1837,6 +1855,10 @@ void Device::BeginFrame()
 
 void Device::EndFrame()
 {
+    if (!m_inFrame || m_deviceLost) {
+        m_inFrame = false;
+        return;
+    }
     if (m_pickActive) {                          // texture picking: the nearest draw's texture, for LastPick
         m_pickActive = false;
         // The ground drawn natively: its draws' stage 0 is a stand-in or the lightmap - the cell's own tile instead.
@@ -1912,7 +1934,7 @@ void Device::EndFrame()
     uint32_t imageIndex = 0;
     bool present = false;
     double presentStart = ProfileCpu();              // acquire + submit + present: driver time (profile)
-    if (m_swapchain) {
+    if (m_swapchain && (!m_window || !IsIconic(m_window))) {
         // Bounded wait: if no image comes within 250 ms, skip presenting this frame instead of freezing.
         VkResult r = m_fg ? FgAcquire(250000000ull, f.imageAvailable, &imageIndex)
                           : vkAcquireNextImageKHR(m_device, m_swapchain, 250000000ull, f.imageAvailable, VK_NULL_HANDLE, &imageIndex);
@@ -1924,6 +1946,14 @@ void Device::EndFrame()
         }
         if (r == VK_SUBOPTIMAL_KHR || r == VK_ERROR_OUT_OF_DATE_KHR)
             m_swapchainStale = true;
+        else if (r < 0) {
+            Log("swapchain acquire failed: %d", int(r));
+            if (r == VK_ERROR_DEVICE_LOST) {
+                m_deviceLost = true;
+                m_inFrame = false;
+                return;
+            }
+        }
     }
     if (present) {
         VkImage dst = m_swapImages[imageIndex];
@@ -1965,7 +1995,13 @@ void Device::EndFrame()
         si.pSignalSemaphores = &m_renderDone[imageIndex];
     }
     f.serial = ++m_submitted;
-    vkQueueSubmit(m_queue, 1, &si, f.fence);
+    VkResult submitted = vkQueueSubmit(m_queue, 1, &si, f.fence);
+    if (submitted != VK_SUCCESS) {
+        Log("frame submit failed: %d; rendering stops (restart the client)", int(submitted));
+        m_deviceLost = true;
+        m_inFrame = false;
+        return;
+    }
     f.uploadsRecorded = false;
     FrameCommandsSubmitted(f);
     if (present) {
@@ -1978,6 +2014,10 @@ void Device::EndFrame()
         VkResult r = m_fg ? FgPresent(&pi) : vkQueuePresentKHR(m_queue, &pi);
         if (r == VK_SUBOPTIMAL_KHR || r == VK_ERROR_OUT_OF_DATE_KHR)
             m_swapchainStale = true;
+        else if (r < 0) {
+            Log("swapchain present failed: %d", int(r));
+            if (r == VK_ERROR_DEVICE_LOST) m_deviceLost = true;
+        }
     }
     ProfileCpuAdd("acquire + submit + present", presentStart);
     if (screenshot) {

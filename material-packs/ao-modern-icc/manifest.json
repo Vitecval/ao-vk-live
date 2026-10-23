@@ -1,0 +1,112 @@
+{
+  "name": "ao-modern-icc",
+  "version": 1,
+  "setting": "RVK_ModernTex",
+  "default": false,
+  "materials": [
+    {
+      "type": 1010004,
+      "id": 295992,
+      "name": "ICC concrete",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 297326,
+      "name": "ICC ivory wall panel",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 297327,
+      "name": "ICC segmented ivory wall panel",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 296442,
+      "name": "ICC building bottom trim",
+      "size": [
+        1024,
+        256
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 295444,
+      "name": "ICC shuttle grille atlas",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 295502,
+      "name": "ICC shuttle base plate",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "albedo",
+        "normal",
+        "occlusion-roughness-metallic"
+      ]
+    }
+  ],
+  "files": {
+    "1010004_295444_d.png": "1b4d86366648e872dfde89b6205b9ffc73e00a95b0672f6c40abdd3eccb3f73c",
+    "1010004_295444_n.png": "4bceb7bc2222e979ffb5593218d1c76d81c6c149146b6ce04de88e05ed68333a",
+    "1010004_295444_orm.png": "56ebd5920740dbca41de2ac79ef23c9c61fd690f17e80ab21ca3c91b1e446d9e",
+    "1010004_295502_d.png": "095166f09cf4c21137fd2a162119757815f4f9515b655fed4061a47b2a946f1d",
+    "1010004_295502_n.png": "6204587df1ae73f10af15d3271abdd29272b57f99b5f486fa301e83428b2a596",
+    "1010004_295502_orm.png": "a17fd7d63c22f171a150354a9bc19e784335492c744dc5e0999427f1acf0e7d9",
+    "1010004_295992_d.png": "c2ed630f1993d4aea73ea1c6c1ec72a3c7a3f4eb0bc53da4f1e00cd49189427b",
+    "1010004_295992_n.png": "3ccefab0994dd66d768eae067eb084679a8c03eb5ea47074656ee06582765577",
+    "1010004_295992_orm.png": "6a8a6fe360d27049546230be13e53b7d074ecb2b19129ffbe9e264038c1c80c2",
+    "1010004_296442_d.png": "011d4d3a7e4177fa43c65869f238f1492d4b78b149081f68471c7e3366a06873",
+    "1010004_296442_n.png": "c9376468645d3160dc7b4614f5f8b4d71c8c5e29cdb426c0871797d9dcc07b42",
+    "1010004_296442_orm.png": "f1e7d0860b8edca5e59aa30712ef032b95979aacb5183351843bf1729e6c5ae3",
+    "1010004_297326_d.png": "1766ed821ce063e939045d82b7e236456af05220aaf41e25dcc76c20b48c1a4d",
+    "1010004_297326_n.png": "0a7288dfb396d6fce3f16717265d14a101cc7ae9f044f67da40cd954a7ceca39",
+    "1010004_297326_orm.png": "4f5bc37fa000d0fda10e9a054d0cf1e43ae22dc268b358e87fc8d3d8c6a9b2de",
+    "1010004_297327_d.png": "1398e9a7b62f843cb8d5d36eb47b5cdd6c295da3e246bc191cc9a26f66530c01",
+    "1010004_297327_n.png": "3fafad1acefaf5708cbd706b863261a8d8017ac4efe2bc1135bed9f46346dc3a",
+    "1010004_297327_orm.png": "87517cdd0f50b42406c25e8c9847d09f139f8a1d532356173ec60c602b1121a6"
+  }
+}

@@ -164,6 +164,8 @@ DWORD RawInputType(LPARAM lp)
 
 LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    if (msg == WM_SIZE)
+        BackendWindowResized(hwnd);
     if (msg == WM_DESTROY)
         BackendWindowDestroyed(hwnd);
     if (ConsoleMessage(hwnd, msg, wp, lp))

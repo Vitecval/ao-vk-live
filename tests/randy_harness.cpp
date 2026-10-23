@@ -619,7 +619,7 @@ std::vector<uint8_t> BuildBmp24(unsigned w, unsigned h, uint32_t (*color)(unsign
     return bmp;
 }
 
-void TestTextureStream()
+void TestTextureStream(unsigned rdbId = 0)
 {
     static const unsigned w = 65, h = 33;                              // not multiples of 4: row padding is exercised
     std::vector<uint8_t> bmp = BuildBmp24(w, h, [](unsigned x, unsigned y) -> uint32_t {
@@ -640,7 +640,21 @@ void TestTextureStream()
     using TSCCtorBitmapFn = void*(__fastcall*)(void*, void*, void*, const char*, int);
     using TSCreateTextureBitmapFn = void*(__fastcall*)(void*, void*, void*, const char*);
     void* creator = Export<TSCCtorBitmapFn>("??0TextureStreamCreator@@QAE@PAVLBitmap_t@@PBDH@Z")(
-        ::operator new(0x40), nullptr, bitmap, "harness_tex", 1);   // 1: the creator's downscale divisor
+        ::operator new(0x48), nullptr, bitmap, "harness_tex", 1);   // 1: the creator's downscale divisor
+    if (rdbId) {
+        // Fixture for the game's AnarchyTexCreator_t subclass. Keep the real base
+        // implementation, add the retail RTTI name and its type/id fields. This
+        // exercises the production export hook, identity lookup and async loader.
+        static struct { void* unused[2]; char name[64]; } td = {{}, ".?AVAnarchyTexCreator_t@@"};
+        static uintptr_t col[5] = {};
+        static void* vt[17] = {};
+        col[3] = reinterpret_cast<uintptr_t>(&td);
+        vt[0] = col;
+        std::memcpy(vt + 1, *static_cast<void***>(creator), 16 * sizeof(void*));
+        *static_cast<void***>(creator) = vt + 1;
+        *reinterpret_cast<unsigned*>(static_cast<uint8_t*>(creator) + 0x40) = 1010004;
+        *reinterpret_cast<unsigned*>(static_cast<uint8_t*>(creator) + 0x44) = rdbId;
+    }
     void* surface = Export<TSCreateTextureBitmapFn>(
         "?CreateTexture@TextureStreamCreator@@QAEPAVsurface_t@@PAVLBitmap_t@@PBD@Z")(creator, nullptr, bitmap,
                                                                                     "harness_tex");
@@ -1526,6 +1540,9 @@ int main(int argc, char** argv)
     bool destroy = false;                            // --destroy: delete the characters and statics at the end
     bool normalExit = false;                         // --normal-exit: exercise cleanup and DLL detach, without TerminateProcess
     bool windowCloseFirst = false;                   // --window-close-first: destroy the window before Randy's cleanup
+    bool minimizeTest = false;                       // --minimize-test: repeated real minimize/restore on the harness window
+    bool startMinimized = false;                     // --start-minimized: initialize with no drawable presentation area
+    bool modernPackTest = false;                     // --modern-pack-test: real material-hook and async toggle fixture
     bool still = false;                              // the animation time doesn't advance (static vertex buffers)
     std::string staticMesh;
     int statics = 1;
@@ -1553,6 +1570,9 @@ int main(int argc, char** argv)
         else if (a == "--shutdown") g_shutdown = true;
         else if (a == "--normal-exit") { normalExit = true; g_shutdown = true; }
         else if (a == "--window-close-first") { windowCloseFirst = true; normalExit = true; g_shutdown = true; }
+        else if (a == "--minimize-test") minimizeTest = true;
+        else if (a == "--start-minimized") { startMinimized = true; minimizeTest = true; }
+        else if (a == "--modern-pack-test") modernPackTest = true;
         else if (a == "--debug-draw") g_debugDraw = true;
         else if (a == "--sprites" && i + 1 < argc) g_sprites = std::atoi(argv[++i]);
         else if (a == "--resize" && i + 2 < argc) {
@@ -1610,6 +1630,10 @@ int main(int argc, char** argv)
     AdjustWindowRect(&r, WS_OVERLAPPEDWINDOW, FALSE);
     HWND hwnd = CreateWindowA("randy_harness", "randy harness", WS_OVERLAPPEDWINDOW, 0, 0, r.right - r.left,
                               r.bottom - r.top, nullptr, nullptr, wc.hInstance, nullptr);   // never shown
+    if (startMinimized) {
+        ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
+        ShowWindow(hwnd, SW_HIDE);
+    }
 
     auto initialize = Export<InitializeFn>(
         "?Initialize@Randy_t@@SAPAV1@GGAAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@PAU_GUID@@1_NPAUHWND__@@W4BufferFormat_e@1@@Z");
@@ -1665,6 +1689,9 @@ int main(int argc, char** argv)
     TestProcessVertices(render);
     if (g_materials) TestMaterials();
     if (g_texture) TestTextureStream();   // before the first present: in the frame=1 call log window
+    if (modernPackTest) {
+        for (unsigned id : {295992u, 297326u, 297327u, 296442u, 295444u, 295502u}) TestTextureStream(id);
+    }
     if (g_png) TestPng();                 // likewise
     if (!g_mapTiles.empty()) TestMapTiles();
     if (g_jpeg) TestJpeg();               // likewise
@@ -1726,6 +1753,28 @@ int main(int argc, char** argv)
     QueryPerformanceFrequency(&frequency);
     double sceneSeconds = 0.0;
     for (int frame = 0; frame < frames; ++frame) {
+        if (modernPackTest) {
+            auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+            // The rapid on/off at 1/2 leaves decode jobs in flight; final off must
+            // discard those results. Later cycles cover fully loaded materials.
+            if (frame == 1 || frame == 40 || frame == 260) set("RVK_ModernTex", 1);
+            if (frame == 2 || frame == 240 || frame == 550) set("RVK_ModernTex", 0);
+            if (frame == 400) set("RVK_Enhance", 0);
+            if (frame == 430) set("RVK_Enhance", 1);
+            Sleep(15);
+        }
+        if (minimizeTest && frame % 8 == 2) {
+            ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
+            ShowWindow(hwnd, SW_HIDE);              // keep the test window out of the user's desktop
+            if (!IsIconic(hwnd)) { std::fprintf(stderr, "minimize test: window did not minimize\n"); return 2; }
+            std::printf("minimize test: minimized at frame %d\n", frame);
+        }
+        if (minimizeTest && frame % 8 == 4) {
+            ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+            ShowWindow(hwnd, SW_HIDE);
+            if (IsIconic(hwnd)) { std::fprintf(stderr, "minimize test: window did not restore\n"); return 2; }
+            std::printf("minimize test: restored at frame %d\n", frame);
+        }
         if (g_restore && frame == 2) ++*Export<unsigned*>("?s_nRestoreCount@Randy_t@@0IA");
         if (g_debugDraw) AddDebugShapes(frame);
         if (!scene.sprites.empty()) AnimateSprites(scene, 41.0f * float(frame), frame);

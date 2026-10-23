@@ -31,6 +31,13 @@ std::atomic<unsigned> g_backendObjects{0};
 
 void BackendObjectCreated() { ++g_backendObjects; }
 
+void BackendWindowResized(HWND window)
+{
+    ComScope scope(ComMethodCount() - 2);
+    if (g_rvk.device && g_rvk.window == window)
+        g_rvk.WindowDrawable();
+}
+
 void BackendWindowDestroyed(HWND window)
 {
     ComScope scope(ComMethodCount() - 2);
@@ -286,9 +293,26 @@ bool RunAction(const char* name)
     return true;
 }
 
+bool RvkState::WindowDrawable()
+{
+    RECT rect{};
+    bool drawable = window && !IsIconic(window) && GetClientRect(window, &rect) &&
+                    rect.right > rect.left && rect.bottom > rect.top;
+    if (presentationSuspended != !drawable) {
+        presentationSuspended = !drawable;
+        if (drawable) {
+            device->RefreshPresentation();
+            RvkLog("presentation: window restored; refreshing swapchain");
+        } else {
+            RvkLog("presentation: minimized or zero-area window; world rendering suspended");
+        }
+    }
+    return drawable;
+}
+
 void RvkState::Frame()
 {
-    if (device && window && !device->InFrame())
+    if (device && window && !device->InFrame() && WindowDrawable())
         device->BeginFrame();
 }
 
@@ -296,10 +320,14 @@ void RvkState::Present()
 {
     if (!device || !window)
         return;
+    rnative::HangBeat();                         // the game still runs normally while graphics are suspended
+    if (!WindowDrawable()) {
+        if (device->InFrame()) device->EndFrame();   // finish work begun before minimization, once
+        return;
+    }
 #ifdef RANDYVK_ADDON
     LiveFrame();
 #endif
-    rnative::HangBeat();
     ++presentCount;
     CallLogFrame(presentCount);
     rnative::gui::Install();       // GUI.dll's interface drawing, once it is loaded: where the interface begins (the

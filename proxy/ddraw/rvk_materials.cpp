@@ -139,6 +139,7 @@ uint64_t KeyOf(uint32_t type, uint32_t id) { return uint64_t(FullQualityType(typ
 // ---------------------------------------------------------------- material folders
 struct Folder {
     std::string dir;
+    bool modern = false;
     std::unordered_map<std::string, uint64_t> files;   // lower-case name -> last write time ^ size (hot reload)
 };
 Folder g_mat, g_live;                         // materials\ (applied maps), live\ (workbench previews, hot reload only)
@@ -146,6 +147,7 @@ std::vector<Folder> g_packs;                  // packs\<name>\ (released texture
 std::unordered_set<uint64_t> g_liveKeys;      // texture ids with any file in live\ (their maps come from there only)
 bool g_scanned = false;
 bool g_hot = false;                           // RANDYVK_HOTRELOAD=1
+std::atomic<bool> g_modernEnabled{false}, g_modernChanged{false};
 
 std::string Lower(std::string s)
 {
@@ -202,6 +204,7 @@ void ScanPacks(const std::string& root)
     for (const std::string& name : names) {
         Folder f;
         f.dir = root + name + "\\";
+        f.modern = Lower(name) == "ao-modern-icc";
         ScanFolder(f);
         RvkLog("materials: pack '%s', %u files", name.c_str(), unsigned(f.files.size()));
         if (!f.files.empty())
@@ -265,9 +268,11 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
     if (g_liveKeys.count(KeyOf(type, id)))
         return g_live;
     if (!g_packs.empty() && !HasAny(g_mat, type, id))
-        for (const Folder& pack : g_packs)
+        for (const Folder& pack : g_packs) {
+            if (pack.modern && !g_modernEnabled.load()) continue;
             if (HasAny(pack, type, id))
                 return pack;
+        }
     return g_mat;
 }
 
@@ -394,10 +399,18 @@ void Upload(const Waiter& w, const rvk::maps::Decoded& d)
 }  // namespace
 
 void HotReload();
+void PollModernPack();
+
+void SetModernTexturePackEnabled(bool enabled)
+{
+    if (g_modernEnabled.exchange(enabled) != enabled)
+        g_modernChanged.store(true);
+}
 
 void PollMaterialMaps()
 {
     HotReload();
+    PollModernPack();
     if (g_worker) {
         std::vector<Worker::Done> done;
         {
@@ -587,6 +600,12 @@ void Changed(const std::unordered_map<std::string, uint64_t>& before, const std:
 void Reload(uint64_t key)
 {
     ++g_gen[key];
+    if (g_worker) {
+        std::lock_guard<std::mutex> lock(g_worker->mutex);
+        g_worker->jobs.erase(std::remove_if(g_worker->jobs.begin(), g_worker->jobs.end(),
+                                          [key](const Worker::Job& job) { return job.key == key; }),
+                             g_worker->jobs.end());
+    }
     CacheErase(key);
     g_waiting.erase(key);
     g_uploads.erase(std::remove_if(g_uploads.begin(), g_uploads.end(),
@@ -609,6 +628,22 @@ void Reload(uint64_t key)
            !any ? "nothing (maps removed)" : FolderFor(type, id).dir.c_str(), surfaces);
 }
 }  // namespace
+
+void PollModernPack()
+{
+    if (!g_modernChanged.exchange(false))
+        return;
+    Scan();
+    std::unordered_set<uint64_t> keys;
+    for (RSurface* top : g_identified)
+        for (const Folder& pack : g_packs)
+            if (pack.modern && HasAny(pack, top->rdbType, top->rdbId))
+                keys.insert(KeyOf(top->rdbType, top->rdbId));
+    for (uint64_t key : keys)
+        Reload(key);                            // cancels stale jobs and also removes maps when disabled
+    RvkLog("modern texture pack: %s; %u texture id(s) refreshed", g_modernEnabled.load() ? "on" : "off",
+           unsigned(keys.size()));
+}
 
 void HotReload()
 {

@@ -15,13 +15,13 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-339 settings, 169 of them in the settings window.
+340 settings, 170 of them in the settings window.
 
 ## Sections
 
 - [General](#general) (8)
 - [Lighting](#lighting) (17)
-- [Materials](#materials) (14)
+- [Materials](#materials) (15)
 - [Debug](#debug) (7)
 - [Terrain](#terrain) (23)
 - [Plants](#plants) (38)
@@ -89,6 +89,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrAo` | PBR materials: occlusion map strength | 0 .. 1 | 0.1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
+| `RVK_ModernTex` | Modern texture pack (ICC preview) | on / off | off | window; game value off |
 | `RVK_Albedo` | Enhanced textures | on / off | on | window; game value off |
 
 ## Debug

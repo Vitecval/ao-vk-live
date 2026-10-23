@@ -42,6 +42,7 @@ public:
     bool Threaded() const { return m_thread != nullptr; }
     bool Resize(uint32_t width, uint32_t height);
     bool SetWindow(HWND window);
+    void RefreshPresentation();
     HWND Window() const { return m_window; }
     const DeviceInfo& Info() const { return m_device.Info(); }
     uint32_t Width() const { return m_width; }

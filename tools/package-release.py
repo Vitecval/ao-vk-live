@@ -10,7 +10,7 @@ import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DIRS = ['cmake', 'docs', 'ghidra-scripts', 'interface', 'proxy', 'rvk', 'tests', 'third_party', 'tools', 'release', 'licenses']
+SOURCE_DIRS = ['cmake', 'docs', 'ghidra-scripts', 'interface', 'proxy', 'rvk', 'tests', 'third_party', 'tools', 'release', 'licenses', 'material-packs']
 ROOT_FILES = ['.gitignore', 'CHANGELOG.md', 'CMakeLists.txt', 'CMakePresets.json', 'LICENSE',
               'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']
 EXCLUDE_PARTS = {'__pycache__', '.git', '.codex', '.agents', 'private'}
@@ -58,7 +58,7 @@ def main():
         shutil.copy2(ROOT / name, player / name)
     shutil.copytree(ROOT / 'licenses', player / 'licenses')
     (player / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md']:
+    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md']:
         shutil.copy2(ROOT / 'docs' / name, player / 'docs' / name)
     readme = (ROOT / 'docs/repository-readme.md').read_text(encoding='utf-8').replace('0.1.0', args.version)
     (player / 'README.md').write_text(readme, encoding='utf-8')
@@ -78,6 +78,14 @@ def main():
                 'client': preflight.EXPECTED,
                 'addon': {name: digest(player / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
+    pack = ROOT / 'material-packs/ao-modern-icc'
+    pack_dest = player / 'randy-vk/packs/ao-modern-icc'
+    pack_dest.mkdir(parents=True)
+    for path in sorted((pack / 'maps').glob('*.png')):
+        shutil.copy2(path, pack_dest / path.name)
+    for name in ['manifest.json', 'README.md']:
+        shutil.copy2(pack / name, pack_dest / name)
+    manifest['assets'] = {p.relative_to(player).as_posix(): digest(p) for p in sorted(pack_dest.iterdir()) if p.is_file()}
     (player / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     for directory in SOURCE_DIRS:
         for path in sorted((ROOT / directory).rglob('*')):

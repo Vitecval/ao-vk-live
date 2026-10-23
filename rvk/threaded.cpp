@@ -432,6 +432,11 @@ bool ThreadedDevice::SetWindow(HWND window)
     return ok;
 }
 
+void ThreadedDevice::RefreshPresentation()
+{
+    Enqueue([this](const uint8_t*) { m_device.RefreshPresentation(); });
+}
+
 void ThreadedDevice::RequestFrameDump(const std::string& path, int frames)
 {
     std::string p = path;

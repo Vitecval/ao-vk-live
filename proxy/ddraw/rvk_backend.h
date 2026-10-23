@@ -81,6 +81,7 @@ class RSurface;
 void AttachMaterialMaps(RSurface* top);           // after the surface's rvk texture is (re)created
 void PollMaterialMaps();                          // each present: uploads maps decoded in the background
 void ForgetMaterialMaps(RSurface* top);           // the surface is going: it no longer waits for maps
+void SetModernTexturePackEnabled(bool enabled); // optional ICC material pack; reloads affected live surfaces
 // What an rvk texture is, for texture picking: "RDB texture T:ID 'name', WxH; maps: _n.png ..." (reference: "T:ID").
 std::string DescribeTexture(const rvk::Texture* texture, std::string* reference = nullptr);
 // What a picked visual was made from: "RDB mesh 1010001:3545" (reference: "T:ID"), see rvk_materials.cpp.
@@ -101,6 +102,7 @@ public:
 void BackendObjectCreated();
 void BackendObjectReleased();                  // diagnostic count only: COM releases can also occur in DLL detach
 void BackendWindowDestroyed(HWND window);       // stop presentation even if the game retains COM objects at exit
+void BackendWindowResized(HWND window);         // observe minimize/restore even when the game stops drawing
 
 // IUnknown for rvk objects: reference counting plus QueryInterface through Cast().
 template <typename B>
@@ -162,8 +164,10 @@ struct RvkState {
     RSurface* mainSurface = nullptr;  // the back buffer the 3D device renders to (rvk main target)
     DWORD displayWidth = 0, displayHeight = 0;   // SetDisplayMode (0 = desktop)
     std::string gpuName = "Vulkan GPU";
+    bool presentationSuspended = false;
 
     bool EnsureDevice(uint32_t width, uint32_t height);   // creates or resizes the rvk device
+    bool WindowDrawable();                              // suspend minimized/zero-area windows; refresh on restore
     void SetWindow(HWND hwnd);                             // remember / attach the presentation window
     void Frame();                                          // begins a frame if none is open
     void Present();                                        // ends (presents) the current frame

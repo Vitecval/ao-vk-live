@@ -8,7 +8,7 @@ From the source folder:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/build-release.ps1
-python tools/package-release.py --version 0.2.0-preview.2 --build-dir build/windows-release
+python tools/package-release.py --version 0.2.0-preview.3 --build-dir build/windows-release
 ```
 
 The script detects Visual Studio with `vswhere`, enters the x86 compiler environment, and builds with clang-cl and LLD. The live binaries must be **32-bit**, even on 64-bit Windows. LLD is required to preserve the original decorated C++ export aliases. Do not substitute Microsoft's linker without rechecking all exports.

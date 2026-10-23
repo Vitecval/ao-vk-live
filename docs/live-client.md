@@ -16,6 +16,8 @@ To update an earlier live test package, close the game and launcher and run `Upd
 
 Clients from another AO installation can remain open if their loaded modules do not use the selected folder or a loader being changed. The installer checks renderer/module paths, including AppData executable copies, and blocks when it cannot identify a running client safely.
 
+Updates leave byte-identical DLLs in place. An unrelated client may therefore keep an unchanged shared loader open; replacing or uninstalling a shared loader still requires closing its users.
+
 **Keep the official `randy31.dll` in place.** No `randy31_orig.dll`, patched executable, checksum edits, or manual server arguments are needed. Start with the normal official launcher or your normal quick launcher. The official launcher and patcher use the system renderer. The addon activates only in the actual `AnarchyOnline.exe` game process with the supported classic renderer.
 
 Use this loader by itself; a pre-existing dgVoodoo, D7VK, or other `ddraw.dll` cannot occupy the same filename. The installer refuses to overwrite one. Do not copy the optional PRK AOReloaded `version.dll` as part of this package.
@@ -41,6 +43,8 @@ Grass is enabled by default and works over the original terrain. The live ground
 ## Undo and diagnostics
 
 Closing the render window now drains queued work, stops the render worker and releases Vulkan presentation, including frame-generation threads, before DLL teardown. Some game graphics objects can outlive the renderer's shutdown; presentation no longer depends on their final release. The log records `shutdown: render worker stopped` and `shutdown: presentation released`. This fixes a missed-wake race in worker shutdown and a missing window-close cleanup path; it does not establish the cause of every stuck AO process or address another addon's shutdown.
+
+Minimized or zero-area windows suspend world rendering. Restoration refreshes the swapchain; if creation was deferred because the window had no usable area, later drawable frames retry it. This also handles clients that start minimized. The log records `presentation: minimized or zero-area window` and `presentation: window restored`. A full graphics driver reset can invalidate the Vulkan device; this build stops recording frames after that failure, but does not recreate the whole renderer. Restart the affected client to recover from device loss.
 
 Run **Uninstall.cmd**, select the same AO folder and click Uninstall; or run `install-live.ps1 -ClientDir 'C:\Funcom\Anarchy Online' -Uninstall`. It removes only owned DLLs and the install record, including any recorded extra loader copy. Modified or unknown wrappers are refused. Game files, preferences, other addons and AO-VK settings/cache/logs are preserved. Uninstall works after an official update changes the original game DLLs; remove the addon until the new build has been audited.
 
@@ -76,6 +80,7 @@ The inspected smoke and stars instructions match after code/global-address reloc
 - Relocated-executable test: harness and loader in a different directory from the game DLLs/addon; four Vulkan frames rendered with the retail modules loaded.
 - Standalone options: rendered and visually inspected at 640x480; keyboard changes saved, category navigation and console entry exercised. Classic+, Modern and Ultra each tested to retain the live terrain workaround.
 - Normal-exit harness: exit code 0 and presentation released with frame generation on/off, threaded/calling-thread rendering, native/original device cleanup, and window destruction both before and after Randy cleanup. Use `--normal-exit` or `--window-close-first` to exercise this path; the default harness still uses forced termination.
+- Minimize/restore harness: six configurations, four restore cycles each, including frame generation on/off, direct/threaded rendering, original/native device cleanup and minimized startup; all exited normally, resumed swapchain creation and produced rendered images without logged device loss. Use `--frames 32 --minimize-test --normal-exit`, optionally `--start-minimized`.
 
 The user logged into classic live and confirmed that disabling only the replacement terrain restores the ground in ICC with enhancements enabled. Zoning, all effects, long sessions, and interactions with other injected addons still need gameplay testing. A local `MSWSOCK.dll` in the existing retail installation crashed the isolated tests before the stock renderer loaded; the clean harness uses Windows system libraries rather than that additional DLL. It has not been altered in the retail installation.
 

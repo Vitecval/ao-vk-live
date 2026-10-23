@@ -84,6 +84,7 @@ Setting g_settings[] = {
     {"RVK_PbrProbe", "Environment probe", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
+    {"RVK_ModernTex", "Modern texture pack (ICC preview)", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_Albedo", "Enhanced textures", "Materials",     Bool,  0, 1, 1, 1, nullptr, 0},
 
 #ifdef RANDYVK_ADDON
@@ -429,6 +430,7 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_ModernTex", 0},
     {"RVK_WeatherMode", 0}, {"RVK_FogMode", 0},
     {"RVK_PixelLight", 0}, {"RVK_LightOver", 0}, {"RVK_Bump", 0}, {"RVK_NormalMaps", 0}, {"RVK_Pbr", 0}, {"RVK_Albedo", 0}, {"RVK_GroundOn", 0}, {"RVK_GroundAo", 0}, {"RVK_GroundTess", 0}, {"RVK_GroundGrain", 0}, {"RVK_GroundBlend", 0}, {"RVK_GroundSun", 0}, {"RVK_GroundRocks", 0}, {"RVK_Pebbles", 0}, {"RVK_SandRipple", 0}, {"RVK_DuneLight", 0}, {"RVK_SandGlint", 0}, {"RVK_SandPrints", 0}, {"RVK_RippleDepth", 0}, {"RVK_Parallax", 0}, {"RVK_CliffDepth", 0}, {"RVK_GroundRange", 1}, {"RVK_GroundFar", 8}, {"RVK_CliffTex", 0}, {"RVK_CliffRock", 0}, {"RVK_TileHide", 0}, {"RVK_GroundVary", 0}, {"RVK_LeafLight", 0}, {"RVK_CrownShade", 0}, {"RVK_Headroom", 1},
     {"RVK_Sway", 0}, {"RVK_FolEdges", 0}, {"RVK_FolDither", 0}, {"RVK_GrassPush", 0}, {"RVK_GrassOn", 0}, {"RVK_LeafOn", 0}, {"RVK_PlantDetail", 0}, {"RVK_FoliageLod", 0}, {"RVK_PtLight", 1}, {"RVK_CharLight", 1}, {"RVK_Tess", 0}, {"RVK_Aniso", 1}, {"RVK_SunShadow", 0}, {"RVK_Contact", 0}, {"RVK_PtShadows", 0},
@@ -728,6 +730,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
         for (const Setting& other : g_settings)
             if (&other != &s) Apply(other, d);
     }
+    else if (is("RVK_ModernTex")) SetModernTexturePackEnabled(V(n) != 0.0f);
     else if (is("RVK_UiRate")) SetInterfaceRate(V(n));
     else if (is("RVK_PixelLight")) d->SetPixelLighting(V(n) != 0.0f);
     else if (is("RVK_LightOver")) d->SetLightOverride(V(n) != 0.0f);

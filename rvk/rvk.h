@@ -319,6 +319,7 @@ public:
     static void SetFixedClock(double step);              // tests: the clock steps `step` s a frame (0 = real time)
     bool SetWindow(HWND window);                         // attach (or change) the presentation window later
     void StopPresentation();                             // drain GPU work and release the window's presentation threads
+    void RefreshPresentation() { m_swapchainStale = true; } // render thread: recreate after restoring the window
     HWND Window() const { return m_window; }
     const DeviceInfo& Info() const { return m_info; }
     uint32_t Width() const { return m_width; }
@@ -3546,7 +3547,7 @@ private:
     bool m_deviceLost = false;
     // The next submission carries everything recorded so far (frame commands or pending uploads).
     uint64_t DeathTag() const { return m_submitted + 1; }
-    void WaitFrame(Frame& f, const char* what);          // waits for f's fence, updates m_completed
+    bool WaitFrame(Frame& f, const char* what);          // false on device loss; no recording into an unfinished slot
     void CollectGarbage();
     static constexpr VkFormat kColorFormat = VK_FORMAT_B8G8R8A8_UNORM;
     static constexpr VkFormat kDepthFormat = VK_FORMAT_D32_SFLOAT;

@@ -8,10 +8,10 @@ Create a new repository, retaining LICENSE, THIRD-PARTY-NOTICES.md and the upstr
 
 The MIT license permits this distribution with its notice preserved. This source snapshot does not carry upstream Git history. For future upstream updates, keep a separate upstream checkout and compare changes; the original README is preserved in docs/upstream-readme.md in the exported source.
 
-For this preview, create a GitHub release tagged **v0.2.0-preview.2**, titled **AO-VK Live 0.2.0 Preview 2 — Halloween, weather and shutdown**. Attach:
+For this preview, create a GitHub release tagged **v0.3.0-preview.1**, titled **AO-VK Live 0.3.0 Preview 1 — Optional modern ICC materials**. Attach:
 
-- `ao-vk-live-0.2.0-preview.2-windows-x86.zip` — the ready-built player download, including setup.
-- `ao-vk-live-0.2.0-preview.2-source.zip` — the complete source snapshot.
+- `ao-vk-live-0.3.0-preview.1-windows-x86.zip` — the ready-built player download, including setup and the optional ICC pack.
+- `ao-vk-live-0.3.0-preview.1-source.zip` — the complete source snapshot, artwork and prompts.
 - `SHA256SUMS.txt` — checksums for both ZIPs.
 
 GitHub's automatic Source code download is source only. Point players at the **windows-x86.zip** asset, which contains the ready-built DLLs. The packages are currently unsigned.
@@ -21,7 +21,7 @@ Suggested release notes are in RELEASE-NOTES.md. The package has been tested on 
 To create future archives after building:
 
 ```powershell
-python tools/package-release.py --version 0.2.0-preview.3 --build-dir build/windows-release
+python tools/package-release.py --version 0.3.0-preview.2 --build-dir build/windows-release
 ```
 
 Packaging includes only whitelisted source folders and release files. It excludes local builds, logs, captures, personal settings and proprietary game DLLs. Add a known prior release's DLL hashes to release/known-builds.json when needed for receipt-free upgrades from that release.

@@ -1,12 +1,14 @@
 # AO-VK Live
 
+Optional **modern ICC material preview**: six architectural surfaces with higher-resolution textures, normal maps and material response. Open **Ctrl+Shift+F12 → Materials → Modern texture pack (ICC preview)**. Off by default. See [modern materials](docs/modern-materials.md).
+
 Weather preview: optional **Halloween fog** (about 30 m visibility), pale mist and custom fog colours, plus selectable Clear, Overcast, Rain and Thunderstorm weather. Open **Ctrl+Shift+F12 → Weather**. Both selectors default to Automatic. See [weather controls](docs/weather.md).
 
 A Vulkan renderer for the **classic Anarchy Online live client**, based on [wannabuh's AO-VK](https://github.com/wannabuh/ao-vk). Adds modern lighting, shadows, procedural grass and an in-game options panel while preserving the official launcher and original renderer on disk.
 
 ## Download and install
 
-Download **`ao-vk-live-0.2.0-preview.2-windows-x86.zip`** from this repository's **Releases** page. Players do not need a compiler, Python, or the Vulkan SDK.
+Download **`ao-vk-live-0.3.0-preview.1-windows-x86.zip`** from this repository's **Releases** page. Players do not need a compiler, Python, or the Vulkan SDK.
 
 1. Extract the whole ZIP to a folder. Close AO and its launcher.
 2. Double-click **Install.cmd**. Select your AO installation folder, or use **Browse** to find it.

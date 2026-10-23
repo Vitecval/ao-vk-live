@@ -3,6 +3,10 @@
 
 # ao-vk
 
+The live-client fork also includes an optional six-material ICC texture preview:
+**Ctrl+Shift+F12 → Materials → Modern texture pack (ICC preview)**. Off by default.
+See [modern materials](docs/modern-materials.md).
+
 The live-client fork adds optional Halloween fog and selectable weather in **Ctrl+Shift+F12 → Weather**. See [weather controls](docs/weather.md). Both selectors default to Automatic.
 
 A modern Vulkan renderer for Anarchy Online (the Project Rubi-Ka client), dropped in as a replacement for the

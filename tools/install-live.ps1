@@ -28,6 +28,50 @@ if ($LoaderDir) {
     if (!$Uninstall -and !(Test-Path -LiteralPath (Join-Path $loader 'AnarchyOnline.exe'))) { throw 'The extra loader folder must contain AnarchyOnline.exe.' }
     if ($loader -ine $client) { $targets += Join-Path $loader 'ddraw.dll' }
 }
+$fileSpecs = @{}
+foreach ($target in $targets) {
+    $name = Split-Path -Leaf $target
+    $fileSpecs[$target] = @{ relative = $name; hash = $manifest.addon.$name; oldHash = $(if ($receipt) { $receipt.addon.$name }) }
+}
+# Asset paths are deliberately restricted to this optional pack. Never trust a manifest
+# or install record to write/remove an arbitrary path outside its reserved directory.
+$assetHashes = [ordered]@{}
+if ($receipt -and $receipt.assets) {
+    foreach ($item in $receipt.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
+}
+if ($manifest.assets) {
+    foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
+}
+foreach ($relative in $assetHashes.Keys) {
+    if ($relative -notmatch '^randy-vk/packs/ao-modern-icc/[A-Za-z0-9_-]+\.(png|json|md)$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+        throw 'Invalid optional material pack path or hash.'
+    }
+    $target = Join-Path $client $relative
+    $newHash = $(if ($manifest.assets) { $manifest.assets.$relative })
+    $oldHash = $(if ($receipt -and $receipt.assets) { $receipt.assets.$relative })
+    # Keep obsolete, previously owned pack files in the record so uninstall owns them.
+    if (!$newHash -and !$Uninstall) { continue }
+    $fileSpecs[$target] = @{ relative = $relative; hash = $newHash; oldHash = $oldHash; asset = $true }
+    $targets += $target
+}
+function Test-OwnedHash($Target, $Hash) {
+    $spec = $fileSpecs[$Target]
+    if ($Hash -ieq $spec.hash -or ($spec.oldHash -and $Hash -ieq $spec.oldHash)) { return $true }
+    if (!$spec.asset) {
+        $name = Split-Path -Leaf $Target
+        foreach ($previous in $manifest.previousAddons) { if ($Hash -ieq $previous.$name) { return $true } }
+    }
+    return $false
+}
+$unchangedTargets = @()
+$changingTargets = @()
+foreach ($target in $targets) {
+    $name = Split-Path -Leaf $target
+    if (!$Uninstall -and (Test-Path -LiteralPath $target) -and
+        (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) {
+        $unchangedTargets += $target
+    } else { $changingTargets += $target }
+}
 foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness')) {
     # Windows can keep terminated processes in its list while another program holds a handle.
     foreach ($running in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
@@ -42,7 +86,7 @@ foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness
         $knownRenderer = $false
         foreach ($modulePath in $modulePaths) {
             if (!$modulePath) { continue }
-            if ($modulePath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase) -or $targets -icontains $modulePath) { $usesClient = $true }
+            if ($modulePath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase) -or $changingTargets -icontains $modulePath) { $usesClient = $true }
             if ([IO.Path]::GetFileName($modulePath) -ieq 'randy31.dll') { $knownRenderer = $true }
         }
         if ($usesClient -or (($name -eq 'AnarchyOnline' -or $name -eq 'randy_harness') -and !$knownRenderer)) {
@@ -55,9 +99,7 @@ if ($Uninstall) {
         $name = Split-Path -Leaf $target
         if (Test-Path -LiteralPath $target) {
             $actual = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
-            $owned = $actual -ieq $manifest.addon.$name
-            foreach ($previous in $manifest.previousAddons) { $owned = $owned -or ($actual -ieq $previous.$name) }
-            if ($receipt -and $receipt.addon.$name) { $owned = $owned -or ($actual -ieq $receipt.addon.$name) }
+            $owned = Test-OwnedHash $target $actual
             if (!$owned) {
                 throw "Refusing to remove an unrecognized $name."
             }
@@ -100,16 +142,28 @@ foreach ($name in @('ddraw.dll', 'ao-vk.dll')) {
     }
 }
 foreach ($target in $targets) {
+    $spec = $fileSpecs[$target]
+    if ($spec.asset -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
+        throw "Package integrity check failed for $($spec.relative)."
+    }
+}
+foreach ($target in $targets) {
     if (Test-Path -LiteralPath $target) {
         if (!$Upgrade) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
         $name = Split-Path -Leaf $target
         $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
-        $owned = $hash -ieq $manifest.addon.$name
-        foreach ($previous in $manifest.previousAddons) { $owned = $owned -or ($hash -ieq $previous.$name) }
-        if ($receipt -and $receipt.addon.$name) { $owned = $owned -or ($hash -ieq $receipt.addon.$name) }
+        $owned = Test-OwnedHash $target $hash
         if (!$owned) { throw "Refusing to replace unrecognized graphics wrapper $target." }
     }
 }
+# Leave byte-identical DLLs in place, including a shared loader used by an unrelated installation.
+foreach ($target in $unchangedTargets) {
+    $name = Split-Path -Leaf $target
+    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) {
+        throw 'A graphics file changed during the preflight checks. Try the update again.'
+    }
+}
+$targets = @($changingTargets)
 $staged = @()
 $installed = @()
 $backups = @{}
@@ -121,18 +175,22 @@ $record = [ordered]@{
     clientDirectory = $client
     loaderDirectory = $(if ($LoaderDir) { $loader } else { '' })
     addon = $manifest.addon
+    assets = $assetHashes
 }
 $targets += $receiptPath
 try {
     foreach ($target in $targets) {
         $name = Split-Path -Leaf $target
+        if (!(Test-Path -LiteralPath (Split-Path -Parent $target))) {
+            New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+        }
         $temp = Join-Path (Split-Path -Parent $target) ('.' + $name + '.installing-' + [guid]::NewGuid().ToString('N'))
         $staged += $temp
         if ($target -ieq $receiptPath) {
             [IO.File]::WriteAllText($temp, ($record | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
         } else {
-            Copy-Item -LiteralPath (Join-Path $package $name) -Destination $temp
-            if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $manifest.addon.$name) { throw 'Copy verification failed.' }
+            Copy-Item -LiteralPath (Join-Path $package $fileSpecs[$target].relative) -Destination $temp
+            if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
         }
         $stageHashes[$target] = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
     }

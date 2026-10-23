@@ -58,7 +58,7 @@ def main():
         shutil.copy2(ROOT / name, player / name)
     shutil.copytree(ROOT / 'licenses', player / 'licenses')
     (player / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md']:
+    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md']:
         shutil.copy2(ROOT / 'docs' / name, player / 'docs' / name)
     readme = (ROOT / 'docs/repository-readme.md').read_text(encoding='utf-8').replace('0.1.0', args.version)
     (player / 'README.md').write_text(readme, encoding='utf-8')

@@ -1,5 +1,6 @@
 // D3D7 state, Clear, and drawing.
 #include "internal.h"
+#include "weather_options.h"
 
 #include <algorithm>
 #include <bit>
@@ -489,6 +490,17 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->sand3[1] = m_cloudParams.enable ? std::clamp(m_sunThrough, 0.0f, 1.0f) : 1.0f;
     fl->sand3[2] = fl->sand3[3] = 0.0f;
     FogBankParams(fl->fogBanks);
+    // Applied once, after all world effects and before labels/UI. Independent of AO's FogMode and sky horizon.
+    const auto userFog = MakeUserFog(m_userFogMode, m_userFogRange, m_userFogClear, m_userFogShade, m_userFogDrift,
+                                    {m_userFogRed, m_userFogGreen, m_userFogBlue}, m_indoors, m_userFogInside);
+    for (int i = 0; i < 3; ++i) fl->userFog[i] = userFog.colour[size_t(i)];
+    fl->userFog[3] = m_aoProjValid ? userFog.range : 0.0f;
+    fl->userFog2[0] = userFog.clear;
+    fl->userFog2[1] = std::clamp(userFog.shade * m_dark.storm, 0.0f, 0.9f);
+    fl->userFog2[2] = userFog.drift;
+    fl->userFog2[3] = m_userFogMode;
+    for (int i = 0; i < 3; ++i) fl->userFogEye[i] = m_frameEye[i];
+    fl->userFogEye[3] = float(std::fmod(m_frameClock, 4096.0));
     fl->pick[0] = m_pickHighlight ? float(m_pickHighlightTile) : 0.0f;
     fl->pick[1] = fl->pick[2] = fl->pick[3] = 0.0f;
     fl->lightGrid[0] = fl->lightGrid[1] = fl->lightGrid[2] = fl->lightGrid[3] = 0.0f;
@@ -2533,7 +2545,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         // A black one is no storm: the game's fade in from black after a load (the same sprite) - drawn as it is.
         const uint32_t brightest = std::max({(colour >> 16) & 0xFFu, (colour >> 8) & 0xFFu, colour & 0xFFu});
         if (brightest > 0x10) {
-            if (m_weatherParams.enable && !m_stormTint && m_target == m_scene) {
+            if (m_weatherParams.enable && (!m_stormTint || m_weatherMode > 0.5f) && m_target == m_scene) {
                 ++m_stormTintSkipped;
                 m_stormTintColour = colour;
                 m_stormTintSeen = m_frameClock;
@@ -2592,13 +2604,14 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                     m_glowPos[k] = mid[0] * w[0][k] + mid[1] * w[1][k] + mid[2] * w[2][k] + w[3][k];
             }
         }
-        if (!m_stormFlash) {
+        if (!m_stormFlash || m_weatherMode > 0.5f) {
             ++m_stormFlashSkipped;
             return;
         }
     }
     // The game's bolts (VisualLightning_t): left out while we draw our own (RVK_StormBolt; rain.cpp MakeBolt).
-    if (m_weatherParams.enable && m_stormBolt > 0.0f && std::strncmp(m_drawVisualName, "VisualLightning_t", 17) == 0)
+    if (m_weatherParams.enable && (m_stormBolt > 0.0f || m_weatherMode > 0.5f) &&
+        std::strncmp(m_drawVisualName, "VisualLightning_t", 17) == 0)
         return;
     ++m_frameDraw;
     // GPU profiling: which class of scene draw this is (splits the "scene" block; see ProfileSceneClass).

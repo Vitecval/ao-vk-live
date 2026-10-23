@@ -240,6 +240,19 @@ Device::~Device()
     if (m_instance) vkDestroyInstance(m_instance, nullptr);
 }
 
+void Device::StopPresentation()
+{
+    if (!m_device || !m_surface)
+        return;
+    Log("shutdown: draining presentation");
+    WaitIdle();
+    DestroySwapchain();                       // joins the optional frame-generation presenter threads
+    vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+    m_surface = VK_NULL_HANDLE;
+    m_window = nullptr;
+    Log("shutdown: presentation released");
+}
+
 // ---------------------------------------------------------------------------------------------------
 // Initialisation
 

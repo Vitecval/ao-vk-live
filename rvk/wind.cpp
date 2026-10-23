@@ -25,7 +25,7 @@ void Device::UpdateWind()
 
     // Where it blows.
     float target[2];
-    const bool fromGame = now - m_weatherGameTime < 0.5;
+    const bool fromGame = m_weatherMode < 0.5f && now - m_weatherGameTime < 0.5;
     const float gx = m_weatherGame.wind[0], gz = m_weatherGame.wind[2];
     const float gl = std::hypot(gx, gz);
     if (fromGame && gl > 0.05f) {
@@ -45,8 +45,8 @@ void Device::UpdateWind()
     // A sand or ash storm: the game's tint, left out in Draw, says its colour and strength; eased in and out.
     // RVK_SandForce: one whatever the weather, as strong as the game's full one (alpha ~0.38) x it, in a sand colour
     // (the demo's stand-in for the game's) or an ash grey (RVK_SandAsh).
-    const bool forced = m_sandForce > 0.0f;
-    const bool tint = forced || now - m_stormTintSeen < 0.5;
+    const bool forced = m_weatherMode < 0.5f && m_sandForce > 0.0f;
+    const bool tint = forced || (m_weatherMode < 0.5f && now - m_stormTintSeen < 0.5);
     const uint32_t tintColour = forced ? (m_sandAsh ? 0x009A9590u : 0x00C07830u) : m_stormTintColour;
     const float sandTarget = m_indoors ? 0.0f : forced ? 0.38f * m_sandForce : tint ? float(m_stormTintColour >> 24) / 255.0f : 0.0f;
     m_sand += (sandTarget - m_sand) * (dt > 0.0f ? 1.0f - std::exp(-dt / 3.0f) : 1.0f);

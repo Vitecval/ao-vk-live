@@ -19,6 +19,7 @@
 // {shot} saves the console's image as console-test-<n>.bmp next to the log; one piece between {shot}s a frame.
 #define NOMINMAX
 #include <windows.h>
+#include "weather_options.h"
 
 #include <algorithm>
 #include <atomic>
@@ -365,6 +366,8 @@ bool FindSetting(const std::string& word, SettingRef* out)
 
 std::string FormatValue(const RvkSettingInfo& s, float v)
 {
+    if (std::strcmp(s.name, "RVK_WeatherMode") == 0) return rvk::WeatherModeName(int(std::lround(v)));
+    if (std::strcmp(s.name, "RVK_FogMode") == 0) return rvk::FogModeName(int(std::lround(v)));
     char buf[48];
     if (s.type == 0) return v != 0.0f ? "on" : "off";
     if (s.type == 2) std::snprintf(buf, sizeof(buf), "%g", double(std::round(v * 1000.0f) / 1000.0f));
@@ -1329,7 +1332,7 @@ void DrawOptions(uint32_t w, uint32_t h)
     const int left = std::max(0, (int(w) - 96 * cw) / 2);
     const int right = std::min(int(w), left + 96 * cw);
     const int cols = std::max(10, (right - left - 2 * pad) / cw);
-    const int valueX = right - pad - 14 * cw;
+    const int valueX = right - pad - 18 * cw;
     Fill(left, 0, right, int(h), 0.025f, 0.04f, 0.055f, 0.96f);
     Fill(left, 0, right, 4, 0.44f, 0.77f, 0.82f, 1);
     Text(left + pad, ch, "AO-VK options", cValue, cols);
@@ -1356,7 +1359,7 @@ void DrawOptions(uint32_t w, uint32_t h)
             value = FormatValue(r.info, r.info.value);
         }
         Text(left + pad, y, label, row == g_optionRow ? cName : cText, std::max(1, (valueX - left - pad) / cw - 2));
-        Text(valueX, y, "< " + value + " >", cValue, 14);
+        Text(valueX, y, "< " + value + " >", cValue, 18);
     }
     const int footer = (int(h) / ch - 6) * ch;
     if (g_optionRow >= extra && g_optionRow - extra < int(settings.size())) {

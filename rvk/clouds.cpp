@@ -1400,7 +1400,7 @@ void Device::UpdateCloudDrift()
     m_cloudDriftClock = now;
     // The way: the game's rain's wind when it rains, else the sky's (sky.cpp: turning over hours; RVK_SkyVary 0: fixed).
     // The speed by the sky (sky weather phase 2): calm when clear, ~8 scattered, ~14 overcast, more in rain.
-    const float vary = std::clamp(m_cloudParams.vary, 0.0f, 1.0f);
+    const float vary = SkyVariation();
     float wx = m_rainWind[0], wz = m_rainWind[2];
     const float wl = std::sqrt(wx * wx + wz * wz);
     if (wl >= 0.1f) {
@@ -1493,7 +1493,7 @@ void Device::MakeCloudWeather(VkCommandBuffer cmd, const float eye[3])
     // (With the game's sheets drawn behind (RVK_CloudSheet): the heaps sparser - the sheets the veil, as the game's.)
     // The sky's own weather (sky.cpp, RVK_SkyVary): clear .. overcast from the clock - the game's sheets fading with it
     // (none on a clear day: user), the layer's cloudiness following it; the game's rain overcast as before.
-    const float vary = std::clamp(m_cloudParams.vary, 0.0f, 1.0f);
+    const float vary = SkyVariation();
     const float sky = SkyCloudiness();
     const float rainy = Smoothstep(0.0f, 0.2f, rain);
     m_skySheets = std::max(1.0f + (Smoothstep(0.08f, 0.4f, sky) - 1.0f) * vary, rainy);
@@ -1743,7 +1743,7 @@ void Device::MarchCloudLayer(VkCommandBuffer cmd, bool skipCovered, const float 
     // Thin high wisps (RVK_Cirrus; cloud_layer.frag Cirrus): most on a clear day, fewer as the layer thickens (it hides
     // them anyway), none in a storm; ~4 layers' heights over the layer's base.
     {
-        const float vary = std::clamp(m_cloudParams.vary, 0.0f, 1.0f);
+        const float vary = SkyVariation();
         const float cloudy = SkyCloudiness() * vary;
         lf.cirrus[0] = std::clamp(m_cloudParams.cirrus, 0.0f, 2.0f) * (0.35f + 0.65f * (1.0f - cloudy)) * (1.0f - StormSky());
         lf.cirrus[1] = m_cloudBase + 4.0f * std::max(m_cloudParams.height, 200.0f);

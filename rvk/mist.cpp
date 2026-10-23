@@ -65,7 +65,7 @@ void Device::UpdateMist()
     const float lowSun = 1.0f - Smoothstep(-0.05f, 0.35f, sunUp);
     const float rising = m_mistSunTrend >= 0.0f ? 1.0f : 0.6f;
     // The sky: clear calm nights make the most; rain lately more (wet ground) - fading over an hour.
-    const float sky = SkyCloudiness() * std::clamp(m_cloudParams.vary, 0.0f, 1.0f);
+    const float sky = SkyCloudiness() * SkyVariation();
     m_mistWet = std::max(m_mistWet * std::exp(-dt / 3600.0f), std::clamp(m_rain, 0.0f, 1.0f));
     const float target = lowSun * rising * (1.2f - 0.5f * sky) * (1.0f + 0.6f * m_mistWet) * m_mist;
     m_mistAmount = first ? target : m_mistAmount + (target - m_mistAmount) * (1.0f - std::exp(-dt / 20.0f));

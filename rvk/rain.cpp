@@ -8,6 +8,7 @@
 // another weather object (the storms) passes its intensity as it is. Either way the cube root of value / 0.45 is the
 // weather's own 0..1 (clamped).
 #include "internal.h"
+#include "weather_options.h"
 
 #include <algorithm>
 #include <cmath>
@@ -352,7 +353,12 @@ void Device::RenderRain(VkCommandBuffer cmd)
     m_rainLastClock = now;
     float target = 0.0f, skyTarget = 0.0f;
     if (P.enable && !m_indoors) {
-        if (P.force > 0.0f || P.stormForce > 0.0f)
+        const auto selected = SelectWeather(m_weatherMode, m_weatherAmount);
+        if (selected.forced) {
+            target = selected.rain;
+            skyTarget = selected.storm;
+        }
+        else if (P.force > 0.0f || P.stormForce > 0.0f)
             target = skyTarget = std::min(std::max(P.force, P.stormForce), 1.0f);   // (forced: rain, or a thunderstorm's)
         else if (now - m_weatherGameTime < 0.5) {
             // The game's weather (0..1: its rain is intensity^3 x kGameRainMax) - from where its own rain shows: below
@@ -367,7 +373,7 @@ void Device::RenderRain(VkCommandBuffer cmd)
         }
         // The game's lightning: a storm's sky too, rain or none (the user: strikes all round under an open sky) - most
         // of it for one strike, all of it for a few; held two minutes past the last, then gone over another.
-        if (now - m_lastGameStrike < 180.0) {
+        if (m_weatherMode < 0.5f && now - m_lastGameStrike < 180.0) {
             const float since = float(now - m_lastGameStrike);
             const float hold = 1.0f - SkyStep(120.0f, 180.0f, since);
             skyTarget = std::max(skyTarget, (0.75f + 0.25f * SkyStep(1.0f, 2.0f, m_strikeHeat)) * hold);
@@ -378,8 +384,9 @@ void Device::RenderRain(VkCommandBuffer cmd)
     if (target == 0.0f && m_rain < 0.003f)
         m_rain = 0.0f;
     // (The sky rolls in over some seconds - not dark at a strike's flash - and clears slower than the rain stops.)
-    m_stormSky += (skyTarget - m_stormSky) * (1.0f - std::exp(-dt / (skyTarget > m_stormSky ? 12.0f : 60.0f)));
-    if (first && (P.force > 0.0f || P.stormForce > 0.0f)) {
+    const float skySeconds = m_weatherMode > 0.5f ? 3.0f : skyTarget > m_stormSky ? 12.0f : 60.0f;
+    m_stormSky += (skyTarget - m_stormSky) * (1.0f - std::exp(-dt / skySeconds));
+    if (first && (m_weatherMode > 0.5f || P.force > 0.0f || P.stormForce > 0.0f)) {
         m_rain = target;
         m_stormSky = skyTarget;
     }
@@ -749,13 +756,16 @@ void Device::UpdateLightning()
     const double now = m_frameClock;
     const float dt = m_strikeClock < 0.0 ? 0.0f : float(std::clamp(now - m_strikeClock, 0.0, 0.25));
     m_strikeClock = now;
-    UpdateHeatLightning();
+    if (m_weatherMode < 0.5f) UpdateHeatLightning();
+    if (m_weatherMode > 0.5f && m_weatherMode < 3.5f) return;
     if (m_lightning <= 0.0f || !m_weatherParams.enable)
         return;
     // A forced thunderstorm (RVK_StormForce): strikes of our own, at random (RVK_StrikeRate a minute as the storm
     // stands at full strength), anywhere from near to far round the camera, from the cloud base.
     const WeatherParams& P = m_weatherParams;
-    if (P.stormForce > 0.0f && P.strikeRate > 0.0f && dt > 0.0f && m_frameEyeValid && !m_indoors) {
+    const auto selected = SelectWeather(m_weatherMode, m_weatherAmount);
+    const float forcedStorm = selected.forced ? selected.storm : P.stormForce;
+    if (forcedStorm > 0.0f && P.strikeRate > 0.0f && dt > 0.0f && m_frameEyeValid && !m_indoors) {
         const uint32_t seed = uint32_t(m_frameNumber) * 747796405u + 2891336453u;
         const float chance = 1.0f - std::exp(-P.strikeRate / 60.0f * std::min(m_storm, 1.0f) * dt);
         if (StrikeHash(seed, 11) < chance && now - m_flashStart > 0.8) {

@@ -177,6 +177,17 @@ Setting g_settings[] = {
     {"RVK_WaterSpeed", "Waterfalls: how fast the water falls",                    "Water",     Float, 0.25f, 4, 0.05f, 2, nullptr, 0, "RVK_WaterOn"},
 
     {"RVK_WeatherOn", "New weather", "Weather",    Bool,  0, 1, 1, 1, nullptr, 0},
+    {"RVK_WeatherMode", "Weather: Automatic / Clear / Overcast / Rain / Thunderstorm", "Weather", Choice, 0, 4, 1, 0, nullptr, 0, "RVK_WeatherOn", "0 1 2 3 4"},
+    {"RVK_WeatherAmt", "Selected weather: rain or thunderstorm strength", "Weather", Float, 0.05f, 1, 0.05f, 0.65f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogMode", "Fog: Automatic / Halloween (black) / Mist / Custom colour", "Weather", Choice, 0, 3, 1, 0, nullptr, 0, "RVK_WeatherOn", "0 1 2 3"},
+    {"RVK_FogRange", "Selected fog: visibility distance in metres (Halloween reference: about 30)", "Weather", Float, 5, 500, 5, 30, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogClear", "Selected fog: clear distance around the camera in metres", "Weather", Float, 0, 20, 1, 3, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogDark", "Selected fog: dim nearby scenery (0 keeps its normal brightness; Mist ignores this)", "Weather", Float, 0, 0.9f, 0.05f, 0.35f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogDrift", "Selected fog: softly drifting patches (0 is still)", "Weather", Float, 0, 1, 0.05f, 0.4f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogRed", "Custom fog: red", "Weather", Float, 0, 1, 0.01f, 0.006f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogGreen", "Custom fog: green", "Weather", Float, 0, 1, 0.01f, 0.004f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogBlue", "Custom fog: blue", "Weather", Float, 0, 1, 0.01f, 0.01f, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_FogInside", "Selected fog: apply indoors too (normally outdoors only)", "Weather", Bool, 0, 1, 1, 0, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_RainForce", "Force rain (0 = the game's weather)", "Weather",     Float, 0, 1, 0.05f, 0, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_RainSpeed",  "Rain: how fast the drops fall (units a second)", "Weather", Float, 3, 40, 0.5f, 30, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_RainLength", "Rain: how long each falling drop's streak is (units)", "Weather", Float, 0.05f, 2, 0.05f, 0.2f, nullptr, 0, "RVK_WeatherOn"},
@@ -418,6 +429,7 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_WeatherMode", 0}, {"RVK_FogMode", 0},
     {"RVK_PixelLight", 0}, {"RVK_LightOver", 0}, {"RVK_Bump", 0}, {"RVK_NormalMaps", 0}, {"RVK_Pbr", 0}, {"RVK_Albedo", 0}, {"RVK_GroundOn", 0}, {"RVK_GroundAo", 0}, {"RVK_GroundTess", 0}, {"RVK_GroundGrain", 0}, {"RVK_GroundBlend", 0}, {"RVK_GroundSun", 0}, {"RVK_GroundRocks", 0}, {"RVK_Pebbles", 0}, {"RVK_SandRipple", 0}, {"RVK_DuneLight", 0}, {"RVK_SandGlint", 0}, {"RVK_SandPrints", 0}, {"RVK_RippleDepth", 0}, {"RVK_Parallax", 0}, {"RVK_CliffDepth", 0}, {"RVK_GroundRange", 1}, {"RVK_GroundFar", 8}, {"RVK_CliffTex", 0}, {"RVK_CliffRock", 0}, {"RVK_TileHide", 0}, {"RVK_GroundVary", 0}, {"RVK_LeafLight", 0}, {"RVK_CrownShade", 0}, {"RVK_Headroom", 1},
     {"RVK_Sway", 0}, {"RVK_FolEdges", 0}, {"RVK_FolDither", 0}, {"RVK_GrassPush", 0}, {"RVK_GrassOn", 0}, {"RVK_LeafOn", 0}, {"RVK_PlantDetail", 0}, {"RVK_FoliageLod", 0}, {"RVK_PtLight", 1}, {"RVK_CharLight", 1}, {"RVK_Tess", 0}, {"RVK_Aniso", 1}, {"RVK_SunShadow", 0}, {"RVK_Contact", 0}, {"RVK_PtShadows", 0},
     {"RVK_Hdr", 0}, {"RVK_Bloom", 0}, {"RVK_BloomWide", 0}, {"RVK_NeonSat", 0}, {"RVK_BloomFx", 0}, {"RVK_NightGlow", 0}, {"RVK_MoonLight", 0}, {"RVK_Mist", 0}, {"RVK_FogBanks", 0}, {"RVK_HeatFlash", 0}, {"RVK_Sun", 0}, {"RVK_GameSun", 1}, {"RVK_Ao", 0}, {"RVK_Gi", 0},
@@ -444,6 +456,7 @@ const char* const kHidden[] = {
     "RVK_WakeSplash", "RVK_WaterRefl", "RVK_WaterRefr", "RVK_WaterClear", "RVK_WaterFoam", "RVK_WaterCaust",
     "RVK_WaterTex", "RVK_WaterSheen", "RVK_WaterSpark", "RVK_WaterSpray", "RVK_WaterChurn", "RVK_WaterSpeed",
     // weather
+    "RVK_RainForce", "RVK_StormForce",   // legacy overrides remain available in the ini/console
     "RVK_RainSpeed", "RVK_RainLength", "RVK_RainLean", "RVK_RainSplash", "RVK_RainBright", "RVK_WindStorm",
     "RVK_StormTint", "RVK_StrikeRate", "RVK_StormDebris", "RVK_StormBolt", "RVK_RainWet", "RVK_StormDark",
     "RVK_StormGreen", "RVK_RainVeils", "RVK_RainFog", "RVK_Lightning", "RVK_StormFlash", "RVK_SandHaze", "RVK_SandAsh",

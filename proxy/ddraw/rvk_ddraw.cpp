@@ -26,6 +26,28 @@ bool g_comLockReady = [] { InitializeCriticalSectionAndSpinCount(&g_comLock, 100
 DWORD g_lastThread = 0;
 std::vector<DWORD> g_seenThreads;
 int64_t g_drawCalls = 0;
+std::atomic<unsigned> g_backendObjects{0};
+}
+
+void BackendObjectCreated() { ++g_backendObjects; }
+
+void BackendWindowDestroyed(HWND window)
+{
+    ComScope scope(ComMethodCount() - 2);
+    if (g_rvk.window != window)
+        return;
+    if (g_rvk.device) {
+        RvkLog("shutdown: render window destroyed (%u graphics objects remain)", g_backendObjects.load());
+        g_rvk.device->StopPresentation();
+    }
+    g_rvk.window = nullptr;
+}
+
+void BackendObjectReleased()
+{
+    --g_backendObjects;
+    // No thread joins here: Randy can retain objects until its DLL's static teardown.
+    // Presentation is stopped explicitly by the window's WM_DESTROY instead.
 }
 
 void CountBackendDraw() { ++g_drawCalls; }
@@ -266,13 +288,13 @@ bool RunAction(const char* name)
 
 void RvkState::Frame()
 {
-    if (device && !device->InFrame())
+    if (device && window && !device->InFrame())
         device->BeginFrame();
 }
 
 void RvkState::Present()
 {
-    if (!device)
+    if (!device || !window)
         return;
 #ifdef RANDYVK_ADDON
     LiveFrame();

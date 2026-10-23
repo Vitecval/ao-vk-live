@@ -6,10 +6,14 @@ What changed in each ao-vk release, newest first. Downloads and install notes: t
 ## Unreleased
 
 ### New
+- Optional Halloween fog inspired by AO's original black Halloween atmosphere, with about 30 metres of visibility by default. Select it in the standalone options panel's Weather category; adjust distance, nearby brightness and drifting patches, or choose pale Mist or your own RGB colour. Chat, menus and held character labels remain outside the effect. Indoors are excluded unless enabled.
+- Local weather selection in Weather: Automatic, Clear, Overcast, Rain and Thunderstorm, with a strength control. Automatic keeps the game's weather and existing manual ini overrides; choosing another mode controls the enhanced clouds, rain and lightning. Return to Automatic to resume the game's weather.
 - Experimental support for the classic live 18.8.62 client: an app-local DirectDraw loader loads AO-VK without replacing the game's renderer on disk. The normal launcher can check and patch the original files. New Engine is not supported.
 - Standalone AO-VK options panel (Ctrl+Shift+F12 or the console's `options` command), with categories, keyboard adjustments, presets and saved settings; no AOReloaded menu required.
 
 ### Fixed
+- Stop the render worker and frame-generation presentation when the render window is destroyed, before Windows tears down DLLs. Queue the worker's stop command to prevent a lost wake-up during shutdown; retained game graphics objects no longer keep presentation active until process termination.
+- Let the installer proceed when Windows still lists already-terminated AO processes, or clients from another installation are open. Active clients using the selected installation or its shared loader continue to block replacement; uninspectable or still-starting clients are also blocked.
 - Generate grass over classic live's original single-pass terrain by capturing its base texture and lightmap from their separate texture stages. Grass no longer depends on the older two-pass terrain layout. Keep grass enabled in the live Classic+ preset as well as Modern and Ultra; performance HUD remains off by default.
 - Keep the game's terrain through Vulkan on live: the experimental replacement can omit the ground in ICC. Migrate existing live settings once and keep that replacement off in graphics presets.
 - Load correctly when an installed launcher addon runs its copy of the game executable from AppData; the small graphics loader can live beside that executable while AO-VK and its settings remain in the game folder.

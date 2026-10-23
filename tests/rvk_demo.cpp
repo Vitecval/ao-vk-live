@@ -1246,6 +1246,7 @@ float g_wetNow = -1.0f;           // --wet W: the ground soaked (and its puddles
 float g_stormForce = 0.0f;        // --storm F: RVK_StormForce (a thunderstorm: rain, wind, our own strikes)
 float g_stormThick = 1.0f;        // --storm-thick X: RVK_StormThick
 float g_fogBankForce = -1.0f;     // --fog-banks X: fog banks of that strength now (RVK_FogBanks)
+float g_userFogMode = 0.0f, g_userFogRange = 30.0f, g_userWeatherMode = 0.0f;
 bool g_heatForce = false;         // --heat-flash: a heat-lightning night (RVK_HeatFlash)
 float g_strikeRate = 6.0f;        // --strike-rate R: RVK_StrikeRate (strikes a minute)
 int g_lightningAt = -1;           // --lightning-at N: a strike ahead of the camera at frame N (the grass bench)
@@ -4879,6 +4880,9 @@ int main(int argc, char** argv)
         else if (a == "--storm" && i + 1 < argc) { g_stormForce = float(std::atof(argv[++i])); hdr = true; }
         else if (a == "--storm-thick" && i + 1 < argc) g_stormThick = float(std::atof(argv[++i]));
         else if (a == "--fog-banks" && i + 1 < argc) g_fogBankForce = float(std::atof(argv[++i]));
+        else if (a == "--fog-mode" && i + 1 < argc) g_userFogMode = float(std::atof(argv[++i]));
+        else if (a == "--fog-range" && i + 1 < argc) g_userFogRange = float(std::atof(argv[++i]));
+        else if (a == "--weather-mode" && i + 1 < argc) g_userWeatherMode = float(std::atof(argv[++i]));
         else if (a == "--heat-flash") g_heatForce = true;
         else if (a == "--strike-rate" && i + 1 < argc) g_strikeRate = float(std::atof(argv[++i]));
         else if (a == "--water-mesh-at" && i + 3 < argc) { for (float& x : g_waterMeshAt) x = float(std::atof(argv[++i])); }
@@ -5143,7 +5147,7 @@ int main(int argc, char** argv)
         smoke.sandCells = g_sandRes;
         dev.SetSmokeParams(smoke);
     }
-    if (g_rainForce > 0.0f || g_stormForce > 0.0f || g_sandStorm || g_sandForce > 0.0f) {
+    if (g_userWeatherMode > 0.0f || g_rainForce > 0.0f || g_stormForce > 0.0f || g_sandStorm || g_sandForce > 0.0f) {
         Device::WeatherParams weather;
         weather.enable = true;
         weather.force = g_rainForce;
@@ -5155,6 +5159,9 @@ int main(int argc, char** argv)
         dev.SetWeatherParams(weather);
     }
     dev.SetKnob(rvk::Knob::StormThick, g_stormThick);
+    dev.SetKnob(rvk::Knob::WeatherMode, g_userWeatherMode);
+    dev.SetKnob(rvk::Knob::FogMode, g_userFogMode);
+    dev.SetKnob(rvk::Knob::FogRange, g_userFogRange);
     dev.SetKnob(rvk::Knob::GroundOne, float(g_groundOne));
     dev.SetFogBanks(1.0f, g_fogBankForce);
     dev.SetHeatFlash(1.0f, g_heatForce);

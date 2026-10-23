@@ -1524,6 +1524,8 @@ int main(int argc, char** argv)
     bool pick = false;
     bool query = false;
     bool destroy = false;                            // --destroy: delete the characters and statics at the end
+    bool normalExit = false;                         // --normal-exit: exercise cleanup and DLL detach, without TerminateProcess
+    bool windowCloseFirst = false;                   // --window-close-first: destroy the window before Randy's cleanup
     bool still = false;                              // the animation time doesn't advance (static vertex buffers)
     std::string staticMesh;
     int statics = 1;
@@ -1549,6 +1551,8 @@ int main(int argc, char** argv)
         else if (a == "--defaults") g_defaults = true;
         else if (a == "--targets") g_targets = true;
         else if (a == "--shutdown") g_shutdown = true;
+        else if (a == "--normal-exit") { normalExit = true; g_shutdown = true; }
+        else if (a == "--window-close-first") { windowCloseFirst = true; normalExit = true; g_shutdown = true; }
         else if (a == "--debug-draw") g_debugDraw = true;
         else if (a == "--sprites" && i + 1 < argc) g_sprites = std::atoi(argv[++i]);
         else if (a == "--resize" && i + 2 < argc) {
@@ -1873,6 +1877,7 @@ int main(int argc, char** argv)
         for (void* c : scene.characters) deleting(c);
         std::printf("destroyed %zu statics, %zu characters\n", scene.statics.size(), scene.characters.size());
     }
+    if (windowCloseFirst) DestroyWindow(hwnd);
     if (g_shutdown) {                                // Randy_t's deleting destructor (vtable slot 0), then what is left
         using DeleteFn = void*(__fastcall*)(void* self, void*, unsigned flags);
         reinterpret_cast<DeleteFn>((*static_cast<void***>(randy))[0])(randy, nullptr, 1);
@@ -1886,5 +1891,9 @@ int main(int argc, char** argv)
     }
     std::printf("harness done\n");
     std::fflush(stdout);
+    if (normalExit) {
+        if (IsWindow(hwnd)) DestroyWindow(hwnd);   // the real game's window destruction, before DLL detach
+        return 0;
+    }
     TerminateProcess(GetCurrentProcess(), 0);   // skip Randy's static destructors / device teardown
 }

@@ -10,10 +10,17 @@ $installer = Join-Path $root 'tools\install-live.ps1'
 $savedAppData = $env:APPDATA
 $env:APPDATA = Join-Path $fixture 'AppData'
 $global:AoInstallerTestBusy = $false
+$global:AoInstallerTestExited = $false
+$global:AoInstallerTestOther = $false
+$global:AoInstallerTestSharedPath = ''
 $global:AoInstallerTestFailTarget = ''
 function global:Get-Process {
     param($Name, $ErrorAction)
     if ($global:AoInstallerTestBusy -and $Name -eq 'AnarchyOnline') { [pscustomobject]@{ Id = 123 } }
+    elseif ($global:AoInstallerTestExited -and $Name -eq 'AnarchyOnline') { [pscustomobject]@{ Id = 124; HasExited = $true } }
+    elseif ($global:AoInstallerTestOther -and $Name -eq 'AnarchyOnline') {
+        [pscustomobject]@{ Id = 125; HasExited = $false; Path = 'X:\Other AO\AnarchyOnline.exe'; Modules = @([pscustomobject]@{ FileName = 'X:\Other AO\randy31.dll' }, [pscustomobject]@{ FileName = $global:AoInstallerTestSharedPath }) }
+    }
 }
 function global:Move-Item {
     param($LiteralPath, $Destination)
@@ -59,7 +66,9 @@ try {
     Write-Bytes (Join-Path $client 'N3.dll') 'unsupported client'
     Reject $arguments 'Unsupported or modified'
     Write-Bytes (Join-Path $client 'N3.dll') 'stock N3.dll'
+    $global:AoInstallerTestExited = $true
     & $installer @arguments | Out-Null
+    $global:AoInstallerTestExited = $false
     Assert (Test-Path -LiteralPath (Join-Path $client 'ao-vk-live.install.json')) 'Install record absent'
     Reject $arguments 'already exists'
     Write-Bytes (Join-Path $package 'ao-vk.dll') 'addon version two'
@@ -68,6 +77,7 @@ try {
     $manifest.addon = @{ 'ao-vk.dll' = (Hash (Join-Path $package 'ao-vk.dll')); 'ddraw.dll' = (Hash (Join-Path $package 'ddraw.dll')) }
     Save-Manifest
     $arguments.Upgrade = $true
+    $global:AoInstallerTestOther = $true
     $global:AoInstallerTestFailTarget = Join-Path $client 'ddraw.dll'
     Reject $arguments 'simulated commit failure'
     $global:AoInstallerTestFailTarget = ''
@@ -78,7 +88,11 @@ try {
     Assert ($oldRecord.build -eq 'fixture-v1') 'Failed update changed the install record'
     Write-Bytes (Join-Path $loader 'AnarchyOnline.exe') 'relocated executable fixture'
     $arguments.LoaderDir = $loader
+    $global:AoInstallerTestSharedPath = Join-Path $loader 'ddraw.dll'
+    Reject $arguments 'Close the game'
+    $global:AoInstallerTestSharedPath = ''
     & $installer @arguments | Out-Null
+    $global:AoInstallerTestOther = $false
     Assert ((Hash (Join-Path $loader 'ddraw.dll')) -eq $manifest.addon.'ddraw.dll') 'Extra loader absent'
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Preferences changed'
     Remove-Item -LiteralPath (Join-Path $loader 'AnarchyOnline.exe')
@@ -95,10 +109,10 @@ try {
     }
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Uninstall changed preferences'
     Assert ([IO.File]::ReadAllText((Join-Path $client 'randy31.dll')) -eq 'a later official update') 'Uninstall changed stock renderer'
-    Write-Output 'PASS: busy guard, wrapper refusal, build validation, install, duplicate refusal, update rollback, receipt-based update, extra loader, uninstall after client update, modified-file refusal, preferences preserved.'
+    Write-Output 'PASS: busy guard, exited-process allowance, unrelated-client allowance, wrapper refusal, build validation, install, duplicate refusal, update rollback, receipt-based update, extra loader, uninstall after client update, modified-file refusal, preferences preserved.'
 } finally {
     $env:APPDATA = $savedAppData
     Remove-Item Function:\Get-Process -ErrorAction SilentlyContinue
     Remove-Item Function:\Move-Item -ErrorAction SilentlyContinue
-    Remove-Variable AoInstallerTestBusy, AoInstallerTestFailTarget -Scope Global -ErrorAction SilentlyContinue
+    Remove-Variable AoInstallerTestBusy, AoInstallerTestExited, AoInstallerTestOther, AoInstallerTestSharedPath, AoInstallerTestFailTarget -Scope Global -ErrorAction SilentlyContinue
 }

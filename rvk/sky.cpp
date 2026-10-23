@@ -4,6 +4,7 @@
 // clock (UTC: AO's time runs from real time, so the same moment has the same sky on every login). Each zone leans it
 // by its climate (phase 3): deserts and wastelands clearer, coasts, islands and forests cloudier (RVK_SkyZones).
 #include "internal.h"
+#include "weather_options.h"
 
 #include <algorithm>
 #include <chrono>
@@ -113,6 +114,8 @@ double Device::SkyClock() const
 // an hour (fair, scattered, broken) to an hour (clear); clear about a fifth of the time, overcast a seventh.
 float Device::SkyCloudiness() const
 {
+    const auto selected = SelectWeather(m_weatherMode, m_weatherAmount);
+    if (m_weatherParams.enable && selected.forced) return selected.clouds;
     const double t = SkyClock();
     const float v = 0.75f * Noise(t, 5400.0, 17u) + 0.25f * Noise(t, 1500.0, 29u) +
                     m_skyZoneLean * std::clamp(m_cloudParams.zones, 0.0f, 1.0f);

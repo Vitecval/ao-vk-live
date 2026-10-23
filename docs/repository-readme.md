@@ -1,5 +1,7 @@
 # AO-VK Live
 
+Weather preview: optional **Halloween fog** (about 30 m visibility), pale mist and custom fog colours, plus selectable Clear, Overcast, Rain and Thunderstorm weather. Open **Ctrl+Shift+F12 → Weather**. Both selectors default to Automatic. See [weather controls](docs/weather.md).
+
 A Vulkan renderer for the **classic Anarchy Online live client**, based on [wannabuh's AO-VK](https://github.com/wannabuh/ao-vk). Adds modern lighting, shadows, procedural grass and an in-game options panel while preserving the official launcher and original renderer on disk.
 
 ## Download and install
@@ -35,6 +37,6 @@ Release maintainers: see [docs/publishing.md](docs/publishing.md) for packaging 
 
 ## Credits and license
 
-The renderer is derived from **wannabuh's AO-VK**. This project adds classic live loading and compatibility, standalone options, live terrain grass support, and a Windows installer. It is an unofficial community project and is not affiliated with Funcom or the upstream author.
+The renderer is derived from **wannabuh's AO-VK**. This project adds classic live loading and compatibility, standalone options, live terrain grass support, Halloween fog and weather controls, shutdown fixes, and a Windows installer. It is an unofficial community project and is not affiliated with Funcom or the upstream author.
 
 The upstream [MIT license](LICENSE) and copyright are preserved. Third-party licenses and credits are included in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and `licenses/`. No Funcom game DLLs are distributed.

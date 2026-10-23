@@ -109,6 +109,9 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 cond;                  // the world's conditions (rvk rvk.h Conditions): x the clouds' night; y, z, w unused
     vec4 screen;                // x, y the scene's pixels per back-buffer pixel (rvk RVK_RenderScale: the game's viewport is
                                 // in back-buffer pixels, the motion vectors in the scene's); z, w unused
+    vec4 userFog;               // player-selected fog RGB, visibility range (0 disabled)
+    vec4 userFog2;              // clear radius, nearby shade, drifting amount, style
+    vec4 userFogEye;            // world eye and animation time
     Light lights[64];
 } FL;
 

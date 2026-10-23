@@ -45,6 +45,8 @@ target_link_libraries(ao_vk_loader PRIVATE user32)
 set_target_properties(ao_vk_loader PROPERTIES OUTPUT_NAME ddraw PREFIX "")
 add_executable(live_check tests/live_check.cpp)
 add_executable(loader_check tests/loader_check.cpp)
+add_executable(weather_check tests/weather_check.cpp)
+target_include_directories(weather_check PRIVATE rvk)
 add_executable(client_build_check tests/client_build_check.cpp proxy/native/client_build.cpp)
 target_include_directories(client_build_check PRIVATE proxy)
 

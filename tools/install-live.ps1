@@ -29,7 +29,26 @@ if ($LoaderDir) {
     if ($loader -ine $client) { $targets += Join-Path $loader 'ddraw.dll' }
 }
 foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness')) {
-    if (Get-Process -Name $name -ErrorAction SilentlyContinue) { throw 'Close the game, launcher and patcher first.' }
+    # Windows can keep terminated processes in its list while another program holds a handle.
+    foreach ($running in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
+        if ($running.HasExited) { continue }
+        # Other AO installations may stay open, provided none of their loaded files are being changed.
+        # The renderer's path also identifies clients relaunched from a shared AppData executable.
+        try {
+            $processPath = $running.Path
+            $modulePaths = @($running.Modules | ForEach-Object { $_.FileName })
+        } catch { throw 'Close the game, launcher and patcher first; a running client could not be inspected.' }
+        $usesClient = !$processPath -or $processPath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase)
+        $knownRenderer = $false
+        foreach ($modulePath in $modulePaths) {
+            if (!$modulePath) { continue }
+            if ($modulePath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase) -or $targets -icontains $modulePath) { $usesClient = $true }
+            if ([IO.Path]::GetFileName($modulePath) -ieq 'randy31.dll') { $knownRenderer = $true }
+        }
+        if ($usesClient -or (($name -eq 'AnarchyOnline' -or $name -eq 'randy_harness') -and !$knownRenderer)) {
+            throw 'Close the game, launcher and patcher first; a running process uses this installation or its loader, or is still starting.'
+        }
+    }
 }
 if ($Uninstall) {
     foreach ($target in $targets) {

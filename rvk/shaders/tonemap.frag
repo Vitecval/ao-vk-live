@@ -489,5 +489,24 @@ void main()
         vec3 effect = texelFetch(glowRaw, ivec2(gl_FragCoord.xy), 0).rgb * P.params.y;
         alpha = max(smoothstep(0.01, 0.25, dot(effect, vec3(0.3, 0.59, 0.11))), smoothstep(0.0, 0.3, rain.a));
     }
-    outColor = vec4(Dither8(Grade(min(c, vec3(1.0)), far), gl_FragCoord.xy, FL.taa.z), alpha);   // (moving: the TAA averages it)
+    vec3 shown = Grade(min(c, vec3(1.0)), far);
+    // Optional atmosphere independent of the game's fog packets. Radial distance keeps visibility equal in every
+    // direction. After grading/exposure so neither auto-brightening nor bloom can bring the black horizon back.
+    // Labels and the interface are composed later, outside this world-only effect.
+    if (FL.userFog.w > 0.0) {
+        vec2 uv = gl_FragCoord.xy / vec2(textureSize(scene, 0));
+        vec3 ray = vec3((uv.x * 2.0 - 1.0) / max(abs(FL.desert.z), 1e-4),
+                        (1.0 - uv.y * 2.0) / max(abs(FL.desert.w), 1e-4), 1.0);
+        float z = P.proj.y / min(d - P.proj.x, -1e-9);
+        float dist = d >= 0.999999 ? FL.userFog.w : max(z, 0.0) * length(ray);
+        float fog = smoothstep(FL.userFog2.x, FL.userFog.w, dist);
+        if (FL.userFog2.z > 0.0 && fog > 0.0 && fog < 1.0) {
+            vec3 v = ray * z;
+            vec3 world = FL.userFogEye.xyz + vec3(dot(FL.skyView[0].xyz, v), dot(FL.skyView[1].xyz, v), dot(FL.skyView[2].xyz, v));
+            float n = GustNoise(world * 0.045 + vec3(FL.userFogEye.w * 0.04, 0.0, FL.userFogEye.w * 0.025));
+            fog = clamp(fog + (n - 0.5) * FL.userFog2.z * fog * (1.0 - fog), 0.0, 1.0);
+        }
+        shown = mix(shown * (1.0 - FL.userFog2.y), FL.userFog.rgb, fog);
+    }
+    outColor = vec4(Dither8(shown, gl_FragCoord.xy, FL.taa.z), alpha);   // (moving: the TAA averages it)
 }

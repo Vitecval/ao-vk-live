@@ -29,15 +29,30 @@ ThreadedDevice::ThreadedDevice() = default;
 
 ThreadedDevice::~ThreadedDevice()
 {
+    StopWorker();
+    _aligned_free(m_ring);
+}
+
+void ThreadedDevice::StopWorker()
+{
     if (m_thread) {
-        Sync();
-        m_stop.store(true);
-        m_writePos.fetch_add(0);                       // make the wake below see a "change"
-        WakeByAddressAll(&m_writePos);
+        // Stop through the queue: publishing a real record changes the address the worker waits on.
+        // Setting m_stop and waking an unchanged write position could lose the wake just before its wait.
+        Enqueue([this](const uint8_t*) { m_stop.store(true); });
+        Publish();
         WaitForSingleObject(m_thread, INFINITE);
         CloseHandle(m_thread);
+        m_thread = nullptr;
+        Log("shutdown: render worker stopped");
     }
-    _aligned_free(m_ring);
+}
+
+void ThreadedDevice::StopPresentation()
+{
+    if (m_inFrame)
+        EndFrame();
+    StopWorker();
+    m_device.StopPresentation();
 }
 
 bool ThreadedDevice::Init(HWND window, uint32_t width, uint32_t height, std::string* error, bool threaded)

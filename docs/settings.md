@@ -15,7 +15,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-327 settings, 159 of them in the settings window.
+339 settings, 169 of them in the settings window.
 
 ## Sections
 
@@ -23,10 +23,10 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - [Lighting](#lighting) (17)
 - [Materials](#materials) (14)
 - [Debug](#debug) (7)
-- [Terrain](#terrain) (22)
+- [Terrain](#terrain) (23)
 - [Plants](#plants) (38)
 - [Water](#water) (22)
-- [Weather](#weather) (35)
+- [Weather](#weather) (46)
 - [Smoke](#smoke) (12)
 - [Sky](#sky) (45)
 - [Shadows](#shadows) (16)
@@ -107,6 +107,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
+| `RVK_GroundOn` | Experimental terrain replacement (leave off on live: may hide the ground) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |
 | `RVK_GroundAo` | Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none) | 0 .. 1 | 0.6 | window; switch `RVK_GroundOn`; game value 0 |
@@ -205,7 +206,18 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_WeatherOn` | New weather | on / off | on | window; game value off |
-| `RVK_RainForce` | Force rain (0 = the game's weather) | 0 .. 1 | 0 | window; switch `RVK_WeatherOn` |
+| `RVK_WeatherMode` | Weather: Automatic / Clear / Overcast / Rain / Thunderstorm | 0 / 1 / 2 / 3 / 4 | 0 | window; switch `RVK_WeatherOn`; game value 0; knob |
+| `RVK_WeatherAmt` | Selected weather: rain or thunderstorm strength | 0.05 .. 1 | 0.65 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogMode` | Fog: Automatic / Halloween (black) / Mist / Custom colour | 0 / 1 / 2 / 3 | 0 | window; switch `RVK_WeatherOn`; game value 0; knob |
+| `RVK_FogRange` | Selected fog: visibility distance in metres (Halloween reference: about 30) | 5 .. 500 | 30 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogClear` | Selected fog: clear distance around the camera in metres | 0 .. 20 | 3 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogDark` | Selected fog: dim nearby scenery (0 keeps its normal brightness; Mist ignores this) | 0 .. 0.9 | 0.35 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogDrift` | Selected fog: softly drifting patches (0 is still) | 0 .. 1 | 0.4 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogRed` | Custom fog: red | 0 .. 1 | 0.006 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogGreen` | Custom fog: green | 0 .. 1 | 0.004 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogBlue` | Custom fog: blue | 0 .. 1 | 0.01 | window; switch `RVK_WeatherOn`; knob |
+| `RVK_FogInside` | Selected fog: apply indoors too (normally outdoors only) | on / off | off | window; switch `RVK_WeatherOn`; knob |
+| `RVK_RainForce` | Force rain (0 = the game's weather) | 0 .. 1 | 0 | ini only; switch `RVK_WeatherOn` |
 | `RVK_RainSpeed` | Rain: how fast the drops fall (units a second) | 3 .. 40 | 30 | ini only; switch `RVK_WeatherOn` |
 | `RVK_RainLength` | Rain: how long each falling drop's streak is (units) | 0.05 .. 2 | 0.2 | ini only; switch `RVK_WeatherOn` |
 | `RVK_RainLean` | Rain: how far the wind slants it at most, sideways per unit of fall (0.3 ~17 degrees; 0 straight down) | 0 .. 1 | 0.3 | ini only; switch `RVK_WeatherOn` |
@@ -214,7 +226,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_RainBright` | Rain: brightness | 0 .. 3 | 1 | ini only; switch `RVK_WeatherOn` |
 | `RVK_WindStorm` | Storm wind: how hard storms blow - grass, plants, trees and leaves (0: as on a calm day) | 0 .. 3 | 2 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_StormTint` | The game's storm tint: its flat sheet over the screen in sand and ash storms (off: left out) | on / off | on | ini only; switch `RVK_WeatherOn`; knob |
-| `RVK_StormForce` | Force a thunderstorm (0 = the game's weather) | 0 .. 1 | 0 | window; switch `RVK_WeatherOn` |
+| `RVK_StormForce` | Force a thunderstorm (0 = the game's weather) | 0 .. 1 | 0 | ini only; switch `RVK_WeatherOn` |
 | `RVK_StrikeRate` | Thunderstorm, forced: lightning strikes a minute at full strength | 0 .. 60 | 20 | ini only; switch `RVK_WeatherOn` |
 | `RVK_StormDebris` | Storms: blown debris - leaves, straw and twigs skimming over the ground, leaves torn off the trees (x; 0: none) | 0 .. 3 | 1 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_StormBolt` | Lightning: our own bolts - branching, flickering with each stroke, glowing - in place of the game's (x; 0: the game's) | 0 .. 3 | 1 | ini only; switch `RVK_WeatherOn`; knob |

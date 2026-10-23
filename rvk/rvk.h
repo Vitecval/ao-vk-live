@@ -228,6 +228,16 @@ struct DeviceInfo {
 // this name), the member it sets, and what a change must refresh (C the draws' constants, L the frame lights, G the
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
+    X(WeatherMode, m_weatherMode, L)                /* 0 automatic, 1 clear, 2 overcast, 3 rain, 4 thunderstorm */ \
+    X(WeatherAmt, m_weatherAmount, L)               /* selected rain/storm strength */ \
+    X(FogMode, m_userFogMode, L)                    /* 0 automatic, 1 Halloween, 2 mist, 3 custom */ \
+    X(FogRange, m_userFogRange, L)                  /* visibility in world units */ \
+    X(FogClear, m_userFogClear, L)                  /* clear air around the camera */ \
+    X(FogDark, m_userFogShade, L)                   /* nearby world's dimming */ \
+    X(FogDrift, m_userFogDrift, L)                  /* drifting billows */ \
+    X(FogRed, m_userFogRed, L)                      /* custom fog colour */ \
+    X(FogGreen, m_userFogGreen, L) \
+    X(FogBlue, m_userFogBlue, L) \
     X(BloomOcc, m_bloomOverNearer, 0)                 /* the bloom over objects in front of its light (1 unchanged) */ \
     X(BloomWide, m_bloomWide, 0)                      /* the bloom's wide haze round its core (0 even) */ \
     X(NeonSat, m_neonSat, L)                          /* coloured light keeps its colour (0: to white) */ \
@@ -271,6 +281,7 @@ struct DeviceInfo {
     X(Contact, m_contact, C)                          /* contact shadows' strength */ \
     X(Headroom, m_lightHeadroom, C|L)                 /* how bright local lights may make a surface (1..2) */
 #define RVK_BOOL_KNOBS(X) \
+    X(FogInside, m_userFogInside, L)                /* allow selected fog indoors too */ \
     X(Prepass, m_prepassOn, 0)                        /* the depth pre-pass */ \
     X(PrepassEq, m_prepassEqual, 0)                   /* pre-passed draws shaded only where their depth is */ \
     X(FolEdges, m_foliageEdges, 0)                    /* plants' soft edges in a second pass */ \
@@ -307,6 +318,7 @@ public:
     bool Resize(uint32_t width, uint32_t height);        // main target size; call outside a frame
     static void SetFixedClock(double step);              // tests: the clock steps `step` s a frame (0 = real time)
     bool SetWindow(HWND window);                         // attach (or change) the presentation window later
+    void StopPresentation();                             // drain GPU work and release the window's presentation threads
     HWND Window() const { return m_window; }
     const DeviceInfo& Info() const { return m_info; }
     uint32_t Width() const { return m_width; }
@@ -1556,11 +1568,15 @@ private:
     float m_skySheets = 1.0f;                    // the game's sheets' strength by the sky (none when clear)
     double SkyClock() const;
     float SkyCloudiness() const;
+    float SkyVariation() const
+    {
+        return m_weatherParams.enable && m_weatherMode > 0.5f ? 1.0f : std::clamp(m_cloudParams.vary, 0.0f, 1.0f);
+    }
     // The sky's cloud cover as the effects take it (0 clear .. 1 overcast): SkyCloudiness x RVK_SkyVary, none without
     // our clouds.
     float CloudCover() const
     {
-        return m_cloudParams.enable ? SkyCloudiness() * std::clamp(m_cloudParams.vary, 0.0f, 1.0f) : 0.0f;
+        return m_cloudParams.enable ? SkyCloudiness() * SkyVariation() : 0.0f;
     }
     void SkyWind(float out[2]) const;
     void UpdateWind();                           // the frame's shared wind (wind.cpp): direction, strength, gusts, clock
@@ -2337,6 +2353,11 @@ private:
     // The scene's fog (the ground's draws: the game's weather and time of day), for what is drawn after the scene's draws
     // - smoke, rain - when the render states hold the interface's. SceneFog: colour (w: on), start, end, density, mode.
     float m_sceneFogColour[4] = {}, m_sceneFogParams[4] = {};
+    float m_weatherMode = 0.0f, m_weatherAmount = 0.65f;
+    float m_userFogMode = 0.0f, m_userFogRange = 30.0f, m_userFogClear = 3.0f;
+    float m_userFogShade = 0.35f, m_userFogDrift = 0.4f;
+    float m_userFogRed = 0.006f, m_userFogGreen = 0.004f, m_userFogBlue = 0.01f;
+    bool m_userFogInside = false;
     uint64_t m_sceneFogFrame = ~0ull;
     // The world's global ambient (the terrain's base pass: RS_AMBIENT, luma, eased): the game's own day cycle - 0.23 by
     // night, ~0.34 at dawn, ~0.46 by day - lifts the night grading at dawn and dusk (NightAmount).

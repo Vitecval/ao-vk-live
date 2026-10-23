@@ -33,6 +33,7 @@ public:
     LiveTimes Live() const;
     ThreadedDevice();
     ~ThreadedDevice();
+    void StopPresentation();                   // window destroyed: stop workers/presents before process teardown
     ThreadedDevice(const ThreadedDevice&) = delete;
     ThreadedDevice& operator=(const ThreadedDevice&) = delete;
 
@@ -257,6 +258,7 @@ public:
     static constexpr uint32_t kQueueBytes = 48u << 20;
 
 private:
+    void StopWorker();
     // A record: header + payload. The payload is a callable constructed in place, followed by copied data.
     struct Header {
         uint32_t size;                                 // whole record incl. header, multiple of 16; 0 = wrap marker

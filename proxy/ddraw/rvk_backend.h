@@ -98,10 +98,16 @@ public:
 
 #include "com_stub.gen.h"
 
+void BackendObjectCreated();
+void BackendObjectReleased();                  // diagnostic count only: COM releases can also occur in DLL detach
+void BackendWindowDestroyed(HWND window);       // stop presentation even if the game retains COM objects at exit
+
 // IUnknown for rvk objects: reference counting plus QueryInterface through Cast().
 template <typename B>
 class Com : public B {
 public:
+    Com() { BackendObjectCreated(); }
+    ~Com() override { BackendObjectReleased(); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** out) final
     {
         static const unsigned index = ComIndex((std::string(B::kName) + "::QueryInterface").c_str());

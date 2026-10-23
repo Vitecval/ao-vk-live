@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+"""Map randy31.dll's export surface and who uses it.
+
+Reads the original randy31.dll and every other PE in the client folder with llvm-readobj and writes:
+  interface/exports.tsv  one row per export: ordinal, rva, section, users, mangled, demangled
+  interface/summary.md   counts per class / per importing module
+  proxy/randy31.def      .def for the proxy: exports forward to randy31_orig, except those matched by
+                         proxy/trace.txt, which go through trace thunks
+  proxy/trace_table.inc  TRACE_EXPORT(index, "mangled", "short name") for every traced export
+
+Usage: tools/gen_interface.py [CLIENT_DIR]   (importers are read from CLIENT_DIR, randy31 from orig/)
+"""
+import collections
+import pathlib
+import re
+import subprocess
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+CLIENT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else
+                      pathlib.Path.home() / ".wine-prk/drive_c/linux/client")
+# The client's randy31.dll is the proxy once installed; read exports from the pristine copy.
+ORIGINAL = ROOT / "orig/randy31.dll"
+TARGET = "randy31.dll"
+OWN_EXPORTS = ["RvkSettings_Version", "RvkSettings_Count", "RvkSettings_Get", "RvkSettings_Set",
+               "RvkPresets_Count", "RvkPresets_Name", "RvkPresets_Apply", "RvkPresets_Current"]
+ORIG = "randy31_orig"
+# Exports the proxy implements itself (wrapping the original): mangled name -> proxy symbol.
+# proxy/texture_ids.cpp: learns which RDB texture each surface holds.
+HOOKED_EXPORTS = {
+    "?CreateTexture@TextureStreamCreator@@QAEPAVsurface_t@@PAVLBitmap_t@@PBD@Z": "@rvk_CreateTextureBitmap@16",
+    "?CreateTexture@TextureStreamCreator@@QAEPAVsurface_t@@PAVPositionIO_t@fun@@PBD@Z": "@rvk_CreateTextureStream@16",
+    "??0RTexture_t@@QAE@PBDPAVTextureCreator@@@Z": "@rvk_RTextureFromCreator@16",
+    "?Archive@RTriMesh_t@@UBEXPAVObjectArchive_c@fun@@@Z": "@rvk_RTriMeshArchive@12",
+    "??0RCATMesh_t@@QAE@PAVRRefFrame_t@@@Z": "@rvk_RCATMeshCtor@12",
+}
+
+
+def readobj(*args):
+    return subprocess.run(["llvm-readobj", *args], capture_output=True, text=True).stdout
+
+
+def sections(path):
+    out = readobj("--sections", str(path))
+    names = re.findall(r"Name: (\S+) \(", out)
+    vas = [int(x, 16) for x in re.findall(r"VirtualAddress: (0x[0-9A-F]+)", out)]
+    sizes = [int(x, 16) for x in re.findall(r"VirtualSize: (0x[0-9A-F]+)", out)]
+    return list(zip(names, vas, sizes))
+
+
+def section_of(secs, rva):
+    for name, va, size in secs:
+        if va <= rva < va + size:
+            return name
+    return "?"
+
+
+def exports(path):
+    out = readobj("--coff-exports", str(path))
+    return [(int(o), n, int(r, 16)) for o, n, r in
+            re.findall(r"Ordinal: (\d+)\s+Name: (\S+)\s+RVA: (0x[0-9A-F]+)", out)]
+
+
+def imports_from(path, dll):
+    """Names `path` imports from `dll` (case-insensitive), or None if it doesn't import it."""
+    out = readobj("--coff-imports", str(path))
+    names, inside, found = [], False, False
+    for line in out.splitlines():
+        m = re.match(r"\s+Name: (\S+)$", line)
+        if m:
+            inside = m.group(1).lower() == dll
+            found |= inside
+            continue
+        m = re.match(r"\s+Symbol: (\S*) \((\d+)\)", line)
+        if inside and m:
+            names.append(m.group(1) or f"#{m.group(2)}")
+    return names if found else None
+
+
+def demangle(names):
+    out = subprocess.run(["llvm-undname"], input="\n".join(names), capture_output=True,
+                         text=True).stdout.splitlines()
+    # llvm-undname echoes each input line, then prints the demangled form
+    result, it = {}, iter(out)
+    for line in it:
+        if line in names and line not in result:
+            result[line] = next(it, line)
+    return result
+
+
+def class_of(dem):
+    m = re.search(r"(?:__thiscall|__cdecl|__stdcall|__fastcall|static [^(]*?|class [^(]*? |struct [^(]*? )"
+                  r"\s*([A-Za-z_][\w]*)::", dem)
+    return m.group(1) if m else "(free)"
+
+
+def main():
+    dll = ORIGINAL
+    secs = sections(dll)
+    exps = exports(dll)
+
+    users = collections.defaultdict(list)
+    for pe in sorted(CLIENT.iterdir()):
+        if pe.suffix.lower() not in (".dll", ".exe") or pe.name.lower() in (TARGET, ORIG + ".dll"):
+            continue
+        names = imports_from(pe, TARGET)
+        if names:
+            for n in names:
+                users[n].append(pe.name)
+
+    names = [n for _, n, _ in exps]
+    dem = demangle(names)
+
+    (ROOT / "interface").mkdir(exist_ok=True)
+    with open(ROOT / "interface/exports.tsv", "w") as f:
+        f.write("ordinal\trva\tsection\tusers\tmangled\tdemangled\n")
+        for o, n, r in exps:
+            f.write(f"{o}\t0x{r:06X}\t{section_of(secs, r)}\t{','.join(users.get(n, []))}\t{n}\t{dem.get(n, n)}\n")
+
+    used = [(o, n, r) for o, n, r in exps if n in users]
+    per_module = collections.Counter(m for n in users for m in users[n])
+    per_class = collections.Counter(class_of(dem.get(n, n)) for _, n, _ in used)
+    per_section = collections.Counter(section_of(secs, r) for _, n, r in used)
+    with open(ROOT / "interface/summary.md", "w") as f:
+        f.write(f"# randy31.dll interface\n\nGenerated by tools/gen_interface.py from {dll}.\n\n")
+        f.write(f"- exports: {len(exps)}\n- imported by other modules: {len(used)}\n")
+        f.write(f"- used exports by section: {dict(per_section)}\n\n## Importers\n\n")
+        for m, c in per_module.most_common():
+            f.write(f"- {m}: {c}\n")
+        f.write("\n## Used exports per class\n\n")
+        for c, k in per_class.most_common():
+            f.write(f"- {c}: {k}\n")
+
+    (ROOT / "proxy").mkdir(exist_ok=True)
+    patterns = []
+    trace_file = ROOT / "proxy/trace.txt"
+    if trace_file.exists():
+        patterns = [re.compile(l.strip()) for l in trace_file.read_text().splitlines()
+                    if l.strip() and not l.startswith("#")]
+    traced = []
+    thunks = []                                     # (mangled, rva) exported through a naked jmp thunk
+    overloads = collections.Counter()
+    with open(ROOT / "proxy/randy31.def", "w") as f:
+        f.write("; Generated by tools/gen_interface.py - do not edit.\n")
+        f.write("; Code exports go to a naked jmp thunk (proxy/exports.gen.cpp) that dispatches through the rva\n")
+        f.write("; registry; proxy/trace.txt ones get the recording thunk; data exports still forward to the original\n")
+        f.write("; (until the proxy carries its own copies).\n")
+        f.write("LIBRARY randy31\nEXPORTS\n")
+        for o, n, r in exps:
+            is_code = section_of(secs, r) == ".text"
+            d = dem.get(n, n)
+            if n in HOOKED_EXPORTS:
+                f.write(f"    {n}={HOOKED_EXPORTS[n]} @{o}\n")
+            elif is_code and any(p.search(d) for p in patterns):
+                short = re.search(r"(\w+::~?\w+)\(", d)
+                short = short.group(1) if short else n
+                overloads[short] += 1
+                if overloads[short] > 1:
+                    short += f"#{overloads[short]}"
+                f.write(f"    {n}=trace_thunk_{len(traced)} @{o}\n")
+                traced.append((n, short))
+            elif is_code:
+                f.write(f"    {n}=rvk_export_{len(thunks)} @{o}\n")
+                thunks.append((n, r))
+            else:
+                f.write(f"    {n}={ORIG}.{n} @{o} DATA\n")
+        # The proxy's own exports: the renderer settings interface (proxy/ddraw/rvk_settings.h).
+        for n in OWN_EXPORTS:
+            f.write(f"    {n}\n")
+    with open(ROOT / "proxy/exports.gen.cpp", "w") as f:
+        f.write("// Generated by tools/gen_interface.py - do not edit.\n")
+        f.write("// One naked jmp thunk per exported function. The .def points each export here, so the proxy exports\n")
+        f.write("// its own code: each thunk jumps to rvk_export_targets[i], filled from the rva registry (AddressFor)\n")
+        f.write("// the first time an export is called - which also runs the native install. Once filled, a thunk jumps\n")
+        f.write("// through its slot directly (a predicted indirect jump); the first calls go through rvk_export_common,\n")
+        f.write("// whose push / ret dispatch would mispredict the return on every call.\n")
+        f.write('#include "native/native.h"\n\n')
+        f.write("extern \"C\" {\n\n")
+        f.write("void rvk_ensure_init();                         // trace.cpp: runs rnative::Install once, then fills these\n")
+        f.write("extern int rvk_exports_ready;\n")
+        f.write(f"void* rvk_export_targets[{len(thunks)}];\n\n")
+        f.write("__declspec(naked) void rvk_export_common()\n{\n    __asm {\n")
+        f.write("        cmp rvk_exports_ready, 0\n        jne ready\n        pushad\n        call rvk_ensure_init\n        popad\n")
+        f.write("    ready:\n        mov eax, [esp]\n        mov eax, dword ptr rvk_export_targets[eax * 4]\n")
+        f.write("        mov [esp], eax\n        ret\n    }\n}\n\n")
+        for i in range(len(thunks)):
+            f.write(f"__declspec(naked) void rvk_export_{i}()\n{{\n    __asm {{\n        cmp rvk_exports_ready, 0\n"
+                    f"        je slow\n        jmp dword ptr [rvk_export_targets + {i * 4}]\n    slow:\n"
+                    f"        push {i}\n        jmp rvk_export_common\n    }}\n}}\n")
+        f.write(f"\nstatic const uint32_t rvk_export_rvas[{len(thunks)}] = {{\n")
+        for _, r in thunks:
+            f.write(f"    0x{r:X},\n")
+        f.write("};\n\n")
+        f.write("void rvk_install_exports()\n{\n")
+        f.write(f"    for (unsigned i = 0; i < {len(thunks)}; ++i) rvk_export_targets[i] = rnative::AddressFor(rvk_export_rvas[i]);\n")
+        f.write("}\n\n}  // extern \"C\"\n")
+    with open(ROOT / "proxy/trace_table.inc", "w") as f:
+        f.write("// Generated by tools/gen_interface.py from proxy/trace.txt. Do not edit by hand.\n")
+        for i, (n, short) in enumerate(traced):
+            f.write(f'TRACE_EXPORT({i}, "{n}", "{short}")\n')
+
+    print(f"{len(exps)} exports, {len(used)} used, {len(traced)} traced; importers: {dict(per_module)}")
+
+
+if __name__ == "__main__":
+    main()

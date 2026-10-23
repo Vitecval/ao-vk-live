@@ -1,0 +1,1097 @@
+# randy31_orig functions with a native implementation (tools/port-status.py reads this).
+# rva	status	where	notes
+# status: replaced = ours runs instead (when its [Native] mode is on); wrapped = ours runs around the original;
+#         dead = nothing calls it (needs no port)
+0x5470D	replaced	proxy/native/cat_skin.cpp	CATRender_t skinning loop
+0x51D2A	replaced	proxy/native/cat_anim.cpp	keyframe rotations
+0x51DF4	replaced	proxy/native/cat_anim.cpp	keyframe positions
+0x540A5	replaced	proxy/native/cat_anim.cpp	bone hierarchy
+0x56ED6	replaced	proxy/native/cat_render.cpp	RCATMesh_t render (RVisual_t vtable slot 13)
+0x55D52	replaced	proxy/native/cat_mesh.cpp	RCATMesh_t bones update
+0x55C1C	replaced	proxy/native/cat_mesh.cpp	RCATMesh_t skinning update
+0x55A23	replaced	proxy/native/cat_mesh.cpp	animation version
+0x5798B	replaced	proxy/native/cat_mesh.cpp	RCATMesh_t::Process (vtable slot 8)
+0x54D16	replaced	proxy/native/cat_mesh.cpp	root bones (inlined into the bones update)
+0x5604B	replaced	proxy/native/cat_render.cpp	RCATMesh_t::RenderShadow (vtable slot 20; drawn for an RShadow)
+0x54D4F	replaced	proxy/native/cat_query.cpp	CATRender_t::HasAttractor
+0x54DF1	replaced	proxy/native/cat_query.cpp	attractor matrix
+0x54F4F	replaced	proxy/native/cat_query.cpp	bone matrix by name
+0x562B5	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetAttractor
+0x562E1	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetBoneMatrix
+0x5622A	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetMaterialIndex
+0x5628C	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetSubstMaterial
+0x57A30	replaced	proxy/native/cat_query.cpp	RCATMesh_t::SetSubstMaterial
+0x57A70	replaced	proxy/native/cat_query.cpp	RCATMesh_t::CreateSubstMaterial
+0x55C86	replaced	proxy/native/cat_query.cpp	RCATMesh_t::SetSfxType
+0x55C96	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetBoundingSphereRadius
+0x56741	replaced	proxy/native/cat_query.cpp	RCATMesh_t::GetBoundingSpherePos
+0x577D3	replaced	proxy/native/cat_query.cpp	RCATMesh_t::ProcessAttractorChilds
+0x55EA2	dead	-	RCATMesh_t vtable slot 14: only called from FUN_1004c630, which nothing calls
+0x50586	replaced	proxy/native/cat_anim.cpp	CATAnimBlend_t rotations (vtable slot 5)
+0x5063C	replaced	proxy/native/cat_anim.cpp	CATAnimBlend_t positions (vtable slot 6)
+0x50529	replaced	proxy/native/cat_anim.cpp	CATAnimBlend_t radius (vtable slot 7)
+0x50A5F	replaced	proxy/native/cat_anim.cpp	CATAnimBlend_t version (vtable slot 8)
+0x1BBAA	replaced	proxy/native/device.cpp	DeviceState::UpdateDevice
+0x1BBC1	replaced	proxy/native/device.cpp	DeviceState::SetRenderState
+0x1BC15	replaced	proxy/native/device.cpp	DeviceState::SetTextureStageState
+0x1BC8E	replaced	proxy/native/device.cpp	DeviceState::SetTexture
+0x21A88	replaced	proxy/native/device.cpp	render_t::RenderTriangleList (vertex buffer, indexed)
+0x21AAA	replaced	proxy/native/device.cpp	render_t::RenderLineList (vertex buffer, indexed)
+0x21CE3	replaced	proxy/native/device.cpp	render_t::RenderTriangleFan (vertex buffer, indexed)
+0x21E1F	replaced	proxy/native/device.cpp	render_t::RenderTriangleStrip (vertex buffer, indexed)
+0x2256E	replaced	proxy/native/device.cpp	render_t::RenderTriangleList (vertex buffer)
+0x227B6	replaced	proxy/native/device.cpp	render_t::RenderPointList (vertex buffer)
+0x2325A	replaced	proxy/native/device.cpp	render_t::RenderTriangleStrip (vertex buffer)
+0x21E41	replaced	proxy/native/device.cpp	render_t::RenderTriangleList (indexed)
+0x21FC8	replaced	proxy/native/device.cpp	render_t::RenderLineList (indexed)
+0x2214F	replaced	proxy/native/device.cpp	render_t::RenderTriangleFan (indexed)
+0x22AF3	replaced	proxy/native/device.cpp	render_t::RenderTriangleList
+0x22C6E	replaced	proxy/native/device.cpp	render_t::RenderLineList
+0x230DF	replaced	proxy/native/device.cpp	render_t::RenderTriangleFan
+0x23276	replaced	proxy/native/device.cpp	render_t::RenderTriangleStrip
+0x2382A	replaced	proxy/native/device.cpp	render_t::SetTransformMatrix
+0x21815	replaced	proxy/native/device.cpp	render_t::SetLight
+0x234D8	replaced	proxy/native/device.cpp	render_t::GetViewport
+0x24A77	replaced	proxy/native/device.cpp	render_t::CreateVertexBuffer
+0x24B25	replaced	proxy/native/device.cpp	render_t::ProcessVertices
+0x114A1	replaced	proxy/native/device.cpp	VertexBuffer_c::operator=
+0x114B1	replaced	proxy/native/device.cpp	VertexBuffer_c::VertexBuffer_c(fvf, flags, memory, bytes)
+0x114F9	replaced	proxy/native/device.cpp	VertexBuffer_c::VertexBuffer_c(copy)
+0x1153A	replaced	proxy/native/device.cpp	VertexBuffer_c::VertexBuffer_c(copy, flags, memory)
+0x11581	replaced	proxy/native/device.cpp	VertexBuffer_c::VertexBuffer_c(copy, fvf, flags, memory)
+0x115CB	replaced	proxy/native/device.cpp	VertexBuffer_c::Lock
+0x115D6	replaced	proxy/native/device.cpp	VertexBuffer_c::Unlock
+0x115DD	replaced	proxy/native/device.cpp	VertexBuffer_c::NextVertex
+0x115E8	replaced	proxy/native/device.cpp	VertexBuffer_c::GetNumVertices
+0x115EE	replaced	proxy/native/device.cpp	VertexBuffer_c::GetStride
+0x115F4	replaced	proxy/native/device.cpp	VertexBuffer_c::GetElementOffset
+0x115FF	replaced	proxy/native/device.cpp	VertexBuffer_c::GetFormat
+0x11605	replaced	proxy/native/device.cpp	VertexBuffer_c::GetSize
+0x1160B	replaced	proxy/native/device.cpp	VertexBuffer_c::GetFormatSize
+0x11614	replaced	proxy/native/device.cpp	VertexBuffer_c::~VertexBuffer_c
+0x11632	replaced	proxy/native/device.cpp	VertexBuffer_c::Release
+0x25254	replaced	proxy/native/state_blob.cpp	StateBlob_c::StateBlob_c
+0x255B5	replaced	proxy/native/state_blob.cpp	StateBlob_c::~StateBlob_c
+0x25456	replaced	proxy/native/state_blob.cpp	StateBlob_c::Clear
+0x24CE2	replaced	proxy/native/state_blob.cpp	StateBlob_c::NeedTextures
+0x24CEB	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetBlueprint
+0x24CFC	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetMaterial
+0x24D0D	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetRenderTarget
+0x24D1E	replaced	proxy/native/state_blob.cpp	StateBlob_c::Reset
+0x24EAF	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetTextureName
+0x24EEB	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetTexture
+0x24F27	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetTexture
+0x24FF1	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetNumTransformStates
+0x24FFE	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetTransformState
+0x25012	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetTransformMatrix
+0x25032	replaced	proxy/native/state_blob.cpp	StateBlob_c::Set
+0x251AC	replaced	proxy/native/state_blob.cpp	StateBlob_c::Validate
+0x252C4	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetRenderState
+0x25315	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetTextureStageState
+0x253A2	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetTextureName
+0x254EA	replaced	proxy/native/state_blob.cpp	StateBlob_c::SetTransformState
+0x14033	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::Reset
+0x14177	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::GetVertices
+0x141AE	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::CloseBuffer
+0x141C5	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::GetVB
+0x141FE	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::Initialize
+0x14253	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::Shutdown
+0x14275	replaced	proxy/native/dynamic_vb.cpp	DynamicVB_c::Get
+0x4170C	replaced	proxy/native/randy.cpp	Randy_t::EnableWBuffer
+0x41755	replaced	proxy/native/randy.cpp	Randy_t::SetAmbientLight
+0x4177F	replaced	proxy/native/randy.cpp	Randy_t::EnableFog
+0x41876	replaced	proxy/native/randy.cpp	Randy_t::SetFogParameters
+0x418EE	replaced	proxy/native/randy.cpp	Randy_t::GetDDSurface
+0x41931	replaced	proxy/native/randy.cpp	Randy_t::SetRenderTargetAsTexture
+0x41951	replaced	proxy/native/randy.cpp	Randy_t::GetBackBuffer
+0x41984	replaced	proxy/native/randy.cpp	Randy_t::GetNumColorBits
+0x4198D	replaced	proxy/native/randy.cpp	Randy_t::GetNumZBufferBits
+0x41993	replaced	proxy/native/randy.cpp	Randy_t::GetNumStencilBits
+0x4199D	replaced	proxy/native/randy.cpp	Randy_t::GetTextureStageCount
+0x419BD	replaced	proxy/native/randy.cpp	Randy_t::GetBufferSize
+0x41CA7	replaced	proxy/native/randy.cpp	Randy_t::FlushTextures
+0x41CB5	replaced	proxy/native/randy.cpp	Randy_t::GetMemory
+0x41DC0	replaced	proxy/native/randy.cpp	Randy_t::IsDeviceLost
+0x41E99	replaced	proxy/native/randy.cpp	Randy_t::NeedsClearFix
+0x41E9F	replaced	proxy/native/randy.cpp	Randy_t::RestoreData
+0x41EC4	replaced	proxy/native/randy.cpp	Randy_t::SetWaitForVSync
+0x41ED1	replaced	proxy/native/randy.cpp	Randy_t::SetUseOffscreenTech
+0x42F1C	replaced	proxy/native/randy.cpp	Randy_t::SetRenderTarget
+0x42F76	replaced	proxy/native/randy.cpp	Randy_t::Flip
+0x431C7	replaced	proxy/native/randy.cpp	Randy_t::SetFeatureUsage
+0x43319	replaced	proxy/native/randy.cpp	Randy_t::PopRenderTarget
+0x43504	replaced	proxy/native/randy.cpp	Randy_t::PushRenderTarget
+0x11A8C	replaced	proxy/native/randy.cpp	Randy_t::GetRenderTarget
+0x261B9	replaced	proxy/native/surface.cpp	surface_t::surface_t
+0x261CD	replaced	proxy/native/surface.cpp	surface_t::GetSurfaceDesc
+0x2620A	replaced	proxy/native/surface.cpp	surface_t::AddRefDXSurface
+0x26227	replaced	proxy/native/surface.cpp	surface_t::GetSurfacePointer
+0x2622D	replaced	proxy/native/surface.cpp	surface_t::ReleaseDXSurface
+0x23DCC	replaced	proxy/native/surface.cpp	render_t::CreateSurface
+0x23F58	replaced	proxy/native/surface.cpp	render_t::LockTexture
+0x24003	replaced	proxy/native/surface.cpp	render_t::UnlockTexture
+0x2434E	replaced	proxy/native/surface.cpp	render_t::Blt
+0x2414A	replaced	proxy/native/surface.cpp	render_t::GetPixelFormat
+0x23DBC	replaced	proxy/native/surface.cpp	render_t::RestoreAllSurfaces
+0x213E1	replaced	proxy/native/surface.cpp	render_t::CreatePalette
+0x23617	replaced	proxy/native/surface.cpp	render_t::CreateClipper
+0x20CF7	replaced	proxy/native/surface.cpp	render_t::GetInfo
+0x20BF6	replaced	proxy/native/surface.cpp	render_t::SetMonitorRect
+0x2133F	replaced	proxy/native/surface.cpp	render_t::RestoreDisplayMode
+0x2428E	replaced	proxy/native/surface.cpp	render_t flip (FUN_1002428e)
+0x20C0D	replaced	proxy/native/surface.cpp	render_t monitor offset (FUN_10020c0d)
+0x2376A	replaced	proxy/native/surface.cpp	render_t::WaitForVerticalBlank (FUN_1002376a)
+0x23E14	replaced	proxy/native/surface.cpp	render_t::EvictManagedTextures (FUN_10023e14)
+0x21073	replaced	proxy/native/surface.cpp	render_t::GetCaps (FUN_10021073)
+0x4621A	replaced	proxy/native/resource.cpp	RResource_t::AddRefRResource
+0x46224	replaced	proxy/native/resource.cpp	RResource_t::ReleaseRResource
+0x46277	replaced	proxy/native/resource.cpp	RResource_t::GetName
+0x46283	replaced	proxy/native/resource.cpp	RResource_t::~RResource_t
+0x46311	replaced	proxy/native/resource.cpp	RResource_t::RResource_t(name)
+0x46362	replaced	proxy/native/resource.cpp	RResource_t::RResource_t(archive)
+0x4641A	replaced	proxy/native/resource.cpp	RResource_t::Archive
+0x46499	replaced	proxy/native/resource.cpp	RResource_t::Instantiate
+0x47900	replaced	proxy/native/texture.cpp	RTexture_t::RTexture_t(name, size, format)
+0x47A99	replaced	proxy/native/texture.cpp	RTexture_t::RTexture_t(name)
+0x47B2E	replaced	proxy/native/texture.cpp	RTexture_t::RTexture_t(name, creator)
+0x47BF2	replaced	proxy/native/texture.cpp	RTexture_t::RTexture_t(archive)
+0x47E59	replaced	proxy/native/texture.cpp	RTexture_t::Instantiate
+0x477FE	replaced	proxy/native/texture.cpp	RTexture_t::~RTexture_t (FUN_100477fe)
+0x477D6	replaced	proxy/native/texture.cpp	RTexture_t::FindTexture
+0x47876	replaced	proxy/native/texture.cpp	RTexture_t registry insert (FUN_10047876)
+0x47304	replaced	proxy/native/texture.cpp	RTexture_t::GetTotalPinkTextureCount
+0x47321	replaced	proxy/native/texture.cpp	RTexture_t::Archive
+0x4734D	replaced	proxy/native/texture.cpp	RTexture_t::Load(pixels)
+0x473A2	replaced	proxy/native/texture.cpp	RTexture_t::Load(texture)
+0x476C8	replaced	proxy/native/texture.cpp	RTexture_t::LockRTexture
+0x4749D	replaced	proxy/native/texture.cpp	RTexture_t::UnlockRTexture
+0x474C1	replaced	proxy/native/texture.cpp	RTexture_t::AddRefRTexture
+0x474CC	replaced	proxy/native/texture.cpp	RTexture_t::ReleaseRTexture
+0x474D7	replaced	proxy/native/texture.cpp	RTexture_t::GetTextureFormat
+0x475BB	replaced	proxy/native/texture.cpp	RTexture_t::IsCompressed
+0x4762E	replaced	proxy/native/texture.cpp	RTexture_t::GetWidth
+0x47633	replaced	proxy/native/texture.cpp	RTexture_t::GetHeight
+0x47693	replaced	proxy/native/texture.cpp	RTexture_t::GetDefault
+0x47730	replaced	proxy/native/texture.cpp	RTexture_t::GetTextureSize
+0x2F44E	replaced	proxy/native/material.cpp	RDeltaState::RDeltaState(name)
+0x2F539	replaced	proxy/native/material.cpp	RDeltaState::RDeltaState(archive) (FUN_1002f539)
+0x2F8A8	replaced	proxy/native/material.cpp	RDeltaState copy (FUN_1002f8a8)
+0x2F870	replaced	proxy/native/material.cpp	RDeltaState::Instantiate
+0x2F4C6	replaced	proxy/native/material.cpp	RDeltaState::~RDeltaState (FUN_1002f4c6)
+0x2F7B0	replaced	proxy/native/material.cpp	RDeltaState::SetRenderState
+0x2F7FB	replaced	proxy/native/material.cpp	RDeltaState::SetTextureStageState
+0x2F0AE	replaced	proxy/native/material.cpp	RDeltaState::SetTexture
+0x2F0A0	replaced	proxy/native/material.cpp	RDeltaState texture (FUN_1002f0a0)
+0x2F356	replaced	proxy/native/material.cpp	RDeltaState render state (FUN_1002f356)
+0x2F412	replaced	proxy/native/material.cpp	RDeltaState remove stage state (FUN_1002f412)
+0x2F3DF	replaced	proxy/native/material.cpp	RDeltaState remove render state (FUN_1002f3df)
+0x2F0F7	replaced	proxy/native/material.cpp	RDeltaState clear texture (FUN_1002f0f7)
+0x2F11C	replaced	proxy/native/material.cpp	RDeltaState count (FUN_1002f11c)
+0x2F13A	replaced	proxy/native/material.cpp	RDeltaState::IsEmpty
+0x2F145	replaced	proxy/native/material.cpp	RDeltaState::Archive
+0x41043	replaced	proxy/native/material.cpp	RMaterial_t::RMaterial_t
+0x41146	replaced	proxy/native/material.cpp	RMaterial_t::RMaterial_t(copy)
+0x4132D	replaced	proxy/native/material.cpp	RMaterial_t::RMaterial_t(archive) (FUN_1004132d)
+0x414A7	replaced	proxy/native/material.cpp	RMaterial_t::Instantiate
+0x408CB	replaced	proxy/native/material.cpp	RMaterial_t::~RMaterial_t (FUN_100408cb)
+0x40916	replaced	proxy/native/material.cpp	RMaterial_t::Archive
+0x409C6	replaced	proxy/native/material.cpp	RMaterial_t::InitD3DMaterial
+0x40A65	replaced	proxy/native/material.cpp	RMaterial_t::SetDeltaState
+0x40A8F	replaced	proxy/native/material.cpp	RMaterial_t::UseAlphaAsTransparency
+0x40ADF	replaced	proxy/native/material.cpp	RMaterial_t::GetTexture
+0x40AFF	replaced	proxy/native/material.cpp	RMaterial_t::IsTwoSided
+0x40BEC	replaced	proxy/native/material.cpp	RMaterial_t::SetTexture
+0x40E5F	replaced	proxy/native/material.cpp	RMaterial_t::SetEnvTexture
+0x40F61	replaced	proxy/native/material.cpp	RMaterial_t::SetOpacity
+0x40FE5	replaced	proxy/native/material.cpp	RMaterial_t::SetTwoSided
+0x40FF8	replaced	proxy/native/material.cpp	RMaterial_t::UpdateSpecular
+0x11AAF	replaced	proxy/native/material.cpp	RMaterial_t::IsTransparent
+0x2EE70	replaced	proxy/native/material.cpp	DefaultMaterial_t::DefaultMaterial_t
+0x2EEDE	replaced	proxy/native/material.cpp	DefaultMaterial_t(archive) (FUN_1002eede)
+0x2EF5F	replaced	proxy/native/material.cpp	DefaultMaterial_t::Instantiate
+0x2EFE4	replaced	proxy/native/material.cpp	RDeltaState vtable slot 3 (save textures)
+0x2F275	replaced	proxy/native/material.cpp	RDeltaState vtable slot 4 (apply)
+0x2F042	replaced	proxy/native/material.cpp	RDeltaState vtable slot 5 (restore)
+0x40AA0	replaced	proxy/native/material.cpp	RMaterial_t apply
+0x40AC9	replaced	proxy/native/material.cpp	RMaterial_t unapply
+0x4B0C0	replaced	proxy/native/viewport.cpp	RViewPort_t update (FUN_1004b0c0)
+0x4BA7C	replaced	proxy/native/viewport.cpp	RViewPort_t target (FUN_1004ba7c)
+0x4B199	replaced	proxy/native/viewport.cpp	RViewPort_t::SetMaterial
+0x4B3F6	replaced	proxy/native/viewport.cpp	RViewPort_t::SetD3DMaterial
+0x4B61E	replaced	proxy/native/viewport.cpp	RViewPort_t::SetDefaultMaterial
+0x4B724	replaced	proxy/native/viewport.cpp	RViewPort_t::ResetMaterial
+0x4B744	replaced	proxy/native/viewport.cpp	RViewPort_t::Close
+0x4B75A	replaced	proxy/native/viewport.cpp	RViewPort_t::Clear
+0x4B7D9	replaced	proxy/native/viewport.cpp	RViewPort_t::CalcPickLine
+0x4B95D	replaced	proxy/native/viewport.cpp	RViewPort_t::RealizeRenderStates
+0x4B997	replaced	proxy/native/viewport.cpp	RViewPort_t::SetCamera
+0x4B9A4	replaced	proxy/native/viewport.cpp	RViewPort_t::RViewPort_t
+0x4BAAD	replaced	proxy/native/viewport.cpp	RViewPort_t::Reposition
+0x4BAD6	replaced	proxy/native/viewport.cpp	RViewPort_t::SetViewRect
+0x4BB4D	replaced	proxy/native/viewport.cpp	RViewPort_t::Resize
+0x4BBCA	replaced	proxy/native/viewport.cpp	RViewPort_t::Open
+0x4BD1B	replaced	proxy/native/viewport.cpp	RViewPort_t::TransformPointToScreenSpace
+0x4BF39	replaced	proxy/native/viewport.cpp	RViewPort_t::Process
+0x4BFFF	replaced	proxy/native/viewport.cpp	RViewPort_t::Render
+0x4B045	replaced	proxy/native/viewport.cpp	RViewPort_t::~RViewPort_t (FUN_1004b045)
+0x4C7C8	replaced	proxy/native/viewport.cpp	RViewPort_t deleting destructor (FUN_1004c7c8)
+0x298AC	replaced	proxy/native/viewport.cpp	RViewPort_t render pools (FUN_100298ac)
+0x298FB	replaced	proxy/native/viewport.cpp	RViewPort_t render pools free (FUN_100298fb)
+0x4C4EA	replaced	proxy/native/viewport.cpp	RViewPort_t::RenderRefraction
+0x44CC8	replaced	proxy/native/refframe.cpp	RRefFrame_t::RRefFrame_t(parent, animation)
+0x45471	replaced	proxy/native/refframe.cpp	RRefFrame_t::~RRefFrame_t
+0x461CD	replaced	proxy/native/refframe.cpp	RRefFrame_t deleting destructor (FUN_100461cd)
+0x4514B	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetConnector (FUN_1004514b)
+0x44ED1	replaced	proxy/native/refframe.cpp	RRefFrame_t::AddChild
+0x44F10	replaced	proxy/native/refframe.cpp	RRefFrame_t::RemoveChild
+0x44F79	replaced	proxy/native/refframe.cpp	RRefFrame_t::Process
+0x44FA2	replaced	proxy/native/refframe.cpp	RRefFrame_t::UpdateWorldMatrix
+0x45712	replaced	proxy/native/refframe.cpp	RRefFrame_t::GetWorldMatrix
+0x45253	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetChangeFlags
+0x4506B	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetAnimationTime
+0x45113	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetLoop
+0x4541A	replaced	proxy/native/refframe.cpp	RRefFrame_t::GetAnimationTotalTime
+0x45430	replaced	proxy/native/refframe.cpp	RRefFrame_t::GetAnimation
+0x45728	replaced	proxy/native/refframe.cpp	RRefFrame_t::GetAnimationTreeTotalTime
+0x457E7	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetAnimMatrix
+0x45894	replaced	proxy/native/refframe.cpp	RRefFrame_t::GetAnimMatrix
+0x4543D	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetVisible
+0x452F8	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetGroupMask
+0x45329	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetEmissive
+0x4538B	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetSpecular
+0x453ED	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetTransparency
+0x452CE	replaced	proxy/native/refframe.cpp	RRefFrame_t::CullBySphere
+0x45769	replaced	proxy/native/refframe.cpp	RRefFrame_t::CullBySphere(at)
+0x16877	replaced	proxy/native/refframe.cpp	RRefFrame_t position (FUN_10016877)
+0x168A6	replaced	proxy/native/refframe.cpp	RRefFrame_t rotation (FUN_100168a6)
+0x559D2	replaced	proxy/native/refframe.cpp	RRefFrame_t scale (FUN_100559d2)
+0x45C85	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetRelativePosition
+0x45CD9	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetRelativeRotation
+0x45516	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetLocalDirection
+0x455A8	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetLocalDirection(up)
+0x45D41	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetWorldTarget
+0x45DEB	replaced	proxy/native/refframe.cpp	RRefFrame_t::SetWorldTarget(up)
+0x451C4	replaced	proxy/native/refframe.cpp	RRefFrame_t::FindConnectors
+0x4517B	replaced	proxy/native/refframe.cpp	RRefFrame_t::FindConnectors(name)
+0x45F49	replaced	proxy/native/refframe.cpp	RRefFrame_t::FindConnectorsNoChild
+0x458D0	replaced	proxy/native/refframe.cpp	RRefFrame_t::RRefFrame_t(copy)
+0x45A2F	replaced	proxy/native/refframe.cpp	RRefFrame_t::RRefFrame_t(archive)
+0x45C4D	replaced	proxy/native/refframe.cpp	RRefFrame_t::Instantiate
+0x44DA8	replaced	proxy/native/refframe.cpp	RRefFrame_t::Archive
+0x2BC5F	replaced	proxy/native/connector.cpp	RConnector::RConnector(archive) (FUN_1002bc5f)
+0x2BC9C	replaced	proxy/native/connector.cpp	RConnector::Archive (FUN_1002bc9c)
+0x2BE25	replaced	proxy/native/connector.cpp	RConnector deleting destructor (FUN_1002be25)
+0x166A5	replaced	proxy/native/connector.cpp	RRefFrameConnector::RRefFrameConnector(name, originator)
+0x1667E	replaced	proxy/native/connector.cpp	RRefFrameConnector::GetOriginator (vtable slot 4, too short to patch)
+0x2BCB4	replaced	proxy/native/connector.cpp	RRefFrameConnector::SetOriginator
+0x2BCCD	replaced	proxy/native/connector.cpp	RRefFrameConnector::Archive
+0x2BD18	replaced	proxy/native/connector.cpp	RRefFrameConnector::RRefFrameConnector(archive)
+0x2BD6A	replaced	proxy/native/connector.cpp	RRefFrameConnector::RequestMatrix
+0x2BDA7	replaced	proxy/native/connector.cpp	RRefFrameConnector::Instantiate
+0x2BCF9	replaced	proxy/native/connector.cpp	DummyConnector::DummyConnector
+0x16682	replaced	proxy/native/connector.cpp	DummyConnector::GetOriginator
+0x16688	replaced	proxy/native/connector.cpp	DummyConnector::Archive and SetOriginator (no-ops; vtable slots 1 and 5, too short to patch)
+0x1668B	replaced	proxy/native/connector.cpp	DummyConnector::RequestMatrix (vtable slot 3, too short to patch)
+0x4D544	replaced	proxy/native/visual.cpp	RVisual_t::RVisual_t
+0x4D5E5	replaced	proxy/native/visual.cpp	RVisual_t::RVisual_t(copy)
+0x4D7D3	replaced	proxy/native/visual.cpp	RVisual_t::~RVisual_t
+0x4C947	replaced	proxy/native/visual.cpp	RVisual_t::Archive
+0x4C9A8	replaced	proxy/native/visual.cpp	RVisual_t::SetMaxActiveLightCount
+0x4C9C2	replaced	proxy/native/visual.cpp	RVisual_t::AddToRenderList
+0x4CABA	replaced	proxy/native/visual.cpp	RVisual_t::RenderShadow
+0x4CB7E	replaced	proxy/native/visual.cpp	RVisual_t::SetRenderPriority
+0x4CB8E	replaced	proxy/native/visual.cpp	RVisual_t::SetDeltaState
+0x4CBBE	replaced	proxy/native/visual.cpp	RVisual_t::StoreStateChanges
+0x4CBE1	replaced	proxy/native/visual.cpp	RVisual_t::ApplyStateChanges
+0x4CC06	replaced	proxy/native/visual.cpp	RVisual_t::RestoreStateChanges
+0x4CC29	replaced	proxy/native/visual.cpp	RVisual_t::RestoreData
+0x4CC35	replaced	proxy/native/visual.cpp	RVisual_t::Process
+0x4CE96	replaced	proxy/native/visual.cpp	RVisual_t::CullLights
+0x6E108	replaced	proxy/native/camera.cpp	affine inverse (FUN_1006e108)
+0x2A68A	replaced	proxy/native/camera.cpp	RCamera_t::RCamera_t
+0x2A785	replaced	proxy/native/camera.cpp	RCamera_t::RCamera_t(copy) (FUN_1002a785)
+0x2A949	replaced	proxy/native/camera.cpp	RCamera_t::RCamera_t(archive) (FUN_1002a949)
+0x2ADBF	replaced	proxy/native/camera.cpp	RCamera_t::Instantiate
+0x2BBB5	replaced	proxy/native/camera.cpp	RCamera_t clone (FUN_1002bbb5)
+0x2A869	replaced	proxy/native/camera.cpp	RCamera_t::~RCamera_t (FUN_1002a869)
+0x2BBEF	replaced	proxy/native/camera.cpp	RCamera_t deleting destructor (FUN_1002bbef)
+0x2AA66	replaced	proxy/native/camera.cpp	RCamera_t::Archive (FUN_1002aa66)
+0x2A883	replaced	proxy/native/camera.cpp	RCamera_t::GetViewPlaneWindow
+0x2A8E1	replaced	proxy/native/camera.cpp	RCamera_t::SetViewPlaneWindow
+0x2AB00	replaced	proxy/native/camera.cpp	RCamera_t::GetViewMatrix
+0x2AB22	replaced	proxy/native/camera.cpp	RCamera_t::GetTransformationMatrix
+0x2ADF7	replaced	proxy/native/camera.cpp	RCamera_t frustum (FUN_1002adf7)
+0x2B3E4	replaced	proxy/native/camera.cpp	RCamera_t sphere test (FUN_1002b3e4)
+0x3FD4A	replaced	proxy/native/camera.cpp	RLight_t::RLight_t
+0x3FB6B	replaced	proxy/native/camera.cpp	RLight_t::RLight_t(copy) (FUN_1003fb6b)
+0x3FE81	replaced	proxy/native/camera.cpp	RLight_t::RLight_t(archive)
+0x3FF26	replaced	proxy/native/camera.cpp	RLight_t::Instantiate
+0x16C78	replaced	proxy/native/camera.cpp	RLight_t clone (FUN_10016c78)
+0x3FBC6	replaced	proxy/native/camera.cpp	RLight_t::~RLight_t (FUN_1003fbc6)
+0x170B0	replaced	proxy/native/camera.cpp	RLight_t deleting destructor (FUN_100170b0)
+0x3FBD8	replaced	proxy/native/camera.cpp	RLight_t::Archive
+0x3FC21	replaced	proxy/native/camera.cpp	RLight_t::AddChild (FUN_1003fc21)
+0x3FC37	replaced	proxy/native/camera.cpp	RLight_t::RemoveChild (FUN_1003fc37)
+0x3FC4D	replaced	proxy/native/camera.cpp	RLight_t type name (FUN_1003fc4d)
+0x3FC74	replaced	proxy/native/camera.cpp	RLight_t::Enable
+0x3FCDE	replaced	proxy/native/camera.cpp	RLight_t::SetSpotAngles
+0x3FF72	replaced	proxy/native/camera.cpp	RLight_t::Process (FUN_1003ff72)
+0x218BE	replaced	proxy/native/device.cpp	render_t::LightEnable (FUN_100218be)
+0x1237D	replaced	proxy/native/mesh.cpp	render state guard (FUN_1001237d)
+0x123C0	replaced	proxy/native/mesh.cpp	render state guard end (FUN_100123c0)
+0x4E792	replaced	proxy/native/mesh.cpp	SimpleMesh::GetVertexBuffer
+0x4E7AB	replaced	proxy/native/mesh.cpp	SimpleMesh::GetVertexBufferFormat
+0x4E7F3	replaced	proxy/native/mesh.cpp	SimpleMesh::GetVertexCount
+0x4E7FA	replaced	proxy/native/mesh.cpp	SimpleMesh::GetTriangleCount
+0x4872B	replaced	proxy/native/mesh.cpp	SimpleMesh data hardware copy (FUN_1004872b)
+0x4E7A3	replaced	proxy/native/mesh.cpp	SimpleMesh::RestoreHWBuffer
+0x4E743	replaced	proxy/native/mesh.cpp	SimpleMesh::SetMaterial
+0x4F898	replaced	proxy/native/mesh.cpp	SimpleMesh::GetBoundingVolume
+0x1FDBA	replaced	proxy/native/mesh.cpp	index range draw (FUN_1001fdba)
+0x4F154	replaced	proxy/native/mesh.cpp	SimpleMesh::Render
+0x4EBC4	replaced	proxy/native/mesh.cpp	RVisualData_t::IsTransparent
+0x4D076	replaced	proxy/native/mesh.cpp	RVisual_t statel light pass (FUN_1004d076)
+0x4D18A	replaced	proxy/native/mesh.cpp	RVisual_t environment map pass (FUN_1004d18a)
+0x4D2D8	replaced	proxy/native/mesh.cpp	RVisual_t::RenderWithTransparency
+0x4D84A	replaced	proxy/native/mesh.cpp	RVisual_t::Rasterize
+0x4CD31	replaced	proxy/native/mesh.cpp	RVisual_t depth pass (FUN_1004cd31)
+0x4CDE6	replaced	proxy/native/mesh.cpp	RVisual_t shadow pass (FUN_1004cde6)
+0x49554	replaced	proxy/native/mesh.cpp	RTriMesh_t::Process
+0x49761	replaced	proxy/native/mesh.cpp	RTriMesh_t::Render
+0x4941B	replaced	proxy/native/mesh.cpp	RTriMesh_t lightmap colours (FUN_1004941b)
+0x4980F	replaced	proxy/native/mesh.cpp	RTriMesh_t::ConvertToLightmap
+0x4934C	replaced	proxy/native/mesh.cpp	RTriMesh_t::RenderDepth
+0x48FBE	replaced	proxy/native/mesh.cpp	RTriMesh_t::RenderShadow
+0x2B4A6	replaced	proxy/native/camera.cpp	RCamera_t bounding volume test (FUN_1002b4a6)
+0x49017	replaced	proxy/native/mesh.cpp	RTriMesh_t::SetTriMeshData
+0x4905C	replaced	proxy/native/mesh.cpp	RTriMesh_t::Init
+0x490E3	replaced	proxy/native/mesh.cpp	RTriMesh_t::RTriMesh_t
+0x49165	replaced	proxy/native/mesh.cpp	RTriMesh_t::RTriMesh_t(copy) (FUN_10049165)
+0x4927A	replaced	proxy/native/mesh.cpp	RTriMesh_t::RTriMesh_t(archive) (FUN_1004927a)
+0x48F39	replaced	proxy/native/mesh.cpp	RTriMesh_t::~RTriMesh_t
+0x49ECA	replaced	proxy/native/mesh.cpp	RTriMesh_t deleting destructor (FUN_10049eca)
+0x49502	replaced	proxy/native/mesh.cpp	RTriMesh_t::Instantiate
+0x49240	replaced	proxy/native/mesh.cpp	RTriMesh_t::Clone
+0x48F85	replaced	proxy/native/mesh.cpp	RTriMesh_t::Archive
+0x48FB4	replaced	proxy/native/mesh.cpp	RTriMesh_t::GetBoundingVolume
+0x48FEF	replaced	proxy/native/mesh.cpp	RTriMesh_t::CloneMeshData
+0x4900C	replaced	proxy/native/mesh.cpp	RTriMesh_t::GetName
+0x4EBF7	replaced	proxy/native/mesh.cpp	RVisualData_t restore (FUN_1004ebf7)
+0x490CA	replaced	proxy/native/mesh.cpp	RTriMesh_t::RestoreData
+0x49867	replaced	proxy/native/mesh.cpp	RTriMesh_t::IsRayIntersecting
+0x4D6D3	replaced	proxy/native/visual.cpp	RVisual_t::RVisual_t(archive) (FUN_1004d6d3)
+0x4E412	replaced	proxy/native/visual.cpp	RVisual_t deleting destructor (FUN_1004e412)
+0x4E3B6	replaced	proxy/native/visual.cpp	SubjectImpl constructor (FUN_1004e3b6)
+0x4E3EA	replaced	proxy/native/visual.cpp	SubjectImpl deleting destructor (FUN_1004e3ea)
+0x4E45F	replaced	proxy/native/visual.cpp	SubjectImpl deleting destructor thunk (FUN_1004e45f)
+0x188FB	replaced	proxy/native/mesh_data.cpp	TriList deleting destructor (FUN_100188fb)
+0x1FD2A	replaced	proxy/native/mesh_data.cpp	TriList::Archive
+0x1FE9D	replaced	proxy/native/mesh_data.cpp	TriList::AddTriangle
+0x1FEDF	replaced	proxy/native/mesh_data.cpp	TriList::TriList(archive) (FUN_1001fedf)
+0x1FF60	replaced	proxy/native/mesh_data.cpp	TriList::Instantiate
+0x48CDF	replaced	proxy/native/mesh_data.cpp	TriList::TriList(copy) (FUN_10048cdf)
+0x1FE30	replaced	proxy/native/mesh_data.cpp	TriList winding flip (FUN_1001fe30)
+0x1FD66	replaced	proxy/native/mesh_data.cpp	TriList triangle positions (FUN_1001fd66)
+0x4866F	replaced	proxy/native/mesh_data.cpp	RTriList_t::RTriList_t (FUN_1004866f)
+0x48AD9	replaced	proxy/native/mesh_data.cpp	RTriList_t::RTriList_t(copy) (FUN_10048ad9)
+0x486C7	replaced	proxy/native/mesh_data.cpp	RTriList_t::~RTriList_t (FUN_100486c7)
+0x48C07	replaced	proxy/native/mesh_data.cpp	RTriList_t deleting destructor (FUN_10048c07)
+0x48787	replaced	proxy/native/mesh_data.cpp	RTriList_t buffer flags (FUN_10048787)
+0x4881D	replaced	proxy/native/mesh_data.cpp	RTriList_t hardware copy release (FUN_1004881d)
+0x4883E	replaced	proxy/native/mesh_data.cpp	RTriList_t vertices to an archive (FUN_1004883e)
+0x488BD	replaced	proxy/native/mesh_data.cpp	RTriList_t triangle list (FUN_100488bd)
+0x488ED	replaced	proxy/native/mesh_data.cpp	RTriList_t vertices (FUN_100488ed)
+0x4899A	replaced	proxy/native/mesh_data.cpp	RTriList_t vertex format (FUN_1004899a)
+0x48A2E	replaced	proxy/native/mesh_data.cpp	RTriList_t vertex buffer (FUN_10048a2e)
+0x48A5C	replaced	proxy/native/mesh_data.cpp	RTriList_t from an archive (FUN_10048a5c)
+0x4E4B7	replaced	proxy/native/mesh_data.cpp	SimpleMesh::SimpleMesh
+0x4E56F	replaced	proxy/native/mesh_data.cpp	SimpleMesh::SimpleMesh(copy) (FUN_1004e56f)
+0x4E689	replaced	proxy/native/mesh_data.cpp	SimpleMesh::~SimpleMesh (FUN_1004e689)
+0x4F990	replaced	proxy/native/mesh_data.cpp	SimpleMesh deleting destructor (FUN_1004f990)
+0x4E6F4	replaced	proxy/native/mesh_data.cpp	SimpleMesh::Archive (FUN_1004e6f4)
+0x4E76D	replaced	proxy/native/mesh_data.cpp	SimpleMesh system memory flag (FUN_1004e76d)
+0x4E7BE	replaced	proxy/native/mesh_data.cpp	SimpleMesh vertex colours (FUN_1004e7be)
+0x4E809	replaced	proxy/native/mesh_data.cpp	SimpleMesh::SimpleMesh(archive) (FUN_1004e809)
+0x4EB53	replaced	proxy/native/mesh_data.cpp	SimpleMesh::Instantiate
+0x4ED3E	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetTriangleIndices(uint)
+0x4ED88	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetTriangleIndices(ushort)
+0x4F369	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetTriangles
+0x4F723	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetVertexPositions
+0x4F407	replaced	proxy/native/mesh_data.cpp	SimpleMesh::IsRayIntersecting
+0x4F779	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetVertexNormals
+0x4F0EB	replaced	proxy/native/mesh_data.cpp	SimpleMesh::GetVertexUVCoords
+0x4E8C2	replaced	proxy/native/mesh_data.cpp	SimpleMesh::Mirror
+0x4F820	replaced	proxy/native/mesh_data.cpp	SimpleMesh bounding volume (FUN_1004f820)
+0x4EDFF	replaced	proxy/native/mesh_data.cpp	RVisualData_t registry add (FUN_1004edff)
+0x4E9C7	replaced	proxy/native/mesh_data.cpp	RVisualData_t registry remove (FUN_1004e9c7)
+0x4EE3F	replaced	proxy/native/mesh_data.cpp	RVisualData_t::RVisualData_t (FUN_1004ee3f)
+0x4EEC6	replaced	proxy/native/mesh_data.cpp	RVisualData_t::RVisualData_t(copy) (FUN_1004eec6)
+0x4EFA8	replaced	proxy/native/mesh_data.cpp	RVisualData_t::RVisualData_t(archive) (FUN_1004efa8)
+0x4F334	replaced	proxy/native/mesh_data.cpp	RVisualData_t::Instantiate
+0x4ECDC	replaced	proxy/native/mesh_data.cpp	RVisualData_t::~RVisualData_t (FUN_1004ecdc)
+0x4FBC1	replaced	proxy/native/mesh_data.cpp	RVisualData_t deleting destructor (FUN_1004fbc1)
+0x4FD7B	replaced	proxy/native/mesh_data.cpp	RVisualData_t clone (FUN_1004fd7b)
+0x4EA04	replaced	proxy/native/mesh_data.cpp	RVisualData_t::Archive
+0x4EB88	replaced	proxy/native/mesh_data.cpp	RVisualData_t vertex count (FUN_1004eb88)
+0x4EBA6	replaced	proxy/native/mesh_data.cpp	RVisualData_t triangle count (FUN_1004eba6)
+0x4F7FC	replaced	proxy/native/mesh_data.cpp	RVisualData_t::GetVertexPositions
+0x4EC2C	replaced	proxy/native/mesh_data.cpp	RVisualData_t hardware copies freed (FUN_1004ec2c)
+0x4EC5B	replaced	proxy/native/mesh_data.cpp	unused mesh buffers freed (FUN_1004ec5b)
+0x4AB7A	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t::RTriMeshData_t(copy) (FUN_1004ab7a)
+0x4ABE3	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t::~RTriMeshData_t (FUN_1004abe3)
+0x4AC33	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t::Archive
+0x4AC5F	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t private lightmap copy (FUN_1004ac5f)
+0x4AD93	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t shared lightmap copy (FUN_1004ad93)
+0x4ADD9	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t::RTriMeshData_t(archive) (FUN_1004add9)
+0x4AF1A	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t::Instantiate
+0x187FC	replaced	proxy/native/mesh_data.cpp	RTriMeshData_t clone (FUN_100187fc)
+0x1716A	replaced	proxy/native/mesh_data.cpp	FAFTriMeshData_t::Instantiate
+0x18087	replaced	proxy/native/mesh_data.cpp	FAFTriMeshData_t(archive) ctor (FUN_10018087)
+0x180C4	replaced	proxy/native/mesh_data.cpp	FAFTriMeshData_t::Archive (FUN_100180c4)
+0x18893	replaced	proxy/native/mesh_data.cpp	FAFTriMeshData_t deleting destructor (FUN_10018893)
+0x462AD	replaced	proxy/native/resource.cpp	RResource_t::RResource_t(copy) (FUN_100462ad)
+0x4624F	replaced	proxy/native/resource.cpp	RResource_t counted flag (FUN_1004624f)
+0x46266	replaced	proxy/native/resource.cpp	RResource_t references (FUN_10046266)
+0x2FC74	replaced	proxy/native/occluder.cpp	rounding, half down (FUN_1002fc74)
+0x2FCAE	replaced	proxy/native/occluder.cpp	rounding (FUN_1002fcae)
+0x2FC3A	replaced	proxy/native/occluder.cpp	rounding, nudged (FUN_1002fc3a)
+0x2FD6D	replaced	proxy/native/occluder.cpp	HMOccluder_t reset (FUN_1002fd6d)
+0x3ED8B	replaced	proxy/native/occluder.cpp	HMOccluder_t::HMOccluder_t (FUN_1003ed8b)
+0x2FEAF	replaced	proxy/native/occluder.cpp	HMOccluder_t save and free (FUN_1002feaf)
+0x3FB03	replaced	proxy/native/occluder.cpp	HMOccluder_t::Get
+0x3FB49	replaced	proxy/native/occluder.cpp	HMOccluder_t::ShutdownHMOccluder
+0x30043	replaced	proxy/native/occluder.cpp	HMOccluder_t::SetHeightmapSize
+0x300B4	replaced	proxy/native/occluder.cpp	HMOccluder_t::SetHeightmapScale
+0x300C7	replaced	proxy/native/occluder.cpp	HMOccluder_t::SetHeightmapPatch
+0x3011C	replaced	proxy/native/occluder.cpp	HMOccluder_t::SetDataPath
+0x3E85B	replaced	proxy/native/occluder.cpp	HMOccluder_t::ModifyOcclusion
+0x3EC30	replaced	proxy/native/occluder.cpp	HMOccluder_t::GetHeight
+0x3ED78	replaced	proxy/native/occluder.cpp	HMOccluder_t::ToggleOcclusionCulling
+0x2FCBF	replaced	proxy/native/occluder.cpp	RViewPort_t rectangle as floats (FUN_1002fcbf)
+0x2FD3C	replaced	proxy/native/occluder.cpp	RCamera_t field of view (FUN_1002fd3c)
+0x3EDC1	replaced	proxy/native/occluder.cpp	HMOccluder_t horizons (FUN_1003edc1)
+0x3E8F6	replaced	proxy/native/occluder.cpp	HMOccluder_t visibility (FUN_1003e8f6)
+0x3ECAB	replaced	proxy/native/occluder.cpp	HMOccluder_t mesh name filter (FUN_1003ecab)
+0x3F78D	replaced	proxy/native/occluder.cpp	HMOccluder_t mesh registration (FUN_1003f78d)
+0x3012C	replaced	proxy/native/occluder.cpp	HMOccluder_t::PreProcessPlayfield (with tools/gen_occlusion_data.py output)
+0x53F36	replaced	proxy/native/cat_life.cpp	CATRender_t slot (0x10053f36)
+0x53F40	replaced	proxy/native/cat_life.cpp	CATRender_t slot destructor (FUN_10053f40)
+0x55434	replaced	proxy/native/cat_life.cpp	CATRender_t slots deleting (FUN_10055434)
+0x53F4D	replaced	proxy/native/cat_life.cpp	CATRender_t slot buffer (FUN_10053f4d)
+0x53FC0	replaced	proxy/native/cat_life.cpp	CATRender_t slot lock (FUN_10053fc0)
+0x5548D	replaced	proxy/native/cat_life.cpp	CATRender_t slots resize (FUN_1005548d)
+0x5555C	replaced	proxy/native/cat_life.cpp	CATRender_t group (0x1005555c)
+0x54B77	replaced	proxy/native/cat_life.cpp	CATRender_t group destructor (FUN_10054b77)
+0x55512	replaced	proxy/native/cat_life.cpp	CATRender_t groups deleting (FUN_10055512)
+0x5559B	replaced	proxy/native/cat_life.cpp	CATRender_t groups resize (FUN_1005559b)
+0x5538F	replaced	proxy/native/cat_life.cpp	CATRender_t bones resize (FUN_1005538f)
+0x553D2	replaced	proxy/native/cat_life.cpp	CATRender_t pairs resize (FUN_100553d2)
+0x53EDD	replaced	proxy/native/cat_life.cpp	CATRender_t bone identity (FUN_10053edd)
+0x55243	replaced	proxy/native/cat_life.cpp	CATRender_t::CATRender_t (FUN_10055243)
+0x55299	replaced	proxy/native/cat_life.cpp	CATRender_t::~CATRender_t (FUN_10055299)
+0x5564D	replaced	proxy/native/cat_life.cpp	CATRender_t deleting destructor (FUN_1005564d)
+0x55108	replaced	proxy/native/cat_life.cpp	CATRender_t::SetMesh
+0x53FE2	replaced	proxy/native/cat_life.cpp	CATRender_t::SetAnim
+0x5536C	replaced	proxy/native/cat_life.cpp	CATRender_t::RegisterVertexProcessCallback
+0x55331	replaced	proxy/native/cat_life.cpp	CATRender_t::UnregisterVertexProcessCallback
+0x543BC	replaced	proxy/native/cat_life.cpp	CATRender_t buffers on the CPU (FUN_100543bc)
+0x583AA	replaced	proxy/native/cat_life.cpp	RCATMesh_t attractor map (FUN_100583aa)
+0x58F11	replaced	proxy/native/cat_life.cpp	RCATMesh_t attractor map destructor (FUN_10058f11)
+0x58E75	replaced	proxy/native/cat_life.cpp	RCATMesh_t attractor map [] (FUN_10058e75)
+0x57DE0	replaced	proxy/native/cat_life.cpp	RCATMesh_t::AddAttractorChild
+0x57E96	replaced	proxy/native/cat_life.cpp	RCATMesh_t::RemoveAttractorChild
+0x55A3E	replaced	proxy/native/cat_life.cpp	RCATMesh_t effect states (FUN_10055a3e)
+0x57FE0	replaced	proxy/native/cat_life.cpp	RCATMesh_t::RCATMesh_t
+0x57F15	replaced	proxy/native/cat_life.cpp	RCATMesh_t::~RCATMesh_t (FUN_10057f15)
+0x58F67	replaced	proxy/native/cat_life.cpp	RCATMesh_t deleting destructor (FUN_10058f67)
+0x58F54	replaced	proxy/native/cat_life.cpp	RCATMesh_t deleting destructor, visual (FUN_10058f54)
+0x58F5C	replaced	proxy/native/cat_life.cpp	RCATMesh_t deleting destructor, third base (FUN_10058f5c)
+0x55CCD	replaced	proxy/native/cat_life.cpp	RCATMesh_t group extents (FUN_10055ccd)
+0x55C75	replaced	proxy/native/cat_life.cpp	RCATMesh_t::RestoreData (FUN_10055c75)
+0x4FE93	replaced	proxy/native/cat_pick.cpp	point outside a box (FUN_1004fe93)
+0x4FEFE	replaced	proxy/native/cat_pick.cpp	segment against a box (FUN_1004fefe)
+0x50358	replaced	proxy/native/cat_pick.cpp	ray into a box (FUN_10050358)
+0x58382	replaced	proxy/native/cat_pick.cpp	distance (FUN_10058382)
+0x56786	replaced	proxy/native/cat_pick.cpp	RCATMesh_t::IsLineIntersecting
+0x5632D	replaced	proxy/native/cat_pick.cpp	RCATMesh_t ray test (FUN_1005632d)
+0x52D75	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::CATTriPolyList_t
+0x52B91	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::~CATTriPolyList_t
+0x11B40	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::operator=
+0x11B57	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::GetNeighbour
+0x11B70	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::SetNeighbour
+0x11D2B	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::GetTriVertex
+0x52B0F	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::FindTriangleIndex
+0x52B42	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::FindVertexIndex
+0x52B77	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t::GetVertexIndex
+0x11C58	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t array deleting (FUN_10011c58)
+0x11CA2	replaced	proxy/native/cat_data.cpp	CATGroup_t pieces resize (FUN_10011ca2)
+0x53A87	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t vertices resize (FUN_10053a87)
+0x53A1C	replaced	proxy/native/cat_data.cpp	CATTriPolyList_t indices resize (FUN_10053a1c)
+0x52816	replaced	proxy/native/cat_data.cpp	int array resize (FUN_10052816)
+0x11DA1	replaced	proxy/native/cat_data.cpp	collision spheres resize (FUN_10011da1)
+0x11FB9	replaced	proxy/native/cat_data.cpp	CATAttractor_t (0x10011fb9)
+0x178FE	replaced	proxy/native/cat_data.cpp	CATAttractor_t destructor (FUN_100178fe)
+0x12048	replaced	proxy/native/cat_data.cpp	CATAttractor_t array deleting (FUN_10012048)
+0x12096	replaced	proxy/native/cat_data.cpp	CATGroup_t attractors resize (FUN_10012096)
+0x121DB	replaced	proxy/native/cat_data.cpp	CATGroup_t::CATGroup_t
+0x12234	replaced	proxy/native/cat_data.cpp	CATGroup_t::~CATGroup_t
+0x1228D	replaced	proxy/native/cat_data.cpp	CATGroup_t::CATGroup_t(copy)
+0x122C9	replaced	proxy/native/cat_data.cpp	CATGroup_t::operator=
+0x11D3F	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetColSphere
+0x11D4F	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetAttractor
+0x11D63	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetTriPolyList
+0x52BEE	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetTotalVertexCount
+0x52C06	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetTotalTriangleCount
+0x52C30	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetActiveVertexCount
+0x52C48	replaced	proxy/native/cat_data.cpp	CATGroup_t::GetActiveTriangleCount
+0x53C0E	replaced	proxy/native/cat_data.cpp	CATGroup_t array deleting (FUN_10053c0e)
+0x53C67	replaced	proxy/native/cat_data.cpp	CATMesh_t groups resize (FUN_10053c67)
+0x53AEA	replaced	proxy/native/cat_data.cpp	CATMesh_t bone (FUN_10053aea)
+0x53B17	replaced	proxy/native/cat_data.cpp	CATMesh_t bone destructor (FUN_10053b17)
+0x53B30	replaced	proxy/native/cat_data.cpp	CATMesh_t bones deleting (FUN_10053b30)
+0x53B89	replaced	proxy/native/cat_data.cpp	CATMesh_t bones resize (FUN_10053b89)
+0x52FF8	replaced	proxy/native/cat_data.cpp	CATMesh_t::CATMesh_t (the loader)
+0x52E15	replaced	proxy/native/cat_data.cpp	CATMesh_t::~CATMesh_t (FUN_10052e15)
+0x53CEC	replaced	proxy/native/cat_data.cpp	CATMesh_t deleting destructor (FUN_10053cec)
+0x52C99	replaced	proxy/native/cat_data.cpp	CATMesh_t::SetMaterial
+0x52CDD	replaced	proxy/native/cat_data.cpp	CATMesh_t::GetTotalVertexCount
+0x52D29	replaced	proxy/native/cat_data.cpp	CATMesh_t active vertices (FUN_10052d29)
+0x52D4F	replaced	proxy/native/cat_data.cpp	CATMesh_t active triangles (FUN_10052d4f)
+0x52F16	replaced	proxy/native/cat_data.cpp	CATMesh_t::CalcBoundingVolume
+0x509F2	replaced	proxy/native/cat_anim_data.cpp	CATAnim_t::CATAnim_t (FUN_100509f2)
+0x50A1F	replaced	proxy/native/cat_anim_data.cpp	CATAnim_t::~CATAnim_t (FUN_10050a1f)
+0x50A3C	replaced	proxy/native/cat_anim_data.cpp	CATAnim_t deleting destructor (FUN_10050a3c)
+0x504D2	replaced	proxy/native/cat_anim_data.cpp	CATAnim_t name (FUN_100504d2)
+0x529A4	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t track (FUN_100529a4)
+0x52943	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t track destructor (FUN_10052943)
+0x5295A	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t tracks deleting (FUN_1005295a)
+0x529D9	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t tracks resize (FUN_100529d9)
+0x52859	replaced	proxy/native/cat_anim_data.cpp	rotation keys resize (FUN_10052859)
+0x528C5	replaced	proxy/native/cat_anim_data.cpp	position keys resize (FUN_100528c5)
+0x52068	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t::CATKeyframeAnimData_t (the loader)
+0x51F68	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t::~CATKeyframeAnimData_t (FUN_10051f68)
+0x52A73	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t deleting destructor (FUN_10052a73)
+0x509BF	replaced	proxy/native/cat_anim_data.cpp	byte array resize (FUN_100509bf)
+0x51F19	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t tracks in the layers (FUN_10051f19)
+0x51FB2	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t::CATKeyframeAnim_t
+0x52021	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t::~CATKeyframeAnim_t (FUN_10052021)
+0x52A92	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t deleting destructor (FUN_10052a92)
+0x51CFC	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t::SetTime
+0x51F51	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t::SetLayers
+0x52A6C	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t bone count (FUN_10052a6c)
+0x51D23	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t radius (FUN_10051d23)
+0x52A62	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t skeleton (FUN_10052a62)
+0x51EE1	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t rotation (FUN_10051ee1)
+0x51EFD	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnim_t position (FUN_10051efd)
+0x50742	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t tracks (FUN_10050742)
+0x507E5	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::SetAnim1
+0x5085C	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::SetAnim2
+0x504F6	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::SetBlend
+0x508D3	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::CATAnimBlend_t
+0x5095F	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::~CATAnimBlend_t (FUN_1005095f)
+0x50AEC	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t deleting destructor (FUN_10050aec)
+0x5050A	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t bone count (FUN_1005050a)
+0x50A9D	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t skeleton (FUN_10050a9d)
+0x50ABC	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t rest pose (FUN_10050abc)
+0x29A70	replaced	proxy/native/bvolume.cpp	BVolume_t extreme points (FUN_10029a70)
+0x29B7E	replaced	proxy/native/bvolume.cpp	BVolume_t sphere and box (FUN_10029b7e)
+0x299E0	replaced	proxy/native/bvolume.cpp	BVolume_t::BVolume_t
+0x17FEE	replaced	proxy/native/bvolume.cpp	BVolume_t::BVolume_t(points) (FUN_10017fee)
+0x29E51	replaced	proxy/native/bvolume.cpp	BVolume_t::Init
+0x29A13	replaced	proxy/native/bvolume.cpp	BVolume_t::BVolume_t(copy) (FUN_10029a13)
+0x29E82	replaced	proxy/native/bvolume.cpp	BVolume_t::BVolume_t(archive) (FUN_10029e82)
+0x29F97	replaced	proxy/native/bvolume.cpp	BVolume_t::Instantiate
+0x29F2D	replaced	proxy/native/bvolume.cpp	BVolume_t::Archive
+0x29E76	replaced	proxy/native/bvolume.cpp	BVolume_t::~BVolume_t
+0x12B1F	replaced	proxy/native/bvolume.cpp	BVolume_t deleting destructor (FUN_10012b1f)
+0x1BD36	replaced	proxy/native/device.cpp	DeviceState read back from the device (FUN_1001bd36)
+0x1BDF2	replaced	proxy/native/device.cpp	DeviceState instance, made on first use (FUN_1001bdf2)
+0x1BD14	replaced	proxy/native/device.cpp	DeviceState shutdown (FUN_1001bd14)
+0x1E51A	replaced	proxy/native/dxerror.cpp	fun::DXError::GetErrorString (its HRESULT table FUN_1001d619 in dxerror.gen.h)
+0x1C04D	dead	-	Type* debug descriptor vtable slot (TypeBOOL): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C075	dead	-	Type* debug descriptor vtable slot (TypeLINEPATTERN): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C0C8	dead	-	Type* debug descriptor vtable slot (TypeD3DCOLOR): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C131	dead	-	Type* debug descriptor vtable slot (TypeWRAPUV): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C323	dead	-	Type* debug descriptor vtable slot (TypeBOOL, TypeD3DANTIALIASMODE, TypeD3DBLEND, ...): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C332	dead	-	Type* debug descriptor vtable slot (TypeUNKNOWN): see the rows above
+0x1C338	dead	-	Type* debug descriptor vtable slot (TypeFLOAT): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C839	dead	-	Type* debug descriptor vtable slot (TypeBOOL, TypeD3DCOLOR, TypeFLOAT, ...): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C909	dead	-	Type* debug descriptor vtable slot (TypeD3DANTIALIASMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C924	dead	-	Type* debug descriptor vtable slot (TypeD3DBLEND): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C93F	dead	-	Type* debug descriptor vtable slot (TypeD3DCMPFUNC): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C95A	dead	-	Type* debug descriptor vtable slot (TypeD3DCOLORMODEL): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C975	dead	-	Type* debug descriptor vtable slot (TypeD3DCULL): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C990	dead	-	Type* debug descriptor vtable slot (TypeD3DFILLMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C9AB	dead	-	Type* debug descriptor vtable slot (TypeD3DFOGMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C9C6	dead	-	Type* debug descriptor vtable slot (TypeD3DSHADEMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C9E1	dead	-	Type* debug descriptor vtable slot (TypeD3DSTENCILOP): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1C9FC	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREADDRESS): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA17	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREBLEND): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA32	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA4D	dead	-	Type* debug descriptor vtable slot (TypeD3DZBUFFERTYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA68	dead	-	Type* debug descriptor vtable slot (TypeD3DRENDERSTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA83	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTURESTAGESTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CA9E	dead	-	Type* debug descriptor vtable slot (TypeD3DLIGHTSTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CAB9	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMAGFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CAD4	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMINFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CAEF	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMIPFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CB0A	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREOP): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CB25	dead	-	Type* debug descriptor vtable slot (TypeD3DANTIALIASMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CB9B	dead	-	Type* debug descriptor vtable slot (TypeD3DBLEND): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CC11	dead	-	Type* debug descriptor vtable slot (TypeD3DCMPFUNC): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CC87	dead	-	Type* debug descriptor vtable slot (TypeD3DCOLORMODEL): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CCFD	dead	-	Type* debug descriptor vtable slot (TypeD3DCULL): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CD73	dead	-	Type* debug descriptor vtable slot (TypeD3DFILLMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CDE9	dead	-	Type* debug descriptor vtable slot (TypeD3DFOGMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CE5F	dead	-	Type* debug descriptor vtable slot (TypeD3DSHADEMODE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CED5	dead	-	Type* debug descriptor vtable slot (TypeD3DSTENCILOP): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CF4B	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREADDRESS): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1CFC1	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREBLEND): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D037	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D0AD	dead	-	Type* debug descriptor vtable slot (TypeD3DZBUFFERTYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D123	dead	-	Type* debug descriptor vtable slot (TypeD3DRENDERSTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D199	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTURESTAGESTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D20F	dead	-	Type* debug descriptor vtable slot (TypeD3DLIGHTSTATETYPE): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D285	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMAGFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D2FB	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMINFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D371	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREMIPFILTER): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D3E7	dead	-	Type* debug descriptor vtable slot (TypeD3DTEXTUREOP): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D45D	dead	-	Type* debug descriptor vtable slot (TypeUNKNOWN): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D4A9	dead	-	Type* debug descriptor vtable slot (TypeINT): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D4F5	dead	-	Type* debug descriptor vtable slot (TypeHEX2): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D541	dead	-	Type* debug descriptor vtable slot (TypeHEX8): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D58D	dead	-	Type* debug descriptor vtable slot (TypeFLOAT): its objects (0x100B6D10..) are used only by FUN_1001b725 / FUN_1001b8b4, which nothing calls
+0x1D5D9	dead	-	ostream manipulator used only by FUN_1001e5bb (the Randy assert text), which only FUN_1001e7bd calls, which nothing calls
+0x1D5F3	dead	-	ostream manipulator used only by FUN_1001e5bb (the Randy assert text), which only FUN_1001e7bd calls, which nothing calls
+0x41EDE	replaced	proxy/native/randy.cpp	Randy_t device default states (FUN_10041ede)
+0x42732	replaced	proxy/native/randy.cpp	Randy_t makes render target n (FUN_10042732)
+0x25E84	replaced	proxy/native/randy.cpp	RenderTarget_t::RenderTarget_t (FUN_10025e84)
+0x25F39	replaced	proxy/native/randy.cpp	RenderTarget_t destroy (FUN_10025f39)
+0x25F5C	replaced	proxy/native/randy.cpp	RenderTarget_t Z-buffer (FUN_10025f5c)
+0x43F0C	replaced	proxy/native/devices.cpp	Randy_t::GetDevices
+0x43CE4	replaced	proxy/native/devices.cpp	Randy_t::GetDevices adapter (FUN_10043ce4)
+0x41693	replaced	proxy/native/devices.cpp	Randy_t::GetDevices display mode (FUN_10041693)
+0x43545	replaced	proxy/native/devices.cpp	Randy_t::GetDevices Direct3D device (FUN_10043545)
+0x43F20	replaced	proxy/native/randy_init.cpp	Randy_t::Initialize (DisplaySystem's)
+0x435E3	replaced	proxy/native/randy_init.cpp	Randy_t frame buffer and Z-buffer (FUN_100435e3)
+0x41D6E	replaced	proxy/native/randy_init.cpp	Randy_t DXT texture formats (FUN_10041d6e)
+0x4379F	dead	-	Randy_t::Initialize (the older overload): exported, but no module of the client imports it
+0x43365	replaced	proxy/native/randy_init.cpp	Randy_t::Randy_t (FUN_10043365)
+0x43484	replaced	proxy/native/randy_init.cpp	Randy_t::~Randy_t (FUN_10043484)
+0x44757	replaced	proxy/native/randy_init.cpp	Randy_t deleting destructor (FUN_10044757)
+0x43C48	replaced	proxy/native/randy_init.cpp	Randy_t frame buffer resized (FUN_10043c48)
+0x263D2	dead	-	D3DFormatAccess*_c vtable slot (DXT1, DXT3, DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x263D7	dead	-	D3DFormatAccess*_c vtable slot (DXT1, DXT3, DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x263DF	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, DXT1, ...): its objects are made only by FUN_100262dc, which nothing references (too short to patch: entry_guard)
+0x263E2	dead	-	D3DFormatAccess*_c vtable slot (DXT1, DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x263E8	dead	-	D3DFormatAccess*_c vtable slot (DXT1): its objects are made only by FUN_100262dc, which nothing references
+0x26626	dead	-	D3DFormatAccess*_c vtable slot (DXT1): its objects are made only by FUN_100262dc, which nothing references
+0x268D2	dead	-	D3DFormatAccess*_c vtable slot (DXT1): its objects are made only by FUN_100262dc, which nothing references
+0x26927	dead	-	D3DFormatAccess*_c vtable slot (DXT1): its objects are made only by FUN_100262dc, which nothing references
+0x26976	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x2697C	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26B4B	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26DAC	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26DF7	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26E59	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26E9A	dead	-	D3DFormatAccess*_c vtable slot (DXT3): its objects are made only by FUN_100262dc, which nothing references
+0x26EEC	dead	-	D3DFormatAccess*_c vtable slot (DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x27268	dead	-	D3DFormatAccess*_c vtable slot (DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x27534	dead	-	D3DFormatAccess*_c vtable slot (DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x27700	dead	-	D3DFormatAccess*_c vtable slot (DXT5): its objects are made only by FUN_100262dc, which nothing references
+0x27854	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x2786B	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27878	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27887	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x278A3	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x278B8	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x278CF	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x278DC	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x278F8	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x27909	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x27926	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4, R5G6B5, ...): its objects are made only by FUN_100262dc, which nothing references
+0x27938	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x2793E	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27958	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x2797E	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27999	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x279BD	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x279D6	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27A0D	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27A39	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27A65	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27A86	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27AB0	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27ACF	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27AEA	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27AFA	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27B17	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27B29	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27B90	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27BEA	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27C4A	dead	-	D3DFormatAccess*_c vtable slot (A8R8G8B8, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27C9F	dead	-	D3DFormatAccess*_c vtable slot (X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27CA5	dead	-	D3DFormatAccess*_c vtable slot (X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27CD1	dead	-	D3DFormatAccess*_c vtable slot (X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27CF2	dead	-	D3DFormatAccess*_c vtable slot (X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27D2F	dead	-	D3DFormatAccess*_c vtable slot (X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27D61	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5, X1R5G5B5, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27D6F	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5, X1R5G5B5, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x27D7D	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27DC5	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27E02	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27E63	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27EB9	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27F30	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x27F9C	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28018	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28089	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x280CB	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28103	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28133	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28158	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28190	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x281BB	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x281EC	dead	-	D3DFormatAccess*_c vtable slot (A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x28212	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references (too short to patch: entry_guard)
+0x28216	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x2825D	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28299	dead	-	D3DFormatAccess*_c vtable slot (X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x282F2	dead	-	D3DFormatAccess*_c vtable slot (X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28340	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x283BA	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28429	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x2849A	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5, X1R5G5B5, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x284A7	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x284E2	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x28512	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x28577	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x285D1	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x28643	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x286AA	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x2872A	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5): its objects are made only by FUN_100262dc, which nothing references
+0x2879F	dead	-	D3DFormatAccess*_c vtable slot (R5G6B5, X1R5G5B5, X8R8G8B8): its objects are made only by FUN_100262dc, which nothing references
+0x287AC	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, A4R4G4B4): its objects are made only by FUN_100262dc, which nothing references
+0x287B2	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28817	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28871	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5, X1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x288ED	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28929	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x2895B	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28985	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x289A4	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x289DC	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28A07	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x28A2E	dead	-	D3DFormatAccess*_c vtable slot (A1R5G5B5): its objects are made only by FUN_100262dc, which nothing references
+0x2CABF	replaced	proxy/native/debugger.cpp	Debugger_t::Get
+0x2CAE5	replaced	proxy/native/debugger.cpp	Debugger_t::AddLine
+0x2BF51	replaced	proxy/native/debugger.cpp	Debugger_t::Add2DLine
+0x2CBAA	replaced	proxy/native/debugger.cpp	Debugger_t screen point (FUN_1002cbaa)
+0x2CCAB	replaced	proxy/native/debugger.cpp	Debugger_t::AddSphere
+0x2C082	replaced	proxy/native/debugger.cpp	Debugger_t drawn (FUN_1002c082)
+0x2CC89	replaced	proxy/native/debugger.cpp	Debugger_t shut down (FUN_1002cc89)
+0x2D26F	dead	-	RDebugViewPort::RDebugViewPort: no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2D2BC	dead	-	RDebugViewPort::~RDebugViewPort: no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2ED51	dead	-	RDebugViewPort vector deleting destructor (its vtable's only slot): no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2D6FC	dead	-	RDebugViewPort::DrawArrow (DisplaySystem's RenderDebug overrides call it): no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2CF6E	dead	-	RDebugViewPort::DrawLine: no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2E267	dead	-	RDebugViewPort::DrawSector: no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x2DFC0	dead	-	RDebugViewPort::DrawSphere: no RDebugViewPort is ever made: its constructor is called by nothing in Randy and imported by no module of the client (its vtable is referenced only by its constructor and destructor)
+0x45F7A	dead	-	RRefFrame_t::RenderDebug (RRefFrame_t, RVisual_t, RShadow, RGrid, RSprite, FAF attractors and collision shapes): RenderDebug (vtable slot 9) needs an RDebugViewPort, and none is ever made (see RDebugViewPort::RDebugViewPort)
+0x49A60	dead	-	RTriMesh_t::RenderDebug: RenderDebug (vtable slot 9) needs an RDebugViewPort, and none is ever made (see RDebugViewPort::RDebugViewPort)
+0x40013	dead	-	RLight_t / FAF lights' RenderDebug: RenderDebug (vtable slot 9) needs an RDebugViewPort, and none is ever made (see RDebugViewPort::RDebugViewPort)
+0x2B728	dead	-	RCamera_t's RenderDebug: RenderDebug (vtable slot 9) needs an RDebugViewPort, and none is ever made (see RDebugViewPort::RDebugViewPort)
+0x57CA9	dead	-	RCATMesh_t's RenderDebug: RenderDebug (vtable slot 9) needs an RDebugViewPort, and none is ever made (see RDebugViewPort::RDebugViewPort)
+0x17504	dead	-	FAFLoader_t::FAFLoader_t: no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17529	dead	-	FAFLoader_t::~FAFLoader_t: no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x179F7	dead	-	FAFLoader_t vector deleting destructor (vtable slot 0): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17259	dead	-	FAFLoader_t vtable slot 1 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17292	dead	-	FAFLoader_t vtable slot 2 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17326	dead	-	FAFLoader_t vtable slot 3 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17485	dead	-	FAFLoader_t vtable slot 4 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17440	dead	-	FAFLoader_t vtable slot 5 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17445	dead	-	FAFLoader_t vtable slot 6 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x173C6	dead	-	FAFLoader_t vtable slot 7 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x17403	dead	-	FAFLoader_t vtable slot 8 (its visit of an FC_* object: conversion to Randy's objects): no FAFLoader_t is ever made: its constructor is imported by no module of the client and called by nothing in Randy, and its vtable is referenced only by its constructor and destructor (AnarchyOnline.exe only names FAFLoaderException's type, for a catch)
+0x295AB	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t::RKeyFrameAnimation_t(archive)
+0x28C87	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t::Archive
+0x28FDE	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t evaluated (FUN_10028fde)
+0x294E0	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t UV (FUN_100294e0)
+0x16485	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t / FAFAnim_t length (FUN_10016485: too short to patch, both vtables' slot 5 point at ours)
+0x1647E	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t looping (FUN_1001647e)
+0x1646E	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t set looping (FUN_1001646e)
+0x1643E	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t destroyed (FUN_1001643e)
+0x1665F	replaced	proxy/native/keyframe.cpp	RKeyFrameAnimation_t deleting destructor (FUN_1001665f)
+0x156C3	replaced	proxy/native/keyframe.cpp	FAFAnim_t::Instantiate
+0x15686	replaced	proxy/native/keyframe.cpp	FAFAnim_t(archive) (FUN_10015686)
+0x1566E	replaced	proxy/native/keyframe.cpp	FAFAnim_t::Archive (FUN_1001566e)
+0x135F1	replaced	proxy/native/sprite.cpp	RSprite::RSprite
+0x13128	replaced	proxy/native/sprite.cpp	RSprite::EnableAdditiveRendering
+0x13482	replaced	proxy/native/sprite.cpp	RSprite::InitVertexColor
+0x13575	replaced	proxy/native/sprite.cpp	RSprite setup (FUN_10013575)
+0x132B3	replaced	proxy/native/sprite.cpp	RSprite corners (FUN_100132b3)
+0x134A1	replaced	proxy/native/sprite.cpp	RSprite u v (FUN_100134a1)
+0x136F9	replaced	proxy/native/sprite.cpp	RSprite copy (FUN_100136f9)
+0x13DF4	replaced	proxy/native/sprite.cpp	RSprite duplicate (FUN_10013df4)
+0x138CC	replaced	proxy/native/sprite.cpp	RSprite(archive) (FUN_100138cc)
+0x13A7A	replaced	proxy/native/sprite.cpp	RSprite::Instantiate
+0x13018	replaced	proxy/native/sprite.cpp	RSprite archive (FUN_10013018)
+0x12FAA	replaced	proxy/native/sprite.cpp	RSprite destroyed (FUN_10012faa)
+0x13DD5	replaced	proxy/native/sprite.cpp	RSprite deleting destructor (FUN_10013dd5)
+0x13DAB	replaced	proxy/native/sprite.cpp	RSprite deleting destructor, second vtable (FUN_10013dab)
+0x13515	replaced	proxy/native/sprite.cpp	RSprite animated (FUN_10013515)
+0x13AB2	replaced	proxy/native/sprite.cpp	RSprite drawn (FUN_10013ab2)
+0x12EB0	replaced	proxy/native/sprite.cpp	RSpriteAnim frame (FUN_10012eb0)
+0x12E56	replaced	proxy/native/sprite.cpp	RSpriteAnim copy (FUN_10012e56)
+0x12F53	replaced	proxy/native/sprite.cpp	RSpriteAnim(archive) (FUN_10012f53)
+0x13540	replaced	proxy/native/sprite.cpp	RSpriteAnim::Instantiate
+0x12EA4	replaced	proxy/native/sprite.cpp	RSpriteAnim destroyed (FUN_10012ea4)
+0x13DB6	replaced	proxy/native/sprite.cpp	RSpriteAnim deleting destructor (FUN_10013db6)
+0x12F91	replaced	proxy/native/sprite.cpp	RSpriteAnim archive (FUN_10012f91)
+0x13E2E	replaced	proxy/native/sprite.cpp	RVisual_t observers: skip? (FUN_10013e2e)
+0x13E71	replaced	proxy/native/sprite.cpp	RVisual_t observers: material (FUN_10013e71)
+0x13EBB	replaced	proxy/native/sprite.cpp	RVisual_t observers: after the material (FUN_10013ebb)
+0x13F00	replaced	proxy/native/sprite.cpp	RVisual_t observers: after drawing (FUN_10013f00)
+0x46E5D	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetCameraMatrix
+0x46E84	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetGroundLightTexture
+0x46EAE	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetGroundLightParameters
+0x46ED4	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetGroundLightIntensity
+0x46F06	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::EnableGroundLight
+0x46F13	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetStatelLightTexture
+0x46F3D	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetStatelLightParameters
+0x46F63	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetStatelLightIntensity
+0x46F95	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::EnableStatelLight
+0x46FA2	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetCATLightTexture
+0x46FCC	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetCATLightParameters
+0x46FF2	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetCATLightIntensity
+0x47024	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetCATLightDirection
+0x47038	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetStatelLightDirection
+0x4704C	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::SetGroundLightDirection
+0x47060	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::EnableCATLight
+0x4706D	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetGroundLightMatrix
+0x470F5	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetStatelLightMatrix
+0x4717D	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetCATLightMatrix
+0x47205	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::FreeAllTextures
+0x4721E	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::PriCheck
+0x47238	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetGroundLightIntensity
+0x4723F	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetGroundLightTexture
+0x4724B	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetStatelLightIntensity
+0x47252	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetStatelLightTexture
+0x4725E	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetCATLightIntensity
+0x47265	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::GetCATLightTexture
+0x47271	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::IsGroundLightUsed
+0x472A2	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::IsStatelLightUsed
+0x472D3	replaced	proxy/native/shadowlands.cpp	RandyShadowlandsData_s::IsCATLightUsed
+0x1998C	replaced	proxy/native/color.cpp	Color_t::Color_t (too short to patch: entry_guard)
+0x1998F	replaced	proxy/native/color.cpp	Color_t::Color_t(uint)
+0x199BB	replaced	proxy/native/color.cpp	Color_t::Init(float,float,float,float)
+0x199FF	replaced	proxy/native/color.cpp	Color_t::Init(RGB_t,float)
+0x19A47	replaced	proxy/native/color.cpp	Color_t::operator=(uint)
+0x19A7A	replaced	proxy/native/color.cpp	Color_t::Interpolate
+0x19B80	replaced	proxy/native/color.cpp	Color_t::Color_t(RGB_t)
+0x19BB1	replaced	proxy/native/color.cpp	Color_t::operator+
+0x19C93	replaced	proxy/native/color.cpp	Color_t::operator*
+0x1F694	replaced	proxy/native/pixfmt.cpp	FUN_1001f694 a mask's lowest set bit and bit count
+0x1F79F	replaced	proxy/native/pixfmt.cpp	FUN_1001f79f an RGBI_t packed
+0x1F90D	replaced	proxy/native/pixfmt.cpp	PixelFormat_t::ConvertColor(void const*,RGBI_t const*)
+0x1FA50	replaced	proxy/native/pixfmt.cpp	PixelFormat_t::ConvertColor(void*,RGBI_t const&)
+0x1FA9D	replaced	proxy/native/pixfmt.cpp	PixelFormat_t::ConvertColor(uchar const*)
+0x1FAE3	replaced	proxy/native/pixfmt.cpp	PixelFormat_t::ConvertColorPacked
+0x1FC3E	replaced	proxy/native/pixfmt.cpp	PixelFormat_t init from a pixel format (FUN_1001fc3e)
+0x1FD01	replaced	proxy/native/pixfmt.cpp	PixelFormat_t::PixelFormat_t
+0x14C9B	replaced	proxy/native/lbitmap.cpp	LBitmap_t init (FUN_10014c9b)
+0x14CC0	replaced	proxy/native/lbitmap.cpp	LBitmap_t destroy (FUN_10014cc0)
+0x14CFF	replaced	proxy/native/lbitmap.cpp	LBitmap_t data size (FUN_10014cff)
+0x14DA8	replaced	proxy/native/lbitmap.cpp	LBitmap_t make 24-bit (FUN_10014da8, vtable slot 2)
+0x14EBC	replaced	proxy/native/lbitmap.cpp	LBitmap_t register (FUN_10014ebc)
+0x14ED7	replaced	proxy/native/lbitmap.cpp	LBitmap_t find by extension (FUN_10014ed7)
+0x14F53	replaced	proxy/native/lbitmap.cpp	LBitmap_t::Scale
+0x15228	replaced	proxy/native/lbitmap.cpp	LBitmap_t constructor (FUN_10015228)
+0x155C5	replaced	proxy/native/lbitmap.cpp	a Vector3 compare (FUN_100155c5)
+0x151E5	replaced	proxy/native/lbitmap.cpp	LBitmap_t::Load
+0x1526B	replaced	proxy/native/lbitmap.cpp	the BMP stream loader (FUN_1001526b)
+0x1553D	replaced	proxy/native/lbitmap.cpp	the loader's factory (FUN_1001553d)
+0x19154	replaced	proxy/native/lbitmap.cpp	the PNG loader's factory (FUN_10019154; stb_image)
+0x18B7C	replaced	proxy/native/lbitmap.cpp	the JPEG loader's factory (FUN_10018b7c; stb_image)
+0x19191	replaced	proxy/native/lbitmap.cpp	the PNG loader's extension (FUN_10019191)
+0x11B94	replaced	proxy/native/lbitmap.cpp	the JPEG loader's extension (FUN_10011b94)
+0x11B9A	replaced	proxy/native/lbitmap.cpp	the BMP loader's extension (FUN_10011b9a)
+0x11D73	replaced	proxy/native/lbitmap.cpp	LBitmap_t deleting destructor (FUN_10011d73)
+0x18D11	replaced	proxy/native/lbitmap.cpp	the PNG loader (FUN_10018d11)
+0x556DB	replaced	proxy/native/cat_status.cpp	CATStatus_t::~CATStatus_t
+0x556F2	replaced	proxy/native/cat_status.cpp	CATStatus_t deleting destructor (FUN_100556f2)
+0x55883	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::~CATStdioStatus_t
+0x558A4	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::VPrintStatus
+0x558BF	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::VPrintWarningLevel1
+0x558DA	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::VPrintWarningLevel2
+0x558F5	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::VPrintError
+0x55910	replaced	proxy/native/cat_status.cpp	CATStdioStatus_t::VPrintDebug
+0x1B63B	replaced	proxy/native/helpers.cpp	a Type* debug descriptor store (FUN_1001b63b)
+0x1B662	replaced	proxy/native/helpers.cpp	a Type* debug descriptor size (FUN_1001b662) (too short to patch: entry_guard)
+0x2A358	replaced	proxy/native/helpers.cpp	Vector3 cross product (FUN_1002a358)
+0x2A39F	replaced	proxy/native/helpers.cpp	Vector3 scale (FUN_1002a39f)
+0x2A3DB	replaced	proxy/native/helpers.cpp	Vector3 cross product to (FUN_1002a3db)
+0x2A406	replaced	proxy/native/helpers.cpp	TMatrix4_t identity (FUN_1002a406)
+0x45289	replaced	proxy/native/helpers.cpp	NextNode (the frame hierarchy)
+0x191B8	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator::EnableCompression
+0x193E4	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator::CreateTexture(LBitmap_t*,name)
+0x17EB0	replaced	proxy/native/texture_stream.cpp	RTexture_t archive wrapper (FUN_10017eb0)
+0x191A0	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator::Archive
+0x1920F	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator(archive) ctor
+0x19289	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator::Instantiate
+0x192BE	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator(stream,name,int) ctor
+0x19351	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator(bitmap,name,int) ctor
+0x1973A	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator::CreateTexture(stream,name)
+0x19774	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator deleting destructor, base (FUN_10019774)
+0x19852	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator destructor (FUN_10019852)
+0x19870	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator deleting destructor (FUN_10019870)
+0x19960	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator vtable Process (FUN_10019960)
+0x1988F	replaced	proxy/native/texture_stream.cpp	format into a std::string (FUN_1001988f)
+0x1994C	replaced	proxy/native/texture_stream.cpp	format with varargs (FUN_1001994c)
+0x166EE	replaced	proxy/native/faf.cpp	FAFAttractor_t(archive) ctor (FUN_100166ee)
+0x16743	replaced	proxy/native/faf.cpp	FAFAttractor_t::Instantiate
+0x1682C	replaced	proxy/native/faf.cpp	FAFAttractor_t deleting destructor (FUN_1001682c)
+0x168D6	replaced	proxy/native/faf.cpp	FAFCollisionBox_c::Archive (FUN_100168d6)
+0x1672B	replaced	proxy/native/faf.cpp	FAFAttractor_t::Archive (FUN_1001672b)
+0x168EE	replaced	proxy/native/faf.cpp	FAFCollisionBox_c(archive) ctor (FUN_100168ee)
+0x16946	replaced	proxy/native/faf.cpp	FAFCollisionBox_c::Instantiate
+0x16AC0	replaced	proxy/native/faf.cpp	FAFCollisionSphere_c::Archive (FUN_10016ac0)
+0x16D3F	replaced	proxy/native/faf.cpp	FAFPointLight_t::Archive (FUN_10016d3f)
+0x16D57	replaced	proxy/native/faf.cpp	FAFPointLight_t::Instantiate
+0x16D9B	replaced	proxy/native/faf.cpp	FAFSpotLight_t::Archive (FUN_10016d9b)
+0x16DB3	replaced	proxy/native/faf.cpp	FAFSpotLight_t::Instantiate
+0x16AD8	replaced	proxy/native/faf.cpp	FAFCollisionSphere_c(archive) ctor (FUN_10016ad8)
+0x16B30	replaced	proxy/native/faf.cpp	FAFCollisionSphere_c::Instantiate
+0x17EC8	replaced	proxy/native/faf.cpp	FAFTexture_t::Instantiate
+0x17F0C	replaced	proxy/native/faf.cpp	FAFTexture_t deleting destructor (FUN_10017f0c)
+0x17D1D	replaced	proxy/native/faf.cpp	FAFMaterial_t(archive) ctor (FUN_10017d1d)
+0x17D61	replaced	proxy/native/faf.cpp	FAFMaterial_t::Instantiate
+0x17D99	replaced	proxy/native/faf.cpp	FAFMaterial_t::Archive (FUN_10017d99)
+0x17DB1	replaced	proxy/native/faf.cpp	FAFMaterial_t destructor (FUN_10017db1)
+0x17E85	replaced	proxy/native/faf.cpp	FAFMaterial_t deleting destructor (FUN_10017e85)
+0x16AA1	replaced	proxy/native/faf.cpp	FAFCollisionBox_c deleting destructor (FUN_10016aa1)
+0x16C5E	replaced	proxy/native/faf.cpp	the collision classes' destructor (FUN_10016c5e)
+0x16CB2	replaced	proxy/native/faf.cpp	FAFDirectionalLight_t(archive) ctor (FUN_10016cb2)
+0x16CEF	replaced	proxy/native/faf.cpp	FAFDirectionalLight_t::Archive (FUN_10016cef)
+0x16D07	replaced	proxy/native/faf.cpp	FAFDirectionalLight_t::Instantiate
+0x17DF5	replaced	proxy/native/faf.cpp	RMaterial_t copy into a fresh object (FUN_10017df5)
+0x12CF0	replaced	proxy/native/helpers.cpp	Vector3 subtract (FUN_10012cf0)
+0x18833	replaced	proxy/native/helpers.cpp	Vector3 normalize and scale (FUN_10018833)
+0x18864	replaced	proxy/native/helpers.cpp	Vector3 normalize and scale to (FUN_10018864)
+0x2CDB2	replaced	proxy/native/helpers.cpp	a matrix's origin plus a Vector3 (FUN_1002cdb2)
+0x46518	replaced	proxy/native/helpers.cpp	a matrix moved along its axes (FUN_10046518)
+0x46587	replaced	proxy/native/rshadow.cpp	RShadow copy constructor (FUN_10046587)
+0x4666A	replaced	proxy/native/rshadow.cpp	RShadow destructor (FUN_1004666a)
+0x466B2	replaced	proxy/native/rshadow.cpp	RShadow::Archive (FUN_100466b2)
+0x46788	replaced	proxy/native/rshadow.cpp	RShadow shadow matrix (FUN_10046788)
+0x46883	replaced	proxy/native/rshadow.cpp	RShadow::RenderShadow (FUN_10046883)
+0x46B4A	replaced	proxy/native/rshadow.cpp	RShadow(archive) constructor (FUN_10046b4a)
+0x46CF1	replaced	proxy/native/rshadow.cpp	RShadow vtable Process (FUN_10046cf1)
+0x46D5F	replaced	proxy/native/rshadow.cpp	RShadow shadow matrix accessor (FUN_10046d5f)
+0x46D78	replaced	proxy/native/rshadow.cpp	RShadow::Instantiate
+0x46DF9	replaced	proxy/native/rshadow.cpp	RShadow deleting destructor, RRefFrame_t part (FUN_10046df9)
+0x46E04	replaced	proxy/native/rshadow.cpp	RShadow copy into a fresh object (FUN_10046e04)
+0x46E3E	replaced	proxy/native/rshadow.cpp	RShadow deleting destructor (FUN_10046e3e)
+0x1242A	replaced	proxy/native/rgrid.cpp	RGrid::~RGrid (FUN_1001242a)
+0x1248F	replaced	proxy/native/rgrid.cpp	RGrid::Archive (FUN_1001248f)
+0x12501	replaced	proxy/native/rgrid.cpp	RGrid::Render (FUN_10012501)
+0x125D7	replaced	proxy/native/rgrid.cpp	RGrid::SetColor
+0x12634	replaced	proxy/native/rgrid.cpp	RGrid::Build (FUN_10012634)
+0x128A1	replaced	proxy/native/rgrid.cpp	RGrid::RGrid
+0x1298E	replaced	proxy/native/rgrid.cpp	RGrid::RGrid(archive) (FUN_1001298e)
+0x12A4A	replaced	proxy/native/rgrid.cpp	RGrid::Instantiate
+0x12A82	replaced	proxy/native/rgrid.cpp	RVisual_t::Clone (FUN_10012a82)
+0x12ABC	replaced	proxy/native/rgrid.cpp	RVisual_t vtable slot 12 default (FUN_10012abc)
+0x12AC1	replaced	proxy/native/rgrid.cpp	BVolume_t from points (FUN_10012ac1)
+0x12B69	replaced	proxy/native/rgrid.cpp	RGrid subject deleting destructor (FUN_10012b69)
+0x12B74	replaced	proxy/native/rgrid.cpp	RGrid deleting destructor (FUN_10012b74)
+0x24CF8	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetBlueprint (too short to patch: entry_guard)
+0x24D09	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetMaterial (too short to patch: entry_guard)
+0x24D1A	replaced	proxy/native/state_blob.cpp	StateBlob_c::GetRenderTarget (too short to patch: entry_guard)
+0x1B69D	replaced	proxy/native/mesh_data.cpp	Triangle::GetIndexCount (too short to patch: entry_guard)
+0x1B6E3	replaced	proxy/native/mesh_data.cpp	Triangle static table 0 (FUN_1001b6e3)
+0x1B6E9	replaced	proxy/native/mesh_data.cpp	Triangle static table 1 (FUN_1001b6e9)
+0x1B6EF	replaced	proxy/native/mesh_data.cpp	Triangle static table 2 (FUN_1001b6ef)
+0x4E7EB	replaced	proxy/native/mesh_data.cpp	RVisualData_t::GetSimpleMeshArray (const) (too short to patch: entry_guard)
+0x4E7EF	replaced	proxy/native/mesh_data.cpp	RVisualData_t::GetSimpleMeshArray (too short to patch: entry_guard)
+0x40AFB	replaced	proxy/native/material.cpp	RMaterial_t::GetEnvTexture (too short to patch: entry_guard)
+0x41528	replaced	proxy/native/material.cpp	RMaterial_t deleting destructor (FUN_10041528)
+0x19197	replaced	proxy/native/material.cpp	DefaultMaterial_t constructor iterator (FUN_10019197) (too short to patch: entry_guard)
+0x2EF97	replaced	proxy/native/material.cpp	DefaultMaterial_t deleting destructor (FUN_1002ef97)
+0x2FBD2	replaced	proxy/native/material.cpp	RDeltaState deleting destructor (FUN_1002fbd2)
+0x2FD23	replaced	proxy/native/material.cpp	a frame's value at +0x84 (FUN_1002fd23)
+0x2EDA6	replaced	proxy/native/material.cpp	DefaultMaterial_t::Archive (FUN_1002eda6)
+0x2EDBE	replaced	proxy/native/material.cpp	the CRT rand seeded (FUN_1002edbe)
+0x2EDE7	replaced	proxy/native/material.cpp	a random colour (FUN_1002ede7)
+0x26277	replaced	proxy/native/surface.cpp	a format code's bits (FUN_10026277)
+0x263DC	replaced	proxy/native/surface.cpp	a surface no-op (FUN_100263dc) (too short to patch: entry_guard)
+0x278B4	replaced	proxy/native/surface.cpp	a surface constant 2 (FUN_100278b4) (too short to patch: entry_guard)
+0x16469	replaced	proxy/native/resource.cpp	RResource_t::AddRefRResource (2nd entry) (FUN_10016469)
+0x46767	replaced	proxy/native/resource.cpp	RResource_t notifies its texture (FUN_10046767)
+0x47638	replaced	proxy/native/texture.cpp	RTexture_t::GetPitch (too short to patch: entry_guard)
+0x1984A	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator name (FUN_1001984a) (too short to patch: entry_guard)
+0x1984E	replaced	proxy/native/texture_stream.cpp	TextureStreamCreator flag (FUN_1001984e) (too short to patch: entry_guard)
+0x4763C	replaced	proxy/native/texture_stream.cpp	TextureCreator::TextureCreator(archive)
+0x4767A	replaced	proxy/native/texture_stream.cpp	TextureCreator::Archive
+0x504F2	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t::GetAnim2 (too short to patch: entry_guard)
+0x50A5B	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t field (FUN_10050a5b) (too short to patch: entry_guard)
+0x50FF4	replaced	proxy/native/cat_anim_data.cpp	CATAnimBlend_t clear (FUN_10050ff4)
+0x52A5E	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t field (FUN_10052a5e) (too short to patch: entry_guard)
+0x52A69	replaced	proxy/native/cat_anim_data.cpp	CATKeyframeAnimData_t flag (FUN_10052a69) (too short to patch: entry_guard)
+0x53E97	replaced	proxy/native/cat_data.cpp	CATError_t::CATError_t
+0x4198A	replaced	proxy/native/randy.cpp	Randy_t::GetNumAlphaBits (too short to patch: entry_guard)
+0x41566	replaced	proxy/native/randy.cpp	an offscreen feature given up (FUN_10041566)
+0x11BA0	replaced	proxy/native/randy.cpp	Randy's one-shot canary (FUN_10011ba0)
+0x14309	replaced	proxy/native/dynamic_vb.cpp	a vertex buffer freed (FUN_10014309)
+0x4A64D	replaced	proxy/native/mesh.cpp	RTriMesh_t subject deleting destructor (FUN_1004a64d)
+0x12C31	replaced	proxy/native/visual.cpp	SubjectImpl observer add (FUN_10012c31)
+0x12C58	replaced	proxy/native/visual.cpp	SubjectImpl observer remove (FUN_10012c58)
+0x12C9E	replaced	proxy/native/visual.cpp	SubjectImpl observer remove slot (FUN_10012c9e)
+0x16A92	replaced	proxy/native/faf.cpp	FAFCollisionBox_c name (FUN_10016a92)
+0x17F2B	replaced	proxy/native/faf.cpp	a vector's inverse length (FUN_10017f2b)
+0x28A4A	replaced	proxy/native/timer.cpp	Timer tick length (FUN_10028a4a)
+0x28A62	replaced	proxy/native/timer.cpp	Timer::Timer
+0x28ACA	replaced	proxy/native/timer.cpp	Timer counter (FUN_10028aca)
+0x28AE1	replaced	proxy/native/timer.cpp	Timer::GetSec
+0x28B1C	replaced	proxy/native/timer.cpp	Timer::GetMilliSec
+0x28C05	replaced	proxy/native/timer.cpp	Timer::Start
+0x28C1E	replaced	proxy/native/timer.cpp	Timer::Stop
+0x6E302	replaced	proxy/native/funcom.cpp	Funcom 4x4 matrix multiply (FUN_1006e302)
+0x6F058	replaced	proxy/native/funcom.cpp	Funcom hash constant (FUN_1006f058)
+0x6F05E	replaced	proxy/native/funcom.cpp	Funcom "Container" name (FUN_1006f05e)
+0x7080F	replaced	proxy/native/funcom.cpp	SL_StreamControl_t vtable (FUN_1007080f)
+0x70927	replaced	proxy/native/funcom.cpp	SL_StreamControl_t deleting destructor (FUN_10070927)
+0x71814	replaced	proxy/native/funcom.cpp	FC_Base_t::~FC_Base_t (FUN_10071814)
+0x71833	replaced	proxy/native/funcom.cpp	FC_Base_t name (FUN_10071833)
+0x71873	replaced	proxy/native/funcom.cpp	FC_Base_t name read (FUN_10071873)
+0x718BF	replaced	proxy/native/funcom.cpp	FC_Base_t write to a variable (FUN_100718bf)
+0x7194F	replaced	proxy/native/funcom.cpp	Funcom no-op (FUN_1007194f) (too short to patch: entry_guard)
+0x72247	replaced	proxy/native/funcom.cpp	Funcom returns 0 (FUN_10072247) (too short to patch: entry_guard)
+0x72F58	replaced	proxy/native/funcom.cpp	SL_Chunk_t destructor (FUN_10072f58)
+0x7386D	replaced	proxy/native/funcom.cpp	FC_Base_t deleting destructor (FUN_1007386d)
+0x74F95	replaced	proxy/native/funcom.cpp	Funcom clears a byte (FUN_10074f95)
+0x756F2	replaced	proxy/native/funcom.cpp	Funcom returns 1 (FUN_100756f2) (too short to patch: entry_guard)
+0x7809F	replaced	proxy/native/funcom.cpp	SL_Chunk_t deleting destructor (FUN_1007809f)
+0x25E1B	replaced	proxy/native/device.cpp	RenderStats_t::Reset (too short to patch: entry_guard)
+0x25E22	replaced	proxy/native/device.cpp	RenderStats_t::GetGroupName
+0x25E2A	replaced	proxy/native/device.cpp	RenderStats_t::GetNameName
+0x5C270	replaced	proxy/native/cat_anim_data.cpp	zlib uncompress (FUN_1005c270)
+0x1E4A3	replaced	proxy/native/dxerror.cpp	fun::DXError::DXError (FUN_1001e4a3)
+0x1E479	replaced	proxy/native/dxerror.cpp	fun::DXError::~DXError
+0x1D615	replaced	proxy/native/dxerror.cpp	fun::DXError::GetErrorNo
+0x1D611	replaced	proxy/native/dxerror.cpp	fun::DXError::GetLineNo
+0x1D60D	replaced	proxy/native/dxerror.cpp	fun::DXError::GetFilename
+0x13D19	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_10013d19)
+0x2BDDC	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_1002bddc)
+0x2F989	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_1002f989)
+0x414DF	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_100414df)
+0x460B8	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_100460b8)
+0x46101	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_10046101)
+0x46DB0	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_10046db0)
+0x47ECC	replaced	proxy/native/findobject.cpp	fun::FindObjectFor<T> (FUN_10047ecc)
+0x63870	replaced	proxy/native/d3dx.cpp	D3DXMakeDDPixelFormat (FUN_10063870)
+0x638BE	replaced	proxy/native/d3dx.cpp	D3DXMakeSurfaceFormat (FUN_100638be)
+0x21541	replaced	proxy/native/d3dx.cpp	render_t::D3DXMakeDDPixelFormat (FUN_10021541)
+0x23DB3	replaced	proxy/native/d3dx.cpp	render_t::D3DXMakeSurfaceFormat (FUN_10023db3)
+0x63DF8	replaced	proxy/native/d3dx.cpp	D3DXCreateTexture (FUN_10063df8)
+0x63D5D	replaced	proxy/native/d3dx.cpp	D3DX texture image info (FUN_10063d5d)

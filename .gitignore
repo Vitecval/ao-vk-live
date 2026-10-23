@@ -1,0 +1,16 @@
+build/
+/dist/
+/orig
+compile_commands.json
+/ghidra
+/logs
+/re
+/proxy/native/private/
+
+__pycache__/
+*.zip
+*.7z
+*.obj
+*.pdb
+.vs/
+.vscode/

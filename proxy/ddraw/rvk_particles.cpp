@@ -1,0 +1,289 @@
+// Game side of the GPU particles (rvk::Device::ParticleEmitter): which of the game's sprite effects get particles, and
+// their sprites. Two virtual functions are hooked by patching their vtable slots (checked against the known client):
+//
+//   GfxVisualDiaBill::Render (DisplaySystem.dll) - the sprite batch most effects draw through (up to 128 camera-facing
+//     sprites: position, size, colour, atlas frame, alive). Announces the effect with its sprites in world space, then
+//     lets the game draw - with its sprites dimmed (RVK_PartCore) - and rvk draws the particles right after.
+//   _GfxControlStars_t::Update (Gamecode.dll) - the effect behind most sparkles. Knows its template id (gfxtweak.bin) and
+//     its sprite batch, so effects can be chosen by template: randy-vk.ini [Particles] Templates=id,id,first-last.
+//
+// Layouts from the decompiled client (randy-vk/re/ds_diabill.c, gc_stars*.c).
+#include "rvk_backend.h"
+#include "rvk_settings.h"
+#include "native/client_build.h"
+
+#include <windows.h>
+
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <unordered_map>
+#include <vector>
+
+namespace rvkproxy {
+
+namespace {
+
+// GfxVisualDiaBill (DisplaySystem.dll, image base 0x10000000).
+constexpr uint32_t kDiaBillVtable = 0x1008A6DC - 0x10000000, kDiaBillRenderSlot = 13;
+constexpr uint32_t kDiaBillRender = 0x1001105E - 0x10000000;
+constexpr uint32_t kDiaBillHidden = 0x178, kDiaBillMaterial = 0x17C, kDiaBillColumns = 0x184, kDiaBillRows = 0x188;
+constexpr uint32_t kDiaBillCount = 0x1A8, kDiaBillSprites = 0x1AC, kDiaBillPackedUv = 0x1B0;
+// DiaBill_n::Sprite_t, 32 bytes.
+struct GameSprite {
+    float pos[3];              // effect space
+    float width, height;
+    uint32_t color;            // D3DCOLOR
+    uint32_t frame;            // atlas cell, or (packed) u v du dv bytes
+    uint8_t alive;
+    uint8_t pad[3];
+};
+static_assert(sizeof(GameSprite) == 32, "DiaBill_n::Sprite_t");
+
+// _GfxControlStars_t (Gamecode.dll, image base 0x10000000).
+constexpr uint32_t kStarsVtable = 0x1016CD6C - 0x10000000, kStarsUpdateSlot = 1;
+constexpr uint32_t kStarsUpdate = 0x100F7F3C - 0x10000000;
+constexpr uint32_t kControlTemplate = 0x4, kStarsVisual = 0x40;
+
+using RenderFn = uint32_t(__thiscall*)(void* self, void* viewport);
+using UpdateFn = uint32_t(__thiscall*)(void* self);
+RenderFn g_render;
+UpdateFn g_update;
+using WorldMatrixFn = const float*(__thiscall*)(const void* self);   // RRefFrame_t::GetWorldMatrix (randy31_orig)
+WorldMatrixFn g_worldMatrix;
+
+bool g_installed, g_gaveUp;
+uint32_t g_frame = 1;
+struct Range { uint32_t first, last; };
+std::vector<Range> g_templates;
+bool g_allTemplates;
+// Sprite batches of chosen effects, with the frame their effect last updated them.
+std::unordered_map<const void*, uint32_t> g_chosen;
+// Floating text (FlushOverlayText): the batches held back this frame, and when the interface last flushed them - only
+// while it does (its hook in place) is text held back; else it is drawn in the scene as before.
+std::vector<std::pair<void*, void*>> g_overlayText;
+uint32_t g_overlayFlushed;
+
+template <typename T>
+T At(const void* object, uint32_t offset)
+{
+    T v;
+    std::memcpy(&v, static_cast<const uint8_t*>(object) + offset, sizeof(T));
+    return v;
+}
+
+// "43299, 98700000-98700099" or "all".
+void LoadTemplates()
+{
+    char buf[1024] = "";
+    GetPrivateProfileStringA("Particles", "Templates", "", buf, sizeof(buf), rvk_settings::IniPath());
+    if (!buf[0]) {
+        std::strcpy(buf, "all");                  // or a list, e.g. 43299,98700000-98700099 (Lesser Controlled Rage)
+        WritePrivateProfileStringA("Particles", "Templates", buf, rvk_settings::IniPath());
+    }
+    g_allTemplates = std::strstr(buf, "all") != nullptr;
+    for (char* p = buf; *p;) {
+        char* end;
+        unsigned long a = std::strtoul(p, &end, 10);
+        if (end == p) { ++p; continue; }
+        unsigned long b = a;
+        if (*end == '-') b = std::strtoul(end + 1, &end, 10);
+        g_templates.push_back({uint32_t(a), uint32_t(b)});
+        p = end;
+    }
+    RvkLog("particles: %s templates %s", g_allTemplates ? "all" : "chosen", buf);
+}
+
+bool Chosen(uint32_t id)
+{
+    if (g_allTemplates) return true;
+    for (const Range& r : g_templates)
+        if (id >= r.first && id <= r.last) return true;
+    return false;
+}
+
+uint32_t __fastcall StarsUpdate(void* self, void* /*edx*/)
+{
+    uint32_t r = g_update(self);
+    const void* visual = At<const void*>(self, kStarsVisual);
+    if (visual && Chosen(At<uint32_t>(self, kControlTemplate)))
+        g_chosen[visual] = g_frame;
+    return r;
+}
+
+uint32_t __fastcall DiaBillRender(void* self, void* /*edx*/, void* viewport)
+{
+    rvk::ThreadedDevice* device = g_rvk.device;
+    // Floating text - damage and XP numbers, names: the only sprite batches with packed glyph rectangles (Gamecode
+    // FUN_100dee29 makes one sprite a character of a string). Held back from the scene - the smoke, fog, bloom and
+    // grading over it changed it - and drawn over the finished picture just before the interface.
+    if (device && At<uint8_t>(self, kDiaBillPackedUv) != 0 && g_overlayFlushed + 2 >= g_frame &&
+        At<uint32_t>(self, kDiaBillHidden) == 0 && g_overlayText.size() < 256) {
+        if (std::find(g_overlayText.begin(), g_overlayText.end(), std::make_pair(self, viewport)) == g_overlayText.end())
+            g_overlayText.emplace_back(self, viewport);
+        return 0;                                 // (the game's Render returns nothing)
+    }
+    auto it = g_chosen.find(self);
+    if (it == g_chosen.end() || it->second + 30 < g_frame || !device || !device->GetParticleParams().enable ||
+        At<uint32_t>(self, kDiaBillHidden) != 0)
+        return g_render(self, viewport);
+
+    auto* sprites = At<GameSprite*>(self, kDiaBillSprites);
+    uint32_t count = std::min<uint32_t>(std::max(At<int32_t>(self, kDiaBillCount), 0), rvk::Device::kParticleSlots);
+    if (!sprites || !count)
+        return g_render(self, viewport);
+    const float* m = g_worldMatrix(self);           // row vectors: p' = p * M
+    bool atlas = At<const void*>(self, kDiaBillMaterial) != nullptr;
+    bool packed = At<uint8_t>(self, kDiaBillPackedUv) != 0;
+    int32_t columns = std::max(At<int32_t>(self, kDiaBillColumns), 1), rows = std::max(At<int32_t>(self, kDiaBillRows), 1);
+
+    rvk::Device::ParticleSprite out[rvk::Device::kParticleSlots];
+    float center[3] = {0, 0, 0};
+    uint32_t alive = 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        const GameSprite& s = sprites[i];
+        rvk::Device::ParticleSprite& o = out[i];
+        for (int c = 0; c < 3; ++c)
+            o.pos[c] = s.pos[0] * m[c] + s.pos[1] * m[4 + c] + s.pos[2] * m[8 + c] + m[12 + c];
+        o.size = s.width;
+        o.color = s.color;
+        o.alive = s.alive ? 1u : 0u;
+        if (packed) {                              // GfxVisualDiaBill::Render's packed rectangle (1/128, 1/64 steps)
+            o.uv[0] = float((s.frame >> 24) & 0xFF) / 128.0f;
+            o.uv[1] = float((s.frame >> 16) & 0xFF) / 64.0f;
+            o.uv[2] = float((s.frame >> 8) & 0xFF) / 128.0f;
+            o.uv[3] = float(s.frame & 0xFF) / 64.0f;
+        } else if (atlas) {
+            int32_t column = int32_t(s.frame) % columns, row = int32_t(s.frame) / columns;
+            o.uv[0] = float(column) / float(columns);
+            o.uv[1] = float(row) / float(rows);
+            o.uv[2] = 1.0f / float(columns);
+            o.uv[3] = 1.0f / float(rows);
+        } else {
+            o.uv[0] = o.uv[1] = 0.0f;
+            o.uv[2] = o.uv[3] = 1.0f;
+        }
+        if (s.alive) {
+            for (int c = 0; c < 3; ++c) center[c] += o.pos[c];
+            ++alive;
+        }
+    }
+    // The swirl and the pull centre on the effect's live sprites (its origin may be at the character's feet).
+    if (alive) {
+        for (float& c : center) c /= float(alive);
+    } else {
+        std::memcpy(center, m + 12, sizeof(center));
+    }
+
+    // The game's own sprites, dimmed while it draws them. (Once none are alive the game draws nothing; rvk then draws
+    // the remaining particles itself until they have died out.)
+    float core = rvk_settings::GetEffective("RVK_PartCore");
+    uint32_t savedColor[rvk::Device::kParticleSlots];
+    for (uint32_t i = 0; i < count; ++i) {
+        savedColor[i] = sprites[i].color;
+        uint32_t a = uint32_t(float(sprites[i].color >> 24) * core + 0.5f);
+        sprites[i].color = (sprites[i].color & 0x00FFFFFFu) | (std::min(a, 255u) << 24);
+    }
+    uint32_t r;
+    {
+        static const unsigned index = ComIndex("IDirect3DDevice7::DrawIndexedPrimitive");
+        ComScope scope(index);
+        device->ParticleEmitter(uint64_t(uintptr_t(self)), center, m + 12, out, count);   // origin: the matrix's translation
+        r = g_render(self, viewport);
+        device->EndParticleEmitter();
+    }
+    for (uint32_t i = 0; i < count; ++i)
+        sprites[i].color = savedColor[i];
+    return r;
+}
+
+}  // namespace
+
+void FlushOverlayText()
+{
+    g_overlayFlushed = g_frame;
+    rvk::ThreadedDevice* device = g_rvk.device;
+    if (g_overlayText.empty() || !device || !g_render) {
+        g_overlayText.clear();
+        return;
+    }
+    device->OverlayBegin();
+    HMODULE ds = GetModuleHandleA("DisplaySystem.dll");
+    const uintptr_t vtable = ds ? reinterpret_cast<uintptr_t>(ds) + kDiaBillVtable : 0;
+    static const unsigned index = ComIndex("IDirect3DDevice7::DrawIndexedPrimitive");
+    for (const auto& [self, viewport] : g_overlayText) {
+        if (!vtable || At<uintptr_t>(self, 0) != vtable)
+            continue;                             // (no longer the batch it was)
+        ComScope scope(index);
+        g_render(self, viewport);
+    }
+    g_overlayText.clear();
+}
+
+// Points slot `slot` of the vtable at module + vtable (expected: module + expected) at hook; the old entry in original.
+bool PatchSlot(HMODULE module, uint32_t vtable, uint32_t slot, uint32_t expected, void* hook, void** original,
+               const char* what)
+{
+    auto base = reinterpret_cast<uintptr_t>(module);
+    auto* entry = reinterpret_cast<uintptr_t*>(base + vtable + 4 * slot);
+    if (*entry != base + expected) {
+        RvkLog("%s: vtable slot is %p, expected %p - unknown client version, left alone", what,
+               (void*)*entry, (void*)(base + expected));
+        return false;
+    }
+    DWORD protect;
+    if (!VirtualProtect(entry, sizeof(*entry), PAGE_EXECUTE_READWRITE, &protect))   // (execute kept: shared pages)
+        return false;
+    *original = reinterpret_cast<void*>(*entry);
+    *entry = reinterpret_cast<uintptr_t>(hook);
+    VirtualProtect(entry, sizeof(*entry), protect, &protect);
+    return true;
+}
+
+// Each presented frame: installs the hooks once both modules are loaded (Gamecode.dll comes after the renderer).
+void ParticleFrame()
+{
+    ++g_frame;
+    g_overlayText.clear();                        // (held back but never flushed: the interface wasn't drawn)
+    if (g_frame % 600 == 0) {                         // forget batches of effects that ended
+        for (auto it = g_chosen.begin(); it != g_chosen.end();)
+            it = it->second + 600 < g_frame ? g_chosen.erase(it) : std::next(it);
+    }
+    if (g_installed || g_gaveUp)
+        return;
+    HMODULE ds = GetModuleHandleA("DisplaySystem.dll"), gc = GetModuleHandleA("Gamecode.dll");
+    HMODULE orig = rnative::OriginalModule();
+    if (!ds || !gc || !orig)
+        return;
+    const auto build = rnative::IdentifyClientModule(gc, rnative::ClientModule::Gamecode);
+    if (build == rnative::ClientBuild::Unknown ||
+        rnative::IdentifyClientModule(ds, rnative::ClientModule::DisplaySystem) == rnative::ClientBuild::Unknown) {
+        RvkLog("particles: unsupported client modules - hooks disabled");
+        g_gaveUp = true;
+        return;
+    }
+    const uint32_t starsVtable = build == rnative::ClientBuild::Live ? 0x16DDAC : kStarsVtable;
+    const uint32_t starsUpdate = build == rnative::ClientBuild::Live ? 0xF8491 : kStarsUpdate;
+    g_worldMatrix = reinterpret_cast<WorldMatrixFn>(
+        GetProcAddress(orig, "?GetWorldMatrix@RRefFrame_t@@QBEABVTMatrix4_t@@XZ"));
+    LoadTemplates();
+    void* render = nullptr;
+    void* update = nullptr;
+    if (!g_worldMatrix ||
+        !PatchSlot(ds, kDiaBillVtable, kDiaBillRenderSlot, kDiaBillRender, reinterpret_cast<void*>(&DiaBillRender),
+                   &render, "particles: GfxVisualDiaBill::Render")) {
+        g_gaveUp = true;
+        return;
+    }
+    g_render = reinterpret_cast<RenderFn>(render);
+    if (!PatchSlot(gc, starsVtable, kStarsUpdateSlot, starsUpdate, reinterpret_cast<void*>(&StarsUpdate), &update,
+                   "particles: _GfxControlStars_t::Update")) {
+        g_gaveUp = true;                              // the render hook stays in, but no effect is ever chosen
+        return;
+    }
+    g_update = reinterpret_cast<UpdateFn>(update);
+    g_installed = true;
+    RvkLog("particles: hooks installed (DisplaySystem %p, Gamecode %p)", (void*)ds, (void*)gc);
+}
+
+}  // namespace rvkproxy

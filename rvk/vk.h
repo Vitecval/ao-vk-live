@@ -1,0 +1,165 @@
+// Vulkan entry points, loaded at run time from vulkan-1.dll (under Wine: winevulkan).
+#pragma once
+
+#define VK_NO_PROTOTYPES
+#define VK_USE_PLATFORM_WIN32_KHR
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <vulkan/vulkan.h>
+
+#define RVK_VK_GLOBAL_FUNCS(X) \
+    X(vkCreateInstance) \
+    X(vkEnumerateInstanceExtensionProperties)
+
+#define RVK_VK_INSTANCE_FUNCS(X) \
+    X(vkDestroyInstance) \
+    X(vkEnumeratePhysicalDevices) \
+    X(vkGetPhysicalDeviceProperties) \
+    X(vkGetPhysicalDeviceFeatures) \
+    X(vkGetPhysicalDeviceProperties2) \
+    X(vkGetPhysicalDeviceFeatures2) \
+    X(vkGetPhysicalDeviceQueueFamilyProperties) \
+    X(vkGetPhysicalDeviceMemoryProperties) \
+    X(vkGetPhysicalDeviceFormatProperties) \
+    X(vkEnumerateDeviceExtensionProperties) \
+    X(vkCreateDevice) \
+    X(vkGetDeviceProcAddr) \
+    X(vkCreateWin32SurfaceKHR) \
+    X(vkDestroySurfaceKHR) \
+    X(vkGetPhysicalDeviceSurfaceSupportKHR) \
+    X(vkGetPhysicalDeviceSurfaceCapabilitiesKHR) \
+    X(vkGetPhysicalDeviceSurfaceFormatsKHR) \
+    X(vkGetPhysicalDeviceSurfacePresentModesKHR)
+
+#define RVK_VK_DEVICE_FUNCS(X) \
+    /* (the FidelityFX SDK's frame interpolation swapchain and backend call these directly: rvk/ffx_vk_shim.h) */ \
+    X(vkAllocateMemory) \
+    X(vkFreeMemory) \
+    X(vkBindImageMemory) \
+    X(vkGetImageMemoryRequirements) \
+    X(vkCreateImage) \
+    X(vkDestroyImage) \
+    X(vkCreateBuffer) \
+    X(vkCreateRenderPass) \
+    X(vkDestroyRenderPass) \
+    X(vkCreateFramebuffer) \
+    X(vkDestroyFramebuffer) \
+    X(vkCmdBeginRenderPass) \
+    X(vkCmdEndRenderPass) \
+    X(vkCmdPipelineBarrier) \
+    X(vkFreeDescriptorSets) \
+    X(vkResetCommandPool) \
+    X(vkWaitSemaphores) \
+    X(vkGetSemaphoreCounterValue) \
+    X(vkDestroyDevice) \
+    X(vkGetDeviceQueue) \
+    X(vkDeviceWaitIdle) \
+    X(vkQueueSubmit) \
+    X(vkQueueWaitIdle) \
+    X(vkQueuePresentKHR) \
+    X(vkCreateSwapchainKHR) \
+    X(vkDestroySwapchainKHR) \
+    X(vkGetSwapchainImagesKHR) \
+    X(vkAcquireNextImageKHR) \
+    X(vkCreateCommandPool) \
+    X(vkDestroyCommandPool) \
+    X(vkAllocateCommandBuffers) \
+    X(vkFreeCommandBuffers) \
+    X(vkResetCommandBuffer) \
+    X(vkBeginCommandBuffer) \
+    X(vkEndCommandBuffer) \
+    X(vkCreateFence) \
+    X(vkDestroyFence) \
+    X(vkWaitForFences) \
+    X(vkResetFences) \
+    X(vkCreateSemaphore) \
+    X(vkDestroySemaphore) \
+    X(vkCreateImageView) \
+    X(vkDestroyImageView) \
+    X(vkCreateSampler) \
+    X(vkDestroySampler) \
+    X(vkCreateShaderModule) \
+    X(vkDestroyShaderModule) \
+    X(vkCreateDescriptorSetLayout) \
+    X(vkDestroyDescriptorSetLayout) \
+    X(vkCreateDescriptorPool) \
+    X(vkDestroyDescriptorPool) \
+    X(vkAllocateDescriptorSets) \
+    X(vkUpdateDescriptorSets) \
+    X(vkCmdBindDescriptorSets) \
+    X(vkCreatePipelineLayout) \
+    X(vkDestroyPipelineLayout) \
+    X(vkCreateGraphicsPipelines) \
+    X(vkCreateComputePipelines) \
+    X(vkCreatePipelineCache) \
+    X(vkGetPipelineCacheData) \
+    X(vkDestroyPipelineCache) \
+    X(vkDestroyPipeline) \
+    X(vkCmdBeginRendering) \
+    X(vkCmdEndRendering) \
+    X(vkCmdPipelineBarrier2) \
+    X(vkCmdBindPipeline) \
+    X(vkCmdBindVertexBuffers) \
+    X(vkCmdBindIndexBuffer) \
+    X(vkCmdPushDescriptorSetKHR) \
+    X(vkCreateQueryPool) \
+    X(vkDestroyQueryPool) \
+    X(vkGetQueryPoolResults) \
+    X(vkCmdResetQueryPool) \
+    X(vkCmdBeginQuery) \
+    X(vkCmdEndQuery) \
+    X(vkCmdWriteTimestamp2) \
+    X(vkCmdSetColorWriteMaskEXT) \
+    X(vkCmdSetViewport) \
+    X(vkCmdSetScissor) \
+    X(vkCmdSetCullMode) \
+    X(vkCmdSetFrontFace) \
+    X(vkCmdSetPrimitiveTopology) \
+    X(vkCmdSetDepthTestEnable) \
+    X(vkCmdSetDepthWriteEnable) \
+    X(vkCmdSetDepthCompareOp) \
+    X(vkCmdSetDepthBoundsTestEnable) \
+    X(vkCmdSetDepthBounds) \
+    X(vkCmdSetDepthBias) \
+    X(vkCmdClearDepthStencilImage) \
+    X(vkCmdClearColorImage) \
+    X(vkCmdPushConstants) \
+    X(vkCmdSetVertexInputEXT) \
+    X(vkCmdSetColorBlendEnableEXT) \
+    X(vkCmdSetColorBlendEquationEXT) \
+    X(vkCmdClearAttachments) \
+    X(vkCmdDraw) \
+    X(vkCmdDrawIndexed) \
+    X(vkCmdDrawIndexedIndirect) \
+    X(vkCmdDrawIndirect) \
+    X(vkCmdDispatch) \
+    X(vkCmdFillBuffer) \
+    X(vkCmdCopyBufferToImage) \
+    X(vkCmdCopyBuffer) \
+    X(vkCmdCopyImageToBuffer) \
+    X(vkCmdCopyImage) \
+    X(vkCmdBlitImage)
+
+namespace rvk::vk {
+
+#define RVK_DECLARE(name) extern PFN_##name name;
+RVK_VK_GLOBAL_FUNCS(RVK_DECLARE)
+RVK_VK_INSTANCE_FUNCS(RVK_DECLARE)
+RVK_VK_DEVICE_FUNCS(RVK_DECLARE)
+#undef RVK_DECLARE
+extern PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+
+bool LoadGlobal();                  // loads vulkan-1.dll and the global functions
+void LoadInstance(VkInstance instance);
+void LoadDevice(VkDevice device);
+
+// RANDYVK_VKCOUNT=1 (profiling): every vkCmd* call is counted, through a wrapper LoadDevice puts in front of it - each
+// is a call across Wine's 32/64-bit thunk into the driver. TakeCmdCounts hands out the counts so far (and resets
+// them): the names and counts of the `max` most called, the most first; returns how many.
+bool CmdCountsOn();
+int TakeCmdCounts(const char** names, uint64_t* counts, int max);
+
+}  // namespace rvk::vk

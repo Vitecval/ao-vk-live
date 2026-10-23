@@ -1,0 +1,84 @@
+randy-vk: rvk backend installed
+randy-vk rvk: settings: RVK_SandContrast is longer than 15 characters - it can't be in the Renderer tab
+randy-vk rvk: native: crash reports: on (faults in any module; a hang report after 20 s without a frame)
+randy-vk rvk: native: skinning: on (deferred to the renderer)
+randy-vk rvk: native: animation: on
+randy-vk rvk: native: visuals: on, lights from the scene (through the native viewport)
+randy-vk rvk: native: character drawing: on
+randy-vk rvk: native: character upkeep: on
+randy-vk rvk: native: character queries: 13 of 13 on
+randy-vk rvk: native: RenderStats_t::Reset: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: device layer: 45 of 46 functions native; state updates and static meshes' indices through the direct channel
+randy-vk rvk: native: StateBlob_c::GetBlueprint: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: StateBlob_c::GetMaterial: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: StateBlob_c::GetRenderTarget: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: state blobs: 20 of 23 functions native
+randy-vk rvk: native: dynamic vertex buffers: 8 of 8 functions native
+randy-vk rvk: native: Randy_t::GetNumAlphaBits: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: Randy_t: 32 of 33 functions native
+randy-vk rvk: native: a surface no-op (FUN_100263dc): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: a surface constant 2 (FUN_100278b4): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: surfaces: 22 of 24 functions native
+randy-vk rvk: native: resources: 13 of 13 functions native
+randy-vk rvk: native: RTexture_t::GetPitch: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: textures: 22 of 23 functions native
+randy-vk rvk: native: RMaterial_t::GetEnvTexture: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: DefaultMaterial_t constructor iterator (FUN_10019197): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: materials: 48 of 50 functions native
+randy-vk rvk: native: fun::DXError::GetErrorNo: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: fun::DXError::GetLineNo: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: fun::DXError::GetFilename: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: DXError: 3 of 6 functions native
+randy-vk rvk: native: device enumeration: 4 of 4 functions native
+randy-vk rvk: native: Randy_t::Initialize: 7 of 7 functions native
+randy-vk rvk: native: debugger: 7 of 7 functions native
+randy-vk rvk: native: viewports: 24 of 24 functions native
+randy-vk rvk: native: frames: 40 of 40 functions native
+randy-vk rvk: native: visuals (RVisual_t): 23 of 23 functions native
+randy-vk rvk: native: cameras: 30 of 30 functions native
+randy-vk rvk: native: meshes: 42 of 42 functions native
+randy-vk rvk: native: Triangle::GetIndexCount: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: RVisualData_t::GetSimpleMeshArray (const): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: RVisualData_t::GetSimpleMeshArray: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: mesh data: 68 of 71 functions native
+randy-vk rvk: native: occluder: no proxy/native/private/occlusion_data.inc (tools/gen_occlusion_data.py) - PreProcessPlayfield stays
+randy-vk rvk: native: occluder: 21 of 21 functions native
+randy-vk rvk: native: characters: 35 of 35 functions native
+randy-vk rvk: native: picking: 6 of 6 functions native
+randy-vk rvk: native: character data: 45 of 45 functions native
+randy-vk rvk: native: CATAnimBlend_t::GetAnim2: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: CATAnimBlend_t field (FUN_10050a5b): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: CATKeyframeAnimData_t field (FUN_10052a5e): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: CATKeyframeAnimData_t flag (FUN_10052a69): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: character animations: 37 of 41 functions native
+randy-vk rvk: native: bounding volumes: 11 of 11 functions native
+randy-vk rvk: native: keyframe animations: 13 of 13 functions native
+randy-vk rvk: native: sprites: 27 of 27 functions native
+randy-vk rvk: native: shadowlands: 30 of 30 functions native
+randy-vk rvk: native: Color_t::Color_t: can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: color: 8 of 9 functions native
+randy-vk rvk: native: pixfmt: 8 of 8 functions native
+randy-vk rvk: native: lbitmap: 19 of 19 functions native
+randy-vk rvk: native: a Type* descriptor size (FUN_1001b662): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: helpers: 11 of 12 functions native
+randy-vk rvk: native: TextureStreamCreator name (FUN_1001984a): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: TextureStreamCreator flag (FUN_1001984e): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: texture_stream: 17 of 19 functions native
+randy-vk rvk: native: faf: 29 of 29 functions native
+randy-vk rvk: native: rshadow: 12 of 12 functions native
+randy-vk rvk: native: connectors: 15 of 15 functions native
+randy-vk rvk: native: cat status: 8 of 8 functions native
+randy-vk rvk: native: grid: 13 of 13 functions native
+randy-vk rvk: native: timer: 7 of 7 functions native
+randy-vk rvk: native: Funcom no-op (FUN_1007194f): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: Funcom returns 0 (FUN_10072247): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: Funcom returns 1 (FUN_100756f2): can't take a jump over its entry (entry_guard.gen.h), not replaced
+randy-vk rvk: native: funcom: 13 of 16 functions native
+randy-vk rvk: native: find object: 8 of 8 functions native
+randy-vk rvk: native: D3DX: 6 of 6 functions native
+randy-vk rvk: live: addon active with the stock classic renderer; no game DLL replaced on disk
+randy-vk rvk: live: DisplaySystem.dll routed 335 renderer imports to ao-vk
+randy-vk rvk: live: Gamecode.dll routed 46 renderer imports to ao-vk
+randy-vk rvk: live: GUI.dll routed 32 renderer imports to ao-vk
+randy-vk rvk: live: FXS.dll routed 22 renderer imports to ao-vk
+randy-vk rvk: live: addon active with the stock classic renderer; no game DLL replaced on disk

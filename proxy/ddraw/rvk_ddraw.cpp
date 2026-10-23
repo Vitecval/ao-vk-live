@@ -1,0 +1,959 @@
+// rvk backend: shared state, pixel formats, caps, IDirectDraw7, IDirect3D7, clipper, palette, import hooks.
+#include "rvk_backend.h"
+#include "rvk_settings.h"
+#include "native/gui.h"
+#include "native/ground.h"
+#include "native/rings.h"
+#include "native/scene.h"
+
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <algorithm>
+#include <cctype>
+#include <cstring>
+#include <vector>
+
+namespace rvkproxy {
+
+RvkState g_rvk;
+
+namespace {
+// One critical section for the whole backend (recursive, cheap when uncontended). Each new calling thread is
+// logged once; the check costs a TEB read per call.
+CRITICAL_SECTION g_comLock;
+bool g_comLockReady = [] { InitializeCriticalSectionAndSpinCount(&g_comLock, 1000); return true; }();
+DWORD g_lastThread = 0;
+std::vector<DWORD> g_seenThreads;
+int64_t g_drawCalls = 0;
+}
+
+void CountBackendDraw() { ++g_drawCalls; }
+
+ComScope::ComScope(unsigned methodIndex)
+{
+    EnterCriticalSection(&g_comLock);
+    DWORD tid = GetCurrentThreadId();
+    if (tid != g_lastThread) {
+        g_lastThread = tid;
+        if (std::find(g_seenThreads.begin(), g_seenThreads.end(), tid) == g_seenThreads.end()) {
+            g_seenThreads.push_back(tid);
+            RvkLog("thread %lu calls DirectDraw/Direct3D (first call: %s)", tid, ComMethodName(methodIndex));
+        }
+    }
+}
+
+ComScope::~ComScope() { LeaveCriticalSection(&g_comLock); }
+
+// randy-vk.log's path for this process (RANDYVK_LOG, else randy-vk.log in the client folder), settled at the first
+// line anything writes: every writer of the log asks here.
+const char* LogPath()
+{
+    static char path[MAX_PATH] = "randy-vk.log";
+    static const bool settled = [] {
+        GetEnvironmentVariableA("RANDYVK_LOG", path, sizeof(path));
+        // Another client running from the same folder has this log: this one writes randy-vk-2.log (-3, ...), and
+        // RANDYVK_LOG says so to the writers that read it themselves (crash reports, crash.cpp).
+        for (int n = 2; n <= 8; ++n) {
+            char full[MAX_PATH];             // (the name: the whole path, any case - a relative one is per folder)
+            if (!GetFullPathNameA(path, MAX_PATH, full, nullptr)) std::snprintf(full, sizeof(full), "%s", path);
+            std::string name = "randy-vk-log:" + std::string(full);
+            for (char& c : name) c = c == '\\' ? '/' : char(std::tolower(static_cast<unsigned char>(c)));
+            HANDLE mutex = CreateMutexA(nullptr, FALSE, name.c_str());
+            if (mutex && GetLastError() != ERROR_ALREADY_EXISTS)
+                break;                       // (kept open for the process's life: it marks the log as taken)
+            if (mutex) CloseHandle(mutex);
+            std::string next(path);
+            const size_t dot = next.find_last_of('.');
+            std::string base = dot == std::string::npos ? next : next.substr(0, dot);
+            if (n > 2) base = base.substr(0, base.find_last_of('-'));
+            next = base + "-" + std::to_string(n) + ".log";
+            std::snprintf(path, sizeof(path), "%s", next.c_str());
+            SetEnvironmentVariableA("RANDYVK_LOG", path);
+        }
+        // A session's first line: an old log over 8 MB moves aside.
+        WIN32_FILE_ATTRIBUTE_DATA a;
+        if (GetFileAttributesExA(path, GetFileExInfoStandard, &a) && (a.nFileSizeHigh || a.nFileSizeLow > (8u << 20))) {
+            std::string old(path);
+            const size_t dot = old.find_last_of('.');
+            old = (dot == std::string::npos ? old : old.substr(0, dot)) + ".old.log";
+            MoveFileExA(path, old.c_str(), MOVEFILE_REPLACE_EXISTING);
+        }
+        return true;
+    }();
+    (void)settled;
+    return path;
+}
+
+void RvkLog(const char* fmt, ...)
+{
+    const char* path = LogPath();
+    if (FILE* f = std::fopen(path, "a")) {
+        std::fputs("randy-vk rvk: ", f);
+        va_list args;
+        va_start(args, fmt);
+        std::vfprintf(f, fmt, args);
+        va_end(args);
+        std::fputc('\n', f);
+        std::fclose(f);
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Shared state
+
+bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
+{
+    if (device) {
+        if (device->Width() == width && device->Height() == height)
+            return true;
+        if (device->InFrame())
+            device->EndFrame();
+        return device->Resize(width, height);
+    }
+    rvk::SetLogSink([](const char* line) { RvkLog("rvk: %s", line); });
+    {   // the pipeline cache next to randy-vk.ini (the client folder)
+        std::string cache = rvk_settings::IniPath();
+        size_t slash = cache.find_last_of("\\/");
+        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk.cache";
+        rvk::SetPipelineCachePath(cache.c_str());
+    }
+    device = new rvk::ThreadedDevice;
+    ++deviceSerial;
+    std::string error;
+    char threaded[8] = "1";
+    GetEnvironmentVariableA("RANDYVK_THREADED", threaded, sizeof(threaded));
+    if (!device->Init(window, width, height, &error, threaded[0] != '0')) {
+        RvkLog("rvk device creation failed: %s", error.c_str());
+        delete device;
+        device = nullptr;
+        return false;
+    }
+    char dumpVerts[16] = "0";         // frame dumps: vertices of draws with this many (RANDYVK_DUMP_VERTS)
+    GetEnvironmentVariableA("RANDYVK_DUMP_VERTS", dumpVerts, sizeof(dumpVerts));
+    device->SetDumpVertexCount(uint32_t(std::atoi(dumpVerts)));
+    rvk_settings::ApplyAll(device);             // randy-vk.ini
+    gpuName = device->Info().gpu;
+    RvkLog("rvk device %ux%u on %s (window %p, %s, %s lighting)", width, height, gpuName.c_str(), (void*)window,
+           device->Threaded() ? "worker thread" : "calling thread", device->PixelLighting() ? "per-pixel" : "per-vertex");
+    rvk_settings::LogAll();
+    return true;
+}
+
+void RvkState::SetWindow(HWND hwnd)
+{
+    if (!hwnd)
+        return;
+    window = hwnd;
+    if (device && device->Window() != hwnd) {
+        if (device->InFrame())
+            device->EndFrame();
+        if (device->SetWindow(hwnd))
+            RvkLog("presenting to window %p", (void*)hwnd);
+    }
+}
+
+// Ctrl+Shift+O: what each enhancement costs here - every one switched off in turn (in effect only, not saved) for
+// kSweepSettle + kSweepMeasure frames, the GPU passes measured over the last kSweepMeasure, logged as
+// "sweep <label>: gpu ms: ...". A baseline first and last (drift). Stand still while it runs (~7-8 min at 60 fps, ~3.5 at 130: 56 steps of 420 frames).
+static void ProfileSweep(bool start)
+{
+    struct Step { const char* label; const char* setting; float value; };
+    static const Step kSteps[] = {
+        {"baseline", nullptr, 0}, {"depth pre-pass off", "RVK_Prepass", 0}, {"soft shadows off", "RVK_SunSoft", 0}, {"point shadows off", "RVK_PtOn", 0},
+        {"sun shadows off", "RVK_SunShadow", 0}, {"contact shadows off", "RVK_ContactOn", 0},
+        {"leaf light off", "RVK_LeafLightOn", 0}, {"relief (bump) off", "RVK_BumpOn", 0}, {"light override off", "RVK_LightOver", 0},
+        {"per-pixel lighting off", "RVK_PixelLight", 0}, {"night glow off", "RVK_NightOn", 0}, {"sway off", "RVK_SwayOn", 0},
+        {"grass push off", "RVK_PushOn", 0}, {"plant detail off", "RVK_PlantDetOn", 0}, {"foliage lod off", "RVK_FolLodOn", 0},
+        {"gi off", "RVK_GiOn", 0}, {"ao off", "RVK_AoOn", 0}, {"volumetric off", "RVK_VolOn", 0}, {"reflections off", "RVK_SsrOn", 0},
+        {"dof off", "RVK_Dof", 0}, {"motion blur off", "RVK_MBlurOn", 0}, {"taa off", "RVK_Taa", 0}, {"bloom off", "RVK_BloomOn", 0},
+        {"particles off", "RVK_Particles", 0},
+        // (The features since: plants, water, weather, sky, the native ground and its parts, materials.)
+        {"ground grass off", "RVK_GrassOn", 0}, {"tree leaves off", "RVK_LeafOn", 0}, {"crown shade off", "RVK_CrownShade", 0},
+        {"plant soft edges off", "RVK_FolEdges", 0}, {"water off", "RVK_WaterOn", 0}, {"clouds off", "RVK_CloudsOn", 0},
+        {"weather off", "RVK_WeatherOn", 0}, {"smoke off", "RVK_SmokeOn", 0}, {"our sky off", "RVK_ProcSky", 0},
+        {"atmosphere off", "RVK_Atmos", 0}, {"ground tessellation off", "RVK_GroundTess", 0},
+        {"cliff depth off", "RVK_CliffDepth", 0}, {"rocks off", "RVK_GroundRocks", 0}, {"pebbles off", "RVK_Pebbles", 0},
+        {"sand ripples off", "RVK_SandRipple", 0},
+        // (The native ground's shading, part by part: docs/render-perf-plan.md Phase 3.)
+        {"ground tile blending off", "RVK_GroundBlend", 0}, {"ground grain off", "RVK_GroundGrain", 0},
+        {"ground sky visibility off", "RVK_GroundAo", 0}, {"ground slopes' sun off", "RVK_GroundSun", 0},
+        {"ground variation off", "RVK_GroundVary", 0}, {"tile repeats hidden off", "RVK_TileHide", 0},
+        {"cliff texture off", "RVK_CliffTex", 0}, {"cliff rock off", "RVK_CliffRock", 0},
+        {"render scale 100", "RVK_RenderScale", 100}, {"native ground off", "RVK_GroundOn", 0},
+        {"depth maps (parallax) off", "RVK_Parallax", 0}, {"tessellation off", "RVK_TessOn", 0},
+        {"normal maps off", "RVK_NormalMaps", 0}, {"pbr off", "RVK_Pbr", 0}, {"albedo maps off", "RVK_Albedo", 0},
+        {"hdr off", "RVK_Hdr", 0}, {"baseline again", nullptr, 0},
+    };
+    constexpr unsigned kSweepSettle = 120, kSweepMeasure = 300;
+    constexpr unsigned kCount = sizeof(kSteps) / sizeof(kSteps[0]);
+    static int step = -1;
+    static unsigned frame;
+    static DWORD stepTick;
+    rvk::ThreadedDevice* device = g_rvk.device;
+    if (!device) return;
+    if (start && step < 0) {
+        step = 0;
+        frame = 0;
+        RvkLog("sweep: started - stand still");
+    }
+    if (step < 0) return;
+    const Step& s = kSteps[step];
+    if (frame == 0 && s.setting)
+        rvk_settings::ApplyTemporary(s.setting, s.value);
+    if (frame == kSweepSettle) {
+        device->ProfileWindow(true, "");
+        stepTick = GetTickCount();
+    }
+    if (++frame < kSweepSettle + kSweepMeasure) return;
+    char label[96];
+    std::snprintf(label, sizeof(label), "sweep %s (%.1f fps): ", s.label,
+                  1000.0 * kSweepMeasure / std::max<double>(GetTickCount() - stepTick, 1.0));
+    device->ProfileWindow(false, label);
+    if (s.setting) rvk_settings::Restore(s.setting);
+    frame = 0;
+    if (++step == int(kCount)) {
+        step = -1;
+        device->ProfileManualEnd();
+        RvkLog("sweep: done");
+    }
+}
+
+namespace {
+bool g_sweepRequested = false;                   // RunAction("profile"): the sweep starts at the next present
+}
+
+// A dump of the next frame's 3D draws + a screenshot next to the log (logs\rvk-frame-HHMMSS.*); burst: the next 60
+// frames' draws, <base>-NN.txt - what the game changes frame to frame.
+static void RequestFrameDump(rvk::ThreadedDevice* device, bool burst)
+{
+    char dir[MAX_PATH] = "";
+    GetEnvironmentVariableA("RANDYVK_LOG", dir, sizeof(dir));
+    if (char* slash = std::strrchr(dir, '\\')) slash[1] = 0; else dir[0] = 0;
+    SYSTEMTIME t;
+    GetLocalTime(&t);
+    char base[MAX_PATH];
+    std::snprintf(base, sizeof(base), "%srvk-frame-%02d%02d%02d", dir, t.wHour, t.wMinute, t.wSecond);
+    device->RequestFrameDump(std::string(base) + ".txt", burst ? 60 : 1);
+    rnative::scene::NoteDumpRequested();          // (the visuals' frames to the log, matched by the draws' @address)
+    device->RequestScreenshot(std::string(base) + ".bmp");
+    RvkLog("frame dump: %s.txt / .bmp", base);
+}
+
+bool RunAction(const char* name)
+{
+    rvk::ThreadedDevice* device = g_rvk.device;
+    if (!device || !name) return false;
+    if (std::strcmp(name, "hideui") == 0) {
+        device->SetHideInterface(!device->HideInterface());
+        RvkLog("interface %s", device->HideInterface() ? "hidden" : "shown");
+    } else if (std::strcmp(name, "freecam") == 0) {
+        FreeCamToggle(g_rvk.window);
+    } else if (std::strcmp(name, "lightdebug") == 0) {
+        device->SetLightingDebug(!device->LightingDebug());
+        RvkLog("lighting debug view %s", device->LightingDebug() ? "on" : "off");
+    } else if (std::strcmp(name, "luts") == 0) {
+        rvk_settings::LoadLuts(device);
+    } else if (std::strcmp(name, "dump") == 0) {
+        RequestFrameDump(device, false);
+    } else if (std::strcmp(name, "profile") == 0) {
+        g_sweepRequested = true;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+void RvkState::Frame()
+{
+    if (device && !device->InFrame())
+        device->BeginFrame();
+}
+
+void RvkState::Present()
+{
+    if (!device)
+        return;
+#ifdef RANDYVK_ADDON
+    LiveFrame();
+#endif
+    rnative::HangBeat();
+    ++presentCount;
+    CallLogFrame(presentCount);
+    rnative::gui::Install();       // GUI.dll's interface drawing, once it is loaded: where the interface begins (the
+                                   // floating text goes just before it) and RVK_UiRate's layer
+    rnative::rings::Install();     // N3.dll's statel rings, once it is loaded (RVK_DetailRange)
+    rnative::ground::Install();    // DisplaySystem.dll's ground, once it is loaded (RVK_GroundRange)
+    Frame();                  // a present without any rendering still shows a frame
+    device->EndFrame();
+    PollMaterialMaps();       // material maps decoded in the background, uploaded between frames
+    ParticleFrame();
+    WeatherFrame();
+    SmokeFrame();
+    TimeFrame();
+    StatelFrame();
+    GroundFrame();
+    // Hotkeys (Ctrl+Shift+...). Those for options change the setting (saved, shown in the settings window). None
+    // while the console is open (it takes the keyboard).
+    bool chord = !ConsoleOpen() && (GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(VK_SHIFT) & 0x8000);
+    static bool down[256];
+    auto pressed = [&](int key) {                  // edge: pressed this frame, with the chord
+        bool now = chord && (GetAsyncKeyState(key) & 0x8000);
+        bool edge = now && !down[key];
+        down[key] = now;
+        return edge;
+    };
+    // On / off settings.
+    struct Toggle { int key; const char* setting; };
+    static const Toggle kToggles[] = {
+        {VK_F10, "RVK_PixelLight"}, {VK_F7, "RVK_SunShadow"}, {VK_F5, "RVK_Hdr"}, {VK_F8, "RVK_LightOver"},
+        {'N', "RVK_MBlurObj"}, {'D', "RVK_Dof"}, {'P', "RVK_Particles"}, {'T', "RVK_Taa"},
+        {'E', "RVK_Enhance"}, {'M', "RVK_MBlurOn"}, {VK_F2, "RVK_BumpOn"}, {VK_F3, "RVK_AoOn"}, {VK_F4, "RVK_BloomOn"},
+        {VK_F6, "RVK_PtOn"}, {'G', "RVK_GiOn"}, {'V', "RVK_VolOn"}, {'R', "RVK_SsrOn"}, {'B', "RVK_Pbr"},
+    };
+    for (const Toggle& t : kToggles)
+        if (pressed(t.key))
+            rvk_settings::Set(t.setting, rvk_settings::Get(t.setting) != 0.0f ? 0.0f : 1.0f);
+    // Strengths switched off and back on (to the value they had).
+    struct OnOff { int key; const char* setting; float off, fallback; };
+    static const OnOff kOnOff[] = {
+        {VK_F1, "RVK_Aniso", 1, 16},
+    };
+    static float remembered[sizeof(kOnOff) / sizeof(kOnOff[0])];
+    for (size_t i = 0; i < sizeof(kOnOff) / sizeof(kOnOff[0]); ++i) {
+        const OnOff& o = kOnOff[i];
+        if (!pressed(o.key)) continue;
+        float v = rvk_settings::Get(o.setting);
+        if (v != o.off) {
+            remembered[i] = v;
+            rvk_settings::Set(o.setting, o.off);
+        } else {
+            rvk_settings::Set(o.setting, remembered[i] != 0.0f ? remembered[i] : o.fallback);
+        }
+    }
+    // Strengths stepped down / up.
+    struct Step { int down, up; const char* setting; float step; };
+    static const Step kSteps[] = {
+        {VK_OEM_4, VK_OEM_6, "RVK_Bump", 0.25f}, {VK_END, VK_HOME, "RVK_Bloom", 0.25f},
+        {VK_DELETE, VK_INSERT, "RVK_BloomFx", 0.25f}, {VK_NEXT, VK_PRIOR, "RVK_HdrRoom", 0.25f},
+    };
+    for (const Step& s : kSteps) {
+        bool dn = pressed(s.down), upKey = pressed(s.up);
+        if (dn || upKey)
+            rvk_settings::Set(s.setting, rvk_settings::Get(s.setting) + (upKey ? s.step : -s.step));
+    }
+    // Ctrl+Shift+K: the PBR debug views in turn - which surfaces have maps (7), emitted light (8), reflected
+    // surroundings (9), roughness, metallic,
+    // occlusion, albedo, normals, highlights only, off. Switches PBR materials on.
+    if (pressed('K')) {
+        static const int kOrder[] = {0, 7, 8, 9, 2, 3, 4, 1, 5, 6};
+        constexpr int kViews = int(sizeof(kOrder) / sizeof(kOrder[0]));
+        int now = int(rvk_settings::Get("RVK_PbrDebug") + 0.5f), next = 7;
+        for (int i = 0; i < kViews; ++i)
+            if (kOrder[i] == now) next = kOrder[(i + 1) % kViews];
+        if (rvk_settings::Get("RVK_Pbr") == 0.0f)
+            rvk_settings::Set("RVK_Pbr", 1.0f);
+        rvk_settings::Set("RVK_PbrDebug", float(next));
+        static const char* const kNames[] = {"off", "albedo", "roughness", "metallic", "occlusion", "normals",
+                                             "highlights only", "which surfaces have maps", "emitted light only",
+                                             "reflected surroundings"};
+        RvkLog("PBR debug view: %s", kNames[next]);
+    }
+    rvk_settings::PollIni(device);              // randy-vk.ini edited while the game runs
+    // Ctrl+Shift+I: which texture is under the mouse (texture picking, for making material maps): the next frame's
+    // nearest 3D surface there - logged ("pick: RDB texture 1010004:55900 'name', 256x256; maps: ..."), its "type:id"
+    // copied to the clipboard, and its surfaces flash yellow for three seconds. Ctrl+Shift+J: the same for the mesh
+    // there ("pick: RDB mesh 1010001:3545"; characters: their model) - the ao-assets workbench follows last-pick.txt.
+    static int picking = 0;                       // 0 no, 'I' texture, 'J' mesh
+    static uint32_t pickBefore = 0;
+    static ULONGLONG highlightUntil = 0;
+    // RANDYVK_PICK_AT=frame,x,y,I|J (x, y 0..1): a pick as if the key were pressed then (tests without the game).
+    static int pickAtFrame = -2, pickAtKey = 0;
+    static float pickAtX = 0.5f, pickAtY = 0.5f;
+    static int frameCount = 0;
+    ++frameCount;
+    if (pickAtFrame == -2) {
+        char v[64] = {};
+        char key = 0;
+        pickAtFrame = GetEnvironmentVariableA("RANDYVK_PICK_AT", v, sizeof(v)) &&
+                              std::sscanf(v, "%d,%f,%f,%c", &pickAtFrame, &pickAtX, &pickAtY, &key) == 4
+                          ? pickAtFrame : -1;
+        pickAtKey = key == 'J' || key == 'j' ? 'J' : 'I';
+    }
+    if (frameCount == pickAtFrame) {
+        pickBefore = device->LastPick().serial;
+        device->RequestPick(pickAtX, pickAtY);
+        picking = pickAtKey;
+    }
+    for (int key : {'I', 'J'})
+        if (pressed(key) && window) {
+            POINT p;
+            RECT r;
+            if (GetCursorPos(&p) && ScreenToClient(window, &p) && GetClientRect(window, &r) && r.right > 0 &&
+                r.bottom > 0) {
+                pickBefore = device->LastPick().serial;
+                device->RequestPick(float(p.x) / float(r.right), float(p.y) / float(r.bottom));
+                picking = key;
+            }
+        }
+    if (picking) {
+        rvk::Device::PickResult result = device->LastPick();
+        if (result.serial != pickBefore) {
+            const bool mesh = picking == 'J';
+            picking = 0;
+            std::string reference;
+            RvkLog("pick: %s", mesh ? DescribeMesh(result.visual, result.owner, result.kind, &reference).c_str()
+                                    : DescribeTexture(result.texture, &reference).c_str());
+            // A dungeon room (built by the game from tile pieces when it loads, ao-assets docs/rooms-plan.md): the hit
+            // triangle as drawn - the workbench finds the tile piece it came from by its uv and flat edge lengths
+            // (pieces are only turned about the vertical, moved and bent in height).
+            if (mesh && reference.empty() && result.kind == 5 /* VisualKind::Room */ && result.triangleCount) {
+                std::string texture;
+                DescribeTexture(result.texture, &texture);
+                reference = "room " + (texture.empty() ? std::string("-") : texture) + " " +
+                            std::to_string(result.triangleCount);
+                for (uint32_t k = 0; k < result.triangleCount * 15; ++k) {
+                    char v[24];
+                    std::snprintf(v, sizeof(v), k % 5 == 0 ? "  %.9g" : " %.9g", result.triangles[k]);
+                    reference += v;
+                }
+                RvkLog("pick: a dungeon room (texture %s), %u triangles of its tile piece - the workbench looks it up",
+                       texture.empty() ? "unknown" : texture.c_str(), result.triangleCount);
+            }
+            // A mesh randy-vk can't name (static meshes: read from their .abiff where no hook sees it): what was drawn
+            // - its texture and vertex / index counts - for the ao-assets workbench, whose index matches it to a mesh.
+            if (mesh && reference.empty() && result.visual) {
+                std::string texture;
+                DescribeTexture(result.texture, &texture);
+                if (!texture.empty()) {
+                    reference = "geometry " + texture + " " + std::to_string(result.vertices) + " " +
+                                std::to_string(result.indices);
+                    RvkLog("pick: drawn with RDB texture %s, %u vertices, %u indices (the workbench looks it up)",
+                           texture.c_str(), result.vertices, result.indices);
+                }
+            }
+            bool copied = false;
+            if (!reference.empty() && OpenClipboard(window)) {
+                EmptyClipboard();
+                if (HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE, reference.size() + 1)) {
+                    std::memcpy(GlobalLock(h), reference.c_str(), reference.size() + 1);
+                    GlobalUnlock(h);
+                    copied = SetClipboardData(CF_TEXT, h) != nullptr;
+                    if (!copied)
+                        GlobalFree(h);
+                }
+                CloseClipboard();
+            }
+            // ... and into last-pick.txt next to the log: Wine's Wayland driver doesn't hand the Windows clipboard to
+            // the desktop's, so ao-wine.sh copies the file with wl-copy when it changes.
+            if (!reference.empty()) {
+                char path[MAX_PATH] = "randy-vk.log";
+                GetEnvironmentVariableA("RANDYVK_LOG", path, sizeof(path));
+                std::string pick(path);
+                const size_t slash = pick.find_last_of("\\/");
+                pick = (slash == std::string::npos ? std::string() : pick.substr(0, slash + 1)) + "last-pick.txt";
+                if (FILE* f = std::fopen(pick.c_str(), "w")) {
+                    std::fputs(reference.c_str(), f);
+                    std::fclose(f);
+                }
+                RvkLog("pick: %s %s, written to %s", reference.c_str(),
+                       copied ? "copied to the Windows clipboard" : "not copied to the clipboard", pick.c_str());
+            }
+            device->SetPickHighlight(result.texture);
+            highlightUntil = result.texture ? GetTickCount64() + 3000 : 0;
+        }
+    }
+    if (highlightUntil && GetTickCount64() > highlightUntil) {
+        device->SetPickHighlight(nullptr);
+        highlightUntil = 0;
+    }
+    // Ctrl+Shift+L: reload the colour lookup tables (randy-vk-day/night.cube).
+    if (pressed('L'))
+        RunAction("luts");
+    // Ctrl+Shift+H: hide the game's interface (screenshots; not a setting).
+    if (pressed('H'))
+        RunAction("hideui");
+    // Ctrl+Shift+C: a free camera for debugging (not a setting; rvk_freecam.cpp) - the mouse and WASD, the game's own
+    // input held back meanwhile.
+    if (pressed('C'))
+        FreeCamToggle(window);
+    FreeCamFrame(device, window);
+    // Ctrl+Shift+F11: lighting debug view (not a setting).
+    if (pressed(VK_F11))
+        RunAction("lightdebug");
+    // Ctrl+Shift+F9: dump the next frame's 3D draws + a screenshot next to the log (logs\rvk-frame-HHMMSS.*).
+    // RANDYVK_DUMP_AT_FRAME=N: the same at the N-th presented frame (tests).
+    static bool f9Down;
+    static int dumpAt = [] {
+        char v[16] = "";
+        return GetEnvironmentVariableA("RANDYVK_DUMP_AT_FRAME", v, sizeof(v)) ? std::atoi(v) : -1;
+    }();
+    static int presented;
+    bool f9 = chord && (GetAsyncKeyState(VK_F9) & 0x8000);
+    if ((f9 && !f9Down) || ++presented == dumpAt)
+        RequestFrameDump(device, (GetAsyncKeyState(VK_MENU) & 0x8000) != 0);   // (Alt too: 60 frames' draws)
+    f9Down = f9;
+    const bool sweep = pressed('O') || g_sweepRequested;
+    g_sweepRequested = false;
+    ProfileSweep(sweep);
+    // The console (the key left of 1): its typing, commands and image (drawn over the next frame).
+    ConsoleFrame(device, window);
+    // Slow frames: averages hide stutter, so each frame's time is checked too. A frame over 50 ms gets a line with
+    // the time of day (players can match it to what they did), up to 5 per 600 frames; the 600-frame line counts
+    // them all.
+    static LARGE_INTEGER qpcFreq, qpcLast;
+    static double slowest;
+    static unsigned over33, over100, slowLogged;
+    LARGE_INTEGER qpcNow;
+    QueryPerformanceCounter(&qpcNow);
+    if (!qpcFreq.QuadPart) QueryPerformanceFrequency(&qpcFreq);
+    if (qpcLast.QuadPart) {
+        const double ms = double(qpcNow.QuadPart - qpcLast.QuadPart) * 1000.0 / double(qpcFreq.QuadPart);
+        slowest = std::max(slowest, ms);
+        over33 += ms > 33.3;
+        over100 += ms > 100.0;
+        if (ms > 50.0 && slowLogged < 5) {
+            ++slowLogged;
+            SYSTEMTIME t;
+            GetLocalTime(&t);
+            RvkLog("slow frame: %.0f ms at %02d:%02d:%02d.%03d", ms, t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
+        }
+    }
+    qpcLast = qpcNow;
+    // Heartbeat: shows whether frames keep coming (a frozen picture vs. a hung game).
+    static unsigned frames;
+    static DWORD lastTick = GetTickCount();
+    if (++frames % 600 == 0) {
+        DWORD now = GetTickCount();
+        double frameMs = double(now - lastTick) / 600.0;
+        RvkLog("presented %u frames: %.1f fps, %.2f ms/frame, %lld draws/frame; slowest %.0f ms, %u over 33 ms, "
+               "%u over 100 ms", frames, 1000.0 / std::max(frameMs, 0.001), frameMs, (long long)(g_drawCalls / 600),
+               slowest, over33, over100);
+        const TextureWrites w = TakeTextureWrites();
+        RvkLog("texture writes: %.1f a frame (%.1f only the rows locked), %.0f KB and %.3f ms on the game's thread a "
+               "frame; the game's textures alive: %d", w.locks / 600.0, w.partial / 600.0,
+               double(w.bytes) / 1024.0 / 600.0, w.ms / 600.0, GameTexturesAlive());
+        g_drawCalls = 0;
+        lastTick = now;
+        slowest = 0;
+        over33 = over100 = slowLogged = 0;
+    }
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Pixel formats
+
+bool FormatFromPixelFormat(const DDPIXELFORMAT& pf, rvk::Format* format, bool* convert24, bool* palettized)
+{
+    *convert24 = *palettized = false;
+    if (pf.dwFlags & DDPF_FOURCC) {
+        switch (pf.dwFourCC) {
+        case MAKEFOURCC('D', 'X', 'T', '1'): *format = rvk::Format::DXT1; return true;
+        case MAKEFOURCC('D', 'X', 'T', '2'): *format = rvk::Format::DXT2; return true;
+        case MAKEFOURCC('D', 'X', 'T', '3'): *format = rvk::Format::DXT3; return true;
+        case MAKEFOURCC('D', 'X', 'T', '4'): *format = rvk::Format::DXT4; return true;
+        case MAKEFOURCC('D', 'X', 'T', '5'): *format = rvk::Format::DXT5; return true;
+        default: return false;
+        }
+    }
+    if (pf.dwFlags & DDPF_PALETTEINDEXED8) {
+        *format = rvk::Format::A8R8G8B8;
+        *palettized = true;
+        return true;
+    }
+    bool alpha = (pf.dwFlags & DDPF_ALPHAPIXELS) != 0;
+    if (pf.dwFlags & DDPF_LUMINANCE) {
+        if (pf.dwRGBBitCount == 8) { *format = rvk::Format::L8; return true; }
+        if (pf.dwRGBBitCount == 16 && alpha) { *format = rvk::Format::A8L8; return true; }
+        return false;
+    }
+    if ((pf.dwFlags & DDPF_ALPHA) && pf.dwAlphaBitDepth == 8) { *format = rvk::Format::A8; return true; }
+    if (!(pf.dwFlags & DDPF_RGB))
+        return false;
+    switch (pf.dwRGBBitCount) {
+    case 32:
+        *format = alpha && pf.dwRGBAlphaBitMask ? rvk::Format::A8R8G8B8 : rvk::Format::X8R8G8B8;
+        return pf.dwRBitMask == 0xFF0000;
+    case 24:
+        *format = rvk::Format::X8R8G8B8;
+        *convert24 = true;
+        return pf.dwRBitMask == 0xFF0000;
+    case 16:
+        if (pf.dwRBitMask == 0xF800) { *format = rvk::Format::R5G6B5; return true; }
+        if (pf.dwRBitMask == 0x7C00) { *format = alpha && pf.dwRGBAlphaBitMask ? rvk::Format::A1R5G5B5 : rvk::Format::X1R5G5B5; return true; }
+        if (pf.dwRBitMask == 0x0F00) { *format = rvk::Format::A4R4G4B4; return true; }
+        return false;
+    default:
+        return false;
+    }
+}
+
+void PixelFormatFor(rvk::Format format, DDPIXELFORMAT* pf)
+{
+    std::memset(pf, 0, sizeof(*pf));
+    pf->dwSize = sizeof(*pf);
+    auto rgb = [&](DWORD bits, DWORD r, DWORD g, DWORD b, DWORD a) {
+        pf->dwFlags = DDPF_RGB | (a ? DDPF_ALPHAPIXELS : 0);
+        pf->dwRGBBitCount = bits;
+        pf->dwRBitMask = r;
+        pf->dwGBitMask = g;
+        pf->dwBBitMask = b;
+        pf->dwRGBAlphaBitMask = a;
+    };
+    switch (format) {
+    case rvk::Format::A8R8G8B8: rgb(32, 0xFF0000, 0xFF00, 0xFF, 0xFF000000); break;
+    case rvk::Format::X8R8G8B8: rgb(32, 0xFF0000, 0xFF00, 0xFF, 0); break;
+    case rvk::Format::R5G6B5: rgb(16, 0xF800, 0x07E0, 0x001F, 0); break;
+    case rvk::Format::A1R5G5B5: rgb(16, 0x7C00, 0x03E0, 0x001F, 0x8000); break;
+    case rvk::Format::X1R5G5B5: rgb(16, 0x7C00, 0x03E0, 0x001F, 0); break;
+    case rvk::Format::A4R4G4B4: rgb(16, 0x0F00, 0x00F0, 0x000F, 0xF000); break;
+    case rvk::Format::L8: pf->dwFlags = DDPF_LUMINANCE; pf->dwLuminanceBitCount = 8; pf->dwLuminanceBitMask = 0xFF; break;
+    case rvk::Format::A8L8:
+        pf->dwFlags = DDPF_LUMINANCE | DDPF_ALPHAPIXELS;
+        pf->dwLuminanceBitCount = 16;
+        pf->dwLuminanceBitMask = 0xFF;
+        pf->dwLuminanceAlphaBitMask = 0xFF00;
+        break;
+    case rvk::Format::A8: pf->dwFlags = DDPF_ALPHA; pf->dwAlphaBitDepth = 8; break;
+    default: {
+        static const DWORD codes[] = {MAKEFOURCC('D', 'X', 'T', '1'), MAKEFOURCC('D', 'X', 'T', '2'), MAKEFOURCC('D', 'X', 'T', '3'),
+                                      MAKEFOURCC('D', 'X', 'T', '4'), MAKEFOURCC('D', 'X', 'T', '5')};
+        pf->dwFlags = DDPF_FOURCC;
+        pf->dwFourCC = codes[uint32_t(format) - uint32_t(rvk::Format::DXT1)];
+        break;
+    }
+    }
+}
+
+void FillDeviceDesc(D3DDEVICEDESC7* d, REFCLSID device)
+{
+    // The values D3D7 reports through D7VK on this GPU (tools: randy_harness prints both), so the game and its
+    // D3DX make the same decisions as with D3D7. rvk itself covers what the client actually uses.
+    std::memset(d, 0, sizeof(*d));
+    d->dwDevCaps = 0x000BBEF1;
+    if (device != IID_IDirect3DTnLHalDevice)
+        d->dwDevCaps &= ~D3DDEVCAPS_HWTRANSFORMANDLIGHT;
+    D3DPRIMCAPS prim{};
+    prim.dwSize = sizeof(prim);
+    prim.dwMiscCaps = 0x00000072;
+    prim.dwRasterCaps = 0x003361B1;
+    prim.dwZCmpCaps = prim.dwAlphaCmpCaps = 0x000000FF;
+    prim.dwSrcBlendCaps = prim.dwDestBlendCaps = 0x00001FFF;
+    prim.dwShadeCaps = 0x000C528A;
+    prim.dwTextureCaps = 0x00000DDF;
+    prim.dwTextureFilterCaps = 0x0703073F;
+    prim.dwTextureBlendCaps = 0x000000FF;
+    prim.dwTextureAddressCaps = 0x0000001F;
+    d->dpcLineCaps = d->dpcTriCaps = prim;
+    d->dwDeviceRenderBitDepth = 0x00000700;
+    d->dwDeviceZBufferBitDepth = 0x00000600;
+    d->dwMinTextureWidth = d->dwMinTextureHeight = 1;
+    d->dwMaxTextureWidth = d->dwMaxTextureHeight = 8192;
+    d->dwMaxTextureRepeat = 8192;
+    d->dwMaxTextureAspectRatio = 8192;
+    d->dwMaxAnisotropy = 16;
+    d->dvGuardBandLeft = d->dvGuardBandTop = -8192.0f;
+    d->dvGuardBandRight = d->dvGuardBandBottom = 8192.0f;
+    d->dwStencilCaps = 0x000000FF;
+    d->dwFVFCaps = 0x00000008;
+    d->dwTextureOpCaps = 0x00FFFFFF;
+    d->wMaxTextureBlendStages = 8;
+    d->wMaxSimultaneousTextures = 8;
+    d->dwMaxActiveLights = 8;
+    d->dvMaxVertexW = 1e10f;
+    d->deviceGUID = device;
+    d->wMaxUserClipPlanes = 6;
+    d->wMaxVertexBlendMatrices = 4;
+    d->dwVertexProcessingCaps = 0x0000003F;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Clipper and palette
+
+HRESULT RClipper::DoSetHWnd(DWORD, HWND hwnd)
+{
+    window = hwnd;
+    g_rvk.SetWindow(hwnd);
+    return DD_OK;
+}
+
+HRESULT RClipper::DoGetHWnd(HWND* out)
+{
+    if (!out) return DDERR_INVALIDPARAMS;
+    *out = window;
+    return DD_OK;
+}
+
+HRESULT RClipper::DoIsClipListChanged(BOOL* changed)
+{
+    if (changed) *changed = FALSE;
+    return DD_OK;
+}
+
+HRESULT RPalette::DoGetCaps(LPDWORD caps)
+{
+    if (caps) *caps = m_caps;
+    return DD_OK;
+}
+
+HRESULT RPalette::DoGetEntries(DWORD, DWORD start, DWORD count, LPPALETTEENTRY out)
+{
+    if (!out || start + count > 256) return DDERR_INVALIDPARAMS;
+    std::memcpy(out, entries + start, count * sizeof(PALETTEENTRY));
+    return DD_OK;
+}
+
+HRESULT RPalette::DoSetEntries(DWORD, DWORD start, DWORD count, LPPALETTEENTRY in)
+{
+    if (!in || start + count > 256) return DDERR_INVALIDPARAMS;
+    std::memcpy(entries + start, in, count * sizeof(PALETTEENTRY));
+    return DD_OK;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// IDirectDraw7
+
+void* RDirectDraw::Cast(REFIID iid)
+{
+    if (iid == IID_IDirectDraw7)
+        return this;
+    if (iid == IID_IDirect3D7) {
+        if (m_d3d) {
+            m_d3d->AddRef();
+            return static_cast<IDirect3D7*>(m_d3d);
+        }
+        m_d3d = new RDirect3D(this);
+        return static_cast<IDirect3D7*>(m_d3d);
+    }
+    return nullptr;
+}
+
+HRESULT RDirectDraw::DoCreateClipper(DWORD, LPDIRECTDRAWCLIPPER* out, IUnknown*)
+{
+    if (!out) return DDERR_INVALIDPARAMS;
+    *out = new RClipper;
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoCreatePalette(DWORD flags, LPPALETTEENTRY entries, LPDIRECTDRAWPALETTE* out, IUnknown*)
+{
+    if (!out) return DDERR_INVALIDPARAMS;
+    auto* p = new RPalette(flags);
+    if (entries)
+        std::memcpy(p->entries, entries, ((flags & DDPCAPS_8BIT) ? 256 : 16) * sizeof(PALETTEENTRY));
+    *out = p;
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoCreateSurface(LPDDSURFACEDESC2 desc, LPDIRECTDRAWSURFACE7* out, IUnknown*)
+{
+    if (!desc || !out) return DDERR_INVALIDPARAMS;
+    RSurface* s = nullptr;
+    HRESULT r = RSurface::Create(this, *desc, &s);
+    *out = s;
+    return r;
+}
+
+static void DesktopMode(DDSURFACEDESC2* d, DWORD width, DWORD height, DWORD bpp)
+{
+    std::memset(d, 0, sizeof(*d));
+    d->dwSize = sizeof(*d);
+    d->dwFlags = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PITCH | DDSD_PIXELFORMAT | DDSD_REFRESHRATE;
+    d->dwWidth = width;
+    d->dwHeight = height;
+    d->lPitch = LONG(width * bpp / 8);
+    d->dwRefreshRate = 60;
+    PixelFormatFor(bpp == 16 ? rvk::Format::R5G6B5 : rvk::Format::X8R8G8B8, &d->ddpfPixelFormat);
+}
+
+HRESULT RDirectDraw::DoEnumDisplayModes(DWORD, LPDDSURFACEDESC2 filter, LPVOID ctx, LPDDENUMMODESCALLBACK2 cb)
+{
+    if (!cb) return DDERR_INVALIDPARAMS;
+    static const DWORD sizes[][2] = {{640, 480}, {800, 600}, {1024, 768}, {1280, 720}, {1280, 1024}, {1366, 768},
+                                     {1600, 900}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2560, 1440}, {3840, 2160}};
+    DWORD dw = DWORD(GetSystemMetrics(SM_CXSCREEN)), dh = DWORD(GetSystemMetrics(SM_CYSCREEN));
+    for (DWORD bpp : {16u, 32u}) {
+        bool desktopListed = false;
+        for (auto& sz : sizes) {
+            if (sz[0] > dw || sz[1] > dh) continue;
+            desktopListed |= sz[0] == dw && sz[1] == dh;
+            DDSURFACEDESC2 d;
+            DesktopMode(&d, sz[0], sz[1], bpp);
+            if (filter && (filter->dwFlags & DDSD_WIDTH) && filter->dwWidth != d.dwWidth) continue;
+            if (filter && (filter->dwFlags & DDSD_HEIGHT) && filter->dwHeight != d.dwHeight) continue;
+            if (cb(&d, ctx) == DDENUMRET_CANCEL) return DD_OK;
+        }
+        if (!desktopListed) {
+            DDSURFACEDESC2 d;
+            DesktopMode(&d, dw, dh, bpp);
+            if (cb(&d, ctx) == DDENUMRET_CANCEL) return DD_OK;
+        }
+    }
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetCaps(LPDDCAPS driver, LPDDCAPS hel)
+{
+    // D7VK's values (it reports the same caps for the driver and the emulation layer).
+    auto fill = [](LPDDCAPS c) {
+        DWORD size = c->dwSize ? c->dwSize : sizeof(DDCAPS);
+        std::memset(c, 0, size);
+        c->dwSize = size;
+        c->dwCaps = 0xF5408661;
+        c->dwCaps2 = 0x006A1801;
+        c->dwCKeyCaps = 0x00000201;
+        c->dwFXCaps = 0x0003FEC1;
+        c->dwPalCaps = 0x00000014;
+        c->dwZBufferBitDepths = 0x00000600;
+        c->dwVidMemTotal = c->dwVidMemFree = 2139095040;
+        c->ddsCaps.dwCaps = 0x3046737C;
+        c->dwNumFourCCCodes = 5;
+    };
+    if (driver) fill(driver);
+    if (hel) fill(hel);
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetDisplayMode(LPDDSURFACEDESC2 out)
+{
+    if (!out) return DDERR_INVALIDPARAMS;
+    DesktopMode(out, DWORD(GetSystemMetrics(SM_CXSCREEN)), DWORD(GetSystemMetrics(SM_CYSCREEN)), 32);
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetFourCCCodes(LPDWORD count, LPDWORD codes)
+{
+    static const DWORD all[] = {MAKEFOURCC('D', 'X', 'T', '1'), MAKEFOURCC('D', 'X', 'T', '2'), MAKEFOURCC('D', 'X', 'T', '3'),
+                                MAKEFOURCC('D', 'X', 'T', '4'), MAKEFOURCC('D', 'X', 'T', '5')};
+    if (!count) return DDERR_INVALIDPARAMS;
+    if (codes) std::memcpy(codes, all, std::min<DWORD>(*count, 5) * sizeof(DWORD));
+    *count = 5;
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD)
+{
+    g_rvk.SetWindow(hwnd);
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetAvailableVidMem(LPDDSCAPS2, LPDWORD total, LPDWORD free)
+{
+    if (total) *total = 0x7FFF0000;
+    if (free) *free = 0x7FFF0000;
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetDeviceIdentifier(LPDDDEVICEIDENTIFIER2 out, DWORD)
+{
+    if (!out) return DDERR_INVALIDPARAMS;
+    std::memset(out, 0, sizeof(*out));
+    std::snprintf(out->szDriver, sizeof(out->szDriver), "randy-vk");
+    std::snprintf(out->szDescription, sizeof(out->szDescription), "%s (randy-vk)", g_rvk.gpuName.c_str());
+    out->dwVendorId = 0x10DE;
+    out->dwDeviceId = 0x2782;
+    out->guidDeviceIdentifier = {0x72616e64, 0x7976, 0x6b00, {'r', 'a', 'n', 'd', 'y', 'v', 'k', 0}};
+    return DD_OK;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// IDirect3D7
+
+RDirect3D::RDirect3D(RDirectDraw* dd) : ddraw(dd)
+{
+    ddraw->AddRef();
+}
+
+RDirect3D::~RDirect3D()
+{
+    ddraw->m_d3d = nullptr;
+    ddraw->Release();
+}
+
+void* RDirect3D::Cast(REFIID iid)
+{
+    if (iid == IID_IDirect3D7)
+        return this;
+    if (iid == IID_IDirectDraw7) {
+        ddraw->AddRef();
+        return static_cast<IDirectDraw7*>(ddraw);
+    }
+    return nullptr;
+}
+
+HRESULT RDirect3D::DoEnumDevices(LPD3DENUMDEVICESCALLBACK7 cb, LPVOID ctx)
+{
+    if (!cb) return DDERR_INVALIDPARAMS;
+    D3DDEVICEDESC7 desc;
+    FillDeviceDesc(&desc, IID_IDirect3DHALDevice);
+    char halDesc[] = "Direct3D HAL", halName[] = "Direct3D HAL";
+    if (cb(halDesc, halName, &desc, ctx) == D3DENUMRET_CANCEL) return D3D_OK;
+    FillDeviceDesc(&desc, IID_IDirect3DTnLHalDevice);
+    char tnlDesc[] = "Direct3D T&L HAL", tnlName[] = "Direct3D T&L HAL";
+    cb(tnlDesc, tnlName, &desc, ctx);
+    return D3D_OK;
+}
+
+HRESULT RDirect3D::DoCreateDevice(REFCLSID clsid, LPDIRECTDRAWSURFACE7 target, LPDIRECT3DDEVICE7* out)
+{
+    auto* s = static_cast<RSurface*>(target);
+    if (!s || !out || (s->kind != RSurface::Kind::Main && s->kind != RSurface::Kind::RenderTarget))
+        return DDERR_INVALIDPARAMS;
+    if (!g_rvk.device) {
+        RvkLog("CreateDevice without an rvk device (no 3D back buffer created yet)");
+        return DDERR_GENERIC;
+    }
+    *out = new RDevice(this, s, clsid);
+    return D3D_OK;
+}
+
+HRESULT RDirect3D::DoCreateVertexBuffer(LPD3DVERTEXBUFFERDESC desc, LPDIRECT3DVERTEXBUFFER7* out, DWORD)
+{
+    if (!desc || !out) return DDERR_INVALIDPARAMS;
+    *out = new RVertexBuffer(*desc);
+    return D3D_OK;
+}
+
+HRESULT RDirect3D::DoEnumZBufferFormats(REFCLSID, LPD3DENUMPIXELFORMATSCALLBACK cb, LPVOID ctx)
+{
+    if (!cb) return DDERR_INVALIDPARAMS;
+    struct Z { DWORD bits, mask, stencil; } formats[] = {{16, 0xFFFF, 0}, {24, 0xFFFFFF, 0}, {32, 0xFFFFFF, 0},
+                                                         {32, 0xFFFFFF, 0xFF000000}};   // as D7VK reports them
+    for (auto& z : formats) {
+        DDPIXELFORMAT pf{};
+        pf.dwSize = sizeof(pf);
+        pf.dwFlags = DDPF_ZBUFFER | (z.stencil ? DDPF_STENCILBUFFER : 0);
+        pf.dwZBufferBitDepth = z.bits;
+        pf.dwZBitMask = z.mask;
+        pf.dwStencilBitDepth = z.stencil ? 8 : 0;
+        pf.dwStencilBitMask = z.stencil;
+        if (cb(&pf, ctx) == D3DENUMRET_CANCEL) break;
+    }
+    return D3D_OK;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// Import hooks for RANDYVK_DDRAW=rvk
+
+HRESULT WINAPI RvkDirectDrawCreateEx(GUID*, LPVOID* out, REFIID iid, IUnknown*)
+{
+    ComScope scope(ComMethodCount() - 2);
+    if (!out) return DDERR_INVALIDPARAMS;
+    if (iid != IID_IDirectDraw7) {
+        RvkLog("DirectDrawCreateEx for a non-IDirectDraw7 interface");
+        return DDERR_UNSUPPORTED;
+    }
+    *out = static_cast<IDirectDraw7*>(new RDirectDraw);
+    return DD_OK;
+}
+
+HRESULT WINAPI RvkDirectDrawEnumerateExA(LPDDENUMCALLBACKEXA cb, LPVOID ctx, DWORD)
+{
+    ComScope scope(ComMethodCount() - 1);
+    if (!cb) return DDERR_INVALIDPARAMS;
+    char desc[] = "Primary Display Driver", name[] = "display";
+    cb(nullptr, desc, name, ctx, nullptr);
+    return DD_OK;
+}
+
+}  // namespace rvkproxy

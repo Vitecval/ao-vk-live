@@ -29,7 +29,10 @@ struct DrawTransform {
                                 // rocks: y 2, its pebbles: y 3 and z the range they sink over the end of; w:
                                 // kTerrainBase / kTerrainLight (0 = not mapped)
 };
-const uint MAT_PBR = 1u, MAT_BASE = 2u, MAT_ALBEDO = 4u, MAT_EMISSIVE = 8u, MAT_PICKED = 16u, MAT_SKY = 32u, MAT_CLOUDSHEET = 64u, MAT_HEIGHT = 128u;   // D.mat.z: the draw has an
+const uint MAT_PBR = 1u, MAT_BASE = 2u, MAT_ALBEDO = 4u, MAT_EMISSIVE = 8u, MAT_PICKED = 16u, MAT_SKY = 32u, MAT_CLOUDSHEET = 64u, MAT_HEIGHT = 128u, MAT_COMBINED = 256u, MAT_AUTO = 512u, MAT_ORIGINAL_ALPHA = 1024u, MAT_ORIGINAL_ALPHA1 = 2048u;   // D.mat.z: the draw has an
+const uint MAT_WORLD = 4096u, MAT_TERRAIN_HD = 8192u;
+const uint MAT_MINERAL = 16384u, MAT_HONED_STONE = 32768u;
+const uint MAT_AUTHORED_GROUND = 65536u, MAT_ASPHALT = 131072u;
                                 // ORM map; it is the ground base texture's; stage 0 draws an albedo map; it has an
                                 // emissive map; its texture was picked (Ctrl+Shift+I: flashes yellow)
 

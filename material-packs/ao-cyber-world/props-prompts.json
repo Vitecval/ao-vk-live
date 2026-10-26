@@ -1,0 +1,710 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "style-transfer edits; public asset discovery with private UV references",
+  "assets": [
+    {
+      "id": 296032,
+      "type": 1010004,
+      "name": "new_terminal_rusty_d.png",
+      "original_size": [
+        1024,
+        512
+      ],
+      "source": "prop-296032-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 terminal UV atlas. Keep every separate island exactly located: the large blank off-white rectangular screen upper-left, brackets and cabinet plates below, tall black side cylinder right of middle and tiny hinges on far right. Refined graphite/titanium housing with restrained service wear and tiny amber details. The large screen must remain blank pale white for the game's live lettering; no graphics or words added there. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55867,
+      "type": 1010004,
+      "name": "bank_plateside.png",
+      "original_size": [
+        64,
+        256
+      ],
+      "source": "prop-55867-v2",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Very tall 1:4 bank-terminal side panel. Preserve the wide horizontal bronze band near the upper sixth and all narrow borders. Satin graphite titanium body, clean bronze/anodized divider, precise low-contrast edge wear. No added controls or icons. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference. CRITICAL: no white sidebars or outer margins. The original narrow dark metal panel must fill the entire output from edge to edge. Output a SQUARE, horizontally STRETCHED version of the original 1:4 panel layout if necessary. Do not preserve the aspect ratio in the image output if it causes padding; the game bake restores it. Do not add a white rim."
+    },
+    {
+      "id": 55868,
+      "type": 1010004,
+      "name": "bank_screenmaterial.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-55868-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square nearly black terminal display glass, with a soft dark cyan region near the upper third. Smooth dark smoked touchscreen glass, faint restrained cyan diagnostic lines confined to screen, no large lettering or bright glare. Keep full square dark and readable. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55869,
+      "type": 1010004,
+      "name": "bank_generalmetalplate.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-55869-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square seamless plain medium-dark grey metal bank panel. Elegant low-contrast brushed gunmetal with a fine smooth grain, gentle service patina. Keep unbroken tiling surface and existing colour; no seams, screws, stickers or strong directional light. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55872,
+      "type": 1010004,
+      "name": "bank_light.png",
+      "original_size": [
+        64,
+        32
+      ],
+      "source": "prop-55872-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 small bank light strip. Preserve the original cyan-grey luminous face and slim manufactured border. Smooth frosted cyan diffuser with soft even illumination, crisp subtle metal edges, no bright bloom beyond texture. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55873,
+      "type": 1010004,
+      "name": "bank_frontplate.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "prop-55873-v2",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 bank front atlas. Preserve the broad flat dark panel upper two-thirds, narrow horizontal upper band and recessed vertical lock/service slot at lower centre with a row of tiny cyan lights directly above. Crisp graphite steel and titanium trim, precise mechanism, subtle restrained wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference. CRITICAL: this is ONE SOLID CONTINUOUS RECTANGULAR BANK FRONT PLATE, not multiple separate UV islands. The dark steel plate must fill the entire rectangular canvas, including every corner. Preserve a single narrow recessed vertical slot at the bottom centre. NO empty black cutouts, detached parts, invented top-left controls, new caution labels, missing lower-right area or rearranged geometry. Follow the original reference exactly."
+    },
+    {
+      "id": 9896,
+      "type": 1010004,
+      "name": "terminal_keyboard.png",
+      "original_size": [
+        32,
+        32
+      ],
+      "source": "prop-9896-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square small terminal keyboard/keypad atlas: silver edge on left and lower side with inset blue rectangular keypad/display occupying upper-right region. Preserve exact layout. Refined machined titanium bezel, dark blue touch glass, precise tiny keys and legible geometric control marks, no oversized text. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 9698,
+      "type": 1010004,
+      "name": "comp_terminal_frontbox.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-9698-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square terminal front panel: thick beveled square outer border, a small cyan rectangular display in upper-right, rectangular hatch upper-left, horizontal recessed vents in lower quarter and two small centre-right controls. Preserve exact geometry and placement. Satin titanium and dark graphite, smooth dark screen, fine mechanisms, tiny amber/cyan status marks. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 9897,
+      "type": 1010004,
+      "name": "comp_terminalbottom.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-9897-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square terminal base atlas. Broad light brushed metal face with horizontal band at upper third, vertical bracket at far left, dark slotted band along bottom and small latches. Preserve UV layout exactly. Clean satin titanium, dark gaskets and precise fitted seams, restrained wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 18326,
+      "type": 1010004,
+      "name": "trashcaninside.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-18326-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square texture for the inside of a waste bin. Retain the full radial coverage and red/cream broad colour arrangement but reinterpret as crumpled red/white packaging, discarded paper and dark bin liner, seen directly from above. Detailed believable rubbish, no bodies, gore, text or external bin shape. Preserve every tile edge. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 18490,
+      "type": 1010004,
+      "name": "garbage-container-shiny.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-18490-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square industrial waste-container UV atlas. Keep the triangular/pentagonal pale metal panels in upper-left, lower-left and right regions separated by the same dark olive unused areas. Preserve every island, edge, tiny latch and original small abstract markings. Brushed stainless steel with clean folds and modest wear, dark seals. Do not turn the atlas into one 3D object. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 18498,
+      "type": 1010004,
+      "name": "garbage_container-recycling-can copy.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-18498-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square recycling-bin UV atlas with TWO existing separate islands on black: a crumpled/open yellow upper-left piece and a yellow cylindrical side projection on lower-right. Preserve exact silhouettes, perspective baked into each island, size and spacing. Refined yellow industrial paint, brushed aluminium rim, crisp biohazard recycling markings and label 'CONTAINERS RECYCLING' in the existing lower-right label area. Keep black unused areas black; no additional scene. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 18501,
+      "type": 1010004,
+      "name": "garbage-container1.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-18501-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square waste-bin UV atlas with four stacked graphite body rectangles on left two-thirds, smaller panels on right third, red and green round status lamps at top, two horizontal dark slots just below upper third. Preserve every island and lamp. Crisp dark satin steel, tidy corrosion only at vulnerable edges, subtle yellow caution label in its original place. No new large decals. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 10604,
+      "type": 1010004,
+      "name": "hitech_benchplateuppershadesmalldetail.png",
+      "original_size": [
+        16,
+        64
+      ],
+      "source": "prop-10604-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Very narrow tall 1:4 bench trim strip. Preserve continuous fine bright vertical metal edge on the left and dark graphite right field. Smooth brushed titanium edge over dark powder-coated steel, no added panels, controls, screws or text. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 10605,
+      "type": 1010004,
+      "name": "hitech_benchplateuppershade.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-10605-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square bench upper panel. Preserve slim horizontal divisions near the upper fifth and the broad blue-grey satin metal field below. Clean softly brushed steel, fine restrained surface finish, crisp narrow seams. No coarse grime, no added features. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 10606,
+      "type": 1010004,
+      "name": "hitech_benchplateuppershadedetal.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-10606-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square bench detail atlas. Broad blue-grey upper metal panel divided by thin horizontal lines, small rectangular cyan louver/light grille in lower-left/middle. Keep exact opening, trim and proportions. Satin metal, crisp recessed slats and soft low cyan glow limited to that grille. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 21040,
+      "type": 1010004,
+      "name": "benchplatebottompart.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "prop-21040-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 bench lower panel. Preserve curved-looking upper rim shading and horizontal lower band, flat broad brushed silver face between. Refined satin stainless steel, clean gaskets and gentle scuffs, no new ornaments or control panels. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6067,
+      "type": 1010004,
+      "name": "omni_chair_new.png",
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "prop-6067-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 chair UV atlas on existing black unused regions: left island is a pointed silver chair shell surrounding a dark ribbed leather seat; right island is the pointed silver rear shell with a vertical spine mechanism. Preserve BOTH silhouettes, leather centre, positions and scale exactly. Polished-satin titanium shell, soft black ribbed leather, crisp precision rear spine details. Do not combine or rotate islands. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6072,
+      "type": 1010004,
+      "name": "omni_chair_metalline.png",
+      "original_size": [
+        16,
+        64
+      ],
+      "source": "prop-6072-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Very narrow tall 1:4 chair metal trim strip. Keep slim straight silver trim on the left and broad dark desaturated blue inset on right. Precise smooth anodized graphite and satin titanium, no extra border beyond original. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6099,
+      "type": 1010004,
+      "name": "omni_chair_metal.png",
+      "original_size": [
+        32,
+        32
+      ],
+      "source": "prop-6099-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square small chair metal tile. Keep the two vertical seams and slim pale perimeter. Smooth dark blue-grey satin metal with realistic fine brushed finish, restrained edge wear, no coarse grit or invented decoration. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6100,
+      "type": 1010004,
+      "name": "omni_chair_pillow.png",
+      "original_size": [
+        32,
+        32
+      ],
+      "source": "prop-6100-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square seamlessly tiling dark olive-black chair cushion material. Refined soft upholstery with very fine leather-like grain and gentle wrinkles, preserve original muted dark warm colour, no metal highlights, seams, buttons or strong lighting. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295917,
+      "type": 1010004,
+      "name": "container_large_red.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295917-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square RED shipping-container UV atlas. Long vertical ribs upper-left, large blank inset panel upper-right, ladder lower-middle-left, door lower-middle-right, dark vent lower-right. Preserve every island and border exactly. Refined rust-red industrial enamel over steel with crisp graphite hardware, tiny restrained scuffs. No new large labels. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295920,
+      "type": 1010004,
+      "name": "container_large_yellow.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295920-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square YELLOW shipping-container UV atlas. Preserve long ribs upper-left, large inset upper-right, ladder below-left of centre, door below-right of centre and right-hand vent exactly. Rich ochre-yellow powder-coated industrial steel, clean dark hardware and subtle service wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295922,
+      "type": 1010004,
+      "name": "container_large_blu.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295922-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square BLUE shipping-container UV atlas. Preserve ribs upper-left, blank rectangular panel upper-right, lower ladder/door/vent islands and every small seam. Refined muted cyan-blue coated steel, crisp dark metallic hardware and restrained tiny wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295924,
+      "type": 1010004,
+      "name": "container_large_white.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295924-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square WHITE shipping-container UV atlas. Preserve all island positions, ribs, ladder, door and vent. Smooth ivory-white industrial paint, graphite seals, satin titanium hardware, subtle dirt only in recesses, clean broad panels. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295928,
+      "type": 1010004,
+      "name": "container_large_green.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295928-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square GREEN shipping-container UV atlas. Preserve upper-left ribs, upper-right blank panel, lower ladder, door and slotted vent arrangement exactly. Deep forest-green powder-coated steel, precise black/steel hardware and controlled service wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 295932,
+      "type": 1010004,
+      "name": "container_large_brown.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-295932-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square BROWN shipping-container UV atlas. Preserve all borders, ribs, ladder and lower-right doors/vents. Muted warm brown/olive industrial paint with crisp brushed metal hardware and restrained fine wear. No extra labels. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6458,
+      "type": 1010004,
+      "name": "cabinet_front2.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "prop-6458-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 cabinet double-door front. Two narrow vertical silver doors divided down centre, a long slim handle on each next to central gap, outer narrow frame. Preserve every door edge and handle position. Satin titanium, dark gasket lines, fine vertical brushing, realistic clean hardware. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 46483,
+      "type": 1010004,
+      "name": "white_locker_front.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-46483-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 white locker front atlas. Preserve the broad blank white central panel, the red-brown oval horizontal vents stacked symmetrically left and right, outer pale border. Smooth ivory enamel and inset copper/ceramic louvers, subtle precision details, no darkening of the central label area. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6117,
+      "type": 1010004,
+      "name": "hitechlamp_round1.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-6117-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square industrial round-lamp housing atlas. Preserve broad horizontal brushed silver body in upper three-quarters and six vertical dark-slotted metal tabs/grille columns along lower quarter. Detailed satin metal, dark recesses and gaskets, restrained wear, no new circular object. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6154,
+      "type": 1010004,
+      "name": "lamp.png",
+      "original_size": [
+        16,
+        16
+      ],
+      "source": "prop-6154-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square small yellow-orange lamp diffuser texture. Preserve full colour field, warmer orange at upper side and bright yellow at lower. Smooth manufactured amber opal material, soft even inner illumination, no frame, no debris, no added objects or glare. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 13636,
+      "type": 1010004,
+      "name": "bigfloorlampmetal.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-13636-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square floor-lamp metal atlas. Preserve cyan-white light region across upper quarter, dark grey lower housing, narrow central stacked horizontal connector strip. Refined graphite/titanium, smooth luminous diffuser, tiny clean mechanical details. No extra light outside upper region. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 5991,
+      "type": 1010004,
+      "name": "topoflamp.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-5991-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 lamp-cap atlas with shallow horizontal light rim along the top and broad vertical metal segments below. Preserve all seams and edges. Satin silver cap and dark graphite separators, fine restrained wear, smooth diffuse material lighting. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6001,
+      "type": 1010004,
+      "name": "dock_rustypipes.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "prop-6001-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 repeating pipe-bank texture. Preserve the parallel vertical copper/bronze pipes, spacing and horizontal coupling bands. Realistic brushed copper and dark steel couplings, subtle oxidation in joints, crisp smooth cylindrical material cues; no extra pipes or diagonal changes. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 12535,
+      "type": 1010004,
+      "name": "shinypipepart.png",
+      "original_size": [
+        32,
+        32
+      ],
+      "source": "prop-12535-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square seamless pale grey pipe-metal tile with extremely fine straight vertical brushing. Refined satin aluminium/titanium, smooth quiet finish and original light-grey palette, no new seams, bolts, spots or coarse noise. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 21537,
+      "type": 1010004,
+      "name": "newclan_tech_pipe.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-21537-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square seamlessly tiling neutral blue-grey tech pipe metal. Smooth fine brushed steel with gentle blue tint, very restrained patina. No added panel lines, screws, ridges, symbols or gritty noise. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 19934,
+      "type": 1010004,
+      "name": "ent_pipe_redshiny.png",
+      "original_size": [
+        32,
+        64
+      ],
+      "source": "prop-19934-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 orange/copper pipe side texture, brighter narrow vertical stripe toward one side. Keep original orange colour and simple vertical cylindrical material gradient. Refined brushed copper with gentle patina, smooth continuous surface, no new brackets or logos. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 5944,
+      "type": 1010004,
+      "name": "door.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-5944-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square industrial door atlas with two dark bronze vertical door halves, small oval inset at upper centre, narrow vertical centre seam, dark horizontal vent strips around lower third. Preserve door geometry and all openings. Modern warm bronze/gunmetal, precise seams, crisp vents and restrained service wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8558,
+      "type": 1010004,
+      "name": "hitech_striped_door.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "prop-8558-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 industrial sliding-door panel. Preserve the distinctive narrow zigzag vertical silver structural band running from upper centre to lower centre and the large recessed rectangular plate in lower-left half. Smooth graphite titanium body, bright satin band, precise dark seals. No extra windows or handles. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8680,
+      "type": 1010004,
+      "name": "doorfrontal.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "prop-8680-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 heavy door face. Preserve distinctive narrow vertical central zigzag rail edged by alternating small pale hazard segments, horizontal band at top and bottom. Deep graphite green steel with brushed titanium rail and restrained warm wear, exact original feature locations. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 296454,
+      "type": 1010004,
+      "name": "clan_worncrate_d.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "prop-296454-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square clan wooden/metal crate UV atlas. Preserve warm brown timber bands across upper half, cyan-blue painted horizontal strip through middle and worn blue vertical corrugated lower section. Refined reclaimed timber and blue painted steel, realistic joined construction and controlled edge wear, no heavy uniform grit. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8259,
+      "type": 1010004,
+      "name": "barrel.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-8259-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square barrel side atlas. Preserve broad horizontal reinforced metal bands at upper/lower quarters and thin vertical seams dividing body panels. Brushed olive-grey steel, precisely manufactured ribs, subtle industrial wear. Flat UV side view, not a picture of a whole cylinder. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8260,
+      "type": 1010004,
+      "name": "barrel_top.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-8260-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square top-down metal drum lid texture. Preserve the existing circular lid rim, large/small off-centre bung/cap positions and central stamped rings. Satin olive-grey steel with precise machined edges and restrained subtle scuffs. Exactly overhead, no cylinder sidewall or new perspective. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 156874,
+      "type": 1010004,
+      "name": "barrel_toxic_waste_side.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-156874-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square hazardous-waste drum side atlas. Preserve two horizontal seams dividing three bands and the small pale warning label at the centre, with black/yellow BIOHAZARD symbol. Refined blue-grey galvanized steel, clean stamped ribs, restrained practical wear. Keep warning label small and readable. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 156875,
+      "type": 1010004,
+      "name": "barrel_toxic_waste_top.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-156875-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square top-down hazardous drum lid. Preserve full circular lid, concentric rims and small round cap close to lower edge. Smooth satin galvanized grey steel, precise stamped rings, fine tiny wear. Fill original square background, no floating cylinder, no angled view. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55871,
+      "type": 1010004,
+      "name": "bankterminalsign.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-55871-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 cyan rectangular bank sign. Preserve the EXACT existing black two-line text 'BANK' and 'terminal', its hierarchy and central alignment. Replace pixelated background with smooth cyan illuminated display glass, elegant understated thin bezel inside original edges, crisp typography, no extra words or icons. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55876,
+      "type": 1010004,
+      "name": "reclaimterminalsign.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-55876-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 cyan rectangular mail sign. Preserve EXACT black two-line text 'MAIL' and 'TERMINAL', central placement and line breaks. Smooth cyan illuminated glass, refined thin inset metallic border, crisp readable type, no new symbols or words. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 55882,
+      "type": 1010004,
+      "name": "saveterminalsign.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-55882-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 cyan rectangular insurance sign. Preserve EXACT black two-line text 'insurance' and 'terminal', same lowercase wording, layout and alignment. Smooth cyan display glass, crisp lettering, restrained inset border, no extra decorations. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8671,
+      "type": 1010004,
+      "name": "hitech_computercabinetfrontlupper.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "prop-8671-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 computer-cabinet upper-front plate. Preserve broad plain brushed metal field, horizontal band just below top and pale upside-down-U/arched structural edge at lower quarter. Refined satin titanium and dark graphite insets, exact original border locations. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8673,
+      "type": 1010004,
+      "name": "hitech_computercontrolpanel.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-8673-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square computer control-panel atlas. Preserve pale black diagonal hazard-stripe perimeter, green rectangular display upper-left/centre, blue vertical controls at right and small white/grey button grid lower-left. Refined dark graphite housing, crisp clean green screen and blue glass controls, tiny legible technical marks, no big text. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8674,
+      "type": 1010004,
+      "name": "hitech_computercabinetside.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-8674-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square computer cabinet side atlas. Preserve large rectangular outlined panel and single dark curved conduit/handle sweeping from lower-left toward upper-right, plus pale perimeter. Satin titanium, dark graphite conduit, precision recesses and restrained wear. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8675,
+      "type": 1010004,
+      "name": "hitech_computercabinetfrontlower.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "prop-8675-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 computer cabinet lower-front atlas. Preserve shallow upper rectangular inset, diagonal black/cream hazard frame across middle, broad flat lower steel panel and narrow vertical black grille at lower-left. Detailed satin metal with dark gaskets and a crisp grille, no new glowing panels. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6006,
+      "type": 1010004,
+      "name": "factory_squarevent.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-6006-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 wall ventilation grille. Preserve outer rectangular steel frame and the seven straight horizontal metallic slats inside. Machined brushed titanium, deep dark gaps, clean fitted edges, subtle realistic service wear. No perspective or extra fans. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 81735,
+      "type": 1010004,
+      "name": "antenna_sender_thingy.png",
+      "original_size": [
+        8,
+        16
+      ],
+      "source": "prop-81735-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Tall 1:2 tiny antenna sender indicator panel. Preserve narrow dark olive/graphite field, two tiny pale-green indicator marks in upper half and a small dark lower connector. Refined small industrial status panel with subtle olive enamel, precise tiny lamps and fine seams, no oversized text. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 43421,
+      "type": 1010004,
+      "name": "monitor_screen1.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-43421-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square inset monitor display with slim bronze/silver frame, very dark blue/cyan screen, faint thin horizontal interface lines and two tiny amber light spots near lower-left. Preserve layout and frame. Smooth screen glass, crisp restrained diagnostics, subtle amber controls, no bloom glare or large text. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6493,
+      "type": 1010004,
+      "name": "table_brushedmetal_lines.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-6493-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square table-edge metal atlas. Preserve broad plain silver-grey upper two-thirds and horizontal double metal rails across lower third. Smooth brushed titanium with precise dark gasket lines, subtle normal service wear, no extra logos or features. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 6494,
+      "type": 1010004,
+      "name": "table_brushedmetal.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-6494-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square seamless plain brushed-silver tabletop material. Preserve original pale silver colour and extremely subtle diagonal fine brushing. Smooth refined stainless steel, low-contrast microfinish, no new seams, rivets, reflections, grunge or directional shadows. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8757,
+      "type": 1010004,
+      "name": "techbar_table.PNG",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "prop-8757-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square bar-table UV atlas. Preserve large dark circular inset panel centred slightly left, broad ivory/silver angular surround, narrow vertical metallic strip at far right and tiny blue/amber upper indicator strip. Refined dark composite tabletop, satin titanium frame, crisp tiny controls, same island boundaries. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 8750,
+      "type": 1010004,
+      "name": "techbar_chair.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "prop-8750-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Square bar-chair UV atlas. Preserve broad white lower field, dark/silver horizontal housing across top third, thin red horizontal stripe just below it and small circular grey inset seat centred in lower half. Refined pale enamel shell, dark rubber/composite circular cushion, satin metal upper hardware; do not turn it into a 3D chair image. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 10574,
+      "type": 1010004,
+      "name": "hitech_cabinetmainplate.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-10574-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 cabinet-panel atlas. Preserve three broad horizontal pale-blue metal drawer strips separated by dark narrow horizontal gaps, slim outer graphite frame. Clean satin blue-grey titanium, precise recesses and small edge bevels, no added handles or controls. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 10610,
+      "type": 1010004,
+      "name": "compdesktopcomputer_horislights.png",
+      "original_size": [
+        128,
+        16
+      ],
+      "source": "prop-10610-v2",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Very wide 8:1 horizontal computer-light strip. Preserve two thin cyan-white luminous lines and narrow blue-grey outer rails along full length. Smooth opal light-guide material with crisp satin-metal separators; no thick bloom or external housing. Stretch full atlas to tool canvas with NO letterboxing; material bake restores original 8:1 ratio. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference. CRITICAL CANVAS: preserve all the atlas content, but stretch it across the entire tool output canvas. Do NOT put a narrow sign/strip in the middle of a larger white or black background. No outer margins, padding, letterboxing, extra housing or surrounding scene. The final game bake restores the wide aspect ratio. Correction: the previous output left black bars above and below. Fill the WHOLE canvas height with the blue-grey light-guide surface. Enlarge the two horizontal cyan white bands until they occupy most of the vertical canvas, as two very broad parallel bands. Output may be square; deliberately vertically stretch all components. Absolutely no pure black border area on top or bottom."
+    },
+    {
+      "id": 10611,
+      "type": 1010004,
+      "name": "comp_desktopcomputermainlid.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "prop-10611-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 2:1 desktop computer lid/control atlas. Preserve three small pale buttons down far-left, small circular emblem upper-left-middle, narrow vents lower-left-middle and large dark cyan display on right half. Refined satin blue-grey metal, smooth black/cyan glass with crisp small diagnostics, precise buttons and vents, no large words. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference."
+    },
+    {
+      "id": 38744,
+      "type": 1010004,
+      "name": "insurance_cellscanner1.png",
+      "original_size": [
+        256,
+        64
+      ],
+      "source": "prop-38744-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 4:1 insurance sign atlas. Preserve EXACT two-line black text 'INSURANCE' above 'cellscanner', including long thin rules framing the word shapes and pale grey background. Modern crisp typography on smooth pale opal sign panel with subtle dark border; readable text, no extra words. Stretch full layout to available canvas without letterboxing; game bake restores 4:1 ratio. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference. CRITICAL CANVAS: preserve all the atlas content, but stretch it across the entire tool output canvas. Do NOT put a narrow sign/strip in the middle of a larger white or black background. No outer margins, padding, letterboxing, extra housing or surrounding scene. The final game bake restores the wide aspect ratio."
+    },
+    {
+      "id": 38746,
+      "type": 1010004,
+      "name": "insurance_reclaim1.png",
+      "original_size": [
+        256,
+        64
+      ],
+      "source": "prop-38746-v1",
+      "prompt": "Use case: style-transfer. Asset type: production Anarchy Online world/prop texture, flat UV atlas. Input image is the EDIT TARGET and strict layout reference. Repaint it in the polished industrial science-fiction style of the user's modernized ICC: modern high-quality materials and crisp readable construction, keeping AO's identity. Wide 4:1 insurance reclaim sign atlas. Preserve EXACT two-line black text 'INSURANCE' above 'reclaim', including existing horizontal rule motifs and pale grey background. Crisp readable lettering, smooth opal sign panel and understated precision rim; no extra words. Stretch full layout to available canvas without letterboxing; game bake restores 4:1 ratio. Preserve ALL UV island locations, proportions, original text where specified, blank/unused regions, tiling edges and overall colour family. No changed geometry or invented objects. Albedo artwork under soft neutral illumination only: no baked dramatic reflections, directional shadows, bloom, exaggerated pores, gritty uniform noise, vignette or film grain. Smooth elegant broad surfaces; detail belongs in real seams, hardware and materials. Output only the upgraded texture. No scene, caption, mockup, surrounding background, white margins or letterboxing. If canvas aspect ratio differs from the reference, stretch the entire atlas edge-to-edge; the material bake will restore the original ratio. Preserve black unused spaces that already exist in the reference. CRITICAL CANVAS: preserve all the atlas content, but stretch it across the entire tool output canvas. Do NOT put a narrow sign/strip in the middle of a larger white or black background. No outer margins, padding, letterboxing, extra housing or surrounding scene. The final game bake restores the wide aspect ratio."
+    }
+  ]
+}

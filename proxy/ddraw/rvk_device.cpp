@@ -262,7 +262,7 @@ HRESULT RDevice::DoClear(DWORD count, LPD3DRECT rects, DWORD flags, D3DCOLOR col
     CALL_LOG("CLEAR %lu %lx %08lx %g", count, flags, color, z);
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev) return DDERR_GENERIC;
-    g_rvk.Frame();
+    if (!g_rvk.Frame()) return D3D_OK;
     dev->Clear(count, reinterpret_cast<const rvk::Device::Rect*>(rects), flags & (D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER), color, z);
     return D3D_OK;
 }
@@ -478,9 +478,9 @@ HRESULT RDevice::DrawIndexedVBRetained(D3DPRIMITIVETYPE type, RVertexBuffer* vb,
     CountBackendDraw();
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev || !vb || !idx || start + vcount > vb->desc.dwNumVertices) return DDERR_INVALIDPARAMS;
+    if (!g_rvk.Frame()) return D3D_OK;
     if (vb->water && DrawWaterInstead(type, vb, start, vcount, idx, icount))
         return D3D_OK;
-    g_rvk.Frame();
     NoteVisual(dev);
     ProcessedDraw processedDraw(dev, vb, start, vcount);
     if (vb->skin) {
@@ -742,7 +742,7 @@ HRESULT RDevice::DoDrawPrimitive(D3DPRIMITIVETYPE type, DWORD fvf, LPVOID verts,
     CountBackendDraw();
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev || !verts) return DDERR_INVALIDPARAMS;
-    g_rvk.Frame();
+    if (!g_rvk.Frame()) return D3D_OK;
     NoteVisual(dev);
     dev->DrawPrimitive(type, fvf, verts, count);
     return D3D_OK;
@@ -755,7 +755,7 @@ HRESULT RDevice::DoDrawIndexedPrimitive(D3DPRIMITIVETYPE type, DWORD fvf, LPVOID
     CountBackendDraw();
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev || !verts || !idx) return DDERR_INVALIDPARAMS;
-    g_rvk.Frame();
+    if (!g_rvk.Frame()) return D3D_OK;
     NoteVisual(dev);
     dev->DrawIndexedPrimitive(type, fvf, verts, vcount, idx, icount);
     return D3D_OK;
@@ -768,7 +768,7 @@ HRESULT RDevice::DoDrawPrimitiveVB(D3DPRIMITIVETYPE type, LPDIRECT3DVERTEXBUFFER
     auto* vb = static_cast<RVertexBuffer*>(iface);
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev || !vb || start + count > vb->desc.dwNumVertices) return DDERR_INVALIDPARAMS;
-    g_rvk.Frame();
+    if (!g_rvk.Frame()) return D3D_OK;
     NoteVisual(dev);
     ProcessedDraw processedDraw(dev, vb, start, count);
     if (vb->skin)
@@ -800,7 +800,7 @@ bool RDevice::DrawWaterInstead(D3DPRIMITIVETYPE type, RVertexBuffer* vb, DWORD s
         indices[i] = uint16_t(k);
     }
     (void)vcount;
-    g_rvk.Frame();
+    if (!g_rvk.Frame()) return true;
     NoteVisual(dev);
     dev->DrawWater(w->vertices.data(), uint32_t(n), indices.data(), icount);
     w->drawn = true;
@@ -816,9 +816,9 @@ HRESULT RDevice::DoDrawIndexedPrimitiveVB(D3DPRIMITIVETYPE type, LPDIRECT3DVERTE
     auto* vb = static_cast<RVertexBuffer*>(iface);
     rvk::ThreadedDevice* dev = g_rvk.device;
     if (!dev || !vb || !idx || start + vcount > vb->desc.dwNumVertices) return DDERR_INVALIDPARAMS;
+    if (!g_rvk.Frame()) return D3D_OK;
     if (vb->water && DrawWaterInstead(type, vb, start, vcount, idx, icount))
         return D3D_OK;
-    g_rvk.Frame();
     NoteVisual(dev);
     ProcessedDraw processedDraw(dev, vb, start, vcount);
     if (vb->skin)

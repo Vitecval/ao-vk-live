@@ -1,0 +1,1812 @@
+[
+  {
+    "type": 1010004,
+    "id": 6221,
+    "name": "village_rustyhorisontaltile.png",
+    "source": "completion-1010004-6221-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 38724,
+    "name": "tir_pillar1.png",
+    "source": "completion-1010004-38724-v2",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41509,
+    "name": "door_clan_boltbeam.png",
+    "source": "completion-1010004-41509-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      16,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41512,
+    "name": "door_siteofdoor.png",
+    "source": "completion-1010004-41512-v2",
+    "size": [
+      32,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41510,
+    "name": "tir_door4plate.png",
+    "source": "completion-1010004-41510-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ],
+    "glass_rects": [
+      [
+        0.365,
+        0.535,
+        0.625,
+        0.625
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 38722,
+    "name": "tir_pillaruppe2.png",
+    "source": "completion-1010004-38722-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41511,
+    "name": "door_glassplate.png",
+    "source": "completion-1010004-41511-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "glass",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41513,
+    "name": "door_clan_lampupper.png",
+    "source": "completion-1010004-41513-v1",
+    "size": [
+      256,
+      32
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      16
+    ],
+    "emission": "amber",
+    "emissive_rects": [
+      [
+        0.1,
+        0.15,
+        0.9,
+        0.85
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41516,
+    "name": "door_clan_platevent.png",
+    "source": "completion-1010004-41516-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      64
+    ],
+    "rubber_polys": [
+      [
+        [
+          0.14,
+          0.24
+        ],
+        [
+          0.85,
+          0.24
+        ],
+        [
+          0.77,
+          0.76
+        ],
+        [
+          0.23,
+          0.76
+        ]
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41515,
+    "name": "door_cleanplate1.png",
+    "source": "completion-1010004-41515-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8466,
+    "name": "Floorplate_grid.png",
+    "source": "completion-1010004-8466-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "grate",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41514,
+    "name": "door_clan_corneredge.png",
+    "source": "completion-1010004-41514-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 38735,
+    "name": "tir_pillar2.png",
+    "source": "completion-1010004-38735-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 23139,
+    "name": "entwall_lowplainplate_flooredge.png",
+    "source": "completion-1010004-23139-v1",
+    "size": [
+      256,
+      32
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 21525,
+    "name": "newclan_metaldoor1.png",
+    "source": "completion-1010004-21525-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25581,
+    "name": "ent_tribuilding_upperroughplate.png",
+    "source": "completion-1010004-25581-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25580,
+    "name": "ent_tribuilding_lowermainplain.png",
+    "source": "completion-1010004-25580-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 27751,
+    "name": "ent_tribuilding_cornerwindowswithillum.png",
+    "source": "completion-1010004-27751-v1",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ],
+    "metal_rects": [
+      [
+        0.02,
+        0,
+        0.98,
+        1
+      ]
+    ],
+    "glass_polys": [
+      [
+        [
+          0.125,
+          0.016
+        ],
+        [
+          0.874,
+          0.016
+        ],
+        [
+          0.874,
+          0.043
+        ],
+        [
+          0.555,
+          0.111
+        ],
+        [
+          0.443,
+          0.111
+        ],
+        [
+          0.125,
+          0.043
+        ]
+      ],
+      [
+        [
+          0.125,
+          0.075
+        ],
+        [
+          0.373,
+          0.14
+        ],
+        [
+          0.373,
+          0.343
+        ],
+        [
+          0.125,
+          0.343
+        ]
+      ],
+      [
+        [
+          0.125,
+          0.373
+        ],
+        [
+          0.373,
+          0.373
+        ],
+        [
+          0.373,
+          0.624
+        ],
+        [
+          0.125,
+          0.624
+        ]
+      ],
+      [
+        [
+          0.125,
+          0.655
+        ],
+        [
+          0.373,
+          0.655
+        ],
+        [
+          0.373,
+          0.857
+        ],
+        [
+          0.125,
+          0.923
+        ]
+      ],
+      [
+        [
+          0.444,
+          0.144
+        ],
+        [
+          0.556,
+          0.144
+        ],
+        [
+          0.556,
+          0.858
+        ],
+        [
+          0.444,
+          0.858
+        ]
+      ],
+      [
+        [
+          0.628,
+          0.14
+        ],
+        [
+          0.874,
+          0.075
+        ],
+        [
+          0.874,
+          0.343
+        ],
+        [
+          0.628,
+          0.343
+        ]
+      ],
+      [
+        [
+          0.628,
+          0.373
+        ],
+        [
+          0.874,
+          0.373
+        ],
+        [
+          0.874,
+          0.624
+        ],
+        [
+          0.628,
+          0.624
+        ]
+      ],
+      [
+        [
+          0.628,
+          0.655
+        ],
+        [
+          0.874,
+          0.655
+        ],
+        [
+          0.874,
+          0.923
+        ],
+        [
+          0.628,
+          0.857
+        ]
+      ],
+      [
+        [
+          0.125,
+          0.954
+        ],
+        [
+          0.443,
+          0.889
+        ],
+        [
+          0.555,
+          0.889
+        ],
+        [
+          0.874,
+          0.954
+        ],
+        [
+          0.874,
+          0.982
+        ],
+        [
+          0.125,
+          0.982
+        ]
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 27843,
+    "name": "ent_tribuilding_overentrance.png",
+    "source": "completion-1010004-27843-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25582,
+    "name": "ent_tribuilding_roughplateunderroof.png",
+    "source": "completion-1010004-25582-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8606,
+    "name": "hitech_striped_door_insdie2.png",
+    "source": "completion-1010004-8606-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8682,
+    "name": "hitech_semirustydoorplate.png",
+    "source": "completion-1010004-8682-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ],
+    "rubber_rects": [
+      [
+        0.12,
+        0.08,
+        0.29,
+        0.9
+      ]
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 36601,
+    "name": "",
+    "source": "completion-1010009-36601-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 74018,
+    "name": "",
+    "source": "completion-1010009-74018-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 30643,
+    "name": "",
+    "source": "completion-1010009-30643-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 40587,
+    "name": "",
+    "source": "completion-1010009-40587-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6223,
+    "name": "cleanplatetopinset.png",
+    "source": "completion-1010004-6223-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 81946,
+    "name": "omnitrashcannnnn2.png",
+    "source": "completion-1010004-81946-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 55879,
+    "name": "save_sideplate3.png",
+    "source": "completion-1010004-55879-v1",
+    "size": [
+      256,
+      32
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      16
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 56165,
+    "name": "save_generalplateinsidetest2.png",
+    "source": "completion-1010004-56165-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 85115,
+    "name": "lampetexture.png",
+    "source": "completion-1010004-85115-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 16499,
+    "name": "worn_heavy_metal_box.png",
+    "source": "completion-1010004-16499-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 21070,
+    "name": "dock_factory_concrete_main_broken.png",
+    "source": "completion-1010004-21070-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "mineral",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 81760,
+    "name": "garbaggggge3.png",
+    "source": "completion-1010004-81760-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "mineral",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6249,
+    "name": "shrubstiny_tex.png",
+    "source": "completion-1010004-6249-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 95574,
+    "name": "grass_small_dry.png",
+    "source": "completion-1010004-95574-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6289,
+    "name": "gronnbark.png",
+    "source": "completion-1010004-6289-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "dry-organic",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 95359,
+    "name": "grass_small.png",
+    "source": "completion-1010004-95359-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 9653,
+    "name": "spikyshrub_opac.png",
+    "source": "completion-1010004-9653-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 13142,
+    "name": "bark_mossy_tileable.png",
+    "source": "completion-1010004-13142-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-organic",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 20951,
+    "name": "jungle_plantleaf2_opac.png",
+    "source": "completion-1010004-20951-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6270,
+    "name": "mossybarken.png",
+    "source": "completion-1010004-6270-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "dry-organic",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25911,
+    "name": "trunk_green_tile_bark.png",
+    "source": "completion-1010004-25911-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-organic",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 21010,
+    "name": "jungle_plantleaf_opac.png",
+    "source": "completion-1010004-21010-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 31899,
+    "name": "spookybark.png",
+    "source": "completion-1010004-31899-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-organic",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25904,
+    "name": "blue_leaf.png",
+    "source": "completion-1010004-25904-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "dry-foliage",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      64
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 75376,
+    "name": "",
+    "source": "completion-1010009-75376-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 9903,
+    "name": "",
+    "source": "completion-1010009-9903-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 36602,
+    "name": "",
+    "source": "completion-1010009-36602-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 40588,
+    "name": "",
+    "source": "completion-1010009-40588-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 42008,
+    "name": "hq_twobiglightsupperwallpart_alpha.png",
+    "source": "completion-1010004-42008-v1",
+    "size": [
+      256,
+      32
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      32
+    ],
+    "emission": "white",
+    "emissive_rects": [
+      [
+        0.1,
+        0.15,
+        0.9,
+        0.85
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 35838,
+    "name": "hq_mall_nexttodoor.png",
+    "source": "completion-1010004-35838-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26853,
+    "name": "standalone_wallpart_bigwall_stripes.png",
+    "source": "completion-1010004-26853-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26859,
+    "name": "standalone_wallpart_lower.png",
+    "source": "completion-1010004-26859-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26169,
+    "name": "ent_tribuilding_roughplate_insidedoor.png",
+    "source": "completion-1010004-26169-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "mineral",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26857,
+    "name": "standalone_insidedoor_darktransfer.png",
+    "source": "completion-1010004-26857-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 40741,
+    "name": "tir_pillarhorizontal2.png",
+    "source": "completion-1010004-40741-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 40743,
+    "name": "tir_pillarornamentalinside1.png",
+    "source": "completion-1010004-40743-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6027,
+    "name": "roof.png",
+    "source": "completion-1010004-6027-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010009,
+    "id": 30653,
+    "name": "",
+    "source": "completion-1010009-30653-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 18790,
+    "name": "ent_roughpillar.png",
+    "source": "completion-1010004-18790-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 234531,
+    "name": "tileablemetallic2.png",
+    "source": "completion-1010004-234531-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 43500,
+    "name": "hq_adm_towerside.png",
+    "source": "completion-1010004-43500-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ],
+    "glass_rects": [
+      [
+        0.24,
+        0.13,
+        0.273,
+        0.98
+      ],
+      [
+        0.717,
+        0.15,
+        0.75,
+        0.98
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 30003,
+    "name": "woodwall_128_dirty_greenhue.png",
+    "source": "completion-1010004-30003-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "fabric",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 43583,
+    "name": "hq_adm_global_onestipe_window.png",
+    "source": "completion-1010004-43583-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ],
+    "glass_rects": [
+      [
+        0.472,
+        0.15,
+        0.527,
+        0.97
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26858,
+    "name": "standalone_wallpart_bigwall_topornamental.png",
+    "source": "completion-1010004-26858-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 159277,
+    "name": "Omni_HQ_singledoor.png",
+    "source": "completion-1010004-159277-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 43364,
+    "name": "hq_quadblock_simpleroof2.png",
+    "source": "completion-1010004-43364-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 41459,
+    "name": "tir_door2_plateside.png",
+    "source": "completion-1010004-41459-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 37238,
+    "name": "omni_booth_mission_sign.png",
+    "source": "completion-1010004-37238-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ],
+    "glass_rects": [
+      [
+        0.085,
+        0.085,
+        0.915,
+        0.915
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 25478,
+    "name": "ent_plainblock_insidedoorstrip.png",
+    "source": "completion-1010004-25478-v1",
+    "size": [
+      32,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 37240,
+    "name": "omni_both_mission_screen.png",
+    "source": "completion-1010004-37240-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ],
+    "glass_rects": [
+      [
+        0.04,
+        0.04,
+        0.96,
+        0.96
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6133,
+    "name": "yellowstripe.png",
+    "source": "completion-1010004-6133-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6051,
+    "name": "singleplate.png",
+    "source": "completion-1010004-6051-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26712,
+    "name": "neutral_entrance_dark.png",
+    "source": "completion-1010004-26712-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "honed-stone",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 258360,
+    "name": "massive_sign1_metal2.png",
+    "source": "completion-1010004-258360-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 258361,
+    "name": "massive_sign1_metal1.png",
+    "source": "completion-1010004-258361-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "fabric",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 99837,
+    "name": "metal_plates_sides.png",
+    "source": "completion-1010004-99837-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 20917,
+    "name": "dock_factory_metal_plate.png",
+    "source": "completion-1010004-20917-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 85112,
+    "name": "biglamp_strange_metAL.png",
+    "source": "completion-1010004-85112-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6231,
+    "name": "top.png",
+    "source": "completion-1010004-6231-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      32,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5946,
+    "name": "rustyplate64x128.png",
+    "source": "completion-1010004-5946-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8681,
+    "name": "factory_detailstrip.png",
+    "source": "completion-1010004-8681-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      32
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8248,
+    "name": "rockyground.png",
+    "source": "completion-1010004-8248-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "mineral",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 18487,
+    "name": "garbage.png",
+    "source": "completion-1010004-18487-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "fabric",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 295918,
+    "name": "container_large_worn.png",
+    "source": "completion-1010004-295918-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6062,
+    "name": "singleplatebottom.png",
+    "source": "completion-1010004-6062-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      64
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6057,
+    "name": "metalplate.png",
+    "source": "completion-1010004-6057-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 99840,
+    "name": "plates_rusty_simple-128.png",
+    "source": "completion-1010004-99840-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 14714,
+    "name": "hq_bigplate_upperfringe_lights.png",
+    "source": "completion-1010004-14714-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      128
+    ]
+  }
+]

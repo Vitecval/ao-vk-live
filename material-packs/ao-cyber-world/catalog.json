@@ -1,0 +1,22 @@
+[
+  {"type":1010004,"id":6050,"name":"plateyellbars.png","source":"vertical-panels-v1","size":[512,512],"profile":"cladding","metal_rects":[[0,0,0.16,1],[0.36,0,0.48,1],[0.54,0,0.65,1],[0.89,0,1,1]]},
+  {"type":1010004,"id":6052,"name":"plateyellwindows.png","source":"window-strip-v1","size":[1024,512],"profile":"window","glass_rects":[[0.068,0.194,0.251,0.704],[0.337,0.194,0.508,0.704],[0.578,0.194,0.746,0.704],[0.815,0.194,0.985,0.704]],"metal_rects":[[0,0.05,1,0.14],[0,0.79,1,0.94]]},
+  {"type":1010004,"id":6053,"name":"plateyellsupplies_sign.png","source":"supplies-sign-v1","size":[512,512],"profile":"sign","metal_rects":[[0.105,0.28,0.95,0.74],[0.08,0.76,0.95,0.91]],"emission":"letters"},
+  {"type":1010004,"id":6055,"name":"plateyellwindow2.png","source":"twin-window-v1","size":[1024,1024],"profile":"window","glass_rects":[[0.133,0.308,0.365,0.649],[0.635,0.308,0.861,0.649]],"metal_rects":[[0.085,0.17,0.39,0.67],[0.61,0.17,0.91,0.67],[0.07,0.674,0.925,0.745]]},
+  {"type":1010004,"id":6056,"name":"plateyellhorisontalpipeendpart.png","source":"pipe-end-v1","size":[512,512],"profile":"cladding","metal_rects":[[0.215,0.255,0.472,0.514],[0.215,0.515,1,0.658],[0.22,0.715,1,0.91]],"emission":"amber"},
+  {"type":1010004,"id":6061,"name":"plateyellhorisontalpipes.png","source":"pipe-run-v1","size":[512,512],"profile":"cladding","metal_rects":[[0,0.494,1,0.62],[0,0.685,1,0.915]]},
+  {"type":1010004,"id":6066,"name":"plateyellbottompart.png","source":"lower-cladding-v1","size":[512,512],"profile":"cladding","metal_rects":[[0,0.685,1,0.782]]},
+  {"type":1010004,"id":6081,"name":"plateyellwindow.png","source":"arched-window-v1","size":[1024,1024],"profile":"window","glass_rects":[[0.421,0.309,0.586,0.737]],"glass_ellipses":[[0.503,0.309,0.082,0.063]],"metal_rects":[[0.365,0.169,0.629,0.751],[0.36,0.757,0.638,0.869]]},
+  {"type":1010004,"id":6083,"name":"plateyelltopridge.png","source":"upper-cladding-v1","size":[512,512],"profile":"cladding"},
+  {"type":1010004,"id":6084,"name":"plateyelltubes.png","source":"service-tubes-v1","size":[512,512],"profile":"cladding","metal_rects":[[0.335,0.327,0.652,0.643],[0.783,0.05,0.853,0.38],[0.18,0.602,0.307,0.738]],"emission":"amber"},
+  {"type":1010004,"id":99647,"name":"neutral_newplate_nexttowindow1.png","source":"neutral-wall-window-v1","size":[1024,1024],"profile":"window","glass_rects":[[0.481,0.62,0.589,0.661]],"metal_rects":[[0.465,0.606,0.607,0.708],[0.226,0,0.279,1]]},
+  {"type":1010004,"id":99648,"name":"neutral_newplate_colstripeupper1.png","source":"neutral-stripe-v1","size":[512,512],"profile":"cladding","metal_rects":[[0,0,1,0.07]]},
+  {"type":1010004,"id":29597,"name":"concretebridge_generalside_veryplain.png","source":"concrete-wall-v1","size":[512,512],"profile":"concrete"},
+  {"type":1010004,"id":6098,"name":"greymetal.png","source":"grey-metal-v1","size":[512,512],"profile":"metal"},
+  {"type":1010004,"id":6088,"name":"midtech_metalwall1.png","source":"midtech-wall-v1","size":[512,512],"profile":"painted-metal","metal_rects":[[0,0,1,0.063],[0,0.775,1,0.825]]},
+  {"type":1010006,"id":200,"name":"terrain_200","source":"gravel-track-v1","size":[1024,1024],"profile":"gravel"},
+  {"type":1010006,"id":109,"name":"terrain_109","source":"arid-soil-v1","size":[1024,1024],"profile":"soil"},
+  {"type":1010006,"id":263,"name":"terrain_263","source":"grass-soil-edge-v1","size":[1024,1024],"profile":"grass-soil"},
+  {"type":1010006,"id":222,"name":"terrain_222","source":"arid-rock-v1","size":[1024,1024],"profile":"rock"},
+  {"type":1010006,"id":221,"name":"terrain_221","source":"rock-soil-transition-v1","size":[1024,1024],"profile":"rock-soil"}
+]

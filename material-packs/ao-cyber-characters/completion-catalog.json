@@ -1,0 +1,272 @@
+[
+  {
+    "type": 1010004,
+    "id": 17988,
+    "name": "helmet_steelribbed_under.png",
+    "source": "completion-1010004-17988-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 280792,
+    "name": "xan_rifle.png",
+    "source": "completion-1010004-280792-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 28553,
+    "name": "shoulderpad_torch.png",
+    "source": "completion-1010004-28553-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      64
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 245068,
+    "name": "shoulderpads_pande_armor copy.png",
+    "source": "completion-1010004-245068-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 162274,
+    "name": "weapon_blunt_tonfa.png",
+    "source": "completion-1010004-162274-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      64,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 245070,
+    "name": "backpiece_pande_armor.png",
+    "source": "completion-1010004-245070-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 285598,
+    "name": "helmet_fa_set04.png",
+    "source": "completion-1010004-285598-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      512,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 99153,
+    "name": "powershotgun.png",
+    "source": "completion-1010004-99153-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      128
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 17222,
+    "name": "medium_blaster.png",
+    "source": "completion-1010004-17222-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 304876,
+    "name": "helmet_robo_armor_d.png",
+    "source": "completion-1010004-304876-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 17238,
+    "name": "clan_shotgun_new.png",
+    "source": "completion-1010004-17238-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 99145,
+    "name": "powerpistol.png",
+    "source": "completion-1010004-99145-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      128
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 17237,
+    "name": "clan_proj_weapon.png",
+    "source": "completion-1010004-17237-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 290732,
+    "name": "ptech_pads_uvPANDE.png",
+    "source": "completion-1010004-290732-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      256,
+      256
+    ],
+    "group": "preserved-equipment"
+  },
+  {
+    "type": 1010004,
+    "id": 303930,
+    "name": "shoulders_xeno.png",
+    "source": "completion-1010004-303930-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "coated-armour",
+    "batch": "completion-2026-10-25",
+    "discovery": "frequency-ranked captured textures",
+    "original_aspect": [
+      128,
+      256
+    ],
+    "group": "preserved-equipment"
+  }
+]

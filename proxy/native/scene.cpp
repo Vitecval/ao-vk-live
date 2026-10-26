@@ -1,6 +1,7 @@
 // Which visual is drawing (scene.h).
 #include "native/scene.h"
 #include "native/cat.h"
+#include "native/diagnostic_walk.h"
 
 #include <cstring>
 #include <string>
@@ -282,12 +283,14 @@ void LogChain(const void* visual)
     Log("dump chain: %s", line.c_str());
 }
 
-void LogFrameTree(const void* frame, int depth, std::string indent)
+void LogFrameTree(const void* frame, diagnostics::WalkBudget& budget)
 {
-    for (const void* child = SafeRead(frame, kFirstChild); child && depth < 3; child = SafeRead(child, kNextSibling)) {
-        Log("dump attractor tree: %s%08X %s", indent.c_str(), unsigned(reinterpret_cast<uintptr_t>(child)), ClassName(child));
-        LogFrameTree(child, depth + 1, indent + "  ");
-    }
+    diagnostics::WalkChildren(frame,0,budget,
+        [](const void* f){return SafeRead(f,kFirstChild);},
+        [](const void* f){return SafeRead(f,kNextSibling);},
+        [](const void* child,int depth){
+            Log("dump attractor tree: %*s%08X %s",2+depth*2,"",unsigned(reinterpret_cast<uintptr_t>(child)),ClassName(child));
+        });
 }
 
 // The character an object hangs on by an attractor: it, or a frame up its parents, is one's attractor child.
@@ -403,14 +406,21 @@ void NoteDumpRequested()
 {
     g_chainLogUntil = g_renders + 60;            // (several renders a frame: past the dumped one)
     g_chainLogged.clear();
+    diagnostics::WalkBudget budget;
+    unsigned roots=0;
     for (const auto& [character, a] : g_attachments)
         for (const void* f : a.frames) {
+            if (++roots>512 || budget.count==budget.seen.size()) {
+                Log("dump attractor tree: stopped at diagnostic node limit");
+                return;
+            }
             const void* parent = SafeRead(f, kParent);
             Log("dump attractor child: %08X %s of character %08X; parent %08X %s", unsigned(reinterpret_cast<uintptr_t>(f)),
                 ClassName(f), unsigned(reinterpret_cast<uintptr_t>(character)), unsigned(reinterpret_cast<uintptr_t>(parent)),
                 ClassName(parent));
-            LogFrameTree(f, 0, "  ");
+            LogFrameTree(f,budget);
         }
+    if (budget.truncated) Log("dump attractor tree: repeated/cyclic frame links skipped");
 }
 
 VisualInfo Describe(const void* visual)

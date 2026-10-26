@@ -19,7 +19,10 @@ EXCLUDE_FILES = {'tools/build-windows.ps1', 'tools/package-live.py'}
 
 
 def digest(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    h=hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda:stream.read(8<<20),b''):h.update(chunk)
+    return h.hexdigest()
 
 
 def archive(folder):
@@ -46,7 +49,8 @@ def main():
     out = args.output_dir or ROOT / 'dist/releases' / args.version
     out.mkdir(parents=True, exist_ok=False)
     prefix = f'ao-vk-live-{args.version}'
-    player = out / (prefix + '-windows-x86')
+    player = out / (prefix + '-windows-x86-full')
+    lite = out / (prefix + '-windows-x86-lite')
     source = out / (prefix + '-source')
     player.mkdir()
     source.mkdir()
@@ -58,8 +62,10 @@ def main():
         shutil.copy2(ROOT / name, player / name)
     shutil.copytree(ROOT / 'licenses', player / 'licenses')
     (player / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md']:
+    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md']:
         shutil.copy2(ROOT / 'docs' / name, player / 'docs' / name)
+    shutil.copy2(ROOT / 'material-packs/scan-coverage.json', player / 'docs/scan-coverage.json')
+    shutil.copy2(ROOT / 'material-packs/building-families.json', player / 'docs/building-families.json')
     readme = (ROOT / 'docs/repository-readme.md').read_text(encoding='utf-8').replace('0.1.0', args.version)
     (player / 'README.md').write_text(readme, encoding='utf-8')
     for action in ['Install', 'Update', 'Uninstall']:
@@ -78,15 +84,42 @@ def main():
                 'client': preflight.EXPECTED,
                 'addon': {name: digest(player / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
-    pack = ROOT / 'material-packs/ao-modern-icc'
-    pack_dest = player / 'randy-vk/packs/ao-modern-icc'
-    pack_dest.mkdir(parents=True)
-    for path in sorted((pack / 'maps').glob('*.png')):
-        shutil.copy2(path, pack_dest / path.name)
-    for name in ['manifest.json', 'README.md']:
-        shutil.copy2(pack / name, pack_dest / name)
-    manifest['assets'] = {p.relative_to(player).as_posix(): digest(p) for p in sorted(pack_dest.iterdir()) if p.is_file()}
-    (player / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
+    shutil.copytree(player,lite)
+    editions=[]
+    for edition,destination in [('full',player),('lite',lite)]:
+        edition_manifest=dict(manifest,edition=edition,assets={},optionalTexturePack=edition=='full')
+        for pack_name in ['ao-modern-icc','ao-cyber-icc','ao-cyber-characters','ao-cyber-world']:
+            pack=ROOT/'material-packs'/pack_name
+            pack_manifest=json.loads((pack/'manifest.json').read_text())
+            materials=pack_manifest['materials']
+            if edition=='lite':
+                if pack_name not in ['ao-cyber-icc','ao-cyber-world']:continue
+                materials=[x for x in materials if x['type']==1010006 and x['id'] in [17,20,21,22,23,24,25,26]]
+            stems={f"{x['type']}_{x['id']}_" for x in materials}
+            names={n for n in pack_manifest['files'] if any(n.startswith(stem) for stem in stems)}
+            if not names:continue
+            pack_dest=destination/'randy-vk/packs'/pack_name
+            pack_dest.mkdir(parents=True)
+            for name in sorted(names):
+                if name not in pack_manifest['files'] or digest(pack/'maps'/name)!=pack_manifest['files'][name]:
+                    raise RuntimeError(f'Unverified material map: {pack_name}/{name}')
+                shutil.copy2(pack/'maps'/name,pack_dest/name)
+            selected=dict(pack_manifest,materials=materials,files={n:pack_manifest['files'][n] for n in sorted(names)})
+            if edition=='lite':selected['new_art_surfaces']=sum('d' in x['maps'] for x in materials)
+            (pack_dest/'manifest.json').write_text(json.dumps(selected,indent=2)+'\n')
+            shutil.copy2(pack/'README.md',pack_dest/'README.md')
+            if edition=='full':
+                for item in sorted(pack.glob('*catalog.json')):
+                    shutil.copy2(item,pack_dest/item.name)
+                # Authoring atlases are provenance, never an extra geometry pass.
+                for atlas in sorted((pack/'source-art').glob('*atlas*.png')):
+                    target=pack_dest/'source-art'/atlas.name
+                    target.parent.mkdir(exist_ok=True)
+                    shutil.copy2(atlas,target)
+            edition_manifest['assets'].update({p.relative_to(destination).as_posix():digest(p) for p in sorted(pack_dest.rglob('*')) if p.is_file()})
+        (destination/'manifest.json').write_text(json.dumps(edition_manifest,indent=2)+'\n',encoding='utf-8')
+        editions.append(destination)
+    derived=json.loads((ROOT/'release/derived-art.json').read_text())
     for directory in SOURCE_DIRS:
         for path in sorted((ROOT / directory).rglob('*')):
             rel = path.relative_to(ROOT)
@@ -94,6 +127,11 @@ def main():
                 continue
             if path.suffix.lower() in EXCLUDE_SUFFIXES or rel.as_posix() in EXCLUDE_FILES:
                 continue
+            if rel.as_posix() in derived:
+                if digest(path)!=derived[rel.as_posix()]['sha256']:raise RuntimeError(f'Derived source changed: {rel}')
+                continue
+            if directory=='material-packs' and len(rel.parts)>2 and rel.parts[2]=='maps':
+                continue # deterministic baked outputs; original masters and all provenance are retained
             target = source / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
@@ -101,11 +139,30 @@ def main():
         shutil.copy2(ROOT / name, source / name)
     (source / 'README.md').write_text(readme, encoding='utf-8')
     shutil.copy2(ROOT / 'README.md', source / 'docs/upstream-readme.md')
+    (source/'SOURCE-ASSETS.md').write_text('''# Source artwork
+
+All master artwork, atlases, catalogs and provenance are retained. Deterministic
+baked map outputs and hash-verified duplicate atlas crops are omitted to keep
+this archive within GitHub release limits. No workspace originals were removed.
+
+Install Pillow and NumPy, then run:
+
+    python tools/restore-source-art.py
+    python tools/bake-modern-icc.py
+    python tools/bake-cyber-icc.py
+    python tools/bake-character-art.py
+    python tools/bake-world-art.py
+
+The crop restoration checks every result against release/derived-art.json and
+refuses to replace differing files. The Full HD download includes pre-baked maps.
+''',encoding='utf-8')
     # Reject unexpected proprietary/local artifacts in the exported source before archiving it.
     for path in source.rglob('*'):
         if path.is_file() and (path.suffix.lower() in EXCLUDE_SUFFIXES or 'randy-vk.ini' == path.name):
             raise RuntimeError(f'Unexpected local artifact in source: {path}')
-    archives = [archive(player), archive(source)]
+    archives = [archive(folder) for folder in editions] + [archive(source)]
+    for path in archives:
+        if path.stat().st_size>=2**31:raise RuntimeError(f'GitHub release asset exceeds 2 GiB: {path}')
     (out / 'SHA256SUMS.txt').write_text(''.join(f'{digest(path)}  {path.name}\n' for path in archives), encoding='ascii')
     for path in archives:
         print(f'{path} ({path.stat().st_size / 1048576:.2f} MiB)')

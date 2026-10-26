@@ -120,6 +120,15 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
         return;
     }
     const NativeGround& g = *ground;
+    if (!m_native.on && m_sharedTerrain>1.0f) {
+        m_native.ground=ground;
+        MakeNativeCodes();
+        FitNativeLight();
+        if (!m_native.lightmapGrey) {const uint32_t grey=PaletteGrey(15,.5f);m_native.lightmapGrey=CreateTexture(1,1,&grey);}
+        m_native.drawnBase=m_native.drawnLight=~0ull;
+        Log("shared ground+: surface data ready; original terrain geometry and lighting retained");
+        return; // no replacement mesh, sky visibility, terrain AO or cliff tessellation
+    }
     const uint32_t P = g.patch, W = g.cellsX + 1;
     const uint32_t pw = (g.cellsX + P - 1) / P, ph = (g.cellsZ + P - 1) / P;
     auto heightAt = [&](int c, int r) {
@@ -458,12 +467,75 @@ bool Device::NativeLightRgb(float u, float v, uint8_t rgb[3]) const
 // A draw of the game's: is it its ground, replaced (drawn by this first, for its pass, once a frame)? Skipped then.
 bool Device::NativeGroundReplaces(uint32_t fvf)
 {
-    if (!m_native.on || !m_native.ground || !m_native.codes || m_native.drawing)
+    if (!m_native.on && m_sharedTerrain>1.0f && m_native.ground && m_native.codes && !m_native.drawing &&
+        m_drawVisualKind==uint32_t(VisualKind::Terrain) && IsTerrain(fvf) &&
+        (IsCombinedTerrainPass() || (m_rs[d3d::RS_LIGHTING] && IsMultiplyPass())) &&
+        m_native.drawnLight!=m_frameNumber && TerrainRockOn()) {
+        m_native.drawnLight=m_frameNumber;
+        EnsurePebbleTable();
+        if (NativeMapsSignature()!=m_native.mapsSignature) MakeNativeCodes();
+        const auto rs=m_rs; const auto tss=m_tss; uint32_t extra[3];std::memcpy(extra,m_recordExtra,sizeof(extra));
+        Texture* t0=m_textures[0]; Texture* t1=m_textures[1];
+        const auto world=m_world;
+        m_world={};for (int i=0;i<4;++i) m_world.m[i][i]=1;
+        m_rs[d3d::RS_ALPHABLENDENABLE]=0; m_rs[d3d::RS_ZWRITEENABLE]=1;
+        m_rs[d3d::RS_ZFUNC]=d3d::CMP_LESSEQUAL;
+        m_tss[0][d3d::TSS_TEXCOORDINDEX]=1;
+        m_tss[0][d3d::TSS_COLOROP]=d3d::TOP_ADD;
+        m_tss[0][d3d::TSS_COLORARG1]=d3d::TA_TEXTURE;
+        m_tss[0][d3d::TSS_COLORARG2]=d3d::TA_DIFFUSE;
+        m_tss[1][d3d::TSS_COLOROP]=d3d::TOP_DISABLE;
+        m_textures[0]=m_native.lightmap ? m_native.lightmap : m_native.lightmapGrey;
+        m_textures[1]=nullptr;
+        m_groundOne=true; m_native.drawing=true;
+        m_recordExtra[0]=BindlessImage(m_blackTexture)+1;
+        m_recordExtra[1]=StageSamplerSlot(0);
+        m_recordExtra[2]=OwnSkyFog() ? 1u<<24 : m_rs[d3d::RS_FOGCOLOR]&0xFFFFFFu;
+        if (m_rs[d3d::RS_FOGENABLE]) m_recordExtra[2]|=1u<<25;
+        m_constantsDirty=true;
+        DrawNativePebbles(MulMatrix(m_view,m_proj));
+        FlushGroup();
+        m_native.drawing=false;m_groundOne=false;
+        m_rs=rs;m_tss=tss;std::memcpy(m_recordExtra,extra,sizeof(extra));m_world=world;
+        m_textures[0]=t0;m_textures[1]=t1;m_constantsDirty=true;
+    }
+    if (!m_native.on || !m_native.ground || !m_native.codes || m_native.patches.empty() || m_native.drawing)
         return false;
     if (m_drawVisualKind != uint32_t(VisualKind::Terrain) || !IsTerrain(fvf))
         return false;
     const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
     const bool light = m_rs[d3d::RS_LIGHTING] && IsMultiplyPass();
+    const bool combined = IsCombinedTerrainPass();
+    // Retail combines (lightmap + diffuse) * base in one opaque draw. The old
+    // path consumed it without drawing either pass, leaving a hole in the world.
+    // Unknown passes, or an unavailable replacement, always retain AO's draw.
+    if ((!base && !light && !combined) || (combined && !m_pixelLighting))
+        return false;
+    if (combined) {
+        if (m_native.drawnLight == m_frameNumber)
+            return true;
+        EnsurePebbleTable();
+        if (NativeMapsSignature() != m_native.mapsSignature) MakeNativeCodes();
+        if (!m_native.codes) return false;
+        PollNativeSky();
+        const auto tss = m_tss;
+        Texture* tex1 = m_textures[1];
+        m_native.baseRs = m_rs;
+        m_native.baseTss = m_tss;
+        m_native.baseTss[0][d3d::TSS_TEXCOORDINDEX] = 0;
+        m_native.baseSampler = StageSamplerSlot(1);
+        // DrawNativeGroundOne supplies the native tile table in the spare base
+        // slot; a second retail stage would multiply the base in a second time.
+        m_tss[1][d3d::TSS_COLOROP] = d3d::TOP_DISABLE;
+        m_textures[1] = nullptr;
+        m_native.drawnBase = m_native.drawnLight = m_frameNumber;
+        if (m_scenePhase && !m_external) NoteSceneFog();
+        DrawNativeGroundOne();
+        m_tss = tss;
+        m_textures[1] = tex1;
+        m_constantsDirty = true;
+        return true;
+    }
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber)
         EnsurePebbleTable();                     // (which cells are sand: the means' texture, made again once it is)
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber &&
@@ -603,7 +675,7 @@ void Device::DrawNativeGround(bool lightPass)
     DrawNativePebbles(vp);
     m_native.drawing = false;
     m_textures[0] = saved;
-    if (!lightPass) {
+    if (!lightPass || m_groundOne) {
         m_native.patchesDrawn += drawn;
         ++m_native.framesDrawn;
     }

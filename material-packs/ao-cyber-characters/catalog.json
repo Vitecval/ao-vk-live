@@ -1,0 +1,180 @@
+[
+  {
+    "type": 1010004,
+    "id": 256235,
+    "name": "ai_agility_sense_arms.png",
+    "source": "scout-arms-v2",
+    "size": [
+      1024,
+      1024
+    ],
+    "group": "scout-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 256236,
+    "name": "ai_agility_sense_body.png",
+    "source": "scout-body-v1",
+    "size": [
+      1024,
+      512
+    ],
+    "group": "scout-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 256237,
+    "name": "ai_agility_sense_feet.png",
+    "source": "scout-feet-v1",
+    "size": [
+      1024,
+      1024
+    ],
+    "group": "scout-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 256239,
+    "name": "ai_agility_sense_helmet.png",
+    "source": "scout-helmet-v1",
+    "size": [
+      1024,
+      512
+    ],
+    "group": "scout-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 256240,
+    "name": "ai_agility_sense_legs.png",
+    "source": "scout-legs-v1",
+    "size": [
+      1024,
+      1024
+    ],
+    "group": "scout-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 300672,
+    "name": "back_shop_armor.png",
+    "source": "back-armour-v1",
+    "size": [
+      1024,
+      512
+    ],
+    "group": "back-armour"
+  },
+  {
+    "type": 1010004,
+    "id": 18003,
+    "name": "helmet_techarmour.png",
+    "source": "scans-18003-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 18000,
+    "name": "helmet_omnieliteguard.png",
+    "source": "scans-18000-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 8741,
+    "name": "body_techarmour.png",
+    "source": "scans-8741-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 9416,
+    "name": "feet_techarmour.png",
+    "source": "scans-9416-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 15805,
+    "name": "legs_omnieliteguard.png",
+    "source": "scans-15805-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 15809,
+    "name": "body_omnieliteguard.png",
+    "source": "scans-15809-v2",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 9400,
+    "name": "arms_techarmour.png",
+    "source": "scans-9400-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  },
+  {
+    "type": 1010004,
+    "id": 9417,
+    "name": "legs_techarmour.png",
+    "source": "scans-9417-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "coated-armour",
+    "roughness": 0.57,
+    "metallic": 0.25,
+    "batch": "scan-families-2026-10-25"
+  }
+]

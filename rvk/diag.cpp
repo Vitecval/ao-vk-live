@@ -515,6 +515,11 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
     for (int s = 0; s < 2; ++s)
         if (const Texture* t = m_textures[s]) {
             std::fprintf(f, " tex%d %ux%u", s, t->Width(), t->Height());
+            std::fprintf(f, " rdb:%u", t->m_rdbId);   // exact surface inventory for material authoring
+            if (t->m_rdbType) std::fprintf(f," type:%u",t->m_rdbType);
+            if (t->m_autoMaterial)
+                std::fprintf(f, " catalog:rough%.2f/metal%.2f", float(t->m_autoMaterial & 255u) / 255.0f,
+                             float((t->m_autoMaterial >> 8) & 255u) / 255.0f);
             // (Which texture and what reached it: slot, uploads and the frame of the last, non-zero bytes of level 0,
             // an image or view missing, a side-loaded albedo drawn instead.)
             std::fprintf(f, " [%p s%d up %u@%lld nz %d%s%s%s fmt %u]", static_cast<const void*>(t),

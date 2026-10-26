@@ -4,9 +4,9 @@ Six optional replacement materials for the classic live client's ICC architectur
 concrete, two ivory wall panels, building trim, shuttle grilles and shuttle backing.
 This is a small environment showcase, not a whole-game texture replacement.
 
-In AO-VK, press **Ctrl+Shift+F12**, open **Materials**, and enable **Modern texture
-pack (ICC preview)**. It starts off. The switch is saved and updates existing
-surfaces without restarting. Disabling it restores the original game material
+In AO-VK, press **Ctrl+Shift+F12**, open **Materials**, and select **ICC material
+style → Classic HD**. It starts at Original. The selection is saved and updates existing
+surfaces without restarting. Selecting Original restores the original game material
 or your other installed override. The master Enhancements switch also disables
 the preview temporarily without forgetting your choice.
 

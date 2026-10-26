@@ -134,8 +134,125 @@ vec4 Sample(uint stage)
     }
     bool bound = (C.flags.x & (stage == 0u ? F_TEX0 : F_TEX1)) != 0u;
     if (!bound) return vec4(0.0, 0.0, 0.0, 1.0);
-    if (stage == 0u && gParallax) return textureGrad(TEX0, gUv0, gUv0Dx, gUv0Dy);
-    return stage == 0u ? texture(TEX0, tc.xy) : texture(TEX1, tc.xy);
+    vec4 result = stage == 0u && gParallax ? textureGrad(TEX0, gUv0, gUv0Dx, gUv0Dy)
+                                         : stage == 0u ? texture(TEX0, tc.xy) : texture(TEX1, tc.xy);
+    // Character alpha can carry self-illumination rather than coverage. Keep it from
+    // the live original texture; no original game pixels are bundled with the artwork.
+    uint originalAlpha = stage == 0u ? MAT_ORIGINAL_ALPHA : MAT_ORIGINAL_ALPHA1;
+    if ((D.mat.z & originalAlpha) != 0u)
+        result.a = stage == 0u && gParallax ? textureGrad(BUMPTEX, gUv0, gUv0Dx, gUv0Dy).a
+                                           : stage == 0u ? texture(BUMPTEX, tc.xy).a
+                                                         : texture(sampler2D(texImages[D.texIdx.z], bindlessSamplers[D.sampIdx.y]), tc.xy).a;
+    return result;
+}
+
+// World-anchored, analytically differentiated detail. It adds no images or CPU
+// per-tile allocations. Pixel footprints fade both colour and normals before
+// the grain becomes subpixel; it never changes biome boundaries or geometry.
+uint SurfaceHash(uvec2 p)
+{
+    uint h = p.x * 1664525u + p.y * 1013904223u + 0x9e3779b9u;
+    h ^= h >> 16; h *= 2246822519u; h ^= h >> 13;
+    return h;
+}
+
+vec3 SurfaceNoise(vec2 p)
+{
+    uvec2 c = uvec2(ivec2(floor(p)));
+    vec2 f = fract(p), u = f*f*(3.0-2.0*f), du = 6.0*f*(1.0-f);
+    float a = float(SurfaceHash(c) & 65535u) / 65535.0;
+    float b = float(SurfaceHash(c+uvec2(1,0)) & 65535u) / 65535.0;
+    float d = float(SurfaceHash(c+uvec2(0,1)) & 65535u) / 65535.0;
+    float e = float(SurfaceHash(c+uvec2(1,1)) & 65535u) / 65535.0;
+    return vec3(mix(mix(a,b,u.x),mix(d,e,u.x),u.y)-0.5,
+                mix(b-a,e-d,u.y)*du.x, mix(d-a,e-b,u.x)*du.y);
+}
+
+bool gSurfaceReady = false;
+float gSurfaceHeight = 0.0;
+float gSurfaceMacro = 0.0;
+vec3 gSurfaceSlope = vec3(0.0);
+bool GlobalTerrain() { return (D.mat.z & MAT_TERRAIN_HD) != 0u; }
+uint WorldMaterialKind() { return (D.mat.z & MAT_WORLD) != 0u ? D.mat.x >> 24u : 0u; }
+float SurfaceStrength() { return GlobalTerrain() ? FL.sand3.z : WorldMaterialKind() != 0u ? FL.sand3.w : 0.0; }
+
+void InitSurfaceDetail()
+{
+    if (gSurfaceReady) return;
+    gSurfaceReady = true;
+    float strength = SurfaceStrength();
+    if (strength <= 0.0) return;
+    vec3 normal = max(abs(vNormalW.xyz),vec3(1e-5));
+    vec3 weights = pow(normal,vec3(8.0));
+    weights /= max(dot(weights,vec3(1.0)),1e-8);
+    // Filter derivatives before the per-face branches. Smooth triplanar blending
+    // avoids a line where a curved hill or facade changes its dominant direction.
+    vec3 px = dFdx(vPosW), py = dFdy(vPosW);
+    bool groundDetail = GlobalTerrain();
+    float f0 = groundDetail ? 8.2 : 21.0, f1 = groundDetail ? 27.4 : 71.0;
+    for (int face=0;face<3;++face) {
+        float weight = face == 0 ? weights.y : face == 1 ? weights.x : weights.z;
+        if (weight < .002) continue;
+        vec2 p = face == 0 ? vPosW.xz : face == 1 ? vPosW.zy : vPosW.xy;
+        vec2 dx = face == 0 ? px.xz : face == 1 ? px.zy : px.xy;
+        vec2 dy = face == 0 ? py.xz : face == 1 ? py.zy : py.xy;
+        float footprint = max(length(dx),length(dy));
+        if (groundDetail) {
+            // Metre-scale structure survives where the close grit has filtered
+            // away. Smooth, world-anchored relief breaks up blurred distant
+            // terrain without sharpening its texels or adding shimmering grain.
+            float middle = smoothstep(18.0,55.0,length(vPosW-C.eyePos.xyz));
+            float macroFade = 1.0-smoothstep(.18,.75,footprint*.65);
+            vec3 m = SurfaceNoise(p*.26+vec2(31.7,-9.4));
+            vec3 q = SurfaceNoise(p*.65+vec2(-12.3,27.8));
+            gSurfaceMacro += weight*strength*middle*macroFade*(.7*m.x+.3*q.x);
+            vec2 ms = weight*strength*middle*macroFade*(.7*m.yz*.26+.3*q.yz*.65)*.06;
+            gSurfaceSlope += face==0 ? vec3(ms.x,0,ms.y) : face==1 ? vec3(0,ms.y,ms.x) : vec3(ms,0);
+        }
+        float fade0 = 1.0-smoothstep(0.15,0.55,footprint*f0);
+        float fade1 = 1.0-smoothstep(0.15,0.55,footprint*f1);
+        if (fade0<=0.0 && fade1<=0.0) continue;
+        vec3 a = SurfaceNoise(p*f0+vec2(19.3,41.7));
+        vec3 b = SurfaceNoise(p*f1+vec2(83.2,-17.9));
+        gSurfaceHeight += weight*strength*(.72*fade0*a.x+.28*fade1*b.x);
+        vec2 slope = weight*strength*(.72*fade0*a.yz*f0+.28*fade1*b.yz*f1)*(groundDetail ? .003 : .0006);
+        gSurfaceSlope += face == 0 ? vec3(slope.x,0,slope.y) : face == 1 ? vec3(0,slope.y,slope.x) : vec3(slope,0);
+    }
+}
+
+float GlobalGlass(vec3 c)
+{
+    // Only window-tagged textures: opaque dark pane regions become smooth glass.
+    // Other black textures, signs, UI, characters and effects are never classified here.
+    return WorldMaterialKind() == 3u ? 1.0-smoothstep(.10,.25,dot(Sample(0u).rgb,vec3(.3,.59,.11))) : 0.0;
+}
+
+vec3 GlobalSurfaceColour(vec3 c)
+{
+    if (SurfaceStrength() <= 0.0) return c;
+    InitSurfaceDetail();
+    float glass = GlobalGlass(c);
+    float amount = GlobalTerrain() ? .10 : WorldMaterialKind() == 2u ? .035 : .06;
+    vec3 detailed = c*(1.0+amount*gSurfaceHeight*(1.0-glass));
+    if (GlobalTerrain()) detailed *= 1.0+.20*gSurfaceMacro;
+    if (glass > 0.0) {
+        float blinds = smoothstep(.75,.90,fract(vTex0.y*48.0));
+        vec3 tint = vec3(.018,.031,.042)*mix(.85,1.0,blinds);
+        detailed = mix(detailed,c*.55+tint,glass*SurfaceStrength()*.85);
+    }
+    return detailed;
+}
+
+vec3 GlobalSurfaceNormal(vec3 n, vec3 colour)
+{
+    if (SurfaceStrength() <= 0.0) return n;
+    InitSurfaceDetail();
+    float len = length(n);
+    if (len < 1e-6) return n;
+    vec3 unit = n/len;
+    vec3 tangent = gSurfaceSlope-unit*dot(gSurfaceSlope,unit);
+    float strength = (1.0-GlobalGlass(colour))*(WorldMaterialKind() == 2u ? .45 : 1.0);
+    return normalize(unit-tangent*strength)*len;
 }
 
 // A point of a Vogel (golden angle) disk of n points, radius 1, rotated.
@@ -713,7 +830,7 @@ void main()
         terrain = TerrainMapAt(vPosW, vSet0, vNormalW.xyz);
         // The native ground's relief in depth up close - its tiles' heights, the sand's ripples - in both passes alike
         // (parallax.glsl): its cells' coordinates moved to where the eye's ray meets it.
-        if (TerrainNative()) {
+        if (TerrainNative() || FL.sharedGroundConfig.z>.5) {
             ground = GroundReliefAt(terrain, vPosW, vNormalW.xyz);
             gParallaxSun = GroundParallax(terrain, ground, vPosW, vNormalW.xyz);
         }
@@ -815,13 +932,30 @@ void main()
                     gLightmapRelief = mix(1.0, gLightmapRelief, 0.3 + 0.7 * min(gCasterVisibility, gGroundAway));
             }
         }
+        if (SurfaceStrength() > 0.0 && len2 > 0.0) {
+            vec3 before = normalize(n);
+            n = GlobalSurfaceNormal(n, Sample(0u).rgb);
+            if (GlobalTerrain() && (C.flags.x & F_BUMPBASE) != 0u && dot(FL.sunDir.xyz,FL.sunDir.xyz) > 0.0) {
+                vec3 L = -normalize(FL.sunDir.xyz);
+                float ratio = clamp((max(dot(normalize(n),L),0.0)+.3)/(max(dot(before,L),0.0)+.3),.75,1.3);
+                float visibility = gSunVisibilityValid ? .3+.7*min(gCasterVisibility,gGroundAway) : 1.0;
+                gLightmapRelief *= mix(1.0,ratio,visibility);
+            }
+        }
         // PBR material: its maps, and the specular lobe the lights below use (lighting.glsl gPbr*). The ground's
         // lighting pass takes its chunk's base texture's material (MAT_BASE), read with the base's coordinates.
         gPbrOn = (D.mat.z & MAT_PBR) != 0u && FL.pbr2.y > 0.5 && (C.flags.x & F_SHADOWCHEAP) == 0u;
         if (gPbrOn) {
             gPbrBase = (D.mat.z & MAT_BASE) != 0u;
             float ormCover = 1.0;
-            vec3 orm = gPbrBase && terrainMapped && TerrainNative()
+            // Catalog fallback: mat.x packs roughness, metallic and strength instead of an image slot.
+            // Branch before any ORM image access: this value is not a descriptor index.
+            bool automatic = (D.mat.z & MAT_AUTO) != 0u;
+            float materialStrength = float((D.mat.x >> 16u) & 255u) / 255.0;
+            vec3 orm = automatic
+                           ? vec3(1.0, mix(1.0, float(D.mat.x & 255u) / 255.0, materialStrength),
+                                  float((D.mat.x >> 8u) & 255u) / 255.0 * materialStrength)
+                           : gPbrBase && terrainMapped && TerrainNative()
                            ? NativeOrm(terrain, ormCover)
                            : gPbrBase && terrainMapped
                            ? TerrainTexture(texImages[D.mat.x], bindlessSamplers[D.mat.y],
@@ -834,8 +968,31 @@ void main()
             gPbrAo = mix(1.0, orm.r, clamp(FL.pbr.w, 0.0, 1.0));
             gPbrRough = clamp(orm.g, 0.03, 1.0);
             gPbrMetal = clamp(orm.b, 0.0, 1.0);
+            if ((D.mat.z & MAT_ASPHALT) != 0u && terrainMapped && !TerrainNative()) {
+                // Use the original road mask, so dirt/gravel portions of a
+                // transition remain rough. Asphalt is a dielectric, not metal.
+                vec3 mask=textureLod(BUMPTEX,vSet0,2.0).rgb;
+                float lum=dot(mask,vec3(.3,.59,.11));
+                float green=smoothstep(.04,.18,(mask.g-max(mask.r,mask.b))/max(lum,.04));
+                float warm=smoothstep(.12,.50,(mask.r-mask.b)/max(lum,.04));
+                float road=(1.0-green)*(1.0-warm)*(1.0-smoothstep(.25,.43,lum));
+                gPbrRough=mix(.86,.32,road); gPbrMetal=0.0;
+            }
+            if ((D.mat.z & MAT_MINERAL) != 0u) {
+                gPbrRough = max(gPbrRough, .94);
+                gPbrMetal = 0.0;
+            } else if ((D.mat.z & MAT_HONED_STONE) != 0u) {
+                gPbrRough = max(gPbrRough, .84);
+                gPbrMetal = 0.0;
+            }
             gPbrAlbedo = gPbrBase ? (terrainMapped ? TerrainVariation(terrainBase.rgb, vPosW, terrain) : texture(BUMPTEX, vSet0).rgb)
                                   : Sample(0u).rgb * clamp(vDiffuse.rgb, 0.0, 1.0);
+            if (WorldMaterialKind() != 0u) {
+                float glass = GlobalGlass(Sample(0u).rgb);
+                gPbrRough = mix(gPbrRough,.075,glass*SurfaceStrength());
+                gPbrMetal = mix(gPbrMetal,0.0,glass);
+            }
+            gPbrAlbedo = GlobalSurfaceColour(gPbrAlbedo);
             gPbrNormal = len2 > 0.0 ? normalize(n) : vec3(0.0, 1.0, 0.0);
             // Specular anti-aliasing: how much the normal turns across the pixel widens the highlight (Kaplanyan /
             // Tokuyoshi), so small bright highlights don't sparkle on curved or bumpy surfaces in the distance.
@@ -844,6 +1001,7 @@ void main()
             a2 = clamp(a2 + min(0.5 * (dot(dnx, dnx) + dot(dny, dny)), 0.18), 1e-6, 1.0);
             gPbrAlpha = sqrt(a2);
             gPbrF0 = mix(vec3(0.04), gPbrAlbedo, gPbrMetal);
+            if ((D.mat.z & MAT_MINERAL) != 0u) gPbrF0 = vec3(.025);
             gPbrSunVisibility = gSunVisibilityValid ? gSunVisibility : 1.0;
             gPbr = true;
         }
@@ -872,7 +1030,9 @@ void main()
                 float baked = smoothstep(0.2, 0.55, dot(Sample(0u).rgb, vec3(0.3, 0.59, 0.11)));
                 gPbrSpec += FL.sunColor.rgb * PbrSpecular(gPbrNormal, Ls, V) * (sunVis * horizon * baked) * FL.pbr.x;
             }
-            gPbrSpec += PbrAmbientSpecular(gPbrNormal, V, vMatAmbient * (C.ambient.rgb + ambient)) * FL.pbr.y;
+            float mineralSheen = (D.mat.z & MAT_MINERAL) != 0u ? .35 :
+                                 (D.mat.z & MAT_HONED_STONE) != 0u ? .55 : 1.0;
+            gPbrSpec += PbrAmbientSpecular(gPbrNormal, V, vMatAmbient * (C.ambient.rgb + ambient)) * FL.pbr.y * mineralSheen;
             litSpec = localSpec = vec3(0.0);     // the game's own specular is replaced
             // The ground's lightmap (its baked sun and ambient): less of it on metal, less in occluded creases.
             if (gPbrBase) gLightmapRelief *= kd * mix(1.0, gPbrAo, 0.6);
@@ -946,6 +1106,14 @@ void main()
         }
     }
     vec4 t1 = C.stageA[0].x != 1u ? Sample(1u) : vec4(0.0);
+    if ((D.mat.z & MAT_COMBINED) != 0u && terrainMapped && FL.sharedGroundConfig.x > 0.0) {
+        t1 = TerrainBase(D.texIdx.y, bindlessSamplers[D.sampIdx.y], terrain);
+        t1.rgb = TerrainVariation(t1.rgb, vPosW, terrain);
+    }
+    if (GlobalTerrain()) {
+        if ((D.mat.z & MAT_COMBINED) != 0u) t1.rgb = GlobalSurfaceColour(t1.rgb);
+        else if ((C.flags.x & F_LIGHTING) == 0u) t0.rgb = GlobalSurfaceColour(t0.rgb);
+    } else if (WorldMaterialKind() != 0u) t0.rgb = GlobalSurfaceColour(t0.rgb);
     if (terrainBasePass) t0.rgb = TerrainVariation(t0.rgb, vPosW, terrain);
     if (terrainBasePass && TerrainNative()) {
         // (The grit where the parallax met the ground: its cells' coordinates moved, the world point with them.)
@@ -998,7 +1166,9 @@ void main()
     }
     if (gPbrOn) {
         // The ground's lighting pass multiplies its base pass (about its albedo): divided by it, it adds the highlight.
-        vec3 s = gPbrBase ? gPbrSpec / max(gPbrAlbedo, vec3(0.04)) : gPbrSpec;
+        // Classic live already combines the base and lightmap in this draw; its
+        // highlight is added once, without the older multiply-pass compensation.
+        vec3 s = gPbrBase && (D.mat.z & MAT_COMBINED) == 0u ? gPbrSpec / max(gPbrAlbedo, vec3(0.04)) : gPbrSpec;
         current.rgb += s;
         if ((C.flags.x & F_HDR) == 0u) current.rgb = min(current.rgb, vec3(1.0));
     }

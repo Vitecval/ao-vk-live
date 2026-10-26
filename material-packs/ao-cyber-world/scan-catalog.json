@@ -1,0 +1,1160 @@
+[
+  {
+    "type": 1010006,
+    "id": 364,
+    "name": "",
+    "source": "scans-1010006-364-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 19,
+    "name": "",
+    "source": "scans-1010006-19-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 20,
+    "name": "",
+    "source": "scans-1010006-20-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 202,
+    "name": "",
+    "source": "scans-1010006-202-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 463,
+    "name": "",
+    "source": "scans-1010006-463-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 473,
+    "name": "",
+    "source": "scans-1010006-473-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 475,
+    "name": "",
+    "source": "scans-1010006-475-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 546,
+    "name": "",
+    "source": "scans-1010006-546-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 547,
+    "name": "",
+    "source": "scans-1010006-547-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 537,
+    "name": "",
+    "source": "scans-1010006-537-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 882,
+    "name": "",
+    "source": "scans-1010006-882-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 476,
+    "name": "",
+    "source": "scans-1010006-476-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 258,
+    "name": "",
+    "source": "scans-1010006-258-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 268,
+    "name": "",
+    "source": "scans-1010006-268-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 266,
+    "name": "",
+    "source": "scans-1010006-266-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 374,
+    "name": "",
+    "source": "scans-1010006-374-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 111,
+    "name": "",
+    "source": "scans-1010006-111-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 15,
+    "name": "",
+    "source": "scans-1010006-15-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 157,
+    "name": "",
+    "source": "scans-1010006-157-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 373,
+    "name": "",
+    "source": "scans-1010006-373-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 269,
+    "name": "",
+    "source": "scans-1010006-269-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 8,
+    "name": "",
+    "source": "scans-1010006-8-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 279,
+    "name": "",
+    "source": "scans-1010006-279-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 2,
+    "name": "",
+    "source": "scans-1010006-2-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 3,
+    "name": "",
+    "source": "scans-1010006-2-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 86,
+    "name": "",
+    "source": "scans-1010006-86-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 112,
+    "name": "",
+    "source": "scans-1010006-112-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 29,
+    "name": "",
+    "source": "scans-1010006-29-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 108,
+    "name": "",
+    "source": "scans-1010006-108-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 31,
+    "name": "",
+    "source": "scans-1010006-31-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 264,
+    "name": "",
+    "source": "scans-1010006-264-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 371,
+    "name": "",
+    "source": "scans-1010006-371-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 159,
+    "name": "",
+    "source": "scans-1010006-159-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 372,
+    "name": "",
+    "source": "scans-1010006-372-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 384,
+    "name": "",
+    "source": "scans-1010006-384-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 369,
+    "name": "",
+    "source": "scans-1010006-369-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 378,
+    "name": "",
+    "source": "scans-1010006-378-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 87,
+    "name": "",
+    "source": "scans-1010006-87-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 161,
+    "name": "",
+    "source": "scans-1010006-161-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 284,
+    "name": "",
+    "source": "scans-1010006-284-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 43506,
+    "name": "hq_quadblock_simpleroofthinedge.png",
+    "source": "scans-1010004-43506-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 25476,
+    "name": "ent_plainblock_insidedoor.png",
+    "source": "scans-1010004-25476-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 6097,
+    "name": "rustypillarsonmetalplate.png",
+    "source": "scans-1010004-6097-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 46180,
+    "name": "hq_teleportpillar_simplestrip2e.png",
+    "source": "scans-1010004-46180-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.13,
+        0.2,
+        0.88,
+        0.86
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 42681,
+    "name": "hq_mainbuildingplate_roughdark.png",
+    "source": "scans-1010004-42681-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 85933,
+    "name": "flooredge_rusty.png",
+    "source": "scans-1010004-85933-v2",
+    "size": [
+      512,
+      64
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 6059,
+    "name": "greymetalwindows.png",
+    "source": "scans-1010004-6059-v1",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "glass_rects": [
+      [
+        0.035,
+        0.17,
+        0.23,
+        0.58
+      ],
+      [
+        0.285,
+        0.17,
+        0.48,
+        0.58
+      ],
+      [
+        0.535,
+        0.17,
+        0.73,
+        0.58
+      ],
+      [
+        0.785,
+        0.17,
+        0.98,
+        0.58
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6054,
+    "name": "overdoor.png",
+    "source": "scans-1010004-6054-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 18567,
+    "name": "slum_dirtytowerwall.png",
+    "source": "scans-1010004-18567-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 297461,
+    "name": "icc_whompa_floor_d.png",
+    "source": "scans-1010004-297461-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan",
+    "rubber_ellipses": [
+      [
+        0.5,
+        0.5,
+        0.34,
+        0.34
+      ]
+    ],
+    "emissive_ellipses": [
+      [
+        0.5,
+        0.5,
+        0.33,
+        0.33
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5996,
+    "name": "metaldoor.png",
+    "source": "scans-1010004-5996-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 6096,
+    "name": "yellowstripedwindow.png",
+    "source": "scans-1010004-6096-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 27701,
+    "name": "gatewall_gate.png",
+    "source": "scans-1010004-27701-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 27699,
+    "name": "gatewall_roof.png",
+    "source": "scans-1010004-27699-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 27702,
+    "name": "gatewall_metal.png",
+    "source": "scans-1010004-27702-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 25545,
+    "name": "floor_door_opening_long.png",
+    "source": "scans-1010004-25545-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 5957,
+    "name": "mount3striped.png",
+    "source": "scans-1010004-5957-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 5955,
+    "name": "crackedrock2.png",
+    "source": "scans-1010004-5955-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 205836,
+    "name": "shadowlandrock_02_512X512_dark.png",
+    "source": "scans-1010004-205836-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 206854,
+    "name": "shadowland_lavarock.png",
+    "source": "scans-1010004-206854-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 210817,
+    "name": "myrk_rock.png",
+    "source": "scans-1010004-210817-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 209481,
+    "name": "marble_plain_white-brown.png",
+    "source": "scans-1010004-209481-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 209483,
+    "name": "overgang_cracked_to_marble_rough.png",
+    "source": "scans-1010004-209483-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 209477,
+    "name": "redeemed-temple_base_texture4.png",
+    "source": "scans-1010004-209477-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "honed-stone",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 21595,
+    "name": "factory_metal_pipes.png",
+    "source": "scans-1010004-21595-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 55870,
+    "name": "bank_undersign1.png",
+    "source": "scans-1010004-55870-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 13145,
+    "name": "rootsygreenbark_big.png",
+    "source": "scans-1010004-13145-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 56166,
+    "name": "save_generalplateinsidetest4.png",
+    "source": "scans-1010004-56166-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 56167,
+    "name": "save_generalplateliteedge.png",
+    "source": "scans-1010004-56167-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 5956,
+    "name": "cleanplate.png",
+    "source": "scans-1010004-5956-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 55875,
+    "name": "bank_antenna1.png",
+    "source": "scans-1010004-55875-v1",
+    "size": [
+      16,
+      256
+    ],
+    "profile": "metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 5969,
+    "name": "smallrustyplate.png",
+    "source": "scans-1010004-5969-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 95551,
+    "name": "respawnplatformtop.png",
+    "source": "scans-1010004-95551-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan",
+    "rubber_ellipses": [
+      [
+        0.5,
+        0.5,
+        0.25,
+        0.25
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 26958,
+    "name": "standalone_globeplate_lite1.png",
+    "source": "scans-1010004-26958-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 56164,
+    "name": "save_generalplatedarkedge.png",
+    "source": "scans-1010004-56164-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 56168,
+    "name": "save_generalplateinsidetest3.png",
+    "source": "scans-1010004-56168-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 55880,
+    "name": "save_sideplategroove.png",
+    "source": "scans-1010004-55880-v1",
+    "size": [
+      256,
+      32
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 55883,
+    "name": "save_sideplate2.png",
+    "source": "scans-1010004-55883-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 95550,
+    "name": "respawnplatformside1.png",
+    "source": "scans-1010004-95550-v1",
+    "size": [
+      256,
+      64
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010004,
+    "id": 55878,
+    "name": "saveterm_wing1.png",
+    "source": "scans-1010004-55878-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families"
+  },
+  {
+    "type": 1010006,
+    "id": 9,
+    "name": "original-pixel-alias-8",
+    "source": "scans-1010006-8-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "source_alias": {
+      "type": 1010006,
+      "id": 8,
+      "reason": "identical original RGB pixels and dimensions"
+    }
+  },
+  {
+    "type": 1010006,
+    "id": 4,
+    "name": "original-pixel-alias-2",
+    "source": "scans-1010006-2-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "soil",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "source_alias": {
+      "type": 1010006,
+      "id": 2,
+      "reason": "identical original RGB pixels and dimensions"
+    }
+  },
+  {
+    "type": 1010004,
+    "id": 218022,
+    "name": "Ash_groundtile_02.png",
+    "source": "scans-1010006-473-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "mineral",
+    "batch": "scan-families-2026-10-25",
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "source_alias": {
+      "type": 1010006,
+      "id": 473,
+      "reason": "identical original RGB pixels and dimensions"
+    }
+  }
+]

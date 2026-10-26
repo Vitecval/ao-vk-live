@@ -1,0 +1,77 @@
+[
+  {
+    "type": 1010006,
+    "id": 20,
+    "name": "Rubi-Ka manufactured paving 20",
+    "source": "rubika-ground-20-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "satin-paving",
+    "preserve_original_colour": true,
+    "atlas_source": "rubika-ground-paving-atlas-v1",
+    "atlas_cell": 0,
+    "batch": "rubika-complete-families-2026-10-26"
+  },
+  {
+    "type": 1010006,
+    "id": 23,
+    "name": "Rubi-Ka manufactured paving 23",
+    "source": "rubika-ground-23-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "satin-paving",
+    "preserve_original_colour": true,
+    "atlas_source": "rubika-ground-paving-atlas-v1",
+    "atlas_cell": 1,
+    "batch": "rubika-complete-families-2026-10-26"
+  },
+  {
+    "type": 1010006,
+    "id": 24,
+    "name": "Rubi-Ka manufactured paving 24",
+    "source": "rubika-ground-24-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "satin-paving",
+    "preserve_original_colour": true,
+    "atlas_source": "rubika-ground-paving-atlas-v1",
+    "atlas_cell": 2,
+    "batch": "rubika-complete-families-2026-10-26"
+  },
+  {
+    "type": 1010006,
+    "id": 25,
+    "name": "Rubi-Ka manufactured paving 25",
+    "source": "rubika-ground-25-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "satin-paving",
+    "preserve_original_colour": true,
+    "atlas_source": "rubika-ground-paving-atlas-v1",
+    "atlas_cell": 3,
+    "batch": "rubika-complete-families-2026-10-26"
+  },
+  {
+    "type": 1010006,
+    "id": 26,
+    "name": "Rubi-Ka manufactured paving 26",
+    "source": "rubika-ground-26-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "satin-paving",
+    "preserve_original_colour": true,
+    "atlas_source": "rubika-ground-paving-atlas-v1",
+    "atlas_cell": 4,
+    "batch": "rubika-complete-families-2026-10-26"
+  }
+]

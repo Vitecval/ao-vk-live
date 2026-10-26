@@ -1,0 +1,36 @@
+{
+  "mode": "reuse of built-in image_gen artwork; technical selection only",
+  "mapping": "world space, original AO palette/transition masks",
+  "materials": [
+    {
+      "material": "grass",
+      "source": "ao-cyber-world/1010006:258",
+      "image": "shared-grass.png",
+      "sha256": "9faec62e5406c13f3c58c9c2203fe1b15f3c95ecb1b14926666bf93af352f232"
+    },
+    {
+      "material": "dirt",
+      "source": "ao-cyber-world/1010006:8",
+      "image": "shared-dirt.png",
+      "sha256": "be09bb19ebbe39fd74d3ff56750b4dbdee2521f1a1ed708b5bad1e71f4412d95"
+    },
+    {
+      "material": "gravel",
+      "source": "ao-cyber-world/1010006:19",
+      "image": "shared-gravel.png",
+      "sha256": "03cb108e28ce02ea2f66eb7b1ae1b492ff36f997316dcd3ed57d1e57437d2113"
+    },
+    {
+      "material": "sand",
+      "source": "ao-cyber-world/1010006:2",
+      "image": "shared-sand.png",
+      "sha256": "e436244fd4ea952b87536e50906c7ce29738e5cf2c2c5e8b55843a2022495701"
+    },
+    {
+      "material": "rock",
+      "source": "ao-cyber-world/1010006:473",
+      "image": "shared-rock.png",
+      "sha256": "17db1d1e1fd9b18524f0d35b73c121eef9afa0d0e8d12374b0e5af8e85fa01af"
+    }
+  ]
+}

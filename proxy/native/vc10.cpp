@@ -1,5 +1,6 @@
 // msvcr100's heap and VS2010 container helpers (vc10.h).
 #include "native/vc10.h"
+#include "native/native.h"
 
 namespace rnative::vc10 {
 
@@ -34,7 +35,9 @@ const Heap& TheHeap()
 
 void* Allocate(size_t bytes)
 {
-    void* p = TheHeap().allocate(bytes);
+    void* p;
+    try { p = TheHeap().allocate(bytes); }
+    catch (...) { ReportAllocationFailure(bytes); throw; }
     if (!p) throw std::bad_alloc();
     return p;
 }
@@ -46,7 +49,9 @@ void Free(void* p)
 
 void* AllocateArray(size_t bytes)
 {
-    void* p = TheHeap().allocateArray(bytes);
+    void* p;
+    try { p = TheHeap().allocateArray(bytes); }
+    catch (...) { ReportAllocationFailure(bytes); throw; }
     if (!p) throw std::bad_alloc();
     return p;
 }

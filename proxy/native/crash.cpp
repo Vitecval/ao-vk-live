@@ -319,6 +319,30 @@ DWORD WINAPI Watchdog(void*)
 
 static void* g_handler;                       // the fault handler, registered again at the first frame
 
+void ReportAllocationFailure(size_t bytes)
+{
+    if (InterlockedCompareExchange(&g_busy,1,0)!=0) return;
+    MEMORYSTATUSEX memory{};memory.dwLength=sizeof(memory);
+    GlobalMemoryStatusEx(&memory);
+    uintptr_t largest=0;
+    for (uintptr_t p=0x10000;p<0x80000000u;) {
+        MEMORY_BASIC_INFORMATION mbi{};
+        if (!VirtualQuery(reinterpret_cast<void*>(p),&mbi,sizeof(mbi)) || !mbi.RegionSize) break;
+        if (mbi.State==MEM_FREE) largest=std::max(largest,uintptr_t(mbi.RegionSize));
+        uintptr_t next=reinterpret_cast<uintptr_t>(mbi.BaseAddress)+mbi.RegionSize;
+        if (next<=p) break;
+        p=next;
+    }
+    Line line;
+    line.Put("randy-vk crash: native allocation failed: requested ").Dec(uint32_t(bytes));
+    line.Put(" bytes, free VA ").Dec(uint32_t(memory.ullAvailVirtual>>20));
+    line.Put(" MB, largest free block ").Dec(uint32_t(largest>>20));
+    line.Put(" MB, thread ").Hex(GetCurrentThreadId(),4);line.Write();
+    // Keep the foreign TextException_t intact; logging must not turn it into
+    // another exception or continue with a null game object.
+    InterlockedExchange(&g_busy,0);
+}
+
 void HangBeat()
 {
     g_lastBeat = GetTickCount();

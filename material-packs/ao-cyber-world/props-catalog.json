@@ -1,0 +1,1128 @@
+[
+  {
+    "type": 1010004,
+    "id": 296032,
+    "name": "new_terminal_rusty_d.png",
+    "source": "prop-296032-v1",
+    "size": [
+      1024,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 55867,
+    "name": "bank_plateside.png",
+    "source": "prop-55867-v2",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 55868,
+    "name": "bank_screenmaterial.png",
+    "source": "prop-55868-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "window",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 55869,
+    "name": "bank_generalmetalplate.png",
+    "source": "prop-55869-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 55872,
+    "name": "bank_light.png",
+    "source": "prop-55872-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 55873,
+    "name": "bank_frontplate.png",
+    "source": "prop-55873-v2",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.42,
+        0.53,
+        0.59,
+        0.58
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 9896,
+    "name": "terminal_keyboard.png",
+    "source": "prop-9896-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.22,
+        0.1,
+        0.9,
+        0.9
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ],
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.22,
+        0.1,
+        0.9,
+        0.9
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 9698,
+    "name": "comp_terminal_frontbox.png",
+    "source": "prop-9698-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.57,
+        0.18,
+        0.79,
+        0.34
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 9897,
+    "name": "comp_terminalbottom.png",
+    "source": "prop-9897-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 18326,
+    "name": "trashcaninside.png",
+    "source": "prop-18326-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "organic",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 18490,
+    "name": "garbage-container-shiny.png",
+    "source": "prop-18490-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 18498,
+    "name": "garbage_container-recycling-can copy.png",
+    "source": "prop-18498-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 18501,
+    "name": "garbage-container1.png",
+    "source": "prop-18501-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 10604,
+    "name": "hitech_benchplateuppershadesmalldetail.png",
+    "source": "prop-10604-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 10605,
+    "name": "hitech_benchplateuppershade.png",
+    "source": "prop-10605-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 10606,
+    "name": "hitech_benchplateuppershadedetal.png",
+    "source": "prop-10606-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.1,
+        0.5,
+        0.6,
+        0.9
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 21040,
+    "name": "benchplatebottompart.png",
+    "source": "prop-21040-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6067,
+    "name": "omni_chair_new.png",
+    "source": "prop-6067-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "fabric_polys": [
+      [
+        [
+          0.18,
+          0.2
+        ],
+        [
+          0.32,
+          0.2
+        ],
+        [
+          0.42,
+          0.73
+        ],
+        [
+          0.4,
+          0.98
+        ],
+        [
+          0.09,
+          0.98
+        ],
+        [
+          0.09,
+          0.65
+        ]
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6072,
+    "name": "omni_chair_metalline.png",
+    "source": "prop-6072-v1",
+    "size": [
+      64,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6099,
+    "name": "omni_chair_metal.png",
+    "source": "prop-6099-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6100,
+    "name": "omni_chair_pillow.png",
+    "source": "prop-6100-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "fabric",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295917,
+    "name": "container_large_red.png",
+    "source": "prop-295917-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295920,
+    "name": "container_large_yellow.png",
+    "source": "prop-295920-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295922,
+    "name": "container_large_blu.png",
+    "source": "prop-295922-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295924,
+    "name": "container_large_white.png",
+    "source": "prop-295924-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295928,
+    "name": "container_large_green.png",
+    "source": "prop-295928-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 295932,
+    "name": "container_large_brown.png",
+    "source": "prop-295932-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6458,
+    "name": "cabinet_front2.png",
+    "source": "prop-6458-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 46483,
+    "name": "white_locker_front.png",
+    "source": "prop-46483-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6117,
+    "name": "hitechlamp_round1.png",
+    "source": "prop-6117-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6154,
+    "name": "lamp.png",
+    "source": "prop-6154-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "amber",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 13636,
+    "name": "bigfloorlampmetal.png",
+    "source": "prop-13636-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        0.3
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5991,
+    "name": "topoflamp.png",
+    "source": "prop-5991-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6001,
+    "name": "dock_rustypipes.png",
+    "source": "prop-6001-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 12535,
+    "name": "shinypipepart.png",
+    "source": "prop-12535-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 21537,
+    "name": "newclan_tech_pipe.png",
+    "source": "prop-21537-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 19934,
+    "name": "ent_pipe_redshiny.png",
+    "source": "prop-19934-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 5944,
+    "name": "door.png",
+    "source": "prop-5944-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8558,
+    "name": "hitech_striped_door.png",
+    "source": "prop-8558-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8680,
+    "name": "doorfrontal.png",
+    "source": "prop-8680-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 296454,
+    "name": "clan_worncrate_d.png",
+    "source": "prop-296454-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "painted_rects": [
+      [
+        0,
+        0.43,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8259,
+    "name": "barrel.png",
+    "source": "prop-8259-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8260,
+    "name": "barrel_top.png",
+    "source": "prop-8260-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 156874,
+    "name": "barrel_toxic_waste_side.png",
+    "source": "prop-156874-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 156875,
+    "name": "barrel_toxic_waste_top.png",
+    "source": "prop-156875-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 55871,
+    "name": "bankterminalsign.png",
+    "source": "prop-55871-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 55876,
+    "name": "reclaimterminalsign.png",
+    "source": "prop-55876-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 55882,
+    "name": "saveterminalsign.png",
+    "source": "prop-55882-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8671,
+    "name": "hitech_computercabinetfrontlupper.png",
+    "source": "prop-8671-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8673,
+    "name": "hitech_computercontrolpanel.png",
+    "source": "prop-8673-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.25,
+        0.18,
+        0.65,
+        0.52
+      ],
+      [
+        0.73,
+        0.24,
+        0.86,
+        0.79
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ],
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.25,
+        0.18,
+        0.65,
+        0.52
+      ],
+      [
+        0.73,
+        0.24,
+        0.86,
+        0.79
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8674,
+    "name": "hitech_computercabinetside.png",
+    "source": "prop-8674-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8675,
+    "name": "hitech_computercabinetfrontlower.png",
+    "source": "prop-8675-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6006,
+    "name": "factory_squarevent.png",
+    "source": "prop-6006-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 81735,
+    "name": "antenna_sender_thingy.png",
+    "source": "prop-81735-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 43421,
+    "name": "monitor_screen1.png",
+    "source": "prop-43421-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.13,
+        0.13,
+        0.87,
+        0.86
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ],
+    "emission": "amber",
+    "emissive_rects": [
+      [
+        0.16,
+        0.62,
+        0.58,
+        0.86
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6493,
+    "name": "table_brushedmetal_lines.png",
+    "source": "prop-6493-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6494,
+    "name": "table_brushedmetal.png",
+    "source": "prop-6494-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 8757,
+    "name": "techbar_table.PNG",
+    "source": "prop-8757-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "rubber_ellipses": [
+      [
+        0.46,
+        0.56,
+        0.32,
+        0.36
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 8750,
+    "name": "techbar_chair.png",
+    "source": "prop-8750-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "rubber_ellipses": [
+      [
+        0.5,
+        0.71,
+        0.175,
+        0.22
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 10574,
+    "name": "hitech_cabinetmainplate.png",
+    "source": "prop-10574-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 10610,
+    "name": "compdesktopcomputer_horislights.png",
+    "source": "prop-10610-v2",
+    "size": [
+      512,
+      64
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 10611,
+    "name": "comp_desktopcomputermainlid.png",
+    "source": "prop-10611-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "glass_rects": [
+      [
+        0.5,
+        0.26,
+        0.95,
+        0.82
+      ]
+    ],
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ],
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.5,
+        0.26,
+        0.95,
+        0.82
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 38744,
+    "name": "insurance_cellscanner1.png",
+    "source": "prop-38744-v1",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "white",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 38746,
+    "name": "insurance_reclaim1.png",
+    "source": "prop-38746-v1",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "diffuser",
+    "batch": "shared-props-2026-10-24",
+    "discovery": "local-resource-name-inventory",
+    "emission": "white",
+    "emissive_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  }
+]

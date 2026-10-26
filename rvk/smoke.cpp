@@ -1167,6 +1167,13 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
         live.resize(kSmokeSimMax);
     if (live.empty())
         return;
+    // Reserve simulation and drawing together, before recording any smoke commands. A ring flush re-begins
+    // the command buffer and loses its pipeline bindings; doing it after binding the simulation pipeline
+    // made a busy ICC frame dispatch without a compute pipeline (a driver crash on Windows).
+    EnsureRingSpace(live.size() * (sizeof(SmokeBodies) + sizeof(SandHeader) + sizeof(SmokeFrame) + 768) +
+                    kSandCellsMax * kSandCellsMax * kSandColumnFloats * 4u + sizeof(FrameLights) + 2048);
+    if (m_deviceLost)
+        return;
     // Each volume's cells a side: RVK_SmokeRes per world unit of its box (a long-lived source's tall box keeps its
     // detail), a multiple of 4, at most RVK_SmokeQual's. A volume whose count changed, or a scratch too small for
     // one, is made again - after the GPU is done with the old (rare: a source's box or the settings changed).
@@ -1300,7 +1307,6 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
     for (float& s : sun) s /= sl;
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_smokeSimPipeline);
     uint32_t groups = 0;
-    EnsureRingSpace(live.size() * (sizeof(SmokeBodies) + sizeof(SandHeader) + 512) + kSandCellsMax * kSandCellsMax * kSandColumnFloats * 4u + 1024);
     Frame& f = m_frames[m_frameIndex];
     // Which volumes step this frame. Each has its period: kSimStep (half that warming up), twice it beyond kSimFar,
     // kOutOfView times out of view - about 10 a second, steps of 0.1 s as when over budget: unseen smoke goes on
@@ -1683,7 +1689,6 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
                  VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
     m_depthLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     MeasureSmokeShown(cmd, live, m_scene->m_width, m_scene->m_height);   // (for the next steps' periods)
-    EnsureRingSpace(live.size() * (sizeof(SmokeFrame) + 256) + sizeof(FrameLights) + 1024);
     if (m_frameLightsDirty || m_frameLightsGeneration != m_ringGeneration)
         WriteFrameLights();
     // RVK_SmokeHalf: marched into a half-size target (cleared), then upsampled over the scene's (smoke_up.frag).

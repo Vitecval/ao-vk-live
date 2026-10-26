@@ -267,7 +267,7 @@ GroundRelief GroundReliefAt(TerrainMap m, vec3 posW, vec3 n)
     GroundRelief r;
     const float ny = dot(n, n) > 1e-8 ? normalize(n).y : 1.0;
     // (Not on the rocks and pebbles lying on it: their base pass has the cells' sand too.)
-    r.sand = m.clutter ? 0.0 : NativeSand(m.uv[0]) * clamp(FL.sand.x, 0.0, 1.0) * smoothstep(0.82, 0.87, ny) * m.w.x;
+    r.sand = m.clutter ? 0.0 : SharedSand(m) * clamp(FL.sand.x, 0.0, 1.0) * smoothstep(0.82, 0.87, ny) * m.w.x;
     r.fade = vec2(0.0);
     r.tiles = FL.terrain3.y > 0.0 && FL.terrain3.w > 0.5 && TerrainNativeMaps();
     r.cell = m.uv[0];

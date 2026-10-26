@@ -1,0 +1,270 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "Reusable architectural families selected from local name inventory; no claim of measured live reuse counts",
+  "assets": [
+    {
+      "id": 5942,
+      "type": 1010004,
+      "name": "128x128basewall.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5942-v2",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Seamless square warm brown industrial plaster/oxidized wall base, with broad smooth microcement and subtle vertical age streaks. Preserve warm taupe brown colour, no new panel seams. Clean architectural surface, not gravel or pebbled noise. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio. Correction: make the warm taupe plaster exactly as smooth and clean as the second reference's broad upper wall. The earlier result was too rusty and too high contrast. No orange rust, pitting or vertical stripes. Match the second reference's plain wall colour without its bottom decorative border."
+    },
+    {
+      "id": 5945,
+      "type": 1010004,
+      "name": "128x128basewallvents.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5945-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square warm taupe base-wall tile with a horizontal metal rail at y=.34 and two small oval vertical ventilators at x=.28 and .72, centred y=.31. Keep their exact positions and scale. Elegant satin bronze steel rail and crisp louvers, smooth plaster elsewhere. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5947,
+      "type": 1010004,
+      "name": "window.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5947-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square facade atlas with one narrow pointed arch window centrally, same tall silhouette and raised surround. Preserve the horizontal louvered shutter in its upper half and existing diagonal metal grille below; make lower dark inset smoky architectural glass, crisp bronze framing. Surround remains warm brown smooth industrial plaster. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5949,
+      "type": 1010004,
+      "name": "128x128basewalllowborder.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5949-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Warm brown basewall with narrow embossed horizontal skirting strip along bottom 15 percent. Keep broad flat upper wall, modern smooth taupe plaster, refined bronze skirting and restrained geometric service etching exactly within existing border. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5950,
+      "type": 1010004,
+      "name": "128x128basewallwindow.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5950-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Warm brown square wall with a single tiny dark horizontal slit at centre x=.48 y=.44 and shallow raised sill. Keep slit the same small size, dark smooth glazed inset and satin-metal sill. The rest is smooth taupe industrial plaster. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5953,
+      "type": 1010004,
+      "name": "128x128basewallpattern.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5953-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square warm brown large-panel wall with the exact irregular rectangular panel divisions of the reference. Sharpen construction lines, smooth bronze-taupe architectural panel faces, restrained edge wear and differentiated recessed joints. No extra subdivisions. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5958,
+      "type": 1010004,
+      "name": "basewallventendpart.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5958-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square warm taupe wall with two oval metal vents and horizontal rail, same positions. Make clean satin bronze hardware and defined vertical vent slats; preserve each original vent endcap and the dark rail, wall stays broad smooth plaster. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5976,
+      "type": 1010004,
+      "name": "patternmetalside.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "shared-5976-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Tall 1:2 narrow bronze technical panel. Preserve every vertical channel, nested bracket, central thin pipe and lower panel break at original coordinates. Modern dark brass anodized steel and crisp recessed grooves, moderate wear; no random cyber text. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5994,
+      "type": 1010004,
+      "name": "dirty_metalplate.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5994-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Seamless square grey-green solid metal sheet, originally dirty. Modern satin galvanized steel, broad smooth material with restrained local oxidation, minimal grain, no new seams or rivets, even lighting and seamless edges. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 5997,
+      "type": 1010004,
+      "name": "dirty_metalplate_fringe.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-5997-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square grey-green metal sheet with same wide shallow panel-grid seams and faint oxidation. Refined satin steel sheet, consistent muted cool grey, crisp recessed existing seams, cleaner broad faces. Keep seam coordinates and edge continuation. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6079,
+      "type": 1010004,
+      "name": "greycleanmetalplate.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6079-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square pale bluish silver clean metal sheet with narrow vertical grooves and warm oxidation concentrated at top and bottom. Modern brushed aluminium finish, smooth centre, restrained edge oxidation. No shiny painted reflections or new panel boundaries. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6087,
+      "type": 1010004,
+      "name": "stripedstdmetal.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6087-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square silver vertically ribbed industrial cladding. Preserve closely spaced vertical ribs and patchy restrained rust locations. Fine crisp folded-steel geometry conveyed in albedo, smooth silver flats and subtle oxidation, continuous tile edges. No gritty uniform noise. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6090,
+      "type": 1010004,
+      "name": "simplemetalplate.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "shared-6090-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Small square teal-grey single recessed metal panel, thin nested border at approximately 8 and 15 percent inset. Modern satin titanium insert, smooth planar middle and crisp layered teal graphite frame, preserve exact dimensions, seamless outer boundary. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6103,
+      "type": 1010004,
+      "name": "singleplate_metalgrid.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6103-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square beige-taupe plate wall with narrow tall rectangular central dark diamond-mesh grille at x=.33-.67 y=.15-.92. Keep central grille silhouette and exact panel/rivet layout. Modern smooth warm ceramic-coated metal and dark precise woven-steel grille; no glowing screen. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6105,
+      "type": 1010004,
+      "name": "singleplatebottom_concrete.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "shared-6105-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Wide 2:1 concrete base strip with a broad pale top lip and faint horizontal seam through the middle. Smooth high-quality warm grey microcement, refined existing joint, limited lower-edge grime; do not add pebble grain or new panel lines. Tile horizontally. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6114,
+      "type": 1010004,
+      "name": "wallbottom.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "shared-6114-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Wide 2:1 sci-fi wall base with exact repeating vertical buttresses/recessed bays and rust coloured foot strip. Modern satin graphite steel, refined warm bronze lower trim and deep clean recesses, preserve all bay widths and existing structural lines. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6128,
+      "type": 1010004,
+      "name": "walltop.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6128-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square blue-grey metal wall upper panel, flat large central steel sheet, thin vertical seams, a dark layered horizontal border across bottom quarter. Modern brushed blue titanium, crisp layered graphite skirting and controlled edge oxidation. Preserve all seam coordinates. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6130,
+      "type": 1010004,
+      "name": "conc_floorpiece.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6130-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square concrete paving tile atlas with the same uneven grid of large square/rectangular slabs. Smooth warm-grey poured concrete slab faces, sharp narrow darker existing expansion joints, subtle believable tonal variation. No added grit, gravel, embossing, random cracking or new subdivisions. Tile seamlessly. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6131,
+      "type": 1010004,
+      "name": "blockwallinset.png",
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "shared-6131-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Wide 2:1 beige-grey concrete wall panel, faint central vertical/horizontal construction joint and small recessed right edge vent at y=.55-.7. Smooth refined warm microcement and dark satin metal vent trim, preserve shapes and position. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6144,
+      "type": 1010004,
+      "name": "worn wall.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "shared-6144-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Tall 1:2 muted green-grey worn wall with three broad horizontal panel divisions in the same places. Modern smooth ceramic-coated steel/concrete hybrid, original green-grey family, thin recessed existing seams and restrained edge wear. Do not add hardware or panel divisions. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6204,
+      "type": 1010004,
+      "name": "sandwall_tilablehorisontal.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6204-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square pale sandstone plaster wall with a faint central vertical joint and layered narrow skirting along bottom fifth. Modern clean warm sand-colour microcement, smooth unbroken faces, refined original joints, gentle wear at base. Horizontal tiling edges must match. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6216,
+      "type": 1010004,
+      "name": "sandwall_tilablealldirections.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6216-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Fully seamless pale sand-coloured plaster base texture in all directions. Refined smooth architectural microcement with very subtle broad tonal clouding, gentle fine plaster finish. No panels, seams, cracks, ornaments, lighting gradients, grit, pores or heavy noise. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6222,
+      "type": 1010004,
+      "name": "brushedmetalbasicplatesrusty.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6222-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Square dark blue-grey bronze-weathered grid of industrial metal plates, retain exact existing offset rectangular panel lines. Modern anodized dark blue titanium, crisp narrow joints, restrained copper oxidation only at seam junctions, smooth rich broad plates. Seamless tile. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    },
+    {
+      "id": 6235,
+      "type": 1010004,
+      "name": "sandwall_tilablefringes.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "shared-6235-v1",
+      "prompt": "Use case: style-transfer. Edit target: supplied Anarchy Online texture, strict flat UV layout reference. Repaint in modern polished industrial science-fiction style matching our Cyberpunk ICC artwork while preserving the original surface identity. Fully seamless pale warm beige industrial plaster texture, smooth sandy microcement with subtle broad plaster variation. Keep soft original colour, no new seams, panels or markings, no granular aggressive surface noise, no baked lighting. Preserve exact UV positions, proportions, colour family and all existing structural divisions. Flat albedo under soft neutral lighting; actual reflective response comes from separate runtime materials. No dramatic specular reflections, baked shading, bloom, vignette, film grain or oversharpened noise. Fine detail belongs in joints and hardware; broad faces should look smooth and expensive. For repeating textures, keep continuous opposing edges. Output only texture artwork filling the canvas edge to edge: no scene, object mockup, text caption, white/black margins or letterboxing. If the tool canvas has a different ratio, deliberately stretch the entire texture over its full width and height; the material bake restores its original aspect ratio."
+    }
+  ]
+}

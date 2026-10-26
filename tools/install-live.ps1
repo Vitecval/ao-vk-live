@@ -43,15 +43,13 @@ if ($manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
 }
 foreach ($relative in $assetHashes.Keys) {
-    if ($relative -notmatch '^randy-vk/packs/ao-modern-icc/[A-Za-z0-9_-]+\.(png|json|md)$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+    if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Invalid optional material pack path or hash.'
     }
     $target = Join-Path $client $relative
     $newHash = $(if ($manifest.assets) { $manifest.assets.$relative })
     $oldHash = $(if ($receipt -and $receipt.assets) { $receipt.assets.$relative })
-    # Keep obsolete, previously owned pack files in the record so uninstall owns them.
-    if (!$newHash -and !$Uninstall) { continue }
-    $fileSpecs[$target] = @{ relative = $relative; hash = $newHash; oldHash = $oldHash; asset = $true }
+    $fileSpecs[$target] = @{ relative = $relative; hash = $newHash; oldHash = $oldHash; asset = $true; retire = (!$newHash -and !$Uninstall) }
     $targets += $target
 }
 function Test-OwnedHash($Target, $Hash) {
@@ -143,7 +141,7 @@ foreach ($name in @('ddraw.dll', 'ao-vk.dll')) {
 }
 foreach ($target in $targets) {
     $spec = $fileSpecs[$target]
-    if ($spec.asset -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
+    if ($spec.asset -and !$spec.retire -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
         throw "Package integrity check failed for $($spec.relative)."
     }
 }
@@ -175,7 +173,8 @@ $record = [ordered]@{
     clientDirectory = $client
     loaderDirectory = $(if ($LoaderDir) { $loader } else { '' })
     addon = $manifest.addon
-    assets = $assetHashes
+    assets = $manifest.assets
+    edition = $manifest.edition
 }
 $targets += $receiptPath
 try {
@@ -185,6 +184,7 @@ try {
             New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
         }
         $temp = Join-Path (Split-Path -Parent $target) ('.' + $name + '.installing-' + [guid]::NewGuid().ToString('N'))
+        if ($fileSpecs[$target].retire) { $staged += $null; continue }
         $staged += $temp
         if ($target -ieq $receiptPath) {
             [IO.File]::WriteAllText($temp, ($record | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
@@ -201,6 +201,7 @@ try {
             Move-Item -LiteralPath $target -Destination $backup
             $backups[$target] = $backup
         }
+        if ($fileSpecs[$target].retire) { continue }
         Move-Item -LiteralPath $staged[$i] -Destination $target
         $installed += $target
     }
@@ -216,7 +217,8 @@ try {
     }
     throw
 } finally {
-    foreach ($temp in $staged) { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp } }
+    foreach ($temp in $staged) { if ($temp -and (Test-Path -LiteralPath $temp)) { Remove-Item -LiteralPath $temp } }
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
+

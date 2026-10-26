@@ -2,6 +2,14 @@
 
 Open AO-VK options with **Ctrl+Shift+F12**, use **Tab** to reach **Weather**, select a row with **Up/Down**, and change it with **Left/Right**. Changes apply and save immediately. **Backspace** resets the selected row.
 
+**Distant horizon haze** is a separate outdoor veil for sparse far scenery.
+**Horizon haze: clear distance** leaves nearby buildings and ground clear;
+**Horizon haze: full distance** selects where it reaches the chosen strength.
+It follows the zone/sky horizon colour and blends the low sky while leaving the
+upper sky clear. If full distance is below clear distance, the renderer keeps a
+small positive transition range. It requires HDR, stays off indoors/outside a game
+playfield, and defaults off in new installs. It adds no distant geometry or props.
+
 - **Weather**: Automatic, Clear, Overcast, Rain or Thunderstorm. Strength controls selected rain and thunderstorms. Keep **New weather** enabled; enhanced clouds need **Clouds** enabled as well. Weather changes settle over a few seconds.
 - **Fog**: Automatic, Halloween, Mist or Custom. Halloween uses a near-black horizon and sky, with scenery disappearing at about **30 metres** by default. Mist uses a pale grey-blue. Custom uses the red, green and blue controls.
 - **Visibility distance**: how far you can see through selected fog. **Clear distance** keeps the air nearest the camera clear and is capped below the visibility distance.

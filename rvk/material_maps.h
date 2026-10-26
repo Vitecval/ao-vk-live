@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -24,14 +25,13 @@ struct Image {
 inline bool LoadImage(const std::string& path, Image* out, std::string* error)
 {
     int n = 0;
-    stbi_uc* px = stbi_load(path.c_str(), &out->w, &out->h, &n, 4);
+    std::unique_ptr<stbi_uc,decltype(&stbi_image_free)> px(stbi_load(path.c_str(), &out->w, &out->h, &n, 4),stbi_image_free);
     if (!px) {
         *error = "can't read " + path + " (" + stbi_failure_reason() + ")";
         return false;
     }
     out->channels = n;
-    out->rgba.assign(px, px + size_t(out->w) * out->h * 4);
-    stbi_image_free(px);
+    out->rgba.assign(px.get(), px.get() + size_t(out->w) * out->h * 4);
     return true;
 }
 
@@ -39,14 +39,13 @@ inline bool LoadImage(const std::string& path, Image* out, std::string* error)
 inline bool LoadImageFromMemory(const uint8_t* data, size_t size, Image* out, std::string* error)
 {
     int n = 0;
-    stbi_uc* px = stbi_load_from_memory(data, int(size), &out->w, &out->h, &n, 4);
+    std::unique_ptr<stbi_uc,decltype(&stbi_image_free)> px(stbi_load_from_memory(data, int(size), &out->w, &out->h, &n, 4),stbi_image_free);
     if (!px) {
         *error = std::string("can't decode an embedded image (") + stbi_failure_reason() + ")";
         return false;
     }
     out->channels = n;
-    out->rgba.assign(px, px + size_t(out->w) * out->h * 4);
-    stbi_image_free(px);
+    out->rgba.assign(px.get(), px.get() + size_t(out->w) * out->h * 4);
     return true;
 }
 
@@ -357,6 +356,8 @@ struct MaterialFiles {
     std::string normal, packed, parts[3], albedo, emissive;   // parts: occlusion, roughness, metallic
     std::string height;                        // _h.png: greyscale, white high (the normal map's alpha: parallax)
     std::string leaves, leavesNormal;          // a tree canopy's own leaf art (_leaves.png, _leaves_n.png)
+    bool preserveAlbedoAlpha = false;
+    uint32_t maxSize = 2048; // runtime cap; decoded mip chains retain filtering/normal variance
     bool Any() const
     {
         return !normal.empty() || !height.empty() || !packed.empty() || HasParts() || !albedo.empty() ||
@@ -369,7 +370,9 @@ struct MaterialFiles {
 struct Decoded {
     MipChain normal, orm, albedo, emissive, leaves, leavesNormal;
     bool height = false;                       // the normal map's alpha is a height (parallax)
+    bool preserveAlbedoAlpha = false;
     std::string ormFrom, errors;               // what the material was read from; what couldn't be read
+    bool decodeFailed = false;                // size-cap notes below are informational
     size_t Bytes() const
     {
         return normal.Bytes() + orm.Bytes() + albedo.Bytes() + emissive.Bytes() + leaves.Bytes() + leavesNormal.Bytes();
@@ -381,23 +384,24 @@ struct Decoded {
 // process: a 4096 x 4096 map's chain is 85 MB of memory per map before it is uploaded).
 constexpr uint32_t kMaxMapSize = 2048;
 
-inline void CapChain(MipChain& c, std::string* note)
+inline void CapChain(MipChain& c, std::string* note, uint32_t maximum = kMaxMapSize)
 {
     uint32_t dropped = 0;
-    while ((c.w > kMaxMapSize || c.h > kMaxMapSize) && c.levels.size() > 1) {
+    while ((c.w > maximum || c.h > maximum) && c.levels.size() > 1) {
         c.levels.erase(c.levels.begin());
         c.w = std::max(c.w / 2, 1u);
         c.h = std::max(c.h / 2, 1u);
         ++dropped;
     }
     if (dropped && note)
-        *note += "a map was larger than " + std::to_string(kMaxMapSize) + " and is used at " + std::to_string(c.w) +
+        *note += "a map was larger than " + std::to_string(maximum) + " and is used at " + std::to_string(c.w) +
                  "x" + std::to_string(c.h) + "; ";
 }
 
 inline Decoded Decode(const MaterialFiles& f)
 {
     Decoded d;
+    d.preserveAlbedoAlpha = f.preserveAlbedoAlpha;
     std::string error;
     NormalSpread spread;
     if (!f.normal.empty() || !f.height.empty()) {
@@ -417,8 +421,9 @@ inline Decoded Decode(const MaterialFiles& f)
     NormalSpread leafSpread;
     if (!f.leavesNormal.empty() && !DecodeNormalMap(f.leavesNormal, &d.leavesNormal, &leafSpread, &error))
         d.errors += error + "; ";
+    d.decodeFailed = !d.errors.empty();
     for (MipChain* c : {&d.normal, &d.orm, &d.albedo, &d.emissive, &d.leaves, &d.leavesNormal})
-        CapChain(*c, &d.errors);
+        CapChain(*c, &d.errors, f.maxSize);
     return d;
 }
 
@@ -450,7 +455,7 @@ void Attach(Dev& dev, Texture* texture, const Decoded& d)
     Texture* orm = Upload(dev, d.orm);
     Texture* albedo = Upload(dev, d.albedo);
     if (orm || albedo)
-        dev.SetMaterialMaps(texture, orm, albedo);
+        dev.SetMaterialMaps(texture, orm, albedo, d.preserveAlbedoAlpha);
     if (Texture* emissive = Upload(dev, d.emissive))
         dev.SetEmissiveMap(texture, emissive);
     if (Texture* leaves = Upload(dev, d.leaves))
@@ -459,15 +464,22 @@ void Attach(Dev& dev, Texture* texture, const Decoded& d)
 
 // As Attach, but the texture ends up with exactly these maps: one it had that d lacks is removed (hot reload).
 template <typename Dev>
-void Replace(Dev& dev, Texture* texture, const Decoded& d)
+bool Replace(Dev& dev, Texture* texture, const Decoded& d)
 {
     Texture* normal = Upload(dev, d.normal);
     if (normal) normal->SetAlphaHeight(d.height);
-    dev.SetNormalMap(texture, normal);
-    dev.SetMaterialMaps(texture, Upload(dev, d.orm), Upload(dev, d.albedo));
-    dev.SetEmissiveMap(texture, Upload(dev, d.emissive));
+    Texture* orm = Upload(dev, d.orm);
+    Texture* albedo = Upload(dev, d.albedo);
+    Texture* emissive = Upload(dev, d.emissive);
     Texture* leaves = Upload(dev, d.leaves);
-    dev.SetLeafArt(texture, leaves, leaves ? Upload(dev, d.leavesNormal) : nullptr);
+    Texture* leavesNormal = leaves ? Upload(dev, d.leavesNormal) : nullptr;
+    const bool complete = (d.normal.Empty() || normal) && (d.orm.Empty() || orm) && (d.albedo.Empty() || albedo) &&
+           (d.emissive.Empty() || emissive) && (d.leaves.Empty() || leaves) && (d.leavesNormal.Empty() || leavesNormal);
+    // Threaded creation returns CPU wrappers. Publish only after the render
+    // thread has validated every image, descriptor and completed mip upload.
+    dev.PublishMaterialMaps(texture, normal, orm, albedo, emissive, leaves, leavesNormal,
+                            d.preserveAlbedoAlpha, complete);
+    return complete;
 }
 
 }  // namespace rvk::maps

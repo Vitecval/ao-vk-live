@@ -1,0 +1,1110 @@
+[
+  {
+    "type": 1010004,
+    "id": 42116,
+    "name": "applestyletrees_newleaves.png",
+    "source": "picked-42116-v3",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 10
+  },
+  {
+    "type": 1010004,
+    "id": 296247,
+    "name": "npe_lobbydoor01_d.png",
+    "source": "picked-296247-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 6
+  },
+  {
+    "type": 1010004,
+    "id": 21516,
+    "name": "newclan_cleanwall_cracked_tileableplate.png",
+    "source": "picked-21516-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 5
+  },
+  {
+    "type": 1010004,
+    "id": 40591,
+    "name": "rome_plainconcrete.png",
+    "source": "picked-40591-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 5
+  },
+  {
+    "type": 1010004,
+    "id": 7855,
+    "name": "hitech_darkplate_border.png",
+    "source": "picked-7855-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 5
+  },
+  {
+    "type": 1010004,
+    "id": 208054,
+    "name": "adonis_wall_border.png",
+    "source": "picked-208054-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 209557,
+    "name": "01_plain_simple_adoniswalltile.png",
+    "source": "picked-209557-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 296212,
+    "name": "npe_detailwall01_d.png",
+    "source": "picked-296212-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 295615,
+    "name": "wh_tile04_d.png",
+    "source": "picked-295615-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 208052,
+    "name": "adonis_wall_basic.png",
+    "source": "picked-208052-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 3,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 6064,
+    "name": "concretewall.png",
+    "source": "picked-6064-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 245289,
+    "name": "prison_pipe_section02.png",
+    "source": "picked-245289-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 245287,
+    "name": "prison_pipe_junction01.png",
+    "source": "picked-245287-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 21593,
+    "name": "factory_metal_roof.png",
+    "source": "picked-21593-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 211101,
+    "name": "veins_browntile_darker_for_machinery.png",
+    "source": "picked-211101-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 287845,
+    "name": "bssup_pillar01.png",
+    "source": "picked-287845-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3,
+    "metal_rects": [
+      [
+        0.35,
+        0.05,
+        0.65,
+        0.8
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 295986,
+    "name": "icc_bridgegrating01_d.png",
+    "source": "picked-295986-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 9863,
+    "name": "tilerockdark.png",
+    "source": "picked-9863-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 7853,
+    "name": "hitech_darkplatelightinmiddle.png",
+    "source": "picked-7853-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 3,
+    "emission": "white",
+    "emissive_rects": [
+      [
+        0.47,
+        0.35,
+        0.53,
+        0.64
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 209659,
+    "name": "adonis_wall_basic_older.png",
+    "source": "picked-209659-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 209661,
+    "name": "02_plain_simple_adoniswalltilegreen.png",
+    "source": "picked-209661-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 245422,
+    "name": "prison_metal_03.png",
+    "source": "picked-245422-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 209671,
+    "name": "adonis_wall_border_var1.png",
+    "source": "picked-209671-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 41146,
+    "name": "rome_archcitywall.png",
+    "source": "picked-41146-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 21524,
+    "name": "Circleoid-wallornam.png",
+    "source": "picked-21524-v2",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 295609,
+    "name": "wh_smalltile01_d.png",
+    "source": "picked-295609-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 6583,
+    "name": "vents.png",
+    "source": "picked-6583-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 41593,
+    "name": "glassopacgalwaybord_omni.png",
+    "source": "picked-41593-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2,
+    "glass_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 300531,
+    "name": "unicorn_standard_door1.png",
+    "source": "picked-300531-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 2,
+    "emission": "white",
+    "emissive_rects": [
+      [
+        0.15,
+        0.075,
+        0.43,
+        0.16
+      ],
+      [
+        0.57,
+        0.075,
+        0.85,
+        0.16
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 208718,
+    "name": "groundmetal2.png",
+    "source": "picked-208718-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 41377,
+    "name": "hull_texture_256x128_tileplates_green.png",
+    "source": "picked-41377-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 218023,
+    "name": "Ash_groundtile_01.png",
+    "source": "picked-218023-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 121531,
+    "name": "metalll.png",
+    "source": "picked-121531-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 208717,
+    "name": "sandmetall2.png",
+    "source": "picked-208717-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 208719,
+    "name": "groundmetal3.png",
+    "source": "picked-208719-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 208722,
+    "name": "sandmetall1.png",
+    "source": "picked-208722-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 208723,
+    "name": "sandmetall3.png",
+    "source": "picked-208723-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 208721,
+    "name": "ground_metal1a.png",
+    "source": "picked-208721-v2",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 206286,
+    "name": "jungle_tree_barky_stressed2.png",
+    "source": "picked-206286-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 206288,
+    "name": "new_leaves_cluster2.png",
+    "source": "picked-206288-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 2,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 42597,
+    "name": "edge_lupper_tiledown.png",
+    "source": "picked-42597-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 225783,
+    "name": "inferno_frozen_jungletrees_trunk_new.png",
+    "source": "picked-225783-v2",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 215421,
+    "name": "test_didriks_fancywall.png",
+    "source": "picked-215421-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 215146,
+    "name": "dark_metal_plates_ligths_short.png",
+    "source": "picked-215146-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0,
+    "emission": "cyan",
+    "emissive_rects": [
+      [
+        0.44,
+        0,
+        0.56,
+        0.16
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 10589,
+    "name": "hitech_silkcouchsidematerialsouter.png",
+    "source": "picked-10589-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "fabric",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 85813,
+    "name": "thegridmaintex_pillar1.png",
+    "source": "picked-85813-v1",
+    "size": [
+      64,
+      512
+    ],
+    "profile": "diffuser",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 214233,
+    "name": "jobe_metal_stripe-plates_dark.png",
+    "source": "picked-214233-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 3,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 215149,
+    "name": "dark_blue_roof.png",
+    "source": "picked-215149-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 300546,
+    "name": "icc_door01.png",
+    "source": "picked-300546-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0,
+    "emission": "amber",
+    "emissive_rects": [
+      [
+        0.2,
+        0.025,
+        0.8,
+        0.15
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6251,
+    "name": "jungleleaves.png",
+    "source": "picked-6251-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 215151,
+    "name": "door_frame_tile-up_jobe.png",
+    "source": "picked-215151-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "stone",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 1,
+    "captured_frames": 0
+  },
+  {
+    "type": 1010004,
+    "id": 6269,
+    "name": "leaves_hires.png",
+    "source": "picked-6269-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 8
+  },
+  {
+    "type": 1010004,
+    "id": 207810,
+    "name": "inferno_frozen_jungletrees_trunk_BACKUP.png",
+    "source": "picked-207810-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 6
+  },
+  {
+    "type": 1010004,
+    "id": 6300,
+    "name": "bigdeserttree.png",
+    "source": "picked-6300-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 6
+  },
+  {
+    "type": 1010004,
+    "id": 42065,
+    "name": "mcclean_leaves.png",
+    "source": "picked-42065-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 26302,
+    "name": "dryleaves.png",
+    "source": "picked-26302-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 6303,
+    "name": "deserttree_bark2.png",
+    "source": "picked-6303-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 6304,
+    "name": "deserttree_peeledbark2.png",
+    "source": "picked-6304-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 26303,
+    "name": "deserttree_bark.png",
+    "source": "picked-26303-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 210469,
+    "name": "inferno_frozen_jungletrees_trunk_BACKUP2.png",
+    "source": "picked-210469-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 4
+  },
+  {
+    "type": 1010004,
+    "id": 24590,
+    "name": "frazettatreeleaves.png",
+    "source": "picked-24590-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 26301,
+    "name": "deserttree_smallestleaves.png",
+    "source": "picked-26301-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 257704,
+    "name": "branch.png",
+    "source": "picked-257704-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 207783,
+    "name": "inferno_frozen_jungletrees_trunk.png",
+    "source": "picked-207783-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 3
+  },
+  {
+    "type": 1010004,
+    "id": 20983,
+    "name": "curvedtrees_leave1_opac.png",
+    "source": "picked-20983-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 121030,
+    "name": "megatall swamptree_leaves.png",
+    "source": "picked-121030-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 156669,
+    "name": "bartreee.png",
+    "source": "picked-156669-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 2
+  },
+  {
+    "type": 1010004,
+    "id": 214905,
+    "name": "rottingtree_lars.png",
+    "source": "picked-214905-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 25896,
+    "name": "big_leaf_redrange_no_opac.png",
+    "source": "picked-25896-v2",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 25895,
+    "name": "big_smooth_leaf_dark.png",
+    "source": "picked-25895-v2",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 9867,
+    "name": "bigplantleaf.png",
+    "source": "picked-9867-v2",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 244347,
+    "name": "jungle_tree_barky_stressed_white.png",
+    "source": "picked-244347-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 6268,
+    "name": "leaves.png",
+    "source": "picked-6268-v1",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 26305,
+    "name": "pink_jungleleaf_opac.png",
+    "source": "picked-26305-v2",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  },
+  {
+    "type": 1010004,
+    "id": 44526,
+    "name": "leaf.png",
+    "source": "picked-44526-v2",
+    "size": [
+      128,
+      512
+    ],
+    "profile": "foliage",
+    "batch": "picked-foliage-2026-10-24",
+    "picks": 0,
+    "captured_frames": 1
+  }
+]

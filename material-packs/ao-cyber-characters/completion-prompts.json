@@ -1,0 +1,155 @@
+{
+  "mode": "built-in image_gen",
+  "prompts": [
+    {
+      "type": 1010004,
+      "id": 17988,
+      "source": "completion-1010004-17988-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: drop-in game equipment albedo texture. Input image 1 is the exact edit target. Rework it into high-quality modern-game the original dark steel-ribbed helmet underside/neck-ring atlas. Preserve the central perfectly circular black opening, the ring radius, eight segmented fasteners, concentric ribs and every radial panel boundary exactly. Enhance the existing dark bronze-grey coated metal, with subtle machined fittings, fine bevel wear and matte flexible dark sections. Preserve the recognizable armour design. No new insignia, spikes, neon or bright chrome. Do not fill or shrink the black central circle. Retain the original UV layout, proportions, all main features, border colours and orientation precisely. Keep the output a square, the texture itself filling the entire image edge to edge, flat and orthographic. Soft neutral diffuse lighting. No baked directional highlights, cast shadows, perspective, bevelled presentation frame, vignette or background. Avoid aggressive grain, oversharpening and big dark stains. Calm medium-scale detail suitable for smooth mipmaps. This replaces texture artwork on the existing AO model; it is not concept art of a new object.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 280792,
+      "source": "completion-1010004-280792-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: black charcoal Xan rifle atlas, exact cyan circuit lines and small blue nodes, lower long barrel strip, curved lower receiver and two circular elements at lower left. Keep subtle existing blue emissive-looking paint localized, without new glowing panels. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 28553,
+      "source": "completion-1010004-28553-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: torch shoulder pad atlas, exact white silver four panels around the small square centre, dark ribbed diagonals in all four corners. Matte dark flexible areas and satin brushed pale metal plates, no extra machinery. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 245068,
+      "source": "completion-1010004-245068-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: Pandemonium shoulder armour with exactly the existing diagonal curved gunmetal and bronze bony plate and the dark reddish ribbed inset along the lower edge. Preserve its organic shape and subdued brown colour, no sci-fi redesign. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 162274,
+      "source": "completion-1010004-162274-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: tonfa weapon UV atlas: existing dark blue-black cylindrical islands and grey rails must stay in their exact positions. Improve brushed coated metal, narrow seams and grip material. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 245070,
+      "source": "completion-1010004-245070-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: Pandemonium back armour atlas, exact diagonal charcoal ribbed plate shapes, warm brown housing, small original orange coil on upper left-centre and original lower-right orange strip. No new lights, preserve the unusual silhouette. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 285598,
+      "source": "completion-1010004-285598-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: helmet armour UV atlas: exact white and purple angular plates, three blue forehead gems and black jaw vents. Crisp ceramic-coated metal and dark flexible lining, preserve all faceplate shapes and eye positions. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 99153,
+      "source": "completion-1010004-99153-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: power shotgun UV atlas, grey angular receiver with exactly five circular upper ventilation holes, black lower barrel and dark grip, same two isolated oval/circular UV regions at bottom left and same black padding. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 17222,
+      "source": "completion-1010004-17222-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: medium blaster atlas: top horizontal perforated barrel, central horizontal cylinder, lower bronze grip island and small amber centre at same position. Keep brown gunmetal, worn black paint and restrained copper. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 304876,
+      "source": "completion-1010004-304876-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: robotic armour helmet atlas, exact white upper shell sweeping into centre, fine dark grey weave, white lower-right mask with dark eye slots and thin teal circular accent, black lower-left jaw parts. No new facial design. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 17238,
+      "source": "completion-1010004-17238-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: clan shotgun atlas with red vertical centre plate, brown gunmetal chambers, silver lower receiver and dark teal lower-right rectangular insert. Preserve every island, rivet and rail position. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 99145,
+      "source": "completion-1010004-99145-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement Anarchy Online equipment albedo UV texture. Image 1 is the EXACT edit target, normalized to a square atlas. Upgrade to a modern detailed game texture: power pistol UV atlas: exact horizontal black barrel at top, ivory-grey body with same scratches, trigger outline, curved black lower-right grip and black padding. Improve worn coated metal and rubber. STRICTLY retain original large shapes, island boundaries, UV coordinates, relative sizes, original palette and black padding. This is a flat texture atlas, not a 3D object or weapon illustration. The entire square canvas must remain filled with the original atlas layout, no letterboxing, no border or presentation background. The bake will restore the original aspect ratio, so do not recompose or move parts. Fine restrained realistic manufacturing detail, clean mip-friendly panels, no aggressive noise or oversharpening. Neutral diffuse illumination, no cast shadows, perspective, specular white glare, new neon, text or insignia. Make metal satin, rubber matte; preserve the recognizable original equipment design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 17237,
+      "source": "completion-1010004-17237-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset: replacement texture atlas for an existing fictional science-fiction game prop. Input image 1 is the exact flat UV edit target. Restore the crisp satin silver, charcoal rubber and warm brown mechanical panels, tiny vents and fasteners, keeping EVERY UV island, edge, rectangle, cutout and material region in its exact original position and proportion. Keep same palette and broad tonal shapes. Subtle modern manufacturing texture, no new parts, no new symbols, no labels. Square normalized UV canvas entirely filled edge to edge by this same layout; the bake restores its original aspect. Neutral diffuse lighting, no perspective, cast shadow, dramatic reflection, bright glare, object presentation, white margin or frame.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 290732,
+      "source": "completion-1010004-290732-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game existing white and charcoal technological shoulder-pad UV atlas with segmented dark centre, original amber squares along its curved upper-left band and two large black-grey armour islands. Preserve all UV islands, white padding, silhouette, original equipment design. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 303930,
+      "source": "completion-1010004-303930-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game existing charcoal alien shoulder armour atlas, exact curved dark ribbed left panel, smooth dark grey centre with its S-shaped trim boundary and one small dark-red vent in lower-left. Preserve subtle original design, no new ornament or lights. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    }
+  ]
+}

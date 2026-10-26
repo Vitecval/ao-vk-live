@@ -575,7 +575,8 @@ void Device::EndScene()
     // take more of the new frame - sparks and spell effects, new each frame, were averaged away).
     if (taa) params[7] = float(int(params[7]) | 16);
     // Selected fog reconstructs world distance even when AO, haze and other depth-reading effects are off.
-    if (m_userFogMode > 0.5f && m_aoProjValid && (!m_indoors || m_userFogInside)) MakeDepthReadable(cmd);
+    if (m_aoProjValid && ((m_userFogMode > 0.5f && (!m_indoors || m_userFogInside)) ||
+                         (m_softHi > 0.0f && m_skyPlayfield))) MakeDepthReadable(cmd);
     TonemapInputsPass(cmd, toned, m_tonemapPipeline, scene, bloom, ao, gi, volume, params);
     ProfileMark("tonemap");
     // (RVK_Upscaler 1: FSR 2 upscales the scaled scene - fsr2.cpp; 2: FSR 3.1 - fsr3.cpp; the TAA if they can't.)
@@ -787,6 +788,15 @@ void Device::LandHaze(float out[24]) const
     for (int k = 0; k < 24; ++k) out[k] = 0.0f;
     float fog[4], fogParams[4];
     SceneFog(fog, fogParams);
+    // Horizon haze has its own range and works when ordinary atmosphere/land
+    // haze is off. Its ray reconstruction still needs the real camera basis.
+    if (m_farHaze>0.0f && m_aoProjValid) {
+        out[8]=m_aoProj.m[0][0]; out[9]=m_aoProj.m[1][1];
+        for (int k=0;k<3;++k) { out[12+k]=m_aoView.m[1][k]; out[k]=fog[k]; }
+        static bool logged=false;
+        if (!logged) { logged=true; Log("horizon haze: strength %.2f, clear %.0f full %.0f, colour %.2f %.2f %.2f (state %08x)",
+            double(m_farHaze),double(m_hazeStart),double(m_hazeEnd),double(fog[0]),double(fog[1]),double(fog[2]),m_rs[d3d::RS_FOGCOLOR]); }
+    }
     const bool linear = fog[3] > 0.5f && uint32_t(fogParams[3]) == 3 && fogParams[1] > fogParams[0] && fogParams[1] > 1.0f;
     if (linear) {                                // (also without the haze: the ambient occlusion fades into the fog)
         out[4] = fogParams[0];

@@ -1,7 +1,10 @@
 // Texture formats, textures and render targets, samplers, vertex buffers and FVF layouts.
 #include "internal.h"
+#include "grass_coverage.h"
+#include "material_profiles.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -159,7 +162,13 @@ bool Device::RealizeTexture(Texture* t)
     vi.format = info.vk;
     vi.components = info.swizzle;
     vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, t->m_levels, 0, 1};
-    vkCreateImageView(m_device, &vi, nullptr, &t->m_view);
+    if (vkCreateImageView(m_device, &vi, nullptr, &t->m_view) != VK_SUCCESS) {
+        vmaDestroyImage(m_allocator, t->m_image, t->m_allocation);
+        t->m_image = VK_NULL_HANDLE;
+        t->m_allocation = nullptr;
+        Log("texture image view creation failed (%ux%u)", t->m_width, t->m_height);
+        return false;
+    }
     RegisterBindlessTexture(t);
     VmaAllocationInfo info2;
     vmaGetAllocationInfo(m_allocator, t->m_allocation, &info2);
@@ -555,15 +564,19 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
             t->m_blackRgb = t->m_blackRgb && PixelsBlack(t->m_format, data, t->m_width, height, pitch);
         else
             t->m_blackRgb = false;
-        // The colour grid the ground-grass classification reads (grass.cpp): a full level-0 upload only.
-        // Small textures (the terrain's 64 x 64 lightmaps) are kept whole, bigger ones on a 16 x 16 grid.
+        // RGB colour on a small grid; grass coverage in a finer bit mask. Keep
+        // both current on partial uploads too: AO updates baked ground/lightmaps
+        // in strips, which must not invalidate whole tiles or leave stale paths.
         // (A ground texture's old grid, to tell a new picture from the same one uploaded again.)
         std::vector<uint8_t> before;
+        std::vector<uint8_t> beforeMask;
         if (t->m_groundBase && t->m_thumbValid)
-            before = t->m_thumb;
-        t->m_thumbValid = false;
+            { before = t->m_thumb; beforeMask = t->m_grassMask; }
         if (x == 0 && y == 0 && width >= t->m_width && height >= t->m_height &&
             pitch >= FormatRowBytes(t->m_format, t->m_width)) {
+            t->m_thumbValid = false;
+            t->m_grassMask.clear();
+            t->m_grassMaskSide = 0;
             const bool whole = t->m_width <= 64 && t->m_height <= 64;
             t->m_thumbW = whole ? t->m_width : 16;
             t->m_thumbH = whole ? t->m_height : 16;
@@ -572,6 +585,23 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                                               t->m_thumbW, t->m_thumbH);
             if (!t->m_thumbValid)
                 std::vector<uint8_t>().swap(t->m_thumb);
+            if (t->m_thumbValid && t->m_width>=64 && t->m_height>=64) {
+                const uint32_t side=std::max(t->m_width,t->m_height)>512 ? 128 : 64;
+                std::array<uint8_t,2048> mask{};
+                bool any=false;
+                for (uint32_t j=0;j<side;++j) for (uint32_t i=0;i<side;++i) {
+                    uint8_t rgb[3];
+                    const uint32_t x=std::min((2*i+1)*t->m_width/(2*side),t->m_width-1);
+                    const uint32_t y=std::min((2*j+1)*t->m_height/(2*side),t->m_height-1);
+                    if (TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,x,y,rgb) && grass::Green(rgb)) {
+                        const uint32_t bit=j*side+i;
+                        mask[bit>>3]|=uint8_t(1u<<(bit&7));
+                        any=true;
+                    }
+                }
+                t->m_grassMaskSide=side;
+                if (any) t->m_grassMask.assign(mask.begin(),mask.begin()+side*side/8);
+            }
             // (Its mean colour, from that grid: the cliffs' rock is tinted to a ground cell's tile - terrain.cpp.)
             for (int c = 0; c < 3; ++c) {
                 double sum = 0.0;
@@ -585,7 +615,7 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                 t->m_line = t->m_edge = t->m_grain = -1.0f;
             // A ground texture with a new picture (a stand-in replaced as the area loads): the grass classified
             // from it is stale.
-            if (t->m_groundBase && m_grassOn && t->m_thumbValid && before != t->m_thumb)
+            if (t->m_groundBase && m_grassOn && t->m_thumbValid && (before != t->m_thumb || beforeMask != t->m_grassMask))
                 m_groundTexUploaded.push_back(t);
             if (t->m_lightmap && m_grassOn)
                 m_lightmapsUploaded.push_back(t);   // the grass's light baked from it is stale
@@ -623,6 +653,39 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                 t->m_alphaH = t->m_alphaMask.empty() ? 0 : mh;
                 ++t->m_alphaVersion;
             }
+        } else if (t->m_thumbValid && x+width<=t->m_width && y+height<=t->m_height) {
+            auto sample=[&](uint32_t i,uint32_t j,uint32_t w,uint32_t h,uint8_t* rgb) {
+                const uint32_t px=std::min((2*i+1)*t->m_width/(2*w),t->m_width-1);
+                const uint32_t py=std::min((2*j+1)*t->m_height/(2*h),t->m_height-1);
+                return px>=x && px-x<width && py>=y && py-y<height &&
+                    TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,px-x,py-y,rgb);
+            };
+            for (uint32_t j=0;j<t->m_thumbH;++j) for (uint32_t i=0;i<t->m_thumbW;++i)
+                sample(i,j,t->m_thumbW,t->m_thumbH,t->m_thumb.data()+(size_t(j)*t->m_thumbW+i)*3);
+            const uint32_t side=t->m_grassMaskSide;
+            for (uint32_t j=0;j<side;++j) for (uint32_t i=0;i<side;++i) {
+                uint8_t rgb[3];
+                if (!sample(i,j,side,side,rgb)) continue;
+                const bool green=grass::Green(rgb);
+                if (green && t->m_grassMask.empty()) t->m_grassMask.assign(side*side/8,0);
+                if (!t->m_grassMask.empty()) {
+                    const uint32_t bit=j*side+i;
+                    const uint8_t flag=uint8_t(1u<<(bit&7));
+                    if (green) t->m_grassMask[bit>>3]|=flag;
+                    else t->m_grassMask[bit>>3]&=uint8_t(~flag);
+                }
+            }
+            for (int c=0;c<3;++c) {
+                double sum=0;
+                for (size_t i=c;i<t->m_thumb.size();i+=3) sum+=t->m_thumb[i];
+                t->m_mean[c]=float(sum/(255.0*double(t->m_thumb.size()/3)));
+            }
+            if (t->m_groundBase && m_grassOn && (before!=t->m_thumb || beforeMask!=t->m_grassMask) &&
+                std::find(m_groundTexUploaded.begin(),m_groundTexUploaded.end(),t)==m_groundTexUploaded.end())
+                m_groundTexUploaded.push_back(t);
+            if (t->m_lightmap && m_grassOn &&
+                std::find(m_lightmapsUploaded.begin(),m_lightmapsUploaded.end(),t)==m_lightmapsUploaded.end())
+                m_lightmapsUploaded.push_back(t);
         }
     }
 
@@ -660,6 +723,10 @@ void Device::DestroyTexture(Texture* texture)
 {
     if (!texture || texture == m_main)
         return;
+    if (texture->m_materialRefs > 1) {
+        --texture->m_materialRefs;
+        return;
+    }
     for (auto& t : m_textures)
         if (t == texture) t = nullptr;
     for (auto& l : m_heldLabels)                 // (a label held back for after the post passes)
@@ -681,6 +748,32 @@ void Device::DestroyTexture(Texture* texture)
     m_deadTextures.push_back({DeathTag(), texture});   // freed once every submission that may use it is done
 }
 
+void Device::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour)
+{
+    if (!texture) return;
+    texture->m_rdbId = id;
+    texture->m_rdbType = type;
+    texture->m_autoMaterial = materials::Lookup(type, id);
+    texture->m_worldMaterial = materials::LookupWorld(type, id);
+    texture->m_buildingFamily = buildingFamily < 64 ? buildingFamily : 0;
+    texture->m_preserveGroundColour = preserveGroundColour;
+    static uint32_t assigned = 0;
+    if (texture->m_autoMaterial && (++assigned <= 8 || (assigned & (assigned - 1)) == 0))
+        Log("material catalog: texture %u:%u roughness %.2f metallic %.2f (%u identified)", type, id,
+            float(texture->m_autoMaterial & 255u) / 255.0f, float((texture->m_autoMaterial >> 8) & 255u) / 255.0f, assigned);
+}
+
+void Device::SetBuildingFamilyReady(uint32_t family, bool ready)
+{
+    if (!family || family >= 64) return;
+    const uint64_t bit = uint64_t(1) << family;
+    if (bool(m_buildingFamiliesReady & bit) == ready) return;
+    FlushGroup();
+    if (ready) m_buildingFamiliesReady |= bit;
+    else m_buildingFamiliesReady &= ~bit;
+    m_constantsDirty = true;
+}
+
 void Device::SetNormalMap(Texture* texture, Texture* normal)
 {
     if (!texture || texture->m_normalMap == normal)
@@ -691,7 +784,7 @@ void Device::SetNormalMap(Texture* texture, Texture* normal)
     m_constantsDirty = true;
 }
 
-void Device::SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo)
+void Device::SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha)
 {
     if (!texture)
         return;
@@ -700,6 +793,7 @@ void Device::SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo)
             if (*map) DestroyTexture(*map);
             *map = now;
         }
+    texture->m_preserveAlbedoAlpha = albedo && preserveAlpha;
     m_constantsDirty = true;
 }
 
@@ -723,6 +817,75 @@ void Device::SetLeafArt(Texture* texture, Texture* atlas, Texture* normal)
             *map = now;
         }
     ++texture->m_leafArtVersion;
+}
+
+void Device::ShareMaterialMaps(Texture* texture, Texture* source)
+{
+    if (!texture || !source || texture == source) return;
+    bool usable=false;
+    for (Texture* map : {source->m_normalMap,source->m_ormMap,source->m_albedoMap,source->m_emissiveMap,
+                         source->m_leafArt,source->m_leafArtNormal}) {
+        if (!map) continue;
+        if (!map->m_image || !map->m_view || (m_bindless && map->m_bindless==~0u) ||
+            map->m_uploads<map->m_levels || map->m_layout!=VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+            usable=false; break;
+        }
+        usable=true;
+    }
+    if (!usable) {
+        texture->m_materialState.store(Texture::MaterialState::Failed, std::memory_order_release);
+        return;
+    }
+    FlushGroup();
+    // Called in command order, just like map replacement/destruction. Retain
+    // before releasing the previous map, including when two slots alias it.
+    for (auto [slot, next] : {
+            std::pair{&texture->m_normalMap,source->m_normalMap},
+            std::pair{&texture->m_ormMap,source->m_ormMap},
+            std::pair{&texture->m_albedoMap,source->m_albedoMap},
+            std::pair{&texture->m_emissiveMap,source->m_emissiveMap},
+            std::pair{&texture->m_leafArt,source->m_leafArt},
+            std::pair{&texture->m_leafArtNormal,source->m_leafArtNormal}}) {
+        if (*slot == next) continue;
+        if (next) ++next->m_materialRefs;
+        if (*slot) DestroyTexture(*slot);
+        *slot = next;
+    }
+    texture->m_preserveAlbedoAlpha = source->m_preserveAlbedoAlpha;
+    ++texture->m_leafArtVersion;
+    m_constantsDirty = true;
+    texture->m_materialState.store(Texture::MaterialState::Ready, std::memory_order_release);
+}
+
+void Device::PublishMaterialMaps(Texture* texture, Texture* normal, Texture* orm, Texture* albedo,
+                                 Texture* emissive, Texture* leaves, Texture* leavesNormal,
+                                 bool preserveAlpha, bool complete)
+{
+    const auto usable = [this](Texture* map) {
+        return !map || (map->m_image && map->m_view && (!m_bindless || map->m_bindless != ~0u) &&
+                        map->m_uploads >= map->m_levels && map->m_layout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    };
+    const bool valid = complete && usable(normal) && usable(orm) && usable(albedo) &&
+                       usable(emissive) && usable(leaves) && usable(leavesNormal);
+    if (!texture || !valid) {
+        for (Texture* map : {normal, orm, albedo, emissive, leaves, leavesNormal})
+            if (map) DestroyTexture(map);
+        // Keep the previous valid set on failed reloads. A cold failure stays
+        // original; no failed CPU wrapper becomes a sampled GPU resource.
+        if (texture && texture->MaterialsState() != Texture::MaterialState::Ready)
+            texture->m_materialState.store(Texture::MaterialState::Failed, std::memory_order_release);
+        Log("materials: GPU publication failed; previous maps retained");
+        return;
+    }
+    FlushGroup();
+    SetNormalMap(texture, normal);
+    SetMaterialMaps(texture, orm, albedo, preserveAlpha);
+    SetEmissiveMap(texture, emissive);
+    SetLeafArt(texture, leaves, leavesNormal);
+    texture->m_materialDrawFrame.store(0, std::memory_order_relaxed);
+    const bool any = normal || orm || albedo || emissive || leaves;
+    texture->m_materialState.store(any ? Texture::MaterialState::Ready : Texture::MaterialState::Original,
+                                   std::memory_order_release);
 }
 
 void Device::SetPbr(const PbrSettings& s)

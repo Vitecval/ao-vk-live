@@ -14,10 +14,12 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <string>
 #include <vector>
+#include "../proxy/ddraw/rvk_settings.h"
 
 namespace {
 
@@ -619,9 +621,8 @@ std::vector<uint8_t> BuildBmp24(unsigned w, unsigned h, uint32_t (*color)(unsign
     return bmp;
 }
 
-void TestTextureStream(unsigned rdbId = 0)
+void TestTextureStream(unsigned rdbId = 0, unsigned rdbType = 1010004, unsigned w = 65, unsigned h = 33)
 {
-    static const unsigned w = 65, h = 33;                              // not multiples of 4: row padding is exercised
     std::vector<uint8_t> bmp = BuildBmp24(w, h, [](unsigned x, unsigned y) -> uint32_t {
         return ((x / 4) ^ (y / 4)) & 1 ? 0xF0C040u : 0x3060C0u;
     });
@@ -652,7 +653,7 @@ void TestTextureStream(unsigned rdbId = 0)
         vt[0] = col;
         std::memcpy(vt + 1, *static_cast<void***>(creator), 16 * sizeof(void*));
         *static_cast<void***>(creator) = vt + 1;
-        *reinterpret_cast<unsigned*>(static_cast<uint8_t*>(creator) + 0x40) = 1010004;
+        *reinterpret_cast<unsigned*>(static_cast<uint8_t*>(creator) + 0x40) = rdbType;
         *reinterpret_cast<unsigned*>(static_cast<uint8_t*>(creator) + 0x44) = rdbId;
     }
     void* surface = Export<TSCreateTextureBitmapFn>(
@@ -683,6 +684,54 @@ void TestTextureStream(unsigned rdbId = 0)
 }
 
 const GUID kTnLHalDevice = {0xf5049e78, 0x4861, 0x11d2, {0xa4, 0x07, 0x00, 0xa0, 0xc9, 0x06, 0x29, 0xa8}};
+
+bool TestSurfaceAllocationFailure(void* render)
+{
+    auto* device = *static_cast<IDirect3DDevice7**>(render);
+    IDirect3D7* d3d = nullptr;
+    IDirectDraw7* dd = nullptr;
+    if (FAILED(device->GetDirect3D(&d3d))) return false;
+    HRESULT hr = d3d->QueryInterface(IID_IDirectDraw7, reinterpret_cast<void**>(&dd));
+    d3d->Release();
+    if (FAILED(hr)) return false;
+    DDSURFACEDESC2 desc{};
+    desc.dwSize = sizeof(desc);
+    desc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+    desc.dwWidth = desc.dwHeight = 8192; // 256 MB CPU shadow, no GPU resource
+    desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+    desc.ddpfPixelFormat = {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0xFF00}, {0xFF}, {0}};
+    IDirectDrawSurface7* surface = nullptr;
+    hr = dd->CreateSurface(&desc, &surface, nullptr);
+    dd->Release();
+    if (FAILED(hr)) return false;
+    std::vector<void*> reservations;
+    reservations.reserve(1024);
+    while (reservations.size() < 1000) {
+        MEMORYSTATUSEX memory{};
+        memory.dwLength = sizeof(memory);
+        if (!GlobalMemoryStatusEx(&memory) || memory.ullAvailVirtual < (48u << 20)) break;
+        void* block = VirtualAlloc(nullptr, 4u << 20, MEM_RESERVE, PAGE_NOACCESS);
+        if (!block) break;
+        reservations.push_back(block);
+    }
+    DDSURFACEDESC2 locked{};
+    locked.dwSize = sizeof(locked);
+    hr = surface->Lock(nullptr, &locked, DDLOCK_WAIT, nullptr);
+    for (void* block : reservations) VirtualFree(block, 0, MEM_RELEASE);
+    std::printf("surface allocation: forced Lock failure %08lx, expected %08lx\n", hr, HRESULT(E_OUTOFMEMORY));
+    if (hr != E_OUTOFMEMORY) { if (SUCCEEDED(hr)) surface->Unlock(nullptr); surface->Release(); return false; }
+    locked.dwSize = sizeof(locked);
+    hr = surface->Lock(nullptr, &locked, DDLOCK_WAIT, nullptr);
+    bool okay = SUCCEEDED(hr) && locked.lpSurface && locked.lPitch == 8192 * 4;
+    if (SUCCEEDED(hr)) {
+        auto* pixels = static_cast<uint32_t*>(locked.lpSurface);
+        okay = okay && pixels[0] == 0 && pixels[8192u * 8192u - 1] == 0;
+        surface->Unlock(nullptr);
+    }
+    surface->Release();
+    std::printf("surface allocation: retry after pressure released %s\n", okay ? "PASS" : "FAIL");
+    return okay;
+}
 
 struct VtxRhw { float x, y, z, rhw; uint32_t color; };
 constexpr uint32_t kFvfRhwDiffuse = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
@@ -1542,7 +1591,19 @@ int main(int argc, char** argv)
     bool windowCloseFirst = false;                   // --window-close-first: destroy the window before Randy's cleanup
     bool minimizeTest = false;                       // --minimize-test: repeated real minimize/restore on the harness window
     bool startMinimized = false;                     // --start-minimized: initialize with no drawable presentation area
+    bool backgroundTest = false;                     // hidden window: background pause/resume without stealing focus
     bool modernPackTest = false;                     // --modern-pack-test: real material-hook and async toggle fixture
+    bool cyberPackTest = false;                      // --cyber-pack-test: both styles, shared props, terrain and quality variants
+    bool materialPressureTest = false;               // reserve address space while optional artwork loads
+    bool sharedTerrainLoaderTest = false;
+    std::vector<void*> pressureReservations;
+    bool characterMaterialsTest = false;
+    bool surfaceMemoryTest = false;
+    bool worldMaterialsTest = false;
+    bool propsPackTest = false;
+    std::vector<unsigned> customArtIds;             // --art-ids: isolated loader fixture for new batches
+    unsigned customArtType = 1010004;
+    bool customEquipment = false;                  // same supplied IDs, with character-pack toggles
     bool still = false;                              // the animation time doesn't advance (static vertex buffers)
     std::string staticMesh;
     int statics = 1;
@@ -1571,8 +1632,32 @@ int main(int argc, char** argv)
         else if (a == "--normal-exit") { normalExit = true; g_shutdown = true; }
         else if (a == "--window-close-first") { windowCloseFirst = true; normalExit = true; g_shutdown = true; }
         else if (a == "--minimize-test") minimizeTest = true;
+        else if (a == "--background-test") { backgroundTest = true; frames = std::max(frames, 80); }
         else if (a == "--start-minimized") { startMinimized = true; minimizeTest = true; }
         else if (a == "--modern-pack-test") modernPackTest = true;
+        else if (a == "--cyber-pack-test") { cyberPackTest = modernPackTest = true; }
+        else if (a == "--material-pressure-test") { materialPressureTest = cyberPackTest = modernPackTest = true; }
+        else if (a == "--shared-terrain-loader-test") {sharedTerrainLoaderTest=true;frames=std::max(frames,700);}
+        else if (a == "--character-materials-test") characterMaterialsTest = true;
+        else if (a == "--surface-memory-test") surfaceMemoryTest = true;
+        else if (a == "--world-materials-test") worldMaterialsTest = true;
+        else if (a == "--props-pack-test") propsPackTest = worldMaterialsTest = true;
+        else if (a == "--art-type" && i+1<argc) customArtType=unsigned(std::strtoul(argv[++i],nullptr,10));
+        else if ((a == "--art-ids" || a == "--equipment-ids") && i+1<argc) {
+            customEquipment = a == "--equipment-ids";
+            if (customEquipment) characterMaterialsTest=true;
+            else propsPackTest=worldMaterialsTest=true;
+            const char* p=argv[++i];
+            while (*p) {
+                char* end=nullptr;
+                unsigned long id=std::strtoul(p,&end,10);
+                if (end==p || !id || id>0x7ffffffful || (*end && *end!=',')) {
+                    std::fprintf(stderr,"invalid --art-ids list\n"); return 2;
+                }
+                customArtIds.push_back(unsigned(id));p=*end ? end+1 : end;
+            }
+            if (customArtIds.empty()) return 2;
+        }
         else if (a == "--debug-draw") g_debugDraw = true;
         else if (a == "--sprites" && i + 1 < argc) g_sprites = std::atoi(argv[++i]);
         else if (a == "--resize" && i + 2 < argc) {
@@ -1689,8 +1774,124 @@ int main(int argc, char** argv)
     TestProcessVertices(render);
     if (g_materials) TestMaterials();
     if (g_texture) TestTextureStream();   // before the first present: in the frame=1 call log window
+    if (backgroundTest) {
+        DWORD foregroundPid=0;
+        GetWindowThreadProcessId(GetForegroundWindow(), &foregroundPid);
+        if (foregroundPid==GetCurrentProcessId()) {
+            std::fprintf(stderr,"background test needs a background harness window\n"); return 2;
+        }
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        auto apply=Export<int(__cdecl*)(uint32_t)>("RvkPresets_Apply");
+        auto current=Export<int(__cdecl*)()>("RvkPresets_Current");
+        auto count=Export<uint32_t(__cdecl*)()>("RvkSettings_Count");
+        auto get=Export<int(__cdecl*)(uint32_t,RvkSettingInfo*)>("RvkSettings_Get");
+        auto value=[&](const char* name) {
+            for (uint32_t i=0;i<count();++i) {
+                RvkSettingInfo info{}; info.size=sizeof(info);
+                if (get(i,&info) && std::strcmp(info.name,name)==0) return info.value;
+            }
+            return -999.0f;
+        };
+        const float savedFrameGen=value("RVK_FrameGen");
+        set("RVK_RenderBg",0); set("RVK_UiRate",30); set("RVK_PerfHud",0);
+        if (!apply(3) || current()!=3) return 3;
+        for (const auto& setting : std::vector<std::pair<const char*,float>>{
+            {"RVK_ModernTex",2},{"RVK_TerrainHD",1},{"RVK_BuildingHD",1},{"RVK_TerraBlend",2},{"RVK_DayLook",0},
+            {"RVK_AutoMat",1},{"RVK_MatStrength",1},{"RVK_GroundOn",0},
+            {"RVK_FarHaze",.6f},{"RVK_HazeStart",350},{"RVK_HazeEnd",1000},
+            {"RVK_RenderBg",0},{"RVK_UiRate",30},{"RVK_PerfHud",0}}) {
+            if (std::fabs(value(setting.first)-setting.second)>.001f) {
+                std::fprintf(stderr,"Ultra preset mismatch: %s\n",setting.first); return 3;
+            }
+        }
+        set("RVK_TerraBlend",1); set("RVK_WeatherAmt",.7f);
+        if (value("RVK_TerraBlend")!=1) return 3;
+        if (!apply(3) || value("RVK_TerraBlend")!=2) return 3;
+        if (!apply(0) || value("RVK_ModernTex")!=2 || value("RVK_RenderBg")!=0) return 3;
+        if (!apply(2) || current()!=2 || value("RVK_ModernTex")!=0 || value("RVK_RenderBg")!=0) return 3;
+        set("RVK_FrameGen",savedFrameGen); set("RVK_RenderBg",1);
+        std::printf("background test: Ultra, Original and Modern preset checks passed; General choices preserved\n");
+    }
+    if (surfaceMemoryTest) {
+        TestTextureStream(9622, 1010004, 257, 129);
+        TestTextureStream(8731, 1010016, 257, 129);
+        if (!TestSurfaceAllocationFailure(render)) return 3;
+    }
+    if (worldMaterialsTest) {
+        auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+        set("RVK_TerraBlend",0); // legacy per-ID fallback is exercised by this fixture
+        for (const char* name : {"RVK_ModernTex","RVK_TerrainHD","RVK_BuildingHD","RVK_AutoMat","RVK_Pbr","RVK_Hdr","RVK_PixelLight"}) set(name,0);
+        set("RVK_Enhance",1);
+        if (propsPackTest) {
+            if (!customArtIds.empty()) {
+                for (unsigned id : customArtIds) TestTextureStream(id,customArtType);
+            } else {
+            for (unsigned id : {296032u,55867u,55868u,55869u,55872u,55873u,9896u,9698u,9897u,18326u,18490u,18498u,18501u,
+                                10604u,10605u,10606u,21040u,6067u,6072u,6099u,6100u,295917u,295920u,295922u,295924u,
+                                295928u,295932u,6458u,46483u,6117u,6154u,13636u,5991u,6001u,12535u,21537u,19934u,5944u,
+                                8558u,8680u,296454u,8259u,8260u,156874u,156875u,55871u,55876u,55882u,8671u,8673u,8674u,
+                                8675u,6006u,81735u,43421u,6493u,6494u,8757u,8750u,10574u,10610u,10611u,38744u,38746u}) TestTextureStream(id);
+            }
+            frames=std::max(frames,1100);
+        } else {
+            for (unsigned id : {6050u,6052u,6053u,6055u,6056u,6061u,6066u,6081u,6083u,6084u,99647u,99648u,29597u,6098u,6088u}) TestTextureStream(id);
+            for (unsigned id : {82017u,82020u,82024u,82022u,6085u,6082u,6069u,6060u,6186u,6094u,19808u,42564u,30012u,30014u,
+                                9523u,9522u,33201u,18505u,14636u,14263u,21520u,21578u,21539u,21522u,6112u,295926u,32525u,32526u,
+                                5992u,18556u,42560u,42555u,42554u,29484u,30004u,297464u,31973u,31974u}) TestTextureStream(id);
+            for (unsigned id : {200u,109u,263u,222u,221u}) TestTextureStream(id,1010006);
+            TestTextureStream(6055,1010016);
+            TestTextureStream(200,1010021);
+            frames = std::max(frames,1800);
+        }
+    }
+    if (sharedTerrainLoaderTest) {
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        set("RVK_Enhance",1);set("RVK_ModernTex",2);set("RVK_TerraBlend",1);
+        for(unsigned id:{17u,18u,20u,21u,22u,23u,24u,25u,26u,673u}) TestTextureStream(id,1010006);
+        TestTextureStream(18,1010021);
+        TestTextureStream(17,1010021);
+        TestTextureStream(24,1010021);
+        TestTextureStream(26,1010022);
+        TestTextureStream(295610,1010004); // ordinary props must retain their pack
+    }
+    if (characterMaterialsTest) {
+        auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+        for (const char* name : {"RVK_ModernTex", "RVK_AutoMat", "RVK_Pbr", "RVK_Hdr", "RVK_PixelLight"}) set(name, 0);
+        set("RVK_Enhance", 1);
+        set("RVK_MatStrength", 1);
+        set("RVK_PbrSpec", .3f);
+        set("RVK_PbrEnv", .4f);
+        if (customEquipment) {
+            for (unsigned id : customArtIds) TestTextureStream(id,customArtType);
+        } else {
+        for (unsigned id : {9622u, 8732u, 8736u, 8731u}) TestTextureStream(id);
+        TestTextureStream(8763, 1010011);
+        TestTextureStream(8731, 1010016);
+        TestTextureStream(8763, 1010019);
+        for (unsigned id : {17222u, 302721u, 276304u, 16567u}) TestTextureStream(id); // live capture equipment and face
+        for (unsigned id : {256235u, 256236u, 256237u, 256239u, 256240u, 300672u}) TestTextureStream(id);
+        for (unsigned id : {18003u,18000u,8741u,9416u,15805u,15809u,9400u,9417u}) TestTextureStream(id);
+        TestTextureStream(256236, 1010016); // lower-quality alias gets the same art
+        }
+        frames = std::max(frames, 1200); // allow the six optional artwork decodes to finish too
+    }
+    if (cyberPackTest) {
+        auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+        for (const char* name : {"RVK_SsrOn", "RVK_Pbr", "RVK_NormalMaps", "RVK_PixelLight", "RVK_Albedo"})
+            set(name, 0);                         // style must enable these effectively, without changing the values
+        set("RVK_PbrSpec", .3f);
+        set("RVK_PbrEnv", .4f);
+    }
     if (modernPackTest) {
+        Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set")("RVK_TerraBlend",0);
         for (unsigned id : {295992u, 297326u, 297327u, 296442u, 295444u, 295502u}) TestTextureStream(id);
+        if (cyberPackTest) {
+            for (unsigned id : {295610u, 81948u, 81947u, 6254u}) TestTextureStream(id);
+            for (unsigned id : {18u, 21u, 673u}) TestTextureStream(id, 1010006);
+            TestTextureStream(295610, 1010016);       // low-quality world variant shares its material
+            TestTextureStream(18, 1010021);           // low-quality terrain variant too
+            frames = std::max(frames, 900);
+        }
     }
     if (g_png) TestPng();                 // likewise
     if (!g_mapTiles.empty()) TestMapTiles();
@@ -1753,14 +1954,91 @@ int main(int argc, char** argv)
     QueryPerformanceFrequency(&frequency);
     double sceneSeconds = 0.0;
     for (int frame = 0; frame < frames; ++frame) {
+        if (backgroundTest) {
+            auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+            if (frame==40) set("RVK_Enhance",0); // pause must also work with enhancements disabled
+            if (frame%20==4) set("RVK_RenderBg",0);
+            if (frame%20==12) set("RVK_RenderBg",1);
+        }
+        if (propsPackTest) {
+            Sleep(5);
+            auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+            if (frame==1 || frame==550) set("RVK_ModernTex",2);
+            if (frame==300 || frame==310 || frame==320) {
+                for (unsigned id:customArtIds) TestTextureStream(id,1010016);
+                std::puts("warm material aliases requested");
+            }
+            if (frame==500 || frame==1000) set("RVK_ModernTex",0);
+        }
+        if (worldMaterialsTest && !propsPackTest) {
+            Sleep(5);
+            auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+            if (frame==1) { set("RVK_BuildingHD",1); set("RVK_TerrainHD",1); set("RVK_ModernTex",2); }
+            if (frame==2 || frame==1000 || frame==1700) set("RVK_ModernTex",0);
+            if (frame==20 || frame==1100) set("RVK_ModernTex",2);
+            if (frame==80 || frame==1700) set("RVK_BuildingHD",0);
+            if (frame==100) set("RVK_BuildingHD",1);
+            if (frame==140 || frame==1700) set("RVK_TerrainHD",0);
+            if (frame==160) set("RVK_TerrainHD",1);
+            if (frame==400) set("RVK_Enhance",0);
+            if (frame==420) set("RVK_Enhance",1);
+        }
+        if (characterMaterialsTest) {
+            Sleep(5); // give background map decoding realistic game-frame time
+            auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+            if (frame == 1 || frame == 200) set("RVK_AutoMat", 1);
+            if (frame == 40) set("RVK_MatStrength", .5f);
+            if (frame == 80) set("RVK_MatStrength", 0);
+            if (frame == 100) set("RVK_MatStrength", 1);
+            if (frame == 120) set("RVK_Enhance", 0);
+            if (frame == 140) set("RVK_Enhance", 1);
+            if (frame == 180 || frame == 220) set("RVK_AutoMat", 0);
+            if (frame == 400) set("RVK_AutoMat", 1);
+            if (frame == 1100) set("RVK_AutoMat", 0);
+        }
+        if (materialPressureTest && frame == 60) {
+            MEMORYSTATUSEX memory{};
+            memory.dwLength = sizeof(memory);
+            while (GlobalMemoryStatusEx(&memory) && memory.ullAvailVirtual > (160u << 20)) {
+                void* reservation = VirtualAlloc(nullptr, 4u << 20, MEM_RESERVE, PAGE_NOACCESS);
+                if (!reservation) break;
+                pressureReservations.push_back(reservation);
+            }
+            std::printf("material pressure: %llu MB free, %zu reservations\n",
+                        (unsigned long long)(memory.ullAvailVirtual >> 20), pressureReservations.size());
+            if (memory.ullAvailVirtual > (192u << 20)) return 3;
+        }
+        if (sharedTerrainLoaderTest) {
+            auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+            if(frame==200) {std::puts("shared terrain fixture: legacy maps on");set("RVK_TerraBlend",0);}
+            if(frame==450) {std::puts("shared terrain fixture: continuous maps on");set("RVK_TerraBlend",1);}
+            if(frame==550) {set("RVK_Enhance",0);set("RVK_DayLook",.8f);}
+            if(frame==580) set("RVK_Enhance",1);
+            Sleep(10);
+        }
+        if (materialPressureTest && frame == 200) {
+            for (void* reservation : pressureReservations) VirtualFree(reservation, 0, MEM_RELEASE);
+            pressureReservations.clear();
+            std::printf("material pressure: reservations released; later style changes must still upload\n");
+        }
         if (modernPackTest) {
             auto set = Export<int(__cdecl*)(const char*, float)>("RvkSettings_Set");
+            if (materialPressureTest && frame == 60) set("RVK_ModernTex", 0);
+            if (materialPressureTest && frame == 61) set("RVK_ModernTex", 2);
             // The rapid on/off at 1/2 leaves decode jobs in flight; final off must
             // discard those results. Later cycles cover fully loaded materials.
-            if (frame == 1 || frame == 40 || frame == 260) set("RVK_ModernTex", 1);
-            if (frame == 2 || frame == 240 || frame == 550) set("RVK_ModernTex", 0);
-            if (frame == 400) set("RVK_Enhance", 0);
-            if (frame == 430) set("RVK_Enhance", 1);
+            if (cyberPackTest) {
+                if (frame == 1 || frame == 40 || frame == 450) set("RVK_ModernTex", 2);
+                if (frame == 2 || frame == 850) set("RVK_ModernTex", 0);
+                if (frame == 300 && !materialPressureTest) set("RVK_ModernTex", 1);
+                if (frame == 650) set("RVK_Enhance", 0);
+                if (frame == 680) set("RVK_Enhance", 1);
+            } else {
+                if (frame == 1 || frame == 40 || frame == 260) set("RVK_ModernTex", 1);
+                if (frame == 2 || frame == 240 || frame == 550) set("RVK_ModernTex", 0);
+                if (frame == 400) set("RVK_Enhance", 0);
+                if (frame == 430) set("RVK_Enhance", 1);
+            }
             Sleep(15);
         }
         if (minimizeTest && frame % 8 == 2) {

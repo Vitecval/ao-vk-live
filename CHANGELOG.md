@@ -1,11 +1,69 @@
 # Changelog
 
+## 0.6.0-preview.12
+
+- Keep resident building replacements visible while other textures load or are missing. Publish each required material set only after its GPU images and uploads are usable; preserve a valid set if a reload fails.
+- Add Shared Ground+ with nearby pebbles and loose-sand ripple relief, keeping AO's terrain mesh and lighting. Ultra explicitly selects it; manual terrain choices persist. Extend shared cliff projection to verified ground chunks that fail the tile fit.
+- Give the ICC metal deck a softer satin finish and gentler authored relief, retaining original ground colours. Asphalt keeps its existing sheen.
+- Group Quick Controls into Graphics, Performance and Weather. New configurations use Automatic weather, colour grading off, and Render in Background off; saved preferences survive upgrades.
+- Provide Full HD and Lite downloads with the same renderer. Both include core paving and embedded terrain assets; Full adds optional model artwork and generated atlases. Edition switching removes only owned optional assets and supports rollback.
+- Fix texture extraction across database files. Record tiny original colour inputs explicitly and keep unfinished artwork batches queued. Picker diagnostics now distinguish loading, failure, GPU readiness and the last draw that selected replacement maps.
+
+## 0.6.0-preview.11
+
+- Add 1,828 Rubi-Ka city and dungeon core repaints in 20 batches, preserving premium ICC and earlier neutral artwork. Inventory 2,436 active models and separately track 294 pending shared companions; unfinished owned batches remain queued.
+- Add five matching manufactured paving reliefs that retain original ground colours and alpha. Preserve asphalt sheen, Ultra shared detail 1 and grading off.
+- Keep the architecture eligibility rule scoped to world style 2 so it cannot suppress the independent equipment pack. Record generated-but-staged artwork and the generation-limit backlog honestly.
+
+## 0.6.0-preview.10
+
+- Restore premium ICC panels and earlier Newland/neutral artwork through explicit per-resource pack selection; preserve all previous world maps and the ICC manifest.
+- Complete 203 missing companion surfaces across ICC and neutral building batches. Nine logical families now inventory 381 models and approve 679 resources, including reused art and material-only inputs.
+- Accept declared ORM-only inputs and require authored emission/height where present. Link family readiness across shared model parts, preserving original fallback and personal overrides.
+- Validate production loading, overlap priority, quality aliases, required-map failures, recovery, ground colours and asphalt sheen. Ultra shared terrain remains 1; daylight grading remains off. Live model fit remains a preview check.
+
+## 0.6.0-preview.9
+
+- Preserve original AO deck/plaza colours and markings while retaining upgraded relief and gloss. Stronger non-metal asphalt sheen respects road/soil masks with shared detail on or off. Ultra keeps shared terrain at 1 and daylight grading at 0.
+- Add 308 matched building-family surfaces, including dependency-complete sets for 64 clan and 126 Omni HQ/tower models. Satin metal, glass and stone have distinct responses; original functional signs and cutouts remain.
+- Gate family maps together until every live member is ready; incomplete/corrupt/deferred sets retain originals. Fix old ICC artwork overriding a new family member, keep unfinished architecture IDs on originals, and preserve personal overrides.
+- Validate family loading, fallback, priority, aliases, memory recovery, ground colours and pixel-level atomic presentation. Live model fit and long-session stability remain preview checks. See RELEASE-NOTES.md.
+
+## 0.6.0-preview.6
+
+- Gentle bright-surface control, matte mineral overrides, live combined replacement-ground repair, finer grass coverage with partial uploads, medium-distance terrain detail and layered haze.
+- 91 additional repaint IDs, preserving gear designs and separating natural/painted materials from actual metal/glass. Full scan inventory and frequency-ranked overhaul plan. See RELEASE-NOTES.md for validation scope and remaining coverage.
+
 What changed in each ao-vk release, newest first. Downloads and install notes: the
 [releases page](https://github.com/wannabuh/ao-vk/releases).
 
 ## Unreleased
 
+### Fixed
+- ICC metal decks and plaza tiles preserve original AO colours with authored relief and reflective materials with shared terrain enabled. Roads use original transition patterns in either mode, avoiding mismatched partial repaint patches; reviewed asphalt families receive a restrained non-metal sheen while their dirt/gravel edges stay rough.
+- Correct texture-memory counters when optional daylight grading creates and releases its lookup texture.
+- Reduce zoning memory pressure by sharing immutable material maps between quality copies, bounding built-in map resolution and retrying skipped materials after address space recovers. Native allocation failures record the requested size, remaining space and largest free block for diagnosis.
+- A confirmed long-session freeze caused by an object-cache cleanup allocation failing on the render thread. Cleanup now prunes in place without a replacement table; failed growth keeps the working cache and uses the uncached path with retry backoff. This avoids the observed allocation exception and error-handler lock cycle without reducing artwork quality.
+- Frame scans no longer get stuck on cyclic character attachment links. The optional diagnostic walk detects repeats, limits depth and caps its output instead of filling the log indefinitely.
+- Cold original texture copies can use a private temporary file after lossless compression, freeing more of the classic client's limited address space. Exact pixels are restored for CPU access; file-write failures retain the in-memory copy, freed file ranges are reused, and Windows removes the file when the process exits. This reduces memory pressure; it does not establish the cause of every zoning crash.
+- Global terrain/building grain is gentler, fades before becoming subpixel and stays out of the login backdrop. Authored ground with its own material/normal maps no longer receives an extra grain layer.
+- A confirmed live zoning crash from CPU texture-copy allocation failure escaping a nothrow DirectDraw Lock. Generated HRESULT wrappers now translate `std::bad_alloc` to E_OUTOFMEMORY, releasing the COM lock normally. Cold uploaded database texture copies use lossless compression to reduce pressure in the retail client's 2 GB address space; GPU images and artwork are unchanged. Exact-pixel and forced-failure/retry regression checks cover the change. Other reported hangs still need live confirmation.
+
 ### New
+- Another 105 captured surface reworks: 90 building/prop/foliage surfaces and 15 equipment surfaces. The retained artwork library now covers 443 IDs; character bodies/faces and most captured artwork remain queued.
+- Ultra explicitly selects Shared terrain materials at 1 and Brighter daylight look at 0. The daylight slider remains optional.
+- Shared terrain materials (`RVK_TerraBlend`): five continuous world-space masters use the original ground colours and transitions as blend weights. Cyberpunk mode no longer needs separate repaints for every terrain variation; zero restores the original natural ground, while reviewed manufactured paving/deck artwork stays available. Personal packs retain priority.
+- Optional Brighter daylight look (`RVK_DayLook`) lifts shadows and midtones and reduces sunset/night grading, with the interface and game clock preserved. Highlight glare reduction still runs afterwards.
+- Ninety-nine further environment repaints: 24 reusable wall/panel/window/paving textures and 75 picked or captured surfaces, including 29 foliage/bark textures. Leaf RGB extends behind the game's original cutout masks; natural surfaces stay non-metallic and steel/glass use separate material responses. The world pack now contains 221 repainted resource IDs.
+- General → Pause rendering when AO is not focused (`RVK_PauseBg`) suspends background graphics and resumes when the client is active again. The game remains connected; background loops yield briefly to avoid replacing GPU load with CPU spinning. The option is independent of graphics presets and defaults off.
+- Ultra now selects Cyberpunk world artwork, global terrain/building detail at 1, character/equipment materials at full strength and moderate distant horizon haze. General preferences are preserved; live's experimental replacement ground remains off.
+- Sixty-four additional shared prop repaints discovered beyond city captures: terminals, bin atlases, benches, chairs, containers, cabinets, lamps, pipework, doors, crates, barrels, monitors, tables and insurance signage. The world pack now has 122 actual repaints, with separate glass, metal, upholstery, rubber, wood and light masks. Existing artwork and the renderer binary are unchanged by this artwork batch.
+- Thirty-eight additional city building/prop repaints from captured IDs: facade bands, windows, concrete, terminal screens, doors, crates, containers, lamps, pipe trim, Whom-Pah and memorial panels. Shared IDs receive the new artwork across zones; whole-game artwork coverage remains incomplete.
+- Weather controls for distant horizon haze, with independent clear and full distances. Nearby scenery and the upper sky remain clear; the horizon veil follows the zone/sky colour and stays off indoors and outside a game playfield.
+- Global terrain detail and global building material controls, with filtered world-space detail, every-tile terrain fallback and 2,631 inferred architecture profiles plus an opaque static/room fallback. Original biome boundaries and geometry remain; authored maps win and UI/known characters/effects are excluded. Twenty separate actual repaints cover Newland/shared architecture, glass windows and five picked terrain tiles. World texture style keeps the existing saved style key and adds the new optional world pack with reversible installation.
+- Six actual Cyber character texture repaints (scout torso, arms, legs, boots, helmet and back/shoulder armour), with generated source artwork and normal/ORM/emissive maps. They follow the character materials toggle and preserve original AO coverage/glow alpha at runtime. The source pack includes exact prompts and a reproducible bake; full-game artwork coverage remains in progress.
+- First character/equipment material foundation: an optional Materials toggle and response-strength slider, with 3,661 inferred resource assignments for skin, textiles, leather, polymers and metal equipment. Unresolved outfits use a non-metal baseline. Authored maps take priority; the catalog adds no material image allocations or zone-wide preload. Dynamic untagged character composites remain unchanged for a later mask pass.
+- Cyberpunk ICC style alongside Original and Classic HD, with 127 authored material assignments and new albedo/normal artwork on 18 surfaces: brushed metal, selected light inlays, plaza paving/asphalt/decking, grass ground and bark. It temporarily enables its required lighting and reflections and restores saved settings when switched away. Assets shared by other zones receive the same optional style; geometry and canopy art are unchanged.
 - Optional modern ICC material preview with six remastered architectural surfaces, generated source artwork, reproducible normal/ORM baking and a saved in-game toggle. The master Enhancements switch temporarily disables it. Pack files are verified and tracked by the transactional installer for safe updates and uninstall; original resource databases and personal packs remain unchanged.
 - Optional Halloween fog inspired by AO's original black Halloween atmosphere, with about 30 metres of visibility by default. Select it in the standalone options panel's Weather category; adjust distance, nearby brightness and drifting patches, or choose pale Mist or your own RGB colour. Chat, menus and held character labels remain outside the effect. Indoors are excluded unless enabled.
 - Local weather selection in Weather: Automatic, Clear, Overcast, Rain and Thunderstorm, with a strength control. Automatic keeps the game's weather and existing manual ini overrides; choosing another mode controls the enhanced clouds, rain and lightning. Return to Automatic to resume the game's weather.
@@ -13,6 +71,10 @@ What changed in each ao-vk release, newest first. Downloads and install notes: t
 - Standalone AO-VK options panel (Ctrl+Shift+F12 or the console's `options` command), with categories, keyboard adjustments, presets and saved settings; no AOReloaded menu required.
 
 ### Fixed
+- A new world repaint can replace an older ICC material-only assignment for the same texture ID. Existing ICC colour artwork and personal overrides retain priority.
+- Stop preloading an entire playfield's replacement terrain textures when Replacement ground is off. Reduce decoded-material caching and upload bursts, release the CPU cache under address-space pressure, and keep original materials if an optional decode cannot fit. Avoid growing mapped frame buffers when the 32-bit client is short of memory.
+- Prevent a crash when entering a busy zone such as ICC with enhanced smoke enabled: reserve its temporary graphics memory before starting the smoke pass, so a full buffer can be flushed safely. Smoke and the Cyberpunk material style remain available.
+- Apply normal and PBR maps to classic live's combined terrain draw using its stage-1 base texture, with correct highlight composition. Ground picking selects the base texture rather than the lighting texture; frame dumps identify texture resource IDs.
 - Preserve byte-identical graphics DLLs during updates, so an unrelated client using an unchanged shared loader does not need to close. Replacing or removing a shared loader still requires its users to close.
 - Suspend world rendering for minimized or zero-area windows and refresh presentation after restore, including clients that start minimized. Keep retrying swapchain creation if the surface temporarily has no extent. Stop frame recording on device/fence failure and report acquire, submit and present errors. A full GPU device loss still requires restarting the client.
 - Stop the render worker and frame-generation presentation when the render window is destroyed, before Windows tears down DLLs. Queue the worker's stop command to prevent a lost wake-up during shutdown; retained game graphics objects no longer keep presentation active until process termination.

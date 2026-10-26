@@ -5,6 +5,7 @@
 // buffer), Texture (one level of a mip chain; CPU shadow per level, uploaded on Unlock) and Plain
 // (system memory / offscreen plain: CPU only).
 #include "rvk_backend.h"
+#include "shadow_cache.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -57,10 +58,12 @@ void FillGpu(RSurface* s, const RECT* rect, uint32_t flags, uint32_t argb, float
 
 namespace {
 int g_gameTextures;                              // texture surfaces (top levels) holding a GPU texture
+uint64_t g_shadowBytesSaved = 0;
 }  // namespace
 
 // (Logged with the renderer's own texture count: the game holding them, or textures outliving their surfaces.)
 int GameTexturesAlive() { return g_gameTextures; }
+uint64_t TextureShadowBytesSaved() { return g_shadowBytesSaved; }
 
 RSurface::RSurface(Kind k, const DDSURFACEDESC2& d) : kind(k), desc(d)
 {
@@ -69,6 +72,8 @@ RSurface::RSurface(Kind k, const DDSURFACEDESC2& d) : kind(k), desc(d)
 
 RSurface::~RSurface()
 {
+    g_shadowBytesSaved -= shadowBytesSaved;
+    shadow_cache::GetBackingStore().Release(shadowFile);
     if (depth) depth->Release();
     if (clipper) clipper->Release();
     if (palette) palette->Release();
@@ -211,8 +216,43 @@ uint32_t RSurface::Pitch() const
 void RSurface::EnsureShadow()
 {
     size_t size = size_t(Pitch()) * rvk::FormatRows(format, desc.dwHeight);
-    if (shadow.size() != size)
-        shadow.assign(size, 0);
+    if (shadowFile.bytes) {
+        std::vector<uint8_t> packed;
+        if (!shadow_cache::GetBackingStore().Read(shadowFile,packed) || !shadow_cache::Restore(shadow,packed,size))
+            throw std::bad_alloc(); // the file remains valid for a later retry
+        shadow_cache::GetBackingStore().Release(shadowFile);
+    } else if (!shadow_cache::Restore(shadow, packedShadow, size))
+        throw std::bad_alloc(); // translated at the COM boundary; never expose invalid pixels
+    g_shadowBytesSaved -= shadowBytesSaved;
+    shadowBytesSaved = 0;
+}
+
+void RSurface::CompactShadow()
+{
+    static const bool enabled = [] {
+        const char* value = std::getenv("RANDYVK_SHADOW_CACHE");
+        return !(value && value[0] == '0');
+    }();
+    // Run once when a database texture has finished creation. Chat, dynamic
+    // composites, palettes, locked or not-yet-uploaded levels keep their raw copy.
+    if (!enabled || kind != Kind::Texture || m_locked || !gpuWhole || dirty || convert24 || palettized || !top->rdbId ||
+        shadowFile.bytes || !packedShadow.empty())
+        return;
+    const size_t before = shadow.size();
+    if (shadow_cache::Compact(shadow, packedShadow)) {
+        static const bool fileEnabled = [] {
+            const char* value=std::getenv("RANDYVK_SHADOW_FILE");
+            return !(value && value[0]=='0');
+        }();
+        if (fileEnabled) shadow_cache::GetBackingStore().Store(packedShadow,shadowFile);
+        shadowBytesSaved = before - packedShadow.size();
+        g_shadowBytesSaved += shadowBytesSaved;
+        static unsigned compacted = 0;
+        if (++compacted <= 8 || (compacted & (compacted - 1)) == 0)
+            RvkLog("texture CPU copy: compacted %u to %u resident bytes (%u levels; %.1f MB currently saved; %s)",
+                   unsigned(before), unsigned(packedShadow.size()), compacted,
+                   double(g_shadowBytesSaved) / (1024.0 * 1024.0), shadowFile.bytes ? "temporary file" : "memory fallback");
+    }
 }
 
 rvk::Texture* RSurface::RvkTexture()
@@ -234,7 +274,7 @@ rvk::Texture* RSurface::RvkTexture()
         AttachMaterialMaps(t);
         for (RSurface* l = t; l; l = l->nextLevel) {
             l->gpuWhole = false;                   // (a new image: its contents undefined until a whole upload)
-            t->anyDirty |= (l->dirty = !l->shadow.empty());
+            t->anyDirty |= (l->dirty = !l->shadow.empty() || !l->packedShadow.empty() || l->shadowFile.bytes);
         }
     }
     if (t->anyDirty) {                             // SetTexture is hot: walk the chain only when needed
@@ -287,6 +327,7 @@ void RSurface::Upload()
         return;
     rvk::ThreadedDevice* dev = g_rvk.device;
     RSurface* t = top;
+    if (!packedShadow.empty() || shadowFile.bytes) EnsureShadow();
     if (!dev || shadow.empty()) {
         dirty = !shadow.empty();
         t->anyDirty |= dirty;

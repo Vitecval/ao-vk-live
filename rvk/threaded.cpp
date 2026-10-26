@@ -823,19 +823,39 @@ void ThreadedDevice::SetNormalMap(Texture* texture, Texture* normal)
     Enqueue([this, texture, normal](const uint8_t*) { m_device.SetNormalMap(texture, normal); });
 }
 
-void ThreadedDevice::SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo)
+void ThreadedDevice::SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha)
 {
-    Enqueue([this, texture, orm, albedo](const uint8_t*) { m_device.SetMaterialMaps(texture, orm, albedo); });
+    Enqueue([this, texture, orm, albedo, preserveAlpha](const uint8_t*) { m_device.SetMaterialMaps(texture, orm, albedo, preserveAlpha); });
 }
 
-void ThreadedDevice::SetTextureRdbId(Texture* texture, uint32_t id)
+void ThreadedDevice::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour)
 {
-    Enqueue([this, texture, id](const uint8_t*) { m_device.SetTextureRdbId(texture, id); });
+    Enqueue([this, texture, id, type, buildingFamily, preserveGroundColour](const uint8_t*) { m_device.SetTextureRdbId(texture, id, type, buildingFamily, preserveGroundColour); });
+}
+
+void ThreadedDevice::SetBuildingFamilyReady(uint32_t family, bool ready)
+{
+    Enqueue([this, family, ready](const uint8_t*) { m_device.SetBuildingFamilyReady(family, ready); });
 }
 
 void ThreadedDevice::SetEmissiveMap(Texture* texture, Texture* emissive)
 {
     Enqueue([this, texture, emissive](const uint8_t*) { m_device.SetEmissiveMap(texture, emissive); });
+}
+
+void ThreadedDevice::ShareMaterialMaps(Texture* texture, Texture* source)
+{
+    Enqueue([this, texture, source](const uint8_t*) { m_device.ShareMaterialMaps(texture, source); });
+}
+
+void ThreadedDevice::PublishMaterialMaps(Texture* texture, Texture* normal, Texture* orm, Texture* albedo,
+                                       Texture* emissive, Texture* leaves, Texture* leavesNormal,
+                                       bool preserveAlpha, bool complete)
+{
+    Enqueue([=, this](const uint8_t*) {
+        m_device.PublishMaterialMaps(texture, normal, orm, albedo, emissive, leaves, leavesNormal,
+                                     preserveAlpha, complete);
+    });
 }
 
 void ThreadedDevice::SetFreeCam(const Device::FreeCamInput& in)

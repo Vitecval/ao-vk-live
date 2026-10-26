@@ -55,6 +55,14 @@ Texture* Device::CreateLut(uint32_t size, const uint8_t* rgba)
     vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
     vkCreateImageView(m_device, &vi, nullptr, &t->m_view);
 
+    // These 3D images bypass RealizeTexture. Track the allocation just like its
+    // 2D images: destruction already removes it from the memory counters.
+    VmaAllocationInfo allocationInfo;
+    vmaGetAllocationInfo(m_allocator, t->m_allocation, &allocationInfo);
+    t->m_bytes = allocationInfo.size;
+    m_textureBytes[0] += t->m_bytes;
+    ++m_textureCount[0];
+
     VkDeviceSize bytes = VkDeviceSize(size) * size * size * 4;
     EnsureRingSpace(bytes);
     VkCommandBuffer cmd = UploadCommands();

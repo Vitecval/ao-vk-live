@@ -197,7 +197,10 @@ def write_stubs():
             sig = ", ".join(f"{t} {n}" for t, n in params)
             args = ", ".join(n for _, n in params)
             lines.append(f"    COM_DECLSPEC_NOTHROW {ret} STDMETHODCALLTYPE {mname}({sig}) final")
-            lines.append(f"    {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}")
+            if ret == "HRESULT":
+                lines.append(f"    {{ return ComHresult([&]() -> HRESULT {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}); }}")
+            else:
+                lines.append(f"    {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}")
             unused = "".join(f"(void){n}; " for _, n in params)
             lines.append(f"    virtual {ret} Do{mname}({sig}) {{ {unused}return StubCall({idx}); }}")
             idx += 1

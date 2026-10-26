@@ -1,0 +1,14 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Edit target: this exact 4x4 grid of game paving textures. Every cell must remain exactly aligned at 25%,50%,75%, no margins or labels. Improve subtle honed-stone microdetail and clean joint relief, preserving the exact original tile counts, rectangular proportions, original grey/brown colours and all cracks/holes at exactly the same positions. These are five related paving inputs repeated across the sheet. The large grey 2x2 pavers must remain four plain stones; the small brown pavers keep their exact grid; the two broken variants keep their original damage and gravel cutout. Fine elegant mineral surface like a carefully finished civic plaza, no metal, no wet mirror finish, no new seams, no new ornamental borders or markings. Flat diffuse texture artwork, no scene, no cast lighting. 2048x2048.",
+  "input_roles": [
+    "private original manufactured-paving UV atlas as edit target"
+  ],
+  "ids": [
+    20,
+    23,
+    24,
+    25,
+    26
+  ]
+}

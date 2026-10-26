@@ -1,0 +1,1 @@
+All master artwork and provenance are retained. Restore byte-identical duplicate crops with python tools/restore-source-art.py, then run tools/bake-modern-icc.py, bake-cyber-icc.py, bake-character-art.py and bake-world-art.py (Pillow and NumPy). Runtime maps are also available in Full HD. No workspace originals were removed.

@@ -194,6 +194,8 @@ Device::~Device()
     if (m_blueNoise) DestroyTextureNow(m_blueNoise);
     if (m_flatNormal) DestroyTextureNow(m_flatNormal);
     if (m_rock.pending.valid()) m_rock.pending.wait();   // (the cliffs' rock: a decode still running finishes first)
+    if (m_sharedGround.pending.valid()) m_sharedGround.pending.wait();
+    for (Texture* t:m_sharedGround.images) DestroyTexture(t);
     for (Texture* t : {m_rock.albedo, m_rock.normal, m_rock.orm, m_native.codes, m_native.maps, m_native.means, m_native.lightmap, m_native.lightmapGrey, m_native.lightmapPrev, m_native.sky})
         if (t) DestroyTextureNow(t);
     for (auto& [key, sampler] : m_samplers) vkDestroySampler(m_device, sampler, nullptr);
@@ -1686,6 +1688,11 @@ void Device::BeginFrame()
     CollectGarbage();
     ApplyShadowResolution();
     ApplyRenderScale();
+    // Prefer a safe mid-frame flush over growing two mapped rings into the retail client's last address space.
+    MEMORYSTATUSEX ringMemory{};
+    ringMemory.dwLength = sizeof(ringMemory);
+    if (GlobalMemoryStatusEx(&ringMemory) && ringMemory.ullAvailVirtual < (512ull << 20))
+        m_ringWanted = kRingSize;
     if (!uploadsPending) {
         if (f.ringSize != m_ringWanted) {        // the slot is idle (waited for): a bigger (or again smaller) ring
             std::string error;
@@ -1851,6 +1858,7 @@ void Device::BeginFrame()
     // (The cliffs' rock uploaded once decoded: inside the frame - its several MB of uploads may need the ring flushed,
     // which waits on frame work only an open frame submits.)
     PollTerrainRock();
+    PollSharedTerrain();
 }
 
 void Device::EndFrame()

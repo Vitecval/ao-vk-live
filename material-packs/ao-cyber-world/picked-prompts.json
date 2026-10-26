@@ -1,0 +1,1206 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "Picked architecture plus captured foliage; preserve original identity and UV layout",
+  "assets": [
+    {
+      "type": 1010004,
+      "id": 42116,
+      "name": "applestyletrees_newleaves.png",
+      "picks": 2,
+      "captures": 10,
+      "draws": 500,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-42116-v3",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 296247,
+      "name": "npe_lobbydoor01_d.png",
+      "picks": 1,
+      "captures": 6,
+      "draws": 30,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-296247-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Pale warm concrete/ceramic doorway surround, central twin dark louvered sliding doors with exact hinge/slot positions. Clean satin graphite shutters and off-white microcement jambs. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 21516,
+      "name": "newclan_cleanwall_cracked_tileableplate.png",
+      "picks": 1,
+      "captures": 5,
+      "draws": 156,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-21516-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamlessly tiling warm sand concrete with subtle original stress cracks. Smoother coherent plaster faces and restrained natural cracks, no pebble grit or random new fractures. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 40591,
+      "name": "rome_plainconcrete.png",
+      "picks": 1,
+      "captures": 5,
+      "draws": 39,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-40591-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Uniform cool blue-grey Rome concrete, smoothly cast and subtly weathered. Preserve blue colour and tiling; no metallic finish, coarse gravel or new joints. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 7855,
+      "name": "hitech_darkplate_border.png",
+      "picks": 1,
+      "captures": 5,
+      "draws": 8,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "picked-7855-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide dark steel border with the existing three vertical pale spacers, small bolts and horizontal divisions. Brushed graphite steel and satin titanium spacers. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208054,
+      "name": "adonis_wall_border.png",
+      "picks": 1,
+      "captures": 4,
+      "draws": 174,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-208054-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Ancient Adonis dark green stone/oxidized architectural panel with the exact lower central blue gem and broad engraved border. Preserve all ancient ornament and proportions, clean coherent stone and copper detailing, gem remains small. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 209557,
+      "name": "01_plain_simple_adoniswalltile.png",
+      "picks": 1,
+      "captures": 4,
+      "draws": 166,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-209557-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamless dark green moss-stained Adonis stone/plaster, smoother coherent large surface and delicate restrained age. Preserve mottled dark green tone without gritty uniform noise. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 296212,
+      "name": "npe_detailwall01_d.png",
+      "picks": 1,
+      "captures": 4,
+      "draws": 35,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-296212-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square high-tech wall with exact parallel horizontal louver slats and silver banded horizontal frame strips at top and bottom. Modern brushed titanium edges and graphite slats, keep all coordinates. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 295615,
+      "name": "wh_tile04_d.png",
+      "picks": 1,
+      "captures": 4,
+      "draws": 34,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-295615-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Off-white square ceramic tile inset in dark brown metallic frame, narrow cracks near upper and lower edges. Refined ivory ceramic-coated plate and crisp original frame, no added ornament. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208052,
+      "name": "adonis_wall_basic.png",
+      "picks": 3,
+      "captures": 3,
+      "draws": 130,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-208052-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 Adonis rough brown-green ancient wall base. Refine into believable aged coherent stone, preserve colour and original understated side edge, no sci-fi seams or ornaments. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6064,
+      "name": "concretewall.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 59,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "picked-6064-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 pale grey concrete wall with original faint joints and dirt at bottom edge. Modern smooth cast architectural concrete, restrained seams and lower edge staining, no chunky grain. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 245289,
+      "name": "prison_pipe_section02.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 40,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "picked-245289-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 cylindrical pipe UV strip with original horizontal blue steel and rust bands. Brushed weathered steel, gently oxidized seams and smooth planar colour; flat strip artwork only, no cylinder mockup. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 245287,
+      "name": "prison_pipe_junction01.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 31,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "picked-245287-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 pipe junction/collar texture. Preserve exact horizontal rails and raised rib bands. Brushed stainless and oxidized bronze strips, clear construction without baked specular glare. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 21593,
+      "name": "factory_metal_roof.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 22,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-21593-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square industrial roof sheet with two original horizontal panel joints and bronze edge brackets. Modern olive graphite coated steel, smooth broad faces and crisp joint hardware. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 211101,
+      "name": "veins_browntile_darker_for_machinery.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 19,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-211101-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamless dark olive-brown organic stone/metal machinery coating, retain understated original vein shapes and dark colours. Smooth dense surface with subtle coherent mineral variation, no new circuitry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 287845,
+      "name": "bssup_pillar01.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 17,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        512,
+        512
+      ],
+      "source": "picked-287845-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square dark graphite pillar UV atlas, four dark side panels, one tall central copper inset with lower grille and two black narrow islands at bottom. Preserve each island exactly. Smooth coated dark titanium and polished copper inset, fine grille. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 295986,
+      "name": "icc_bridgegrating01_d.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 12,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-295986-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square ICC bridge grating, exact two columns of many horizontal narrow slots and thin perimeter frame. Satin graphite steel with crisp bevels and smooth metal flats. Keep all black openings exactly located and widths unchanged. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 9863,
+      "name": "tilerockdark.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-9863-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square warm brown natural rock paving with original angular fracture network. Sharpen existing large rock shapes, refined mineral colour, subtle edges and smooth natural flats. No extra cracks or microscopic grit. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 7853,
+      "name": "hitech_darkplatelightinmiddle.png",
+      "picks": 1,
+      "captures": 3,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-7853-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square graphite wall of two broad panels separated by a thin central bronze strip and tiny central vertical white light. Preserve light size and original horizontal seam, satin dark steel and soft opal diffuser. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 209659,
+      "name": "adonis_wall_basic_older.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 85,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-209659-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 aged Adonis wall, original narrow raised strips on both long sides. Refined dark green-brown ancient stone, readable side relief and smoother broad centre. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 209661,
+      "name": "02_plain_simple_adoniswalltilegreen.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 77,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-209661-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamless mossy dark green Adonis wall surface, coherent aged stone with restrained green variation. Keep base hue and natural aging without gravel/noise. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 245422,
+      "name": "prison_metal_03.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 51,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-245422-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 rusty steel base texture. Modern weathered stainless with deliberate restrained copper oxidation patches, smoother broad metal and seamless opposing edges; no new seams. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 209671,
+      "name": "adonis_wall_border_var1.png",
+      "picks": 2,
+      "captures": 2,
+      "draws": 49,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-209671-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square ancient dark green Adonis relief with exactly the central circular device, paired sweeping diagonal bands and original narrow base. Refined oxidized bronze/stone construction, preserve emblem and proportions. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 41146,
+      "name": "rome_archcitywall.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 47,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-41146-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 Rome wall, exact rounded stone arch right of centre against muted blue-grey concrete. Preserve arch curve, block positions and dark recessed infill. Clean smooth cast wall, subtly weathered stone arch and darker flat inset, not transparent glass. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 21524,
+      "name": "Circleoid-wallornam.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 43,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        32
+      ],
+      "source": "picked-21524-v2",
+      "prompt": "Edit this flat AO carved ivory organic ornament texture. Preserve original pattern of irregular oval cells, their positions and colours, improving fine surface craftsmanship. CRITICAL: stretch the ENTIRE ornament to fill the entire output canvas height and width. Deliberately distort the original 4:1 strip to fill a square or wide tool canvas; the game bake restores the ratio. Solid ivory/bone-coloured texture in all four corners, no surrounding white background, no white bars above or below. No frame, vignette, scene, caption or mockup. Soft even neutral light, matte aged ivory with refined pores and carved edges."
+    },
+    {
+      "type": 1010004,
+      "id": 295609,
+      "name": "wh_smalltile01_d.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 4,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-295609-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square atlas split into two tall off-white metal panels: left solid inset with four corner bolts, right horizontal shutter slats. Preserve exact UV split and all slat/bolt coordinates. Refined ivory ceramic-coated steel and dark frames. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6583,
+      "name": "vents.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "picked-6583-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Small square atlas with exactly three vertical steel vent tubes through a black centre band and tan upper/lower housing. Smooth brushed steel tubes and bronze housing, preserve black openings. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 41593,
+      "name": "glassopacgalwaybord_omni.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "picked-41593-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Small square smooth opaque blue glass pane. Clean deep blue architectural glazing, very subtle neutral broad tint. Remove painted diagonal glare streaks: true reflections come from runtime. No frame, seams, objects or opaque silver finish. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 300531,
+      "name": "unicorn_standard_door1.png",
+      "picks": 1,
+      "captures": 2,
+      "draws": 2,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-300531-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square teal graphite door atlas, exact central horizontal louver slats and angular light strips across top. Modern satin titanium door with clean teal tint, small cool white light inlays and preserved frame. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208718,
+      "name": "groundmetal2.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 8,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-208718-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 engraved ancient grey metal panel with original elongated angular ornamental structure and paired inset rails. Refined satin grey titanium and oxidized creases, preserve all glyph shapes, no new text or sci-fi parts. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 41377,
+      "name": "hull_texture_256x128_tileplates_green.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 6,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "picked-41377-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 muted green hull panel with original thin rectangular seams. Smooth green ceramic-coated metal, crisp existing seams, no new hardware, preserve understated green hue. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 218023,
+      "name": "Ash_groundtile_01.png",
+      "picks": 2,
+      "captures": 1,
+      "draws": 6,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-218023-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamless near-black volcanic ash/rock ground. Smooth fine basalt grains with coherent broader natural variation, no bright speckles, cracks, coal lumps or excessive microcontrast. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 121531,
+      "name": "metalll.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 4,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "picked-121531-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Small seamless grey metal strip texture. Smooth neutral satin steel, remove original painted glare shapes; runtime supplies highlights, no seams or added hardware. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208717,
+      "name": "sandmetall2.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 4,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-208717-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square warm sandy Adonis panel with original central circular/angular emblem and left metal border. Refined sandstone plaster face with carved existing relief and satin bronze border. Keep exact emblem and colour. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208719,
+      "name": "groundmetal3.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-208719-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square grey Adonis panel with exact central spoked circular emblem and original perimeter line. Smooth aged titanium around dark oxidized relief, preserve every spoke and the central round hub. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208722,
+      "name": "sandmetall1.png",
+      "picks": 2,
+      "captures": 1,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "picked-208722-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 warm sand metal plate, exact stylized angular engraved long relief and grey side borders. Smooth ceramic-coated bronze centre, satin grey titanium edging, preserve engraving. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208723,
+      "name": "sandmetall3.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 3,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-208723-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 1:1 warm sand plaster tile, fine original natural variation only. Smooth architectural microcement without metallic glare, cracks, noise or new seams. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 208721,
+      "name": "ground_metal1a.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 1,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        256
+      ],
+      "source": "picked-208721-v2",
+      "prompt": "Edit the supplied flat UV texture: grey titanium architectural strip with existing central angular groove and parallel side rails. Improve craftsmanship and satin brushed metal detail, preserve exact shape proportions relative to the FULL source. CRITICAL: expand the GREY METAL to fill the ENTIRE output canvas width and height, deliberately stretching its 1:4 ratio horizontally if necessary. The game bake will restore the original thin ratio. No white anywhere, no white margins, no detached narrow object centred on a background. Full-bleed rectangular GREY METAL texture from edge to edge, same restrained grey tones, no baked dramatic glare or shadow."
+    },
+    {
+      "type": 1010004,
+      "id": 206286,
+      "name": "jungle_tree_barky_stressed2.png",
+      "picks": 2,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-206286-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 206288,
+      "name": "new_leaves_cluster2.png",
+      "picks": 2,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-206288-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 42597,
+      "name": "edge_lupper_tiledown.png",
+      "picks": 1,
+      "captures": 1,
+      "draws": 1,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-42597-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square pale warm grey wall/paving plaster with original soft broad patches. Smooth high quality microcement, coherent low contrast tone, minimal dirt, no new joints or gritty grain. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 225783,
+      "name": "inferno_frozen_jungletrees_trunk_new.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-225783-v2",
+      "prompt": "Edit the first AO bark texture using the SECOND image as a craftsmanship reference. Paint a full rectangular dark grey charred tree-bark UV texture, with clearly visible large angular bark scales, fissures and the first reference's sparse tiny red ember cracks. The entire rectangle must be bark: NO black empty background, no isolated glowing fragments. Match original ridge positions as closely as possible, dark stone-grey bark visible across ALL pixels with subtle neutral ambient illumination; original ember placement retained. Flat diffuse texture, not a picture of a trunk, no bloom, no frame, no vignette. Stretch the bark texture to fill the entire tool canvas; the game restores the original 1:2 aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 215421,
+      "name": "test_didriks_fancywall.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-215421-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 ornate Jobe wall atlas, central narrow arched door, blue vertical background and pale intertwined vertical gold/ivory ribs. Preserve original intricate ornamental routes, exact arched door and central inset. Fine glazed blue ceramic, satin aged pale brass/ivory trim, no new motifs. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 215146,
+      "name": "dark_metal_plates_ligths_short.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "picked-215146-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Wide 2:1 dark blue graphite panel, original faint central joint, narrow top trim and small central blue half-circle lamp at top. Smooth satin blue titanium, preserve tiny luminous inlay, no new neon or text. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 10589,
+      "name": "hitech_silkcouchsidematerialsouter.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "picked-10589-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 dark blue couch-side material, original broad horizontal fabric bands. Fine soft woven upholstery, understated dark blue, preserve original look; no metal, hard panels or bright shine. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 85813,
+      "name": "thegridmaintex_pillar1.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        32,
+        256
+      ],
+      "source": "picked-85813-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Extremely tall 1:8 grid pillar surface, a simple smooth blue-grey gradient with cyan at top. Preserve exact unobstructed gradient and original colour layout, no panels or hardware. This is a graphic surface rather than physical metal. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 214233,
+      "name": "jobe_metal_stripe-plates_dark.png",
+      "picks": 3,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-214233-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Square dark blue-grey Jobe metal plate with exact thin double horizontal recessed strip at y=.4 and faint original vertical joint. Smooth ceramic-coated blue titanium and crisp satin trim, restrained wear. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 215149,
+      "name": "dark_blue_roof.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-215149-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Seamless dark desaturated blue roof material. Smooth painted blue graphite steel with restrained broad tonal aging, no new seams, rivets or painted glare. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 300546,
+      "name": "icc_door01.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "picked-300546-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 ICC doorway atlas, exact broad dark blue louvered door centre, textured grey side jambs, small green left keypad and amber top lamp. Modern satin graphite metal, refined keypad and opal amber diffuser, preserve all locations and existing marking shapes. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6251,
+      "name": "jungleleaves.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "picked-6251-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 215151,
+      "name": "door_frame_tile-up_jobe.png",
+      "picks": 1,
+      "captures": 0,
+      "draws": 0,
+      "architecture": true,
+      "foliage": false,
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "picked-215151-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Tall 1:2 Jobe door-frame stripe texture with exact repeating vertical pale ridges and grey recesses. Refined ivory stone/ceramic ribs with crisp shadow-free surface detail, no metal glare. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6269,
+      "name": "leaves_hires.png",
+      "picks": 0,
+      "captures": 8,
+      "draws": 169,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-6269-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 207810,
+      "name": "inferno_frozen_jungletrees_trunk_BACKUP.png",
+      "picks": 0,
+      "captures": 6,
+      "draws": 35,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-207810-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6300,
+      "name": "bigdeserttree.png",
+      "picks": 0,
+      "captures": 6,
+      "draws": 27,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-6300-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 42065,
+      "name": "mcclean_leaves.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 156,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-42065-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 26302,
+      "name": "dryleaves.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 22,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-26302-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 6303,
+      "name": "deserttree_bark2.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 21,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-6303-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6304,
+      "name": "deserttree_peeledbark2.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 21,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-6304-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 26303,
+      "name": "deserttree_bark.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 14,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-26303-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 210469,
+      "name": "inferno_frozen_jungletrees_trunk_BACKUP2.png",
+      "picks": 0,
+      "captures": 4,
+      "draws": 10,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-210469-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 24590,
+      "name": "frazettatreeleaves.png",
+      "picks": 0,
+      "captures": 3,
+      "draws": 39,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-24590-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 26301,
+      "name": "deserttree_smallestleaves.png",
+      "picks": 0,
+      "captures": 3,
+      "draws": 12,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-26301-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 257704,
+      "name": "branch.png",
+      "picks": 0,
+      "captures": 3,
+      "draws": 10,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-257704-v2",
+      "prompt": "Edit this AO autumn branch texture. Output a full rectangular dense autumn leaf-colour UV atlas with the original golden-orange, brown and red leaf colours, original branch directions and small leaf scale. Extend the matching coloured foliage into ALL four corners, no dark empty background and no circular silhouette. The game applies the original separate alpha mask. Refined botanical leaf veins and natural warm variations, even diffuse albedo, no dramatic light, no film grain, no scene or margins."
+    },
+    {
+      "type": 1010004,
+      "id": 207783,
+      "name": "inferno_frozen_jungletrees_trunk.png",
+      "picks": 0,
+      "captures": 3,
+      "draws": 4,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-207783-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 20983,
+      "name": "curvedtrees_leave1_opac.png",
+      "picks": 0,
+      "captures": 2,
+      "draws": 69,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-20983-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 121030,
+      "name": "megatall swamptree_leaves.png",
+      "picks": 0,
+      "captures": 2,
+      "draws": 62,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "picked-121030-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 156669,
+      "name": "bartreee.png",
+      "picks": 0,
+      "captures": 2,
+      "draws": 2,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "picked-156669-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 214905,
+      "name": "rottingtree_lars.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 27,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-214905-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 25896,
+      "name": "big_leaf_redrange_no_opac.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 3,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        32,
+        128
+      ],
+      "source": "picked-25896-v2",
+      "prompt": "Edit this AO SINGLE-LEAF UV texture. Output an extreme close-up of ONE continuous leaf surface that fills the ENTIRE canvas. ONE central vertical main rib at x=.5, lateral branching veins toward the side edges, keeping the original vein directions and a continuous gradient from golden yellow at the top through warm orange in the middle to coral pink at the bottom. CRITICAL: no pattern of multiple leaves, no overlapping leaves, no mosaic, no canopy. One very large leaf filling the whole rectangle. Extend leaf colour all the way to every edge, no black background, no margins, no isolated leaf outline or stem outside the rectangle. AO restores its original separate alpha mask to recover the original single-leaf silhouette and stem. Fine realistic botanical vein detail, subtle natural waxiness, soft even diffuse light, no metallic glare or baked shadows. Stretch the single surface to fill the tool canvas; the game bake restores original dimensions."
+    },
+    {
+      "type": 1010004,
+      "id": 25895,
+      "name": "big_smooth_leaf_dark.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 3,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        32,
+        128
+      ],
+      "source": "picked-25895-v2",
+      "prompt": "Edit this AO SINGLE-LEAF UV texture. Output an extreme close-up of ONE continuous leaf surface that fills the ENTIRE canvas. ONE central vertical main rib at x=.5, lateral branching veins toward the side edges, keeping the original vein directions and the original fresh natural green tones. CRITICAL: no pattern of multiple leaves, no overlapping leaves, no mosaic, no canopy. One very large leaf filling the whole rectangle. Extend leaf colour all the way to every edge, no black background, no margins, no isolated leaf outline or stem outside the rectangle. AO restores its original separate alpha mask to recover the original single-leaf silhouette and stem. Fine realistic botanical vein detail, subtle natural waxiness, soft even diffuse light, no metallic glare or baked shadows. Stretch the single surface to fill the tool canvas; the game bake restores original dimensions."
+    },
+    {
+      "type": 1010004,
+      "id": 9867,
+      "name": "bigplantleaf.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 2,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "picked-9867-v2",
+      "prompt": "Edit this AO SINGLE-LEAF UV texture. Output an extreme close-up of ONE continuous leaf surface that fills the ENTIRE canvas. ONE central vertical main rib at x=.5, lateral branching veins toward the side edges, keeping the original vein directions and the original muted green-gold leaf tones. CRITICAL: no pattern of multiple leaves, no overlapping leaves, no mosaic, no canopy. One very large leaf filling the whole rectangle. Extend leaf colour all the way to every edge, no black background, no margins, no isolated leaf outline or stem outside the rectangle. AO restores its original separate alpha mask to recover the original single-leaf silhouette and stem. Fine realistic botanical vein detail, subtle natural waxiness, soft even diffuse light, no metallic glare or baked shadows. Stretch the single surface to fill the tool canvas; the game bake restores original dimensions."
+    },
+    {
+      "type": 1010004,
+      "id": 244347,
+      "name": "jungle_tree_barky_stressed_white.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        256,
+        512
+      ],
+      "source": "picked-244347-v1",
+      "prompt": "Use case: style-transfer. Edit this exact Anarchy Online flat UV texture as a production replacement. Natural tree bark UV strip. Preserve exact original bark ridges, cracks, climbing vines, peeled boundary shapes, glow flecks if any and colour family. Improve into coherent detailed organic bark with smooth natural relief and restrained fine detail. Keep all tiling edges consistent and UV features at their current positions. No sci-fi treatment, metal, leaf additions or changed geometry. Keep original identity, layout, proportions and overall colours. The user's gear must retain original designs; this batch is environment artwork. Improve materials and clarity, keep broad faces smooth, place detail at actual edges, veins, joints and hardware. Albedo under soft neutral illumination: no baked highlights, harsh shadows, bloom, film grain or vignetting. Do not add words, symbols, new openings or surface subdivisions. Output just the texture, covering the entire canvas edge to edge. No scene, model render, mockup, margin, framing or letterboxing. If canvas ratio differs, stretch the entire UV layout to fill it; the bake restores the original ratio. Original leaf backgrounds and gaps must be preserved instead of replaced with transparency."
+    },
+    {
+      "type": 1010004,
+      "id": 6268,
+      "name": "leaves.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        32,
+        128
+      ],
+      "source": "picked-6268-v1",
+      "prompt": "Use case: production game texture repaint. Edit the provided AO foliage texture into a FULL-CANVAS RECTANGULAR LEAF-COLOUR ATLAS. CRITICAL: repaint ALL dark/black/empty background with dense matching leaf detail too. Every corner and every edge must be covered in leafy colour. NO black pixels, no empty border, no isolated circular bush, no silhouette, no arranged bouquet. The game applies its ORIGINAL separate alpha mask at runtime to recover the correct shape; this RGB source needs full colour behind that mask. Keep original green/olive/dry/pink hue, leaf scale and vein/branch direction recognizable, but extend leaf-coloured texture throughout the WHOLE image. Crisp natural botanical veins, restrained waxy highlights, believable subtle leaf variation. Preserve original broad vein routes for individual-leaf references; for clusters make dense matching small leaves right into all four corners. Flat diffuse albedo, neutral soft illumination, no shadows between leaves that turn black, no chrome, no dramatic lighting, no lettering or framing. Fill the entire output rectangle edge to edge, stretching to the tool canvas if necessary; the game bake restores aspect ratio."
+    },
+    {
+      "type": 1010004,
+      "id": 26305,
+      "name": "pink_jungleleaf_opac.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "picked-26305-v2",
+      "prompt": "Edit this AO SINGLE-LEAF UV texture. Output an extreme close-up of ONE continuous leaf surface that fills the ENTIRE canvas. ONE central vertical main rib at x=.5, lateral branching veins toward the side edges, keeping the original vein directions and bright pink and pale magenta with the original delicate pale vein network. CRITICAL: no pattern of multiple leaves, no overlapping leaves, no mosaic, no canopy. One very large leaf filling the whole rectangle. Extend leaf colour all the way to every edge, no black background, no margins, no isolated leaf outline or stem outside the rectangle. AO restores its original separate alpha mask to recover the original single-leaf silhouette and stem. Fine realistic botanical vein detail, subtle natural waxiness, soft even diffuse light, no metallic glare or baked shadows. Stretch the single surface to fill the tool canvas; the game bake restores original dimensions."
+    },
+    {
+      "type": 1010004,
+      "id": 44526,
+      "name": "leaf.png",
+      "picks": 0,
+      "captures": 1,
+      "draws": 1,
+      "architecture": false,
+      "foliage": true,
+      "original_size": [
+        32,
+        128
+      ],
+      "source": "picked-44526-v2",
+      "prompt": "Edit this AO SINGLE-LEAF UV texture. Output an extreme close-up of ONE continuous leaf surface that fills the ENTIRE canvas. ONE central vertical main rib at x=.5, lateral branching veins toward the side edges, keeping the original vein directions and the original fresh natural green tones. CRITICAL: no pattern of multiple leaves, no overlapping leaves, no mosaic, no canopy. One very large leaf filling the whole rectangle. Extend leaf colour all the way to every edge, no black background, no margins, no isolated leaf outline or stem outside the rectangle. AO restores its original separate alpha mask to recover the original single-leaf silhouette and stem. Fine realistic botanical vein detail, subtle natural waxiness, soft even diffuse light, no metallic glare or baked shadows. Stretch the single surface to fill the tool canvas; the game bake restores original dimensions."
+    }
+  ]
+}

@@ -962,6 +962,16 @@ bool Device::IsMultiplyPass() const
            ((src == d3d::BLEND_ZERO && dst == d3d::BLEND_SRCCOLOR) || (src == d3d::BLEND_DESTCOLOR && dst == d3d::BLEND_ZERO));
 }
 
+bool Device::IsCombinedTerrainPass() const
+{
+    using namespace d3d;
+    return !m_native.drawing && m_rs[RS_LIGHTING] && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
+           m_tss[0][TSS_COLOROP] == TOP_ADD && m_tss[0][TSS_COLORARG1] == TA_TEXTURE && m_tss[0][TSS_COLORARG2] == TA_DIFFUSE &&
+           m_tss[1][TSS_COLOROP] == TOP_MODULATE && m_tss[1][TSS_COLORARG1] == TA_TEXTURE && m_tss[1][TSS_COLORARG2] == TA_CURRENT &&
+           m_tss[0][TSS_TEXCOORDINDEX] == 1 && m_tss[1][TSS_TEXCOORDINDEX] == 0 &&
+           m_tss[0][TSS_TEXTURETRANSFORMFLAGS] == 0 && m_tss[1][TSS_TEXTURETRANSFORMFLAGS] == 0;
+}
+
 // The ground's lightmap + lights pass (multiplying the base pass): the shadow darkens its lightmap - the baked
 // sunlight - before the lights are added and the sum is clamped, so a light (the player's) fills shadows in:
 // ground = base * min(1, lightmap * shadow + ambient + lights).
@@ -1277,7 +1287,8 @@ void Device::BindShadowItem(VkCommandBuffer cmd, ShadowBind& bind, const ShadowI
         bind.texOffset = item.texOffset;
     }
     // Every caster binds a texture: the vertex shader may read it (sway.glsl); casters without one get a stand-in.
-    Texture* texture = item.texture ? (item.texture->m_albedoMap && m_pbr.albedoMaps ? item.texture->m_albedoMap : item.texture) : m_blackTexture;
+    Texture* texture = item.texture ? (item.texture->m_albedoMap && m_pbr.albedoMaps && !item.texture->m_preserveAlbedoAlpha
+                                      ? item.texture->m_albedoMap : item.texture) : m_blackTexture;
     if (texture != bind.texture) {
         VkDescriptorImageInfo image{SamplerFor(0), texture->m_view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkWriteDescriptorSet w{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};

@@ -1,0 +1,424 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "style-transfer edits with original UV-layout references",
+  "assets": [
+    {
+      "id": 82017,
+      "type": 1010004,
+      "name": "factoryitem_plate4.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "city-82017-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square dark steel factory panel. Preserve its plain inset broad central face, slim beveled perimeter and all edge positions. Cool brushed gunmetal, clean restrained wear, fine welds. Keep center quiet. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 82020,
+      "type": 1010004,
+      "name": "screenmaterial.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "city-82020-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 inset terminal screen. Preserve the nearly black screen over the full atlas. Add refined dark cyan display glass, faint readable technical lines and small status blocks, subtle edge bezel. No big text, no bright bloom, no external device. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 82024,
+      "type": 1010004,
+      "name": "factoryitem_plate3.png",
+      "original_size": [
+        64,
+        16
+      ],
+      "source": "city-82024-v2",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A very wide 4:1 narrow dark metal machine trim. Preserve the two small rectangular recesses and their exact positions along the central upper strip. Machined gunmetal, clean seams, restrained tiny amber indicators. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture. CRITICAL OUTPUT: absolutely no white borders, black borders, letterboxing, blank margins or background padding. The texture must fill every pixel to all four canvas edges. If the tool canvas is less wide than the source's 4:1 atlas, stretch the atlas to fill the canvas; the game's material bake will restore its original 4:1 ratio. Do not add any framing outside the texture."
+    },
+    {
+      "id": 82022,
+      "type": 1010004,
+      "name": "factoryitem_plate5.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-82022-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square factory housing atlas with most space plain dark steel, a small protruding mechanical box occupying the lower middle. Preserve every panel and the box face boundaries exactly. Replace rusty mush with crisp machined steel, dark gasket joints, subtle amber diagnostic details. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6085,
+      "type": 1010004,
+      "name": "glowplate.png",
+      "original_size": [
+        64,
+        32
+      ],
+      "source": "city-6085-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 luminous cyan light diffuser texture. Keep the entire original footprint luminous cyan with clear manufactured frosted glass, elegant subtle internal horizontal light-guide lines and soft even illumination; no scenery or big hot bloom. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6082,
+      "type": 1010004,
+      "name": "wallwith bars2.png",
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "city-6082-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 weathered wall band. Upper half broad taupe/bronze metal cladding, continuous narrow horizontal dark seam across the middle; lower half preserves evenly spaced exposed vertical copper service pipes in dark slots. Crisp steel bands, clean fitted copper pipework, subtle weathering, no added windows. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6069,
+      "type": 1010004,
+      "name": "wallwindows.png",
+      "original_size": [
+        256,
+        64
+      ],
+      "source": "city-6069-v2",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 4:1 wide facade strip. Preserve the two narrow tall dark blue window panes near x=.38 and x=.9, the horizontal wall grid and all proportions. New satin warm grey wall panels with fine industrial seams; smooth dark smoked glass with faint interior layers; bronze metal window frames. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture. CRITICAL OUTPUT: absolutely no white borders, black borders, letterboxing, blank margins or background padding. The texture must fill every pixel to all four canvas edges. If the tool canvas is less wide than the source's 4:1 atlas, stretch the atlas to fill the canvas; the game's material bake will restore its original 4:1 ratio. Do not add any framing outside the texture."
+    },
+    {
+      "id": 6060,
+      "type": 1010004,
+      "name": "yelplatewindow.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-6060-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square facade with a single broad dark rectangular window, bright horizontal light along its top, bronze lower sill and pale stone border. Preserve pane opening and all UV borders exactly. Modern smoked glass, detailed anodized metal framing, restrained warm-white strip light. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6186,
+      "type": 1010004,
+      "name": "bright_light_2sq.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "city-6186-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square fixture face with a warm white luminous square split vertically by a thin dark central bar, dark bronze square frame. Keep exact footprint, smooth opal diffuser and precise machined trim, no gritty lighting gradients. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6094,
+      "type": 1010004,
+      "name": "brushedmetalrustypatches.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-6094-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square ribbed metal wall: preserve two dark vertical recessed channels dividing three broad vertical metal strips. Cool brushed steel with restrained bronze oxidation at joins, proper roughness cues, crisp edges, no gritty uniform noise. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 19808,
+      "type": 1010004,
+      "name": "ent_towermetalplate_simpel.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-19808-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square large flat industrial tower plate with rivets forming a rectangular border near edges. Preserve rivet locations and inset border. Deep blue graphite satin steel, subtle brushed finish, precise fasteners, controlled edge wear. Center stays broad and quiet. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 42564,
+      "type": 1010004,
+      "name": "betongwall_256x256_new_low_edge2.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-42564-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square pale concrete wall with a thin horizontal dark expansion joint very near its lower edge. Preserve layout and seam height exactly. Modern ivory precast architectural concrete, restrained fine pores, clean understated weathering and a crisp metal base trim. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 30012,
+      "type": 1010004,
+      "name": "betongwall_256x128.png",
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "city-30012-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 pale grey concrete wall panel. Preserve the continuous narrow horizontal bevel/joint approximately one-third down. Smooth fine architectural cast concrete with restrained patina and precise linear seam, no large cracks or heavy grain. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 30014,
+      "type": 1010004,
+      "name": "trading_outpost_256x128_tall_window.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "city-30014-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 pale concrete wall with a tiny narrow vertical dark window opening at upper-middle. Preserve exact opening position, size, shape and top bevel line. Modern clean ivory concrete, dark smoked glass pane with recessed brushed-metal frame, subtle weathering. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 9523,
+      "type": 1010004,
+      "name": "Fine_steel_boxfront1.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-9523-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square hard-surface steel cargo-box FRONT atlas. Preserve each inset, latch, side hinge and panel border. Keep the orange serial label 1284a1 in the same upper central label area. New brushed titanium and dark graphite panels, orange utilitarian markings, precise mechanisms, modest wear. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 9522,
+      "type": 1010004,
+      "name": "Fine_steel_boxtop.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-9522-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square hard-surface steel cargo-box TOP atlas. Preserve all rectangular raised/inset panels, crossbraces, and side latch positions. Match brushed titanium and graphite industrial shipping box finish, crisp metallic bevels and gaskets. No new lettering. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 33201,
+      "type": 1010004,
+      "name": "wood_crates.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "city-33201-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 wooden shipping crate side with diagonal timber reinforcement in each stacked half. Preserve every brace direction and corner/center frame. High quality natural aged timber with believable fine grain, dark steel fasteners, moderate wear, no metal conversion. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 18505,
+      "type": 1010004,
+      "name": "container_medium-yellow.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-18505-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square shipping container UV atlas: two large vertically ribbed yellow-olive door rectangles stacked on left two-thirds, smaller vent and latches on right third. Preserve every island, seam and latch location exactly. Modern weathered ochre industrial container, crisp ribbing, gunmetal hardware, fine serial stencils only in existing label spots. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 14636,
+      "type": 1010004,
+      "name": "mainbuildingplate_darkdesaturatedgreen_dark.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-14636-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square seamless flat DARK desaturated olive-green architectural metal panel. Preserve broad plainness and subtle original tonal balance. Refined satin powdercoat over steel with tiny restrained wear, subtle low-contrast microfinish, no new seams, no noise blotches. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 14263,
+      "type": 1010004,
+      "name": "mainbuildingplate_darkdesaturatedgreen.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-14263-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square seamless muted olive-green architectural metal panel, the LIGHTER companion of the dark green panel. Refined satin powdercoat with subtle material texture and gentle service wear, keep original overall olive-grey hue and plain tiling, no added seams or coarse noise. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 21520,
+      "type": 1010004,
+      "name": "newclan_cleanwall_cracked_upperfringe.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-21520-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square clan-city warm beige plaster/concrete facade. Preserve the darker narrow upper fringe, fine vertical divisions and a few fine structural cracks. New carefully finished warm sandstone concrete with subtle believable weathering, thin joints, no noisy rough stucco or oversized cracks. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 21578,
+      "type": 1010004,
+      "name": "Wall-plain-sign.png",
+      "original_size": [
+        128,
+        256
+      ],
+      "source": "city-21578-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 clan facade atlas. Upper third has a small ochre emblem surrounded by a curved off-white raised band sweeping down then up; lower two-thirds plain vertical warm plaster. Preserve the EXACT white band silhouette and emblem layout without inventing typography. Refined warm stone, smooth ceramic trim, restrained metallic emblem. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 21539,
+      "type": 1010004,
+      "name": "newclan_cleanwall_cracked_upperwhiteborder.png",
+      "original_size": [
+        256,
+        128
+      ],
+      "source": "city-21539-v2",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 warm stone facade with a white horizontal top cornice and a small central recessed vent/window with orange horizontal slats. Preserve the vent opening and all borders exactly. Clean ivory stone, crisp pale ceramic cornice, metallic orange louvers and dark recess. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture. CRITICAL: make a full rectangular facade atlas, filled edge-to-edge with the surrounding warm beige wall. A continuous straight white cornice spans the full top edge. A SMALL RECTANGULAR louvered vent sits near upper centre. Do not isolate or enlarge the vent. Absolutely no circle, circular crop, cutout, black background, white margins or blank padding. If canvas aspect differs from source, stretch the full atlas to fill it; the game bake restores the 2:1 ratio."
+    },
+    {
+      "id": 21522,
+      "type": 1010004,
+      "name": "2wall-clean_tileable.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-21522-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square seamlessly tiling warm beige plaster/stone wall. Keep its broad simple surface and subtle original color. Modern high-resolution fine architectural concrete with delicate pores and a few hairline weathering traces, no heavy noise, no coarse bumps, no panel seams. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 6112,
+      "type": 1010004,
+      "name": "squarerimmedglowwhite.png",
+      "original_size": [
+        32,
+        64
+      ],
+      "source": "city-6112-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 rectangular warm white lamp diffuser with a very slim pale grey frame. Preserve full illuminated area and footprint. Smooth translucent opal lighting panel, soft manufactured edges, subtle internal light falloff, no grunge or bloom spilling beyond texture. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 295926,
+      "type": 1010004,
+      "name": "container_large_khaki.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-295926-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square shipping container UV atlas in khaki and charcoal. Preserve long vertical ribs in upper-left, large rectangular panel upper-right, ladder lower-middle-left, door lower-middle-right and slatted vent lower-right, all island positions exact. Premium industrial sci-fi container, satin khaki paint, sharp graphite hardware, restrained scratches. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 32525,
+      "type": 1010004,
+      "name": "4h_entrancedoor.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-32525-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square industrial sliding doorway atlas. Preserve broad dark blue sliding panels, upper horizontal vent, central mid-height structural seam, and small square keypad on right of center. Modern graphite blue steel, sharply machined seams, recessed copper contacts, dim cyan keypad screen, no added windows. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 32526,
+      "type": 1010004,
+      "name": "4h_insidetechypart.png",
+      "original_size": [
+        64,
+        32
+      ],
+      "source": "city-32526-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 dark horizontal industrial machinery strip. Preserve narrow black upper and lower bands, segmented central steel channels and symmetry. Detailed clean gunmetal heat exchanger, dark gaskets, precise tiny copper connections, no large bright light accents. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 5992,
+      "type": 1010004,
+      "name": "shinystriped.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-5992-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square seamlessly repeating corrugated metal surface with closely spaced straight vertical ribs. Match exact rhythm and proportions. Refined brushed galvanized steel with subtle warm patina in valleys and crisp highlights intrinsic to material, no heavy grunge or random high-contrast grain. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 18556,
+      "type": 1010004,
+      "name": "slum_dirtywall.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-18556-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square dark grey weathered plaster wall. Preserve broad uninterrupted surface and tileability. Detailed but smoother urban concrete with delicate mottling, damp streaks and realistic fine pores, controlled wear, no large added features or gritty sharpening. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 42560,
+      "type": 1010004,
+      "name": "betongwall_256x256_new_low_edge_window.png",
+      "original_size": [
+        256,
+        256
+      ],
+      "source": "city-42560-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square pale concrete wall atlas with tiny narrow vertical window centered and a horizontal dark base joint near bottom. Keep exact window and base joint positions, no resize of opening. Smooth ivory cast concrete, smoked glass slit, precision graphite window surround, restrained service wear. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 42555,
+      "type": 1010004,
+      "name": "woodcrate_box.png",
+      "original_size": [
+        128,
+        64
+      ],
+      "source": "city-42555-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A 2:1 shipping crate wooden plank face, vertical timber boards bounded by horizontal rails at top and bottom. Preserve plank layout. Beautiful realistic aged warm wood, fine restrained grain, small dark steel pins, authentic fiber detail, no added neon or metal panels. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 42554,
+      "type": 1010004,
+      "name": "fruit_cratestuff.png",
+      "original_size": [
+        64,
+        64
+      ],
+      "source": "city-42554-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square top-down fruit-crate contents texture tightly packed with many small red, purple and green round fruits. Preserve the full coverage and small object scale. Photorealistic fresh produce with natural skin variation and gentle ambient shading, realistic organic surfaces, no text or container rim added. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 29484,
+      "type": 1010004,
+      "name": "woodwall_128_dirty.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-29484-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square tiling vertical wooden wall with narrow boards and thin vertical seams. Preserve board directions and boundary alignment. Weathered warm oak/brown planks, natural fibers and restrained tiny fasteners, subtle tasteful wear, no synthetic neon or metal conversion. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 30004,
+      "type": 1010004,
+      "name": "tubetoppart_metall.png",
+      "original_size": [
+        64,
+        128
+      ],
+      "source": "city-30004-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A tall 1:2 industrial pipe-cap atlas. Top quarter broad dark steel band with yellow-black diagonal hazard stripes; middle half two broad metal bands; lower quarter three silver vertical pipe ends against black. Preserve exact islands and hazard stripe direction. Crisp brushed steel, proper dark gaskets and fresh restrained warning paint. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 297464,
+      "type": 1010004,
+      "name": "whompa_new_icc_d.png",
+      "original_size": [
+        512,
+        512
+      ],
+      "source": "city-297464-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square complex teleport terminal UV atlas. Strictly preserve EVERY UV island location: two black round sockets upper-left, a dark irregular upper-left-middle cutout, raised pale square upper-right, four adjacent upright dark vent/front rectangles in middle-right, narrow vertical black grilles middle-left, stacked horizontal rails and tiny square details in lower half. Refined ICC-style pearl grey metal and graphite, tiny cyan or amber inlays only within existing trim; no new text, holes or perspective. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    },
+    {
+      "id": 31973,
+      "type": 1010004,
+      "name": "omni_gravstotte_ilum.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-31973-v2",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square blue-grey corporate memorial/terminal face. Preserve the original centered turquoise abstract symbol exactly and all surrounding panel lines. Refined blue satin metal and dark glass layered plaque, clean cyan luminous symbol with restrained glow confined to its shape, no text or new icons. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture. CRITICAL: this is a SQUARE FULLY FILLED WALL ATLAS, not a picture of an isolated plaque. Preserve the square rectangular wall shape. No circular frame, rounded outline, perspective, black background, transparent cutout or empty corners. The blue panel material MUST fill all four corners. Keep the original cyan emblem at precisely the same size and location."
+    },
+    {
+      "id": 31974,
+      "type": 1010004,
+      "name": "omni_gravstotte.png",
+      "original_size": [
+        128,
+        128
+      ],
+      "source": "city-31974-v1",
+      "prompt": "Use case: style-transfer. Asset type: production game texture, flat UV atlas, not a scene. Input image: EDIT TARGET and strict UV layout reference. Repaint this Anarchy Online building/prop texture in the polished industrial science-fiction style of the user's modernized ICC, with realistic material detail comparable to modern cyberpunk games while preserving AO's identity. A square blue-grey corporate memorial/terminal face, same original centered turquoise abstract symbol and panel-line geometry. Preserve symbol exactly. Refined satin blue metal and layered dark glass, quieter unlit turquoise enamel symbol, minimal emissive-looking highlight, no big bloom, no text or new icons. Preserve original aspect ratio, straight-on orthographic layout, silhouette, all island boundaries, blank areas and tiling edges EXACTLY. Material/albedo artwork only: soft neutral illumination; do not bake dramatic reflections, directional shadows, ambient occlusion halos, bloom, blur or artificial film grain. Smooth clean readable surfaces, moderate physical wear, not gritty. No 3D presentation, no surroundings, no captions or logos beyond existing marked motifs. Fill the image with only the upgraded texture."
+    }
+  ]
+}

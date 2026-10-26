@@ -16,6 +16,7 @@
 // night; the sun shades, backlights and glints on the blades on top. Drawn into the scene before the game's blended
 // draws (DrawGrassTiles). With RVK_GrassOn off nothing is captured, built or drawn.
 #include "internal.h"
+#include "grass_coverage.h"
 
 #include <algorithm>
 #include <climits>
@@ -139,7 +140,7 @@ uint8_t TriangleRank(float area)
 
 bool GreenRgb(const uint8_t c[3])
 {
-    return c[1] > 24 && int(c[1]) * 100 > int(c[0]) * 112 && int(c[1]) * 100 > int(c[2]) * 112;
+    return grass::Green(c);
 }
 
 int32_t FloorDiv(int32_t a, int32_t b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
@@ -189,15 +190,17 @@ bool Texture::TexelRgbAt(float u, float v, uint8_t rgb[3]) const
 }
 
 // ... filtered between the four nearest samples (wrapping), as the GPU samples the lightmap.
-bool Texture::TexelRgbBilinear(float u, float v, uint8_t rgb[3]) const
+bool Texture::TexelRgbBilinear(float u, float v, uint8_t rgb[3], bool clamp) const
 {
     if (!m_thumbValid || !m_thumbW || !m_thumbH)
         return false;
-    const float fu = (u - std::floor(u)) * float(m_thumbW) - 0.5f, fv = (v - std::floor(v)) * float(m_thumbH) - 0.5f;
+    const float fu = clamp ? std::clamp(u*float(m_thumbW)-.5f,0.0f,float(m_thumbW-1)) : (u - std::floor(u)) * float(m_thumbW) - 0.5f;
+    const float fv = clamp ? std::clamp(v*float(m_thumbH)-.5f,0.0f,float(m_thumbH-1)) : (v - std::floor(v)) * float(m_thumbH) - 0.5f;
     const float bu = std::floor(fu), bv = std::floor(fv), tu = fu - bu, tv = fv - bv;
     const int W = int(m_thumbW), H = int(m_thumbH);
     const int i0 = ((int(bu) % W) + W) % W, j0 = ((int(bv) % H) + H) % H;
-    const int i1 = (i0 + 1) % W, j1 = (j0 + 1) % H;
+    const int i1 = clamp ? std::min(i0+1,W-1) : (i0 + 1) % W;
+    const int j1 = clamp ? std::min(j0+1,H-1) : (j0 + 1) % H;
     const uint8_t* a = m_thumb.data() + (size_t(j0) * W + i0) * 3;
     const uint8_t* b = m_thumb.data() + (size_t(j0) * W + i1) * 3;
     const uint8_t* c = m_thumb.data() + (size_t(j1) * W + i0) * 3;
@@ -208,6 +211,14 @@ bool Texture::TexelRgbBilinear(float u, float v, uint8_t rgb[3]) const
         rgb[k] = uint8_t(std::clamp(top * (1.0f - tv) + bottom * tv + 0.5f, 0.0f, 255.0f));
     }
     return true;
+}
+
+float Texture::GrassCoverAt(float u,float v,bool clamp) const
+{
+    if (m_grassMaskSide) return m_grassMask.empty() ? 0.0f :
+        grass::Coverage(m_grassMask.data(),u,v,clamp,int(m_grassMaskSide));
+    uint8_t rgb[3];
+    return TexelRgbBilinear(u,v,rgb,clamp) && GreenRgb(rgb) ? 1.0f : 0.0f;
 }
 
 Device::GrassTile* Device::GrassTileAt(int32_t tx, int32_t tz) const
@@ -232,13 +243,7 @@ void Device::CaptureTerrain(uint32_t primitive, const FvfLayout& layout, const v
     // Classic live combines (lightmap + diffuse) * base texture in one opaque, lit draw. Neither of the older
     // pass tests matched, so its grass tiles never received heights or colours. Read each stage separately while
     // preserving the actual draw state. Keep the signature specific to the terrain layout observed in live.
-    if (combinedStage < 0 && !asBase && !m_native.drawing && m_rs[d3d::RS_LIGHTING] &&
-        !m_rs[d3d::RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
-        m_tss[0][d3d::TSS_COLOROP] == d3d::TOP_ADD &&
-        m_tss[0][d3d::TSS_COLORARG1] == d3d::TA_TEXTURE && m_tss[0][d3d::TSS_COLORARG2] == d3d::TA_DIFFUSE &&
-        m_tss[1][d3d::TSS_COLOROP] == d3d::TOP_MODULATE &&
-        m_tss[1][d3d::TSS_COLORARG1] == d3d::TA_TEXTURE && m_tss[1][d3d::TSS_COLORARG2] == d3d::TA_CURRENT &&
-        m_tss[0][d3d::TSS_TEXCOORDINDEX] == 1 && m_tss[1][d3d::TSS_TEXCOORDINDEX] == 0) {
+    if (combinedStage < 0 && !asBase && IsCombinedTerrainPass()) {
         CaptureTerrain(primitive, layout, vertices, vertexCount, indices, indexCount, false, 0);
         CaptureTerrain(primitive, layout, vertices, vertexCount, indices, indexCount, false, 1);
         return;
@@ -253,6 +258,8 @@ void Device::CaptureTerrain(uint32_t primitive, const FvfLayout& layout, const v
     // one-pass ground's base: as its held base pass said); a generated coordinate (the high bits) can't be read from
     // the vertices.
     const uint32_t stage = combinedStage >= 0 ? uint32_t(combinedStage) : 0u;
+    const bool clamp = m_tss[stage][d3d::TSS_ADDRESSU] == d3d::TADDRESS_CLAMP &&
+                       m_tss[stage][d3d::TSS_ADDRESSV] == d3d::TADDRESS_CLAMP;
     const uint32_t tci = asBase ? m_native.baseTss[0][d3d::TSS_TEXCOORDINDEX] : m_tss[stage][d3d::TSS_TEXCOORDINDEX];
     if ((tci & 0xFFFF0000u) != 0 || (tci & 0xFFFFu) > 1)
         return;
@@ -459,7 +466,7 @@ void Device::CaptureTerrain(uint32_t primitive, const FvfLayout& layout, const v
                         if (lightPass) {
                             uint8_t l[3] = {0, 0, 0};
                             if (native) NativeLightRgb(u, v, l);
-                            else tex->TexelRgbBilinear(u, v, l);   // (readable: checked above)
+                            else tex->TexelRgbBilinear(u, v, l, clamp);   // (readable: checked above)
                             const uint32_t light = uint32_t(l[0]) << 16 | uint32_t(l[1]) << 8 | l[2] | 0xFF000000u;
                             const uint32_t old = tile->light[idx];
                             tile->light[idx] = light;
@@ -472,10 +479,11 @@ void Device::CaptureTerrain(uint32_t primitive, const FvfLayout& layout, const v
                         uint8_t rgb[3] = {0x3C, 0x6A, 0x2A};      // a default grass green (no filter, or no texel read)
                         bool have = false;
                         if (filter)
-                            have = native ? NativeGroundRgb(u, v, rgb) : tex->TexelRgbAt(u, v, rgb);
-                        const bool grass = !filter || (have && GreenRgb(rgb));
+                            have = native ? NativeGroundRgb(u, v, rgb) : tex->TexelRgbBilinear(u, v, rgb, clamp);
+                        const float cover = !filter ? 1.0f : !have ? 0.0f : native ? (GreenRgb(rgb) ? 1.0f : 0.0f) : tex->GrassCoverAt(u,v,clamp);
+                        const bool grass = cover > .01f;
                         const uint32_t colour = uint32_t(rgb[0]) << 16 | uint32_t(rgb[1]) << 8 | rgb[2] |
-                                                (grass ? 1u << 24 : 0u);
+                                                (grass ? 1u << 24 : 0u) | (uint32_t(cover*127.0f+.5f)<<25);
                         if (cur == 255) {
                             ++tile->seen;
                             changed = true;
@@ -1426,6 +1434,12 @@ bool Device::BuildGrassTile(GrassTile& tile)
         uint32_t pcol, plight;
         if (!ground(px, pz, &py, &pcol, &plight) || !(pcol >> 24 & 1u) || CoveredAt(px, pz, py)) {
             ++m_grassLeftOut[1];                 // no grass ground here (or an object lies on it)
+            continue;
+        }
+        // Stable per-blade coverage makes path edges taper instead of showing
+        // the 16x16 RGB thumbnail's hard squares and grass over paved strips.
+        if (Unit(hp*0x27D4EB2Fu)>float(pcol>>25)/127.0f) {
+            ++m_grassLeftOut[3];
             continue;
         }
         float tn[3];

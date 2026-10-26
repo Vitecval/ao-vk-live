@@ -298,22 +298,32 @@ bool RvkState::WindowDrawable()
     RECT rect{};
     bool drawable = window && !IsIconic(window) && GetClientRect(window, &rect) &&
                     rect.right > rect.left && rect.bottom > rect.top;
+    // Owned dialogs and child controls count as focused through their process.
+    const bool background = drawable && rvk_settings::Get("RVK_RenderBg") == 0 && !InputFocused();
+    drawable = drawable && !background;
     if (presentationSuspended != !drawable) {
         presentationSuspended = !drawable;
         if (drawable) {
             device->RefreshPresentation();
-            RvkLog("presentation: window restored; refreshing swapchain");
+            RvkLog("presentation: window resumed; refreshing swapchain (present count %llu)",
+                   static_cast<unsigned long long>(presentCount));
         } else {
-            RvkLog("presentation: minimized or zero-area window; world rendering suspended");
+            RvkLog("presentation: %s; world rendering suspended (present count %llu)",
+                   background ? "AO not focused" : "minimized or zero-area window",
+                   static_cast<unsigned long long>(presentCount));
         }
     }
     return drawable;
 }
 
-void RvkState::Frame()
+bool RvkState::Frame()
 {
     if (device && window && !device->InFrame() && WindowDrawable())
+    {
+        PollMaterialMaps(); // publish completed uploads before this frame can draw
         device->BeginFrame();
+    }
+    return device && device->InFrame();
 }
 
 void RvkState::Present()
@@ -321,8 +331,12 @@ void RvkState::Present()
     if (!device || !window)
         return;
     rnative::HangBeat();                         // the game still runs normally while graphics are suspended
+    rvk_settings::PollIni(device);              // background clients must still notice the option being disabled
     if (!WindowDrawable()) {
         if (device->InFrame()) device->EndFrame();   // finish work begun before minimization, once
+        // Avoid a busy game loop now that GPU presentation no longer paces it.
+        // The game still handles simulation, networking and messages between calls.
+        if (rvk_settings::Get("RVK_RenderBg") == 0) Sleep(16);
         return;
     }
 #ifdef RANDYVK_ADDON
@@ -336,7 +350,6 @@ void RvkState::Present()
     rnative::ground::Install();    // DisplaySystem.dll's ground, once it is loaded (RVK_GroundRange)
     Frame();                  // a present without any rendering still shows a frame
     device->EndFrame();
-    PollMaterialMaps();       // material maps decoded in the background, uploaded between frames
     ParticleFrame();
     WeatherFrame();
     SmokeFrame();
@@ -409,7 +422,6 @@ void RvkState::Present()
                                              "reflected surroundings"};
         RvkLog("PBR debug view: %s", kNames[next]);
     }
-    rvk_settings::PollIni(device);              // randy-vk.ini edited while the game runs
     // Ctrl+Shift+I: which texture is under the mouse (texture picking, for making material maps): the next frame's
     // nearest 3D surface there - logged ("pick: RDB texture 1010004:55900 'name', 256x256; maps: ..."), its "type:id"
     // copied to the clipboard, and its surfaces flash yellow for three seconds. Ctrl+Shift+J: the same for the mesh
@@ -581,8 +593,9 @@ void RvkState::Present()
                slowest, over33, over100);
         const TextureWrites w = TakeTextureWrites();
         RvkLog("texture writes: %.1f a frame (%.1f only the rows locked), %.0f KB and %.3f ms on the game's thread a "
-               "frame; the game's textures alive: %d", w.locks / 600.0, w.partial / 600.0,
-               double(w.bytes) / 1024.0 / 600.0, w.ms / 600.0, GameTexturesAlive());
+               "frame; the game's textures alive: %d; cold CPU copies saved %.1f MB", w.locks / 600.0, w.partial / 600.0,
+               double(w.bytes) / 1024.0 / 600.0, w.ms / 600.0, GameTexturesAlive(),
+               double(TextureShadowBytesSaved()) / (1024.0 * 1024.0));
         g_drawCalls = 0;
         lastTick = now;
         slowest = 0;

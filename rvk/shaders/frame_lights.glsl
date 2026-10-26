@@ -102,16 +102,18 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
                                 // y the light grid's bindless image + 1 | sampler << 20 (the float's bits; 0 none),
                                 // z, w the lights too large for it (mask: low, high word's bits)
     vec4 sand3;                 // the sand, more: x its ripples' depth in the march (RVK_RippleDepth); y the sun the
-                                // clouds let through (its glints); z, w unused
+                                // clouds let through (its glints); z global terrain detail, w global building materials
     vec4 fogBanks;              // fog banks (rvk mist.cpp FogBankParams): their noise at the eye (world x, z, drifted), how
                                 // deep they stand over the low ground (world units), how much (0: none)
     vec4 lightGrid;             // the frame lights' grid (rvk Device::LightGridLights): its corner x, z, cells across, down
-    vec4 cond;                  // the world's conditions (rvk rvk.h Conditions): x the clouds' night; y, z, w unused
+    vec4 cond;                  // x clouds' night; y distant haze; z soft highlights; w brighter daylight
     vec4 screen;                // x, y the scene's pixels per back-buffer pixel (rvk RVK_RenderScale: the game's viewport is
-                                // in back-buffer pixels, the motion vectors in the scene's); z, w unused
+                                // in back-buffer pixels, the motion vectors in the scene's); z, w haze clear/full distance
     vec4 userFog;               // player-selected fog RGB, visibility range (0 disabled)
     vec4 userFog2;              // clear radius, nearby shade, drifting amount, style
     vec4 userFogEye;            // world eye and animation time
+    vec4 sharedGround[5];
+    vec4 sharedGroundConfig;
     Light lights[64];
 } FL;
 

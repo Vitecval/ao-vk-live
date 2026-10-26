@@ -47,6 +47,7 @@ Setting g_settings[] = {
     {"RVK_Prepass",    "Depth pre-pass", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_PrepassEq",  "Depth pre-pass: what it covers shaded only where it is seen", "General", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_Prepass"},
     {"RVK_UiRate", "Interface refresh rate (0 = every frame)", "General", Choice, 0, 120, 1, 60, nullptr, 0, nullptr, "0 30 60 90 120"},
+    {"RVK_RenderBg", "Render in Background", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_PerfHud", "Performance readout in the top left: frames a second, the game's and the renderer's CPU time, the GPU's", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_AlienMap", "AI missions' PF map: rooms shown black on green (the game's is black on black)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_DetailRange", "How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws)", "General", Float, 1, 4, 0.25f, 2, nullptr, 0},
@@ -84,7 +85,12 @@ Setting g_settings[] = {
     {"RVK_PbrProbe", "Environment probe", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
-    {"RVK_ModernTex", "Modern texture pack (ICC preview)", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_ModernTex", "World texture style", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
+    {"RVK_TerraBlend", "Terrain mode: Original / Shared Ground / Shared Ground+", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
+    {"RVK_BuildingHD", "Global building materials", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
+    {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
     {"RVK_Albedo", "Enhanced textures", "Materials",     Bool,  0, 1, 1, 1, nullptr, 0},
 
 #ifdef RANDYVK_ADDON
@@ -317,6 +323,8 @@ Setting g_settings[] = {
     {"RVK_BloomOcc", "Over objects in front of its light (1 = unchanged)", "Effects",  Float, 0, 1, 0.05f, 0.15f, nullptr, 0, "RVK_BloomOn"},
     {"RVK_BloomWide", "Wide haze round its core (0 = even; wider in rain by night)", "Effects",  Float, 0, 1, 0.05f, 0.4f, nullptr, 0, "RVK_BloomOn"},
     {"RVK_NeonSat", "Bright coloured lights keep their colour (0 = they go white)", "Effects",  Float, 0, 1, 0.05f, 0.6f, nullptr, 0, "RVK_Hdr"},
+    {"RVK_SoftHi", "Highlight glare reduction (keeps bright walls and ground gentler)", "Effects", Float, 0, 1, 0.05f, 0.75f, nullptr, 0, "RVK_Hdr"},
+    {"RVK_DayLook", "Brighter daylight look (lighter shadows, less sunset tint)", "Colour grading", Float, 0, 1, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
     {"RVK_FxGlowOn", "Glow of effects (spells, fire, light halos)", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
     {"RVK_BloomFx", "Strength", "Effects",  Float, 0.25f, 4, 0.25f, 1, "RANDYVK_BLOOM_EFFECTS", 0, "RVK_FxGlowOn"},
     {"RVK_NightOn", "Night glow of windows, signs and screens", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
@@ -336,6 +344,9 @@ Setting g_settings[] = {
     {"RVK_VolRays", "Light rays through gaps in the clouds", "Effects",  Float, 0, 3, 0.25f, 1, nullptr, 0, "RVK_VolOn"},
     {"RVK_DuskRays", "Sunset rays: beams fanning from a low sun through the clouds and over the hills (0: none)", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_VolOn"},
     {"RVK_VolLand", "Haze over distant land (cool, as the air makes it)", "Effects",  Float, 0, 1, 0.05f, 0.1f, nullptr, 0},
+    {"RVK_FarHaze", "Distant horizon haze", "Weather", Float, 0, 1, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
+    {"RVK_HazeStart", "Horizon haze: clear distance", "Weather", Float, 100, 2000, 50, 400, nullptr, 0, "RVK_FarHaze"},
+    {"RVK_HazeEnd", "Horizon haze: full distance", "Weather", Float, 200, 4000, 50, 1200, nullptr, 0, "RVK_FarHaze"},
     {"RVK_DesertAir", "Deserts: dusty air in fair weather - far dunes paler and warmer, a pale band along the horizon (0 = none)", "Effects", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_HeatShimmer", "Deserts: heat shimmer over distant land in the midday sun (0 = none)", "Effects", Float, 0, 1, 0.1f, 0.5f, nullptr, 0},
     {"RVK_Sun", "Sun brightness (0 = the game's own sun)", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_Hdr"},
@@ -364,7 +375,7 @@ Setting g_settings[] = {
     {"RVK_Upscaler", "Upscaler for the render scale (0: ao-vk's own TAA, 1: AMD FSR 2.2, 2: AMD FSR 3.1)", "Anti-aliasing", Choice, 0, 2, 1, 0, nullptr, 0, "RVK_Taa", "0 1 2"},
     {"RVK_Fxaa",       "FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer)", "Anti-aliasing", Bool, 0, 1, 1, 0, nullptr, 0},
 
-    {"RVK_GradeOn",    "Colour grading",                                           "Colour grading",   Bool,  0, 1, 1, 1, nullptr, 0},
+    {"RVK_GradeOn",    "Colour grading",                                           "Colour grading",   Bool,  0, 1, 1, 0, nullptr, 0},
     {"RVK_Saturation", "Saturation",                                               "Colour grading",   Float, 0, 2, 0.05f, 1, nullptr, 0, "RVK_GradeOn"},
     {"RVK_Contrast",   "Contrast",                                                 "Colour grading",   Float, 0.5f, 1.5f, 0.05f, 1, nullptr, 0, "RVK_GradeOn"},
     {"RVK_Warmth",     "Warmth (- cooler, + warmer)",                              "Colour grading",   Float, -1, 1, 0.05f, 0.75f, nullptr, 0, "RVK_GradeOn"},
@@ -430,6 +441,12 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_AutoMat", 0},
+    {"RVK_TerrainHD", 0},
+    {"RVK_TerraBlend", 0},
+    {"RVK_DayLook", 0},
+    {"RVK_BuildingHD", 0},
+    {"RVK_FarHaze", 0},
     {"RVK_ModernTex", 0},
     {"RVK_WeatherMode", 0}, {"RVK_FogMode", 0},
     {"RVK_PixelLight", 0}, {"RVK_LightOver", 0}, {"RVK_Bump", 0}, {"RVK_NormalMaps", 0}, {"RVK_Pbr", 0}, {"RVK_Albedo", 0}, {"RVK_GroundOn", 0}, {"RVK_GroundAo", 0}, {"RVK_GroundTess", 0}, {"RVK_GroundGrain", 0}, {"RVK_GroundBlend", 0}, {"RVK_GroundSun", 0}, {"RVK_GroundRocks", 0}, {"RVK_Pebbles", 0}, {"RVK_SandRipple", 0}, {"RVK_DuneLight", 0}, {"RVK_SandGlint", 0}, {"RVK_SandPrints", 0}, {"RVK_RippleDepth", 0}, {"RVK_Parallax", 0}, {"RVK_CliffDepth", 0}, {"RVK_GroundRange", 1}, {"RVK_GroundFar", 8}, {"RVK_CliffTex", 0}, {"RVK_CliffRock", 0}, {"RVK_TileHide", 0}, {"RVK_GroundVary", 0}, {"RVK_LeafLight", 0}, {"RVK_CrownShade", 0}, {"RVK_Headroom", 1},
@@ -510,7 +527,7 @@ float Stored(const char* name) { Setting* s = Find(name); return s ? s->value : 
 // The features out of "Experimental" (2026-10-16: tested enough - the user): on by default, never inferred.
 bool NewFeature(const char* name)
 {
-    for (const char* n : {"RVK_LeafOn", "RVK_WaterOn", "RVK_WeatherOn", "RVK_SmokeOn", "RVK_CloudsOn"})
+    for (const char* n : {"RVK_GradeOn", "RVK_LeafOn", "RVK_WaterOn", "RVK_WeatherOn", "RVK_SmokeOn", "RVK_CloudsOn"})
         if (std::strcmp(n, name) == 0) return true;
     return false;
 }
@@ -523,14 +540,42 @@ const Vanilla* FindVanilla(const char* name)
 }
 
 // The value a setting takes effect with: the game's (kVanilla) with RVK_Enhance off or its feature switched off.
+// The cyberpunk style needs per-pixel material lighting and HDR reflections. These
+// are effective minima only: stored preferences are restored when the style is off.
+float CyberMinimum(const char* name)
+{
+    for (const char* n : {"RVK_PixelLight", "RVK_NormalMaps", "RVK_Pbr", "RVK_Albedo", "RVK_Hdr",
+                         "RVK_SsrOn", "RVK_PbrSpec", "RVK_PbrEnv", "RVK_PbrSsr", "RVK_PbrProbe"})
+        if (std::strcmp(name, n) == 0) return 1.0f;
+    if (std::strcmp(name, "RVK_Ssr") == 0) return 0.8f;
+    if (std::strcmp(name, "RVK_SsrGloss") == 0) return 0.6f;
+    return -1e30f;                              // settings without a minimum may legitimately be negative
+}
+
 float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
-    if (vanilla && (Stored("RVK_Enhance") == 0.0f || (s->parent && Stored(s->parent) == 0.0f)))
+    const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
+    if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber ? s->value : 0.0f;
+    const bool characterMaterials = Stored("RVK_AutoMat") != 0.0f && Stored("RVK_MatStrength") > 0.0f &&
+                                    Stored("RVK_Enhance") != 0.0f;
+    const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
+    auto minimum = [&](const char* n) {
+        float value = cyber ? CyberMinimum(n) : -1e30f;
+        if (characterMaterials || worldMaterials) {
+            for (const char* required : {"RVK_PixelLight", "RVK_Pbr", "RVK_Hdr", "RVK_PbrProbe", "RVK_Albedo", "RVK_NormalMaps"})
+                if (std::strcmp(n, required) == 0) value = std::max(value, 1.0f);
+            if (std::strcmp(n, "RVK_PbrSpec") == 0) value = std::max(value, 0.5f);
+            if (std::strcmp(n, "RVK_PbrEnv") == 0) value = std::max(value, 0.6f);
+        }
+        return value;
+    };
+    if (vanilla && (Stored("RVK_Enhance") == 0.0f ||
+        (s->parent && Stored(s->parent) == 0.0f && minimum(s->parent) <= 0.0f)))
         return vanilla->value;
-    return s->value;
+    return std::max(s->value, minimum(name));
 }
 
 float Clamp(const Setting& s, float v)
@@ -578,6 +623,7 @@ bool ParseIni(const Setting& s, const char* text, float* out)
 struct Migration { const char* id; const char* now; const char* was; float oldDefault; };
 constexpr float kKeep = std::numeric_limits<float>::quiet_NaN();
 const Migration kMigrations[] = {
+    {"GradingPreference", "RVK_GradeOn", "RVK_GradeOn", kKeep},
     // (Most for the game's option variables, which take at most 15 characters: AOReloaded's settings window leaves a
     // longer name out, so the setting couldn't be changed in game - RVK_NativeGround, the native ground's own switch,
     // among them, 2026-10-20.)
@@ -724,13 +770,33 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
+        if (is("RVK_TerraBlend")) {
+            SetSharedTerrainSetting(V(n) > 0.0f);
+            SetSharedGroundDetailsSetting(V(n) > 1.0f);
+        }
+        if (is("RVK_AutoMat") || is("RVK_MatStrength") || is("RVK_TerrainHD") || is("RVK_BuildingHD")) {
+            SetCharacterMaterialPack(V("RVK_AutoMat") != 0.0f && V("RVK_MatStrength") > 0.0f);
+            for (const char* dependent : {"RVK_PixelLight", "RVK_Pbr", "RVK_Hdr", "RVK_NormalMaps"})
+                if (const Setting* other = Find(dependent)) ApplyOne(*other, d);
+            if (is("RVK_AutoMat"))
+                RvkLog("character materials: %s; effective HDR %.0f, lighting %.0f, PBR %.0f (stored %.0f/%.0f/%.0f)",
+                       V(n) != 0 ? "on" : "off", V("RVK_Hdr"), V("RVK_PixelLight"), V("RVK_Pbr"),
+                       Stored("RVK_Hdr"), Stored("RVK_PixelLight"), Stored("RVK_Pbr"));
+        }
         return;
     }
     if (is("RVK_Enhance")) {                     // every enhancement at its own value or the game's
         for (const Setting& other : g_settings)
             if (&other != &s) Apply(other, d);
     }
-    else if (is("RVK_ModernTex")) SetModernTexturePackEnabled(V(n) != 0.0f);
+    else if (is("RVK_ModernTex")) {
+        SetModernTextureStyle(unsigned(V(n)));
+        if (const Setting* blend = Find("RVK_TerraBlend")) ApplyOne(*blend, d);
+        for (const char* dependent : {"RVK_PixelLight", "RVK_NormalMaps", "RVK_Pbr", "RVK_Hdr", "RVK_Ssr"})
+            if (const Setting* other = Find(dependent)) ApplyOne(*other, d);
+        RvkLog("world style %u: effective HDR %.0f, material lighting %.0f, reflections %.2f (stored reflections %.2f)",
+               unsigned(V(n)), V("RVK_Hdr"), V("RVK_PixelLight"), V("RVK_Ssr"), Stored("RVK_Ssr"));
+    }
     else if (is("RVK_UiRate")) SetInterfaceRate(V(n));
     else if (is("RVK_PixelLight")) d->SetPixelLighting(V(n) != 0.0f);
     else if (is("RVK_LightOver")) d->SetLightOverride(V(n) != 0.0f);
@@ -1048,6 +1114,14 @@ void Load()
             break;
         }
     }
+    if (GetPrivateProfileIntA("Migrations", "RenderBg", 0, g_iniPath)==0) {
+        char old[32]{};
+        GetPrivateProfileStringA("Renderer", "RVK_PauseBg", "", old, sizeof(old), g_iniPath);
+        char current[32]{};
+        GetPrivateProfileStringA("Renderer", "RVK_RenderBg", "", current, sizeof(current), g_iniPath);
+        if (old[0] && !current[0]) if (Setting* setting=Find("RVK_RenderBg")) setting->value=std::atof(old)==0 ? 1.0f : 0.0f;
+        WritePrivateProfileStringA("Migrations", "RenderBg", "1", g_iniPath);
+    }
     // Once: the always-on switches back on - turned off while they were in the window, they would now leave their
     // features off with no way back from it.
     if (GetPrivateProfileIntA("Migrations", "AlwaysOn", 0, g_iniPath) == 0) {
@@ -1295,6 +1369,10 @@ const PresetValue kClassicPlus[] = {
     {"RVK_CloudsOn", 0}, {"RVK_WeatherOn", 0}, {"RVK_SmokeOn", 0}, {"RVK_WaterOn", 0},   // (the new features off)
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
+    {"RVK_ModernTex", 2}, {"RVK_TerrainHD", 1}, {"RVK_BuildingHD", 1},
+    {"RVK_TerraBlend", 2}, {"RVK_DayLook", 0},
+    {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
+    {"RVK_FarHaze", .6f}, {"RVK_HazeStart", 350}, {"RVK_HazeEnd", 1000},
     {"RVK_GrassDist", 80}, {"RVK_GrassBlades", 12}, {"RVK_WaterQual", 3}, {"RVK_PtShadows", 16}, {"RVK_Ao", 2},
     {"RVK_CloudQual", 3}, {"RVK_CloudSteps", 64}, {"RVK_SmokeQual", 3}, {"RVK_SmokeRes", 20},
 };

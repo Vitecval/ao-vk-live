@@ -6,6 +6,7 @@
 // Found anew (a new entry) whenever either changes: a moving object is a new entry every frame and takes the full
 // path. Entries not drawn for 600 frames go (PruneObjects).
 #include "internal.h"
+#include "object_cache.h"
 
 #include <cmath>
 #include <xmmintrin.h>
@@ -24,29 +25,23 @@ constexpr size_t kObjectCandidates = 16384;      // (a power of two)
 }  // namespace
 
 // The table rebuilt `size` long, without the entries not drawn for `keep` frames.
-void Device::RehashObjects(size_t size, uint64_t keep)
+bool Device::RehashObjects(size_t size, uint64_t keep)
 {
-    std::vector<ObjectEntry> old;
-    old.swap(m_objects);
-    m_objects.assign(size, ObjectEntry{});
-    m_objectKeys.assign(size, 0);
-    m_objectPrev = ~0u;                          // (entries' places moved: their successor links go)
-    m_objectCount = 0;
-    const size_t mask = size - 1;
-    for (ObjectEntry& e : old) {
-        if (!e.key || m_frameNumber - e.lastFrame > keep) continue;   // (keep ~0 when growing: all stay)
-        size_t i = size_t(e.key) & mask;
-        while (m_objectKeys[i]) i = (i + 1) & mask;
-        m_objects[i] = e;
-        m_objects[i].next = ~0u;
-        m_objectKeys[i] = e.key;
-        ++m_objectCount;
+    if (!TryRehashObjectCache(m_objects,m_objectKeys,size,
+            [&](const ObjectEntry& e) {return m_frameNumber-e.lastFrame<=keep;},m_objectCount)) {
+        m_objectGrowRetry=m_frameNumber+kObjectForget;
+        Log("object cache: growth deferred under memory pressure; existing cache retained");
+        return false;
     }
+    m_objectPrev=~0u;
+    return true;
 }
 
 // The current draw's entry (a static mesh: m_drawMeshKey, m_world), made if new.
 Device::ObjectEntry* Device::FindObject()
 {
+    if (m_objects.empty() && (m_frameNumber<m_objectGrowRetry || !RehashObjects(4096,~uint64_t(0))))
+        return nullptr;
     // The entry that followed the last one found, the frame before (its `next`), if it is this object (exactly: mesh
     // and matrix) - the game draws its scene in much the same order frame after frame; an object coming into or going
     // out of view costs the lookups around it only. (A place in the frame's order went wrong for the rest of the
@@ -71,16 +66,25 @@ Device::ObjectEntry* Device::FindObject()
             k ^= k >> 32;
         }
         if (!k) k = 1;
-        if ((m_objectCount + 1) * 2 > m_objects.size())   // at most half full
-            RehashObjects(std::max<size_t>(m_objects.size() * 2, 4096), ~uint64_t(0));
         const size_t mask = m_objects.size() - 1;
         const uint64_t* keys = m_objectKeys.data();
         for (size_t i = size_t(k) & mask;; i = (i + 1) & mask) {
             if (!keys[i]) {
+                // A full cache still serves existing objects. New objects use
+                // the uncached path if growth cannot fit; retry only later.
+                if ((m_objectCount+1)*2>m_objects.size()) {
+                    if (m_frameNumber<m_objectGrowRetry || !RehashObjects(m_objects.size()*2,~uint64_t(0)))
+                        return nullptr;
+                    return FindObject();
+                }
                 // New: an entry only for one seen at this matrix last frame too (a candidate then).
                 // (Probed a few places on: candidates live two frames, a slot older than that is free. Direct-mapped,
                 // two still objects in one slot pushed each other out every frame and never got entries.)
-                if (m_objectCandidates.empty()) m_objectCandidates.resize(kObjectCandidates);
+                if (m_objectCandidates.empty()) {
+                    if (m_frameNumber<m_objectGrowRetry) return nullptr;
+                    try {m_objectCandidates.resize(kObjectCandidates);}
+                    catch (const std::bad_alloc&) {m_objectGrowRetry=m_frameNumber+kObjectForget;return nullptr;}
+                }
                 ObjectCandidate* cand = nullptr;
                 ObjectCandidate* free = nullptr;
                 for (size_t c = 0; c < 16; ++c) {
@@ -176,7 +180,9 @@ void Device::PruneObjects()
     const bool many = m_objectCount > kObjectMany;
     if (m_objectCount == 0 || (m_frameNumber % kObjectForget != 0 && !many))
         return;
-    RehashObjects(m_objects.size(), many ? kObjectForget / 10 : kObjectForget);
+    const uint64_t keep=many ? kObjectForget/10 : kObjectForget;
+    m_objectCount=PruneObjectCacheInPlace(m_objects,m_objectKeys,
+        [&](const ObjectEntry& e) {return m_frameNumber-e.lastFrame<=keep;});
 }
 
 // StatelPieceCasting for the current draw: the lookup kept with its object (the pack's pieces don't change while it is

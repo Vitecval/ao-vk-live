@@ -102,6 +102,24 @@ try {
     New-Item -ItemType Directory -Path (Split-Path -Parent $assetSource) -Force | Out-Null
     Write-Bytes $assetSource 'fixture texture one'
     $manifest.assets = @{ $assetRelative = (Hash $assetSource) }
+    $cyberRelative = 'randy-vk/packs/ao-cyber-icc/1010004_295610_orm.png'
+    $cyberSource = Join-Path $package $cyberRelative
+    $cyberTarget = Join-Path $client $cyberRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $cyberSource) -Force | Out-Null
+    Write-Bytes $cyberSource 'fixture cyber material'
+    $manifest.assets[$cyberRelative] = Hash $cyberSource
+    $characterRelative = 'randy-vk/packs/ao-cyber-characters/1010004_256236_d.png'
+    $characterSource = Join-Path $package $characterRelative
+    $characterTarget = Join-Path $client $characterRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $characterSource) -Force | Out-Null
+    Write-Bytes $characterSource 'fixture character artwork'
+    $manifest.assets[$characterRelative] = Hash $characterSource
+    $worldRelative = 'randy-vk/packs/ao-cyber-world/1010004_6055_d.png'
+    $worldSource = Join-Path $package $worldRelative
+    $worldTarget = Join-Path $client $worldRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $worldSource) -Force | Out-Null
+    Write-Bytes $worldSource 'fixture world artwork'
+    $manifest.assets[$worldRelative] = Hash $worldSource
     Save-Manifest
     Write-Bytes $assetSource 'corrupt fixture texture'
     Reject $arguments 'Package integrity check failed'
@@ -110,8 +128,14 @@ try {
     Reject $arguments 'simulated commit failure'
     $global:AoInstallerTestFailTarget = ''
     Assert (!(Test-Path -LiteralPath $assetTarget)) 'Asset failure partially installed pack'
+    Assert (!(Test-Path -LiteralPath $cyberTarget)) 'Asset failure partially installed cyber pack'
+    Assert (!(Test-Path -LiteralPath $characterTarget)) 'Asset failure partially installed character pack'
+    Assert (!(Test-Path -LiteralPath $worldTarget)) 'Asset failure partially installed world pack'
     & $installer @arguments | Out-Null
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset absent'
+    Assert ((Hash $cyberTarget) -eq $manifest.assets[$cyberRelative]) 'Cyber pack asset absent'
+    Assert ((Hash $characterTarget) -eq $manifest.assets[$characterRelative]) 'Character pack asset absent'
+    Assert ((Hash $worldTarget) -eq $manifest.assets[$worldRelative]) 'World pack asset absent'
     $otherPack = Join-Path $client 'randy-vk/packs/personal/keep.txt'
     New-Item -ItemType Directory -Path (Split-Path -Parent $otherPack) -Force | Out-Null
     Write-Bytes $otherPack 'personal pack'
@@ -125,6 +149,22 @@ try {
     Reject $arguments 'Invalid optional material pack'
     $manifest.assets.Remove('../escape.png')
     Save-Manifest
+    # Full -> Lite removes only owned optional files transactionally, preserving settings.
+    $fullAssets=$manifest.assets.Clone()
+    $manifest.assets=@{}
+    Save-Manifest
+    # A removal rollback is tested by failing receipt replacement.
+    $global:AoInstallerTestFailTarget=Join-Path $client 'ao-vk-live.install.json'
+    Reject $arguments 'simulated commit failure'
+    $global:AoInstallerTestFailTarget=''
+    Assert (Test-Path -LiteralPath $assetTarget) 'Failed Lite switch lost previous HD assets'
+    & $installer @arguments | Out-Null
+    foreach ($path in @($assetTarget,$cyberTarget,$characterTarget,$worldTarget)) {Assert (!(Test-Path -LiteralPath $path)) 'Lite switch left HD texture'}
+    Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Edition switch changed preferences'
+    $manifest.assets=$fullAssets
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert (Test-Path -LiteralPath $worldTarget) 'Lite -> Full failed to restore artwork'
     # An unrelated running client may keep an identical shared loader mapped. No replace/move is needed.
     $global:AoInstallerTestOther = $true
     $global:AoInstallerTestSharedPath = Join-Path $loader 'ddraw.dll'
@@ -146,6 +186,9 @@ try {
     Copy-Item -LiteralPath $assetSource -Destination $assetTarget -Force
     & $installer @uninstall | Out-Null
     Assert (!(Test-Path -LiteralPath $assetTarget)) 'Uninstall left owned pack asset'
+    Assert (!(Test-Path -LiteralPath $cyberTarget)) 'Uninstall left cyber pack asset'
+    Assert (!(Test-Path -LiteralPath $characterTarget)) 'Uninstall left character pack asset'
+    Assert (!(Test-Path -LiteralPath $worldTarget)) 'Uninstall left world pack asset'
     Assert ([IO.File]::ReadAllText($otherPack) -eq 'personal pack') 'Uninstall changed personal pack'
     foreach ($target in @((Join-Path $client 'ao-vk.dll'), (Join-Path $client 'ddraw.dll'),
             (Join-Path $client 'ao-vk-live.install.json'), (Join-Path $loader 'ddraw.dll'))) {

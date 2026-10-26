@@ -29,6 +29,7 @@ bool TerrainMapped() { return D.terrainAt.w > 0.5; }
 #include "terrain_rock.glsl"
 
 struct TerrainMap {
+    vec3 posW;
     vec2 uv[3];         // the game's (from above), a face along x (it faces z: x and the height), along z (faces x)
     vec2 dx[3], dy[3];  // ... their screen derivatives
     vec3 w;             // ... their weights
@@ -70,6 +71,7 @@ void TerrainHexGrid(vec2 st, uint seed, float down, out vec3 w, out vec2 off0, o
 TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 {
     TerrainMap m;
+    m.posW = posW;
     m.px = dFdx(posW);
     m.py = dFdy(posW);
     m.uv[0] = uv;
@@ -394,7 +396,7 @@ vec4 TerrainClutterBase(TerrainMap m)
     return vec4(stone, c.a);
 }
 
-vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
+vec4 TerrainBaseRaw(uint image, sampler smp, inout TerrainMap m)
 {
     if (m.clutter) return TerrainClutterBase(m);
     if (TerrainNative()) {
@@ -427,6 +429,55 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     const float side = m.w.y + m.w.z;
     if (side > 0.002) faces.rgb = mix(FL.terrainRock2.rgb * side, faces.rgb, 0.75);
     return top + faces * TerrainRockTint(m);
+}
+
+// Original tiles contain prepainted transitions, not independent grass/dirt
+// layers. Keep their low-frequency colour/shape as a soft mask and tint. Only
+// the fine material comes from shared masters, in continuous world coordinates.
+vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
+{
+    vec4 original=TerrainBaseRaw(image,smp,m);
+    float amount=FL.sharedGroundConfig.x*m.w.x;
+    if (amount<=0.0 || m.clutter || (D.mat.z & MAT_AUTHORED_GROUND) != 0u) return original;
+    vec2 uv=m.uv[0],dx=m.dx[0],dy=m.dy[0];
+    uint source=image;
+    if (TerrainNative()) {
+        uvec2 cell=NativeCell(m.uv[0]); source=cell.x;
+        uv=NativeTurn(fract(uv),cell.y);
+        dx=NativeTurnStep(dx,cell.y);dy=NativeTurnStep(dy,cell.y);
+    }
+    vec2 size=vec2(textureSize(sampler2D(texImages[nonuniformEXT(source)],smp),0));
+    float lod=max(2.0,0.5*log2(max(max(dot(dx*size,dx*size),dot(dy*size,dy*size)),1e-8)));
+    vec3 mask=textureLod(sampler2D(texImages[nonuniformEXT(source)],smp),uv,lod).rgb;
+    float lum=dot(mask,vec3(.3,.59,.11));
+    float green=smoothstep(.04,.18,(mask.g-max(mask.r,mask.b))/max(lum,.04));
+    float warm=smoothstep(.12,.50,(mask.r-mask.b)/max(lum,.04));
+    float sand=(1.0-green)*warm*smoothstep(.30,.55,lum);
+    float neutral=(1.0-green)*(1.0-warm);
+    float gravel=neutral*smoothstep(.14,.38,lum);
+    float rock=neutral-gravel;
+    float weights[5]=float[5](green,max(0.0,1.0-green-sand-neutral),gravel,sand,rock);
+    // City roads use the same neutral fine aggregate across their original
+    // transition masks, rather than different new paintings for each tile.
+    if ((D.mat.z & MAT_ASPHALT) != 0u) {
+        float road=(1.0-green)*(1.0-warm)*(1.0-smoothstep(.25,.43,lum));
+        weights[2]+=road*weights[4]; weights[4]*=1.0-road;
+    }
+    vec2 world=m.posW.xz*FL.sharedGroundConfig.y;
+    vec2 wx=m.px.xz*FL.sharedGroundConfig.y,wy=m.py.xz*FL.sharedGroundConfig.y;
+    vec3 detail=vec3(1.0);
+    for (int i=0;i<5;++i) {
+        if (weights[i]<.01) continue;
+        uint slot=floatBitsToUint(FL.sharedGround[i].x)-1u;
+        vec3 master=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),world,wx,wy).rgb;
+        detail+=weights[i]*(clamp(master/max(FL.sharedGround[i].yzw,vec3(.025)),vec3(.55),vec3(1.65))-1.0);
+    }
+    // Strong original markings/joints keep their shape; noisy old texels are
+    // softened before the new filtered detail. Alpha is always AO's original.
+    float marking=smoothstep(.07,.22,length(original.rgb-mask));
+    vec3 base=mix(mask,original.rgb,marking);
+    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65),amount);
+    return original;
 }
 
 // The relief of normal maps laid like the texture: from above the base's (top, strength), on the faces the rock's
@@ -495,6 +546,7 @@ vec3 TerrainPatchesAt(int k, vec3 posW)
 
 vec3 TerrainVariation(vec3 c, vec3 posW, TerrainMap m)
 {
+    if ((D.mat.z & MAT_AUTHORED_GROUND) != 0u) return c;
     float k = FL.terrain.z;
     if (k <= 0.0) return c;
     vec3 v = TerrainPatchesAt(0, posW) * m.w.x;
@@ -643,6 +695,20 @@ vec3 NativeOrm(TerrainMap m, out float w)
                 w += m.w[i];
             }
     return w > 0.0 ? sum / w : vec3(1.0, 1.0, 0.0);
+}
+
+// Loose sand only, classified from the original tile, never city plates/roads.
+float SharedSand(TerrainMap m)
+{
+    if (TerrainNative()) return NativeSand(m.uv[0]);
+    if (FL.sharedGroundConfig.z<.5 || (D.mat.z & (MAT_AUTHORED_GROUND|MAT_ASPHALT))!=0u) return 0.0;
+    vec3 c=textureLod(sampler2D(texImages[D.texIdx.y],bindlessSamplers[D.sampIdx.y]),m.uv[0],3.0).rgb;
+    // Separate-pass ground uses its base texture in the bump-base slot.
+    if ((D.mat.z & MAT_COMBINED)==0u)
+        c=textureLod(sampler2D(texImages[(C.flags.x & F_BUMPBASE)!=0u ? D.texIdx.z : D.texIdx.x],bindlessSamplers[D.sampIdx.x]),m.uv[0],3.0).rgb;
+    float lum=dot(c,vec3(.3,.59,.11));
+    float green=smoothstep(.04,.18,(c.g-max(c.r,c.b))/max(lum,.04));
+    return (1.0-green)*smoothstep(.12,.50,(c.r-c.b)/max(lum,.04))*smoothstep(.30,.55,lum);
 }
 
 #include "parallax.glsl"

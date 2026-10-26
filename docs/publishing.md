@@ -1,29 +1,12 @@
-# Preparing the repository and downloads
+# Preparing releases
 
-Suggested repository name: **ao-vk-live**
+Target repository: https://github.com/Vitecval/ao-vk-live
 
-Description: **Vulkan graphics for classic Anarchy Online live, with modern lighting, grass, Halloween fog, customizable weather, in-game options, and easy install/uninstall. Based on AO-VK.**
+After building, run `python tools/package-release.py --version 0.6.0-preview.12 --build-dir build/windows-live`.
+The version directory contains Full HD and Lite Windows x86 ZIPs, source ZIP and SHA256SUMS.txt. Both player editions contain the same renderer and installer. Full HD includes optional model maps and generated atlases; Lite retains core ground maps, embedded cliff/shared masters and every renderer feature.
 
-Create a new repository, retaining LICENSE, THIRD-PARTY-NOTICES.md and the upstream credit. The provided source ZIP is arranged as a clean repository root. Extract it and push its contents; omit build/ and dist/. No game DLLs are included.
+Install.cmd installs, Update.cmd upgrades or switches editions, Uninstall.cmd removes owned addon files. Preferences, original game files and personal packs are preserved. Modified owned files cause a refusal instead of being silently removed. Restart after installing optional packs; there is no runtime downloader.
 
-The MIT license permits this distribution with its notice preserved. This source snapshot does not carry upstream Git history. For future upstream updates, keep a separate upstream checkout and compare changes; the original README is preserved in docs/upstream-readme.md in the exported source.
+Publishing is a separate explicit action. `tools/publish-release.ps1 -Version VERSION` creates a draft release for an already-existing tag; `-Publish` creates a public release. The helper verifies all three ZIP checksums, targets Vitecval/ao-vk-live and marks preview versions as prereleases. Never run it, push or create a tag without permission.
 
-For this preview, create a GitHub release tagged **v0.3.0-preview.1**, titled **AO-VK Live 0.3.0 Preview 1 — Optional modern ICC materials**. Attach:
-
-- `ao-vk-live-0.3.0-preview.1-windows-x86.zip` — the ready-built player download, including setup and the optional ICC pack.
-- `ao-vk-live-0.3.0-preview.1-source.zip` — the complete source snapshot, artwork and prompts.
-- `SHA256SUMS.txt` — checksums for both ZIPs.
-
-GitHub's automatic Source code download is source only. Point players at the **windows-x86.zip** asset, which contains the ready-built DLLs. The packages are currently unsigned.
-
-Suggested release notes are in RELEASE-NOTES.md. The package has been tested on the classic 18.8.62_EP1 live client; support is limited to the audited DLL hashes. Keep this release marked as a prerelease while broader hardware, zoning and long-session testing continues.
-
-To create future archives after building:
-
-```powershell
-python tools/package-release.py --version 0.3.0-preview.2 --build-dir build/windows-release
-```
-
-Packaging includes only whitelisted source folders and release files. It excludes local builds, logs, captures, personal settings and proprietary game DLLs. Add a known prior release's DLL hashes to release/known-builds.json when needed for receipt-free upgrades from that release.
-
-Reference: https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository
+Source exports omit builds, logs, personal settings, private original references and proprietary game binaries. LICENSE, upstream attribution and third-party notices are included.

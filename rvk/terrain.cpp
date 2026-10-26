@@ -3,6 +3,7 @@
 // repeats.
 #include "internal.h"
 #include "material_maps.h"
+#include "terrain_materials.h"
 
 #include <algorithm>
 #include <cmath>
@@ -184,8 +185,14 @@ const TerrainFit& Device::TerrainFitFor(uint64_t key, const void* vertices, uint
 // the identity), its tile's mean colour (the rock on its cliffs is tinted to it) and which pass this is.
 void Device::FillTerrainRecord(DrawTransform& dt, const TerrainFit& fit, uint32_t pass, const Texture* base) const
 {
-    if (!fit.tiled || !TerrainTexturingOn()) return;
-    dt.terrain[0] = fit.cellScale;
+    if (!TerrainTexturingOn()) return;
+    // Retail ground chunks can contain rotated transition cells that fail the
+    // square-tile fit. Verified terrain identity still permits world-space cliff
+    // projection; flat surfaces retain their original UVs and painted masks.
+    const bool knownGround=m_sharedTerrain>0 && m_skyPlayfield &&
+        m_drawVisualKind==uint32_t(VisualKind::Terrain) && base && materials::IsGroundType(base->m_rdbType);
+    if (!fit.tiled && !knownGround) return;
+    dt.terrain[0] = fit.tiled ? fit.cellScale : .25f;
     for (int c = 0; c < 3; ++c) dt.terrainAt[c] = base ? base->m_mean[c] : -1.0f;
     dt.terrainAt[3] = float(pass);
 }

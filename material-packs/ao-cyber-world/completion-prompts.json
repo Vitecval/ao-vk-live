@@ -1,0 +1,905 @@
+{
+  "mode": "built-in image_gen",
+  "prompts": [
+    {
+      "type": 1010004,
+      "id": 6221,
+      "source": "completion-1010004-6221-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: square tileable game building albedo texture. The attached image is the exact edit target from an existing Anarchy Online building. Rework this into a high quality modern sci-fi industrial wall, retaining the exact rusty brown and dark teal palette, panel shapes, joins, rivet positions, central horizontal rail and thin vertical seams. Upgrade the actual surfaces with convincing fine manufactured panel structure, restrained oxidation, worn paint and subtle fasteners. Preserve the original UV layout, all large features and edge colours; no new windows, no extra ornaments, no writing, no neon. This must remain a flat orthographic square material texture filling the ENTIRE canvas, edge to edge; not a rendering of a wall in a room. Calm readable medium scale detail, smooth mip-friendly broad panels, no aggressive grain or sharpening. Soft neutral diffuse illumination, no baked reflections or strong highlights, no cast shadows, no vignette, no frame. Metal will be shaded reflectively by the renderer; do not bake bright white reflections into its paint.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas; original aspect retained by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 38724,
+      "source": "completion-1010004-38724-v2",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize warm cream sandstone pillar face with the existing two slim alien-glyph bands and horizontal block joins at their EXACT normalized UV positions. Dry honed mineral pores, restrained worn edges, matte natural stone, NO metal or glow. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 2,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41509,
+      "source": "completion-1010004-41509-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: drop-in game building albedo texture. Input image 1 is the exact edit target. Rework it into high-quality modern-game the existing pale warm stone doorway surround and its four broad horizontal masonry courses, retaining every seam location and the muted beige palette. Modern detailed dry stone, restrained worn edges and smooth mineral planes. No metal, glass, glowing lines or extra architecture. Retain the original UV layout, proportions, all main features, border colours and orientation precisely. Keep the output a vertical 1:2 rectangle, the texture itself filling the entire image edge to edge, flat and orthographic. Soft neutral diffuse lighting. No baked directional highlights, cast shadows, perspective, bevelled presentation frame, vignette or background. Avoid aggressive grain, oversharpening and big dark stains. Calm medium-scale detail suitable for smooth mipmaps. This replaces texture artwork on the existing AO model; it is not concept art of a new object.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas; original aspect retained by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41512,
+      "source": "completion-1010004-41512-v2",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize dark brown-black coated metal doorway rib pattern, exactly the source's vertical recessed stripes and horizontal seam locations. Keep the flattened/stretched UV canvas exactly as supplied, not a freestanding door frame, NO white margins. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 2,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41510,
+      "source": "completion-1010004-41510-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the existing brown sci-fi Clan door panel, preserving the exact central octagonal outline, narrow inset teal keypad and vertical recessed rail positions. Coated metal with gently machined fittings, very restrained edge wear. Keep the teal keypad in exactly its current rectangle, no new lettering or added neon. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 38722,
+      "source": "completion-1010004-38722-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize warm beige carved stone pillar upper atlas, precisely the inset square geometric glyph panel at the top and the rectangular stone panel pattern underneath. Sharper carved grooves and believable dry matte mineral detail without glows or metallic sheen. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41511,
+      "source": "completion-1010004-41511-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the original featureless dark smoky grey-brown glass pane. Retain its almost uniform dark neutral colour and existing subtle texture, with clean broad smooth areas and a very faint etched/dirty glass microtexture. No frame, objects, horizon, scenery, visible reflection streaks or baked white highlights. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41513,
+      "source": "completion-1010004-41513-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the original orange horizontal lamp diffuser with its dark brown metal surround and exact layout. Preserve the single amber light strip rectangle, corner brackets and original proportions on this normalized square UV canvas. No extra light strips. Flat unlit albedo, clean frosted orange diffuser, muted machined brown frame. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41516,
+      "source": "completion-1010004-41516-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the existing brown rectangular vent plate, with the black trapezoid grille in its EXACT original central position, dimensions and rib direction. Coated warm metal surround and a clean dark slatted grille with subtly machined edges. No new lights or panels. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41515,
+      "source": "completion-1010004-41515-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the original plain warm brown coated metal filler plate. Preserve broad quiet colour, faint recessed surface plane and existing sparse marks. Improve subtle manufactured material, very gentle finish variation, no aggressive rust, no added seams or objects. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8466,
+      "source": "completion-1010004-8466-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the existing square industrial floor-grate atlas. Preserve the exact regular square opening count, grid spacing and surrounding border. Dull brushed steel grid ribs, dark recessed openings, restrained edge wear. No bright chrome, wetness, extra outer frame or shadow. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41514,
+      "source": "completion-1010004-41514-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized game UV albedo atlas. Image 1 is the exact edit target. It has been technically normalized into a SQUARE canvas; the engine bake will restore the original aspect afterwards. Do NOT recompose the surface into a narrow strip, door, pillar or object. Repaint every pixel edge to edge on this SQUARE canvas. Modernize the original diagonal brown metal corner-bracket atlas with its inset diamond-angled grooves and central junction. Retain EXACT diagonal seam locations and muted brown palette, add precise machined bevels, restrained wear and softly brushed coated metal. No new panels or lights. Preserve the exact normalized UV footprint and all original large features. Keep all four edges covered by the same material as the source. Soft neutral diffuse lighting only, no perspective, directional highlights, cast shadows, presentation borders, white margins, vignette or ground plane. Smooth mip-friendly broad surfaces; clear medium-scale detail, restrained grain and no oversharpening. An actual drop-in texture, not object concept art.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 38735,
+      "source": "completion-1010004-38735-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework warm pale sandstone pillar facing. Preserve the exact staggered long horizontal masonry courses and subtle glyph-free beige stone. Dry honed stone with fine mineral pores and gently worn joints, no metal or glass. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 23139,
+      "source": "completion-1010004-23139-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework dark slate-blue ribbed industrial building floor-edge panel. Preserve the existing many fine straight vertical ribs, the two broad horizontal dark rail positions, and flat upper border. Coated ribbed alloy with crisp structured channels and gentle wear. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 21525,
+      "source": "completion-1010004-21525-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original brown metal Clan doorway atlas, preserving the three right-hand inset ventilation slots, the pale slim lamp at the top and their exact boundaries. Modern coated alloy and precise bevels, smooth calm panel regions, restrained wear, no additional neon. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25581,
+      "source": "completion-1010004-25581-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework plain dark cool slate-blue architectural composite cladding, with subdued manufactured roughness and tiny mineral/paint texture. Keep its nearly uniform plane and blue-grey colour; replace smeared gritty pixels with calm refined detail, no added panel seams, patterns, lights or rust. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25580,
+      "source": "completion-1010004-25580-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original slate-blue building lower-wall atlas, preserving the upper recessed rectangular panel row, all narrow decorative vertical ribs, the straight horizontal break and the quiet blue-grey lower plane. Crisp blue coated composite metal, clean fitted joints and subtle restrained wear. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 27751,
+      "source": "completion-1010004-27751-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original bay-window building atlas. Keep the EXACT three tall vertical pane groups, curved/angular outer framing and horizontal divisions at one-third and two-thirds height. Replace the chalky opaque panes with dark smoky blue-grey real glass, with a restrained cool reflection tint, and refine the slim dark coated metal frames. The pane silhouettes and UV locations must remain exactly as in the reference. No white blown-out reflections, no scenery or extra lights. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 27843,
+      "source": "completion-1010004-27843-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original blue-grey building over-entrance atlas, retaining the exact deep central vertical recess, diagonal overhang edges, the small pale rectangular sign/light inset at the bottom and dark vent strip. Fine ceramic-composite cladding, calm nonmetal panels, crisp precise seams, no added signs or lights. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25582,
+      "source": "completion-1010004-25582-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original plain dark blue-grey under-roof panel framed by two raised vertical side ribs and horizontal lower boundary. Refine clean architectural composite, fine dry mineral detail, quiet broad surface and subtle edge wear. Keep it matte and preserve every border position. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8606,
+      "source": "completion-1010004-8606-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the existing sci-fi door interior: pale brushed steel upper/lower horizontal frames around a dark inset centre with evenly spaced vertical channels. Preserve exact channel count and every boundary, enhance machined steel with gentle wear, no new lights, no baked bright reflections. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8682,
+      "source": "completion-1010004-8682-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized building UV albedo texture. Image 1 is the exact edit target and has been normalized into a SQUARE UV canvas; the bake restores original aspect. Preserve the normalized UV layout and border positions exactly. Rework the original cool grey subtly weathered metal door plate with its single thin black vertical vent near the left edge. Preserve exact vent position and size, the dull neutral panel colour and edge boundaries. Crisp black grille slats and refined matte coated alloy, no extra graphics. High-quality modern sci-fi game art compatible with the existing AO model. The texture must cover the entire square edge to edge. Flat orthographic albedo with soft neutral diffuse illumination, no presentation borders, white margins, perspective, scenery, ground, vignette or cast shadows. No aggressive uniform grain or oversharpening. Keep broad planes calm and mip-friendly; detail should be deliberate manufactured or natural material structure. Do not add arbitrary geometry, ornaments, glowing paint or text.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 36601,
+      "source": "completion-1010009-36601-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade warm pink-beige interior stone/plaster facing with the existing gently irregular hairline cracks. Fine matte mineral pores and smooth calm worn stone, no giant cracks, no metal or gloss, no added block joints. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 74018,
+      "source": "completion-1010009-74018-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade plain dark olive-brown interior panel with its existing subtle vertically brushed texture. Keep a quiet nearly uniform plane, fine soft manufactured finish and restrained wear. No added seams, lights, objects or heavy grime. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 30643,
+      "source": "completion-1010009-30643-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original warm pale cream stone floor/wall tile, with precisely THREE columns and TWO rows of rectangular slabs. Keep all joint positions, widths, edge joins and original palette. Refined dry honed sandstone aggregate, tiny mineral pores, gently worn edges, calm broad faces, no metal or wet finish. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 40587,
+      "source": "completion-1010009-40587-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original warm pink-beige stone cladding with its single central horizontal carved meander border at exactly the original UV height and thickness. Preserve the exact angular repeating pattern and plain stone above and below. Detailed matte carved stone and restrained hairline age cracks, no glow or metal. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6223,
+      "source": "completion-1010004-6223-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original brown and muted teal industrial inset panel atlas, preserving every rectangular seam, the single upper horizontal metal strap, central dark rib and lower plate boundaries. Refined coated steel, fine wear on corners and calm brown planes, no added lights. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 81946,
+      "source": "completion-1010004-81946-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original trash-bin body atlas, with dull olive-grey oxidized steel upper band, two narrow ochre horizontal rim strips near the top and a nearly black lower half. Preserve those exact UV boundaries and the dark value layout. Crisp subtly brushed and scuffed metal, realistic restrained worn coating, no new logos or objects. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 55879,
+      "source": "completion-1010004-55879-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original plain medium-dark grey save-terminal side panel with very fine vertical brushing and slightly darker side edges. Keep its calm uniform grey plane and existing boundaries. Refined coated steel, very subtle surface wear, no rivets, lines, text or lights added. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 56165,
+      "source": "completion-1010004-56165-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original dark brown-black save-terminal inner plate, with its narrow darker top and bottom rails and slight pale highlights on the right boundary. Precisely retain the large panel and rail proportions, modern coated metal with calm surface finish and restrained wear. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 85115,
+      "source": "completion-1010004-85115-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original industrial lamp metal-body atlas with rusty warm upper edge, slate-grey/teal central broad vertical panel and pale worn lower rim band. Preserve all normalized UV boundaries and fine existing seams. Detailed coated alloy, restrained oxidation at the edges, calm broad planes, no added glowing strips. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 16499,
+      "source": "completion-1010004-16499-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original olive-brown heavy metal crate face, with the exact inset square panel, beveled edge and rivet positions around all four sides. Modern coated steel, precise fitted joints, controlled wear on the edges, no additional symbols, text or lights. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 21070,
+      "source": "completion-1010004-21070-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the existing dark mossy weathered broken concrete/rock surface. Keep its uneven brown-green-grey palette, diagonal fracture positions and irregular stony planes, enhance natural rough dry concrete and mineral grain without aggressive noise. Completely non-metal, no wet shine or large added stones. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 81760,
+      "source": "completion-1010004-81760-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one normalized square game UV albedo atlas. Image 1 is the exact edit target, normalized to SQUARE UV coordinates; the bake restores original aspect. Upgrade the original tightly packed flattened junk/debris pile atlas. Preserve the large pale paper scraps, crushed grey metal fragments, dark gaps and irregular overlapping silhouettes in their existing locations. Make the debris believable and sharply readable at medium scale, with muted dirt and restrained surface detail, no new recognizable logos or writing, no polished highlights. Preserve the complete normalized UV layout, original palette, major shapes, border colours and orientation. Every pixel of the square canvas must contain texture artwork edge to edge. Flat orthographic albedo, soft neutral diffuse illumination only. No perspective, scene, background, outer frame, white margins, vignette, directional shine or cast shadows. No oversharpening, uniform sandpaper noise or excessive grime. Calm detailed modern-game materials, compatible with the existing AO mesh.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6249,
+      "source": "completion-1010004-6249-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original soft golden-green tiny shrub/grass sheet, keeping its overall ochre and olive palette, dense fine vertical stems, existing distribution and brightness. Refined readable fine leaves and blades, no large new branches, no flowers, no sparse cutout against black. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 95574,
+      "source": "completion-1010004-95574-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the exact original clump of dry tan grass blades, each blade following its existing silhouette, position, width and bend. Add fine longitudinal fibres and gentle natural colour variation. Retain the original muted brown-beige background and dark/golden blade palette; no extra stalks, seed heads, objects or cast shadows. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6289,
+      "source": "completion-1010004-6289-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original dark cool green-grey fissured bark, with its same vertical irregular cracked plates and moss tint. Realistic dry bark fibre, shallow crevices and restrained lichen, preserving the large fissure layout. No metallic sheen, wetness, glow or huge added knots. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 95359,
+      "source": "completion-1010004-95359-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the exact original clump of fresh olive-green grass blades, preserving every blade's location, length, silhouette and bend. Fine leaf veins, soft green/tan variation and natural smooth edges. Keep the original olive background colour. No extra grass clumps, flowers or shadows. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 9653,
+      "source": "completion-1010004-9653-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the exact existing fan of thin dry thorny shrub stems against its muted dark olive-brown background. Preserve stem positions, branching structure, width and footprint precisely. Fine rough stem fibre and subtle tan variation, no added leaves, thorns, flowers or black replacement background. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 13142,
+      "source": "completion-1010004-13142-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original reddish-brown vertical tree bark with olive moss in its long channels and scattered tiny pale lichen spots. Preserve the main furrow positions and palette. Natural fine dry bark fibre and soft moss texture, no shiny surface, no giant white spots or new branches. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 20951,
+      "source": "completion-1010004-20951-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original elongated dark olive-green jungle leaf-frond atlas. Preserve every long leaflet tip, its pointed outline and horizontal band positions precisely, with fine natural leaf veins and gentle thickness. Retain original olive background and green/brown palette, no new stems or fronds. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6270,
+      "source": "completion-1010004-6270-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original warm russet cracked bark surface with small olive moss patches. Preserve the long diagonal/vertical plate boundaries and all existing broad colour regions, with natural dry fibre, small rough ridges and restrained moss. No bright pink colour shift, shine or added knots. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25911,
+      "source": "completion-1010004-25911-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the existing moss-green vertical tree-trunk bark, preserving long soft vertical ridges, broad green colour distribution and slim dark furrows. Refined dry bark under gentle moss coverage, subtle fibres and shallow fissures, not grass or wet slimy moss. No new branches, knots or white flecks. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 21010,
+      "source": "completion-1010004-21010-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original yellow-olive jungle palm-frond atlas, retaining exactly the leaflet count, horizontal elongated pointed tips, spacing and the orange-brown upper-right colour region. Add fine veins and gently fibrous leaf surfaces while keeping the original silhouette and UV footprint. No new branches or black background. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 31899,
+      "source": "completion-1010004-31899-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the original deeply ridged warm brown spooky bark surface, with precisely its existing irregular interlocking bark scales and slanted furrows. Dry natural rough wood, readable medium-scale ridges and restrained pores, no shiny resin, metal, wetness or grotesque faces. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25904,
+      "source": "completion-1010004-25904-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: one square normalized foliage UV albedo texture. Image 1 is the exact edit target, normalized into square UV coordinates; the bake restores the original aspect and the renderer preserves the game's ORIGINAL alpha cutout. Rework the existing alien blue-purple leaf surface, preserving the full-frame magenta-violet palette, pale pink central vertical vein/bright region and darker purple top and side regions. Refine subtle organic leaf-vein and fibre detail, keeping its unusual AO alien-plant design. No new leaf silhouette, stems, flowers, glow halos, white specular streaks or photoreal green recolouring. Preserve the precise normalized UV layout and every important shape. Output a square texture filling the entire canvas edge to edge. The original background and empty regions must retain their source colours, because the game's alpha supplies transparency later. Soft neutral diffuse lighting only; completely matte natural organic material. No scenery, perspective, decorative borders, white margins, cast shadows, vignette, added objects, oversharpening or uniform gritty noise. Detailed modern-game plant artwork fitted to the existing AO model.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 75376,
+      "source": "completion-1010009-75376-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as brushed steel diamond tread, exactly the same repeat size, interlocking diagonal raised lozenges and grey colour. Smooth satin steel with shallow clean tread recesses and restrained wear. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 9903,
+      "source": "completion-1010009-9903-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as pale warm grey plaster and fine mineral stone, subtle larger-scale variation and fine matte pores, no new seams. Calm clean softly aged wall, no speckled grain. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 36602,
+      "source": "completion-1010009-36602-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as warm dusty pink/beige carved stone with precisely the same carved alien emblem near the upper portion and all crack locations. Sharpen the existing carving, do not invent symbols, matte stone. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 40588,
+      "source": "completion-1010009-40588-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as warm pink sandstone wall with precisely the same central carved ornamental band, star/maze flower glyph and original thin cracks, matte. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 42008,
+      "source": "completion-1010004-42008-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as the same narrow architectural light strip UV atlas: two pale neutral diffuser rectangles left and right, central dark metal mullion and dark top and bottom bands. Clean manufactured lamp, no glowing haze, no overexposure, keep panel illumination baked only as moderate pale ivory. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 35838,
+      "source": "completion-1010004-35838-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as dark desaturated teal square cladding, same thin top ventilation slats and large main recessed lower panel. Satin weathered coating with smooth restrained fine wear. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26853,
+      "source": "completion-1010004-26853-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as dark bluegrey large framed cladding, same large broad central rectangle, narrow pale blue horizontal top strip and dark thick vertical edge rails. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26859,
+      "source": "completion-1010004-26859-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as dark moss-grey wall base atlas, exactly the same two horizontal panel divisions, narrow pale upper rail, dark central seam and small bottom ventilation grille. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26169,
+      "source": "completion-1010004-26169-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as plain dark bluegrey rough composite panel, no new seams, calm detailed fine surface with realistic medium-scale subtle wear, matte nonmetal composite. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26857,
+      "source": "completion-1010004-26857-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as dark grey door recess, deep upper black gradient and three same short angled inset shapes just above the lower quarter. Keep original low contrast and all features aligned. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 40741,
+      "source": "completion-1010004-40741-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as pale ochre sandstone cladding, same mostly plain mineral field, faint sparse hairline cracks and subtle lower horizontal join, matte and dry. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 40743,
+      "source": "completion-1010004-40743-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement modern-game building albedo. Image 1 is the EXACT original UV atlas, technically normalized into a square; the bake will restore its original aspect. Repaint as warm ochre carved sandstone ornamental horizontal frieze, EXACT same repeated angular alien glyph design and band proportions. Refine grooves, not new ornament, matte dry stone. Preserve the exact original UV coordinates, broad shapes, feature positions, border colours, relative widths and orientation. Full canvas edge to edge, flat orthographic texture only. Do not recompose into a narrow object, add blank margins, a presentation frame, perspective, directional shadows, vignette, strong white reflections, neon, lettering or unrelated ornaments. Smooth readable medium-scale surface detail, fine craftsmanship, no aggressive random grain or sharpening. Soft neutral diffuse illumination; stone must stay matte and metal should have no baked glare.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6027,
+      "source": "completion-1010004-6027-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain dark olive-grey rooftop concrete with the same pale top and bottom edge strips, fine mineral pores, faint rain ageing, matte. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010009,
+      "id": 30653,
+      "source": "completion-1010009-30653-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game warm dusty pink sandstone wall, exact thin top border and existing geometric diamond band across the bottom. Keep original carving, cracks and faint mineral grain, dry matte. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 18790,
+      "source": "completion-1010004-18790-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game industrial dark grey pillar atlas, exact three narrow vertically stacked recessed slots around the centre, same horizontal joins and softly worn grey coating. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 234531,
+      "source": "completion-1010004-234531-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain light neutral grey satin metal with subtle fine manufactured finish, no added seams, no blotchy grain, retain uniform colour. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43500,
+      "source": "completion-1010004-43500-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark green-grey sci-fi tower facade with exactly two tall thin green-white recessed window strips in their original locations. Dark fine panel joints and restrained aged coating, no added windows. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 30003,
+      "source": "completion-1010004-30003-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game weathered green-grey vertical timber planks, same faint plank divisions and original low contrast. Crisp realistic wood fibres without coarse noise, dry matte wood not metal. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43583,
+      "source": "completion-1010004-43583-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark green-grey wall facade with one tall thin green-white centre window in the original position, exact dark side recesses and narrow panel divisions. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26858,
+      "source": "completion-1010004-26858-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark olive-grey flat facade with exactly two narrow blue-white ornamental light lattice strips at far left and right. Preserve the precise lattice design, panel edges and small lower band. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 159277,
+      "source": "completion-1010004-159277-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game pale bluegrey sci-fi single door atlas, dark narrow left recess with exact inset stepped rectangular grooves and small upper-right rectangular grille. Preserve all proportions. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43364,
+      "source": "completion-1010004-43364-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game near-black vertical rooftop ribs, same broad longitudinal channels and original subtle green-brown tint, clean smooth coated metal. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41459,
+      "source": "completion-1010004-41459-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark maroon-red doorway side panel, same triangular central recess and precisely the same three localized blue triangular insets. Sharpen coated metal craftsmanship, no new glowing lines. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 37238,
+      "source": "completion-1010004-37238-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game square mission-terminal sign, exact large dark capital M centred on frosted pale mint-white square glass with dark green metal bezel. Retain the M letter precisely and its full size. Crisp readable manufactured sign, no extra text. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 25478,
+      "source": "completion-1010004-25478-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game greyblue door side strip with exact two dark longitudinal edge rails and central brushed silver panel. Retain the plain minimal layout. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 37240,
+      "source": "completion-1010004-37240-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game square teal-blue mission terminal screen. EXACT text on three lines: MISSION / CENTRAL / M. The last M is a large single capital centred on lower half. Preserve original layout and dark teal frame. Clean crisp readable cyan typography on dark teal glass, no new text. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6133,
+      "source": "completion-1010004-6133-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game narrow industrial hazard band with exactly the same alternating diagonal yellow and charcoal stripes. Smooth worn paint, precise edges, restrained abrasion, same repeat scale. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6051,
+      "source": "completion-1010004-6051-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game warm pale grey-brown industrial riveted plate, same two horizontal rivet rows and central narrow vertical seam, restrained fine oxidized paint, not glossy white. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 26712,
+      "source": "completion-1010004-26712-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark neutral entrance recess, original large upper black fade and grid of dark square back-wall panels plus same lower diagonally striped floor strip. Keep very dark inner wall, matte dry. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 258360,
+      "source": "completion-1010004-258360-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain light warm-grey aged metal sign back, same broad low contrast discolouration, tiny restrained oxidation, no new seams or writing. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 258361,
+      "source": "completion-1010004-258361-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain aged dull olive-grey finely perforated sign backing, original tiny square woven/perforation grid scale, subtle rust, matte nonreflective recesses. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 99837,
+      "source": "completion-1010004-99837-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dense brown-gunmetal industrial pipe atlas, preserve EXACT arrangement of slim vertical pipes in left half and varied vertical conduits and elbow joints in right half, horizontal lower brace. Refine machining and thin worn edges, no bright glare. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 20917,
+      "source": "completion-1010004-20917-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game rust-aged grey industrial dock plate with exact upper horizontal strip, big central right rectangular metal patch and left narrow dark red slot, desaturated teal lower band, keep all panel coordinates. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 85112,
+      "source": "completion-1010004-85112-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game pale muted grey-rose lamp metal strip with the same broad faint vertical crease near centre, very subtle aged metal, calm clean panel, no new seams. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6231,
+      "source": "completion-1010004-6231-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain cool bluegrey lightly textured metal top, preserve the original broad subtle irregularity, fine manufactured pores, no introduced seams, restrained satin. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 5946,
+      "source": "completion-1010004-5946-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark rusty brown plate grid with same broad horizontal and vertical divisions and thin seams. Fine oxidized steel surface, keep original low contrast, no bright scratches. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8681,
+      "source": "completion-1010004-8681-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain vertically brushed silver-grey narrow industrial detail strip, same fine directional streaks, quiet subtle patina, no new divisions or rivets. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8248,
+      "source": "completion-1010004-8248-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dry irregular brown stone paving, EXACT same polygonal block outlines and joint coordinates, natural fine mineral grain and softly chipped joints. Absolutely matte, no wetness, no metallic highlights. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 18487,
+      "source": "completion-1010004-18487-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game discarded packaging and litter UV atlas: preserve EXACT separate island locations, black padding, upper-left white yellow-edged newspaper strip, lower-left crumpled colourful wrappers, right upright white red-letter packet, two small pale bottles below middle, brown lower-right cardboard. Sharpen existing artwork and paper creases without inventing new objects or readable brands, dry matte paper and plastic. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 295918,
+      "source": "completion-1010004-295918-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game large worn industrial container atlas, exactly the same narrow vertical slats on upper left, rectangular lower-left doors, central hinge rows and right big door with top horizontal bar and narrow vent. Muted grey painted steel, fine wear, no new symbols. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6062,
+      "source": "completion-1010004-6062-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game warm pale grey industrial lower panel with the exact horizontal rolled join around upper third, fine worn paint and soft subtle stains, no extra divisions. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 6057,
+      "source": "completion-1010004-6057-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain cool blue-grey oxidized industrial metal sheet with very subtle fine vertical streaks and pink-grey wear, smooth subdued satin, no new panels. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 99840,
+      "source": "completion-1010004-99840-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game plain warm dark rusty brown metal surface, soft subtle fine corrosion, calm smooth low contrast field, no seams, no coarse grain. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 14714,
+      "source": "completion-1010004-14714-v1",
+      "mode": "built-in image_gen",
+      "prompt": "Use case: style-transfer. Asset type: replacement Anarchy Online game surface UV albedo texture. Image 1 is the exact original edit target, normalized to a square UV atlas. Rework into high quality modern-game dark olive grey wall panel with exact thin upper row of small pale horizontal recessed lamp slots and larger smooth lower panel. Preserve top slot count and positions, no new ornament. Preserve original layout, relative island sizes, all feature positions and orientation, palette and border colours EXACTLY; the bake restores its original aspect ratio. Full square texture canvas edge to edge, no letterboxing, no frame, no object on a presentation background, no 3D perspective, no cast shadow, no vignette. Fine restrained craftsmanship, smooth readable broad surfaces with clean medium-scale detail, avoid aggressive noisy grain, oversharpening and white reflective glare. Neutral diffuse lighting. Metal satin, stone and organic material matte; light only the original lamp/screen areas. Do not add a new design.",
+      "variant": 1,
+      "reference_preparation": "original UV atlas normalized to square; original aspect restored by runtime bake",
+      "review": "flat atlas reviewed; live fit pending"
+    }
+  ]
+}

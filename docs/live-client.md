@@ -32,11 +32,21 @@ The first graphics startup can take longer while the driver compiles shaders. La
 
 ## Graphics and in-game options
 
+**Ctrl+Shift+F12 → General → Pause rendering when AO is not focused** suspends
+graphics for background clients, retaining their last picture until you switch
+back. The game stays connected and continues its simulation; its CPU work is
+not eliminated. Rendering resumes automatically. Minimized windows already
+suspend rendering. This new option defaults off and stays unchanged by presets.
+
+**Ultra** now selects Cyberpunk world artwork, global terrain/building detail
+at 1, full character/equipment materials and moderate distant horizon haze.
+The live client's experimental replacement ground remains off.
+
 Select **Primary Display Driver** in the launcher. This is the device name advertised by the Vulkan wrapper; it does not select CPU rendering. `randy-vk.log` identifies the actual Vulkan GPU. The game still uses the CPU for simulation and preparing frames.
 
 Press **Ctrl+Shift+F12** for AO-VK's standalone options panel. Use Tab / Shift+Tab to change category, Up / Down to select an option, Left / Right to change it, Backspace to restore its default, and Esc to close. Shift makes numeric changes larger. Changes apply immediately and save automatically. On the preset row, Left / Right chooses and Enter applies. The console's `options` command opens the same panel; the key left of 1 opens the console. This panel is separate from the game's F10 preferences and requires no AOReloaded DLL.
 
-The native terrain replacement is disabled by default on live: testing in ICC confirmed missing terrain with it enabled, and correct terrain when only `RVK_GroundOn` was disabled. The game still draws its terrain through Vulkan with the other enhancements available. The first run of this build switches this setting off in an existing INI; graphics presets keep it off. An explicit experimental opt-in remains possible. This is a compatibility workaround, not a repair of the replacement terrain path.
+The native terrain replacement remains disabled by default on live. Preview.6 repairs the known invisible-ground path: live's combined lightmap draw is now replaced with a complete native draw, and unknown passes retain AO's original draw. Synthetic GPU tests cover both cases; actual playfields still need live review before enabling it by default. Other Vulkan improvements work with the original ground mesh.
 
 Grass is enabled by default and works over the original terrain. The live ground uses an opaque, lit draw with the lightmap at texture stage 0 and the ground texture at stage 1; AO-VK now captures both for grass generation. This does not require the experimental terrain replacement. Classic+, Modern and Ultra keep grass enabled. The performance HUD defaults to off; both grass and the HUD are available in Quick controls.
 

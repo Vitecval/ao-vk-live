@@ -21,7 +21,7 @@ add_library(randy31 SHARED proxy/dllmain.cpp proxy/trace.cpp proxy/ddraw/com_tra
             proxy/ddraw/rvk_materials.cpp proxy/exports.gen.cpp proxy/randy31.def)
 target_include_directories(randy31 PRIVATE proxy third_party)
 target_compile_definitions(randy31 PRIVATE _CRT_SECURE_NO_WARNINGS)
-target_link_libraries(randy31 PRIVATE randy_native rvk user32)
+target_link_libraries(randy31 PRIVATE randy_native rvk user32 cabinet)
 set_target_properties(randy31 PROPERTIES OUTPUT_NAME randy31 PREFIX "")
 target_link_options(randy31 PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/randy31.map")   # for profiling: function addresses
 
@@ -36,7 +36,7 @@ file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def" CONTENT "${LIVE_DEF
 add_library(ao_vk_live SHARED ${RANDY_SOURCES} proxy/live/live.cpp "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def")
 target_include_directories(ao_vk_live PRIVATE proxy third_party)
 target_compile_definitions(ao_vk_live PRIVATE _CRT_SECURE_NO_WARNINGS RANDYVK_ADDON)
-target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32)
+target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32 cabinet)
 set_target_properties(ao_vk_live PROPERTIES OUTPUT_NAME ao-vk PREFIX "")
 target_link_options(ao_vk_live PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/ao-vk.map")
 add_library(ao_vk_loader SHARED proxy/live/ddraw.cpp proxy/live/ddraw.def)
@@ -122,7 +122,9 @@ endforeach()
 
 # The cliffs' rock (rvk terrain.cpp, rvk/assets/terrain): JPEGs embedded as byte arrays.
 set(RVK_ASSET_INCS)
-foreach(entry "cliff_side_diff_1k.jpg|kRockAlbedo" "cliff_side_nor_gl_1k.jpg|kRockNormal" "cliff_side_arm_1k.jpg|kRockOrm")
+foreach(entry "cliff_side_diff_1k.jpg|kRockAlbedo" "cliff_side_nor_gl_1k.jpg|kRockNormal" "cliff_side_arm_1k.jpg|kRockOrm"
+              "shared-grass.png|kSharedGrass" "shared-dirt.png|kSharedDirt" "shared-gravel.png|kSharedGravel"
+              "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock")
     string(REPLACE "|" ";" asset "${entry}")
     list(GET asset 0 file)
     list(GET asset 1 name)
@@ -191,6 +193,7 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
 add_library(rvk STATIC rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
+target_sources(rvk PRIVATE rvk/shared_terrain.cpp)
 target_include_directories(rvk PUBLIC rvk PRIVATE "${RVK_SHADER_OUT}" third_party third_party/fsr2)   # (stb: terrain.cpp decodes the embedded rock)
 # Vulkan headers and VMA come from the SDK; /imsvc keeps their warnings quiet.
 target_compile_options(rvk PUBLIC "/imsvc${VULKAN_SDK_DIR}/include")
@@ -203,6 +206,25 @@ target_compile_definitions(rvk_demo PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(rvk_demo PRIVATE third_party)
 target_link_libraries(rvk_demo PRIVATE rvk)
 target_link_options(rvk_demo PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/rvk_demo.map")   # for profiling (tools/profile-demo.sh)
+
+add_executable(smoke_ring_check tests/smoke_ring_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(smoke_ring_check PRIVATE third_party)
+target_link_libraries(smoke_ring_check PRIVATE rvk)
+
+add_executable(material_catalog_check tests/material_catalog_check.cpp)
+target_include_directories(material_catalog_check PRIVATE rvk)
+
+add_executable(shadow_cache_check tests/shadow_cache_check.cpp)
+target_include_directories(shadow_cache_check PRIVATE proxy)
+target_link_libraries(shadow_cache_check PRIVATE cabinet)
+add_executable(diagnostic_walk_check tests/diagnostic_walk_check.cpp)
+target_include_directories(diagnostic_walk_check PRIVATE proxy)
+add_executable(object_cache_check tests/object_cache_check.cpp)
+target_include_directories(object_cache_check PRIVATE rvk)
+target_compile_options(object_cache_check PRIVATE /UNDEBUG)
+add_executable(grass_coverage_check tests/grass_coverage_check.cpp)
+target_include_directories(grass_coverage_check PRIVATE rvk)
+target_compile_options(grass_coverage_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)

@@ -71,7 +71,11 @@ enum : uint32_t { kTerrainBase = 1, kTerrainLight = 2 };   // DrawTransform terr
                                                            // lighting pass, which reads the base's maps (F_BUMPBASE, MAT_BASE)
 constexpr float kSkySceneryHaze = 2000.0f;     // the sky's scenery's haze: its colour left e^-(distance / this)
 enum : uint32_t { kMatPbr = 1, kMatBase = 2, kMatAlbedo = 4, kMatEmissive = 8, kMatPicked = 16, kMatSky = 32, kMatCloudSheet = 64,
-                  kMatHeight = 128 };   // DrawTransform
+                  kMatHeight = 128, kMatCombined = 256, kMatAuto = 512,
+                  kMatOriginalAlpha = 1024, kMatOriginalAlpha1 = 2048,
+                  kMatWorld = 4096, kMatTerrainHD = 8192,
+                  kMatMineral = 16384, kMatHonedStone = 32768,
+                  kMatAuthoredGround = 65536, kMatAsphalt = 131072 };   // DrawTransform
                                                  // mat[2]: has an ORM map; it is the ground base's; stage 0 draws an
                                                  // albedo map; has an emissive map; its texture was picked
 // GPU-driven M2: one record a draw (binding 12). `constIndex` selects the shared DrawConstants it draws with; the
@@ -198,11 +202,13 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
                                    // clouds let through (its glints); z, w unused
     float fogBanks[4];             // fog banks (mist.cpp FogBankParams): their noise at the eye (x, z), how deep, how much
     float lightGrid[4];            // the frame lights' grid (Device::LightGridLights): its corner x, z, cells across, down
-    float cond[4];                 // the world's conditions (rvk.h Conditions): x the clouds' night; y, z, w unused
-    float screen[4];               // x, y scene pixels per back-buffer pixel (RVK_RenderScale: the motion vectors); z, w unused
+    float cond[4];                 // x clouds' night, y distant haze, z soft highlights, w brighter daylight
+    float screen[4];               // x, y scene scale; z, w optional distant haze clear/full distance
     float userFog[4];              // selected fog: RGB and visibility range (0 disabled)
     float userFog2[4];             // clear radius, nearby shade, drifting amount, style
     float userFogEye[4];           // world eye and animation time
+    float sharedGround[5][4];      // five master images (uint bits + 1), their RGB mean
+    float sharedGroundConfig[4];   // blend amount, repeats per world unit, spare, spare
     GpuLight lights[kFrameLights];
 };
 

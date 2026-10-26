@@ -134,18 +134,26 @@ public:
     // The texture's colour at (u, v), RGB 0..255, from the small grid taken at upload (resources.cpp
     // PixelsThumbnail); false until a full level-0 upload has been sampled.
     bool TexelRgbAt(float u, float v, uint8_t rgb[3]) const;
-    bool TexelRgbBilinear(float u, float v, uint8_t rgb[3]) const;   // ... filtered (the lightmaps)
+    bool TexelRgbBilinear(float u, float v, uint8_t rgb[3], bool clamp = false) const;   // ... filtered (the lightmaps)
+    float GrassCoverAt(float u, float v, bool clamp) const;
     // (A normal map, before the device is handed it: its alpha is a height map's - rvk/material_maps.h.)
     void SetAlphaHeight(bool height) { m_alphaHeight = height; }
+    enum class MaterialState : uint32_t { Original, Pending, Ready, Failed };
+    MaterialState MaterialsState() const { return m_materialState.load(std::memory_order_acquire); }
+    uint64_t MaterialDrawFrame() const { return m_materialDrawFrame.load(std::memory_order_relaxed); }
+    void MaterialsPending() { m_materialState.store(MaterialState::Pending, std::memory_order_release); }
 
 private:
     friend class Device;
+    std::atomic<MaterialState> m_materialState{MaterialState::Original};
+    std::atomic<uint64_t> m_materialDrawFrame{0};
     VkImage m_image = VK_NULL_HANDLE;
     VkImageView m_view = VK_NULL_HANDLE;
     VmaAllocation_T* m_allocation = nullptr;
     uint32_t m_width = 0, m_height = 0, m_levels = 1;
     Format m_format = Format::A8R8G8B8;
     bool m_renderTarget = false;
+    uint32_t m_materialRefs = 1;     // shared immutable optional maps; render-thread ownership only
     bool m_storage = false;            // also a storage image (CreateImage: FSR 2's output, fsr2.cpp)
     bool m_opaque = false;             // the texture's pixels are all alpha 1 (a blended static draw can be opaque)
     // Up to 64 x 64, from level-0 uploads: every texel black - with m_opaque, the PF map's tiles in AI missions
@@ -156,6 +164,8 @@ private:
     std::vector<uint8_t> m_thumb;
     uint32_t m_thumbW = 0, m_thumbH = 0;
     bool m_thumbValid = false;
+    std::vector<uint8_t> m_grassMask;   // grass coverage: at most 2048 bytes; all-zero masks need no allocation
+    uint32_t m_grassMaskSide = 0;
     float m_mean[3] = {-1.0f, -1.0f, -1.0f};   // its mean colour (0..1; from the grid above, -1 until then): the cliffs'
                                                // rock tinted to a ground cell's tile (terrain.cpp)
     // How it looks up close, for the native ground's pebbles (ground_pebbles.cpp; square, 128 texels or more, else -1):
@@ -183,6 +193,7 @@ private:
     bool m_alphaHeight = false;        // (a normal map) its alpha is a height map's height: drawn with parallax
     Texture* m_ormMap = nullptr;       // PBR material: R occlusion, G roughness, B metallic (owned; SetMaterialMaps)
     Texture* m_albedoMap = nullptr;    // drawn instead of this texture's own pixels (owned; SetMaterialMaps)
+    bool m_preserveAlbedoAlpha = false; // replacement RGB keeps the game's coverage / glow mask
     Texture* m_emissiveMap = nullptr;  // light the surface gives off, added to it (owned; SetEmissiveMap)
     // A tree canopy's own leaf art (leaves.cpp; owned; SetLeafArt): an atlas of 4 x 4 sprigs (twig base at each cell's
     // bottom middle) drawn in place of this canopy texture's cards, and its normal map; m_leafArtVersion counts changes.
@@ -190,6 +201,11 @@ private:
     Texture* m_leafArtNormal = nullptr;
     uint32_t m_leafArtVersion = 0;
     uint32_t m_rdbId = 0;              // the game's RDB texture it holds (SetTextureRdbId; 0: not known)
+    uint32_t m_rdbType = 0;            // frame inventories must distinguish terrain, room and character tables
+    uint32_t m_autoMaterial = 0;       // catalog roughness/metallic; 0 means unknown (explicit maps take priority)
+    uint32_t m_worldMaterial = 0;      // global architecture profile (top byte: material family)
+    bool m_preserveGroundColour = false; // built-in city paving uses original AO RGB
+    uint32_t m_buildingFamily = 0;     // reviewed artwork readiness group; personal overrides use zero
     uint32_t m_bindless = ~0u;         // its slot in the bindless image array (M1)
     // (Frame dump: its uploads, the frame of the last, and the non-zero bytes of the last whole level 0 - 256 x 256 or
     // smaller; ~0u: not counted.)
@@ -228,6 +244,12 @@ struct DeviceInfo {
 // this name), the member it sets, and what a change must refresh (C the draws' constants, L the frame lights, G the
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
+    X(TerrainHD, m_terrainHD, C|L)                /* global original-mesh terrain detail, 0..1 */ \
+    X(BuildingHD, m_buildingHD, C|L)              /* global architecture material/detail pass, 0..1 */ \
+    X(FarHaze, m_farHaze, C|L)                   /* distant outdoor horizon veil, 0..1 */ \
+    X(HazeStart, m_hazeStart, C|L)               /* nearby scenery stays clear */ \
+    X(HazeEnd, m_hazeEnd, C|L)                   /* veil reaches its selected strength */ \
+    X(MatStrength, m_materialStrength, 0)          /* character/equipment material response, 0..1 */ \
     X(WeatherMode, m_weatherMode, L)                /* 0 automatic, 1 clear, 2 overcast, 3 rain, 4 thunderstorm */ \
     X(WeatherAmt, m_weatherAmount, L)               /* selected rain/storm strength */ \
     X(FogMode, m_userFogMode, L)                    /* 0 automatic, 1 Halloween, 2 mist, 3 custom */ \
@@ -241,6 +263,9 @@ struct DeviceInfo {
     X(BloomOcc, m_bloomOverNearer, 0)                 /* the bloom over objects in front of its light (1 unchanged) */ \
     X(BloomWide, m_bloomWide, 0)                      /* the bloom's wide haze round its core (0 even) */ \
     X(NeonSat, m_neonSat, L)                          /* coloured light keeps its colour (0: to white) */ \
+    X(SoftHi, m_softHi, L)                            /* gentler bright world surfaces */ \
+    X(DayLook, m_dayLook, L)                          /* brighter, neutral daylight presentation */ \
+    X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
@@ -281,6 +306,7 @@ struct DeviceInfo {
     X(Contact, m_contact, C)                          /* contact shadows' strength */ \
     X(Headroom, m_lightHeadroom, C|L)                 /* how bright local lights may make a surface (1..2) */
 #define RVK_BOOL_KNOBS(X) \
+    X(AutoMat, m_autoMaterials, C)                 /* catalog material defaults for characters and equipment */ \
     X(FogInside, m_userFogInside, L)                /* allow selected fog indoors too */ \
     X(Prepass, m_prepassOn, 0)                        /* the depth pre-pass */ \
     X(PrepassEq, m_prepassEqual, 0)                   /* pre-passed draws shaded only where their depth is */ \
@@ -408,12 +434,17 @@ public:
     // drawn like a normal map would be (per-pixel lit, stage 0, plain coordinates; or the ground's base texture).
     // `albedo` is drawn instead of the texture's own pixels wherever the texture is used (a higher resolution
     // replacement; its alpha is used too). The device owns both and frees them with the texture; null removes one.
-    void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo);
-    void SetTextureRdbId(Texture* texture, uint32_t id) { if (texture) texture->m_rdbId = id; }
+    void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha = false);
+    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false);
+    void SetBuildingFamilyReady(uint32_t family, bool ready);
     // `emissive`: the light a texture's surface gives off (its colour, any resolution), added after the lighting and
     // as bright as PbrSettings::emissive - into the bloom with HDR. Owned by the device as above; null removes it.
     void SetEmissiveMap(Texture* texture, Texture* emissive);
     void SetLeafArt(Texture* texture, Texture* atlas, Texture* normal);   // (leaves.cpp: a tree type's own canopy)
+    void ShareMaterialMaps(Texture* texture, Texture* source); // immutable maps shared across RDB quality copies
+    void PublishMaterialMaps(Texture* texture, Texture* normal, Texture* orm, Texture* albedo,
+                             Texture* emissive, Texture* leaves, Texture* leavesNormal, bool preserveAlpha,
+                             bool complete);
     // Picking (the proxy's Ctrl+Shift+I textures, Ctrl+Shift+M meshes): the next frame's 3D scene draws are tested on
     // the CPU against the point (x, y: 0..1 across the target, y down) - GPU-skinned characters with their skinned
     // vertices - and the nearest one's stage 0 texture, visual and owning character (SetDrawVisual) are kept; LastPick
@@ -1002,6 +1033,7 @@ public:
     static constexpr uint32_t kFramesInFlight = 2;
 
 private:
+    friend struct SmokeRingCheck;                 // regression fixture: force a flush at the smoke pass
     struct Frame {
         VkCommandBuffer upload = VK_NULL_HANDLE, main = VK_NULL_HANDLE;
         // Depth pre-pass (prepass.cpp): the frame's main commands split at the scene's depth clear - `mainA` up to
@@ -1100,6 +1132,10 @@ private:
     bool m_constantsDirty = true;
     bool m_pixelLighting = false, m_lightingDebug = false, m_lightOverride = false;
     bool m_carrierLit = true;
+    bool m_autoMaterials = false;
+    float m_materialStrength = 1.0f;
+    float m_terrainHD = 0.0f, m_buildingHD = 0.0f;
+    float m_farHaze=0.0f, m_hazeStart=400.0f, m_hazeEnd=1200.0f;
     float m_lightHeadroom = 1.0f;
     float m_bump = 0.0f;
     bool m_normalMaps = true;
@@ -1254,11 +1290,22 @@ private:
     } m_rock;
     static std::shared_ptr<RockMaps> DecodeRock();
     void PollTerrainRock();
+    struct SharedTerrainMaps;
+    struct SharedTerrain {
+        Texture* images[5]{};
+        float means[5][3]{};
+        bool started = false;
+        std::future<std::shared_ptr<SharedTerrainMaps>> pending;
+    } m_sharedGround;
+    static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain();
+    void PollSharedTerrain();
+    void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
     bool TerrainTexturingOn() const
     {
-        return m_terrainSettings.cliff > 0.0f || m_terrainSettings.tiling > 0.0f || m_terrainSettings.variation > 0.0f;
+        return m_terrainSettings.cliff > 0.0f || m_terrainSettings.tiling > 0.0f || m_terrainSettings.variation > 0.0f ||
+               (m_sharedTerrain > 0.0f && m_skyPlayfield != 0);
     }
     Texture* m_drawBumpBase = nullptr;           // the current draw's (Draw)
     Texture* m_drawOrm = nullptr;                // the current draw's PBR material map (Draw)
@@ -1867,6 +1914,7 @@ private:
     bool ShadowReceiver(uint32_t fvf) const;
     bool IsShadowCaster(uint32_t primitive, uint32_t fvf) const;
     bool IsTerrain(uint32_t fvf) const;
+    bool IsCombinedTerrainPass() const;           // classic live: (lightmap + diffuse) * stage-1 base
     bool ShadowCompensated(uint32_t fvf) const;
     bool ShadowInLightmap(uint32_t fvf) const;
     bool IsMultiplyPass() const;
@@ -2331,6 +2379,7 @@ private:
     uint64_t m_objectPassing = 0;                // (lookups of objects not still: logged)
     uint64_t m_objectPredicted = 0;              // (lookups the order answered: logged)
     size_t m_objectCount = 0;
+    uint64_t m_objectGrowRetry = 0;              // back off optional cache allocation after memory pressure
     ObjectEntry* m_drawObject = nullptr;         // the current draw's, when it is a static mesh
     bool m_objectCache = true;                   // RANDYVK_OBJECT_CACHE=0: off (A/B)
     bool m_objectVerify = false;                 // RANDYVK_OBJECT_VERIFY=1: cached values worked out again and compared
@@ -2339,7 +2388,7 @@ private:
     uint64_t m_statelLookupGen = 1;              // m_statelLookup changed (ObjectEntry::statelKinds)
     ObjectEntry* FindObject();
     void PruneObjects();
-    void RehashObjects(size_t size, uint64_t keep);
+    bool RehashObjects(size_t size, uint64_t keep);
     bool DrawStatelCasting(uint32_t vertexCount, uint32_t indexCount);   // StatelPieceCasting for the current draw
     std::vector<GrassTile*> m_grassChunkGrid;    // CaptureTerrain's scratch: the tiles under a chunk
     uint64_t m_grassTileEpoch = 0;               // the latest tile made or light reset (the chunks' clock)
@@ -3030,6 +3079,7 @@ private:
     bool m_memoryBudget = false;                 // VK_EXT_memory_budget: the driver's usage and budget per heap
     VkDeviceSize m_textureBytes[2] = {};         // live textures' images: the game's, render targets
     uint32_t m_textureCount[2] = {};
+    uint64_t m_buildingFamiliesReady = 0;
     std::string GpuMemoryReport() const;
     void DestroyLeafResources();
     float m_pointLightScale = 1.0f, m_charLightScale = 1.0f;   // SetPointLightIntensity
@@ -3172,6 +3222,8 @@ private:
     void RenderTaa(VkCommandBuffer cmd, Texture* dst, const float params[28]);
     float m_bloomOverNearer = 0.15f;             // bloom left on objects in front of its light (1 = all)
     float m_neonSat = 0.0f, m_bloomWide = 0.0f;  // RVK_NeonSat, RVK_BloomWide (SetNeonSat, SetBloomWide)
+    float m_softHi = 0.75f;
+    float m_dayLook = 0.0f, m_sharedTerrain = 0.0f;
     float m_bloomWeightSum = 1.0f;               // the bloom levels' weights summed this frame (RenderBloom)
     bool m_bloomDepth = false;                   // this frame's bloom carries its light's depth
     std::vector<Texture*> m_bloomLevels;         // half resolution and down, float

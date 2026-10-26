@@ -1,0 +1,556 @@
+[
+  {
+    "type": 1010004,
+    "id": 82017,
+    "name": "factoryitem_plate4.png",
+    "source": "city-82017-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 82020,
+    "name": "screenmaterial.png",
+    "source": "city-82020-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "window",
+    "batch": "city-captures-2026-10-24",
+    "glass_rects": [
+      [
+        0.1,
+        0.06,
+        0.9,
+        0.94
+      ]
+    ],
+    "emission": "cyan",
+    "metal_rects": [
+      [
+        0,
+        0,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 82024,
+    "name": "factoryitem_plate3.png",
+    "source": "city-82024-v2",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 82022,
+    "name": "factoryitem_plate5.png",
+    "source": "city-82022-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 6085,
+    "name": "glowplate.png",
+    "source": "city-6085-v1",
+    "size": [
+      256,
+      128
+    ],
+    "profile": "diffuser",
+    "batch": "city-captures-2026-10-24",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 6082,
+    "name": "wallwith bars2.png",
+    "source": "city-6082-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 6069,
+    "name": "wallwindows.png",
+    "source": "city-6069-v2",
+    "size": [
+      512,
+      128
+    ],
+    "profile": "window",
+    "batch": "city-captures-2026-10-24",
+    "glass_rects": [
+      [
+        0.365,
+        0.08,
+        0.445,
+        0.72
+      ],
+      [
+        0.873,
+        0.08,
+        0.951,
+        0.72
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.345,
+        0.045,
+        0.465,
+        0.76
+      ],
+      [
+        0.853,
+        0.045,
+        0.97,
+        0.76
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6060,
+    "name": "yelplatewindow.png",
+    "source": "city-6060-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "window",
+    "batch": "city-captures-2026-10-24",
+    "glass_rects": [
+      [
+        0.13,
+        0.27,
+        0.88,
+        0.78
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.09,
+        0.15,
+        0.92,
+        0.89
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6186,
+    "name": "bright_light_2sq.png",
+    "source": "city-6186-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "city-captures-2026-10-24",
+    "emission": "white"
+  },
+  {
+    "type": 1010004,
+    "id": 6094,
+    "name": "brushedmetalrustypatches.png",
+    "source": "city-6094-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 19808,
+    "name": "ent_towermetalplate_simpel.png",
+    "source": "city-19808-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 42564,
+    "name": "betongwall_256x256_new_low_edge2.png",
+    "source": "city-42564-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 30012,
+    "name": "betongwall_256x128.png",
+    "source": "city-30012-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 30014,
+    "name": "trading_outpost_256x128_tall_window.png",
+    "source": "city-30014-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "window",
+    "batch": "city-captures-2026-10-24",
+    "glass_rects": [
+      [
+        0.43,
+        0.245,
+        0.54,
+        0.37
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.41,
+        0.23,
+        0.56,
+        0.39
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 9523,
+    "name": "Fine_steel_boxfront1.png",
+    "source": "city-9523-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 9522,
+    "name": "Fine_steel_boxtop.png",
+    "source": "city-9522-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 33201,
+    "name": "wood_crates.png",
+    "source": "city-33201-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "wood",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 18505,
+    "name": "container_medium-yellow.png",
+    "source": "city-18505-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 14636,
+    "name": "mainbuildingplate_darkdesaturatedgreen_dark.png",
+    "source": "city-14636-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 14263,
+    "name": "mainbuildingplate_darkdesaturatedgreen.png",
+    "source": "city-14263-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 21520,
+    "name": "newclan_cleanwall_cracked_upperfringe.png",
+    "source": "city-21520-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 21578,
+    "name": "Wall-plain-sign.png",
+    "source": "city-21578-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 21539,
+    "name": "newclan_cleanwall_cracked_upperwhiteborder.png",
+    "source": "city-21539-v2",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 21522,
+    "name": "2wall-clean_tileable.png",
+    "source": "city-21522-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 6112,
+    "name": "squarerimmedglowwhite.png",
+    "source": "city-6112-v1",
+    "size": [
+      128,
+      256
+    ],
+    "profile": "diffuser",
+    "batch": "city-captures-2026-10-24",
+    "emission": "white"
+  },
+  {
+    "type": 1010004,
+    "id": 295926,
+    "name": "container_large_khaki.png",
+    "source": "city-295926-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 32525,
+    "name": "4h_entrancedoor.png",
+    "source": "city-32525-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 32526,
+    "name": "4h_insidetechypart.png",
+    "source": "city-32526-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 5992,
+    "name": "shinystriped.png",
+    "source": "city-5992-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 18556,
+    "name": "slum_dirtywall.png",
+    "source": "city-18556-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 42560,
+    "name": "betongwall_256x256_new_low_edge_window.png",
+    "source": "city-42560-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "window",
+    "batch": "city-captures-2026-10-24",
+    "glass_rects": [
+      [
+        0.48,
+        0.39,
+        0.535,
+        0.49
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.46,
+        0.37,
+        0.55,
+        0.51
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 42555,
+    "name": "woodcrate_box.png",
+    "source": "city-42555-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "wood",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 42554,
+    "name": "fruit_cratestuff.png",
+    "source": "city-42554-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "organic",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 29484,
+    "name": "woodwall_128_dirty.png",
+    "source": "city-29484-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "wood",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 30004,
+    "name": "tubetoppart_metall.png",
+    "source": "city-30004-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 297464,
+    "name": "whompa_new_icc_d.png",
+    "source": "city-297464-v1",
+    "size": [
+      1024,
+      1024
+    ],
+    "profile": "concrete",
+    "batch": "city-captures-2026-10-24"
+  },
+  {
+    "type": 1010004,
+    "id": 31973,
+    "name": "omni_gravstotte_ilum.png",
+    "source": "city-31973-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24",
+    "emission": "cyan"
+  },
+  {
+    "type": 1010004,
+    "id": 31974,
+    "name": "omni_gravstotte.png",
+    "source": "city-31974-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "city-captures-2026-10-24"
+  }
+]

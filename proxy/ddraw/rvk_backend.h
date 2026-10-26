@@ -6,12 +6,14 @@
 #include "rvk.h"
 #include "skin.h"
 #include "threaded.h"
+#include "shadow_cache.h"
 
 #include <atomic>
 #include <map>
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <new>
 #include <vector>
 
 namespace rvkproxy {
@@ -24,6 +26,7 @@ const char* LogPath();
 // Texture writes through Lock on the game's thread since the last call (the 600-frame log line), then reset.
 struct TextureWrites { uint32_t locks, partial; uint64_t bytes; double ms; };
 int GameTexturesAlive();                          // the game's texture surfaces with a GPU texture now (rvk_surface.cpp)
+uint64_t TextureShadowBytesSaved();               // lossless cold CPU-copy storage, no GPU/quality changes
 TextureWrites TakeTextureWrites();
 void RvkLog(const char* fmt, ...);
 #ifdef RANDYVK_ADDON
@@ -38,7 +41,8 @@ void SmokeFrame();                                // each presented frame (rvk_s
 void TimeFrame();                                 // each presented frame (rvk_time.cpp: RVK_TimeOfDay)
 void StatelFrame();                               // each presented frame (rvk_statels.cpp: the playfield's pack)
 void GroundFrame();                               // each presented frame (rvk_ground.cpp: the native ground)
-void SetNativeGroundSetting(bool on);             // RVK_GroundOn (rvk_ground.cpp)
+void SetNativeGroundSetting(bool on);
+void SetSharedGroundDetailsSetting(bool on);             // RVK_GroundOn (rvk_ground.cpp)
 // The free camera (rvk_freecam.cpp, Ctrl+Shift+C): toggled; each presented frame; the native scene's camera.
 void FreeCamToggle(HWND window);
 void FreeCamFrame(rvk::ThreadedDevice* device, HWND window);
@@ -81,7 +85,9 @@ class RSurface;
 void AttachMaterialMaps(RSurface* top);           // after the surface's rvk texture is (re)created
 void PollMaterialMaps();                          // each present: uploads maps decoded in the background
 void ForgetMaterialMaps(RSurface* top);           // the surface is going: it no longer waits for maps
-void SetModernTexturePackEnabled(bool enabled); // optional ICC material pack; reloads affected live surfaces
+void SetModernTextureStyle(unsigned style); // 0 original, 1 classic ICC, 2 cyberpunk ICC; refreshes live surfaces
+void SetSharedTerrainSetting(bool enabled);
+void SetCharacterMaterialPack(bool enabled);       // optional replacement artwork follows the character toggle
 // What an rvk texture is, for texture picking: "RDB texture T:ID 'name', WxH; maps: _n.png ..." (reference: "T:ID").
 std::string DescribeTexture(const rvk::Texture* texture, std::string* reference = nullptr);
 // What a picked visual was made from: "RDB mesh 1010001:3545" (reference: "T:ID"), see rvk_materials.cpp.
@@ -96,6 +102,14 @@ public:
     ComScope(const ComScope&) = delete;
     ComScope& operator=(const ComScope&) = delete;
 };
+
+// COM methods are declared nothrow by the SDK. Never let allocation failure
+// escape into terminate while the game is loading a texture or zoning.
+template<class F> HRESULT ComHresult(F&& call) noexcept
+{
+    try { return call(); }
+    catch (const std::bad_alloc&) { return E_OUTOFMEMORY; }
+}
 
 #include "com_stub.gen.h"
 
@@ -167,9 +181,9 @@ struct RvkState {
     bool presentationSuspended = false;
 
     bool EnsureDevice(uint32_t width, uint32_t height);   // creates or resizes the rvk device
-    bool WindowDrawable();                              // suspend minimized/zero-area windows; refresh on restore
+    bool WindowDrawable();                              // suspend minimized/optional background windows; refresh on resume
     void SetWindow(HWND hwnd);                             // remember / attach the presentation window
-    void Frame();                                          // begins a frame if none is open
+    bool Frame();                                          // begins a frame if drawable; false while suspended
     void Present();                                        // ends (presents) the current frame
     uint64_t presentCount = 0;                             // frames presented (vertex buffers' change tracking)
 };
@@ -229,12 +243,16 @@ public:
     RSurface* top = nullptr;                       // level 0 (this for level 0)
     RSurface* nextLevel = nullptr;                 // owned by level 0
     std::vector<uint8_t> shadow;                   // CPU copy of this level (textures, plain surfaces)
+    std::vector<uint8_t> packedShadow;             // cold original pixels, restored exactly before any CPU access
+    shadow_cache::FileCopy shadowFile;             // compressed copy outside the process address space
+    size_t shadowBytesSaved = 0;
     bool dirty = false;                            // shadow newer than the GPU copy
     bool anyDirty = false;                         // level 0 only: some level of the chain is dirty
     bool gpuWhole = false;                         // this level went to the GPU whole since the texture was made
 
     uint32_t rdbType = 0, rdbId = 0;               // level 0: the RDB texture it holds (0 = unknown)
     rvk::Texture* materialsFor = nullptr;          // level 0: the rvk texture its material maps were attached to
+    uint32_t buildingFamily = 0;                   // whole-family readiness; zero for personal/unmanaged maps
 
     RSurface* depth = nullptr;                     // attached z-buffer
     RClipper* clipper = nullptr;
@@ -245,6 +263,7 @@ public:
     void UploadRows(uint32_t y0, uint32_t y1);     // only rows [y0, y1) changed (a Lock's rectangle): just them
     uint32_t Pitch() const;
     void EnsureShadow();
+    void CompactShadow();
 
 protected:
     void* Cast(REFIID iid) override { return iid == IID_IDirectDrawSurface7 || iid == IID_RvkSurface ? this : nullptr; }

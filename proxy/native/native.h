@@ -76,6 +76,7 @@ void* HookSlot(HMODULE module, uint32_t vtable, uint32_t slot, uint32_t expected
 // the return addresses on the stack; and a watchdog that, when frames stop for 20 s, writes every thread's place.
 // Neither takes the loader or heap lock, so they report even when the fault happened inside one.
 void InstallCrashLog();
+void ReportAllocationFailure(size_t bytes); // no heap/CRT allocation; preserves the game's original exception
 // A frame went by (Randy_t::Flip, the game's thread): feeds the hang watchdog.
 void HangBeat();
 

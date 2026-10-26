@@ -15,25 +15,25 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-340 settings, 170 of them in the settings window.
+351 settings, 181 of them in the settings window.
 
 ## Sections
 
-- [General](#general) (8)
+- [General](#general) (9)
 - [Lighting](#lighting) (17)
-- [Materials](#materials) (15)
+- [Materials](#materials) (20)
 - [Debug](#debug) (7)
 - [Terrain](#terrain) (23)
 - [Plants](#plants) (38)
 - [Water](#water) (22)
-- [Weather](#weather) (46)
+- [Weather](#weather) (49)
 - [Smoke](#smoke) (12)
 - [Sky](#sky) (45)
 - [Shadows](#shadows) (16)
-- [Effects](#effects) (46)
+- [Effects](#effects) (47)
 - [Tone mapping](#tone-mapping) (2)
+- [Colour grading](#colour-grading) (11)
 - [Anti-aliasing](#anti-aliasing) (6)
-- [Colour grading](#colour-grading) (10)
 - [Depth of field](#depth-of-field) (9)
 - [Particles](#particles) (18)
 
@@ -45,6 +45,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Prepass` | Depth pre-pass | on / off | on | ini only; knob |
 | `RVK_PrepassEq` | Depth pre-pass: what it covers shaded only where it is seen | on / off | on | ini only; switch `RVK_Prepass`; knob |
 | `RVK_UiRate` | Interface refresh rate (0 = every frame) | 0 / 30 / 60 / 90 / 120 | 60 | window |
+| `RVK_RenderBg` | Render in Background | on / off | off | window |
 | `RVK_PerfHud` | Performance readout in the top left: frames a second, the game's and the renderer's CPU time, the GPU's | on / off | off | window |
 | `RVK_AlienMap` | AI missions' PF map: rooms shown black on green (the game's is black on black) | on / off | on | window; knob |
 | `RVK_DetailRange` | How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws) | 1 .. 4 | 2 | window |
@@ -89,7 +90,12 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrAo` | PBR materials: occlusion map strength | 0 .. 1 | 0.1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
-| `RVK_ModernTex` | Modern texture pack (ICC preview) | on / off | off | window; game value off |
+| `RVK_ModernTex` | World texture style | 0 / 1 / 2 | 0 | window; game value 0 |
+| `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_TerraBlend` | Terrain mode: Original / Shared Ground / Shared Ground+ | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |
+| `RVK_MatStrength` | Character & equipment materials: material response strength | 0 .. 1 | 1 | window; switch `RVK_AutoMat`; knob |
 | `RVK_Albedo` | Enhanced textures | on / off | on | window; game value off |
 
 ## Debug
@@ -252,6 +258,9 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_SandSun` | Sand and ash storms, with the sand fog: how clearly the sun shows through the storm, dim and red (0: hidden as the dust) | 0 .. 1 | 0.9 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_SandTint` | Sand and ash storms, with the sand fog: the light under the storm the dust's colour - the sun behind it lights the land orange (0: the sun's own) | 0 .. 1 | 0.7 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_SandBlow` | Sand and ash storms: sand blowing round you, simulated - streaks, eddies, kicked up by feet (x; 0: none) | 0 .. 3 | 2 | ini only; switch `RVK_WeatherOn`; knob |
+| `RVK_FarHaze` | Distant horizon haze | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_HazeStart` | Horizon haze: clear distance | 100 .. 2000 | 400 | window; switch `RVK_FarHaze`; knob |
+| `RVK_HazeEnd` | Horizon haze: full distance | 200 .. 4000 | 1200 | window; switch `RVK_FarHaze`; knob |
 
 ## Smoke
 
@@ -352,6 +361,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_BloomOcc` | Over objects in front of its light (1 = unchanged) | 0 .. 1 | 0.15 | ini only; switch `RVK_BloomOn`; knob |
 | `RVK_BloomWide` | Wide haze round its core (0 = even; wider in rain by night) | 0 .. 1 | 0.4 | window; switch `RVK_BloomOn`; game value 0; knob |
 | `RVK_NeonSat` | Bright coloured lights keep their colour (0 = they go white) | 0 .. 1 | 0.6 | window; game value 0; knob |
+| `RVK_SoftHi` | Highlight glare reduction (keeps bright walls and ground gentler) | 0 .. 1 | 0.75 | window; knob |
 | `RVK_FxGlowOn` | Glow of effects (spells, fire, light halos) | on / off | on | ini only |
 | `RVK_BloomFx` | Glow of effects: strength | 0.25 .. 4 | 1 | ini only; switch `RVK_FxGlowOn`; game value 0; was env `RANDYVK_BLOOM_EFFECTS` |
 | `RVK_NightOn` | Night glow of windows, signs and screens | on / off | on | ini only |
@@ -399,6 +409,22 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Knee` | Tone mapping knee (1 = only clip) | 0.5 .. 1 | 0.85 | ini only; was env `RANDYVK_TONEMAP_KNEE` |
 | `RVK_HdrRoom` | Local light headroom | 1 .. 4 | 1.5 | ini only; was env `RANDYVK_HDR_HEADROOM` |
 
+## Colour grading
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_DayLook` | Brighter daylight look (lighter shadows, less sunset tint) | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_GradeOn` | Colour grading | on / off | off | window |
+| `RVK_Saturation` | Colour grading: saturation | 0 .. 2 | 1 | window; switch `RVK_GradeOn`; game value 1 |
+| `RVK_Contrast` | Colour grading: contrast | 0.5 .. 1.5 | 1 | window; switch `RVK_GradeOn`; game value 1 |
+| `RVK_Warmth` | Warmth (- cooler, + warmer) | -1 .. 1 | 0.75 | window; switch `RVK_GradeOn`; game value 0 |
+| `RVK_NightTint` | Colour grading: night tint (cooler, paler) | 0 .. 1 | 0.25 | window; switch `RVK_GradeOn`; game value 0 |
+| `RVK_Vignette` | Colour grading: vignette (darker corners) | 0 .. 1 | 0 | window; switch `RVK_GradeOn`; game value 0 |
+| `RVK_LutAmount` | Colour grading: look-up tables (Ctrl+Shift+L) | 0 .. 1 | 1 | ini only; switch `RVK_GradeOn`; game value 0 |
+| `RVK_GoldenHour` | Golden hour: round sunrise and sunset the light warmer, the shade a little cooler, a touch more contrast | 0 .. 1 | 0.5 | window; switch `RVK_GradeOn`; game value 0; knob |
+| `RVK_NeonNight` | Neon nights: teal shadows, lights keep their colour (in place of randy-vk-night.cube) | on / off | off | window; switch `RVK_GradeOn` |
+| `RVK_Exposure` | Brightness | 0.5 .. 2 | 1 | window; was env `RANDYVK_EXPOSURE` |
+
 ## Anti-aliasing
 
 | Setting | What it does | Values | Default | Notes |
@@ -409,21 +435,6 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_FrameGen` | Frame generation (AMD FSR 3.1): a frame interpolated between each two - about twice the frames shown, a little more latency | on / off | off | window; switch `RVK_Taa` |
 | `RVK_Upscaler` | Upscaler for the render scale (0: ao-vk's own TAA, 1: AMD FSR 2.2, 2: AMD FSR 3.1) | 0 / 1 / 2 | 0 | window; switch `RVK_Taa` |
 | `RVK_Fxaa` | FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer) | on / off | off | window; game value off; knob |
-
-## Colour grading
-
-| Setting | What it does | Values | Default | Notes |
-| --- | --- | --- | --- | --- |
-| `RVK_GradeOn` | Colour grading | on / off | on | window |
-| `RVK_Saturation` | Colour grading: saturation | 0 .. 2 | 1 | window; switch `RVK_GradeOn`; game value 1 |
-| `RVK_Contrast` | Colour grading: contrast | 0.5 .. 1.5 | 1 | window; switch `RVK_GradeOn`; game value 1 |
-| `RVK_Warmth` | Warmth (- cooler, + warmer) | -1 .. 1 | 0.75 | window; switch `RVK_GradeOn`; game value 0 |
-| `RVK_NightTint` | Colour grading: night tint (cooler, paler) | 0 .. 1 | 0.25 | window; switch `RVK_GradeOn`; game value 0 |
-| `RVK_Vignette` | Colour grading: vignette (darker corners) | 0 .. 1 | 0 | window; switch `RVK_GradeOn`; game value 0 |
-| `RVK_LutAmount` | Colour grading: look-up tables (Ctrl+Shift+L) | 0 .. 1 | 1 | ini only; switch `RVK_GradeOn`; game value 0 |
-| `RVK_GoldenHour` | Golden hour: round sunrise and sunset the light warmer, the shade a little cooler, a touch more contrast | 0 .. 1 | 0.5 | window; switch `RVK_GradeOn`; game value 0; knob |
-| `RVK_NeonNight` | Neon nights: teal shadows, lights keep their colour (in place of randy-vk-night.cube) | on / off | off | window; switch `RVK_GradeOn` |
-| `RVK_Exposure` | Brightness | 0.5 .. 2 | 1 | window; was env `RANDYVK_EXPOSURE` |
 
 ## Depth of field
 

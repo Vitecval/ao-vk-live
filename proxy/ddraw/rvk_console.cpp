@@ -366,6 +366,14 @@ bool FindSetting(const std::string& word, SettingRef* out)
 
 std::string FormatValue(const RvkSettingInfo& s, float v)
 {
+    if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
+        const char* styles[] = {"Original", "Classic HD", "Cyberpunk"};
+        return styles[std::clamp(int(std::lround(v)), 0, 2)];
+    }
+    if (std::strcmp(s.name, "RVK_TerraBlend")==0) {
+        if (v<=0) return "Original";
+        return v>1 ? "Shared Ground+" : "Shared Ground";
+    }
     if (std::strcmp(s.name, "RVK_WeatherMode") == 0) return rvk::WeatherModeName(int(std::lround(v)));
     if (std::strcmp(s.name, "RVK_FogMode") == 0) return rvk::FogModeName(int(std::lround(v)));
     char buf[48];
@@ -1185,7 +1193,7 @@ void OpenOptions()
 
 std::vector<std::string> OptionSections()
 {
-    std::vector<std::string> sections{"Quick controls"};
+    std::vector<std::string> sections{"Quick controls / Graphics", "Quick controls / Performance", "Quick controls / Weather"};
     for (const SettingRef& r : AllSettings())
         if (!r.hidden && std::find(sections.begin(), sections.end(), r.info.section) == sections.end())
             sections.emplace_back(r.info.section);
@@ -1194,12 +1202,16 @@ std::vector<std::string> OptionSections()
 
 std::vector<SettingRef> OptionSettings()
 {
-    static const char* quick[] = {"RVK_Enhance", "RVK_PerfHud", "RVK_Aniso", "RVK_Taa", "RVK_RenderScale",
-        "RVK_PixelLight", "RVK_BumpOn", "RVK_NormalMaps", "RVK_Pbr", "RVK_GrassOn", "RVK_GroundOn", "RVK_ProcSky",
-        "RVK_CloudsOn", "RVK_SunShadow", "RVK_AoOn", "RVK_Dof", "RVK_GradeOn"};
+    static const std::vector<const char*> quick[] = {
+        {"RVK_TerraBlend", "RVK_Enhance", "RVK_ModernTex", "RVK_GradeOn", "RVK_DayLook", "RVK_Aniso", "RVK_Taa",
+         "RVK_RenderScale", "RVK_PixelLight", "RVK_NormalMaps", "RVK_Pbr", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn"},
+        {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},
+        {"RVK_WeatherMode", "RVK_WeatherAmt", "RVK_WeatherOn", "RVK_RainAmount", "RVK_RainBright", "RVK_RainWet",
+         "RVK_WindStorm", "RVK_StrikeRate", "RVK_FogMode", "RVK_FogRange"}
+    };
     std::vector<SettingRef> result;
-    if (g_optionSection == 0) {
-        for (const char* name : quick) {
+    if (g_optionSection < 3) {
+        for (const char* name : quick[g_optionSection]) {
             SettingRef r{};
             if (FindSetting(name, &r)) result.push_back(r);
         }
@@ -1239,6 +1251,7 @@ void OptionKey(const Event& e)
         const auto& s = settings[size_t(g_optionRow - extra)].info;
         float value = s.value;
         if (e.code == VK_BACK) value = s.defaultValue;
+        else if (std::strcmp(s.name,"RVK_TerraBlend")==0) value=std::clamp(std::round(s.value)+direction,0.0f,2.0f);
         else if (s.type == 0) value = s.value == 0.0f ? 1.0f : 0.0f;
         else if (s.type == 3 && s.choices) {
             std::vector<float> choices;
@@ -1355,7 +1368,9 @@ void DrawOptions(uint32_t w, uint32_t h)
             value = rvk_settings::PresetName(uint32_t(g_optionPreset));
         } else {
             const auto& r = settings[size_t(row - extra)];
-            label = std::string(r.shortName) + "  " + r.info.label;
+            label = g_optionSection<3 ? r.info.label : std::string(r.shortName) + "  " + r.info.label;
+            if (std::strcmp(r.info.name,"RVK_TerraBlend")==0) label="Terrain mode";
+            if (std::strcmp(r.info.name,"RVK_WeatherMode")==0) label="Weather";
             value = FormatValue(r.info, r.info.value);
         }
         Text(left + pad, y, label, row == g_optionRow ? cName : cText, std::max(1, (valueX - left - pad) / cw - 2));

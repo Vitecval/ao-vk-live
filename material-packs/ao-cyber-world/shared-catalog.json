@@ -1,0 +1,422 @@
+[
+  {
+    "type": 1010004,
+    "id": 5942,
+    "name": "128x128basewall.png",
+    "source": "shared-5942-v2",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 5945,
+    "name": "128x128basewallvents.png",
+    "source": "shared-5945-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0,
+        0.28,
+        1,
+        0.42
+      ]
+    ],
+    "metal_ellipses": [
+      [
+        0.28,
+        0.31,
+        0.065,
+        0.15
+      ],
+      [
+        0.72,
+        0.31,
+        0.065,
+        0.15
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5947,
+    "name": "window.png",
+    "source": "shared-5947-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "glass_rects": [
+      [
+        0.3,
+        0.45,
+        0.7,
+        0.91
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.24,
+        0.04,
+        0.76,
+        0.96
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5949,
+    "name": "128x128basewalllowborder.png",
+    "source": "shared-5949-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0,
+        0.85,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5950,
+    "name": "128x128basewallwindow.png",
+    "source": "shared-5950-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "glass_rects": [
+      [
+        0.31,
+        0.4,
+        0.62,
+        0.445
+      ]
+    ],
+    "metal_rects": [
+      [
+        0.28,
+        0.39,
+        0.65,
+        0.5
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5953,
+    "name": "128x128basewallpattern.png",
+    "source": "shared-5953-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 5958,
+    "name": "basewallventendpart.png",
+    "source": "shared-5958-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0,
+        0.28,
+        1,
+        0.42
+      ]
+    ],
+    "metal_ellipses": [
+      [
+        0.28,
+        0.31,
+        0.065,
+        0.15
+      ],
+      [
+        0.72,
+        0.31,
+        0.065,
+        0.15
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 5976,
+    "name": "patternmetalside.png",
+    "source": "shared-5976-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 5994,
+    "name": "dirty_metalplate.png",
+    "source": "shared-5994-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 5997,
+    "name": "dirty_metalplate_fringe.png",
+    "source": "shared-5997-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6079,
+    "name": "greycleanmetalplate.png",
+    "source": "shared-6079-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6087,
+    "name": "stripedstdmetal.png",
+    "source": "shared-6087-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6090,
+    "name": "simplemetalplate.png",
+    "source": "shared-6090-v1",
+    "size": [
+      256,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6103,
+    "name": "singleplate_metalgrid.png",
+    "source": "shared-6103-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "painted-metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0.33,
+        0.15,
+        0.67,
+        0.92
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6105,
+    "name": "singleplatebottom_concrete.png",
+    "source": "shared-6105-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6114,
+    "name": "wallbottom.png",
+    "source": "shared-6114-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6128,
+    "name": "walltop.png",
+    "source": "shared-6128-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6130,
+    "name": "conc_floorpiece.png",
+    "source": "shared-6130-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6131,
+    "name": "blockwallinset.png",
+    "source": "shared-6131-v1",
+    "size": [
+      512,
+      256
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0.76,
+        0.56,
+        1,
+        0.68
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6144,
+    "name": "worn wall.png",
+    "source": "shared-6144-v1",
+    "size": [
+      256,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6204,
+    "name": "sandwall_tilablehorisontal.png",
+    "source": "shared-6204-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory",
+    "metal_rects": [
+      [
+        0,
+        0.9,
+        1,
+        1
+      ]
+    ]
+  },
+  {
+    "type": 1010004,
+    "id": 6216,
+    "name": "sandwall_tilablealldirections.png",
+    "source": "shared-6216-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6222,
+    "name": "brushedmetalbasicplatesrusty.png",
+    "source": "shared-6222-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "metal",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  },
+  {
+    "type": 1010004,
+    "id": 6235,
+    "name": "sandwall_tilablefringes.png",
+    "source": "shared-6235-v1",
+    "size": [
+      512,
+      512
+    ],
+    "profile": "stone",
+    "batch": "shared-architecture-2026-10-24",
+    "discovery": "reusable architectural families from local name inventory"
+  }
+]

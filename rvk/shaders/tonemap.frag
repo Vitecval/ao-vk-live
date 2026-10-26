@@ -17,23 +17,24 @@ layout(location = 0) out vec4 outColor;
 vec3 Grade(vec3 c, float far)
 {
     const vec3 kLuma = vec3(0.3, 0.59, 0.11);
-    float warmth = P.grade.z * mix(1.0, -0.5, smoothstep(0.3, 1.0, far));
+    float dayLook=FL.cond.w;
+    float warmth = P.grade.z * (1.0-dayLook) * mix(1.0, -0.5, smoothstep(0.3, 1.0, far));
     c *= vec3(1.0 + 0.12 * warmth, 1.0 + 0.02 * warmth, 1.0 - 0.12 * warmth);
     // By night (RVK_NightTint) colour fades and leans blue as eyes see in the dark - most in the darks, little in what
     // is bright (lamps, windows keep their colour).
-    float nightTint = P.grade2.x * P.grade2.y;
+    float nightTint = P.grade2.x * P.grade2.y * (1.0-dayLook);
     float darks = 1.0 - smoothstep(0.08, 0.45, dot(c, kLuma));
     c = mix(c, dot(c, kLuma) * vec3(0.78, 0.9, 1.18), min(nightTint * mix(0.3, 1.2, darks), 1.0));
     // The golden hour (RVK_GoldenHour; rvk sky.cpp FL.dawn[1].w): round sunrise and sunset the light warmer and the
     // shade a little cooler - split by brightness -, a touch more contrast and colour.
-    float golden = FL.dawn[1].w;
+    float golden = FL.dawn[1].w*(1.0-dayLook);
     if (golden > 0.0) {
         vec3 split = mix(vec3(0.95, 0.98, 1.06), vec3(1.06, 1.0, 0.88), smoothstep(0.1, 0.6, dot(c, kLuma)));
         c *= mix(vec3(1.0), split, golden);
     }
     // The blue hour (RVK_BlueHour; rvk sky.cpp FL.dusk.y): after sunset the picture cooler, its darks greyer and bluer,
     // leading into the night's tint.
-    float blueHour = FL.dusk.y;
+    float blueHour = FL.dusk.y*(1.0-dayLook);
     if (blueHour > 0.0) {
         float l = dot(c, kLuma);
         c = mix(c, c * vec3(0.9, 0.96, 1.12), 0.6 * blueHour);
@@ -55,6 +56,9 @@ vec3 Grade(vec3 c, float far)
         vec2 uv = gl_FragCoord.xy / vec2(textureSize(scene, 0)) - 0.5;
         c *= 1.0 - P.grade2.z * smoothstep(0.35, 0.9, length(uv * vec2(1.0, 0.75)) * 1.4);
     }
+    // Lift dark/middle values toward a clear daylight presentation, with white
+    // fixed in place. The highlight comfort shoulder still runs afterwards.
+    if (dayLook>0.0) c=pow(max(c,vec3(0.0)),vec3(1.0/(1.0+.60*dayLook)));
     return c;
 }
 
@@ -383,6 +387,29 @@ void main()
         gSkyDelta = SkyDelta(V / max(dist, 1e-4));
         c = mix(c, Mist(c, V, dist, phase), min(P.haze.w * 2.5, 1.0));
     }
+    // Optional distant veil, independent of the game's far fog range. Nearby
+    // scenery stays unchanged. The horizon band shares its colour with the land,
+    // while the upper sky and UI are unaffected.
+    if (FL.cond.y>0.0 && (int(P.proj.w)&16)!=0) {
+        float z = d<1.0 ? P.proj.y/min(d-P.proj.x,-1e-9) : FL.screen.w;
+        vec3 V;
+        float dist,phase;
+        AirRay(z,V,dist,phase);
+        vec3 direction=V/max(dist,1e-4);
+        gSkyDelta=SkyDelta(direction);
+        vec3 haze=FL.skyRing[0].w>0.5 ? HazeColour() : max(P.haze.rgb,vec3(0.0));
+        float weight=smoothstep(FL.screen.z,FL.screen.w,dist);
+        if (d>=1.0) weight=1.0-smoothstep(.035,.22,abs(dot(direction,P.air1.xyz)));
+        else {
+            // Integrate a shallow air layer along the ray: valleys hold more
+            // haze than high ridges. A uniform distance veil flattened both
+            // into the same pale cutout. No noise or time-dependent grain.
+            float h=clamp(dot(V,P.air1.xyz)/120.0,-2.0,2.0);
+            float layer=abs(h)<.001 ? 1.0 : (1.0-exp(-h))/h;
+            weight=clamp(weight*clamp(layer,.65,1.25),0.0,1.0);
+        }
+        c=mix(c,haze,weight*min(FL.cond.y,.98));
+    }
     // A sand or ash storm (rvk wind.cpp): the air thick with sand to the horizon - the sky wholly, the land through a
     // veil that thickens with distance, surging with the wind.
     bool smokeNear = mod(P.dust2.w, 2.0) > 0.5;
@@ -490,6 +517,19 @@ void main()
         alpha = max(smoothstep(0.01, 0.25, dot(effect, vec3(0.3, 0.59, 0.11))), smoothstep(0.0, 0.3, rain.a));
     }
     vec3 shown = Grade(min(c, vec3(1.0)), far);
+    // Bright plaster and stone can glare from diffuse sunlight alone, even with
+    // entirely matte material maps. A smooth display shoulder preserves their
+    // variation as the AO lightmap changes. Leave the sky and later UI alone;
+    // additive lamps/energy keep their own brightness in proportion to emission.
+    if (FL.cond.z > 0.0 && d < 1.0 && (int(P.proj.w) & 16) != 0) {
+        float peak = max(shown.r,max(shown.g,shown.b));
+        if (peak > 0.55) {
+            float emission = max(0.0,dot(texelFetch(glowRaw,ivec2(gl_FragCoord.xy),0).rgb,vec3(0.3,0.59,0.11)));
+            float ownLight = clamp(emission / max(dot(s.rgb,vec3(0.3,0.59,0.11)),0.001),0.0,1.0);
+            float gentle = 0.55 + 0.45 * (1.0-exp(-(peak-0.55)/0.45));
+            shown *= mix(1.0,gentle/peak,FL.cond.z*(1.0-ownLight));
+        }
+    }
     // Optional atmosphere independent of the game's fog packets. Radial distance keeps visibility equal in every
     // direction. After grading/exposure so neither auto-brightening nor bloom can bring the black horizon back.
     // Labels and the interface are composed later, outside this world-only effect.

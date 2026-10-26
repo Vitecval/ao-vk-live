@@ -1,6 +1,7 @@
 // D3D7 state, Clear, and drawing.
 #include "internal.h"
 #include "weather_options.h"
+#include "terrain_materials.h"
 
 #include <algorithm>
 #include <bit>
@@ -458,10 +459,14 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     const float phase[4] = {m_cond.golden, m_cond.afterglow, m_cond.blueHour, m_cond.night};   // (the dusk's phases)
     std::memcpy(fl->phase, phase, sizeof(fl->phase));
     fl->cond[0] = m_cond.cloudNight;             // (cloud_light.glsl Night())
-    fl->cond[1] = fl->cond[2] = fl->cond[3] = 0.0f;
+    fl->cond[1] = !m_indoors && m_skyPlayfield && m_aoProjValid ? std::clamp(m_farHaze,0.0f,1.0f) : 0.0f;
+    fl->cond[2] = m_hdr && m_skyPlayfield && m_aoProjValid ? std::clamp(m_softHi,0.0f,1.0f) : 0.0f;
+    fl->cond[3] = m_hdr && m_skyPlayfield ? std::clamp(m_dayLook,0.0f,1.0f) : 0.0f;
+    FillSharedTerrainLights(fl);
     fl->screen[0] = SceneScaleX();
     fl->screen[1] = SceneScaleY();
-    fl->screen[2] = fl->screen[3] = 0.0f;
+    fl->screen[2] = std::max(m_hazeStart,1.0f);
+    fl->screen[3] = std::max(m_hazeEnd,fl->screen[2]+1.0f);
     std::memcpy(fl->skyRing, m_skyRing, sizeof(fl->skyRing));
     std::memcpy(fl->skyUp, m_skyUp, sizeof(fl->skyUp));
     if (!OwnSkyFog()) {                          // (indoors too: the zone's fog colour, not our sky's horizon)
@@ -488,7 +493,8 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->sand3[0] = m_normalMaps && m_pixelLighting ? std::clamp(m_terrainSettings.rippleDepth, 0.0f, 3.0f) : 0.0f;
     // (y: the sun the clouds let through towards it - MakeCloudSunRay -: the glints, the sun's own image, go with it.)
     fl->sand3[1] = m_cloudParams.enable ? std::clamp(m_sunThrough, 0.0f, 1.0f) : 1.0f;
-    fl->sand3[2] = fl->sand3[3] = 0.0f;
+    fl->sand3[2] = std::clamp(m_terrainHD, 0.0f, 1.0f);
+    fl->sand3[3] = std::clamp(m_buildingHD, 0.0f, 1.0f);
     FogBankParams(fl->fogBanks);
     // Applied once, after all world effects and before labels/UI. Independent of AO's FogMode and sky horizon.
     const auto userFog = MakeUserFog(m_userFogMode, m_userFogRange, m_userFogClear, m_userFogShade, m_userFogDrift,
@@ -2522,6 +2528,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         DrawPendingGroundBase();
     if (m_native.ground && NativeGroundReplaces(fvf))
         return;
+    // Material sets are published atomically after their own GPU uploads.
+    // Family ownership is artwork metadata, not a cross-resource draw gate.
     // RVK_FrameGen: a 2D draw on the frame after the interface (the mouse pointer) goes on top of the overlay.
     if (m_fgUiLayer && m_target == m_main && !m_fgTopActive && !m_uiLayerActive && !m_external &&
         m_interfaceEndFrame == m_frameNumber && IsInterfaceDraw(fvf))
@@ -3110,7 +3118,15 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // The ground: base pass textures remembered by chunk; the lighting pass (lightmap + lights, multiplying the base,
     // drawn after all base passes) takes its relief from its chunk's.
     m_drawBumpBase = nullptr;
-    if (terrain && m_native.clutter) {
+    const bool combinedTerrain = terrain && IsCombinedTerrainPass();
+    if (combinedTerrain) {
+        Texture* base = m_textures[1];           // stage 0 is the lightmap, not the material
+        if (m_pixelLighting && ((m_normalMaps && base->m_normalMap) || (m_pbr.enabled && base->m_ormMap) || m_terrainHD > 0.0f || m_sharedTerrain > 0.0f))
+            m_drawBumpBase = base;
+        if ((m_sharedTerrain > 0.0f || m_terrainHD > 0.0f || base->m_ormMap) && m_skyPlayfield && vertices)
+            FillTerrainRecord(dt, TerrainFitFor(TerrainChunkKey(vertices, vertexCount, layout.stride, indices, indexCount),
+                              vertices, vertexCount, layout, indices, indexCount), kTerrainLight, base);
+    } else if (terrain && m_native.clutter) {
         // The native ground's rocks (ground_clutter.cpp): laid with rock from every side, lit by the ground's light
         // where they lie - the native ground's record, marked (terrainAt.y 2: terrain.glsl TerrainClutter).
         if (TerrainTexturingOn() && m_native.codes && m_native.ground) {
@@ -3783,9 +3799,30 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // Bindless textures (set 1, M1): the draw's four textures and four samplers by index, so nothing per-draw is
     // bound as an image descriptor. The indices live in the draw's record (constants.glsl D.texIdx/sampIdx).
     // A texture's albedo map (SetMaterialMaps) is drawn in its place.
-    auto drawn = [this](Texture* t) { return !t ? m_blackTexture : t->m_albedoMap && m_pbr.albedoMaps ? t->m_albedoMap : t; };
+    auto drawn = [this, normalMap](Texture* t) {
+        if (!t) return m_blackTexture;
+        if (t->MaterialsState()==Texture::MaterialState::Ready &&
+            ((m_pbr.albedoMaps && t->m_albedoMap && !t->m_preserveGroundColour) ||
+             (m_normalMaps && t->m_normalMap && normalMap==t->m_normalMap) ||
+             (m_pbr.enabled && t->m_ormMap && m_drawOrm==t->m_ormMap) ||
+             (m_pbr.enabled && m_pbr.emissive>0 && t->m_emissiveMap && m_drawEmissive==t->m_emissiveMap)))
+            t->m_materialDrawFrame.store(m_frameNumber+1, std::memory_order_relaxed);
+        // Manufactured ground keeps AO's exact colour and markings. The authored
+        // normal/ORM maps still supply the upgraded relief and polished finish.
+        if (t->m_preserveGroundColour) return t;
+        return t->m_albedoMap && m_pbr.albedoMaps ? t->m_albedoMap : t;
+    };
     Texture* texStage0 = drawn(m_textures[0]);
     Texture* texStage1 = drawn(m_textures[1]);
+    // Nonterrain character art borrows the unused base-texture slot for the original
+    // alpha. A second, different original cannot share that slot: keep that stage intact.
+    const bool originalAlpha = !m_drawBumpBase && !combinedTerrain && m_textures[0] &&
+        m_textures[0]->m_preserveAlbedoAlpha && texStage0 == m_textures[0]->m_albedoMap;
+    if (m_textures[0] && m_textures[0]->m_preserveAlbedoAlpha && !originalAlpha)
+        texStage0 = m_textures[0];
+    const bool originalAlpha1 = originalAlpha && m_textures[1] == m_textures[0];
+    if (m_textures[1] && m_textures[1]->m_preserveAlbedoAlpha && !originalAlpha1)
+        texStage1 = m_textures[1];
     Texture* bumpBase = drawn(m_drawBumpBase);
     Texture* normalTex = normalMap ? normalMap : m_flatNormal;
     dt.texIdx[0] = BindlessImage(texStage0);
@@ -3801,12 +3838,62 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[0] = BindlessImage(m_drawOrm);
         dt.mat[1] = FixedSamplerSlot(1, m_normalSampler);
         dt.mat[2] = kMatPbr | (m_drawOrmBase ? kMatBase : 0u);
+    } else if (m_skyPlayfield && m_pbr.enabled && m_pixelLighting && terrain && m_terrainHD > 0.0f && m_drawBumpBase) {
+        // Global fallback for every terrain tile, including tiles without authored maps.
+        dt.mat[0] = 219u | (uint32_t(std::clamp(m_terrainHD, 0.0f, 1.0f) * 255.0f + .5f) << 16);
+        dt.mat[1] = dt.sampIdx[3];
+        dt.mat[2] = kMatPbr | kMatAuto | kMatBase;
+    } else if (m_skyPlayfield && m_buildingHD > 0.0f && m_pbr.enabled && surfaceStage0 &&
+               (m_textures[0]->m_worldMaterial || VisualKind(m_drawVisualKind) == VisualKind::Static || VisualKind(m_drawVisualKind) == VisualKind::Room) &&
+               layout.offset[1] >= 0 && (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW && !m_drawIsLabel &&
+               m_rs[d3d::RS_ZENABLE] && (!m_rs[d3d::RS_ALPHABLENDENABLE] || cutoutTexture) &&
+               !m_textures[0]->m_autoMaterial) {
+        const uint32_t profile = m_textures[0]->m_worldMaterial ? m_textures[0]->m_worldMaterial : (1u << 24) | 214u;
+        dt.mat[0] = profile | (uint32_t(std::clamp(m_buildingHD, 0.0f, 1.0f) * 255.0f + .5f) << 16);
+        dt.mat[1] = dt.sampIdx[3];
+        dt.mat[2] = kMatPbr | kMatAuto | kMatWorld;
+    } else if (m_autoMaterials && m_materialStrength > 0.0f && m_pbr.enabled && surfaceStage0 &&
+               m_textures[0]->m_autoMaterial && layout.offset[1] >= 0 &&
+               (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW && !m_drawIsLabel &&
+               m_rs[d3d::RS_ZENABLE] && (!m_rs[d3d::RS_ALPHABLENDENABLE] || cutoutTexture)) {
+        // Catalog parameters live in the existing record: no extra textures, descriptors or CPU image cache.
+        // Explicit ORM maps above win. Interface, additive effects and transparent passes keep their own shading.
+        const uint32_t strength = uint32_t(std::clamp(m_materialStrength, 0.0f, 1.0f) * 255.0f + 0.5f);
+        dt.mat[0] = m_textures[0]->m_autoMaterial | (strength << 16);
+        dt.mat[1] = dt.sampIdx[3];
+        dt.mat[2] = kMatPbr | kMatAuto;
     } else {
         dt.mat[0] = dt.texIdx[3];               // a valid slot even unused
         dt.mat[1] = dt.sampIdx[3];
     }
+    if (combinedTerrain) dt.mat[2] |= kMatCombined;
+    const Texture* groundSurface = terrain ? (m_drawBumpBase ? m_drawBumpBase : m_textures[0]) : nullptr;
+    if (groundSurface && m_skyPlayfield) {
+        if (groundSurface->m_albedoMap && m_pbr.albedoMaps)
+            dt.mat[2] |= kMatAuthoredGround;
+        else if (materials::AsphaltGround(groundSurface->m_rdbType, groundSurface->m_rdbId) &&
+                 m_terrainHD > 0.0f)
+            dt.mat[2] |= kMatAsphalt;
+    }
+    // An explicit colour/normal/ORM pack still keeps the physical material of
+    // a known rock or pale stone. Do not turn a white rock into polished metal.
+    const Texture* mineralSurface = m_drawOrmBase && m_drawBumpBase ? m_drawBumpBase : m_textures[0];
+    if (mineralSurface && surfaceStage0 && !m_drawIsLabel && m_rs[d3d::RS_ZENABLE]) {
+        const uint32_t kind = mineralSurface->m_worldMaterial >> 24;
+        if (kind == 7) dt.mat[2] |= kMatMineral;
+        if (kind == 8) dt.mat[2] |= kMatHonedStone;
+    }
+    // Authored ground already has its own surface detail. Do not stamp global
+    // grain over painted paving, metal decks or other carefully masked materials.
+    if (m_skyPlayfield && terrain && m_terrainHD > 0.0f && !m_drawOrm && !normalMap) dt.mat[2] |= kMatTerrainHD;
+    if (originalAlpha) {
+        dt.texIdx[2] = BindlessImage(m_textures[0]);
+        dt.sampIdx[2] = dt.sampIdx[0];
+        dt.mat[2] |= kMatOriginalAlpha;
+        if (originalAlpha1) dt.mat[2] |= kMatOriginalAlpha1;
+    }
     if (m_textures[0] && texStage0 == m_textures[0]->m_albedoMap) dt.mat[2] |= kMatAlbedo;   // (debug view 7)
-    if (m_pickHighlight && m_textures[0] == m_pickHighlight)
+    if (m_pickHighlight && (m_textures[0] == m_pickHighlight || (combinedTerrain && m_textures[1] == m_pickHighlight)))
         dt.mat[2] |= kMatPicked;                 // (texture picking: flashes)
     // A height in its normal map's alpha (_h.png): drawn with parallax, where the normal map is the surface's own.
     if (normalMap && normalMap->m_alphaHeight && m_textures[0] && normalMap == m_textures[0]->m_normalMap &&
@@ -4006,7 +4093,7 @@ void Device::PickDraw(uint32_t primitive, const detail::FvfLayout& layout, const
         if (z < 0.0f || z > 1.0f || z >= m_pickDepth)
             continue;
         m_pickDepth = z;
-        m_pickBest = m_textures[0];
+        m_pickBest = terrain && IsCombinedTerrainPass() ? m_textures[1] : m_textures[0];
         m_pickBestVisual = m_drawVisual;
         m_pickBestOwner = m_drawOwner;
         m_pickBestKind = m_drawVisualKind;

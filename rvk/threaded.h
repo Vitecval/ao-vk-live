@@ -159,10 +159,15 @@ public:
     void SetBump(float strength);
     void SetNormalMaps(bool enable, float strength);
     void SetNormalMap(Texture* texture, Texture* normal);   // the device owns `normal` from here on
-    void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo);   // ... and these
-    void SetTextureRdbId(Texture* texture, uint32_t id);
+    void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha = false);   // ... and these
+    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false);
+    void SetBuildingFamilyReady(uint32_t family, bool ready);
     void SetEmissiveMap(Texture* texture, Texture* emissive);               // ... and this
     void SetLeafArt(Texture* texture, Texture* atlas, Texture* normal);     // ... and these
+    void ShareMaterialMaps(Texture* texture, Texture* source);
+    void PublishMaterialMaps(Texture* texture, Texture* normal, Texture* orm, Texture* albedo,
+                             Texture* emissive, Texture* leaves, Texture* leavesNormal, bool preserveAlpha,
+                             bool complete);
     void SetFreeCam(const Device::FreeCamInput& in);
     void RequestPick(float x, float y);
     Device::PickResult LastPick() const { return m_device.LastPick(); }   // (thread-safe)

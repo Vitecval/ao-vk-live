@@ -85,9 +85,9 @@ Setting g_settings[] = {
     {"RVK_PbrProbe", "Environment probe", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
-    {"RVK_ModernTex", "World texture style", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_ModernTex", "World texture style: Original / AnarchyHD", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 2"},
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
-    {"RVK_TerraBlend", "Terrain mode: Original / Shared Ground / Shared Ground+", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
+    {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (shared textures plus pebbles only; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
     {"RVK_BuildingHD", "Global building materials", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
@@ -95,7 +95,7 @@ Setting g_settings[] = {
 
 #ifdef RANDYVK_ADDON
     // The replacement omits terrain on classic live (ICC confirmed); keep the game's terrain through Vulkan.
-    {"RVK_GroundOn", "Experimental terrain replacement (leave off on live: may hide the ground)", "Terrain", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_GroundOn", "Enhanced ground renderer (overrides Shared Ground and Shared Ground+)", "Terrain", Bool, 0, 1, 1, 0, nullptr, 0},
 #else
     {"RVK_GroundOn", "Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter", "Terrain", Bool, 0, 1, 1, 1, nullptr, 0},
 #endif
@@ -155,6 +155,7 @@ Setting g_settings[] = {
     {"RVK_LeafFlutter","Leaves fluttering",                                         "Plants",     Float, 0, 3, 0.25f, 1, nullptr, 0, "RVK_LeafOn"},
     {"RVK_LeafOwn",    "Trees: our own canopies where there is leaf art (randy-vk\\materials\\*_leaves.png), not the game's cards", "Plants", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
     {"RVK_LeafTrees",  "Leaves on trees",                                           "Plants",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
+    {"RVK_TreeVolume", "Fuller 3D tree foliage",                                    "Plants",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
     {"RVK_LeafShrubs", "Leaves on shrubs and bushes",                               "Plants",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
     {"RVK_LeafPalms",  "Palm fronds bending in the wind",                           "Plants",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
     {"RVK_LeafShadow", "Leaves cast sun shadows",  "Plants",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_LeafOn"},
@@ -552,13 +553,24 @@ float CyberMinimum(const char* name)
     return -1e30f;                              // settings without a minimum may legitimately be negative
 }
 
+bool SharedGroundPlus()
+{
+    return Stored("RVK_Enhance")!=0 && Stored("RVK_ModernTex")==2 && Stored("RVK_TerraBlend")>1 && Stored("RVK_GroundOn")==0;
+}
+
 float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
+    const bool plus=SharedGroundPlus();
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
-    if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber ? s->value : 0.0f;
+    if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
+    // Shared Ground+ retains AO's ground draw and lighting, adding only stones.
+    if (plus && std::strcmp(name,"RVK_Pebbles")==0) return 1.0f;
+    if (plus && (std::strcmp(name,"RVK_GroundAo")==0 || std::strcmp(name,"RVK_GroundSun")==0 ||
+                 std::strcmp(name,"RVK_DuneLight")==0 || std::strcmp(name,"RVK_GroundBlend")==0 ||
+                 std::strcmp(name,"RVK_CliffTex")==0 || std::strcmp(name,"RVK_CliffRock")==0)) return 0.0f;
     const bool characterMaterials = Stored("RVK_AutoMat") != 0.0f && Stored("RVK_MatStrength") > 0.0f &&
                                     Stored("RVK_Enhance") != 0.0f;
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
@@ -580,6 +592,9 @@ float V(const char* name)
 
 float Clamp(const Setting& s, float v)
 {
+    // Legacy Classic HD selections upgrade to AnarchyHD; preserve numeric 2 so
+    // existing AnarchyHD/Cyberpunk preferences and custom presets keep working.
+    if (std::strcmp(s.name,"RVK_ModernTex")==0 && std::round(v)==1) v=2;
     v = std::clamp(v, s.min, s.max);
     if (s.type != Float) v = std::round(v);
     if (s.type == Choice && s.choices) {         // the nearest allowed value
@@ -623,6 +638,7 @@ bool ParseIni(const Setting& s, const char* text, float* out)
 struct Migration { const char* id; const char* now; const char* was; float oldDefault; };
 constexpr float kKeep = std::numeric_limits<float>::quiet_NaN();
 const Migration kMigrations[] = {
+    {"AnarchyHD", "RVK_ModernTex", "RVK_ModernTex", kKeep},
     {"GradingPreference", "RVK_GradeOn", "RVK_GradeOn", kKeep},
     // (Most for the game's option variables, which take at most 15 characters: AOReloaded's settings window leaves a
     // longer name out, so the setting couldn't be changed in game - RVK_NativeGround, the native ground's own switch,
@@ -772,7 +788,13 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
         d->SetKnob(rvk::Knob(knob), V(n));
         if (is("RVK_TerraBlend")) {
             SetSharedTerrainSetting(V(n) > 0.0f);
-            SetSharedGroundDetailsSetting(V(n) > 1.0f);
+            SetSharedGroundDetailSetting(V(n) > 1.0f);
+            // Reapply effective parents and children together on mode/style
+            // switches. Stored GroundOn and its tuning remain the user's own.
+            for (const Setting& terrain:g_settings)
+                if (std::strcmp(terrain.section,"Terrain")==0) ApplyOne(terrain,d);
+            RvkLog("terrain mode: shared %.2f; effective GroundOn %.0f, pebbles %.2f, rocks %.2f, cliff %.2f; AO %.2f, sun %.2f",
+                   V(n),V("RVK_GroundOn"),V("RVK_Pebbles"),V("RVK_GroundRocks"),V("RVK_CliffTex"),V("RVK_GroundAo"),V("RVK_GroundSun"));
         }
         if (is("RVK_AutoMat") || is("RVK_MatStrength") || is("RVK_TerrainHD") || is("RVK_BuildingHD")) {
             SetCharacterMaterialPack(V("RVK_AutoMat") != 0.0f && V("RVK_MatStrength") > 0.0f);
@@ -848,8 +870,8 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
         d->SetGrassShadows(V("RVK_GrassShadow") != 0.0f);
     else if (is("RVK_GrassEven"))
         d->SetGrassEven(V("RVK_GrassEven"));
-    else if (std::strncmp(n, "RVK_Leaf", 8) == 0 && std::strcmp(n, "RVK_LeafLight") != 0 &&
-             std::strcmp(n, "RVK_LeafLightOn") != 0) {
+    else if (is("RVK_TreeVolume") || (std::strncmp(n, "RVK_Leaf", 8) == 0 && std::strcmp(n, "RVK_LeafLight") != 0 &&
+             std::strcmp(n, "RVK_LeafLightOn") != 0)) {
         rvk::Device::LeafSettings l;
         l.on = V("RVK_LeafOn") != 0.0f;
         l.density = V("RVK_LeafDensity");
@@ -860,6 +882,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
         l.flutter = V("RVK_LeafFlutter");
         l.trees = V("RVK_LeafTrees") != 0.0f;
         l.own = V("RVK_LeafOwn") != 0.0f;
+        l.volume = V("RVK_TreeVolume") != 0.0f;
         l.shrubs = V("RVK_LeafShrubs") != 0.0f;
         l.palms = V("RVK_LeafPalms") != 0.0f;
         l.shadows = V("RVK_LeafShadow") != 0.0f;
@@ -915,7 +938,12 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     else if (is("RVK_Occlusion")) rnative::occluder::SetHorizonCulling(V(n) != 0.0f);
     else if (is("RVK_DetailRange")) rnative::rings::SetScale(V(n));
     else if (is("RVK_GroundRange")) rnative::ground::SetRange(V(n));
-    else if (is("RVK_GroundOn")) SetNativeGroundSetting(V(n) != 0.0f);
+    else if (is("RVK_GroundOn")) {
+        SetNativeGroundSetting(V(n) != 0.0f);
+        d->SetKnob(rvk::Knob::TerraBlend,V("RVK_TerraBlend"));
+        SetSharedTerrainSetting(V("RVK_TerraBlend") > 0.0f);
+        SetSharedGroundDetailSetting(V("RVK_TerraBlend") > 1.0f);
+    }
     else if (is("RVK_GroundAo")) { if (g_rvk.device) g_rvk.device->SetNativeGroundAo(V(n)); }
     else if (is("RVK_GroundSun")) { if (g_rvk.device) g_rvk.device->SetNativeGroundSun(V(n)); }
     else if (is("RVK_GroundRocks")) { if (g_rvk.device) g_rvk.device->SetNativeGroundRocks(V(n)); }
@@ -1370,7 +1398,7 @@ const PresetValue kClassicPlus[] = {
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
     {"RVK_ModernTex", 2}, {"RVK_TerrainHD", 1}, {"RVK_BuildingHD", 1},
-    {"RVK_TerraBlend", 2}, {"RVK_DayLook", 0},
+    {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
     {"RVK_FarHaze", .6f}, {"RVK_HazeStart", 350}, {"RVK_HazeEnd", 1000},
     {"RVK_GrassDist", 80}, {"RVK_GrassBlades", 12}, {"RVK_WaterQual", 3}, {"RVK_PtShadows", 16}, {"RVK_Ao", 2},
@@ -1558,6 +1586,12 @@ uint32_t RvkSettings_Count()
 {
     rvk_settings::Load();
     return uint32_t(Shown().size());
+}
+
+// Optional read-only extension: stored values still use the version-2 API.
+float RvkSettings_Effective(const char* name)
+{
+    return name ? rvk_settings::GetEffective(name) : 0.0f;
 }
 
 int RvkSettings_Get(uint32_t index, RvkSettingInfo* out)

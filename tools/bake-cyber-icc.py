@@ -28,15 +28,41 @@ def main():
     output = ROOT / 'maps'
     output.mkdir(exist_ok=True)
     catalog = json.loads((ROOT / 'catalog.json').read_text())
+    deck = json.loads((ROOT / 'deck-family.json').read_text())
+    deck_shapes = {x['id']:x['shape'] for x in deck['members']}
+    # This family keeps the original AO painting in every edition and preset.
+    # Only parameter maps are published; an older generated repaint cannot win.
+    catalog = [x for x in catalog if not (x['type']==1010006 and x['id'] in deck_shapes)]
+    catalog += [{'type':1010006,'id':identity,'name':f'AO tread-plate family {identity}',
+                 'group':'ground','profile':'matte-deck','source':None,'size':[128,128]}
+                for identity in deck_shapes]
     expected = set()
     summary = []
     for item in catalog:
         stem = f"{item['type']}_{item['id']}"
-        rough, metal = PROFILES[item['profile']]
+        rough, metal = (.82,.70) if item['profile']=='matte-deck' else PROFILES[item['profile']]
         rough = item.get('roughness', rough)
         orm = np.empty((128, 128, 3), dtype=np.float32)
         orm[:] = (1, rough, metal)
         maps = ['orm']
+        if item['profile']=='matte-deck':
+            shape=deck_shapes[item['id']]
+            y,x=np.mgrid[:128,:128];u=(x+.5)/128;v=(y+.5)/128
+            square=(u>.25)&(u<.75)&(v>.25)&(v<.75)
+            triangle=v>.5+np.abs(u-.5)
+            def soft(value,width=.12):
+                t=np.clip(.5+value/width,0,1)
+                return t*t*(3-2*t)
+            mask={'full':np.ones_like(u,dtype=bool),'square':square,'outside-square':~square,
+                  'bottom-triangle':triangle,'outside-bottom-triangle':~triangle,
+                  'upper-left':u+v<1,'lower-right':u+v>1,
+                  'gravel-diamond':soft(.43-np.abs(u-.5)-np.abs(v-.5),.22),
+                  'gravel-lower-right':soft(u+v-1,.24),
+                  'gravel-upper-left':soft(1-u-v,.24),
+                  'gravel-top-band':soft(v-.16,.2),
+                  'gravel-right-band':soft(.86-u,.2)}[shape]
+            orm[:,:,1]=.94+(.82-.94)*mask
+            orm[:,:,2]=.70*mask
         if item['source']:
             art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB')
             art = art.resize(tuple(item['size']), Image.Resampling.LANCZOS)
@@ -86,7 +112,9 @@ def main():
         summary.append({**item, 'maps': maps})
     # Never silently ship stale output after a catalog change. Retain the unexpected
     # files for inspection and fail instead of deleting author work.
-    unexpected = {p.name for p in output.glob('*.png')} - expected
+    # Keep the old master-derived repaint for provenance, but never publish it.
+    retired = {'1010006_17_d.png','1010006_17_n.png'} | {f'1010006_{i}_n.png' for i in deck_shapes}
+    unexpected = {p.name for p in output.glob('*.png')} - expected - retired
     if unexpected:
         raise RuntimeError(f'Unexpected old baked maps: {sorted(unexpected)}')
     files = {name: hashlib.sha256((output / name).read_bytes()).hexdigest() for name in sorted(expected)}

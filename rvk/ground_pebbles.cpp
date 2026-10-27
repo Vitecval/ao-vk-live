@@ -426,7 +426,7 @@ bool Device::EnsurePebbleTable()
 // as the eye comes near, dropped behind it.
 void Device::DrawNativePebbles(const d3d::Matrix& vp)
 {
-    if (m_native.pebbles <= 0.0f || !TerrainRockOn() || !m_native.ground || m_native.ground->types.empty()) return;
+    if (m_native.pebbles <= 0.0f || !m_rock.albedo || !m_native.ground || m_native.ground->types.empty()) return;
     if (!EnsurePebbleTable()) return;
     UpdateFrameEye();
     const NativeGround& g = *m_native.ground;

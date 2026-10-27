@@ -1727,9 +1727,14 @@ void Device::FinishShadowFrame()
     m_shadowOrderCached.clear();
     UpdateCasterCache();
     // The mesh cache: forget meshes not drawn for a while (animated ones leave a fingerprint per frame).
-    if ((m_frameNumber & 31) == 0 || m_meshInfo.size() > 60000)
-        for (auto it = m_meshInfo.begin(); it != m_meshInfo.end();)
-            it = it->second.lastFrame + 30 < m_frameNumber ? m_meshInfo.erase(it) : std::next(it);
+    if ((m_frameNumber & 31) == 0 || m_meshInfo.size() > 60000) {
+        bool erased=false;
+        for (auto it = m_meshInfo.begin(); it != m_meshInfo.end();) {
+            if(it->second.lastFrame+30<m_frameNumber) {it=m_meshInfo.erase(it);erased=true;}
+            else ++it;
+        }
+        if(erased)++m_meshInfoEpoch;
+    }
     if ((m_frameNumber & 31) == 0) {
         for (auto it = m_plantMeshes.begin(); it != m_plantMeshes.end();)
             it = it->second.lastFrame + 30 < m_frameNumber ? m_plantMeshes.erase(it) : std::next(it);

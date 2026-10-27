@@ -2,7 +2,7 @@
 
 ## Continuous terrain and brighter daylight
 
-In Cyberpunk mode, **Shared terrain materials** (`RVK_TerraBlend`, default 1)
+In AnarchyHD mode, **Shared terrain materials** (`RVK_TerraBlend`, default 1)
 uses five embedded masters: grass, dirt, gravel, sand and rock. Original AO
 terrain textures supply palette and soft material weights; road shapes and biome
 transitions stay in their original coordinates, while new detail samples world
@@ -22,6 +22,16 @@ only in a playfield with sufficient process address space. Login art is excluded
 Existing Global terrain detail adds filtered normal relief alongside them.
 Natural terrain keeps the existing rough, non-metal material response.
 
+**Shared Ground+** (values above 1, selected by Ultra) automatically enables the
+working GroundOn renderer and its saved pebble, loose-rock and cliff controls.
+It uses the same terrain draw path, including combined and separate base/light
+passes; it does not add another terrain or pebble overlay. Native terrain AO,
+sun relighting and dune relighting stay effectively off in this mode to preserve
+the lighting balance. Extra blending between neighbouring tiles is also off;
+enhanced surface textures and their original layout remain. Their saved values and the manual GroundOn switch remain
+unchanged and resume when returning to ordinary Shared Ground. Terrain controls
+show the effective automatic state. See [the fix and validation](shared-ground-plus-fix.md).
+
 **Colour grading → Brighter daylight look** (`RVK_DayLook`, default 0) is
 off by default, including Ultra. Try 0.6–0.8 to brighten shadows/midtones and
 reduce warmth, golden-hour and night tint. HDR is required. This changes the
@@ -34,7 +44,7 @@ Preview.10 restores the earlier premium ICC panel artwork and the earlier Newlan
 
 The inventory contains 381 available models across nine logical families and 679 approved resources. This includes reused artwork and material-only inputs, not 679 new paintings. The loader selects an explicit pack for each resource and checks its declared maps; an ORM-only material can retain AO colour. Families that share model parts switch together after their live maps are ready. Missing/corrupt/deferred inputs retain originals for that connected group. Personal overrides keep priority. Original functional signs, masks and cutouts remain.
 
-Shared terrain stays at 1 on Ultra; daylight grading stays off. Decks/plaza paving preserve original colours with authored relief and gloss. Asphalt retains restrained non-metal sheen and original road/soil transitions.
+Ultra now selects Shared Ground+; daylight grading stays off. Decks/plaza paving preserve original colours with authored relief and gloss. Asphalt retains restrained non-metal sheen and original road/soil transitions.
 
 
 `material-packs/building-families.json` records models, owners, shared dependencies, explicit providers and required maps. Generated companion edits are recorded in `restored-family-prompts.json`, alongside earlier family prompt sets. Other districts and live model fit remain pending.
@@ -68,7 +78,7 @@ no glass transmission, room geometry or ray tracing is added.
 The optional `ao-cyber-world` pack adds **20 actual repaints**: 15 architecture
 textures, including the picked twin-window facade and its related cladding/pipes,
 plus 5 picked gravel/soil/rock/grass-transition tiles. Choose **World texture style
-→ Cyberpunk**. Shared IDs change wherever AO uses them. Window panes, framing and
+→ AnarchyHD**. Shared IDs change wherever AO uses them. Window panes, framing and
 walls have authored distinct material regions. The original ground mesh remains;
 leave experimental replacement ground disabled. Normal/ORM maps use reduced
 resolution to limit memory; one full-quality set of the 63 maps is about 91 MB on
@@ -136,19 +146,22 @@ Open **Ctrl+Shift+F12 → Materials → World texture style**:
 | Selection | Saved value | Result |
 |---|---|---|
 | Original | `RVK_ModernTex=0` | Original game materials or your personal overrides; default |
-| Classic HD | `RVK_ModernTex=1` | The earlier restrained six-surface architectural preview |
-| Cyberpunk | `RVK_ModernTex=2` | Brushed titanium/graphite, selected light inlays, updated city ground and broader physical material coverage |
+| AnarchyHD | `RVK_ModernTex=2` | Brushed titanium/graphite, selected light inlays, updated city ground and broader physical material coverage |
 
-The Cyberpunk ICC component has **127 material assignments**, including the shared pipe, bin, lamp,
+Classic HD has been removed from the selector. Saved value 1 migrates to
+AnarchyHD; existing value 2 keeps the same artwork. Internal pack filenames are
+unchanged, preserving existing installed assets and personal overrides.
+
+The AnarchyHD ICC component has **127 material assignments**, including the shared pipe, bin, lamp,
 statue and bark textures identified in live captures. **18 surfaces receive new
 albedo and normal maps**, from twelve source images. Other assignments retain the
 original artwork and change material response. This is not 127 redrawn textures
 or a complete remaster of the playfield. Tree canopy art and geometry are unchanged.
 
-Cyberpunk temporarily enables HDR, per-pixel/PBR/albedo/normal lighting and
+AnarchyHD temporarily enables HDR, per-pixel/PBR/albedo/normal lighting and
 screen-space reflections. Its effective minima are reflections 0.8, reflection
 gloss 0.6 and PBR highlights/environment/screen reflections/probe 1. Stored
-preferences remain unchanged and resume with Original or Classic HD. The higher
+preferences remain unchanged and resume with Original. The higher
 reflection quality costs more GPU time. Rain controls wetness; weather is not forced.
 
 Style changes refresh loaded surfaces in the background; allow a few seconds to

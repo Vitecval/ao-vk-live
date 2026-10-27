@@ -1722,10 +1722,14 @@ void RunTerrainTest(D& dev, int frames, const std::string& shot)
 bool g_nativeGroundTest = false;
 bool g_nativeOn = false;
 bool g_nativeUnknownPass = false;
+bool g_groundDetailFixture=false,g_groundModeCycle=false,g_grassLifetimeTest=false;
+template <typename D> void ConfigureGroundDetailFixture(D& dev);
+template <typename D> void GrassLifetimeStep(D& dev,int frame,std::shared_ptr<NativeGround>& ground);
 template <typename D>
 void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
 {
-    constexpr uint32_t kCells = 128, kPatch = 64, kTiles = 4, kTex = 64;
+    constexpr uint32_t kCells = 128, kPatch = 64, kTiles = 4;
+    const uint32_t kTex=g_groundDetailFixture ? 128u : 64u;
     constexpr float kCell = 4.0f;
     auto hash = [](uint32_t x, uint32_t y) {
         uint32_t h = x * 0x8DA6B343u ^ y * 0xD8163841u;
@@ -1739,7 +1743,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         for (uint32_t y = 0; y < kTex; ++y)
             for (uint32_t x = 0; x < kTex; ++x) {
                 uint32_t c = colours[t];
-                if (x < 20 && y < 12) c = 0xFF202020u;                    // the mark: top left, wider than high
+                if (!g_groundDetailFixture && x < 20 && y < 12) c = 0xFF202020u;                    // the mark: top left, wider than high
                 if ((hash(x, y + 97 * t) & 15u) == 0) c ^= 0x00101010u;   // (some grain)
                 px[size_t(y) * kTex + x] = c;
             }
@@ -1781,7 +1785,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
     for (uint32_t r = 0; r < kCells; ++r)
         for (uint32_t c = 0; c < kCells; ++c) {
             const uint32_t h = hash(c, r);
-            ground->codes[size_t(r) * kCells + c] = uint16_t((h % kTiles) | ((h >> 8) & 3u) << 14);
+            ground->codes[size_t(r) * kCells + c] = uint16_t((g_groundDetailFixture ? (c/32)%kTiles : h%kTiles) | ((h >> 8) & 3u) << 14);
         }
     ground->tiles = tiles;
     // The lightmap: a 4-bit value a cell (packed, the high nibble first), and the palette at a shade of 0.45.
@@ -1799,7 +1803,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
     // patch's lightmap.
     struct VtxTerrain { float x, y, z, nx, ny, nz, u0, v0, u1, v1; };
     const uint32_t kFvfTerrain = FVF_XYZ | FVF_NORMAL | (2 << 8);
-    struct Chunk { uint32_t tile; std::vector<VtxTerrain> v; std::vector<uint16_t> i; };
+    struct Chunk { uint32_t tile; std::vector<VtxTerrain> v; std::vector<uint16_t> i; uint32_t meshId=0; };
     struct GamePatch { std::vector<Chunk> chunks; Texture* lightmap; };
     std::vector<GamePatch> patches;
     auto normalAt = [&](float x, float z, float n[3]) {
@@ -1840,12 +1844,35 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
             }
             patches.push_back(std::move(gp));
         }
-    if (g_nativeOn) {
+    if(g_grassLifetimeTest) {
+        uint32_t id=1;
+        for(auto& gp:patches)for(auto& ch:gp.chunks) {
+            auto vs=std::make_shared<std::vector<uint8_t>>(reinterpret_cast<const uint8_t*>(ch.v.data()),reinterpret_cast<const uint8_t*>(ch.v.data()+ch.v.size()));
+            auto is=std::make_shared<std::vector<uint8_t>>(reinterpret_cast<const uint8_t*>(ch.i.data()),reinterpret_cast<const uint8_t*>(ch.i.data()+ch.i.size()));
+            ch.meshId=id++;
+            dev.RegisterMesh(ch.meshId,TriangleList,kFvfTerrain,vs,0,uint32_t(ch.v.size()),is,uint32_t(ch.i.size()));
+        }
+    }
+    if (g_groundDetailFixture) {
+        ground->types={0,1,2,3};
+        std::FILE* table=std::fopen("ground-detail-test.tsv","w");
+        if(table){for(int i=0;i<4;++i)std::fprintf(table,"* %d 1 1 0\n",i);std::fclose(table);}
+        dev.SetPebbleTablePath("ground-detail-test.tsv");
+        dev.SetNativeGroundOn(g_nativeOn);
+        ConfigureGroundDetailFixture(dev);
+    }
+    if (g_nativeOn || g_groundDetailFixture) {
         dev.SetNativeGround(ground);
         dev.SetNativeGroundLightmap(packed, kCells, kCells, shade);
     }
     if (g_grassCombined) dev.SetPixelLighting(true);
     for (int frame = 0; frame < frames; ++frame) {
+        if(g_grassLifetimeTest) GrassLifetimeStep(dev,frame,ground);
+        if (g_groundModeCycle) {
+            // Keep the same captured data/resources while switching repeatedly.
+            if (frame==30 || frame==90 || frame==150) dev.SetKnob(rvk::Knob::TerraBlend,1);
+            if (frame==60 || frame==120 || frame==180) dev.SetKnob(rvk::Knob::TerraBlend,2);
+        }
         if (frame == frames - 1) {
             dev.RequestScreenshot(shot);
             dev.RequestFrameDump("native-frame.txt");
@@ -1853,8 +1880,9 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.BeginFrame();
         dev.SetViewport({0, 0, g_width, g_height, 0.0f, 1.0f});
         dev.Clear(CLEAR_TARGET | CLEAR_ZBUFFER, 0xFF8098B8, 1.0f);
-        const Vector eye{200.0f + g_terrainYaw * 0.0f, height(200.0f, 90.0f) + 14.0f, 90.0f};
-        const float yaw = 1.5708f + g_terrainYaw;
+        const float ex=200.0f+(g_grassLifetimeTest ? 14.0f*std::sin(float(frame)*.01f) : 0.0f);
+        const Vector eye{ex, height(ex, 90.0f) + 14.0f, 90.0f};
+        const float yaw = 1.5708f + g_terrainYaw + (g_grassLifetimeTest ? .2f*std::sin(float(frame)*.013f) : 0.0f);
         dev.SetTransform(View, LookAtLH(eye, {eye.x + std::cos(yaw), eye.y - 0.25f, eye.z + std::sin(yaw)}, {0, 1, 0}));
         dev.SetTransform(Projection, PerspectiveLH(kPi / 3, float(g_width) / g_height, 0.3f, 600.0f));
         dev.SetTransform(World, Identity());
@@ -1890,7 +1918,8 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
                 dev.SetTexture(0,gp.lightmap);
                 for (const Chunk& ch:gp.chunks) {
                     dev.SetTexture(1,tiles[ch.tile]);
-                    dev.DrawIndexedPrimitive(TriangleList,kFvfTerrain,ch.v.data(),uint32_t(ch.v.size()),ch.i.data(),uint32_t(ch.i.size()));
+                    if(ch.meshId)dev.DrawMesh(ch.meshId);
+                    else dev.DrawIndexedPrimitive(TriangleList,kFvfTerrain,ch.v.data(),uint32_t(ch.v.size()),ch.i.data(),uint32_t(ch.i.size()));
                 }
             }
             dev.SetTexture(1,nullptr);
@@ -1906,7 +1935,8 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
             dev.SetTextureStageState(0, TSS_ADDRESSV, TADDRESS_CLAMP);
             for (const Chunk& ch : gp.chunks) {
                 dev.SetTexture(0, tiles[ch.tile]);
-                dev.DrawIndexedPrimitive(TriangleList, kFvfTerrain, ch.v.data(), uint32_t(ch.v.size()), ch.i.data(),
+                if(ch.meshId)dev.DrawMesh(ch.meshId);
+                else dev.DrawIndexedPrimitive(TriangleList, kFvfTerrain, ch.v.data(), uint32_t(ch.v.size()), ch.i.data(),
                                          uint32_t(ch.i.size()));
             }
         }
@@ -1921,7 +1951,8 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
             dev.SetTextureStageState(0, TSS_TEXCOORDINDEX, 1);
             dev.SetTextureStageState(0, TSS_COLOROP, TOP_ADD);
             for (const Chunk& ch : gp.chunks)
-                dev.DrawIndexedPrimitive(TriangleList, kFvfTerrain, ch.v.data(), uint32_t(ch.v.size()), ch.i.data(),
+                if(ch.meshId)dev.DrawMesh(ch.meshId);
+                else dev.DrawIndexedPrimitive(TriangleList, kFvfTerrain, ch.v.data(), uint32_t(ch.v.size()), ch.i.data(),
                                          uint32_t(ch.i.size()));
         }
         }
@@ -1965,6 +1996,45 @@ float g_groundFog = 0.0f;           // --ground-fog END: the native ground scene
 float g_heatShimmer = 0.5f;         // --heat-shimmer X: RVK_HeatShimmer
 bool g_tileOrm = false;             // --tile-orm: every other tile a shiny material map (PBR, pixel lighting on)
 float g_eye[3] = {1355.87f, 42.36f, 2861.39f}, g_viewYaw = 1.5708f, g_viewPitch = 0.15f;
+template <typename D> void ConfigureGroundDetailFixture(D& dev)
+{
+    dev.SetNativeGroundAo(g_groundAo);dev.SetNativeGroundSun(g_groundSun);
+    dev.SetNativeGroundRocks(g_groundRocks);dev.SetNativeGroundPebbles(g_groundPebbles);
+    Device::TerrainSettings t;
+    t.round=g_groundTess;t.depth=g_cliffDepth;t.grain=g_groundGrain;t.blend=g_groundBlend;
+    t.ripple=g_sandRipple;t.dune=g_duneLight;t.glint=g_sandGlint;t.smooth=g_rippleSmooth;
+    t.prints=g_sandPrints;t.rippleDepth=g_rippleDepth;
+    if(g_terrainOff){t.cliff=0;t.rock=false;}
+    dev.SetTerrain(t);
+}
+
+template <typename D> void GrassLifetimeStep(D& dev,int frame,std::shared_ptr<NativeGround>& ground)
+{
+    const int phase=(frame/120)%4;
+    if(frame%73==0) {
+        const bool alternate=(frame/73)%2!=0;
+        dev.SetGrassField(phase!=1,24.0f,alternate ? .7f:.5f,alternate ? .55f:.5f,false);
+    }
+    if(frame%120==0) {
+        // Enhanced -> Original -> enhanced Shared+ -> Shared, including
+        // scene recreation and grass teardown, then move and turn the camera.
+        dev.SetHdr(phase!=1);
+        dev.SetPixelLighting(phase!=1);
+        dev.SetNormalMaps(phase!=1,1.0f);
+        dev.SetGrassField(phase!=1,24.0f,.5f,.5f,false);
+        dev.SetKnob(Knob::TerraBlend,phase==2 ? 2.0f:phase==3 ? 1.0f:0.0f);
+        dev.SetNativeGroundOn(phase==0);
+    }
+    if(frame%900==450) dev.SetNativeGround(nullptr);
+    if(frame%900==451) {
+        auto next=std::make_shared<NativeGround>(*ground);
+        ++next->id;
+        for(float& y:next->heights)y+=.01f;
+        dev.SetNativeGround(next);
+        ground=std::move(next); // the queued command must retain its own snapshot
+    }
+}
+
 template <typename D>
 void RunGroundFile(D& dev, int frames, const std::string& shot)
 {
@@ -2202,9 +2272,12 @@ void RunGroundFile(D& dev, int frames, const std::string& shot)
 bool g_sharedTerrainSand=false, g_sharedTerrainPebbles=false;
 bool g_sharedTerrainTest=false, g_sharedTerrainTurn=false, g_sharedTerrainMask=false, g_sharedTerrainSeparate=false;
 uint32_t g_sharedTerrainId=0;
+uint32_t g_sharedTerrainType=1010006;
+std::string g_sharedTerrainSource;
 bool g_sharedTerrainAuthored=false, g_sharedTerrainRoadMask=false, g_groundPaletteControl=false, g_groundPersonal=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
+    dev.SetNativeGroundOn(false);
     constexpr int S=128;
     std::vector<uint32_t> pixels(S*S,0xFF807D78u);
     if(g_sharedTerrainSand) std::fill(pixels.begin(),pixels.end(),0xFFB9A27Fu);
@@ -2219,13 +2292,21 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
     }
     if(g_sharedTerrainAuthored) for(int y=0;y<S;++y) for(int x=0;x<S;++x)
         pixels[y*S+x]=(x%32<2 || y%32<2) ? 0xFF24262Au : ((x/32+y/32)%2 ? 0xFF746F79u : 0xFF82888Du);
+    if(!g_sharedTerrainSource.empty()) {
+        maps::Image input;std::string error;
+        if(!maps::LoadImage(g_sharedTerrainSource,&input,&error)) {std::fprintf(stderr,"%s\n",error.c_str());std::exit(2);}
+        for(int y=0;y<S;++y)for(int x=0;x<S;++x) {
+            const auto* c=&input.rgba[(size_t(y*input.h/S)*input.w+x*input.w/S)*4];
+            pixels[y*S+x]=uint32_t(c[3])<<24|uint32_t(c[0])<<16|uint32_t(c[1])<<8|c[2];
+        }
+    }
     maps::Image source;source.w=source.h=S;source.rgba.resize(S*S*4);
     for(int i=0;i<S*S;++i) for(int c=0;c<4;++c)
         source.rgba[i*4+c]=uint8_t(c==3 ? 255 : pixels[i]>>(16-8*c)&255u);
     maps::MipChain chain;maps::MakeAlbedoChain(source,&chain);
     Texture* tile=maps::Upload(dev,chain); // original AO tiles also have a mip chain
     if(g_sharedTerrainId) {
-        dev.SetTextureRdbId(tile,g_sharedTerrainId,1010006,0,g_sharedTerrainAuthored && !g_groundPersonal);
+        dev.SetTextureRdbId(tile,g_sharedTerrainId,g_sharedTerrainType,0,g_sharedTerrainAuthored && !g_groundPersonal);
         Device::PbrSettings pbr;pbr.enabled=true;pbr.debug=g_pbrDebug;dev.SetPbr(pbr);
     }
     if(g_sharedTerrainAuthored) {
@@ -4559,6 +4640,7 @@ void RunPointShadowTest(D& dev, int frames, const std::string& shot, const std::
 // it blends) standing in a row on a lit ground, drawn as the game draws them - the canopy blended with depth writes,
 // the trunk opaque - for the leaves (leaves.cpp). The camera stands back to see them whole.
 std::string g_leafTrees;           // --leaf-tree: the files, comma-separated
+bool g_leafVolumeCycle = false;
 Device::LeafSettings g_leafSettings{true};   // --leaf-off, --leaf-density, --leaf-size, --leaf-dist, --leaf-core, --leaf-wind, --leaf-flutter
 int g_folEdges = -1;               // --fol-edges 0|1: RVK_FolEdges, plants' soft edges in a second pass (-1: the default)
 int g_prepassEq = -1;              // --prepass-eq 0|1: RVK_PrepassEq, pre-passed draws shaded only where their depth is
@@ -4695,6 +4777,13 @@ void RunLeafScene(D& dev, int frames, const std::string& shot, const std::string
     if (g_folDither >= 0.0f) dev.SetKnob(rvk::Knob::FolDither, g_folDither);
     if (g_prepassEq >= 0) dev.SetKnob(rvk::Knob::PrepassEq, float(g_prepassEq));
     for (int frame = 0; frame < frames; ++frame) {
+        if (g_leafVolumeCycle && frame % 30 == 0) {
+            auto leaves = g_leafSettings;
+            leaves.volume = (frame / 30) % 2 == 0;
+            dev.SetLeaves(leaves);
+        }
+        if (g_profileWindow && frame == frames / 2) dev.ProfileWindow(true, "");
+        if (g_profileWindow && frame == frames - 1) dev.ProfileWindow(false, "tree window: ");
         if (g_frameGenToggle > 0 && (frame == g_frameGenToggle || frame == 2 * g_frameGenToggle))
             dev.SetFrameGen(frame == 2 * g_frameGenToggle);
         if (frame == frames - 1) {
@@ -5111,6 +5200,7 @@ int main(int argc, char** argv)
         else if (a == "--grass-bench") { g_grassFieldOn = g_grassBench = true; hdr = true; }
         else if (a == "--grass-combined") g_grassCombined = true;
         else if (a == "--grass-upload-test") g_grassUploadTest = true;
+        else if (a == "--grass-lifetime-test") {g_grassLifetimeTest=g_nativeGroundTest=g_groundDetailFixture=g_grassFieldOn=true;hdr=true;}
         else if (a == "--shared-terrain-test") {g_sharedTerrainTest=true;g_skyZone=655;}
         else if (a == "--terrain-sand") g_sharedTerrainSand=true;
         else if (a == "--terrain-pebbles") g_sharedTerrainPebbles=true;
@@ -5119,12 +5209,16 @@ int main(int argc, char** argv)
         else if (a == "--terrain-separate") g_sharedTerrainSeparate=true;
         else if (a == "--terrain-id" && i+1<argc) g_sharedTerrainId=uint32_t(std::atoi(argv[++i]));
         else if (a == "--terrain-authored") g_sharedTerrainAuthored=true;
+        else if (a == "--terrain-source" && i+1<argc) g_sharedTerrainSource=argv[++i];
+        else if (a == "--terrain-type" && i+1<argc) g_sharedTerrainType=uint32_t(std::strtoul(argv[++i],nullptr,10));
         else if (a == "--shared-ground-maps" && i+1<argc) g_pbrMaps=argv[++i];
         else if (a == "--terrain-palette-control") g_groundPaletteControl=true;
         else if (a == "--terrain-personal") g_groundPersonal=true;
         else if (a == "--terrain-road-mask") g_sharedTerrainRoadMask=true;
         else if (a == "--global-terrain-test") { g_globalTerrainTest = g_grassBench = g_grassBenchStill = g_grassCombined = true; hdr = true; }
         else if (a == "--terrain-test") g_terrainTest = true;
+        else if (a == "--ground-detail-fixture") g_groundDetailFixture=true;
+        else if (a == "--ground-mode-cycle") g_groundModeCycle=true;
         else if (a == "--native-ground-test") g_nativeGroundTest = true;
         else if (a == "--native-on") g_nativeOn = true;
         else if (a == "--native-unknown-pass") g_nativeUnknownPass = true;
@@ -5164,6 +5258,8 @@ int main(int argc, char** argv)
         else if (a == "--leaf-off") g_leafSettings.on = false;
         else if (a == "--leaf-art" && i + 1 < argc) g_leafArt = argv[++i];
         else if (a == "--leaf-no-own") g_leafSettings.own = false;
+        else if (a == "--leaf-no-volume") g_leafSettings.volume = false;
+        else if (a == "--leaf-volume-cycle") g_leafVolumeCycle = true;
         else if (a == "--crown-shade" && i + 1 < argc) g_crownShade = float(std::atof(argv[++i]));
         else if (a == "--free-cam") g_freeCam = true;
         else if (a == "--leaf-shadow-off") g_leafSettings.shadows = false;
@@ -5759,7 +5855,12 @@ int main(int argc, char** argv)
         if (!dump.empty() && !shadowTest && g_statelPack.empty()) tdev.RequestFrameDump(dump);
         if (!g_statelPack.empty()) RunStatelTest(tdev, frames, shot, dump);
         else if (shadowTest) RunShadowTest(tdev, frames, shot, cacheTest, frameMs, dump);
-        else RunDemo(tdev, windowed, stress, frames, shot);
+        else if(g_nativeGroundTest) {
+            tdev.SetHdr(hdr);tdev.SetSkyPlayfield(g_skyZone);tdev.SetKnob(Knob::TerraBlend,terrainBlend);
+            if(g_grassFieldOn)tdev.SetGrassField(true,g_grassFieldDist,3.0f,.5f,g_grassFieldTex);
+            RunNativeGroundTest(tdev,frames,shot);
+            tdev.Sync();
+        } else RunDemo(tdev, windowed, stress, frames, shot);
     } else if (!g_statelPack.empty()) {
         RunStatelTest(dev, frames, shot, dump);
     } else if (!g_leafTrees.empty()) {

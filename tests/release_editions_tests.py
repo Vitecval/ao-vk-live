@@ -18,8 +18,13 @@ for edition in ['full','lite']:
         atlases=[n for n in manifest['assets'] if '/source-art/' in n]
         if edition=='lite':
             assert not atlases
-            assert len(maps)==24,len(maps)
-            assert all(re.search(r'/1010006_(17|20|21|22|23|24|25|26)_(d|n|orm)\.png$',n) for n in maps)
+            family=json.loads((Path(__file__).resolve().parents[1]/'material-packs/ao-cyber-icc/deck-family.json').read_text())
+            deck_ids={x['id'] for x in family['members']}
+            assert all(re.search(r'/1010006_\d+_(d|n|orm)\.png$',n) for n in maps)
+            for identity in deck_ids:
+                selected=[n for n in maps if f'/1010006_{identity}_' in n]
+                assert len(selected)==1 and selected[0].endswith('_orm.png'),(identity,selected)
+            assert not any(f'/1010006_{identity}_{suffix}.png' in n for identity in deck_ids for suffix in ['d','n','h'] for n in maps)
         else:
             assert len(atlases)>=179
             assert any('/1010004_297326_d.png' in n for n in maps),'Premium ICC panel missing'

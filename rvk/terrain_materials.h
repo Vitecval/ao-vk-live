@@ -7,9 +7,20 @@ inline bool IsGroundType(uint32_t type)
 {
     return type == 1010006 || type == 1010021 || type == 1010022;
 }
+inline bool DeckGround(uint32_t type, uint32_t id)
+{
+    if (!IsGroundType(type)) return false;
+    switch (id) {
+    case 17: case 68: case 69: case 71: case 174: case 176:
+    case 183: case 184: case 185: case 186: case 187: case 188: case 189:
+    case 190: case 191: case 192: case 193: case 194: case 195: case 196: case 197:
+    case 209: case 211: return true;
+    default: return false;
+    }
+}
 inline bool AuthoredGround(uint32_t type, uint32_t id)
 {
-    return IsGroundType(type) && (id == 17 || (id >= 20 && id <= 26));
+    return DeckGround(type,id) || (IsGroundType(type) && id >= 20 && id <= 26);
 }
 inline bool AsphaltGround(uint32_t type, uint32_t id)
 {

@@ -1,0 +1,30 @@
+{
+  "name": "Original AO tread-plate family, matte metal",
+  "evidence": "Live picker 1010006:17; captured AnarchyGround_t combined draw binds 17 in stage 1; original database images confirm matching tread in each member. Quality aliases 1010021/1010022 use the same IDs.",
+  "policy": "Keep AO colour, tread, panel borders and transition artwork. Flat normal only; no generated albedo or height. Roughness 0.82, metallic 0.70 on plate; soil/asphalt portions remain rough dielectric.",
+  "members": [
+    {"id":17,"shape":"full"},
+    {"id":68,"shape":"outside-square"},
+    {"id":69,"shape":"outside-bottom-triangle"},
+    {"id":71,"shape":"upper-left"},
+    {"id":174,"shape":"outside-bottom-triangle"},
+    {"id":176,"shape":"upper-left"},
+    {"id":183,"shape":"square"},
+    {"id":184,"shape":"bottom-triangle"},
+    {"id":185,"shape":"full"},
+    {"id":186,"shape":"lower-right"},
+    {"id":187,"shape":"full"},
+    {"id":188,"shape":"square"},
+    {"id":189,"shape":"bottom-triangle"},
+    {"id":190,"shape":"full"},
+    {"id":191,"shape":"lower-right"},
+    {"id":192,"shape":"full"},
+    {"id":193,"shape":"gravel-diamond"},
+    {"id":194,"shape":"gravel-lower-right"},
+    {"id":195,"shape":"gravel-upper-left"},
+    {"id":196,"shape":"gravel-lower-right"},
+    {"id":197,"shape":"gravel-top-band"},
+    {"id":209,"shape":"gravel-upper-left"},
+    {"id":211,"shape":"gravel-right-band"}
+  ]
+}

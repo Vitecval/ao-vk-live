@@ -1,6 +1,6 @@
 # AO-VK Live
 
-Optional **world texture styles**: choose Original, Classic HD or Cyberpunk in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables Cyberpunk, shared terrain detail at 1, building materials and equipment art. ICC decks and plaza tiles keep their authored metallic/paving materials; roads keep their original transitions with restrained asphalt sheen. Brighter daylight grading stays off by default. See [modern materials](docs/modern-materials.md).
+Optional **world texture styles**: choose Original or AnarchyHD in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables AnarchyHD, Shared Ground+, building materials and equipment art, with GroundOn off. Shared Ground+ is regular Shared Ground plus nearby pebbles at density 1, retaining AO's terrain and lighting; it adds no ripples, cliffs or tile-edge blending. Enabling GroundOn overrides either shared mode. Metal decks keep their original tread and transition artwork with a rough, lightly shiny finish; roads retain their asphalt sheen. Fuller 3D tree foliage is controlled by **Plants → Fuller 3D tree foliage**. Brighter daylight grading stays off by default. See [modern materials](docs/modern-materials.md).
 
 This preview restores the original premium ICC and neutral artwork and adds 203 companion surfaces. Nine building families cover 381 inventoried models and 679 approved artwork/material resources. Original ground colours and asphalt sheen are preserved. The retained library has 912 repaint IDs, including inactive history. Live fit and remaining districts are listed in [the overhaul plan](docs/texture-overhaul-plan.md). Original geometry and animations remain unchanged.
 
@@ -10,7 +10,7 @@ A Vulkan renderer for the **classic Anarchy Online live client**, based on [wann
 
 ## Download and install
 
-Download **`ao-vk-live-0.6.0-preview.12-windows-x86.zip`** from this repository's **Releases** page. Players do not need a compiler, Python, or the Vulkan SDK.
+Download **`ao-vk-live-0.6.0-preview.14-windows-x86.zip`** from this repository's **Releases** page. Players do not need a compiler, Python, or the Vulkan SDK.
 
 1. Extract the whole ZIP to a folder. Close AO and its launcher.
 2. Double-click **Install.cmd**. Select your AO installation folder, or use **Browse** to find it.

@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Shared Ground+ now adds only nearby pebbles at density 1 to regular Shared Ground, retaining its terrain mesh and lighting. It adds no ripples, cliffs or tile-edge blending. GroundOn overrides either shared mode; Ultra selects Shared Ground+ with GroundOn off.
+- Trees gain fuller foliage through their crowns with `RVK_TreeVolume`, retaining the original branches, leaf colours and distant silhouettes. Shrubs and palms keep their existing foliage.
+- The picked metal floor and its 22 related plate/transition tiles keep AO's original tread and borders with a rough, restrained metal finish. Older repaints and noisy normal maps cannot override this family; Full HD and Lite include the same material correction.
+
+### Fixed
+
+- Fix expired terrain mesh records being reused after switching graphics modes, which could corrupt the grass cache later while moving or turning. Render-worker failures now stop promptly with the original fault details instead of leaving the game waiting indefinitely.
+
 ## 0.6.0-preview.12
 
 - Keep resident building replacements visible while other textures load or are missing. Publish each required material set only after its GPU images and uploads are usable; preserve a valid set if a reload fails.
@@ -39,7 +51,12 @@ What changed in each ao-vk release, newest first. Downloads and install notes: t
 
 ## Unreleased
 
+### Changed
+- Rename Cyberpunk world style to AnarchyHD and remove Classic HD from the selector. Existing Cyberpunk choices keep their artwork; saved Classic HD choices move to AnarchyHD.
+- Keep Shared Ground+'s enhanced floor textures while disabling its extra tile-edge blending. Ordinary GroundOn retains the saved blending preference.
+
 ### Fixed
+- Shared Ground+ automatically uses GroundOn's working pebble, loose-rock and cliff rendering, including when the manual GroundOn switch is off. Terrain controls reflect the effective state, switching restores saved preferences, and additional terrain AO/sun/dune relighting stays off to preserve the lighting balance. Terrain capture also recovers when the initial zone callback arrived before the renderer was ready.
 - ICC metal decks and plaza tiles preserve original AO colours with authored relief and reflective materials with shared terrain enabled. Roads use original transition patterns in either mode, avoiding mismatched partial repaint patches; reviewed asphalt families receive a restrained non-metal sheen while their dirt/gravel edges stay rough.
 - Correct texture-memory counters when optional daylight grading creates and releases its lookup texture.
 - Reduce zoning memory pressure by sharing immutable material maps between quality copies, bounding built-in map resolution and retrying skipped materials after address space recovers. Native allocation failures record the requested size, remaining space and largest free block for diagnosis.

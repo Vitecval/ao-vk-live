@@ -8,6 +8,7 @@
 // patches in view for it, and every ground draw of the game's is skipped. Everything that reads the ground's draws
 // (cliff faces, shadows, hill shade, mist, wet ground, fog) reads these the same way.
 #include "internal.h"
+#include "terrain_materials.h"
 
 #include <algorithm>
 #include <chrono>
@@ -80,6 +81,11 @@ static std::shared_ptr<std::vector<uint32_t>> SkyVisibility(std::shared_ptr<cons
 // Once a frame (the native ground's first draw): the sky's visibility in once its worker is done.
 void Device::PollNativeSky()
 {
+    if (SharedGroundPlus() || m_native.ao<=0) return;
+    if (!m_native.sky && !m_native.skyPending.valid() && m_native.ground) {
+        m_native.skyPending=std::async(std::launch::async,SkyVisibility,m_native.ground);
+        return;
+    }
     if (!m_native.skyPending.valid() ||
         m_native.skyPending.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
         return;
@@ -92,6 +98,9 @@ void Device::PollNativeSky()
 void Device::DestroyNativeGround()
 {
     if (m_native.skyPending.valid()) m_native.skyPending.wait();
+    // A completed worker still owns its old playfield until the future is
+    // consumed. Plus skips sky work, so explicitly discard it on zone changes.
+    m_native.skyPending = {};
     if (m_native.ground && m_native.framesDrawn)
         Log("native ground: playfield %u - %.1f patches drawn a frame over %u frames, %u rocks made", m_native.ground->id,
             double(m_native.patchesDrawn) / m_native.framesDrawn, m_native.framesDrawn, m_native.rocksMade);
@@ -107,6 +116,11 @@ void Device::DestroyNativeGround()
     m_native.anyOrm = nullptr;
     m_native.patches.clear();
     m_native.ground.reset();
+    m_native.basePending=false;
+    m_native.baseTex1=nullptr;
+    m_native.drawnBase=m_native.drawnLight=~0ull;
+    m_native.clutter=m_native.pebbleDraw=m_native.tessPatch=false;
+    m_constantsDirty=m_frameLightsDirty=true;
 }
 
 // A playfield's ground: its patches (vertices, boxes), the shared indices, the tile-code texture. Null: the game's own.
@@ -120,15 +134,6 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
         return;
     }
     const NativeGround& g = *ground;
-    if (!m_native.on && m_sharedTerrain>1.0f) {
-        m_native.ground=ground;
-        MakeNativeCodes();
-        FitNativeLight();
-        if (!m_native.lightmapGrey) {const uint32_t grey=PaletteGrey(15,.5f);m_native.lightmapGrey=CreateTexture(1,1,&grey);}
-        m_native.drawnBase=m_native.drawnLight=~0ull;
-        Log("shared ground+: surface data ready; original terrain geometry and lighting retained");
-        return; // no replacement mesh, sky visibility, terrain AO or cliff tessellation
-    }
     const uint32_t P = g.patch, W = g.cellsX + 1;
     const uint32_t pw = (g.cellsX + P - 1) / P, ph = (g.cellsZ + P - 1) / P;
     auto heightAt = [&](int c, int r) {
@@ -192,7 +197,7 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
     m_native.ground = ground;
     MakeNativeCodes();
     FitNativeLight();
-    m_native.skyPending = std::async(std::launch::async, SkyVisibility, ground);
+    if (!SharedGroundPlus() && m_native.ao>0) m_native.skyPending = std::async(std::launch::async, SkyVisibility, ground);
     if (!m_native.lightmapGrey) {
         const uint32_t grey = PaletteGrey(15, 0.5f);
         m_native.lightmapGrey = CreateTexture(1, 1, &grey);
@@ -250,13 +255,14 @@ void Device::MakeNativeCodes()
     for (size_t t = 0; t < g.tiles.size(); ++t) {
         Texture* tex = g.tiles[t];
         if (!tex || !tex->m_image) continue;
-        Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps ? tex->m_albedoMap : tex;
+        Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;
         image[t] = BindlessImage(drawn);
-        if (tex->m_normalMap && m_normalMaps && m_pixelLighting) {
-            normal[t] = BindlessImage(tex->m_normalMap) & 0xFFFFu;
+        if (m_pixelLighting && ((tex->m_normalMap && m_normalMaps) || materials::DeckGround(tex->m_rdbType,tex->m_rdbId))) {
+            Texture* nm = materials::DeckGround(tex->m_rdbType,tex->m_rdbId) ? m_flatNormal : tex->m_normalMap;
+            normal[t] = BindlessImage(nm) & 0xFFFFu;
             anyNormal = true;
-            m_native.anyHeight = m_native.anyHeight || tex->m_normalMap->m_alphaHeight;
-            height[t] = tex->m_normalMap->m_alphaHeight;
+            m_native.anyHeight = m_native.anyHeight || nm->m_alphaHeight;
+            height[t] = nm->m_alphaHeight;
         }
         if (tex->m_ormMap && m_pbr.enabled && m_pixelLighting) {
             orm[t] = BindlessImage(tex->m_ormMap) & 0xFFFFu;
@@ -425,7 +431,7 @@ void Device::FillNativeLights(detail::FrameLights* fl)
     for (int k = 0; k < 3; ++k) fl->terrainLight[k] = fl->terrainLight2[k] = f[k + 1];
     fl->terrainLight[3] = f[0];
     const float sx = -fl->sunDir[0], sz = -fl->sunDir[2], s = std::sqrt(sx * sx + sz * sz);
-    if (m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
+    if (SharedGroundPlus() || m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
     const float b = std::sqrt(f[1] * f[1] + f[3] * f[3]);
     fl->terrainLight[0] = b * sx / s;
     fl->terrainLight[2] = b * sz / s;
@@ -467,45 +473,16 @@ bool Device::NativeLightRgb(float u, float v, uint8_t rgb[3]) const
 // A draw of the game's: is it its ground, replaced (drawn by this first, for its pass, once a frame)? Skipped then.
 bool Device::NativeGroundReplaces(uint32_t fvf)
 {
-    if (!m_native.on && m_sharedTerrain>1.0f && m_native.ground && m_native.codes && !m_native.drawing &&
-        m_drawVisualKind==uint32_t(VisualKind::Terrain) && IsTerrain(fvf) &&
-        (IsCombinedTerrainPass() || (m_rs[d3d::RS_LIGHTING] && IsMultiplyPass())) &&
-        m_native.drawnLight!=m_frameNumber && TerrainRockOn()) {
-        m_native.drawnLight=m_frameNumber;
-        EnsurePebbleTable();
-        if (NativeMapsSignature()!=m_native.mapsSignature) MakeNativeCodes();
-        const auto rs=m_rs; const auto tss=m_tss; uint32_t extra[3];std::memcpy(extra,m_recordExtra,sizeof(extra));
-        Texture* t0=m_textures[0]; Texture* t1=m_textures[1];
-        const auto world=m_world;
-        m_world={};for (int i=0;i<4;++i) m_world.m[i][i]=1;
-        m_rs[d3d::RS_ALPHABLENDENABLE]=0; m_rs[d3d::RS_ZWRITEENABLE]=1;
-        m_rs[d3d::RS_ZFUNC]=d3d::CMP_LESSEQUAL;
-        m_tss[0][d3d::TSS_TEXCOORDINDEX]=1;
-        m_tss[0][d3d::TSS_COLOROP]=d3d::TOP_ADD;
-        m_tss[0][d3d::TSS_COLORARG1]=d3d::TA_TEXTURE;
-        m_tss[0][d3d::TSS_COLORARG2]=d3d::TA_DIFFUSE;
-        m_tss[1][d3d::TSS_COLOROP]=d3d::TOP_DISABLE;
-        m_textures[0]=m_native.lightmap ? m_native.lightmap : m_native.lightmapGrey;
-        m_textures[1]=nullptr;
-        m_groundOne=true; m_native.drawing=true;
-        m_recordExtra[0]=BindlessImage(m_blackTexture)+1;
-        m_recordExtra[1]=StageSamplerSlot(0);
-        m_recordExtra[2]=OwnSkyFog() ? 1u<<24 : m_rs[d3d::RS_FOGCOLOR]&0xFFFFFFu;
-        if (m_rs[d3d::RS_FOGENABLE]) m_recordExtra[2]|=1u<<25;
-        m_constantsDirty=true;
-        DrawNativePebbles(MulMatrix(m_view,m_proj));
-        FlushGroup();
-        m_native.drawing=false;m_groundOne=false;
-        m_rs=rs;m_tss=tss;std::memcpy(m_recordExtra,extra,sizeof(extra));m_world=world;
-        m_textures[0]=t0;m_textures[1]=t1;m_constantsDirty=true;
-    }
-    if (!m_native.on || !m_native.ground || !m_native.codes || m_native.patches.empty() || m_native.drawing)
+    // Shared Ground+ adds stones without consuming or changing AO's ground.
+    // GroundOn alone replaces the terrain and owns its additional geometry.
+    if (!(m_native.on || SharedGroundPlus()) || !m_native.ground || !m_native.codes || m_native.patches.empty() || m_native.drawing)
         return false;
     if (m_drawVisualKind != uint32_t(VisualKind::Terrain) || !IsTerrain(fvf))
         return false;
     const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
     const bool light = m_rs[d3d::RS_LIGHTING] && IsMultiplyPass();
     const bool combined = IsCombinedTerrainPass();
+    const bool overlay = SharedGroundPlus();
     // Retail combines (lightmap + diffuse) * base in one opaque draw. The old
     // path consumed it without drawing either pass, leaving a hole in the world.
     // Unknown passes, or an unavailable replacement, always retain AO's draw.
@@ -513,7 +490,7 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
         return false;
     if (combined) {
         if (m_native.drawnLight == m_frameNumber)
-            return true;
+            return !overlay;
         EnsurePebbleTable();
         if (NativeMapsSignature() != m_native.mapsSignature) MakeNativeCodes();
         if (!m_native.codes) return false;
@@ -530,11 +507,13 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
         m_textures[1] = nullptr;
         m_native.drawnBase = m_native.drawnLight = m_frameNumber;
         if (m_scenePhase && !m_external) NoteSceneFog();
+        m_native.pebblesOnly = overlay;
         DrawNativeGroundOne();
+        m_native.pebblesOnly = false;
         m_tss = tss;
         m_textures[1] = tex1;
         m_constantsDirty = true;
-        return true;
+        return !overlay;
     }
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber)
         EnsurePebbleTable();                     // (which cells are sand: the means' texture, made again once it is)
@@ -544,11 +523,12 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber)
         PollNativeSky();
     if (base && m_native.drawnBase != m_frameNumber) {
+        m_native.pebblesOnly = overlay;
         m_native.drawnBase = m_frameNumber;
         // One pass (RVK_GroundOne): deferred to the lighting pass, which draws the ground once, its texture and its
         // light together - while the ground had a lighting pass last frame (this one's is then all but sure to come
         // right after), per-pixel lit into the HDR scene. The scene's fog and ambient noted now, from this pass.
-        if (m_groundOnePass && m_pixelLighting && m_target == m_scene && m_scene && m_target->m_format == Format::RGBA16F &&
+        if (!overlay && m_groundOnePass && m_pixelLighting && m_target == m_scene && m_scene && m_target->m_format == Format::RGBA16F &&
             m_native.drawnLight + 1 == m_frameNumber) {
             m_native.basePending = true;
             m_native.baseRs = m_rs;
@@ -563,11 +543,13 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
             DrawNativeGround(false);
         }
     } else if (light && m_native.drawnLight != m_frameNumber) {
+        m_native.pebblesOnly = overlay;
         m_native.drawnLight = m_frameNumber;
         if (m_native.basePending) DrawNativeGroundOne();
         else DrawNativeGround(true);
     }
-    return true;
+    m_native.pebblesOnly = false;
+    return !overlay;
 }
 
 // The ground in one pass (RVK_GroundOne): its lighting pass's state - lights, lightmap, fog - drawn as its base pass
@@ -634,6 +616,17 @@ void Device::DrawPendingGroundBase()
 // shader reads each cell's tile), the lighting pass's the playfield's lightmap.
 void Device::DrawNativeGround(bool lightPass)
 {
+    // Replacement terrain is nested inside a registered AO mesh draw. Its
+    // patches have independent geometry and metadata; they must neither use
+    // nor overwrite the parent's MeshSlot, or leave its GPU bindings changed.
+    struct DrawScope {
+        Device* d; MeshSlot* slot; VkBuffer vb,ib;
+        VkDeviceSize vo,io; uint64_t serial;
+        explicit DrawScope(Device* p):d(p),slot(p->m_drawSlot),vb(p->m_drawStaticBuffer),ib(p->m_drawStaticIndexBuffer),
+            vo(p->m_drawStaticOffset),io(p->m_drawStaticIndexOffset),serial(p->m_drawStaticSerial) {p->m_drawSlot=nullptr;}
+        ~DrawScope() {d->m_drawSlot=slot;d->m_drawStaticBuffer=vb;d->m_drawStaticIndexBuffer=ib;
+            d->m_drawStaticOffset=vo;d->m_drawStaticIndexOffset=io;d->m_drawStaticSerial=serial;}
+    } drawScope(this);
     Texture* saved = m_textures[0];
     m_textures[0] = lightPass ? (m_native.lightmap ? m_native.lightmap : m_native.lightmapGrey) : m_blackTexture;
     m_native.drawing = true;
@@ -641,7 +634,7 @@ void Device::DrawNativeGround(bool lightPass)
     // In view: a patch's box against the camera's clip planes (all eight corners outside one: left out).
     const d3d::Matrix vp = MulMatrix(m_view, m_proj);
     uint32_t drawn = 0;
-    for (const NativePatch& p : m_native.patches) {
+    if (!m_native.pebblesOnly) for (const NativePatch& p : m_native.patches) {
         bool outside[6] = {true, true, true, true, true, true};
         for (int k = 0; k < 8; ++k) {
             // (A unit round it: the tessellation's shape and rock move the ground that far at most.)
@@ -671,7 +664,7 @@ void Device::DrawNativeGround(bool lightPass)
         DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, p.indices, m_native.indexCount);
         ++drawn;
     }
-    DrawNativeClutter(vp);
+    if (!m_native.pebblesOnly) DrawNativeClutter(vp);
     DrawNativePebbles(vp);
     m_native.drawing = false;
     m_textures[0] = saved;

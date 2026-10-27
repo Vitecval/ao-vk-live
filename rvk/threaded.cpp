@@ -15,6 +15,14 @@ namespace rvk {
 namespace {
 
 constexpr uint32_t Align16(uint32_t v) { return (v + 15) & ~15u; }
+thread_local ThreadedDevice* g_renderWorker = nullptr;
+
+LONG CALLBACK RenderWorkerFault(EXCEPTION_POINTERS* e)
+{
+    ReportRenderWorkerFault(e->ExceptionRecord->ExceptionCode,
+                           reinterpret_cast<uintptr_t>(e->ExceptionRecord->ExceptionAddress));
+    return EXCEPTION_CONTINUE_SEARCH;
+}
 
 template <typename T>
 void WaitWhileEqual(std::atomic<T>& value, T expected, DWORD timeoutMs)
@@ -25,22 +33,64 @@ void WaitWhileEqual(std::atomic<T>& value, T expected, DWORD timeoutMs)
 
 }  // namespace
 
+void ReportRenderWorkerFault(uint32_t code, uintptr_t address)
+{
+    // C++ exceptions may be handled by an individual rendering operation. Mark
+    // those only if they escape WorkerMain's C++ boundary below.
+    if(g_renderWorker && (code==EXCEPTION_ACCESS_VIOLATION || code==EXCEPTION_IN_PAGE_ERROR ||
+                          code==EXCEPTION_ILLEGAL_INSTRUCTION || code==EXCEPTION_STACK_OVERFLOW))
+        g_renderWorker->MarkWorkerFailed(code,address);
+}
+
+void ThreadedDevice::MarkWorkerFailed(uint32_t code,uintptr_t address)
+{
+    if(m_workerFailure.load(std::memory_order_relaxed))return;
+    m_workerFailureAddress=address;
+    m_workerFailure.store(code,std::memory_order_release);
+    WakeByAddressAll(&m_readPos);
+    WakeByAddressAll(&m_recordsDone);
+    WakeByAddressAll(&m_framesDone);
+}
+
+void ThreadedDevice::CheckWorkerFailed(bool waiting) const
+{
+    uint32_t code=m_workerFailure.load(std::memory_order_acquire);
+    if(!code && waiting && m_thread && !m_stop.load(std::memory_order_acquire) &&
+       WaitForSingleObject(m_thread,0)==WAIT_OBJECT_0)code=ERROR_PROCESS_ABORTED;
+    if(!code)return;
+    // A partially executed render record cannot be retried safely. Fail fast
+    // without the heap, loader or game exception-handler locks, retaining the
+    // original fault code/address in the termination report instead of hanging.
+    EXCEPTION_RECORD failure{};
+    failure.ExceptionCode=0xE052564B; // renderer worker failed
+    failure.ExceptionFlags=EXCEPTION_NONCONTINUABLE;
+    failure.ExceptionAddress=reinterpret_cast<void*>(m_workerFailureAddress);
+    failure.NumberParameters=2;
+    failure.ExceptionInformation[0]=code;
+    failure.ExceptionInformation[1]=m_workerFailureAddress;
+    RaiseFailFastException(&failure,nullptr,0);
+    TerminateProcess(GetCurrentProcess(),failure.ExceptionCode);
+}
+
 ThreadedDevice::ThreadedDevice() = default;
 
 ThreadedDevice::~ThreadedDevice()
 {
     StopWorker();
+    if(m_workerFaultHandler)RemoveVectoredExceptionHandler(m_workerFaultHandler);
     _aligned_free(m_ring);
 }
 
 void ThreadedDevice::StopWorker()
 {
     if (m_thread) {
+        CheckWorkerFailed();
         // Stop through the queue: publishing a real record changes the address the worker waits on.
         // Setting m_stop and waking an unchanged write position could lose the wake just before its wait.
         Enqueue([this](const uint8_t*) { m_stop.store(true); });
         Publish();
-        WaitForSingleObject(m_thread, INFINITE);
+        while(WaitForSingleObject(m_thread,100)==WAIT_TIMEOUT)CheckWorkerFailed(true);
+        CheckWorkerFailed(true);
         CloseHandle(m_thread);
         m_thread = nullptr;
         Log("shutdown: render worker stopped");
@@ -73,6 +123,7 @@ bool ThreadedDevice::Init(HWND window, uint32_t width, uint32_t height, std::str
         Log("worker thread disabled: rendering on the calling thread");
         return true;
     }
+    m_workerFaultHandler=AddVectoredExceptionHandler(1,&RenderWorkerFault);
     m_thread = CreateThread(nullptr, 0, WorkerMain, this, 0, nullptr);
     if (!m_thread) {
         if (error) *error = "could not start the rvk worker thread";
@@ -87,6 +138,7 @@ bool ThreadedDevice::Init(HWND window, uint32_t width, uint32_t height, std::str
 
 uint8_t* ThreadedDevice::Reserve(uint32_t bytes)
 {
+    CheckWorkerFailed();
     uint32_t total = Align16(sizeof(Header) + bytes);
     if (total >= kQueueBytes / 2) {
         // Callers split what can be split (UpdateTexture); the caller would write past this record, so stop here
@@ -115,6 +167,7 @@ uint8_t* ThreadedDevice::Reserve(uint32_t bytes)
             break;
         }
         if (spins > 0) {
+            CheckWorkerFailed(true);
             // Full: wait for the worker to consume (it can only consume what is published).
             if (spins == 1)
                 Publish();
@@ -168,6 +221,7 @@ void ThreadedDevice::Publish()
 template <typename F>
 void ThreadedDevice::Enqueue(F&& f, const void* data, uint32_t dataBytes, void** dataCopy, const char* who)
 {
+    CheckWorkerFailed();
     if (HasPending())
         FlushPending();                                // what waited for a draw goes first
     CountRecord(who);
@@ -197,6 +251,7 @@ void ThreadedDevice::Enqueue(F&& f, const void* data, uint32_t dataBytes, void**
 template <typename F>
 void ThreadedDevice::EnqueueDraw(F&& f, const void* a, uint32_t aBytes, const void* b, uint32_t bBytes, const char* who)
 {
+    CheckWorkerFailed();
     CountRecord(who);
     using Fn = std::decay_t<F>;
     struct Wrapped {
@@ -232,7 +287,11 @@ void ThreadedDevice::EnqueueDraw(F&& f, const void* a, uint32_t aBytes, const vo
 
 DWORD WINAPI ThreadedDevice::WorkerMain(void* self)
 {
-    static_cast<ThreadedDevice*>(self)->Worker();
+    auto* worker=static_cast<ThreadedDevice*>(self);
+    g_renderWorker=worker;
+    try {worker->Worker();}
+    catch(...) {worker->MarkWorkerFailed(0xE06D7363,0);}
+    g_renderWorker=nullptr;
     return 0;
 }
 
@@ -297,14 +356,17 @@ bool ThreadedDevice::RunOne(uint32_t& r)
 
 void ThreadedDevice::Sync()
 {
+    CheckWorkerFailed();
     if (HasPending())
         FlushPending();
     Publish();
     uint64_t target = m_recordsQueued.load();
     while (m_recordsDone.load(std::memory_order_acquire) < target) {
+        CheckWorkerFailed(true);
         uint64_t done = m_recordsDone.load();
         WaitWhileEqual(m_recordsDone, done, 1);
     }
+    CheckWorkerFailed();
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -312,6 +374,7 @@ void ThreadedDevice::Sync()
 
 void ThreadedDevice::BeginFrame()
 {
+    CheckWorkerFailed();
     m_inFrame = true;
     // The previous frame's time spent on this (the game) thread inside the renderer's call path.
     uint64_t callerNs = m_callerNs, records = m_frameRecords, bytes = m_frameBytes, repeats = m_frameRepeats;
@@ -369,6 +432,7 @@ void ThreadedDevice::AddGameSection(const char* name, double ms)
 
 void ThreadedDevice::EndFrame()
 {
+    CheckWorkerFailed();
     m_inFrame = false;
     auto now = std::chrono::steady_clock::now();     // profiling: the game thread's whole frame
     if (m_lastEndFrame.time_since_epoch().count()) {
@@ -387,6 +451,7 @@ void ThreadedDevice::EndFrame()
     uint64_t queued = m_framesQueued.fetch_add(1) + 1;
     auto waitStart = std::chrono::steady_clock::now();     // profiling: the game waiting for the render thread
     for (;;) {
+        CheckWorkerFailed(true);
         uint64_t done = m_framesDone.load(std::memory_order_acquire);
         if (queued - done <= kMaxFramesAhead)
             break;

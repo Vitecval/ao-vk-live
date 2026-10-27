@@ -1790,26 +1790,6 @@
     },
     {
       "type": 1010006,
-      "id": 17,
-      "name": "ICC captured ground 17",
-      "group": "ground",
-      "profile": "deck",
-      "source": "1010006_17",
-      "size": [
-        1024,
-        1024
-      ],
-      "roughness": 0.4,
-      "normal_strength": 0.2,
-      "material_note": "Satin metal deck: retained original colours, reduced sharp glare and mismatched authored relief; confirm picked ID in live screenshot.",
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010006,
       "id": 18,
       "name": "ICC captured ground 18",
       "group": "ground",
@@ -1952,9 +1932,354 @@
       "maps": [
         "orm"
       ]
+    },
+    {
+      "type": 1010006,
+      "id": 17,
+      "name": "AO tread-plate family 17",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 68,
+      "name": "AO tread-plate family 68",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 69,
+      "name": "AO tread-plate family 69",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 71,
+      "name": "AO tread-plate family 71",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 174,
+      "name": "AO tread-plate family 174",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 176,
+      "name": "AO tread-plate family 176",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 183,
+      "name": "AO tread-plate family 183",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 184,
+      "name": "AO tread-plate family 184",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 185,
+      "name": "AO tread-plate family 185",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 186,
+      "name": "AO tread-plate family 186",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 187,
+      "name": "AO tread-plate family 187",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 188,
+      "name": "AO tread-plate family 188",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 189,
+      "name": "AO tread-plate family 189",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 190,
+      "name": "AO tread-plate family 190",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 191,
+      "name": "AO tread-plate family 191",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 192,
+      "name": "AO tread-plate family 192",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 193,
+      "name": "AO tread-plate family 193",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 194,
+      "name": "AO tread-plate family 194",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 195,
+      "name": "AO tread-plate family 195",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 196,
+      "name": "AO tread-plate family 196",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 197,
+      "name": "AO tread-plate family 197",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 209,
+      "name": "AO tread-plate family 209",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 211,
+      "name": "AO tread-plate family 211",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
+      ],
+      "maps": [
+        "orm"
+      ]
     }
   ],
-  "new_art_surfaces": 18,
+  "new_art_surfaces": 17,
   "files": {
     "1010004_14870_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_156581_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
@@ -2101,12 +2426,29 @@
     "1010004_8635_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_8636_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_8637_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010006_17_d.png": "a29cbf5806b3a852b1265ef25fb75399e3728f3a39e5a68ab015b04034de53a7",
-    "1010006_17_n.png": "19b06c74e3284c80f3941c6e1e26fd55570dbdbb2fc05fd1fd45b5e920c67b0d",
-    "1010006_17_orm.png": "391e19745b1919ef870c7a301e7cefe0e62a576aa5df19933d51f7916ed20947",
+    "1010006_174_orm.png": "bdf6dcd05f7092a63fe623e6afb58240084b02f0cc745fe49a509978e6080ec5",
+    "1010006_176_orm.png": "9a034f9ad69157aeee4bbaba883fc8ed0fa4ce65ea2f0d744a0cc3eeeb4bfd27",
+    "1010006_17_orm.png": "25680297f8723902f50636a1a2c3bfb7bfa86eab2a0edbe400350cd21aa6786e",
+    "1010006_183_orm.png": "91af2a174fc74f6ee44b859c9b0bc60959448f4a5eba88a8534e92f9e1549306",
+    "1010006_184_orm.png": "7572842efe9d6876a7cb800ba74a4006f3bae992e8e4ed3611d8932f8fe0e4e5",
+    "1010006_185_orm.png": "25680297f8723902f50636a1a2c3bfb7bfa86eab2a0edbe400350cd21aa6786e",
+    "1010006_186_orm.png": "341adbdd1629c842a3e4e6329dbcd81c253889baaa5733f6e3d3180e35d4c504",
+    "1010006_187_orm.png": "25680297f8723902f50636a1a2c3bfb7bfa86eab2a0edbe400350cd21aa6786e",
+    "1010006_188_orm.png": "91af2a174fc74f6ee44b859c9b0bc60959448f4a5eba88a8534e92f9e1549306",
+    "1010006_189_orm.png": "7572842efe9d6876a7cb800ba74a4006f3bae992e8e4ed3611d8932f8fe0e4e5",
     "1010006_18_d.png": "de57c16a5a967382e32bc2a6d2a09fbed060496cdb729a72be12af78d33526d5",
     "1010006_18_n.png": "77294d0e6bc5077ade9238eafc2cfe3c5ea80fef4c685e6ecd9fc80348c9cb5a",
     "1010006_18_orm.png": "6158dd32a96bff05c424f57ece5fe8e418674f4177b7040291af42c1c9cc95a7",
+    "1010006_190_orm.png": "25680297f8723902f50636a1a2c3bfb7bfa86eab2a0edbe400350cd21aa6786e",
+    "1010006_191_orm.png": "341adbdd1629c842a3e4e6329dbcd81c253889baaa5733f6e3d3180e35d4c504",
+    "1010006_192_orm.png": "25680297f8723902f50636a1a2c3bfb7bfa86eab2a0edbe400350cd21aa6786e",
+    "1010006_193_orm.png": "8b9b1fa62b1ccd9a1cdb296bfe39b4f2697e9e50914a2b94433554d1bd4a190e",
+    "1010006_194_orm.png": "3ab425132cc28019b0ac063f796fdd6b392f2ce1ab69c7dc902bb740ba242b0b",
+    "1010006_195_orm.png": "79536fd663c0f58b4d2f0618fa1eaf52f0d234ef7b0a5395b4a3787801f89669",
+    "1010006_196_orm.png": "3ab425132cc28019b0ac063f796fdd6b392f2ce1ab69c7dc902bb740ba242b0b",
+    "1010006_197_orm.png": "d56f89276a14b57b56ee3ff29a2a86ba5efea8a090b9b0495c8305c8def59d41",
+    "1010006_209_orm.png": "79536fd663c0f58b4d2f0618fa1eaf52f0d234ef7b0a5395b4a3787801f89669",
+    "1010006_211_orm.png": "c2e06924cdfebaaa069a57730e5e8a6fa9be95d8e9cd09bb4f037742d0063805",
     "1010006_21_d.png": "f1fe9db6784cae8d2b50c4351fbf062d8211af798a5ff1f9622d172be13520b4",
     "1010006_21_n.png": "e9e635d55c7a124273b2c3bfe5b70b059c1de244a55e4545782948454130a2c2",
     "1010006_21_orm.png": "78065283ef89a0e96dcdd68aa87ff187d4348c14bcc2f94f098ca879c930e348",
@@ -2121,7 +2463,10 @@
     "1010006_674_d.png": "ed43b5d770ff1ca039bb3330d2caadca27d42541cac584575881c4a5eb4ddc06",
     "1010006_674_n.png": "9174210b38823f50dbbbc88520181f13b398fa48006e261ccbcbdc23c90c2d0c",
     "1010006_674_orm.png": "f5bd909dcacae49e5f5e2e73686d73e4c1f3233e7f91e5edbbda7459b4d70af4",
+    "1010006_68_orm.png": "f97cd8ef997331d08b901298196d7b8e8d85e4fdfaecd31f0114abc262301cea",
+    "1010006_69_orm.png": "bdf6dcd05f7092a63fe623e6afb58240084b02f0cc745fe49a509978e6080ec5",
     "1010006_6_orm.png": "39e5546502a5a948432c87f012759e0adba905fd556306507181db129eda4818",
+    "1010006_71_orm.png": "9a034f9ad69157aeee4bbaba883fc8ed0fa4ce65ea2f0d744a0cc3eeeb4bfd27",
     "1010006_7_orm.png": "39e5546502a5a948432c87f012759e0adba905fd556306507181db129eda4818",
     "1010006_942_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626",
     "1010006_943_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626"

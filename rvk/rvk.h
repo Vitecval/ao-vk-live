@@ -616,10 +616,11 @@ public:
         bool shadows = true;           // the leaves cast the sun's shadow (dappled light under the trees)
         float fall = 1.0f;             // leaves coming off and drifting down (more in gusts), lying a while (0 = none)
         bool own = true;               // trees with leaf art (ao-assets leaf-art): our own canopy in place of the cards
+        bool volume = true;            // spread tree sprigs through the crown, retaining the original branch cards
     };
     void SetLeaves(const LeafSettings& s)
     {
-        if (s.density != m_leaf.density || s.size != m_leaf.size || s.own != m_leaf.own)
+        if (s.density != m_leaf.density || s.size != m_leaf.size || s.own != m_leaf.own || s.volume != m_leaf.volume)
             m_leafDirty = true;
         m_leaf = s;
         m_frameLightsDirty = true;
@@ -1227,6 +1228,7 @@ private:
         std::future<std::shared_ptr<std::vector<uint32_t>>> skyPending;
         float ao = 0.6f;                         // RVK_GroundAo
         bool on = true, drawing = false;
+        bool pebblesOnly = false;
         uint64_t drawnBase = ~0ull, drawnLight = ~0ull;   // the frames each pass was last drawn
         uint32_t patchesDrawn = 0, framesDrawn = 0;
         // One pass (RVK_GroundOne): the base pass deferred to the lighting pass, which draws the ground once - its
@@ -1301,6 +1303,7 @@ private:
     void PollSharedTerrain();
     void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);
+    bool SharedGroundPlus() const { return !m_native.on && m_sharedTerrain>1.0f && m_skyPlayfield!=0; }
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
     bool TerrainTexturingOn() const
     {
@@ -2138,6 +2141,7 @@ private:
                                                  // kSkyScenery): kept inside the far plane, fogged as the far sky
     };
     std::unordered_map<uint64_t, MeshInfo> m_meshInfo;
+    uint64_t m_meshInfoEpoch=1;                 // expires MeshSlot metadata pointers when any owner is erased
     // Mesh ids (meshids.cpp).
     struct MeshIdEntry {
         uint64_t geo = 0, raw = 0;
@@ -2227,6 +2231,7 @@ private:
         VkDeviceSize vbOffset = 0, ibOffset = 0;
         uint64_t serial = 0;
         MeshInfo* mesh = nullptr;                // DrawMeshInfo's, once found
+        uint64_t meshEpoch = 0;
         uint64_t meshKey = 0;
     };
     static constexpr uint64_t kSlotFresh = 20;

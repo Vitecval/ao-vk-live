@@ -33,6 +33,7 @@ uint32_t RvkSettings_Version();
 uint32_t RvkSettings_Count();
 int RvkSettings_Get(uint32_t index, RvkSettingInfo* out);
 int RvkSettings_Set(const char* name, float value);
+float RvkSettings_Effective(const char* name); // optional read-only effective value; saved preferences are unchanged
 }
 
 namespace rvk_settings {

@@ -24,6 +24,10 @@
 
 namespace rvk {
 
+// Called by the lock-free crash reporter before legacy game exception handlers
+// can block the render worker. Does not recover from or consume an exception.
+void ReportRenderWorkerFault(uint32_t code, uintptr_t address);
+
 class ThreadedDevice {
 public:
     // The live readout (RVK_PerfHud), ms smoothed over the last frames: the game thread's whole frame and its wait for
@@ -264,6 +268,13 @@ public:
     static constexpr uint32_t kQueueBytes = 48u << 20;
 
 private:
+    friend void ReportRenderWorkerFault(uint32_t code, uintptr_t address);
+    friend struct ThreadedRegressionAccess;
+    void MarkWorkerFailed(uint32_t code, uintptr_t address);
+    void CheckWorkerFailed(bool waiting=false) const;
+    std::atomic<uint32_t> m_workerFailure{0};
+    uintptr_t m_workerFailureAddress = 0;        // immutable after release publication above
+    void* m_workerFaultHandler = nullptr;
     void StopWorker();
     // A record: header + payload. The payload is a callable constructed in place, followed by copied data.
     struct Header {

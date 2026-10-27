@@ -31,7 +31,7 @@ std::shared_ptr<Device::SharedTerrainMaps> Device::DecodeSharedTerrain()
 }
 void Device::PollSharedTerrain()
 {
-    if (m_sharedTerrain<=0 || !m_skyPlayfield || m_sharedGround.images[0]) return;
+    if (m_native.on || m_sharedTerrain<=0 || !m_skyPlayfield || m_sharedGround.images[0]) return;
     if (!m_sharedGround.started) {
         MEMORYSTATUSEX memory{}; memory.dwLength=sizeof(memory);
         if (GlobalMemoryStatusEx(&memory) && memory.ullAvailVirtual < (384ull<<20)) return;
@@ -62,7 +62,7 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
 {
     std::memset(fl->sharedGround,0,sizeof(fl->sharedGround));
     std::memset(fl->sharedGroundConfig,0,sizeof(fl->sharedGroundConfig));
-    if (m_sharedTerrain<=0 || !m_skyPlayfield) return;
+    if (m_native.on || m_sharedTerrain<=0 || !m_skyPlayfield) return;
     for (Texture* t:m_sharedGround.images) if (!t) return;
     for (unsigned i=0;i<5;++i) {
         const uint32_t slot=BindlessImage(m_sharedGround.images[i])+1;
@@ -71,6 +71,6 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     }
     fl->sharedGroundConfig[0]=std::clamp(m_sharedTerrain,0.0f,1.0f);
     fl->sharedGroundConfig[1]=0.25f;
-    fl->sharedGroundConfig[2]=m_sharedTerrain>1.0f ? 1.0f : 0.0f;
+    fl->sharedGroundConfig[2]=0.0f; // shared ground keeps AO's geometry; Plus adds only pebble draws
 }
 } // namespace rvk

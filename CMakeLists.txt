@@ -211,6 +211,10 @@ add_executable(smoke_ring_check tests/smoke_ring_check.cpp proxy/native/stb_imag
 target_include_directories(smoke_ring_check PRIVATE third_party)
 target_link_libraries(smoke_ring_check PRIVATE rvk)
 
+add_executable(threaded_worker_check tests/threaded_worker_check.cpp proxy/native/stb_image.cpp)
+target_link_libraries(threaded_worker_check PRIVATE rvk)
+target_include_directories(threaded_worker_check PRIVATE third_party)
+
 add_executable(material_catalog_check tests/material_catalog_check.cpp)
 target_include_directories(material_catalog_check PRIVATE rvk)
 

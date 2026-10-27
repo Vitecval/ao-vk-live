@@ -14,16 +14,7 @@ __pycache__/
 *.pdb
 .vs/
 .vscode/
-
-# Generated artwork
-material-packs/**/source-art/
-material-packs/**/generated/
-material-packs/**/output/
-
-# Release archives
-dist/
-*.zip
-# Large material-pack artwork
+# Exclude large texture artwork
 material-packs/**/source-art/
 material-packs/**/maps/
 material-packs/**/generated/

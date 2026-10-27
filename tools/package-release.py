@@ -62,7 +62,7 @@ def main():
         shutil.copy2(ROOT / name, player / name)
     shutil.copytree(ROOT / 'licenses', player / 'licenses')
     (player / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md']:
+    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md']:
         shutil.copy2(ROOT / 'docs' / name, player / 'docs' / name)
     shutil.copy2(ROOT / 'material-packs/scan-coverage.json', player / 'docs/scan-coverage.json')
     shutil.copy2(ROOT / 'material-packs/building-families.json', player / 'docs/building-families.json')
@@ -94,7 +94,9 @@ def main():
             materials=pack_manifest['materials']
             if edition=='lite':
                 if pack_name not in ['ao-cyber-icc','ao-cyber-world']:continue
-                materials=[x for x in materials if x['type']==1010006 and x['id'] in [17,20,21,22,23,24,25,26]]
+                deck=json.loads((ROOT/'material-packs/ao-cyber-icc/deck-family.json').read_text())
+                ground_ids={17,20,21,22,23,24,25,26}|{x['id'] for x in deck['members']}
+                materials=[x for x in materials if x['type']==1010006 and x['id'] in ground_ids]
             stems={f"{x['type']}_{x['id']}_" for x in materials}
             names={n for n in pack_manifest['files'] if any(n.startswith(stem) for stem in stems)}
             if not names:continue

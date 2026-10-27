@@ -366,11 +366,17 @@ bool FindSetting(const std::string& word, SettingRef* out)
 
 std::string FormatValue(const RvkSettingInfo& s, float v)
 {
+    if (std::strcmp(s.name,"RVK_Pebbles")==0 && rvk_settings::GetEffective("RVK_TerraBlend")>1)
+        return "1 (Shared Ground+)";
+    if ((std::strcmp(s.name,"RVK_GroundAo")==0 || std::strcmp(s.name,"RVK_GroundSun")==0 ||
+         std::strcmp(s.name,"RVK_DuneLight")==0 || std::strcmp(s.name,"RVK_GroundBlend")==0 ||
+         std::strcmp(s.name,"RVK_CliffTex")==0 || std::strcmp(s.name,"RVK_CliffRock")==0) &&
+        rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
     if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
-        const char* styles[] = {"Original", "Classic HD", "Cyberpunk"};
-        return styles[std::clamp(int(std::lround(v)), 0, 2)];
+        return v>0 ? "AnarchyHD" : "Original";
     }
     if (std::strcmp(s.name, "RVK_TerraBlend")==0) {
+        if (rvk_settings::GetEffective("RVK_GroundOn")!=0) return "overridden by GroundOn";
         if (v<=0) return "Original";
         return v>1 ? "Shared Ground+" : "Shared Ground";
     }
@@ -398,7 +404,7 @@ std::string Range(const RvkSettingInfo& s)
 // Why a setting has no effect now (empty: it has): its feature switched off, or every enhancement.
 std::string NoEffect(const RvkSettingInfo& s)
 {
-    if (s.parent && rvk_settings::Get(s.parent) == 0.0f)
+    if (s.parent && rvk_settings::GetEffective(s.parent) == 0.0f)
         return std::string(Short(s.parent)) + " is off";
     if (std::strcmp(s.section, "General") != 0 && std::strcmp(s.section, "Debug") != 0 &&
         rvk_settings::Get("RVK_Enhance") == 0.0f)

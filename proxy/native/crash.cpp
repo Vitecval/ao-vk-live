@@ -13,6 +13,7 @@
 // or mss32's - gets it; it may still be handled). Hangs: the game thread's frames (Randy_t::Flip) stop for 20 s -> each
 // thread's registers and the return addresses on its stack, 3 reports at most, the next only after frames resumed.
 #include "native/native.h"
+#include "threaded.h"
 
 #include <intrin.h>
 
@@ -240,6 +241,7 @@ LONG CALLBACK FaultReport(EXCEPTION_POINTERS* e)
         PutStack(line, g_stack, CopyStack(e->ContextRecord->Esp, g_stack, 1024), 24);
     }
     InterlockedExchange(&g_busy, 0);
+    rvk::ReportRenderWorkerFault(code,at);
     return EXCEPTION_CONTINUE_SEARCH;
 }
 

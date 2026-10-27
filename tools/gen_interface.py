@@ -22,7 +22,7 @@ CLIENT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else
 # The client's randy31.dll is the proxy once installed; read exports from the pristine copy.
 ORIGINAL = ROOT / "orig/randy31.dll"
 TARGET = "randy31.dll"
-OWN_EXPORTS = ["RvkSettings_Version", "RvkSettings_Count", "RvkSettings_Get", "RvkSettings_Set",
+OWN_EXPORTS = ["RvkSettings_Version", "RvkSettings_Count", "RvkSettings_Get", "RvkSettings_Set", "RvkSettings_Effective",
                "RvkPresets_Count", "RvkPresets_Name", "RvkPresets_Apply", "RvkPresets_Current"]
 ORIG = "randy31_orig"
 # Exports the proxy implements itself (wrapping the original): mangled name -> proxy symbol.
@@ -95,6 +95,15 @@ def class_of(dem):
 
 
 def main():
+    if "--own-exports-only" in sys.argv:
+        # A settings API addition doesn't require re-reading private game DLLs
+        # or rebuilding the original export/identity inventory.
+        path=ROOT/"proxy/randy31.def"
+        lines=path.read_text().splitlines()
+        originals=[line for line in lines if not re.fullmatch(r"\s+Rvk(?:Settings|Presets)_\w+\s*",line)]
+        path.write_text("\n".join(originals+["    "+name for name in OWN_EXPORTS])+"\n")
+        print(f"Updated {len(OWN_EXPORTS)} addon-owned exports; original ABI unchanged")
+        return
     dll = ORIGINAL
     secs = sections(dll)
     exps = exports(dll)

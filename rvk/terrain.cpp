@@ -227,7 +227,8 @@ std::shared_ptr<Device::RockMaps> Device::DecodeRock()
 // At a frame's start (render thread): the decode started once the rock is wanted, its maps uploaded once it is done.
 void Device::PollTerrainRock()
 {
-    if (m_rock.albedo || !m_terrainSettings.rock || m_terrainSettings.cliff <= 0.0f) return;
+    const bool stones = SharedGroundPlus() && m_native.pebbles > 0.0f;
+    if (m_rock.albedo || (!stones && (!m_terrainSettings.rock || m_terrainSettings.cliff <= 0.0f))) return;
     if (!m_rock.started) {
         m_rock.started = true;
         m_rock.pending = std::async(std::launch::async, DecodeRock);
@@ -256,7 +257,7 @@ void Device::FillTerrainRockLights(float rock[4], float rock2[4])
 {
     std::memset(rock, 0, 4 * sizeof(float));
     std::memset(rock2, 0, 4 * sizeof(float));
-    if (!TerrainRockOn()) return;
+    if (!m_rock.albedo || (!TerrainRockOn() && !SharedGroundPlus())) return;
     const uint32_t slots[3] = {BindlessImage(m_rock.albedo) + 1, BindlessImage(m_rock.normal) + 1,
                                BindlessImage(m_rock.orm) + 1};
     std::memcpy(rock, slots, sizeof(slots));

@@ -473,19 +473,19 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
         for (auto& r : fl->skyRing) r[3] = 0.0f;
         fl->skyUp[3] = 0.0f;
     }
-    fl->terrain[0] = std::clamp(m_terrainSettings.cliff, 0.0f, 1.0f);
+    fl->terrain[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.cliff, 0.0f, 1.0f);
     fl->terrain[1] = std::clamp(m_terrainSettings.tiling, 0.0f, 1.0f);
     fl->terrain[2] = std::clamp(m_terrainSettings.variation, 0.0f, 2.0f);
     fl->terrain[3] = m_normalMaps && m_pixelLighting ? m_normalStrength : 0.0f;
-    fl->terrain2[0] = std::clamp(m_native.ao, 0.0f, 1.0f);
+    fl->terrain2[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_native.ao, 0.0f, 1.0f);
     fl->terrain2[1] = fl->terrain2[2] = 0.0f;
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
-    fl->terrain3[0] = std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
+    fl->terrain3[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
     fl->terrain3[2] = std::clamp(m_terrainSettings.parallaxSteps, 0.25f, 4.0f);
     fl->terrain3[3] = m_native.anyHeight && fl->terrain3[1] > 0.0f ? 1.0f : 0.0f;
-    fl->sand[0] = std::clamp(m_terrainSettings.ripple, 0.0f, 1.0f);
-    fl->sand[1] = std::clamp(m_terrainSettings.dune, 0.0f, 1.0f);
+    fl->sand[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.ripple, 0.0f, 1.0f);
+    fl->sand[1] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.dune, 0.0f, 1.0f);
     fl->sand[2] = std::clamp(m_terrainSettings.glint, 0.0f, 1.0f);
     fl->sand[3] = SandWindBearing();
     fl->sand2[0] = std::clamp(m_terrainSettings.smooth, 0.0f, 1.0f);
@@ -1575,6 +1575,9 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
     }
     // A registered mesh (DrawMesh) whose mesh info was found before: kept with it (used every draw, so not dropped).
     if (m_drawSlot && m_drawSlot->mesh && m_drawStaticBuffer) {
+        if(m_drawSlot->meshEpoch!=m_meshInfoEpoch) m_drawSlot->mesh=nullptr;
+    }
+    if (m_drawSlot && m_drawSlot->mesh && m_drawStaticBuffer) {
         ++m_meshStaticDraws;
         MeshInfo* info = m_drawSlot->mesh;
         info->lastFrame = m_frameNumber;
@@ -1629,7 +1632,7 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
         m_drawMeshStatic = it->second.firstFrame < m_frameNumber;
         it->second.lastFrame = m_frameNumber;
         m_drawMesh = &it->second;
-        if (m_drawSlot && m_drawStaticBuffer) { m_drawSlot->mesh = &it->second; m_drawSlot->meshKey = key; }
+        if (m_drawSlot && m_drawStaticBuffer) { m_drawSlot->mesh = &it->second; m_drawSlot->meshKey = key; m_drawSlot->meshEpoch=m_meshInfoEpoch; }
         return;
     }
     MeshInfo info{};
@@ -1654,7 +1657,7 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
     HashMeshId(info, fvf, stride, vertices, vertexCount, indices, indexCount);   // (mesh ids: a static piece's)
     MeshInfo* placed = &m_meshInfo.emplace(key, info).first->second;
     m_drawMesh = placed;
-    if (m_drawSlot && m_drawStaticBuffer) { m_drawSlot->mesh = placed; m_drawSlot->meshKey = key; }
+    if (m_drawSlot && m_drawStaticBuffer) { m_drawSlot->mesh = placed; m_drawSlot->meshKey = key; m_drawSlot->meshEpoch=m_meshInfoEpoch; }
 }
 
 bool Device::IsWater(uint32_t fvf) const
@@ -2818,7 +2821,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         if (!m_gameSun)
             return;                              // (RVK_GameSun off: our disc alone)
     }
-    if (IsTerrain(fvf) && IsMultiplyPass())
+    if (IsTerrain(fvf) && IsMultiplyPass() && !m_native.pebblesOnly)
         m_terrainLitPassCur = true;
     // (The terrain's base pass: its light pass multiplies, its fog white - not the scene's fog colour.)
     // (Not the native ground's rocks: the ground's heights are the ground's.)
@@ -3211,6 +3214,9 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         normalMap = m_textures[0]->m_normalMap;
     else if (m_normalMaps && m_pixelLighting && m_drawBumpBase && m_drawBumpBase->m_normalMap)
         normalMap = m_drawBumpBase->m_normalMap;
+    if (m_pixelLighting && m_drawBumpBase &&
+        materials::DeckGround(m_drawBumpBase->m_rdbType,m_drawBumpBase->m_rdbId))
+        normalMap = m_flatNormal; // the original tread is painted, without added generated bumps
     // Its PBR material (occlusion / roughness / metallic map), on the same terms. In the record, not the constants.
     m_drawOrm = nullptr;
     m_drawOrmBase = false;
@@ -3869,7 +3875,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (combinedTerrain) dt.mat[2] |= kMatCombined;
     const Texture* groundSurface = terrain ? (m_drawBumpBase ? m_drawBumpBase : m_textures[0]) : nullptr;
     if (groundSurface && m_skyPlayfield) {
-        if (groundSurface->m_albedoMap && m_pbr.albedoMaps)
+        if ((groundSurface->m_albedoMap && m_pbr.albedoMaps) ||
+            materials::DeckGround(groundSurface->m_rdbType,groundSurface->m_rdbId))
             dt.mat[2] |= kMatAuthoredGround;
         else if (materials::AsphaltGround(groundSurface->m_rdbType, groundSurface->m_rdbId) &&
                  m_terrainHD > 0.0f)

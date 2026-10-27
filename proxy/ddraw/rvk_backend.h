@@ -42,7 +42,7 @@ void TimeFrame();                                 // each presented frame (rvk_t
 void StatelFrame();                               // each presented frame (rvk_statels.cpp: the playfield's pack)
 void GroundFrame();                               // each presented frame (rvk_ground.cpp: the native ground)
 void SetNativeGroundSetting(bool on);
-void SetSharedGroundDetailsSetting(bool on);             // RVK_GroundOn (rvk_ground.cpp)
+void SetSharedGroundDetailSetting(bool on);
 // The free camera (rvk_freecam.cpp, Ctrl+Shift+C): toggled; each presented frame; the native scene's camera.
 void FreeCamToggle(HWND window);
 void FreeCamFrame(rvk::ThreadedDevice* device, HWND window);

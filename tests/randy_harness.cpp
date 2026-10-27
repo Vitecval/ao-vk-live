@@ -1596,6 +1596,8 @@ int main(int argc, char** argv)
     bool cyberPackTest = false;                      // --cyber-pack-test: both styles, shared props, terrain and quality variants
     bool materialPressureTest = false;               // reserve address space while optional artwork loads
     bool sharedTerrainLoaderTest = false;
+    bool terrainSettingsTest=false;
+    int terrainSettingsRestart=-1;
     std::vector<void*> pressureReservations;
     bool characterMaterialsTest = false;
     bool surfaceMemoryTest = false;
@@ -1637,6 +1639,8 @@ int main(int argc, char** argv)
         else if (a == "--modern-pack-test") modernPackTest = true;
         else if (a == "--cyber-pack-test") { cyberPackTest = modernPackTest = true; }
         else if (a == "--material-pressure-test") { materialPressureTest = cyberPackTest = modernPackTest = true; }
+        else if (a=="--terrain-settings-test") terrainSettingsTest=true;
+        else if (a=="--terrain-settings-restart" && i+1<argc) terrainSettingsRestart=std::atoi(argv[++i]);
         else if (a == "--shared-terrain-loader-test") {sharedTerrainLoaderTest=true;frames=std::max(frames,700);}
         else if (a == "--character-materials-test") characterMaterialsTest = true;
         else if (a == "--surface-memory-test") surfaceMemoryTest = true;
@@ -1774,6 +1778,65 @@ int main(int argc, char** argv)
     TestProcessVertices(render);
     if (g_materials) TestMaterials();
     if (g_texture) TestTextureStream();   // before the first present: in the frame=1 call log window
+    if (terrainSettingsTest || terrainSettingsRestart>=0) {
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");
+        auto count=Export<uint32_t(__cdecl*)()>("RvkSettings_Count");
+        auto get=Export<int(__cdecl*)(uint32_t,RvkSettingInfo*)>("RvkSettings_Get");
+        auto saved=[&](const char* name) {
+            for (uint32_t i=0;i<count();++i) {RvkSettingInfo info{};info.size=sizeof(info);
+                if(get(i,&info) && std::strcmp(info.name,name)==0)return info.value;}
+            return -999.0f;
+        };
+        auto check=[&](const char* name,float wanted) {
+            const float got=effective(name);
+            if(std::fabs(got-wanted)>.001f){std::printf("terrain settings FAILED: %s effective %.3f expected %.3f\n",name,got,wanted);std::exit(3);}
+        };
+        if (terrainSettingsRestart>=0) {
+            if(saved("RVK_TerraBlend")!=float(terrainSettingsRestart) || saved("RVK_GroundOn")!=0 || saved("RVK_Pebbles")!=2) return 3;
+            check("RVK_GroundOn",0);
+            check("RVK_Pebbles",terrainSettingsRestart==2 ? 1.0f : 0.0f);
+            check("RVK_GroundAo",0);check("RVK_GroundSun",0);
+            check("RVK_GroundBlend",0);
+            if(saved("RVK_GroundBlend")!=1)return 3;
+            if(terrainSettingsRestart==2)set("RVK_TerraBlend",1);
+            std::printf("terrain settings restart %d passed; manual preferences retained\n",terrainSettingsRestart);
+        } else {
+            set("RVK_Enhance",1);set("RVK_ModernTex",2);set("RVK_RenderBg",1);
+            set("RVK_GroundAo",.6f);set("RVK_GroundSun",1);set("RVK_DuneLight",1);
+            set("RVK_GroundBlend",1);
+            set("RVK_Pebbles",2);set("RVK_GroundRocks",1);set("RVK_CliffTex",1);set("RVK_CliffRock",1);
+            for(const auto& mode:std::vector<std::pair<float,float>>{{0,1},{1,0},{1,1},{2,0},{2,1}}) {
+                set("RVK_GroundOn",mode.second);set("RVK_TerraBlend",mode.first);
+                const bool on=mode.second!=0,plus=mode.first>1 && !on;
+                check("RVK_TerraBlend",on ? 0:mode.first);
+                check("RVK_GroundOn",on ? 1:0);check("RVK_Pebbles",on ? 2:plus ? 1:0);
+                check("RVK_GroundRocks",on ? 1:0);check("RVK_CliffTex",plus ? 0:1);check("RVK_CliffRock",plus ? 0:1);
+                check("RVK_GroundAo",on && !plus ? .6f:0);check("RVK_GroundSun",on && !plus ? 1:0);
+                check("RVK_DuneLight",on && !plus ? 1:0);
+                check("RVK_GroundBlend",on && !plus ? 1:0);
+                std::printf("terrain settings mode %.0f raw GroundOn %.0f: native %d; pebbles %.0f; AO %.1f; sun %.0f passed\n",
+                            mode.first,mode.second,int(on),effective("RVK_Pebbles"),effective("RVK_GroundAo"),effective("RVK_GroundSun"));
+            }
+            set("RVK_GroundOn",0);set("RVK_Enhance",0);check("RVK_GroundOn",0);check("RVK_Pebbles",0);
+            set("RVK_Enhance",1);check("RVK_GroundOn",0);check("RVK_Pebbles",1);
+            set("RVK_ModernTex",0);check("RVK_GroundOn",0);check("RVK_Pebbles",0);
+            set("RVK_ModernTex",2);check("RVK_GroundOn",0);check("RVK_Pebbles",1);
+            auto preset=Export<int(__cdecl*)(uint32_t)>("RvkPresets_Apply");
+            if(!preset(3))return 3;
+            check("RVK_TerraBlend",2);check("RVK_GroundOn",0);check("RVK_Pebbles",1);check("RVK_GroundAo",0);check("RVK_GroundSun",0);
+            check("RVK_GroundBlend",0);
+            if(saved("RVK_GroundOn")!=0 || saved("RVK_GroundAo")!=.6f || saved("RVK_GroundSun")!=1 || saved("RVK_GroundBlend")!=1) return 3;
+            set("RVK_TerraBlend",1);check("RVK_GroundOn",0);check("RVK_Pebbles",0);
+            set("RVK_GroundOn",1);check("RVK_GroundAo",.6f);check("RVK_GroundSun",1);check("RVK_GroundBlend",1);
+            set("RVK_GroundOn",0);set("RVK_TerraBlend",2);set("RVK_Pebbles",2);
+            set("RVK_ModernTex",1);
+            if(saved("RVK_ModernTex")!=2) return 3;
+            check("RVK_ModernTex",2);check("RVK_GroundOn",0);check("RVK_Pebbles",1);
+            std::puts("AnarchyHD legacy style upgrade and selector compatibility passed");
+            std::puts("terrain settings Ultra, immediate switching, effective parents and saved preferences passed");
+        }
+    }
     if (backgroundTest) {
         DWORD foregroundPid=0;
         GetWindowThreadProcessId(GetForegroundWindow(), &foregroundPid);

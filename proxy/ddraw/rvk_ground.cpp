@@ -34,9 +34,9 @@ using rvk::NativeGround;
 
 namespace {
 
-bool g_details = false;
 bool g_setting = true;              // RVK_GroundOn
-bool g_deferred = false;            // load replacement data only when it is actually enabled
+bool g_sharedPebbles = false;       // capture data without replacing AO's terrain
+bool g_deferred = true;            // load replacement data only when it is actually enabled
 bool g_shadowHooked = false;
 int g_shadowAttempts = 0;
 
@@ -149,18 +149,10 @@ void OnNewGround(void* ground, void* data)
     g_sent = false;
     g_haveLightmap = false;
     g_reading = Reading{};
-    g_deferred = !g_setting && !g_details;
+    g_deferred = !(g_setting || g_sharedPebbles);
     if (g_deferred) {
         RvkLog("native ground: replacement disabled - no playfield-wide texture preload");
         return;
-    }
-    if (!g_setting && g_details) {
-        MEMORYSTATUSEX memory{}; memory.dwLength=sizeof(memory);
-        if ((GlobalMemoryStatusEx(&memory) && memory.ullAvailVirtual<(448ull<<20)) ||
-            !Readable(data,0x3C) || uint64_t(At<uint32_t>(data,0x34))*At<uint32_t>(data,0x38)>(1u<<20)) {
-            RvkLog("shared ground+: optional surface data skipped (memory or playfield size)");
-            return;
-        }
     }
     auto g = ReadGround(static_cast<const uint8_t*>(ground), static_cast<const uint8_t*>(data));
     if (!g)
@@ -283,7 +275,7 @@ void LightmapFromGround(const uint8_t* ground, const NativeGround& g)
 // made a few at a time while reading one, then the ground handed to rvk.
 void OnGroundFrame(void* ground, void* data)
 {
-    if (!g_setting && !g_details)
+    if (!(g_setting || g_sharedPebbles))
         return;
     if (g_deferred)
         OnNewGround(ground, data);                // settings enabled mid-zone; hook arguments are alive here
@@ -341,31 +333,31 @@ void GroundFrame()
     }
 }
 
-// Shared Ground+ borrows surface data for nearby pebbles, while AO continues
-// drawing every terrain triangle with its existing lightmap.
-void SetSharedGroundDetailsSetting(bool on)
-{
-    if (g_details==on) return;
-    g_details=on;
-    if (!g_setting) {
-        if (g_rvk.device) g_rvk.device->SetNativeGround(nullptr);
-        g_reading=Reading{}; g_sent=false; g_deferred=true;
-        rnative::ground::SetNative(false);
-    }
-}
-
 // RVK_GroundOn.
-void SetNativeGroundSetting(bool on)
+void UpdateGroundCapture(bool wasEnabled)
 {
-    if (g_setting && !on && !g_details) {
+    const bool enabled = g_setting || g_sharedPebbles;
+    if (wasEnabled && !enabled) {
         if (g_rvk.device) g_rvk.device->SetNativeGround(nullptr);
         g_reading = Reading{};
         g_sent = false;
         g_deferred = true;
     }
+    if (enabled && !g_reading.active && !g_sent) g_deferred=true;
+    if (g_rvk.device) g_rvk.device->SetNativeGroundOn(g_setting);
+    rnative::ground::SetNative(g_setting && g_sent && g_reading.ground);
+}
+void SetNativeGroundSetting(bool on)
+{
+    const bool wasEnabled = g_setting || g_sharedPebbles;
     g_setting = on;
-    if (g_rvk.device) g_rvk.device->SetNativeGroundOn(on);
-    rnative::ground::SetNative(on && g_sent && g_reading.ground);
+    UpdateGroundCapture(wasEnabled);
+}
+void SetSharedGroundDetailSetting(bool on)
+{
+    const bool wasEnabled = g_setting || g_sharedPebbles;
+    g_sharedPebbles = on;
+    UpdateGroundCapture(wasEnabled);
 }
 
 }  // namespace rvkproxy

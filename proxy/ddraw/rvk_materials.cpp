@@ -389,6 +389,11 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     f.emissive = FindMap(type, id, "_e.png");
     f.leaves = FindMap(type, id, "_leaves.png");
     f.leavesNormal = FindMap(type, id, "_leaves_n.png");
+    if (rvk::materials::DeckGround(type,id)) {
+        // This identified family always retains AO's painting and tread.
+        // Old packs, previews and quality aliases cannot restore noisy relief.
+        f.albedo.clear(); f.normal.clear(); f.height.clear(); f.emissive.clear();
+    }
     return f;
 }
 

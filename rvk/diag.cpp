@@ -190,6 +190,10 @@ void Device::EndFrameDump()
         DumpLightmaps(base + "-lightmaps.bin");
     }
     std::fprintf(m_dumpFile, "# %s\n", GpuMemoryReport().c_str());
+    std::fprintf(m_dumpFile,"# native terrain: shared-plus %u; enabled %u; patches %zu; patches/frame %.2f; rocks %u; pebbles %u; AO %.2f; sun %.2f\n",
+        unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),
+        m_native.framesDrawn ? double(m_native.patchesDrawn)/m_native.framesDrawn : 0.0,
+        m_native.rocksMade,m_native.pebblesMade,SharedGroundPlus() ? 0.0 : double(m_native.ao),SharedGroundPlus() ? 0.0 : double(m_native.sun));
     std::fprintf(m_dumpFile, "# end: %u draws; %zu casters this frame, %zu remembered (%u drawn out of view last frame);"
                              " forgotten since start: %u in view but not drawn, %u far away\n",
                  m_dumpDraw, m_casters.size(), m_casterCache.size(), m_cachedCastersDrawn, m_forgottenInView, m_forgottenFar);

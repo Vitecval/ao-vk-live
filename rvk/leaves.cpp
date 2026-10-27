@@ -463,7 +463,8 @@ bool Device::BakeLeaves(LeafSet& set, uint32_t primitive, const FvfLayout& layou
     const V3 centre{set.centre[0], set.centre[1], set.centre[2]};
 
     const float win = 0.0625f * std::clamp(m_leaf.size, 0.25f, 3.5f);   // a sprig's half size in the texture
-    const float perArea = 2.2f * std::clamp(m_leaf.density, 0.1f, 4.0f) / (4.0f * win * win);
+    const bool volume = set.kind == Canopy::Tree && m_leaf.volume;
+    const float perArea = (volume ? 3.0f : 2.2f) * std::clamp(m_leaf.density, 0.1f, 4.0f) / (4.0f * win * win);
     std::vector<LeafRecord> leaves;
     Rng rng(ContentSeed(vertices, layout.stride, vertexCount, indices, indexCount) ^ 0x5EEDull);
     const uint32_t count = indices ? indexCount : vertexCount;
@@ -525,6 +526,30 @@ bool Device::BakeLeaves(LeafSet& set, uint32_t primitive, const FvfLayout& layou
             p = p + n * ((rng.Unit() - 0.5f) * 1.2f * size);
             V3 out = p - centre;
             p = p + Normalize(out) * (rng.Unit() * 0.5f * size);
+            if (volume) {
+                // Keep the artist's crown and branch layout, but fill the space
+                // about each leafy card instead of laying every sprig on it.
+                // Inner and outer layers interleave; the bounded offset keeps
+                // small crowns recognisable and never moves the trunk.
+                const V3 radial = Normalize(out);
+                const float depth = std::min(0.13f * set.radius, 1.8f * size);
+                p = p + radial * ((rng.Unit() * 2.0f - 0.65f) * depth);
+                p = p + n * ((rng.Unit() - 0.5f) * depth);
+                // Turn the whole sprig towards the crown's outside, keeping
+                // its proportions and painted twig orientation. Parallel
+                // cards otherwise still read as a stack of flat sheets.
+                V3 face = Normalize(Cross(hu, hv));
+                if (Dot(face, radial) < 0.0f) face = face * -1.0f;
+                const V3 target = Normalize(face * 0.35f + radial * 0.65f);
+                V3 axis = Cross(face, target);
+                const float sine = Length(axis);
+                if (sine > 1e-5f) {
+                    const float angle = std::atan2(sine, std::clamp(Dot(face, target), -1.0f, 1.0f));
+                    axis = axis * (1.0f / sine);
+                    hu = Rotate(hu, axis, angle);
+                    hv = Rotate(hv, axis, angle);
+                }
+            }
             LeafRecord r{};
             r.centre[0] = p.x;
             r.centre[1] = p.y;

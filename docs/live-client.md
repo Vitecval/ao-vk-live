@@ -38,9 +38,11 @@ back. The game stays connected and continues its simulation; its CPU work is
 not eliminated. Rendering resumes automatically. Minimized windows already
 suspend rendering. This new option defaults off and stays unchanged by presets.
 
-**Ultra** now selects Cyberpunk world artwork, global terrain/building detail
-at 1, full character/equipment materials and moderate distant horizon haze.
-The live client's experimental replacement ground remains off.
+**Ultra** now selects AnarchyHD world artwork, Shared Ground+, global terrain/building
+detail at 1, full character/equipment materials and moderate distant horizon haze.
+Shared Ground+ automatically enables the working GroundOn terrain details while
+retaining enhanced floor textures, with extra tile-edge blending and added terrain
+AO/sun/dune relighting off. The saved manual GroundOn switch remains unchanged.
 
 Select **Primary Display Driver** in the launcher. This is the device name advertised by the Vulkan wrapper; it does not select CPU rendering. `randy-vk.log` identifies the actual Vulkan GPU. The game still uses the CPU for simulation and preparing frames.
 

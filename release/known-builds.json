@@ -166,5 +166,19 @@
       "ao-vk.dll": "1eea82baec7c75dc8480b31e4ddfe7f1cbf27f80e719763101e6d796f7fe7a3e",
       "ddraw.dll": "9bbc67fb5a47199ec2b012f218cd1a757d9ffcc135462272aeb6fbbf9935755d"
     }
+  },
+  {
+    "build": "ao-vk-live-0.6.0-preview.12",
+    "addon": {
+      "ao-vk.dll": "0d045401b09b85cf8f0cb018e53cb75d66f170ccf55d9e00c7b62c83cb99ece5",
+      "ddraw.dll": "9bbc67fb5a47199ec2b012f218cd1a757d9ffcc135462272aeb6fbbf9935755d"
+    }
+  },
+  {
+    "build": "ao-vk-live-0.6.0-preview.13",
+    "addon": {
+      "ao-vk.dll": "b2dfa23207c2428e7e7b8590091cc9f38828d2c675194b637fdc75882a4256e2",
+      "ddraw.dll": "9bbc67fb5a47199ec2b012f218cd1a757d9ffcc135462272aeb6fbbf9935755d"
+    }
   }
 ]

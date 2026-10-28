@@ -473,12 +473,13 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
         for (auto& r : fl->skyRing) r[3] = 0.0f;
         fl->skyUp[3] = 0.0f;
     }
-    fl->terrain[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.cliff, 0.0f, 1.0f);
+    fl->terrain[0] = std::clamp(m_terrainSettings.cliff, 0.0f, 1.0f);
     fl->terrain[1] = std::clamp(m_terrainSettings.tiling, 0.0f, 1.0f);
     fl->terrain[2] = std::clamp(m_terrainSettings.variation, 0.0f, 2.0f);
     fl->terrain[3] = m_normalMaps && m_pixelLighting ? m_normalStrength : 0.0f;
     fl->terrain2[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_native.ao, 0.0f, 1.0f);
     fl->terrain2[1] = fl->terrain2[2] = 0.0f;
+    fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
     fl->terrain3[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
@@ -486,11 +487,11 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrain3[3] = m_native.anyHeight && fl->terrain3[1] > 0.0f ? 1.0f : 0.0f;
     fl->sand[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.ripple, 0.0f, 1.0f);
     fl->sand[1] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.dune, 0.0f, 1.0f);
-    fl->sand[2] = std::clamp(m_terrainSettings.glint, 0.0f, 1.0f);
+    fl->sand[2] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.glint, 0.0f, 1.0f);
     fl->sand[3] = SandWindBearing();
     fl->sand2[0] = std::clamp(m_terrainSettings.smooth, 0.0f, 1.0f);
     SandPrintLights(&fl->sand2[1]);
-    fl->sand3[0] = m_normalMaps && m_pixelLighting ? std::clamp(m_terrainSettings.rippleDepth, 0.0f, 3.0f) : 0.0f;
+    fl->sand3[0] = !SharedGroundPlus() && m_normalMaps && m_pixelLighting ? std::clamp(m_terrainSettings.rippleDepth, 0.0f, 3.0f) : 0.0f;
     // (y: the sun the clouds let through towards it - MakeCloudSunRay -: the glints, the sun's own image, go with it.)
     fl->sand3[1] = m_cloudParams.enable ? std::clamp(m_sunThrough, 0.0f, 1.0f) : 1.0f;
     fl->sand3[2] = std::clamp(m_terrainHD, 0.0f, 1.0f);
@@ -3122,11 +3123,11 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // drawn after all base passes) takes its relief from its chunk's.
     m_drawBumpBase = nullptr;
     const bool combinedTerrain = terrain && IsCombinedTerrainPass();
-    if (combinedTerrain) {
+    if (combinedTerrain && !m_native.drawing) {
         Texture* base = m_textures[1];           // stage 0 is the lightmap, not the material
         if (m_pixelLighting && ((m_normalMaps && base->m_normalMap) || (m_pbr.enabled && base->m_ormMap) || m_terrainHD > 0.0f || m_sharedTerrain > 0.0f))
             m_drawBumpBase = base;
-        if ((m_sharedTerrain > 0.0f || m_terrainHD > 0.0f || base->m_ormMap) && m_skyPlayfield && vertices)
+        if ((m_sharedTerrain > 0.0f || m_terrainHD > 0.0f || m_terrainFar > 0.0f || base->m_ormMap) && m_skyPlayfield && vertices)
             FillTerrainRecord(dt, TerrainFitFor(TerrainChunkKey(vertices, vertexCount, layout.stride, indices, indexCount),
                               vertices, vertexCount, layout, indices, indexCount), kTerrainLight, base);
     } else if (terrain && m_native.clutter) {
@@ -3176,7 +3177,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                     }
                 }
             }
-        } else if (m_rs[d3d::RS_LIGHTING] && IsMultiplyPass()) {
+        } else if (m_rs[d3d::RS_LIGHTING] && (IsMultiplyPass() || m_groundOne)) {
             auto it = m_terrainBases.find(chunk);
             if (it == m_terrainBases.end() && m_groundOne)   // (the one pass: its base pass's stand-in, not drawn)
                 it = m_terrainBases.emplace(chunk, m_blackTexture).first;
@@ -3228,7 +3229,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     // The native ground's lighting pass: its cells' tiles' material maps (terrain.glsl NativeOrm, each cell's own from
     // the maps texture); one of them stands in for the record.
-    if (!m_drawOrm && m_native.drawing && m_drawTerrainLight && m_native.anyOrm && m_native.maps && m_pbr.enabled &&
+    if (!m_drawOrm && m_native.drawing && (m_drawTerrainLight || m_groundOne) && m_native.anyOrm && m_native.maps && m_pbr.enabled &&
         m_pixelLighting) {
         m_drawOrm = m_native.anyOrm;
         m_drawOrmBase = true;

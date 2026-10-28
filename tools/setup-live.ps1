@@ -6,6 +6,22 @@ param(
     [switch]$ListCandidates
 )
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell's 64-bit Process.Modules can silently omit WOW64 modules.
+# Use the game's bitness before inspecting clients, including direct script use.
+if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
+    $host32 = Join-Path $env:WINDIR 'SysWOW64\WindowsPowerShell\v1.0\powershell.exe'
+    if (!(Test-Path -LiteralPath $host32)) { throw 'Cannot find 32-bit Windows PowerShell for safe AO process inspection.' }
+    $hostArgs = @('-NoLogo', '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath)
+    foreach ($key in $PSBoundParameters.Keys) {
+        $value = $PSBoundParameters[$key]
+        if ($value -is [Management.Automation.SwitchParameter]) {
+            if ($value.IsPresent) { $hostArgs += "-$key" }
+        } else { $hostArgs += @("-$key", [string]$value) }
+    }
+    & $host32 @hostArgs
+    if ($LASTEXITCODE -ne 0) { throw "AO-VK setup failed in 32-bit PowerShell (exit $LASTEXITCODE)." }
+    return
+}
 
 function Find-AoFolders {
     $candidates = @($ClientDir)

@@ -1254,9 +1254,422 @@
       "input_roles": [
         "private original UV atlas as edit target"
       ]
+    },
+    {
+      "atlas": "rubika-family-atlas-167-v1.png",
+      "prompt": "Use case: precise-object-edit. Asset type: production game texture atlas, exactly 4 by 4 cells. Edit target is the supplied square atlas. Improve the building surfaces with realistic restrained stone, concrete, painted industrial metal and clean machined trims while preserving every cell's original UV layout, outlines, borders, feature positions, scale and mean colour/brightness. This belongs to a coherent Anarchy Online Rubi-Ka architecture family. Preserve top-left teleporter machinery geometry and its labels exactly. Preserve the adjacent security-teleporter interface/map text unchanged. Preserve the plain pale cyan palette cell unchanged. Pale plaster stays pale; graphite stays dark; metal has subtle brushed grain; rock has natural broad strata with fine restrained mineral detail, never noisy speckles. Do not insert new panels, decorations, letters, motifs, shadows, lighting gradients, frames, gaps or gutters. No perspective. Keep cell boundaries exactly at quarter widths/heights. Edge-to-edge full texture; 2048x2048 output. Bottom right geometric lattice must keep the same holes and bar layout. All relief is subtle; later renderer supplies lighting.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-180-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game texture atlas, exactly four by four equal cells. Repaint the supplied atlas with high-quality realistic material detail while preserving every original UV shape and its location, colours and brightness. Wood bench slats retain their exact directions and joints, copper bucket pieces retain the UV forms, sauna lamp/heater retain wood and grille silhouettes, dark-green stone stays green stone; lilac towel stays lilac fine fabric, brown wall stays dark brown, plate retains original hearts, gingham retains the original red white grid, wicker retains its weave, cheese and bread retain their shapes. No extra objects, no extra frames or borders, no cell movement, no perspective, no baked lighting or deep shadows, no added text. Subtle tactile detail suitable for a coherent Rubi-Ka furnishings family. Keep every cell exactly within quarter-width/height boundaries, zero gaps/gutters. Full square, 2048x2048.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-181-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat Rubi-Ka technology/elevator texture atlas, exactly four by four equal cells. Edit the provided atlas. Repaint the existing metal, computer chassis, vents, pipes, elevator wall and lab building surfaces with high quality restrained brushed metal, coherent fine finish, clean structural edges, subtle wear and moderate original metallic response. Preserve the exact original UV layout and silhouettes in every cell, vent counts, pipe/beam positions, panel divisions, hazard stripe widths and patterns. Preserve each cell's original mean brightness and colour: silver panels remain silver, blue graphite stays dark blue graphite, reddish weathered elevators remain reddish. Keep operational screens, signs, letters, maps and solid colour/light inputs unchanged; do not invent writing or controls. Maintain consistency across all parts of the same elevator and laboratory family. No new motifs, decorative geometry, new frame lines, perspective, cast shadows or strong baked lighting. No extra objects or margins. Cells at exact quarter widths/heights, zero gutters. Output square 2048x2048. Only add restrained surface definition; do not make dark metal bright chrome.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-182-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat Rubi-Ka technology/elevator texture atlas, exactly four by four equal cells. Edit the provided atlas. Repaint the existing metal, computer chassis, vents, pipes, elevator wall and lab building surfaces with high quality restrained brushed metal, coherent fine finish, clean structural edges, subtle wear and moderate original metallic response. Preserve the exact original UV layout and silhouettes in every cell, vent counts, pipe/beam positions, panel divisions, hazard stripe widths and patterns. Preserve each cell's original mean brightness and colour: silver panels remain silver, blue graphite stays dark blue graphite, reddish weathered elevators remain reddish. Keep operational screens, signs, letters, maps and solid colour/light inputs unchanged; do not invent writing or controls. Maintain consistency across all parts of the same elevator and laboratory family. No new motifs, decorative geometry, new frame lines, perspective, cast shadows or strong baked lighting. No extra objects or margins. Cells at exact quarter widths/heights, zero gutters. Output square 2048x2048. Only add restrained surface definition; do not make dark metal bright chrome.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-183-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat Rubi-Ka technology/elevator texture atlas, exactly four by four equal cells. Edit the provided atlas. Repaint the existing metal, computer chassis, vents, pipes, elevator wall and lab building surfaces with high quality restrained brushed metal, coherent fine finish, clean structural edges, subtle wear and moderate original metallic response. Preserve the exact original UV layout and silhouettes in every cell, vent counts, pipe/beam positions, panel divisions, hazard stripe widths and patterns. Preserve each cell's original mean brightness and colour: silver panels remain silver, blue graphite stays dark blue graphite, reddish weathered elevators remain reddish. Keep operational screens, signs, letters, maps and solid colour/light inputs unchanged; do not invent writing or controls. Maintain consistency across all parts of the same elevator and laboratory family. No new motifs, decorative geometry, new frame lines, perspective, cast shadows or strong baked lighting. No extra objects or margins. Cells at exact quarter widths/heights, zero gutters. Output square 2048x2048. Only add restrained surface definition; do not make dark metal bright chrome.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-188-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game prop/material UV atlas for the Anarchy Online Rubi-Ka industrial family. Edit the supplied square atlas, retaining exactly 4 by 4 equally sized cells, every UV island, holes, outlines, panel seam positions, dents, crack paths and damage marks. Repaint surfaces with coherent high-quality worn industrial steel, bronze, painted panels and dusty stone as appropriate to the original cell. Preserve every cell's original palette and average brightness; dark brown/graphite stays dark, silver stays silver, pale objects stay pale. Preserve original bird/organic colours if present and keep them non-metallic in appearance. Improve material fidelity with restrained fine detail and readable broad forms, not added tiny noisy grunge. Keep original lettering, logos, emissive strips and isolated light/control inputs unchanged. Keep original big props and destroyed-object silhouettes; no new motifs, frames, panel subdivisions, vents or bolts, no perspective, no strong cast shadows or illumination. Each cell fills its exact quarter-width/height bounds; no margins or gutters. 2048 square output, flat game albedo artwork.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-189-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game prop/material UV atlas for the Anarchy Online Rubi-Ka industrial family. Edit the supplied square atlas, retaining exactly 4 by 4 equally sized cells, every UV island, holes, outlines, panel seam positions, dents, crack paths and damage marks. Repaint surfaces with coherent high-quality worn industrial steel, bronze, painted panels and dusty stone as appropriate to the original cell. Preserve every cell's original palette and average brightness; dark brown/graphite stays dark, silver stays silver, pale objects stay pale. Preserve original bird/organic colours if present and keep them non-metallic in appearance. Improve material fidelity with restrained fine detail and readable broad forms, not added tiny noisy grunge. Keep original lettering, logos, emissive strips and isolated light/control inputs unchanged. Keep original big props and destroyed-object silhouettes; no new motifs, frames, panel subdivisions, vents or bolts, no perspective, no strong cast shadows or illumination. Each cell fills its exact quarter-width/height bounds; no margins or gutters. 2048 square output, flat game albedo artwork.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-190-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game prop/material UV atlas for the Anarchy Online Rubi-Ka industrial family. Edit the supplied square atlas, retaining exactly 4 by 4 equally sized cells, every UV island, holes, outlines, panel seam positions, dents, crack paths and damage marks. Repaint surfaces with coherent high-quality worn industrial steel, bronze, painted panels and dusty stone as appropriate to the original cell. Preserve every cell's original palette and average brightness; dark brown/graphite stays dark, silver stays silver, pale objects stay pale. Preserve original bird/organic colours if present and keep them non-metallic in appearance. Improve material fidelity with restrained fine detail and readable broad forms, not added tiny noisy grunge. Keep original lettering, logos, emissive strips and isolated light/control inputs unchanged. Keep original big props and destroyed-object silhouettes; no new motifs, frames, panel subdivisions, vents or bolts, no perspective, no strong cast shadows or illumination. Each cell fills its exact quarter-width/height bounds; no margins or gutters. 2048 square output, flat game albedo artwork.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-191-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka industrial prop texture atlas. Precisely enhance the supplied 4 by 4 equal-cell UV atlas with coherent realistic materials and restrained fine definition. Preserve each cell's UV island outlines and positions, panel boundaries, grille spacing, slots, holes, asymmetries and original material colours and brightness. Pale white coated metal stays white with soft detail, blue panels stay blue, graphite stays dark, bronze stays brown; natural tan material remains matte and non-metallic. Refine scuffed metal, vents, coated panels and machinery, no added decoration. Keep all text, graphic symbols, hazard stripe positions, isolated light/glow palette inputs and screens unchanged. Do not turn plain wall cells into assemblies; no new borders, seams, screws or motifs. No perspective, no cast shadows, no strong baked highlights, no added wear not present in original. Exactly four by four cells at quarter-width/height boundaries, no gutters/margins. Edge-to-edge square 2048x2048 game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-192-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka industrial prop texture atlas. Precisely enhance the supplied 4 by 4 equal-cell UV atlas with coherent realistic materials and restrained fine definition. Preserve each cell's UV island outlines and positions, panel boundaries, grille spacing, slots, holes, asymmetries and original material colours and brightness. Pale white coated metal stays white with soft detail, blue panels stay blue, graphite stays dark, bronze stays brown; natural tan material remains matte and non-metallic. Refine scuffed metal, vents, coated panels and machinery, no added decoration. Keep all text, graphic symbols, hazard stripe positions, isolated light/glow palette inputs and screens unchanged. Do not turn plain wall cells into assemblies; no new borders, seams, screws or motifs. No perspective, no cast shadows, no strong baked highlights, no added wear not present in original. Exactly four by four cells at quarter-width/height boundaries, no gutters/margins. Edge-to-edge square 2048x2048 game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-193-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka industrial prop texture atlas. Precisely enhance the supplied 4 by 4 equal-cell UV atlas with coherent realistic materials and restrained fine definition. Preserve each cell's UV island outlines and positions, panel boundaries, grille spacing, slots, holes, asymmetries and original material colours and brightness. Pale white coated metal stays white with soft detail, blue panels stay blue, graphite stays dark, bronze stays brown; natural tan material remains matte and non-metallic. Refine scuffed metal, vents, coated panels and machinery, no added decoration. Keep all text, graphic symbols, hazard stripe positions, isolated light/glow palette inputs and screens unchanged. Do not turn plain wall cells into assemblies; no new borders, seams, screws or motifs. No perspective, no cast shadows, no strong baked highlights, no added wear not present in original. Exactly four by four cells at quarter-width/height boundaries, no gutters/margins. Edge-to-edge square 2048x2048 game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-194-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game texture atlas for the Rubi-Ka industrial prop family. Repaint the supplied original atlas with exactly four by four equal cells. Preserve all original UV layouts, positions, outlines, vents, holes, trim widths, motifs and panel divisions. Retain original palette and brightness: dark olive metal stays dark olive, dark machinery stays dark, pale painted panels stay pale, rusty panels stay muted brown, blue stays blue. Fine material detail should be coherent and restrained; keep broad forms legible. Natural sand/soil cells stay matte natural material, without metallic shine. Preserve the original yellow road markings and cracks' locations, no extra cracks. Refine manufactured metal and surface grain without adding ornaments or additional panel lines. Keep all lettering, screens, uniform/emissive colour inputs, glows and graphic diagrams unchanged. No perspective, no strong baked lighting, no shadows or new highlights; no margins, labels or gutters. Exact quarter-width/height boundaries, edge-to-edge 2048 square albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-195-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game texture atlas for the Rubi-Ka industrial prop family. Repaint the supplied original atlas with exactly four by four equal cells. Preserve all original UV layouts, positions, outlines, vents, holes, trim widths, motifs and panel divisions. Retain original palette and brightness: dark olive metal stays dark olive, dark machinery stays dark, pale painted panels stay pale, rusty panels stay muted brown, blue stays blue. Fine material detail should be coherent and restrained; keep broad forms legible. Natural sand/soil cells stay matte natural material, without metallic shine. Preserve the original yellow road markings and cracks' locations, no extra cracks. Refine manufactured metal and surface grain without adding ornaments or additional panel lines. Keep all lettering, screens, uniform/emissive colour inputs, glows and graphic diagrams unchanged. No perspective, no strong baked lighting, no shadows or new highlights; no margins, labels or gutters. Exact quarter-width/height boundaries, edge-to-edge 2048 square albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-196-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game texture atlas for the Rubi-Ka industrial prop family. Repaint the supplied original atlas with exactly four by four equal cells. Preserve all original UV layouts, positions, outlines, vents, holes, trim widths, motifs and panel divisions. Retain original palette and brightness: dark olive metal stays dark olive, dark machinery stays dark, pale painted panels stay pale, rusty panels stay muted brown, blue stays blue. Fine material detail should be coherent and restrained; keep broad forms legible. Natural sand/soil cells stay matte natural material, without metallic shine. Preserve the original yellow road markings and cracks' locations, no extra cracks. Refine manufactured metal and surface grain without adding ornaments or additional panel lines. Keep all lettering, screens, uniform/emissive colour inputs, glows and graphic diagrams unchanged. No perspective, no strong baked lighting, no shadows or new highlights; no margins, labels or gutters. Exact quarter-width/height boundaries, edge-to-edge 2048 square albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-197-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka outdoor machinery and prop texture atlas, exactly four by four equal cells. Edit this original UV atlas to improve material fidelity while keeping every cell's UV silhouettes, feature positions and original surface colours/brightness. Keep broad pink-brown panel family coherent, graphite/bronze supports dark, silver steel softly metallic, tan earth and natural wood/fibres matte. Preserve slits, vents, bolts, door divisions, cable runs and original material transitions exactly, with no new panel lines or decorations. Upgrade existing features with restrained fine detail and clean contours, not gritty/noisy microgrunge. Preserve all light/glow inputs, translucent effects, markings, text and screen graphics unchanged. No strong baked highlights or shadows, no perspective, no extra objects, no frames or gutters. Plain material cells remain plain material. Each cell fills its exact quarter-width/height bounds; seamless materials keep matching opposite edges. Full square 2048x2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-198-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka outdoor machinery and prop texture atlas, exactly four by four equal cells. Edit this original UV atlas to improve material fidelity while keeping every cell's UV silhouettes, feature positions and original surface colours/brightness. Keep broad pink-brown panel family coherent, graphite/bronze supports dark, silver steel softly metallic, tan earth and natural wood/fibres matte. Preserve slits, vents, bolts, door divisions, cable runs and original material transitions exactly, with no new panel lines or decorations. Upgrade existing features with restrained fine detail and clean contours, not gritty/noisy microgrunge. Preserve all light/glow inputs, translucent effects, markings, text and screen graphics unchanged. No strong baked highlights or shadows, no perspective, no extra objects, no frames or gutters. Plain material cells remain plain material. Each cell fills its exact quarter-width/height bounds; seamless materials keep matching opposite edges. Full square 2048x2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-199-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka outdoor machinery and prop texture atlas, exactly four by four equal cells. Edit this original UV atlas to improve material fidelity while keeping every cell's UV silhouettes, feature positions and original surface colours/brightness. Keep broad pink-brown panel family coherent, graphite/bronze supports dark, silver steel softly metallic, tan earth and natural wood/fibres matte. Preserve slits, vents, bolts, door divisions, cable runs and original material transitions exactly, with no new panel lines or decorations. Upgrade existing features with restrained fine detail and clean contours, not gritty/noisy microgrunge. Preserve all light/glow inputs, translucent effects, markings, text and screen graphics unchanged. No strong baked highlights or shadows, no perspective, no extra objects, no frames or gutters. Plain material cells remain plain material. Each cell fills its exact quarter-width/height bounds; seamless materials keep matching opposite edges. Full square 2048x2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-200-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka world-prop UV texture atlas, exactly 4 by 4 equal cells. Faithfully enhance the provided atlas, preserving every UV island, contour and feature position in every cell, original colours and mean brightness. Crisp coherent detail on existing metal, concrete, fabric, wood, bone or organic statue/creature surfaces according to the original material. Manufactured metal may be gently brushed; cloth, stone, skin and bone remain matte and natural. Keep original forms, silhouettes, patterns and trim; no new seams, decorations, objects or motifs. Keep all text, signs, maps, lights, palette inputs and translucent glow effects unchanged. No dramatic lighting, baked shadows or specular highlights, no perspective, frames or gutters. Avoid fine noisy grunge and preserve plain material regions as plain. Square 2048x2048, exact quarter-width/height cell boundaries, edge-to-edge game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-201-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka world-prop UV texture atlas, exactly 4 by 4 equal cells. Faithfully enhance the provided atlas, preserving every UV island, contour and feature position in every cell, original colours and mean brightness. Crisp coherent detail on existing metal, concrete, fabric, wood, bone or organic statue/creature surfaces according to the original material. Manufactured metal may be gently brushed; cloth, stone, skin and bone remain matte and natural. Keep original forms, silhouettes, patterns and trim; no new seams, decorations, objects or motifs. Keep all text, signs, maps, lights, palette inputs and translucent glow effects unchanged. No dramatic lighting, baked shadows or specular highlights, no perspective, frames or gutters. Avoid fine noisy grunge and preserve plain material regions as plain. Square 2048x2048, exact quarter-width/height cell boundaries, edge-to-edge game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-202-v1.png",
+      "prompt": "Use case: precise-object-edit. Production Rubi-Ka world-prop UV texture atlas, exactly 4 by 4 equal cells. Faithfully enhance the provided atlas, preserving every UV island, contour and feature position in every cell, original colours and mean brightness. Crisp coherent detail on existing metal, concrete, fabric, wood, bone or organic statue/creature surfaces according to the original material. Manufactured metal may be gently brushed; cloth, stone, skin and bone remain matte and natural. Keep original forms, silhouettes, patterns and trim; no new seams, decorations, objects or motifs. Keep all text, signs, maps, lights, palette inputs and translucent glow effects unchanged. No dramatic lighting, baked shadows or specular highlights, no perspective, frames or gutters. Avoid fine noisy grunge and preserve plain material regions as plain. Square 2048x2048, exact quarter-width/height cell boundaries, edge-to-edge game albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-203-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game UV atlas, exactly four by four equal cells. Enhance the supplied Rubi-Ka world-prop atlas without changing its original UV layout, motifs, symbols, island shapes, cell borders or feature locations. Improve real metal/wood/stone/mineral surfaces with readable large forms and restrained fine definition, keeping each cell's original colour and mean brightness. Bronze remains bronze, muted brown stone remains brown, grey rock remains grey and moss remains green natural material. Preserve stylized shrine emblems and their exact silhouettes; preserve cutout shapes. All plain colour gradients, luminous/effect textures, glowing screens, light masks and palettes MUST remain unchanged, including bright neon colour cells. No new panel lines, ornaments, holes, frame outlines, small noisy grunge, baked illumination, extra objects or perspective. Natural stone, wood and organic material remain matte. Full square 2048x2048 albedo, exact quarter-width/height cell boundaries, no gutters or margins.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-204-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game UV atlas, exactly four by four equal cells. Enhance the supplied Rubi-Ka world-prop atlas without changing its original UV layout, motifs, symbols, island shapes, cell borders or feature locations. Improve real metal/wood/stone/mineral surfaces with readable large forms and restrained fine definition, keeping each cell's original colour and mean brightness. Bronze remains bronze, muted brown stone remains brown, grey rock remains grey and moss remains green natural material. Preserve stylized shrine emblems and their exact silhouettes; preserve cutout shapes. All plain colour gradients, luminous/effect textures, glowing screens, light masks and palettes MUST remain unchanged, including bright neon colour cells. No new panel lines, ornaments, holes, frame outlines, small noisy grunge, baked illumination, extra objects or perspective. Natural stone, wood and organic material remain matte. Full square 2048x2048 albedo, exact quarter-width/height cell boundaries, no gutters or margins.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-205-v1.png",
+      "prompt": "Use case: precise-object-edit. Production game UV atlas, exactly four by four equal cells. Enhance the supplied Rubi-Ka world-prop atlas without changing its original UV layout, motifs, symbols, island shapes, cell borders or feature locations. Improve real metal/wood/stone/mineral surfaces with readable large forms and restrained fine definition, keeping each cell's original colour and mean brightness. Bronze remains bronze, muted brown stone remains brown, grey rock remains grey and moss remains green natural material. Preserve stylized shrine emblems and their exact silhouettes; preserve cutout shapes. All plain colour gradients, luminous/effect textures, glowing screens, light masks and palettes MUST remain unchanged, including bright neon colour cells. No new panel lines, ornaments, holes, frame outlines, small noisy grunge, baked illumination, extra objects or perspective. Natural stone, wood and organic material remain matte. Full square 2048x2048 albedo, exact quarter-width/height cell boundaries, no gutters or margins.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-206-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game UV atlas, precisely 4 by 4 equal cells. Enhance the supplied Anarchy Online world-prop atlas with faithful, coherent material detail while preserving each cell's exact original UV shapes, silhouettes, motif positions, seams and outlines. Preserve original average brightness and palette, especially very dark green/graphite surfaces, grey stone, pale coated metal, bone and organic parts. Stone/bone/skin/wood stay matte; genuine machinery has restrained metal definition. Keep creatures and carved details recognizable without changing anatomy or introducing new features. Preserve all light/glow/palette/translucent inputs, text and graphic symbols unchanged. Avoid noisy microgrunge, new cracks, added panel borders or designs, strong baked lighting, directional shadows and perspective. Plain material cells remain plain. Exact quarter-width/height grid, no gutters/margins; full square 2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-207-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game UV atlas, precisely 4 by 4 equal cells. Enhance the supplied Anarchy Online world-prop atlas with faithful, coherent material detail while preserving each cell's exact original UV shapes, silhouettes, motif positions, seams and outlines. Preserve original average brightness and palette, especially very dark green/graphite surfaces, grey stone, pale coated metal, bone and organic parts. Stone/bone/skin/wood stay matte; genuine machinery has restrained metal definition. Keep creatures and carved details recognizable without changing anatomy or introducing new features. Preserve all light/glow/palette/translucent inputs, text and graphic symbols unchanged. Avoid noisy microgrunge, new cracks, added panel borders or designs, strong baked lighting, directional shadows and perspective. Plain material cells remain plain. Exact quarter-width/height grid, no gutters/margins; full square 2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-208-v1.png",
+      "prompt": "Use case: precise-object-edit. Production flat game UV atlas, precisely 4 by 4 equal cells. Enhance the supplied Anarchy Online world-prop atlas with faithful, coherent material detail while preserving each cell's exact original UV shapes, silhouettes, motif positions, seams and outlines. Preserve original average brightness and palette, especially very dark green/graphite surfaces, grey stone, pale coated metal, bone and organic parts. Stone/bone/skin/wood stay matte; genuine machinery has restrained metal definition. Keep creatures and carved details recognizable without changing anatomy or introducing new features. Preserve all light/glow/palette/translucent inputs, text and graphic symbols unchanged. Avoid noisy microgrunge, new cracks, added panel borders or designs, strong baked lighting, directional shadows and perspective. Plain material cells remain plain. Exact quarter-width/height grid, no gutters/margins; full square 2048 albedo.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-209-v1.png",
+      "prompt": "Use case: style-transfer. Edit target: original Anarchy Online UV atlas, fixed 4 by 4 equal cells, 16 cells at exactly the same coordinates. Produce a faithful high-quality game albedo repaint of this atlas. Preserve original AO colour palette, brightness, complete layout, UV islands, seams and borders in every cell; do not move or invent motifs. Improve the off-white nightclub equipment in row 1 column 1, dark purple nightclub equipment row 1 column 3, grey base metal and ceiling panels row 2 columns 3 and 4, and dark bar equipment row 3 column 1, plus dark panels in row 4 column 1. Use restrained clean manufactured surfaces, fine wear and readable large forms, no noisy gravel or heavy grunge. Keep every flat colour, glow gradient and coloured Christmas light cell exactly as supplied; do not add texture or motifs to those. Neutral texture-sheet illumination, no cast shadows, no perspective, no text, no grid lines added. Square atlas output, all sixteen cells retained.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-211-v1.png",
+      "prompt": "Use case: style-transfer. Asset: faithful high-quality Anarchy Online game albedo atlas repaint. Input image is the edit target: sixteen UV resources in a fixed 4x4 equal-cell square. Lock every cell boundary, UV island, large shape, colour, brightness and seam. Improve material definition with restrained fine detail and readable broad forms, preserving AO's original art direction; no sharpening noise, gravel, extra frames, new motifs, added lighting or perspective. Cells contain brown vehicle hull UV parts, wood end grain, birch and green bark, ivy, and tan cyan-striped panels. Keep each hull outline, black unused space, vent and curved seam precisely fixed. Improve natural bark and leaves without increasing leaf count or changing the ivy silhouette. Fine smooth tan panels, no extra wear. Output square with exactly the same 4x4 cell layout. No captions, no grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-212-v1.png",
+      "prompt": "Use case: style-transfer. Asset: faithful high-quality Anarchy Online game albedo atlas repaint. Input image is the edit target: sixteen UV resources in a fixed 4x4 equal-cell square. Lock every cell boundary, UV island, large shape, colour, brightness and seam. Improve material definition with restrained fine detail and readable broad forms, preserving AO's original art direction; no sharpening noise, gravel, extra frames, new motifs, added lighting or perspective. Cells contain tan cyan-striped damaged panels with existing burn marks, black machinery, sandy stone, cookie, grey hardware and dark fine vines. Match the unburned companion panels' tan and cyan. Preserve exact burn locations, panel circles and all UV islands; do not add damage. Cookie remains food, sandy areas matte. Output square with exactly the same 4x4 cell layout. No captions, no grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-213-v1.png",
+      "prompt": "Use case: style-transfer. Asset: faithful high-quality Anarchy Online game albedo atlas repaint. Input image is the edit target: sixteen UV resources in a fixed 4x4 equal-cell square. Lock every cell boundary, UV island, large shape, colour, brightness and seam. Improve material definition with restrained fine detail and readable broad forms, preserving AO's original art direction; no sharpening noise, gravel, extra frames, new motifs, added lighting or perspective. Cells contain dark vines, carved stone, plain colour/optical inputs, bottles and drink labels. Preserve labels, logos, exact text, flat colours and reflection gradients unchanged; improve only existing physical stone, wood and glass surfaces, no invented label wording. Output square with exactly the same 4x4 cell layout. No captions, no grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-214-v1.png",
+      "prompt": "Use case: style-transfer. Edit this Anarchy Online albedo UV atlas into matching high-quality artwork. Exact fixed sixteen-cell 4x4 square layout; preserve every UV shape, seam, border, original colour and average brightness. Keep AO art direction. Clear broad material shapes with restrained small detail, no new ornament, no gravel noise, no extra damage or baked directional light. Preserve all drink labels, brands, BEER lettering, flame/glow artwork and the red heart gift artwork exactly unchanged. Repaint only physical white marble floor tiles, white plaster, brown porous surface, dark pipework panel and white machine hatch, retaining each seam and colour. Square output, no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-215-v1.png",
+      "prompt": "Use case: style-transfer. Edit this Anarchy Online albedo UV atlas into matching high-quality artwork. Exact fixed sixteen-cell 4x4 square layout; preserve every UV shape, seam, border, original colour and average brightness. Keep AO art direction. Clear broad material shapes with restrained small detail, no new ornament, no gravel noise, no extra damage or baked directional light. Dark restrained biomechanical alien architecture, red wood, blue marble tiles and grey trims. Match the existing dark palette; maintain readable ridges, do not make black regions shiny. Preserve the four screenshot thumbnails and blue-white glow gradient cells exactly unchanged. Square output, no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-216-v1.png",
+      "prompt": "Use case: style-transfer. Edit this Anarchy Online albedo UV atlas into matching high-quality artwork. Exact fixed sixteen-cell 4x4 square layout; preserve every UV shape, seam, border, original colour and average brightness. Keep AO art direction. Clear broad material shapes with restrained small detail, no new ornament, no gravel noise, no extra damage or baked directional light. Faithful tan sandstone block floors/walls/stairs, vertical wood and grey/green painted surfaces with existing UV outlines. Retain original screenshot thumbnails, solid white/palette inputs, letter A light symbol, coloured stripes, galaxy optical effect and pale vehicle's exact UV islands. Repaint only physical material, no added motifs. Square output, no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-217-v1.png",
+      "prompt": "Use case: style-transfer. Faithful high-quality Anarchy Online game albedo repaint of the supplied edit target. Exact sixteen-cell 4x4 UV atlas, same cell positions, shapes, orientation, original palette and brightness. Enhance broad material definition and restrained fine finish; no added geometry, ornament, heavy roughness, baked lighting or perspective. Preserve every starfield, nebula and optical reflection cell exactly unchanged. Repaint the green, pink/orange, yellow, blue/green and red vehicle hulls as clean fine painted metal, strictly maintaining original smooth UV outlines, untextured areas, colour variants and dark trim. Bottom row: preserve stripes, handprint symbol, tan hatch and dark red hatch geometries exactly; refine material only. Square output with no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-218-v1.png",
+      "prompt": "Use case: style-transfer. Faithful high-quality Anarchy Online game albedo repaint of the supplied edit target. Exact sixteen-cell 4x4 UV atlas, same cell positions, shapes, orientation, original palette and brightness. Enhance broad material definition and restrained fine finish; no added geometry, ornament, heavy roughness, baked lighting or perspective. Retain all flame animation, yellow reflection gradients and flat tan palette cells exactly unchanged. Repaint only the existing maroon container panels, golden tan container with original black symbols, and red heart container UV islands. Match repeated variants precisely: identical seams, icon shape, colours and brightness. No new details or symbols. Square output with no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-219-v1.png",
+      "prompt": "Use case: style-transfer. Faithful high-quality Anarchy Online game albedo repaint of the supplied edit target. Exact sixteen-cell 4x4 UV atlas, same cell positions, shapes, orientation, original palette and brightness. Enhance broad material definition and restrained fine finish; no added geometry, ornament, heavy roughness, baked lighting or perspective. Mixed brown/grey metal plates, vents, equipment UV atlas, tan plaster/rock, mossy surface, industrial diamond plate and pale sand. Match original material identities and colours. Sand/plaster stay matte; metal restrained satin. Preserve machinery UV islands, circular rims, existing damage and panel borders exactly. No new noise. Square output with no captions/grid lines.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
+    },
+    {
+      "atlas": "rubika-family-atlas-303-v1.png",
+      "prompt": "Use case: precise-object-edit. Production seamless flat game wall texture, edit the supplied image. Repaint this dark graphite concrete / fine rough mineral cladding with high quality broad natural mottling and extremely restrained fine pores. Preserve exactly the dark neutral grey palette and average brightness, low contrast and empty undecorated full-surface layout. It is shared trim cladding in a Rubi-Ka building family, not a decorative feature panel. No new edges, seams, bricks, bolts, frames, geometric motifs, writing, perspective, baked illumination, directional shadows or gloss. Seamless left/right/top/bottom; no vignette. 1024 square.",
+      "input_roles": [
+        "private original UV atlas as edit target"
+      ]
     }
   ],
   "individual_repairs": [
+    {
+      "source": "rubika-family-119033-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-154108-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16130-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16131-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16132-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16133-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16143-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-16144-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-164877-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "shared-17824-v1",
+      "prompt": "Use case: precise-object-edit. Production seamless flat game wall texture, edit the supplied image. Repaint this dark graphite concrete / fine rough mineral cladding with high quality broad natural mottling and extremely restrained fine pores. Preserve exactly the dark neutral grey palette and average brightness, low contrast and empty undecorated full-surface layout. It is shared trim cladding in a Rubi-Ka building family, not a decorative feature panel. No new edges, seams, bricks, bolts, frames, geometric motifs, writing, perspective, baked illumination, directional shadows or gloss. Seamless left/right/top/bottom; no vignette. 1024 square.",
+      "size": [
+        256,
+        256
+      ],
+      "tool": "built-in image_gen"
+    },
+    {
+      "source": "rubika-family-201687-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-20919-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-20921-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-20924-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-20926-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-21069-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-21073-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-215002-v1",
+      "profile": "mineral",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-232954-v1",
+      "profile": "mineral",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-242960-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-245108-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245138-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245147-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245159-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245172-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245173-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-245174-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "honed-stone"
+    },
+    {
+      "source": "rubika-family-25734-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "dry-organic"
+    },
+    {
+      "source": "rock-275744-v2",
+      "prompt": "Use case: precise-object-edit. Production seamless rock/cliff game albedo texture. Edit the supplied original rock texture to improve fidelity, fitting the layered natural cliffs of Anarchy Online Rubi-Ka. Keep original grey/taupe with subtle olive mineral palette, medium brightness, mottled large-scale rock layout and existing diagonal fissure directions. Broad weathered strata, restrained realistic small mineral grains, natural erosion and crisp coherent fractures, no noisy roughness or shiny flakes. Rough non-metallic rock, evenly lit diffuse surface, no directional lighting, no highlights, no cast shadows, no vegetation, no panels or tiles, no borders or text. Seamless on all four edges. Fill square edge to edge, 2048 square.",
+      "size": [
+        512,
+        512
+      ],
+      "tool": "built-in image_gen",
+      "profile": "mineral"
+    },
     {
       "id": 283621,
       "prompt": "Precise game texture edit, same portrait 1:2 aspect. Preserve the exact original UV layout: terracotta spiral horizontal trim right at the top; below that a large plain warm beige plaster area until y=0.50; then a thin dark graphite mechanical horizontal belt from y=0.50 to 0.67; below that plain beige rectangular masonry blocks to the bottom edge. Keep all these boundaries and colours exactly. Refine warm limestone and subtle plaster detail only; polished dark metal at the original belt only. Absolutely no sun, heraldry, logo, red wood, new motifs, extra frames, vents, panels or new seams. The large beige regions must remain plain beige. Flat diffuse game texture, no perspective, no scene lighting.",
@@ -1283,6 +1696,151 @@
         512,
         512
       ]
+    },
+    {
+      "source": "rubika-family-31229-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "dry-organic"
+    },
+    {
+      "source": "rubika-family-31230-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "fabric"
+    },
+    {
+      "source": "rubika-family-40853-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "mineral"
+    },
+    {
+      "source": "rubika-family-41904-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-41941-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-44641-v1",
+      "profile": "fabric",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-44661-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "fabric"
+    },
+    {
+      "source": "rubika-family-44662-v1",
+      "review": "Original material identity reviewed; no metallic response on organic, rubber, fabric, sand or concrete.",
+      "profile": "fabric"
+    },
+    {
+      "source": "rubika-family-44664-v1",
+      "profile": "fabric",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-44668-v1",
+      "profile": "fabric",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45102-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45103-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45104-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45106-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45109-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45111-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45114-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45117-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-45119-v1",
+      "profile": "honed-stone",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-49594-v1",
+      "profile": "mineral",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-55976-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-83896-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-83899-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-9279-v1",
+      "profile": "mineral",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-95947-v1",
+      "profile": "mineral",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-96287-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-96288-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-96289-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
+    },
+    {
+      "source": "rubika-family-96290-v1",
+      "profile": "dry-organic",
+      "review": "Material identity reviewed against original UV resource; preserve matte organic, fabric, mineral and stone response."
     }
   ]
 }

@@ -408,7 +408,11 @@ void main()
             float layer=abs(h)<.001 ? 1.0 : (1.0-exp(-h))/h;
             weight=clamp(weight*clamp(layer,.65,1.25),0.0,1.0);
         }
-        c=mix(c,haze,weight*min(FL.cond.y,.98));
+        // Optical depth separates successive ridges without converging to an
+        // opaque flat wash. Keep original near colours and readable far shapes.
+        float veil=1.0-exp(-1.25*weight*min(FL.cond.y,1.0));
+        if (d<1.0) c=mix(c,vec3(dot(c,vec3(.3,.59,.11))),.12*veil);
+        c=mix(c,haze,veil);
     }
     // A sand or ash storm (rvk wind.cpp): the air thick with sand to the horizon - the sky wholly, the land through a
     // veil that thickens with distance, surging with the wind.

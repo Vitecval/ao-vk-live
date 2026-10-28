@@ -87,7 +87,8 @@ Setting g_settings[] = {
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
     {"RVK_ModernTex", "World texture style: Original / AnarchyHD", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 2"},
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
-    {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (shared textures plus pebbles only; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
+    {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
+    {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
     {"RVK_BuildingHD", "Global building materials", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
@@ -444,6 +445,7 @@ struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
     {"RVK_AutoMat", 0},
     {"RVK_TerrainHD", 0},
+    {"RVK_TerrainFar", 0},
     {"RVK_TerraBlend", 0},
     {"RVK_DayLook", 0},
     {"RVK_BuildingHD", 0},
@@ -566,11 +568,17 @@ float V(const char* name)
     const bool plus=SharedGroundPlus();
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
-    // Shared Ground+ retains AO's ground draw and lighting, adding only stones.
+    // Geometry and lighting are independent. Plus inherits the native mesh,
+    // cliff displacement and clutter, without enabling GroundOn's extra light.
     if (plus && std::strcmp(name,"RVK_Pebbles")==0) return 1.0f;
     if (plus && (std::strcmp(name,"RVK_GroundAo")==0 || std::strcmp(name,"RVK_GroundSun")==0 ||
                  std::strcmp(name,"RVK_DuneLight")==0 || std::strcmp(name,"RVK_GroundBlend")==0 ||
-                 std::strcmp(name,"RVK_CliffTex")==0 || std::strcmp(name,"RVK_CliffRock")==0)) return 0.0f;
+                 std::strcmp(name,"RVK_SandRipple")==0 || std::strcmp(name,"RVK_RippleDepth")==0 ||
+                 std::strcmp(name,"RVK_SandGlint")==0 || std::strcmp(name,"RVK_SandPrints")==0 ||
+                 std::strcmp(name,"RVK_WaterRipple")==0)) return 0.0f;
+    if (plus && (std::strcmp(name,"RVK_GroundRocks")==0 || std::strcmp(name,"RVK_GroundTess")==0 ||
+                 std::strcmp(name,"RVK_CliffDepth")==0 || std::strcmp(name,"RVK_GroundOne")==0 ||
+                 std::strcmp(name,"RVK_GroundGrain")==0)) return s->value;
     const bool characterMaterials = Stored("RVK_AutoMat") != 0.0f && Stored("RVK_MatStrength") > 0.0f &&
                                     Stored("RVK_Enhance") != 0.0f;
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;

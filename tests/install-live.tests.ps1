@@ -1,5 +1,12 @@
 # Self-contained installer tests. Fixtures contain dummy bytes, never game binaries.
 $ErrorActionPreference = 'Stop'
+# Keep mocks and the installer in the same host; exercise Desktop in x86 just
+# as the public setup does. Separate host tests cover the x64 forwarding path.
+if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
+    & "$env:WINDIR\SysWOW64\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+    if ($LASTEXITCODE -ne 0) { throw '32-bit installer fixture suite failed.' }
+    return
+}
 $root = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('build\installer-tests-' + [guid]::NewGuid().ToString('N'))
 $client = Join-Path $fixture 'AO folder with spaces'

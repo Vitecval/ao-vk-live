@@ -7,6 +7,12 @@ inline bool IsGroundType(uint32_t type)
 {
     return type == 1010006 || type == 1010021 || type == 1010022;
 }
+// Retail Shadowlands void marker, not a visible rock/terrain material. Its
+// JPEG contains the word "Brink"; drawing it fills the gaps between islands.
+inline bool VoidGround(uint32_t type, uint32_t id)
+{
+    return IsGroundType(type) && id == 774;
+}
 inline bool DeckGround(uint32_t type, uint32_t id)
 {
     if (!IsGroundType(type)) return false;

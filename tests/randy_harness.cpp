@@ -1811,10 +1811,11 @@ int main(int argc, char** argv)
                 const bool on=mode.second!=0,plus=mode.first>1 && !on;
                 check("RVK_TerraBlend",on ? 0:mode.first);
                 check("RVK_GroundOn",on ? 1:0);check("RVK_Pebbles",on ? 2:plus ? 1:0);
-                check("RVK_GroundRocks",on ? 1:0);check("RVK_CliffTex",plus ? 0:1);check("RVK_CliffRock",plus ? 0:1);
+                check("RVK_GroundRocks",on || plus ? 1:0);check("RVK_CliffTex",1);check("RVK_CliffRock",1);
                 check("RVK_GroundAo",on && !plus ? .6f:0);check("RVK_GroundSun",on && !plus ? 1:0);
                 check("RVK_DuneLight",on && !plus ? 1:0);
                 check("RVK_GroundBlend",on && !plus ? 1:0);
+                if(plus) {check("RVK_SandRipple",0);check("RVK_RippleDepth",0);check("RVK_WaterRipple",0);}
                 std::printf("terrain settings mode %.0f raw GroundOn %.0f: native %d; pebbles %.0f; AO %.1f; sun %.0f passed\n",
                             mode.first,mode.second,int(on),effective("RVK_Pebbles"),effective("RVK_GroundAo"),effective("RVK_GroundSun"));
             }
@@ -2059,7 +2060,9 @@ int main(int argc, char** argv)
             if (frame == 400) set("RVK_AutoMat", 1);
             if (frame == 1100) set("RVK_AutoMat", 0);
         }
-        if (materialPressureTest && frame == 60) {
+        // Reserve before the first style-on. Waiting until frame 60 can warm
+        // every map first, exercising cache sharing rather than decode fallback.
+        if (materialPressureTest && frame == 0) {
             MEMORYSTATUSEX memory{};
             memory.dwLength = sizeof(memory);
             while (GlobalMemoryStatusEx(&memory) && memory.ullAvailVirtual > (160u << 20)) {

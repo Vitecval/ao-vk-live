@@ -13,10 +13,12 @@ def main():
     common=['--native-ground-test','--ground-detail-fixture','--terrain-maps','--pixel-lighting','--sky-zone','655',
             '--fixed-clock','1000','--size','768','512','--frames','480']
     cases={
-        'shared':['--terrain-blend','1','--terrain-off'],
+        'shared':['--terrain-blend','1'],
+        'shared-no-cliffs':['--terrain-blend','1','--terrain-off'],
         'plus':['--terrain-blend','2','--ground-pebbles','1'],
         'plus-zero':['--terrain-blend','2','--ground-pebbles','0'],
-        'plus-no-effects':['--terrain-blend','2','--ground-pebbles','1','--sand-ripple','0','--dune-light','0','--ground-tess','0','--cliff-depth','0','--ground-rocks','0','--ground-blend','0','--terrain-off'],
+        'plus-no-effects':['--terrain-blend','2','--ground-pebbles','1','--sand-ripple','0','--dune-light','0','--ground-tess','0','--cliff-depth','0','--ground-rocks','0','--ground-blend','0'],
+        'plus-no-cliffs':['--terrain-blend','2','--ground-pebbles','0','--terrain-off'],
         'native':['--native-on','--terrain-blend','0','--ground-pebbles','1'],
         'native-overrides':['--native-on','--terrain-blend','2','--ground-pebbles','1'],
     }
@@ -40,6 +42,12 @@ def main():
         a,b=prefix+'shared',prefix+'plus-zero'
         delta=int(abs(images[a]-images[b]).max());deltas[a+'/plus-zero']=delta
         assert delta<=1,(a,b,'base terrain lighting or geometry changed',delta)
+        a,b=prefix+'shared-no-cliffs',prefix+'plus-no-cliffs'
+        delta=int(abs(images[a]-images[b]).max());deltas[a+'/plus-no-cliffs']=delta
+        assert delta<=1,(a,b,'cliff-off preference differs',delta)
+        changed=int(np.any(abs(images[prefix+'shared']-images[a])>2,axis=2).sum())
+        assert changed>100,('cliff material not exercised',prefix,changed)
+        deltas[prefix+'visible_cliff_pixels']=changed
         a,b=prefix+'plus',prefix+'plus-no-effects'
         delta=int(abs(images[a]-images[b]).max());deltas[a+'/no-effects']=delta
         assert delta<=1,(a,'Plus inherited ground effects',delta)

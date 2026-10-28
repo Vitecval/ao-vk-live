@@ -114,6 +114,7 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 userFogEye;            // world eye and animation time
     vec4 sharedGround[5];
     vec4 sharedGroundConfig;
+    vec4 terrainFar;             // x filtered macro composition strength
     Light lights[64];
 } FL;
 

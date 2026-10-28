@@ -335,6 +335,7 @@ Device::ClutterBuild Device::BuildNativePebbles(std::shared_ptr<const NativeGrou
     for (uint32_t j = 0; j < kBlock && bz * kBlock + j < g.cellsZ; ++j)
         for (uint32_t i = 0; i < kBlock && bx * kBlock + i < g.cellsX; ++i) {
             const int c = int(bx * kBlock + i), r = int(bz * kBlock + j);
+            if (!g.CellVisible(uint32_t(c), uint32_t(r))) continue;
             const uint16_t code = g.codes[size_t(r) * g.cellsX + c];
             const uint32_t tile = code & 0x3FFFu, turn = code >> 14;
             if (tile >= pt.density.size() || pt.density[tile] <= 0.0f || trail(c, r)) continue;

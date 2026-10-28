@@ -16,6 +16,11 @@ To update an earlier live test package, close the game and launcher and run `Upd
 
 Clients from another AO installation can remain open if their loaded modules do not use the selected folder or a loader being changed. The installer checks renderer/module paths, including AppData executable copies, and blocks when it cannot identify a running client safely.
 
+Setup uses 32-bit Windows PowerShell for the 32-bit game. Direct script launches
+from 64-bit Windows PowerShell forward automatically, avoiding its incomplete
+WOW64 module lists and false running-client refusals. Process safety checks remain
+active for the selected installation and shared loaders.
+
 Updates leave byte-identical DLLs in place. An unrelated client may therefore keep an unchanged shared loader open; replacing or uninstalling a shared loader still requires closing its users.
 
 **Keep the official `randy31.dll` in place.** No `randy31_orig.dll`, patched executable, checksum edits, or manual server arguments are needed. Start with the normal official launcher or your normal quick launcher. The official launcher and patcher use the system renderer. The addon activates only in the actual `AnarchyOnline.exe` game process with the supported classic renderer.
@@ -42,13 +47,19 @@ suspend rendering. This new option defaults off and stays unchanged by presets.
 detail at 1, full character/equipment materials and moderate distant horizon haze.
 Shared Ground+ automatically enables the working GroundOn terrain details while
 retaining enhanced floor textures, with extra tile-edge blending and added terrain
-AO/sun/dune relighting off. The saved manual GroundOn switch remains unchanged.
+AO/sun/dune relighting off. Its cliffs, rocks and distant tiles use the actual
+native terrain renderer, with classic AO lighting and added terrain/water ripples
+disabled. The saved manual GroundOn switch remains unchanged.
 
 Select **Primary Display Driver** in the launcher. This is the device name advertised by the Vulkan wrapper; it does not select CPU rendering. `randy-vk.log` identifies the actual Vulkan GPU. The game still uses the CPU for simulation and preparing frames.
 
 Press **Ctrl+Shift+F12** for AO-VK's standalone options panel. Use Tab / Shift+Tab to change category, Up / Down to select an option, Left / Right to change it, Backspace to restore its default, and Esc to close. Shift makes numeric changes larger. Changes apply immediately and save automatically. On the preset row, Left / Right chooses and Enter applies. The console's `options` command opens the same panel; the key left of 1 opens the console. This panel is separate from the game's F10 preferences and requires no AOReloaded DLL.
 
-The native terrain replacement remains disabled by default on live. Preview.6 repairs the known invisible-ground path: live's combined lightmap draw is now replaced with a complete native draw, and unknown passes retain AO's original draw. Synthetic GPU tests cover both cases; actual playfields still need live review before enabling it by default. Other Vulkan improvements work with the original ground mesh.
+The separate GroundOn lighting mode remains off by default. Shared Ground+ uses
+the native terrain geometry with classic lighting; standard Shared Ground keeps
+AO's original mesh. Live combined lightmap draws are replaced with one complete
+native draw, and unknown passes retain AO's original draw. Synthetic GPU tests
+cover both cases; actual playfields still require live review.
 
 Grass is enabled by default and works over the original terrain. The live ground uses an opaque, lit draw with the lightmap at texture stage 0 and the ground texture at stage 1; AO-VK now captures both for grass generation. This does not require the experimental terrain replacement. Classic+, Modern and Ultra keep grass enabled. The performance HUD defaults to off; both grass and the HUD are available in Quick controls.
 

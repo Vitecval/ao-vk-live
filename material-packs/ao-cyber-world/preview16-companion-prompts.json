@@ -1,0 +1,16 @@
+{
+  "tool": "built-in image_gen",
+  "entries": [
+    {
+      "type": 1010004,
+      "id": 99366,
+      "source": "preview16-companion-99366-v1",
+      "master": "preview16-companion-atlas-99366-v1",
+      "prompt": "Use case: precise-object-edit. Asset type: production Anarchy Online game texture on unchanged original UVs. Image 1 is the edit target: original resource 1010004:99366 dirt_blomsterbed_new.png. Faithfully repaint only its surface detail with restrained higher-quality dry brown garden soil and beige weathered concrete/stone border. Keep the exact square composition: border footprint, square inset soil boundary, margins, original colour palette, average brightness, broad mottling and all edge positions locked to the supplied texture. Orthographic flat albedo texture, no scene or perspective. Maintain rough nonmetal soil and stone, no gloss, new objects, plants, grass, pebbles, frames, labels, text, logos, cast shadows or baked directional lighting. The outer border is part of the original texture and must remain in the exact same position. Match the restrained existing AO-VK Rubi-Ka rework; preserve layout first, add only subtle faithful material definition. Full square image, no presentation border.",
+      "input_roles": [
+        "original RDB UV texture as edit target"
+      ],
+      "review": "Generated edit preserves square inset and border; original alpha/runtime maps policy unchanged; live model fit unverified."
+    }
+  ]
+}

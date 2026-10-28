@@ -938,6 +938,7 @@ bool Device::CreateWaterSim(std::string* error)
 
 void Device::StepWaterSim(VkCommandBuffer cmd, const WaterMap* map)
 {
+    if (SharedGroundPlus()) { m_waterSimLive=false; return; }
     m_waterSimLive = false;
     const WaterParams& P = m_waterParams;
     if (!m_waterSimPipeline || !m_waterSim[0] || !map || !(P.swimRipples > 0.0f))
@@ -1598,7 +1599,7 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     wf.look[3] = P.clarity;
     wf.look2[0] = P.foam;
     wf.look2[1] = P.caustics;
-    wf.look2[2] = P.ripples;
+    wf.look2[2] = SharedGroundPlus() ? 0.0f : P.ripples;
     wf.look2[3] = m_textures[0] ? P.gameTexture : 0.0f;
     wf.fall[0] = P.fallSheen;
     wf.fall[1] = P.fallSparkle;
@@ -1622,7 +1623,9 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     }
     // The disturbance field the characters stir (StepWaterSim ran when the scene was copied): its normals and foam
     // (water.frag).
-    wf.ripple[0] = m_waterSimLive ? 1.0f : 0.0f;
+    // Negative means the terrain mode explicitly disables added ripples,
+    // including the rain perturbation; ordinary lake/waterfall rendering stays.
+    wf.ripple[0] = SharedGroundPlus() ? -1.0f : m_waterSimLive ? 1.0f : 0.0f;
     wf.ripple[1] = P.swimGain;
     wf.ripple[2] = 1.0f / (m_waterSimCell * float(kSimN));
     wf.ripple[3] = m_waterSimCell;

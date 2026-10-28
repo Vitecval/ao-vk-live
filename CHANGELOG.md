@@ -1,15 +1,29 @@
+# 0.6.0-preview.17
+
+Fix false running-client refusals in setup by selecting 32-bit Windows PowerShell
+and forwarding direct 64-bit Windows PowerShell script launches. Preserve process,
+shared-loader and transactional rollback checks.
+
+Release completed Shared Ground+ geometry, classic material lighting, authored-color,
+transparent-chunk and void-cell corrections. Retain the validated Preview 16.1
+Full HD library without artwork regeneration. See RELEASE-NOTES.md for scope.
+
 # Changelog
 
 ## Unreleased
 
 ### Changed
 
-- Shared Ground+ now adds only nearby pebbles at density 1 to regular Shared Ground, retaining its terrain mesh and lighting. It adds no ripples, cliffs or tile-edge blending. GroundOn overrides either shared mode; Ultra selects Shared Ground+ with GroundOn off.
+- Distant terrain gains filtered broad soil/rock variation and gentle slope definition with `RVK_TerrainFar`. Horizon haze retains more distant structure, and water contacts keep a softer shoreline with restrained wetness and broad distant foam.
+- Complete the missing shared architecture, additional building, furnishing, technology and industrial prop batches, enabling 1,025 previously queued Rubi-Ka texture resources together. Preserve premium ICC artwork and functional original signs/screens; refine the picked ICC rock without changing unrelated shipped artwork.
+- Shared Ground+ now adds only nearby pebbles at density 1 to regular Shared Ground, retaining its terrain mesh, cliff materials and lighting. It adds no ripples or tile-edge blending. GroundOn overrides either shared mode; Ultra selects Shared Ground+ with GroundOn off.
 - Trees gain fuller foliage through their crowns with `RVK_TreeVolume`, retaining the original branches, leaf colours and distant silhouettes. Shrubs and palms keep their existing foliage.
 - The picked metal floor and its 22 related plate/transition tiles keep AO's original tread and borders with a rough, restrained metal finish. Older repaints and noisy normal maps cannot override this family; Full HD and Lite include the same material correction.
 
 ### Fixed
 
+- Shared Ground+ uses the same cliff textures as regular Shared Ground, including the saved cliff controls, instead of leaving steep faces covered in stretched ground textures.
+- Shared Ground and Shared Ground+ use GroundOn's smooth slope mask and existing rock material for broader, less patchy cliff coverage, including verified terrain composites that lack an individual database texture ID.
 - Fix expired terrain mesh records being reused after switching graphics modes, which could corrupt the grass cache later while moving or turning. Render-worker failures now stop promptly with the original fault details instead of leaving the game waiting indefinitely.
 
 ## 0.6.0-preview.12

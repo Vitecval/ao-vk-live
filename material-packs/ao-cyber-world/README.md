@@ -1,5 +1,16 @@
 # AO Cyber World artwork pack
 
+Current Preview 16.1 coverage is recorded in the manifests and release notes:
+4,380 indexed full-quality repaint IDs across the retained library, 621 more
+than Preview 15, with 35 fully covered recorded families and three partial.
+This world pack alone contains 4,342 repaint records; other packs overlap.
+Full HD includes these optional world replacements. Lite includes only its core
+ground-map subset. Shared Ground+ uses native geometry with classic AO lighting
+and no added ripples; the turquoise deck's original artwork remains preserved.
+Live model fit and extended gameplay validation remain ongoing.
+
+## Historical authoring notes (Preview 11)
+
 Preview.11 adds **1,828 new Rubi-Ka repaints** in 20 completed core-art batches: Omni modern/Entertainment/Rome, Athen/Tir/Avalon, Home and settlements, AI cities, commercial buildings, outposts, factories, shared architecture, caves, subway/sewer, laboratories, prison, offices, castles/temples, alien ships and Dust Brigade environments. Premium ICC artwork and the earlier neutral families retain their existing maps.
 
 There are now 29 active logical families, 2,618 approved resources and 2,436 inventoried active models. This is **not a complete Rubi-Ka overhaul**. The broader worklist inventories 4,746 models. There are 294 distinct shared companion identities still using their originals in active model inventories; these are listed separately from original functional signs, maps and controls. Other owned prop, furniture, additional-building and mission-surface batches stay queued until their art is complete. The image generation account limit stopped this pass; reset is reported as 2026-10-26 20:37 UTC. Completed source artwork is saved for continuation, not discarded or counted as installed.

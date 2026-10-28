@@ -15,7 +15,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-352 settings, 182 of them in the settings window.
+353 settings, 183 of them in the settings window.
 
 ## Sections
 
@@ -23,7 +23,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - [Lighting](#lighting) (17)
 - [Materials](#materials) (20)
 - [Debug](#debug) (7)
-- [Terrain](#terrain) (23)
+- [Terrain](#terrain) (24)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
 - [Weather](#weather) (49)
@@ -92,7 +92,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
-| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (shared textures plus pebbles only; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (enhanced terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
 | `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |
 | `RVK_MatStrength` | Character & equipment materials: material response strength | 0 .. 1 | 1 | window; switch `RVK_AutoMat`; knob |
@@ -114,6 +114,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
+| `RVK_TerrainFar` | Distant terrain: broad rock/soil variation and slope definition | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_GroundOn` | Enhanced ground renderer (overrides Shared Ground and Shared Ground+) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |

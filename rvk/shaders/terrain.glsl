@@ -108,7 +108,8 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
     // edges, a row of straight-edged teeth along a cliff's rim. Its normals come from the heights over two cells, a
     // one-cell cliff's corners read less steep than its face: the rock starts a little earlier (~23 degrees, all of it
     // by ~45), and the line where it starts wanders with noise (a metre or two across) rather than following the grid.
-    if (floatBitsToUint(D.terrain.y) != 0u && D.terrainAt.y < 1.5) {   // (TerrainNative; not its rocks)
+    if ((floatBitsToUint(D.terrain.y) != 0u && D.terrainAt.y < 1.5) ||
+        (floatBitsToUint(D.terrain.y) == 0u && FL.sharedGroundConfig.x > 0.0)) {
         const float wander = 0.09 * (TerrainNoise(posW.xz * 0.35 + vec2(4.3, 1.9)) - 0.5)
                            + 0.05 * (TerrainNoise(posW.xz * 1.3 + vec2(8.7, 2.6)) - 0.5);
         m.side = smoothstep(0.92, 0.7, abs(nf.y) + wander) * clamp(FL.terrain.x, 0.0, 1.0);
@@ -147,6 +148,7 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 // ---- the native ground: each cell's own tile (docs/native-ground-plan.md)
 
 bool TerrainNative() { return floatBitsToUint(D.terrain.y) != 0u; }
+bool ClassicNativeLighting() { return TerrainNative() && FL.sharedGroundConfig.w > 0.5; }
 
 // The cell's tile's bindless image and its turn: the tile-code texture's texel (R, G the image, B the turn).
 uvec2 NativeCell(vec2 cell)
@@ -165,7 +167,18 @@ bool NativeCellHeight(vec2 cell)
     const uint codes = floatBitsToUint(D.terrain.y) - 1u;
     const ivec2 size = textureSize(sampler2D(texImages[codes], bindlessSamplers[D.sampIdx.w]), 0);
     return texelFetch(sampler2D(texImages[codes], bindlessSamplers[D.sampIdx.w]), clamp(ivec2(floor(cell)), ivec2(0), size - 1),
-                      0).a < 0.75;
+                      0).a < 0.5;
+}
+
+// The other alpha attribute (bit 6 clear) preserves authored ground color;
+// bit 7 still independently marks height, including authored flat maps.
+bool NativeCellAuthored(vec2 cell)
+{
+    const uint codes = floatBitsToUint(D.terrain.y) - 1u;
+    const ivec2 size = textureSize(sampler2D(texImages[codes], bindlessSamplers[D.sampIdx.w]), 0);
+    const uint attributes = uint(texelFetch(sampler2D(texImages[codes], bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)), ivec2(0), size - 1), 0).a * 255.0 + 0.5);
+    return (attributes & 64u) == 0u;
 }
 
 // Within a cell (a along x, b along z, 0..1) its tile's coordinates as the game lays them, by the turn
@@ -438,7 +451,8 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
 {
     vec4 original=TerrainBaseRaw(image,smp,m);
     float amount=FL.sharedGroundConfig.x*m.w.x;
-    if (amount<=0.0 || m.clutter || (D.mat.z & MAT_AUTHORED_GROUND) != 0u) return original;
+    if (amount<=0.0 || m.clutter || (D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
+        (ClassicNativeLighting() && NativeCellAuthored(m.uv[0]))) return original;
     vec2 uv=m.uv[0],dx=m.dx[0],dy=m.dy[0];
     uint source=image;
     if (TerrainNative()) {
@@ -471,6 +485,23 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
         uint slot=floatBitsToUint(FL.sharedGround[i].x)-1u;
         vec3 master=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),world,wx,wy).rgb;
         detail+=weights[i]*(clamp(master/max(FL.sharedGround[i].yzw,vec3(.025)),vec3(.55),vec3(1.65))-1.0);
+    }
+    float farMix=FL.terrainFar.x*smoothstep(65.0,260.0,length(m.posW-C.eyePos.xyz));
+    if (farMix>.001 && (D.mat.z & MAT_ASPHALT)==0u) {
+        // Two coarse material reads replace disappearing fine aggregate. Soil
+        // and exposed rock mix by slope; the original biome/transition tint stays.
+        vec3 coarse=vec3(0.0);
+        float slope=1.0-clamp(abs(normalize(vNormalW.xyz+vec3(0,1e-6,0)).y),0.0,1.0);
+        float exposed=smoothstep(.05,.42,slope)*(1.0-.65*green);
+        for (int j=0;j<2;++j) {
+            int material=j==0 ? 1:4;
+            uint slot=floatBitsToUint(FL.sharedGround[material].x)-1u;
+            float scale=j==0 ? 1.0/65.0:1.0/43.0;
+            vec3 master=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),
+                m.posW.xz*scale,m.px.xz*scale,m.py.xz*scale).rgb;
+            coarse+=clamp(master/max(FL.sharedGround[material].yzw,vec3(.025)),vec3(.70),vec3(1.35))*(j==0 ? 1.0-exposed:exposed);
+        }
+        detail=mix(detail,coarse,farMix*.38);
     }
     // Strong original markings/joints keep their shape; noisy old texels are
     // softened before the new filtered detail. Alpha is always AO's original.
@@ -546,7 +577,30 @@ vec3 TerrainPatchesAt(int k, vec3 posW)
 
 vec3 TerrainVariation(vec3 c, vec3 posW, TerrainMap m)
 {
-    if ((D.mat.z & MAT_AUTHORED_GROUND) != 0u) return c;
+    if ((D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
+        (ClassicNativeLighting() && !m.clutter && NativeCellAuthored(m.uv[0]))) return c;
+    // World-anchored formations, not magnified close grit. Derivative filtering
+    // removes each band before it becomes subpixel; no time or screen noise.
+    float distant=FL.terrainFar.x*smoothstep(65.0,260.0,length(posW-C.eyePos.xyz));
+    if (m.clutter || (D.mat.z & MAT_ASPHALT)!=0u) distant=0.0;
+    float footprint=max(length(m.px),length(m.py));
+    distant*=1.0-smoothstep(6.0,24.0,footprint);
+    if (distant>0.001) {
+        vec2 p=mix(posW.xz,vec2(posW.x+posW.z*.37,-posW.y),m.side);
+        float broad=TerrainNoise(p*.009+vec2(18.7,-4.1))-.5;
+        float strata=TerrainNoise(p*vec2(.028,.065)+vec2(-9.4,31.2))-.5;
+        float mediumFade=1.0-smoothstep(2.5,9.0,footprint);
+        float formation=.65*broad+.35*strata*mediumFade;
+        // Retain the biome's hue, with restrained warm soil/cool mineral shifts.
+        vec3 mineral=vec3(1.0)+formation*vec3(.16,.12,.07);
+        float saturation=1.0-.10*distant*(.5+broad);
+        c=mix(vec3(Luma(c)),c,saturation)*mix(vec3(1.0),mineral,distant);
+        vec3 n=normalize(vNormalW.xyz+vec3(0.0,1e-6,0.0));
+        vec3 sun=-normalize(FL.sunDir.xyz+vec3(0.0,-1e-6,0.0));
+        float sunUp=smoothstep(.02,.20,sun.y);
+        float turn=clamp(dot(n,sun)-sun.y,-.5,.5);
+        c*=1.0+.10*distant*sunUp*turn;
+    }
     float k = FL.terrain.z;
     if (k <= 0.0) return c;
     vec3 v = TerrainPatchesAt(0, posW) * m.w.x;
@@ -637,6 +691,10 @@ float NativeRockLight(vec3 n, float lit, float vis)
     if (dot(n, n) <= 1e-8) return 1.0;
     n = normalize(n);
     const float sky = clamp(0.8 + 0.25 * n.y, 0.55, 1.05);
+    // The AO lightmap already contains its hour's sun and ambient response.
+    // Retain modest face definition without applying native directional light
+    // to that baked lighting a second time.
+    if (ClassicNativeLighting()) return sky;
     const vec3 S = dot(FL.sunDir.xyz, FL.sunDir.xyz) > 0.0 ? -normalize(FL.sunDir.xyz) : vec3(0.0);
     if (S.y <= 0.02) return sky;
     const float sun = clamp(max(dot(n, S), 0.0) / max(S.y, 0.3), 0.0, 2.0) * vis;

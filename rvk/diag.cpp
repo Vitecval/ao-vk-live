@@ -194,6 +194,16 @@ void Device::EndFrameDump()
         unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),
         m_native.framesDrawn ? double(m_native.patchesDrawn)/m_native.framesDrawn : 0.0,
         m_native.rocksMade,m_native.pebblesMade,SharedGroundPlus() ? 0.0 : double(m_native.ao),SharedGroundPlus() ? 0.0 : double(m_native.sun));
+    std::fprintf(m_dumpFile,"# terrain path: geometry=%s; lighting=%s; cliff-resources=%u; tessellation=%u; ripples=%s; original-terrain-consumed=%u\n",
+        (m_native.on || SharedGroundPlus()) && m_native.ground ? "native-patches" : "classic-submissions",
+        SharedGroundPlus() ? "classic-AO-baked-lightmap" : m_native.on ? "native-sun-AO" : "classic-AO",
+        unsigned(m_rock.albedo && m_rock.normal && m_rock.orm),unsigned(m_tessSupported && m_terrainSettings.round>0),
+        SharedGroundPlus() ? "disabled" : "settings",unsigned((m_native.on || SharedGroundPlus()) && m_native.framesDrawn>0));
+    size_t nativeIndices = 0, hiddenCells = 0;
+    for (const auto& p : m_native.patches) nativeIndices += p.indices->size() / 2;
+    if (m_native.ground) for (uint8_t v : m_native.ground->hiddenCells) hiddenCells += v != 0;
+    std::fprintf(m_dumpFile, "# terrain coverage: indices %zu; hidden-cells %zu; alpha=per-cell; first-chunk-alpha=ignored-for-native\n",
+        nativeIndices, hiddenCells);
     std::fprintf(m_dumpFile, "# end: %u draws; %zu casters this frame, %zu remembered (%u drawn out of view last frame);"
                              " forgotten since start: %u in view but not drawn, %u far away\n",
                  m_dumpDraw, m_casters.size(), m_casterCache.size(), m_cachedCastersDrawn, m_forgottenInView, m_forgottenFar);
@@ -535,6 +545,10 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
                 std::fprintf(f, " alpha edges %.3f soft %.2f", double(t->m_alphaHardEdges), double(t->m_alphaSoftShare));
         }
     if (m_rs[d3d::RS_ALPHABLENDENABLE]) std::fprintf(f, " | blend %u/%u", m_rs[d3d::RS_SRCBLEND], m_rs[d3d::RS_DESTBLEND]);
+    if (IsTerrain(fvf)) std::fprintf(f, " | terrain-alpha %u/%u/%u stages %u/%u/%u %u/%u/%u cull %u",
+        m_rs[d3d::RS_ALPHATESTENABLE], m_rs[d3d::RS_ALPHAFUNC], m_rs[d3d::RS_ALPHAREF],
+        m_tss[0][d3d::TSS_ALPHAOP], m_tss[0][d3d::TSS_ALPHAARG1], m_tss[0][d3d::TSS_ALPHAARG2],
+        m_tss[1][d3d::TSS_ALPHAOP], m_tss[1][d3d::TSS_ALPHAARG1], m_tss[1][d3d::TSS_ALPHAARG2], m_rs[d3d::RS_CULLMODE]);
     // (Fog: its colour and range - the game's sky takes most of its colour from it.)
     if (m_rs[d3d::RS_FOGENABLE]) {
         float range[2];

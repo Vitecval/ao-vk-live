@@ -299,7 +299,7 @@ void OnGroundFrame(void* ground, void* data)
     }
     g_rvk.device->SetNativeGround(g_reading.ground);
     if (!g_haveLightmap) LightmapFromGround(static_cast<const uint8_t*>(ground), *g_reading.ground);
-    rnative::ground::SetNative(g_setting);
+    rnative::ground::SetNative(g_setting || g_sharedPebbles);
 }
 
 }  // namespace
@@ -345,7 +345,7 @@ void UpdateGroundCapture(bool wasEnabled)
     }
     if (enabled && !g_reading.active && !g_sent) g_deferred=true;
     if (g_rvk.device) g_rvk.device->SetNativeGroundOn(g_setting);
-    rnative::ground::SetNative(g_setting && g_sent && g_reading.ground);
+    rnative::ground::SetNative((g_setting || g_sharedPebbles) && g_sent && g_reading.ground);
 }
 void SetNativeGroundSetting(bool on)
 {

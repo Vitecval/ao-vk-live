@@ -11,7 +11,9 @@ import numpy as np
 from PIL import Image
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);r=p.parse_args().directory
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path)
+ p.add_argument('--max-sharing-overhead-mb',type=float,help='For asynchronous loader runs, bound transient peak overhead instead of claiming matched-residency savings.')
+ args=p.parse_args();r=args.directory
  def image(n):return np.asarray(Image.open(r/n/'result.bmp').convert('RGB')).astype(int)
  a,b=image('control'),image('shared');delta=int(abs(a-b).max());assert delta<=1,delta
  assert a.std()>20,'Blank fixture'
@@ -26,10 +28,12 @@ def main():
  assert 'shares uploaded material maps' in logs['shared']
  assert 'shares uploaded material maps' not in logs['duplicated']
  def peak(t):return max(int(x) for x in re.findall(r'rvk: textures (\d+) MB',t))
- saved=peak(logs['duplicated'])-peak(logs['shared']);assert saved>=5,saved
+ saved=peak(logs['duplicated'])-peak(logs['shared'])
+ if args.max_sharing_overhead_mb is None:assert saved>=5,saved
+ else:assert -saved<=args.max_sharing_overhead_mb,('Sharing exceeded the bounded upload headroom',saved)
  assert 'low process address space' in logs['pressure'],'Pressure fallback not exercised'
  assert 'material pressure: reservations released' in (r/'pressure-loader.txt').read_text()
  assert '[albedo map]' in logs['pressure'],'Artwork did not load in recovery cycles'
- print(json.dumps({'survives_source_deletion_and_sibling_replacement':True,'repeat_share_no_leaked_images':counts,'pixel_max_delta':delta,'quality_alias_gpu_mb_saved_in_fixture':saved,'low_va_fallback_and_recovery':'passed','clean_exit':'passed'},indent=2))
+ print(json.dumps({'survives_source_deletion_and_sibling_replacement':True,'repeat_share_no_leaked_images':counts,'pixel_max_delta':delta,'observed_peak_texture_difference_mb':saved,'maximum_transient_overhead_mb':args.max_sharing_overhead_mb,'matched_residency_savings_claimed':args.max_sharing_overhead_mb is None,'low_va_fallback_and_recovery':'passed','clean_exit':'passed'},indent=2))
 
 if __name__=='__main__':main()

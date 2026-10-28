@@ -1871,7 +1871,7 @@ void Device::EndFrame()
         m_pickActive = false;
         // The ground drawn natively: its draws' stage 0 is a stand-in or the lightmap - the cell's own tile instead.
         m_pickTile = 0;
-        if (m_pickBestTerrain && m_native.on && m_native.ground) {
+        if (m_pickBestTerrain && (m_native.on || SharedGroundPlus()) && m_native.ground) {
             const NativeGround& g = *m_native.ground;
             const int cx = int(std::floor(m_pickBestWorld[0] / g.cellX)), cz = int(std::floor(m_pickBestWorld[2] / g.cellZ));
             if (cx >= 0 && cz >= 0 && uint32_t(cx) < g.cellsX && uint32_t(cz) < g.cellsZ) {

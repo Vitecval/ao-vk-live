@@ -6,6 +6,22 @@ param(
     [switch]$Uninstall
 )
 $ErrorActionPreference = 'Stop'
+# Match the 32-bit game: 64-bit Windows PowerShell can return only the WOW64
+# loader modules, hiding randy31.dll and falsely identifying another client.
+if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
+    $host32 = Join-Path $env:WINDIR 'SysWOW64\WindowsPowerShell\v1.0\powershell.exe'
+    if (!(Test-Path -LiteralPath $host32)) { throw 'Cannot find 32-bit Windows PowerShell for safe AO process inspection.' }
+    $hostArgs = @('-NoLogo', '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath)
+    foreach ($key in $PSBoundParameters.Keys) {
+        $value = $PSBoundParameters[$key]
+        if ($value -is [Management.Automation.SwitchParameter]) {
+            if ($value.IsPresent) { $hostArgs += "-$key" }
+        } else { $hostArgs += @("-$key", [string]$value) }
+    }
+    & $host32 @hostArgs
+    if ($LASTEXITCODE -ne 0) { throw "AO-VK installer failed in 32-bit PowerShell (exit $LASTEXITCODE)." }
+    return
+}
 $client = (Resolve-Path -LiteralPath $ClientDir).Path
 $package = (Resolve-Path -LiteralPath $PackageDir).Path
 $manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw | ConvertFrom-Json
@@ -221,4 +237,3 @@ try {
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
-

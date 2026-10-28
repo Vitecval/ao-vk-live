@@ -1,8 +1,8 @@
 # AO-VK Live
 
-Optional **world texture styles**: choose Original or AnarchyHD in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables AnarchyHD, Shared Ground+, building materials and equipment art, with GroundOn off. Shared Ground+ is regular Shared Ground plus nearby pebbles at density 1, retaining AO's terrain and lighting; it adds no ripples, cliffs or tile-edge blending. Enabling GroundOn overrides either shared mode. Metal decks keep their original tread and transition artwork with a rough, lightly shiny finish; roads retain their asphalt sheen. Fuller 3D tree foliage is controlled by **Plants → Fuller 3D tree foliage**. Brighter daylight grading stays off by default. See [modern materials](docs/modern-materials.md).
+Optional **world texture styles**: choose Original or AnarchyHD in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables AnarchyHD, Shared Ground+, building materials and equipment art, with GroundOn off. Shared Ground+ uses GroundOn's detailed terrain, cliffs, boulders and pebbles with classic AO-style lighting and no added ripples. Standard Shared Ground keeps AO's terrain submissions. Enabling GroundOn selects its separate native lighting for comparison. Metal decks keep their original tread and transition artwork with a rough, lightly shiny finish; roads retain their asphalt sheen. Fuller 3D tree foliage is controlled by **Plants → Fuller 3D tree foliage**. Brighter daylight grading stays off by default. See [Preview 16 validation](docs/preview16-validation.md) and [modern materials](docs/modern-materials.md).
 
-This preview restores the original premium ICC and neutral artwork and adds 203 companion surfaces. Nine building families cover 381 inventoried models and 679 approved artwork/material resources. Original ground colours and asphalt sheen are preserved. The retained library has 912 repaint IDs, including inactive history. Live fit and remaining districts are listed in [the overhaul plan](docs/texture-overhaul-plan.md). Original geometry and animations remain unchanged.
+Preview 17 retains 621 additional replacements compared with Preview 15. The full-quality database inventory has 4,380 baked replacement IDs; 35 recorded material families have complete dependency coverage and three remain partial. The retained library contains 4,389 unique repaint identities, including nine outside that database index and style-dependent history. Deliberate originals and original model UVs/animations are preserved. Live-game visual fit and extended stability testing remain ongoing; this experimental preview may contain bugs.
 
 Weather preview: optional **Halloween fog** (about 30 m visibility), pale mist and custom fog colours, plus selectable Clear, Overcast, Rain and Thunderstorm weather. Open **Ctrl+Shift+F12 → Weather**. Both selectors default to Automatic. See [weather controls](docs/weather.md).
 
@@ -10,14 +10,14 @@ A Vulkan renderer for the **classic Anarchy Online live client**, based on [wann
 
 ## Download and install
 
-Download **`ao-vk-live-0.6.0-preview.14-windows-x86.zip`** from this repository's **Releases** page. Players do not need a compiler, Python, or the Vulkan SDK.
+Download **`ao-vk-live-0.6.0-preview.17-windows-x86-lite.zip`** or **`ao-vk-live-0.6.0-preview.17-windows-x86-full.zip`** from this repository's **Releases** page, together with `SHA256SUMS.txt`. Lite has the complete renderer, embedded terrain/shader resources and core ground maps. Full HD adds the optional world/character replacement library. Both editions use identical renderer/loader binaries. Players do not need a compiler, Python, or the Vulkan SDK.
 
 1. Extract the whole ZIP to a folder. Close AO and its launcher.
 2. Double-click **Install.cmd**. Select your AO installation folder, or use **Browse** to find it.
 3. Click **Install**, then start AO with your normal launcher.
 4. Select **Primary Display Driver** in AO's graphics configuration. This name refers to the Vulkan wrapper; your GPU does the rendering.
 
-In-game options: **Ctrl+Shift+F12**. Tab changes category; Up/Down selects; Left/Right adjusts; Esc closes. Changes save automatically. Grass defaults to **on**, performance HUD to **off**. The experimental terrain replacement stays **off** on live; grass works over the original ground.
+In-game options: **Ctrl+Shift+F12**. Tab changes category; Up/Down selects; Left/Right adjusts; Esc closes. Changes save automatically. Grass defaults to **on**, performance HUD to **off**. Select Shared Ground+ for native terrain with classic lighting and no added ripples; GroundOn is available separately. Existing saved settings are preserved on update.
 
 For an existing AO-VK Live installation, use **Update.cmd** and select the same AO folder. To remove it, use **Uninstall.cmd** and select that folder. Uninstall preserves game files, AO preferences, AO-VK settings, logs and shader cache. The installer records any extra loader copy so uninstall can remove it too.
 
@@ -35,7 +35,7 @@ Another wrapper such as dgVoodoo cannot use the same `ddraw.dll` filename. Setup
 
 ## Source and releases
 
-The source ZIP contains this repository's source and bundled dependencies, with no game files, personal settings or logs. Build instructions are in [docs/build-windows.md](docs/build-windows.md). Technical compatibility notes are in [docs/live-client.md](docs/live-client.md).
+Source code is available from the repository/tag and GitHub's automatic source archives. No separate source ZIP is distributed. Optional generated artwork and baked replacement maps are kept outside Git history; prebuilt Full HD contains the player payload. Essential embedded renderer assets, catalogs and metadata remain in source. Build instructions are in [docs/build-windows.md](docs/build-windows.md). Technical compatibility notes are in [docs/live-client.md](docs/live-client.md).
 
 Release maintainers: see [docs/publishing.md](docs/publishing.md) for packaging and uploading ready-built downloads. SHA-256 checksums accompany release archives.
 

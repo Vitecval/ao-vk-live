@@ -80,6 +80,12 @@ struct NativeGround {
     std::vector<uint16_t> codes;           // cellsX x cellsZ: the cell's tile (low 14 bits) and turn (top 2)
     std::vector<Texture*> tiles;           // each tile's texture (null: none)
     std::vector<uint16_t> types;           // each tile's surface type (tile_type_data; empty: not known - no pebbles)
+    // Immutable visibility snapshot shared with terrain/clutter workers. Empty
+    // means all cells visible; true holes must not acquire ground or details.
+    std::vector<uint8_t> hiddenCells;
+    bool CellVisible(uint32_t x, uint32_t z) const {
+        return x < cellsX && z < cellsZ && (hiddenCells.empty() || !hiddenCells[size_t(z) * cellsX + x]);
+    }
 };
 
 // How a ground chunk's base texture lies on the world (terrain.cpp FitTerrain). The game gives each 4 x 4 unit cell of
@@ -245,6 +251,7 @@ struct DeviceInfo {
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
     X(TerrainHD, m_terrainHD, C|L)                /* global original-mesh terrain detail, 0..1 */ \
+    X(TerrainFar, m_terrainFar, C|L)              /* filtered distant land composition, 0..1 */ \
     X(BuildingHD, m_buildingHD, C|L)              /* global architecture material/detail pass, 0..1 */ \
     X(FarHaze, m_farHaze, C|L)                   /* distant outdoor horizon veil, 0..1 */ \
     X(HazeStart, m_hazeStart, C|L)               /* nearby scenery stays clear */ \
@@ -1137,6 +1144,7 @@ private:
     float m_materialStrength = 1.0f;
     float m_terrainHD = 0.0f, m_buildingHD = 0.0f;
     float m_farHaze=0.0f, m_hazeStart=400.0f, m_hazeEnd=1200.0f;
+    float m_terrainFar=1.0f;
     float m_lightHeadroom = 1.0f;
     float m_bump = 0.0f;
     bool m_normalMaps = true;
@@ -1228,6 +1236,7 @@ private:
         std::future<std::shared_ptr<std::vector<uint32_t>>> skyPending;
         float ao = 0.6f;                         // RVK_GroundAo
         bool on = true, drawing = false;
+        bool combinedPass = false;              // inherited retail (lightmap + diffuse) * base contract
         bool pebblesOnly = false;
         uint64_t drawnBase = ~0ull, drawnLight = ~0ull;   // the frames each pass was last drawn
         uint32_t patchesDrawn = 0, framesDrawn = 0;

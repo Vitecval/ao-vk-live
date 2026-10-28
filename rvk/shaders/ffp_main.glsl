@@ -123,6 +123,7 @@ vec4 Op(uint op, vec4 a1, vec4 a2, vec4 current, vec4 tex)
     }
 }
 
+float NativeTerrainAlpha();
 vec4 Sample(uint stage)
 {
     vec4 tc = stage == 0u ? vTex0 : vTex1;
@@ -143,6 +144,13 @@ vec4 Sample(uint stage)
         result.a = stage == 0u && gParallax ? textureGrad(BUMPTEX, gUv0, gUv0Dx, gUv0Dy).a
                                            : stage == 0u ? texture(BUMPTEX, tc.xy).a
                                                          : texture(sampler2D(texImages[D.texIdx.z], bindlessSamplers[D.sampIdx.y]), tc.xy).a;
+    // A native draw covers many retail chunks. The first chunk's texture can
+    // be an entirely transparent far patch; its alpha is not the coverage of
+    // every patch in the playfield. Both cutout prepass and colour pass must
+    // test the cell's own coverage instead.
+    if (floatBitsToUint(D.terrain.y) != 0u &&
+        ((stage == 1u && (D.mat.z & MAT_COMBINED) != 0u) || (stage == 0u && D.terrainAt.w < 1.5)))
+        result.a = NativeTerrainAlpha();
     return result;
 }
 
@@ -393,6 +401,7 @@ float TerrainSun(vec3 posW)
 float gCasterVisibility = 1.0, gCloudVisibility = 1.0;   // SunVisibility's two parts: things' shadows, the clouds'
 float gTerrainVisibility = 1.0;                         // ... and the terrain's shade from a low sun (TerrainSun)
 float gGroundAway = 1.0;                                // ... and the native ground's own, turned from the sun (0)
+bool ClassicNativeLighting();
 
 // The native ground's own shade, turned from the sun (gGroundAway: 1 facing it .. 0 turned away), falling off over a
 // few degrees round that line - with or without a shadow map: under ~3 degrees there is none, and the slopes turned
@@ -400,6 +409,7 @@ float gGroundAway = 1.0;                                // ... and the native gr
 // horizon (by then the hour's light has no sun in it), and by the moon's light.
 float GroundAway(vec3 n)
 {
+    if (ClassicNativeLighting()) return 1.0;
     if (floatBitsToUint(D.terrain.y) == 0u || FL.moon.w > 0.5 || dot(n, n) <= 0.0) return 1.0;
     const vec3 L = -normalize(FL.sunDir.xyz + vec3(0.0, -1e-6, 0.0));
     return mix(1.0, smoothstep(-0.06, 0.06, dot(normalize(n), L)), smoothstep(-0.08, -0.02, L.y));
@@ -640,6 +650,13 @@ vec3 NormalMapNormal(vec3 n, vec3 posW, vec2 uv) { return NormalMapNormalGrad(n,
 
 #include "terrain.glsl"
 
+float NativeTerrainAlpha()
+{
+    if (D.terrainAt.y > 1.5) return 1.0; // independent rock/pebble meshes
+    const vec2 cell = vPosW.xz * D.terrain.x;
+    return NativeTop(cell, dFdx(cell), dFdy(cell), bindlessSamplers[D.sampIdx.w]).a;
+}
+
 // Things' shadows fading out as the light nears the horizon, as their strength does (ShadowStrength, by distance) -
 // for the uses of the visibility that don't go through that strength.
 float CasterFade()
@@ -766,6 +783,9 @@ void main()
     gRecord = vRecord;
     gDiffuse = vDiffuse;
     gSpecular = vSpecular;
+    // Reserved diagnostic views 12..20 compare terrain stages before tone mapping.
+    // Normal rendering keeps the same equations and never performs extra reads.
+    vec3 terrainAmbient = vec3(0.0), terrainDirect = vec3(0.0);
     const float leafMask = LeafMask();
 #ifdef RVK_PREPASS_CUTOUT
     // Depth only where the pixel is fully opaque in the end (prepass_cutout.frag): the same alpha as the cut-out test
@@ -1016,6 +1036,8 @@ void main()
         vec3 base = (vMatEmissive + vMatAmbient * C.ambient.rgb * kAmb) * texShade;
         vec3 lit = base + vMatAmbient * ambient * kAmb + vDiffuse.rgb * diff * kd, litSpec = vSpecular.rgb * spec;
         vec3 local = vDiffuse.rgb * diffL * kd, localSpec = vSpecular.rgb * specL;
+        terrainAmbient = base + vMatAmbient * ambient * kAmb;
+        terrainDirect = vDiffuse.rgb * diff * kd + local;
         if (gPbrOn) {
             vec3 V = normalize(C.eyePos.xyz - vPosW);
             gPbrSpec = (spec + specL) * FL.pbr.x;
@@ -1084,7 +1106,7 @@ void main()
         if (terrain.clutter) {
             t0.rgb *= NativeRockLight(vNormalW.xyz, t0.g, texShade);
             texShade = 1.0;
-        } else {
+        } else if (!ClassicNativeLighting()) {
             // (In its own relief's shadow - a ripple's lee, the gap between stones: the lightmap's sun share of it.)
             // (The sand's glints: where the lightmap says the sun reaches - the shadow map's shade comes after. Added
             // past the stages, which clip at 1: below.)
@@ -1106,9 +1128,12 @@ void main()
         }
     }
     vec4 t1 = C.stageA[0].x != 1u ? Sample(1u) : vec4(0.0);
-    if ((D.mat.z & MAT_COMBINED) != 0u && terrainMapped && FL.sharedGroundConfig.x > 0.0) {
-        t1 = TerrainBase(D.texIdx.y, bindlessSamplers[D.sampIdx.y], terrain);
-        t1.rgb = TerrainVariation(t1.rgb, vPosW, terrain);
+    if ((D.mat.z & MAT_COMBINED) != 0u && terrainMapped) {
+        if (groundOne) t1 = vec4(oneBase, 1.0);
+        else if (FL.sharedGroundConfig.x > 0.0) {
+            t1 = TerrainBase(D.texIdx.y, bindlessSamplers[D.sampIdx.y], terrain);
+            t1.rgb = TerrainVariation(t1.rgb, vPosW, terrain);
+        }
     }
     if (GlobalTerrain()) {
         if ((D.mat.z & MAT_COMBINED) != 0u) t1.rgb = GlobalSurfaceColour(t1.rgb);
@@ -1136,6 +1161,7 @@ void main()
         gSpecular = sp;
     }
 #endif
+    const vec3 terrainLightSample = t0.rgb;
     t0.rgb *= texShade * gLightmapRelief;
     if (terrainMapped && D.terrainAt.w > 1.5) t0.rgb *= NativeSky(vPosW);   // (the native ground's lightmap: less sky, darker)
     vec4 current = Cascade(t0, t1, 1.0);
@@ -1283,7 +1309,7 @@ void main()
             float glint = pow(max(dot(reflect(-V, n), L), 0.0), mix(40.0, 400.0, gPuddle));
             current.rgb += FL.sunColor.rgb * (glint * (0.4 * gWetLook * gWetUp + 2.0 * gPuddle) * (0.3 + fres));
             // Rain on the puddles: rings spreading, glinting with the sky's light.
-            if (gPuddle > 0.0 && FL.rainNear.y + FL.wet.x > 0.0)
+            if (FL.sharedGroundConfig.w < 0.5 && gPuddle > 0.0 && FL.rainNear.y + FL.wet.x > 0.0)
                 current.rgb += C.fogColor.rgb * (0.25 * gPuddle * WetRipples(vPosW.xz, FL.wet.z) * min(FL.wet.x * 2.0, 1.0));
 #ifdef RVK_GLOW
             albedo *= (1.0 - 0.35 * gWetLook) * (1.0 - 0.4 * gPuddle);
@@ -1330,7 +1356,7 @@ void main()
         reflectivity *= f;                                // ... and so do reflections
 #endif
     }
-    if (groundOne) {
+    if (groundOne && (D.mat.z & MAT_COMBINED) == 0u) {
         // (The base pass's colour, fogged as that pass fogs - the game's fog in a storm's air, or our sky's horizon -
         // times this pass's light, fogged to white: what the multiplying blend made of the two. Its albedo too, the
         // base pass's - this pass's keeps it.)
@@ -1361,7 +1387,23 @@ void main()
     // or, where it hasn't seen, the analytic sky), at their roughness. 10: two-pass foliage's soft edges (magenta) and
     // cores (green). 11: the frame lights tested and reaching per pixel.
     uint pbrDebug = uint(FL.pbr2.x + 0.5);
-    if (pbrDebug == 7u && (C.vtx.x & 0xEu) != 4u) {
+    if (pbrDebug >= 12u && pbrDebug <= 21u && terrainMapped) {
+        // 12 raw material sample, 13 material/vertex diffuse, 14 ambient,
+        // 15 directional/local diffuse, 16 shadow attenuation, 17 raw lightmap,
+        // 18 final linear RGB, 19 lightmap modulation / 2, 20 lit diffuse.
+        if (pbrDebug == 12u) {
+            TerrainMap raw = terrain;
+            current.rgb = TerrainBaseRaw(groundOne ? oneSlots.x - 1u : (D.mat.z & MAT_COMBINED) != 0u ? D.texIdx.y : D.texIdx.z,
+                bindlessSamplers[groundOne ? oneSlots.y : D.sampIdx.y], raw).rgb;
+        } else if (pbrDebug == 13u) current.rgb = vDiffuse.rgb;
+        else if (pbrDebug == 14u) current.rgb = terrainAmbient;
+        else if (pbrDebug == 15u) current.rgb = terrainDirect;
+        else if (pbrDebug == 16u) current.rgb = vec3(texShade);
+        else if (pbrDebug == 17u) current.rgb = terrainLightSample;
+        else if (pbrDebug == 19u) current.rgb = vec3(gLightmapRelief * 0.5);
+        else if (pbrDebug == 20u) current.rgb = gDiffuse.rgb;
+        else if (pbrDebug == 21u) current.rgb = vec3(gSunVisibilityValid ? gSunVisibility : 1.0);
+    } else if (pbrDebug == 7u && (C.vtx.x & 0xEu) != 4u) {
         vec3 tint = gPbrOn ? vec3(0.1, 1.0, 0.2) : (C.flags.x & F_NORMALMAP) != 0u ? vec3(0.15, 0.4, 1.0)
                   : (D.mat.z & MAT_ALBEDO) != 0u ? vec3(1.0, 0.15, 0.9) : vec3(-1.0);
         if (dot(emitted, emitted) > 1e-4)

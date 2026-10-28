@@ -9,8 +9,8 @@ verification claim.
 - Ultra selects AnarchyHD, Shared Ground+ and pebbles at density 1, with GroundOn
   off and colour grading off.
 - Shared Ground+ uses AO's regular terrain draws and the existing shared texture
-  enhancement. Its only added geometry is nearby pebbles. It adds no cliffs,
-  terrain tessellation, sand ripples, dune relighting or tile-edge blending.
+  enhancement and cliff materials. Its only added geometry is nearby pebbles.
+  It adds no terrain tessellation, sand ripples, dune relighting or tile-edge blending.
 - GroundOn overrides the shared modes when enabled. Its saved terrain tuning is
   retained. Its separate full-terrain lighting remains available for comparison;
   the pixel-equivalence claim below applies to the revised Shared Ground+.
@@ -25,7 +25,7 @@ verification claim.
 
 ## Floor identification and publication
 
-`F:/AO_SInstall/Anarchy Online/last-pick.txt` records `1010006:17` (the user's
+The installation's `last-pick.txt` records `1010006:17` (the user's
 Ctrl+Shift+I selection). The captured `rvk-frame-065817.txt`, draw 58, binds
 `rdb:17 type:1010006` as stage 1 of an `AnarchyGround_t` combined draw. The
 original database image is the bordered tread plate. Local image comparisons
@@ -74,8 +74,11 @@ worker. The original exception is not swallowed.
   exit, each during sync, frame-limit, full-queue and shutdown waits.
 - `build/shared-pebbles/validation.json`: combined and separate AO passes match
   regular Shared Ground exactly with pebbles off. Pebbles affect 194 visible
-  pixels in the fixture. Ripple/cliff controls have zero effect on Shared Ground+;
+  pixels in the fixture. Ripple controls have zero effect on Shared Ground+;
   GroundOn produces the same result regardless of the selected shared mode.
+- `build/shared-cliffs-final/validation.json`: Shared/Plus cliffs match with
+  pebbles disabled, both with cliffs enabled and disabled, in combined and
+  separate draw paths. Cliff controls now apply identically to both shared modes.
 - Production proxy settings and two restart tests pass for Ultra defaults,
   manual GroundOn override, saved terrain preferences and immediate switching.
 - `build/tree-volume/validation.json`: four original leaf masks, deterministic

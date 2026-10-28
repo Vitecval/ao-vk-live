@@ -302,7 +302,7 @@ void main()
     if (!mesh && W.ripple.x > 0.5 && rippleFade > 0.0)
         slope += Disturbance(vPos.xz, disturb) * (3.0 * W.ripple.y * rippleFade);
     float rainNear = 1.0 - smoothstep(15.0, 45.0, dist);
-    if (!mesh && W.fall2.w > 0.0 && rainNear > 0.0)   // rain falling on it (rvk rain.cpp)
+    if (!mesh && W.ripple.x >= 0.0 && W.fall2.w > 0.0 && rainNear > 0.0)   // rain falling on it (rvk rain.cpp)
         slope += RainRipples(vPos.xz, t, 0.35 + 0.6 * W.fall2.w) * (0.18 * W.fall2.w * rainNear);
     // A fall: the water runs down the sheet, in the fall's own coordinates (vFlow: unbroken over its triangles). It
     // falls as water does - from a start speed, gathering speed - so the pattern is laid out by the time the water
@@ -392,6 +392,13 @@ void main()
     float depthBelow = dR >= 1.0 ? 1e4 : max(vRest.y - bottom.y, 0.0);
     vec3 behind = texture(sceneCopy, uvR).rgb;
     vec3 behindRaw = texture(sceneCopy, uv).rgb;
+    // Only actual shallow water contacts, using the existing scene depth. A
+    // broad stationary wet band stays readable after tiny foam has filtered out.
+    if (FL.terrainFar.x>0.0 && !mesh && !under && dR<1.0 && depthBelow<1.6) {
+        float shore=1.0-smoothstep(.15,1.6,depthBelow);
+        float breakup=.75+.25*ValueNoise(bottom.xz*.12+vec2(7.3,11.1));
+        behind*=1.0-.08*shore*breakup*FL.terrainFar.x;
+    }
 
     // Caustics on the bottom: sunlit, fading with depth and gone where the bottom is in shadow.
     if (dR < 1.0 && W.look2.y > 0.0 && !under && !mesh) {
@@ -519,7 +526,9 @@ void main()
         float amount = clamp((shore * shore * 1.1 + crest * (0.8 + 0.9 * W.storm.x) + 0.25 * W.storm.x * gustHere) *
                              W.look2.x * mix(0.7, 1.0, style), 0.0, 1.0);
         foam = smoothstep(1.0 - amount, 1.0 - amount + 0.2, pattern) * amount;
-        foam *= 1.0 - smoothstep(60.0, 260.0, dist);
+        float fine=1.0-smoothstep(60.0,260.0,dist);
+        float shoreBand=shore*shore*W.look2.x*.12;
+        foam=foam*fine+shoreBand*(1.0-fine)*FL.terrainFar.x;
         vec3 foamLight = ambient + sun * (max(dot(N, L), 0.0) * shadow);
         colour = mix(colour, vec3(0.85, 0.88, 0.9) * foamLight, foam);
     }
@@ -548,7 +557,8 @@ void main()
     }
 
     // Where the surface meets the shore: fade over to what is behind, so the water has no hard line along the land.
-    float edge = dR >= 1.0 ? 1.0 : smoothstep(0.0, 0.12, path);
+    float contactWidth=.12+FL.terrainFar.x*min(1.5,max(length(dFdx(vPos)),length(dFdy(vPos)))*.6);
+    float edge = dR >= 1.0 ? 1.0 : smoothstep(0.0,contactWidth,path);
     colour = mix(behindRaw, colour, edge);
     // A steep sheet (mesh mode) fades out as the game's vertex alpha does: the sides of a body of water, where its
     // surface steps down to the shore, are see-through at their far edge (drawn opaque, they stood as blue walls).

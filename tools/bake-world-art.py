@@ -6,6 +6,7 @@ alpha from the original texture and leaves the existing ground mesh intact.
 """
 import hashlib
 import json
+import argparse
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -37,9 +38,15 @@ def save(path, pixels, size=None):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only-new', action='store_true', help='Verify and retain existing baked materials; bake new identities only.')
+    args = parser.parse_args()
     output = ROOT/'maps'
     output.mkdir(exist_ok=True)
     files, materials = {},[]
+    prior = json.loads((ROOT/'manifest.json').read_text()) if args.only_new else {}
+    prior_materials = {(x['type'],x['id']):x for x in prior.get('materials',[])}
+    baked_new = 0
     catalog=json.loads((ROOT/'catalog.json').read_text())
     city=ROOT/'city-catalog.json'
     if city.exists(): catalog+=json.loads(city.read_text())
@@ -60,6 +67,17 @@ def main():
             catalog=list(combined.values())
     for item in catalog:
         stem = f"{item['type']}_{item['id']}"
+        previous = prior_materials.get((item['type'],item['id']))
+        if previous:
+            if any(previous.get(k)!=v for k,v in item.items() if k!='review'):
+                raise RuntimeError(f'Existing material inputs changed: {stem}; review explicitly instead of rebaking it')
+            for suffix in previous['maps']:
+                name=stem+'_'+suffix+'.png'
+                if hashlib.sha256((output/name).read_bytes()).hexdigest()!=prior['files'][name]:
+                    raise RuntimeError(f'Existing map integrity failure: {name}')
+                files[name]=prior['files'][name]
+            materials.append(previous)
+            continue
         art = Image.open(ROOT/'source-art'/(item['source']+'.png')).convert('RGB')
         w,h = item['size']
         art = art.resize((w,h),Image.Resampling.LANCZOS)
@@ -80,6 +98,7 @@ def main():
         if profile == 'architectural-metal': rough[:],metallic[:] = .32,.62
         if profile == 'diffuser': rough[:],metallic[:] = .3,0
         if profile == 'fabric': rough[:],metallic[:] = .9,0
+        if profile == 'rubber': rough[:],metallic[:] = .92,0
         if profile == 'foliage': rough[:],metallic[:] = .72,0
         if profile == 'dry-foliage': rough[:],metallic[:] = .89,0
         if profile == 'dry-organic': rough[:],metallic[:] = .94,0
@@ -132,12 +151,15 @@ def main():
             files[name] = hashlib.sha256((output/name).read_bytes()).hexdigest()
         materials.append({**item,'maps':maps,'preserve_original_alpha':not terrain,
                           'review':'atlas-reviewed; live appearance and tile boundaries pending'})
+        baked_new += 1
     unexpected = {p.name for p in output.glob('*.png')}-files.keys()
     if unexpected: raise RuntimeError(f'Unexpected baked maps: {sorted(unexpected)}')
     manifest = {'name':'ao-cyber-world','version':6,'setting':'RVK_ModernTex=2',
                 'new_art_surfaces':len(materials),'materials':materials,'files':files}
-    (ROOT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-    print(f'{len(materials)} actual repaints, {len(files)} baked maps')
+    checkpoint = ROOT/'manifest.json.tmp'
+    checkpoint.write_text(json.dumps(manifest,indent=2)+'\n')
+    checkpoint.replace(ROOT/'manifest.json')
+    print(f'{len(materials)} actual repaints, {len(files)} baked maps; {baked_new} newly baked identities')
 
 
 if __name__ == '__main__': main()

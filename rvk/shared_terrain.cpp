@@ -62,6 +62,9 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
 {
     std::memset(fl->sharedGround,0,sizeof(fl->sharedGround));
     std::memset(fl->sharedGroundConfig,0,sizeof(fl->sharedGroundConfig));
+    // Independent of master-texture upload readiness: no temporary native
+    // sun/AO darkening while the five shared maps are still decoding.
+    fl->sharedGroundConfig[3]=SharedGroundPlus() ? 1.0f : 0.0f;
     if (m_native.on || m_sharedTerrain<=0 || !m_skyPlayfield) return;
     for (Texture* t:m_sharedGround.images) if (!t) return;
     for (unsigned i=0;i<5;++i) {
@@ -71,6 +74,6 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     }
     fl->sharedGroundConfig[0]=std::clamp(m_sharedTerrain,0.0f,1.0f);
     fl->sharedGroundConfig[1]=0.25f;
-    fl->sharedGroundConfig[2]=0.0f; // shared ground keeps AO's geometry; Plus adds only pebble draws
+    fl->sharedGroundConfig[2]=0.0f;
 }
 } // namespace rvk

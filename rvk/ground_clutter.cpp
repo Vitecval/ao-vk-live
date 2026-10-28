@@ -240,7 +240,8 @@ Device::ClutterBuild Device::BuildNativeClutter(std::shared_ptr<const NativeGrou
                         fromR = std::clamp(r + dz, 0, int(g.cellsZ) - 1);
                     }
                 }
-            if (made(c, r) || (cliff > 0.0f && made(fromC, fromR))) continue;
+            if (!g.CellVisible(uint32_t(c), uint32_t(r)) || made(c, r) ||
+                (cliff > 0.0f && (!g.CellVisible(uint32_t(fromC), uint32_t(fromR)) || made(fromC, fromR)))) continue;
             const float foot = (1.0f - Smoothstep(0.7f, 1.2f, s)) * Smoothstep(1.0f, 2.2f, cliff);
             const float rough = Smoothstep(0.35f, 0.75f, s) * (1.0f - Smoothstep(1.1f, 1.7f, s)) * (green(c, r) ? 0.0f : 0.3f);
             Rng rng{Hash(uint32_t(c), uint32_t(r), g.id)};

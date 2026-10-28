@@ -129,9 +129,28 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
     DestroyNativeGround();
     if (!ground || !ground->cellsX || !ground->cellsZ || !ground->patch ||
         ground->heights.size() != size_t(ground->cellsX + 1) * (ground->cellsZ + 1) ||
-        ground->codes.size() != size_t(ground->cellsX) * ground->cellsZ) {
+        ground->codes.size() != size_t(ground->cellsX) * ground->cellsZ ||
+        (!ground->hiddenCells.empty() && ground->hiddenCells.size() != ground->codes.size())) {
         if (ground) Log("native ground: playfield %u's data doesn't add up - the game's ground", ground->id);
         return;
+    }
+    // Keep visibility with the immutable height/cell snapshot. Workers never
+    // dereference live texture objects to decide whether a cell exists.
+    std::vector<bool> voidTile(ground->tiles.size(), false);
+    bool hasVoid = false;
+    for (size_t i = 0; i < ground->tiles.size(); ++i) {
+        const Texture* t = ground->tiles[i];
+        voidTile[i] = t && materials::VoidGround(t->m_rdbType, t->m_rdbId);
+        hasVoid = hasVoid || voidTile[i];
+    }
+    if (hasVoid) {
+        auto visible = std::make_shared<NativeGround>(*ground);
+        if (visible->hiddenCells.empty()) visible->hiddenCells.resize(visible->codes.size(), 0);
+        for (size_t k = 0; k < visible->codes.size(); ++k) {
+            const uint32_t tile = visible->codes[k] & 0x3FFFu;
+            if (tile < voidTile.size() && voidTile[tile]) visible->hiddenCells[k] = 1;
+        }
+        ground = visible;
     }
     const NativeGround& g = *ground;
     const uint32_t P = g.patch, W = g.cellsX + 1;
@@ -183,6 +202,7 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
             uint16_t* ix = reinterpret_cast<uint16_t*>(indices->data());
             for (uint32_t j = 0; j < P; ++j)
                 for (uint32_t i = 0; i < P; ++i) {
+                    if (!g.CellVisible(px * P + i, pz * P + j)) continue;
                     const uint16_t a = uint16_t(j * (P + 1) + i), b = uint16_t(a + 1), c = uint16_t(a + P + 1),
                                    d = uint16_t(c + 1);
                     const bool across = NativeCellAcross(v[a].y, v[b].y, v[c].y, v[d].y, std::min(g.cellX, g.cellZ));
@@ -191,6 +211,7 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
                     std::memcpy(ix, q, sizeof(q));
                     ix += 6;
                 }
+            indices->resize(size_t(reinterpret_cast<uint8_t*>(ix) - indices->data()));
             p.indices = indices;
             m_native.patches.push_back(std::move(p));
         }
@@ -208,6 +229,8 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
     Log("native ground: playfield %u, %u x %u cells of %.1f x %.1f, %zu patches of %u, %zu tiles (%u without a "
         "texture) - drawn by rvk", g.id, g.cellsX, g.cellsZ, g.cellX, g.cellZ, m_native.patches.size(), P, g.tiles.size(),
         missing);
+    Log("native ground: %zu void cells excluded from terrain and detail geometry",
+        size_t(std::count_if(g.hiddenCells.begin(), g.hiddenCells.end(), [](uint8_t v) { return v != 0; })));
 }
 
 // What the tile textures are drawn with now: each tile's albedo map (with RVK_Albedo), normal map (with normal maps
@@ -248,7 +271,7 @@ void Device::MakeNativeCodes()
         if (*t) { DestroyTexture(*t); *t = nullptr; }
     std::vector<uint32_t> image(g.tiles.size(), BindlessImage(nullptr)), normal(g.tiles.size(), 0xFFFFu),
         orm(g.tiles.size(), 0xFFFFu);
-    std::vector<bool> height(g.tiles.size(), false);   // (its normal map has a height: the code's alpha 0x7F)
+    std::vector<bool> height(g.tiles.size(), false), authored(g.tiles.size(), false);
     bool anyNormal = false;
     m_native.anyOrm = nullptr;
     m_native.anyHeight = false;
@@ -256,6 +279,7 @@ void Device::MakeNativeCodes()
         Texture* tex = g.tiles[t];
         if (!tex || !tex->m_image) continue;
         Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;
+        authored[t] = (tex->m_albedoMap && m_pbr.albedoMaps) || materials::DeckGround(tex->m_rdbType, tex->m_rdbId);
         image[t] = BindlessImage(drawn);
         if (m_pixelLighting && ((tex->m_normalMap && m_normalMaps) || materials::DeckGround(tex->m_rdbType,tex->m_rdbId))) {
             Texture* nm = materials::DeckGround(tex->m_rdbType,tex->m_rdbId) ? m_flatNormal : tex->m_normalMap;
@@ -285,7 +309,9 @@ void Device::MakeNativeCodes()
         const uint32_t tile = code & 0x3FFFu, turn = code >> 14;
         const uint32_t t = tile < image.size() ? tile : 0;
         const uint32_t img = image.empty() ? 0u : image[t];
-        codes[k] = (t < height.size() && height[t] ? 0x7F000000u : 0xFF000000u) | (img & 0xFFu) << 16 |
+        const uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
+                                    (t < authored.size() && authored[t] ? 0xBFu : 0xFFu);
+        codes[k] = attributes << 24 | (img & 0xFFu) << 16 |
                    ((img >> 8) & 0xFFu) << 8 | turn;
         means[k] = mean.empty() ? 0x00808080u : mean[t];
         if (anyMaps) {
@@ -473,16 +499,19 @@ bool Device::NativeLightRgb(float u, float v, uint8_t rgb[3]) const
 // A draw of the game's: is it its ground, replaced (drawn by this first, for its pass, once a frame)? Skipped then.
 bool Device::NativeGroundReplaces(uint32_t fvf)
 {
-    // Shared Ground+ adds stones without consuming or changing AO's ground.
-    // GroundOn alone replaces the terrain and owns its additional geometry.
+    // Both modes use this single replacement submission. Shared Ground+ selects
+    // classic lighting independently in the frame block; never overlay a second
+    // terrain surface or run the pebble/clutter passes beside the original mesh.
     if (!(m_native.on || SharedGroundPlus()) || !m_native.ground || !m_native.codes || m_native.patches.empty() || m_native.drawing)
         return false;
+    // Never replace classic illumination with the native missing-lightmap grey.
+    // Keep AO's draw until the captured lightmap arrives; GroundOn is unchanged.
+    if (SharedGroundPlus() && !m_native.lightmap) return false;
     if (m_drawVisualKind != uint32_t(VisualKind::Terrain) || !IsTerrain(fvf))
         return false;
     const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
     const bool light = m_rs[d3d::RS_LIGHTING] && IsMultiplyPass();
     const bool combined = IsCombinedTerrainPass();
-    const bool overlay = SharedGroundPlus();
     // Retail combines (lightmap + diffuse) * base in one opaque draw. The old
     // path consumed it without drawing either pass, leaving a hole in the world.
     // Unknown passes, or an unavailable replacement, always retain AO's draw.
@@ -490,7 +519,7 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
         return false;
     if (combined) {
         if (m_native.drawnLight == m_frameNumber)
-            return !overlay;
+            return true;
         EnsurePebbleTable();
         if (NativeMapsSignature() != m_native.mapsSignature) MakeNativeCodes();
         if (!m_native.codes) return false;
@@ -503,17 +532,21 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
         m_native.baseSampler = StageSamplerSlot(1);
         // DrawNativeGroundOne supplies the native tile table in the spare base
         // slot; a second retail stage would multiply the base in a second time.
-        m_tss[1][d3d::TSS_COLOROP] = d3d::TOP_DISABLE;
-        m_textures[1] = nullptr;
+        if (!SharedGroundPlus()) {
+            m_tss[1][d3d::TSS_COLOROP] = d3d::TOP_DISABLE;
+            m_textures[1] = nullptr;
+        }
         m_native.drawnBase = m_native.drawnLight = m_frameNumber;
         if (m_scenePhase && !m_external) NoteSceneFog();
-        m_native.pebblesOnly = overlay;
+        m_native.pebblesOnly = false;
+        m_native.combinedPass = true;
         DrawNativeGroundOne();
+        m_native.combinedPass = false;
         m_native.pebblesOnly = false;
         m_tss = tss;
         m_textures[1] = tex1;
         m_constantsDirty = true;
-        return !overlay;
+        return true;
     }
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber)
         EnsurePebbleTable();                     // (which cells are sand: the means' texture, made again once it is)
@@ -523,12 +556,12 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     if ((base || light) && m_native.drawnBase != m_frameNumber && m_native.drawnLight != m_frameNumber)
         PollNativeSky();
     if (base && m_native.drawnBase != m_frameNumber) {
-        m_native.pebblesOnly = overlay;
+        m_native.pebblesOnly = false;
         m_native.drawnBase = m_frameNumber;
         // One pass (RVK_GroundOne): deferred to the lighting pass, which draws the ground once, its texture and its
         // light together - while the ground had a lighting pass last frame (this one's is then all but sure to come
         // right after), per-pixel lit into the HDR scene. The scene's fog and ambient noted now, from this pass.
-        if (!overlay && m_groundOnePass && m_pixelLighting && m_target == m_scene && m_scene && m_target->m_format == Format::RGBA16F &&
+        if (m_groundOnePass && m_pixelLighting && m_target == m_scene && m_scene && m_target->m_format == Format::RGBA16F &&
             m_native.drawnLight + 1 == m_frameNumber) {
             m_native.basePending = true;
             m_native.baseRs = m_rs;
@@ -543,13 +576,13 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
             DrawNativeGround(false);
         }
     } else if (light && m_native.drawnLight != m_frameNumber) {
-        m_native.pebblesOnly = overlay;
+        m_native.pebblesOnly = false;
         m_native.drawnLight = m_frameNumber;
         if (m_native.basePending) DrawNativeGroundOne();
         else DrawNativeGround(true);
     }
     m_native.pebblesOnly = false;
-    return !overlay;
+    return true;
 }
 
 // The ground in one pass (RVK_GroundOne): its lighting pass's state - lights, lightmap, fog - drawn as its base pass
@@ -635,6 +668,7 @@ void Device::DrawNativeGround(bool lightPass)
     const d3d::Matrix vp = MulMatrix(m_view, m_proj);
     uint32_t drawn = 0;
     if (!m_native.pebblesOnly) for (const NativePatch& p : m_native.patches) {
+        if (p.indices->empty()) continue;
         bool outside[6] = {true, true, true, true, true, true};
         for (int k = 0; k < 8; ++k) {
             // (A unit round it: the tessellation's shape and rock move the ground that far at most.)
@@ -661,7 +695,7 @@ void Device::DrawNativeGround(bool lightPass)
             d2 += d * d;
         }
         m_native.tessPatch = d2 < kNativeTessDistance * kNativeTessDistance;
-        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, p.indices, m_native.indexCount);
+        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, p.indices, uint32_t(p.indices->size() / 2));
         ++drawn;
     }
     if (!m_native.pebblesOnly) DrawNativeClutter(vp);

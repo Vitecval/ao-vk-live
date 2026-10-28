@@ -14,8 +14,18 @@ __pycache__/
 *.pdb
 .vs/
 .vscode/
-# Exclude large texture artwork
-material-packs/**/source-art/
-material-packs/**/maps/
-material-packs/**/generated/
-material-packs/**/output/
+
+# Local artwork and deterministic baking outputs stay outside Git history.
+/material-packs/*/source-art/
+/material-packs/*/maps/
+*.log
+*.dmp
+*.cache
+*.pyc
+*.tmp
+*.bak
+/randy-vk.ini
+/ao-vk-live.install.json
+/last-pick.txt
+
+# Renderer assets under rvk/assets are required build inputs, not optional packs.

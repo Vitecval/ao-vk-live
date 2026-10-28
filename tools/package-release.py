@@ -25,8 +25,8 @@ def digest(path):
     return h.hexdigest()
 
 
-def archive(folder):
-    result = Path(str(folder) + '.zip')
+def archive(folder, result=None):
+    result = Path(result) if result is not None else Path(str(folder) + '.zip')
     with zipfile.ZipFile(result, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for path in sorted(folder.rglob('*')):
             if path.is_file():
@@ -34,12 +34,29 @@ def archive(folder):
     return result
 
 
+def launcher(action):
+    return (
+        '@echo off\r\n'
+        'set "AO_VK_POWERSHELL=%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"\r\n'
+        'if exist "%SystemRoot%\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe" set "AO_VK_POWERSHELL=%SystemRoot%\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe"\r\n'
+        f'"%AO_VK_POWERSHELL%" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0setup-live.ps1" -Action {action}\r\n'
+        'set "result=%errorlevel%"\r\n'
+        'if not "%result%"=="0" pause\r\n'
+        'exit /b %result%\r\n'
+    ).encode('ascii')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', default='0.1.0')
     parser.add_argument('--build-dir', type=Path, default=ROOT / 'build/windows-release')
     parser.add_argument('--output-dir', type=Path)
+    parser.add_argument('--full-only', action='store_true', help='Build only Full HD and its checksum; skip Lite and all source export/archive work.')
+    parser.add_argument('--lite-only', action='store_true', help='Add Lite to an existing matching Full HD release without rebuilding Full or exporting source.')
+    parser.add_argument('--no-source', action='store_true', help='Package player editions only, with no source export or source ZIP.')
     args = parser.parse_args()
+    if args.full_only and args.lite_only:
+        parser.error('Choose either --full-only or --lite-only.')
     if not re.fullmatch(r'\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?', args.version):
         parser.error('Use a version such as 0.1.0 or 0.1.0-preview.1')
     build = args.build_dir.resolve()
@@ -47,46 +64,55 @@ def main():
         if not (build / name).is_file():
             parser.error(f'Missing built file: {build / name}')
     out = args.output_dir or ROOT / 'dist/releases' / args.version
-    out.mkdir(parents=True, exist_ok=False)
+    if args.lite_only:
+        full = out / f'ao-vk-live-{args.version}-windows-x86-full'
+        prior = json.loads((full/'manifest.json').read_text())
+        if prior['version'] != args.version or prior['edition'] != 'full' or not Path(str(full)+'.zip').is_file():
+            parser.error('Lite-only requires the existing matching Full HD folder and ZIP.')
+        if any(digest(build/name) != prior['addon'][name] for name in ['ao-vk.dll','ddraw.dll']):
+            parser.error('Built renderer/loader differ from the existing validated Full HD release.')
+    else:
+        out.mkdir(parents=True, exist_ok=False)
     prefix = f'ao-vk-live-{args.version}'
     player = out / (prefix + '-windows-x86-full')
     lite = out / (prefix + '-windows-x86-lite')
     source = out / (prefix + '-source')
-    player.mkdir()
-    source.mkdir()
+    common = lite if args.lite_only else player
+    common.mkdir()
+    if not (args.full_only or args.lite_only or args.no_source):
+        source.mkdir()
     for name in ['ao-vk.dll', 'ddraw.dll']:
-        shutil.copy2(build / name, player / name)
+        shutil.copy2(build / name, common / name)
     for name in ['install-live.ps1', 'setup-live.ps1']:
-        shutil.copy2(ROOT / 'tools' / name, player / name)
+        shutil.copy2(ROOT / 'tools' / name, common / name)
     for name in ['LICENSE', 'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']:
-        shutil.copy2(ROOT / name, player / name)
-    shutil.copytree(ROOT / 'licenses', player / 'licenses')
-    (player / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md']:
-        shutil.copy2(ROOT / 'docs' / name, player / 'docs' / name)
-    shutil.copy2(ROOT / 'material-packs/scan-coverage.json', player / 'docs/scan-coverage.json')
-    shutil.copy2(ROOT / 'material-packs/building-families.json', player / 'docs/building-families.json')
+        shutil.copy2(ROOT / name, common / name)
+    shutil.copytree(ROOT / 'licenses', common / 'licenses')
+    (common / 'docs').mkdir()
+    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
+        shutil.copy2(ROOT / 'docs' / name, common / 'docs' / name)
+    shutil.copy2(ROOT / 'material-packs/scan-coverage.json', common / 'docs/scan-coverage.json')
+    shutil.copy2(ROOT / 'material-packs/building-families.json', common / 'docs/building-families.json')
+    for name in ['preview16-validation.md']:
+        if (ROOT/'docs'/name).exists():shutil.copy2(ROOT/'docs'/name,common/'docs'/name)
     readme = (ROOT / 'docs/repository-readme.md').read_text(encoding='utf-8').replace('0.1.0', args.version)
-    (player / 'README.md').write_text(readme, encoding='utf-8')
+    (common / 'README.md').write_text(readme, encoding='utf-8')
     for action in ['Install', 'Update', 'Uninstall']:
-        (player / f'{action}.cmd').write_bytes((
-            '@echo off\r\n'
-            f'powershell.exe -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0setup-live.ps1" -Action {action}\r\n'
-            'set "result=%errorlevel%"\r\n'
-            'if not "%result%"=="0" pause\r\n'
-            'exit /b %result%\r\n'
-        ).encode('ascii'))
+        (common / f'{action}.cmd').write_bytes(launcher(action))
     spec = importlib.util.spec_from_file_location('live_preflight', ROOT / 'tools/live-preflight.py')
     preflight = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(preflight)
     known = json.loads((ROOT / 'release/known-builds.json').read_text(encoding='utf-8-sig'))
     manifest = {'product': 'AO-VK Live', 'version': args.version, 'build': prefix,
                 'client': preflight.EXPECTED,
-                'addon': {name: digest(player / name) for name in ['ao-vk.dll', 'ddraw.dll']},
+                'addon': {name: digest(common / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
-    shutil.copytree(player,lite)
+    if not (args.full_only or args.lite_only):
+        shutil.copytree(player,lite)
     editions=[]
     for edition,destination in [('full',player),('lite',lite)]:
+        if args.full_only and edition!='full': continue
+        if args.lite_only and edition!='lite': continue
         edition_manifest=dict(manifest,edition=edition,assets={},optionalTexturePack=edition=='full')
         for pack_name in ['ao-modern-icc','ao-cyber-icc','ao-cyber-characters','ao-cyber-world']:
             pack=ROOT/'material-packs'/pack_name
@@ -111,7 +137,12 @@ def main():
             (pack_dest/'manifest.json').write_text(json.dumps(selected,indent=2)+'\n')
             shutil.copy2(pack/'README.md',pack_dest/'README.md')
             if edition=='full':
+                if pack_name=='ao-cyber-world':
+                    for name in ['building-families.json','rubika-worklist.json','art-publication.json']:
+                        shutil.copy2(ROOT/'material-packs'/name,pack_dest/name)
                 for item in sorted(pack.glob('*catalog.json')):
+                    shutil.copy2(item,pack_dest/item.name)
+                for item in sorted(pack.glob('preview16*prompts.json')):
                     shutil.copy2(item,pack_dest/item.name)
                 # Authoring atlases are provenance, never an extra geometry pass.
                 for atlas in sorted((pack/'source-art').glob('*atlas*.png')):
@@ -121,6 +152,15 @@ def main():
             edition_manifest['assets'].update({p.relative_to(destination).as_posix():digest(p) for p in sorted(pack_dest.rglob('*')) if p.is_file()})
         (destination/'manifest.json').write_text(json.dumps(edition_manifest,indent=2)+'\n',encoding='utf-8')
         editions.append(destination)
+    if args.full_only or args.lite_only or args.no_source:
+        results=[archive(folder) for folder in editions]
+        if args.lite_only:results.append(Path(str(player)+'.zip'))
+        for result in results:
+            if result.stat().st_size>=2**31:raise RuntimeError(f'GitHub release asset exceeds 2 GiB: {result}')
+        (out/'SHA256SUMS.txt').write_text(''.join(f'{digest(result)}  {result.name}\n' for result in sorted(results)),encoding='ascii')
+        for result in results:print(f'{result} ({result.stat().st_size / 1048576:.2f} MiB)')
+        print(out/'SHA256SUMS.txt')
+        return
     derived=json.loads((ROOT/'release/derived-art.json').read_text())
     for directory in SOURCE_DIRS:
         for path in sorted((ROOT / directory).rglob('*')):

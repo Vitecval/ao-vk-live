@@ -370,7 +370,9 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
         return "1 (Shared Ground+)";
     if ((std::strcmp(s.name,"RVK_GroundAo")==0 || std::strcmp(s.name,"RVK_GroundSun")==0 ||
          std::strcmp(s.name,"RVK_DuneLight")==0 || std::strcmp(s.name,"RVK_GroundBlend")==0 ||
-         std::strcmp(s.name,"RVK_CliffTex")==0 || std::strcmp(s.name,"RVK_CliffRock")==0) &&
+         std::strcmp(s.name,"RVK_SandRipple")==0 || std::strcmp(s.name,"RVK_RippleDepth")==0 ||
+         std::strcmp(s.name,"RVK_SandGlint")==0 || std::strcmp(s.name,"RVK_SandPrints")==0 ||
+         std::strcmp(s.name,"RVK_WaterRipple")==0) &&
         rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
     if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
         return v>0 ? "AnarchyHD" : "Original";

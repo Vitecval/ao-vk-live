@@ -131,7 +131,9 @@ $apply.Add_Click({
         $form.Refresh()
         $arguments = @{ ClientDir = $path.Text; PackageDir = $PackageDir }
         $arguments.ProgressCallback = {
-            param($message, $percent)
+            # Negative command arguments can arrive as strings in Windows
+            # PowerShell. Bind numerically before comparing the marquee marker.
+            param([string]$message, [int]$percent = -1)
             $status.Text = $message
             $downloadProgress.Visible = $true
             if ($percent -ge 0) { $downloadProgress.Style = 'Continuous'; $downloadProgress.Value = [Math]::Min(100, $percent) }

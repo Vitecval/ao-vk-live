@@ -1,5 +1,11 @@
 # AO-VK Live Preview 21 — Window Interiors & Expanded HD Textures
 
+**Setup fix — 2 November 2026:** If setup reports that `Value of '-1' is not
+valid for 'Value', download and extract a fresh Lite or Full HD Setup ZIP from
+this release, then run Install.cmd again. The corrected setup handles Install,
+Update and Uninstall. Your existing graphics settings are preserved. Previously
+downloaded material ZIPs are unchanged and can be reused.
+
 An experimental graphics upgrade for the **classic Anarchy Online live client**.
 Choose one download below; both editions include the same renderer and window interiors.
 

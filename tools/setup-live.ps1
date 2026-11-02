@@ -48,10 +48,12 @@ function Find-AoFolders {
 $folders = @(Find-AoFolders)
 if ($ListCandidates) { $folders; return }
 $fullHdSetup = $false
+$memoryOptionAvailable = $false
 $setupManifest = Join-Path $PackageDir 'manifest.json'
 if (Test-Path -LiteralPath $setupManifest) {
     $setupInfo = Get-Content -LiteralPath $setupManifest -Raw | ConvertFrom-Json
     $fullHdSetup = [bool]$setupInfo.materialDownload
+    $memoryOptionAvailable = [bool]$setupInfo.largeAddressAware -and [Environment]::Is64BitOperatingSystem
 }
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -59,7 +61,8 @@ Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
 $form = New-Object Windows.Forms.Form
 $form.Text = 'AO-VK Live Setup'
-$form.ClientSize = New-Object Drawing.Size(680, 360)
+if ($setupInfo.setupRevision) { $form.Text += ' - Setup ' + [string]$setupInfo.setupRevision }
+$form.ClientSize = New-Object Drawing.Size(680, 400)
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
@@ -103,25 +106,34 @@ $operation.DropDownStyle = 'DropDownList'
 $operation.Items.AddRange(@('Install', 'Update', 'Uninstall'))
 $operation.SelectedItem = $Action
 $form.Controls.Add($operation)
-$null = Add-Text "Close AO and its launcher first. Game files and preferences are preserved.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 220 626 50
-$status = Add-Text '' 26 282 440 55
+$memory = New-Object Windows.Forms.CheckBox
+$memory.Text = 'Allow up to 4 GB memory (recommended)'
+$memory.SetBounds(26, 211, 626, 28)
+$memory.Checked = $memoryOptionAvailable
+$memory.Enabled = $memoryOptionAvailable -and $Action -ne 'Uninstall'
+$form.Controls.Add($memory)
+$tip = New-Object Windows.Forms.ToolTip
+$tip.SetToolTip($memory, 'For 64-bit Windows. Recognized executables are backed up before changes. Existing AOSharp/AOPP patches are preserved. Uninstall restores only changes made by this setup.')
+$null = Add-Text "Close AO and its launcher first. Settings are preserved; 4 GB changes are backed up.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 243 626 46
+$status = Add-Text '' 26 296 440 62
 $status.ForeColor = [Drawing.Color]::DarkSlateGray
 $downloadProgress = New-Object Windows.Forms.ProgressBar
-$downloadProgress.SetBounds(26, 344, 440, 10)
+$downloadProgress.SetBounds(26, 384, 440, 10)
 $downloadProgress.Visible = $false
 $form.Controls.Add($downloadProgress)
 $script:setupBusy = $false
 $form.Add_FormClosing({ if ($script:setupBusy) { $_.Cancel = $true } })
 $apply = New-Object Windows.Forms.Button
 $apply.Text = $Action
-$apply.SetBounds(482, 296, 170, 38)
+$apply.SetBounds(482, 336, 170, 38)
 $form.Controls.Add($apply)
-$operation.Add_SelectedIndexChanged({ $apply.Text = [string]$operation.SelectedItem })
+$operation.Add_SelectedIndexChanged({ $apply.Text = [string]$operation.SelectedItem; $memory.Enabled = $memoryOptionAvailable -and $operation.SelectedItem -ne 'Uninstall' })
 $apply.Add_Click({
     $apply.Enabled = $false
     $browse.Enabled = $false
     $path.Enabled = $false
     $operation.Enabled = $false
+    $memory.Enabled = $false
     $script:setupBusy = $true
     try {
         if (!$path.Text -or !(Test-Path -LiteralPath (Join-Path $path.Text 'AnarchyOnline.exe'))) {
@@ -130,6 +142,7 @@ $apply.Add_Click({
         $status.Text = 'Checking files...'
         $form.Refresh()
         $arguments = @{ ClientDir = $path.Text; PackageDir = $PackageDir }
+        if (!$memory.Checked) { $arguments.DisableLargeAddressAware = $true }
         $arguments.ProgressCallback = {
             # Negative command arguments can arrive as strings in Windows
             # PowerShell. Bind numerically before comparing the marquee marker.
@@ -143,12 +156,15 @@ $apply.Add_Click({
         }
         if ($operation.SelectedItem -eq 'Update') { $arguments.Upgrade = $true }
         if ($operation.SelectedItem -eq 'Uninstall') { $arguments.Uninstall = $true }
-        & (Join-Path $PSScriptRoot 'install-live.ps1') @arguments | Out-Null
+        $setupOutput = @(& (Join-Path $PSScriptRoot 'install-live.ps1') @arguments)
+        $setupResult = $setupOutput | Where-Object { $_.AoVkSetupResult } | Select-Object -Last 1
         if ($operation.SelectedItem -eq 'Uninstall') {
-            $message = 'AO-VK Live was removed. Your settings and game files were preserved.'
+            $message = 'AO-VK Live was removed. Your settings were preserved. Installer-owned 4 GB changes were restored where files still match.'
         } else {
             $message = "Ready. Start AO normally and select Primary Display Driver.`r`nIn-game options: Ctrl+Shift+F12. Grass is enabled by default."
         }
+        if ($setupResult.memoryStatus) { $message += "`r`n`r`n" + $setupResult.memoryStatus }
+        if ($setupResult.memoryWarnings) { $message += "`r`n`r`n" + ($setupResult.memoryWarnings -join "`r`n") }
         $status.Text = 'Finished.'
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live', 'OK', 'Information')
     } catch {
@@ -163,6 +179,7 @@ $apply.Add_Click({
         $browse.Enabled = $true
         $path.Enabled = $true
         $operation.Enabled = $true
+        $memory.Enabled = $memoryOptionAvailable -and $operation.SelectedItem -ne 'Uninstall'
         $script:setupBusy = $false
         $downloadProgress.Visible = $false
     }
@@ -180,3 +197,4 @@ if ($PreviewPath) {
     $bitmap.Dispose()
 } else { $null = $form.ShowDialog() }
 $form.Dispose()
+$tip.Dispose()

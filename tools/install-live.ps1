@@ -4,6 +4,7 @@ param(
     [string]$LoaderDir = '',
     [switch]$Upgrade,
     [switch]$Uninstall,
+    [switch]$DisableLargeAddressAware,
     [scriptblock]$ProgressCallback
 )
 $ErrorActionPreference = 'Stop'
@@ -43,6 +44,7 @@ if (!$LoaderDir -and !$receipt -and (Test-Path -LiteralPath (Join-Path $client '
     $candidate = Join-Path $env:APPDATA 'AOPP'
     if (Test-Path -LiteralPath (Join-Path $candidate 'AnarchyOnline.exe')) { $LoaderDir = $candidate }
 }
+$loader = ''
 if ($LoaderDir) {
     $loader = [IO.Path]::GetFullPath($LoaderDir)
     if (!$Uninstall -and !(Test-Path -LiteralPath (Join-Path $loader 'AnarchyOnline.exe'))) { throw 'The extra loader folder must contain AnarchyOnline.exe.' }
@@ -71,6 +73,16 @@ foreach ($relative in $assetHashes.Keys) {
     $oldHash = $(if ($receipt -and $receipt.assets) { $receipt.assets.$relative })
     $fileSpecs[$target] = @{ relative = $relative; hash = $newHash; oldHash = $oldHash; asset = $true; retire = (!$newHash -and !$Uninstall) }
     $targets += $target
+}
+$memoryPlan = @{ records=@(); changes=@(); warnings=@(); status='Left unchanged' }
+if ($manifest.largeAddressAware -or $receipt.largeAddressAware) {
+    . (Join-Path $PSScriptRoot 'large-address-aware.ps1')
+    $memoryPlan = Get-AoLaaPlan $client $loader $manifest.largeAddressAware $receipt (!$DisableLargeAddressAware) ([bool]$Uninstall)
+    foreach ($change in $memoryPlan.changes) {
+        if ($fileSpecs.ContainsKey($change.target)) { throw 'Duplicate executable memory-patch target.' }
+        $fileSpecs[$change.target] = $change
+        $targets += $change.target
+    }
 }
 function Test-OwnedHash($Target, $Hash) {
     $spec = $fileSpecs[$Target]
@@ -131,9 +143,21 @@ if ($Uninstall) {
     }
     # Move all files out of the loader search path before deleting any, so a locked file can be rolled back.
     $removed = @{}
+    $restoreStages = @{}
+    $restored = @()
     try {
         foreach ($target in $targets) {
+            if ($fileSpecs[$target].restore) {
+                $temp = $target + '.restoring-' + [guid]::NewGuid().ToString('N')
+                $restoreStages[$target] = $temp
+                [IO.File]::WriteAllBytes($temp, $fileSpecs[$target].bytes)
+                if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Executable restoration staging failed.' }
+            }
+        }
+        foreach ($target in $targets) {
+            if ($fileSpecs[$target].executable -and !(Test-Path -LiteralPath $target)) { throw 'An executable disappeared during uninstall; retry after the game updater has finished.' }
             if (Test-Path -LiteralPath $target) {
+                if ($fileSpecs[$target].special -and !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) { throw 'An executable or memory backup changed during uninstall; nothing was removed.' }
                 $temp = $target + '.uninstalling-' + [guid]::NewGuid().ToString('N')
                 Move-Item -LiteralPath $target -Destination $temp
                 $removed[$target] = $temp
@@ -144,12 +168,22 @@ if ($Uninstall) {
             Move-Item -LiteralPath $receiptPath -Destination $temp
             $removed[$receiptPath] = $temp
         }
+        foreach ($target in $restoreStages.Keys) {
+            Move-Item -LiteralPath $restoreStages[$target] -Destination $target
+            $restored += $target
+        }
     } catch {
+        foreach ($target in $restored) {
+            if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) { Remove-Item -LiteralPath $target }
+        }
         foreach ($target in $removed.Keys) { Move-Item -LiteralPath $removed[$target] -Destination $target }
         throw
+    } finally {
+        foreach ($temp in $restoreStages.Values) { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp } }
     }
     foreach ($temp in $removed.Values) { Remove-Item -LiteralPath $temp }
     Write-Output 'AO-VK addon removed. The original renderer was never changed.'
+    Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })
     return
 }
 foreach ($item in $manifest.client.PSObject.Properties) {
@@ -180,7 +214,7 @@ foreach ($target in $targets) {
 }
 foreach ($target in $targets) {
     if (Test-Path -LiteralPath $target) {
-        if (!$Upgrade) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
+        if (!$Upgrade -and !$fileSpecs[$target].special) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
         $name = Split-Path -Leaf $target
         $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
         $owned = Test-OwnedHash $target $hash
@@ -223,6 +257,7 @@ $record = [ordered]@{
     addon = $manifest.addon
     assets = $manifest.assets
     edition = $manifest.edition
+    largeAddressAware = @($memoryPlan.records)
 }
 $targets += $receiptPath
 try {
@@ -239,6 +274,9 @@ try {
         $staged += $temp
         if ($target -ieq $receiptPath) {
             [IO.File]::WriteAllText($temp, ($record | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
+        } elseif ($fileSpecs[$target].special) {
+            [IO.File]::WriteAllBytes($temp, $fileSpecs[$target].bytes)
+            if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Executable memory-patch staging verification failed.' }
         } else {
             Copy-Item -LiteralPath (Join-Path $package $fileSpecs[$target].relative) -Destination $temp
             if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
@@ -249,7 +287,9 @@ try {
     for ($i = 0; $i -lt $targets.Count; $i++) {
         if ($ProgressCallback -and $i % 128 -eq 0) { & $ProgressCallback "Installing verified files: $i / $($targets.Count)" -1 }
         $target = $targets[$i]
+        if ($fileSpecs[$target].executable -and !(Test-Path -LiteralPath $target)) { throw 'An executable disappeared during installation; retry after the game updater has finished.' }
         if (Test-Path -LiteralPath $target) {
+            if ($fileSpecs[$target].special -and !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) { throw 'An executable or memory backup changed during installation.' }
             $backup = $target + '.upgrade-' + [guid]::NewGuid().ToString('N')
             Move-Item -LiteralPath $target -Destination $backup
             $backups[$target] = $backup
@@ -274,3 +314,4 @@ try {
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
+Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })

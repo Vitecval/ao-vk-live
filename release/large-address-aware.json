@@ -1,0 +1,8 @@
+{
+  "format": 1,
+  "clientBuild": "classic live 18.8.62_EP1",
+  "gameSha256": "370c0670cc9cb46626ef24692376aaf492bb1787bad8a1125365a6be4f663862",
+  "launcherBeforeSha256": "27e702a1ef7ed24e4d443844d252d53c9f614cfb76fe7795afae2f0ec64d6f12",
+  "launcherAfterSha256": "6eb24ff355361ff1fc789389aa1be4e5f6a8aa568ed994f9149ccbd763342fd0",
+  "launcherOffset": 11200
+}

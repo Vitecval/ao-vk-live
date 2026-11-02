@@ -23,7 +23,7 @@ active for the selected installation and shared loaders.
 
 Updates leave byte-identical DLLs in place. An unrelated client may therefore keep an unchanged shared loader open; replacing or uninstalling a shared loader still requires closing its users.
 
-**Keep the official `randy31.dll` in place.** No `randy31_orig.dll`, patched executable, checksum edits, or manual server arguments are needed. Start with the normal official launcher or your normal quick launcher. The official launcher and patcher use the system renderer. The addon activates only in the actual `AnarchyOnline.exe` game process with the supported classic renderer.
+**Keep the official `randy31.dll` in place.** No `randy31_orig.dll` or manual server arguments are needed. Setup's optional **Allow up to 4 GB memory** setting backs up and patches only recognized classic executable files, including launcher compatibility; uncheck it to retain executable contents. Existing AOSharp/AOPP patches are preserved. See [4 GB memory support](large-address-aware.md) for backup and uninstall behavior. Start with the normal official launcher or your normal quick launcher. The official launcher and patcher use the system renderer. The addon activates only in the actual `AnarchyOnline.exe` game process with the supported classic renderer.
 
 Use this loader by itself; a pre-existing dgVoodoo, D7VK, or other `ddraw.dll` cannot occupy the same filename. The installer refuses to overwrite one. Do not copy the optional PRK AOReloaded `version.dll` as part of this package.
 

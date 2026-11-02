@@ -98,7 +98,7 @@ def main():
         source.mkdir()
     for name in ['ao-vk.dll', 'ddraw.dll']:
         shutil.copy2(build / name, common / name)
-    for name in ['install-live.ps1', 'setup-live.ps1', 'material-parts.ps1', 'material-download.ps1']:
+    for name in ['install-live.ps1', 'setup-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
         shutil.copy2(ROOT / 'tools' / name, common / name)
     if args.version=='0.6.0-preview.21':
         shutil.copy2(build/'ao-vk-cache-warm.exe',common/'ao-vk-cache-warm.exe')
@@ -106,7 +106,7 @@ def main():
         shutil.copy2(ROOT / name, common / name)
     shutil.copytree(ROOT / 'licenses', common / 'licenses')
     (common / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
+    for name in ['live-client.md', 'large-address-aware.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
         shutil.copy2(ROOT / 'docs' / name, common / 'docs' / name)
     shutil.copy2(ROOT / 'material-packs/scan-coverage.json', common / 'docs/scan-coverage.json')
     shutil.copy2(ROOT / 'material-packs/building-families.json', common / 'docs/building-families.json')
@@ -127,6 +127,7 @@ def main():
                 'client': preflight.EXPECTED,
                 'addon': {name: digest(common / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
+    manifest['largeAddressAware'] = json.loads((ROOT / 'release/large-address-aware.json').read_text(encoding='utf-8'))
     if args.version=='0.6.0-preview.21':manifest['cacheWarmup']=dict(helper='ao-vk-cache-warm.exe',sha256=digest(common/'ao-vk-cache-warm.exe'),relativeCache='randy-vk-preview21-v9-living.cache')
     if not (args.full_only or args.lite_only):
         shutil.copytree(player,lite)

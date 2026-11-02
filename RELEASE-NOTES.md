@@ -1,5 +1,12 @@
 # AO-VK Live Preview 21 — Window Interiors & Expanded HD Textures
 
+**Setup 2 — 4 GB memory support:** Lite and Full HD now offer **Allow up to 4 GB
+memory (recommended)** on 64-bit Windows. Setup backs up recognized game/launcher
+executables before changes, preserves existing AOSharp/AOPP patches, and restores
+its own changes on uninstall when the files still match. This helps address
+32-bit memory pressure. No game executable is distributed. Uncheck the option
+to keep executable contents unchanged. See docs/large-address-aware.md.
+
 **Setup fix — 2 November 2026:** If setup reports that `Value of '-1' is not
 valid for 'Value', download and extract a fresh Lite or Full HD Setup ZIP from
 this release, then run Install.cmd again. The corrected setup handles Install,
@@ -26,7 +33,8 @@ and interrupted downloads can resume. No extra download manager or software is n
 3. When setup finishes, launch AO normally and select **Primary Display Driver**.
 4. Press **Ctrl+Shift+F12** in game to open the graphics options.
 
-Your graphics settings, personal packs and original game files are preserved.
+Your graphics settings and personal packs are preserved. Original game DLLs stay
+unchanged; optional 4 GB executable changes are backed up and recorded for uninstall.
 Setup verifies every pack before a transactional update and rolls back if the
 update fails. First-time graphics-card preparation can take one or two minutes.
 Allow roughly 10 GiB free for downloads, textures and safe installation staging.

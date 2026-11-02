@@ -22,7 +22,11 @@ and interrupted downloads can resume. No extra download manager or software is n
 3. When setup finishes, launch AO normally and select **Primary Display Driver**.
 4. Press **Ctrl+Shift+F12** in game to open the graphics options.
 
-Your graphics settings, personal packs and original game files are preserved.
+The recommended **Allow up to 4 GB memory** option backs up recognized game and
+launcher executables before changes and preserves existing AOSharp/AOPP patches.
+Uncheck it to retain executable contents. See [4 GB memory support](docs/large-address-aware.md).
+
+Your graphics settings and personal packs are preserved; original game DLLs stay unchanged.
 Setup verifies every pack before a transactional update and rolls back if the
 update fails. First-time graphics-card preparation can take one or two minutes.
 Allow roughly 10 GiB free for downloads, textures and safe installation staging.

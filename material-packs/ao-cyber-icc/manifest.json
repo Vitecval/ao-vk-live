@@ -425,14 +425,19 @@
       "name": "icc_hirise_windows_blue_ab_d.png",
       "group": "icc",
       "profile": "glass",
-      "source": null,
+      "source": "overnight-20261028-1010004_297811-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -440,14 +445,19 @@
       "name": "factory_pipetop.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6017-v1",
       "size": [
-        1024,
-        1024
+        256,
+        128
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -470,14 +480,19 @@
       "name": "factory_bigpipe.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6026-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -502,14 +517,19 @@
       "name": "factory_6pipeendpart.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6041-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -517,14 +537,19 @@
       "name": "midtech_roofpipe_plate1.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_8632-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -549,14 +574,19 @@
       "name": "hitech_ventwallgrid.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_8634-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -564,14 +594,19 @@
       "name": "midtech_roofpipe_techieplate.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_8635-v1",
       "size": [
-        1024,
-        1024
+        256,
+        128
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -579,14 +614,19 @@
       "name": "midtech_roofpipe_topfastener.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_8636-v1",
       "size": [
-        1024,
-        1024
+        256,
+        128
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -594,14 +634,19 @@
       "name": "hitech_ventwallplate.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_8637-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -656,14 +701,19 @@
       "name": "factory_metal_small_pipe.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_21546-v1",
       "size": [
-        1024,
-        1024
+        64,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -701,14 +751,19 @@
       "name": "factory_metal_bigpipe_broken.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_21743-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -716,14 +771,19 @@
       "name": "factory_bigbluepipe.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_30287-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch003",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -748,14 +808,19 @@
       "name": "pipes_darkmetal_straigth3.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_78405-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -763,14 +828,19 @@
       "name": "pipes_darkmetal_straigth.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_78408-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -778,14 +848,19 @@
       "name": "pipes_darkmetal_straigth5.png",
       "group": "pipes",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_78410-v1",
       "size": [
-        1024,
-        1024
+        128,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -1116,14 +1191,19 @@
       "name": "hitechlamp_platepartfront.png",
       "group": "picked",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6660-v1",
       "size": [
-        1024,
-        1024
+        64,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -1131,14 +1211,19 @@
       "name": "hitechlamp_platebottomlamp.png",
       "group": "picked",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6658-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -1146,14 +1231,19 @@
       "name": "hitechlamp_plateparttop.png",
       "group": "picked",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6661-v1",
       "size": [
-        1024,
-        1024
+        256,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -1161,14 +1251,19 @@
       "name": "hitechlamp_smallplate.png",
       "group": "picked",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6656-v1",
       "size": [
-        1024,
-        1024
+        256,
+        64
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -1176,14 +1271,19 @@
       "name": "hitechlamp_smallplatetop.png",
       "group": "picked",
       "profile": "metal",
-      "source": null,
+      "source": "overnight-20261028-1010004_6659-v1",
       "size": [
-        1024,
-        1024
+        64,
+        256
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Reviewed new artwork; original ICC provider and ORM response retained; live fit pending."
     },
     {
       "type": 1010004,
@@ -2279,7 +2379,7 @@
       ]
     }
   ],
-  "new_art_surfaces": 17,
+  "new_art_surfaces": 37,
   "files": {
     "1010004_14870_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_156581_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
@@ -2469,6 +2569,46 @@
     "1010006_71_orm.png": "9a034f9ad69157aeee4bbaba883fc8ed0fa4ce65ea2f0d744a0cc3eeeb4bfd27",
     "1010006_7_orm.png": "39e5546502a5a948432c87f012759e0adba905fd556306507181db129eda4818",
     "1010006_942_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626",
-    "1010006_943_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626"
+    "1010006_943_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626",
+    "1010004_6656_d.png": "729668c0758cda8310fd2151116b5b490dfb0441ca2762c88e2ee69d57db78d7",
+    "1010004_6656_n.png": "961c2d83193f2561e2c6b8505e8a8985f3aa6d88f114f7b5bd0302e4353bb891",
+    "1010004_6658_d.png": "9999fce0169ffdee182641d044b0d6cd2b59fac79836bbf242fcabda3b17df32",
+    "1010004_6658_n.png": "99f45ae79a3ae6849953da636b1b43d372f810bc7ef91cd15b4d8efabdbc16a5",
+    "1010004_6659_d.png": "4cf936518fcf12d3dfdd32fea87a0934dde05b424db228ee0d46e9f9cc163996",
+    "1010004_6659_n.png": "f6fe43836bd7f1e6922cbfbf84e826ee4734f461855c4ec3921e7e78e9d8a391",
+    "1010004_6660_d.png": "12a7ad9aa619043450c19d10910466e8c90c6d06861564173e5ba57cc0025f60",
+    "1010004_6660_n.png": "5ff04b0746955f67c69e75f41a6f23e6327aca65a2af2fb6d99eec7f2ac6c85e",
+    "1010004_6661_d.png": "d44886b551c70e255e6b28d4be4d73c1e7c843cadce85edd1825d886e1b5db34",
+    "1010004_6661_n.png": "e1bf34264979e7ca7fd6ed3d3ee50fe8b7aa7953adfff783abd8407b0c6b4821",
+    "1010004_297811_d.png": "b6e834a74a2bfd0cbb6c5c76d4973f42916df5f57ddcd7d201cec9b0790850f7",
+    "1010004_297811_n.png": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c",
+    "1010004_6017_d.png": "e0b6958ea92fa7a97d6f14d9dc59974434c2a14b303ef4202be692ac568fb443",
+    "1010004_6017_n.png": "d7831eadba4d7b72878cb6fb79273989a879e336a5d3c16e4b7b9b3840706618",
+    "1010004_6026_d.png": "daef729c1df838737511b4be766512290653f78c3f0cfc0f220e8a5e7a2d3de3",
+    "1010004_6026_n.png": "38068c91c00619bbc05395b0addfd77fd4a3a10c47529f968df7701d335d407d",
+    "1010004_6041_d.png": "515caaff7646270e4debd89e970f08f967e690f2c63acfd992ca9c707f7da700",
+    "1010004_6041_n.png": "17d711382dd4f0b941ee4c26648e0f2f8cc837abfe9f0dc2c41e52a12831ea01",
+    "1010004_8632_d.png": "72c09a83042f33b51343f860afeea1651a3d3fc3bfe4082918f7c22c1d3fa6a9",
+    "1010004_8632_n.png": "5d4186b5fdc2a2fe85bb57b80911787b65419f3d84f9103959fb11cb2ed4c575",
+    "1010004_8634_d.png": "976e5ab3693d5dc230f5e8719e3359d4933d2e2eab9a67a9de2eae4fb1e17d54",
+    "1010004_8634_n.png": "092e6461c97b4340df70d868cf059d22f6605a75c921a4420ddc05c81b33582b",
+    "1010004_8635_d.png": "e1d9b7c02c863156724601800232e056e25c5a670bfe34e84048bd097cc20220",
+    "1010004_8635_n.png": "4e3e5f8a7f03070b32e9fc8a87654e4da7ace08a46e5db4640a689cc4768162a",
+    "1010004_8636_d.png": "71e59b104d99abdc52a0d6e7c506911645b0fa2f60d069d86e4f741fe4dbb121",
+    "1010004_8636_n.png": "00c2d18918d343183eefe4d943ea577b02d80a298c730a73a2ce1f38b79b8433",
+    "1010004_8637_d.png": "46d40fe808c0652c6faf2d47fc1ef401f058c3ad8057ba4093a9bb7da1b999de",
+    "1010004_8637_n.png": "77c4b52d0a8bb38539ef25352d68e0f1dfb47066288ad12b0e55aaef2d19354a",
+    "1010004_21546_d.png": "70e01ea6e5767585a8cc013dd73a57bdf78574684592baab9b2b09a4f97d2b81",
+    "1010004_21546_n.png": "9401d404b99aad8d4e2e60af7e6961325ba27f8a885e9287da19721c59f5e3dd",
+    "1010004_21743_d.png": "c8f59590efd0c8e052389788b1984fd701dafb54a69d7d7711219ae08dacd9b3",
+    "1010004_21743_n.png": "3488268a89726e70800354d1fca48647b11e60e87392f04c45c245ccfcefe7a9",
+    "1010004_30287_d.png": "a085bc24066a4fa1ee076cb887b14e0969cd1e47bcaeeb5e24596f9919fa55a4",
+    "1010004_30287_n.png": "1030bb788a4a5e7ac8ba2d45c55a1bd89255025ee126d62c895fcc2cc1d13242",
+    "1010004_78405_d.png": "8bc7ba1fa90fbb68ef743b3bc391f1f2372689448ab68b8893708a50bc644280",
+    "1010004_78405_n.png": "19411998c0628b568b3934732199df2fe3ebefac49aa48c3177e5816dbe62310",
+    "1010004_78408_d.png": "199ed8f54d512c1f5ecb72d555c3051c084e931a9f2763defc1397f51936c016",
+    "1010004_78408_n.png": "8f350cedafe661f593f9420f68f8b337ad60a03fe7d0483321ad3e8592ef343a",
+    "1010004_78410_d.png": "f978c04bcadd2f4347e1036ffbbfd452e384c5c645db6a9c8126f2ab2639165c",
+    "1010004_78410_n.png": "ec9b58a532bbe0e6bf27e99ffd337ae552c3d2e2d31d2cc738230a7a72417fa6"
   }
 }

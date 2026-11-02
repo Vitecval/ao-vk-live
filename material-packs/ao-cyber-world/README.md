@@ -1,5 +1,11 @@
 # AO Cyber World artwork pack
 
+Preview 20 contains **6,625 material records**, including **6,625 repaint records**, and **20,036 runtime maps** in this pack. Counts across packs overlap; the release-wide unique total is in RELEASE-NOTES.md and TEXTURE-INVENTORY.json. Existing original-art policies and original alpha remain active. Full HD carries the optional library; Lite carries its core ground subset.
+
+## Historical production notes
+
+The notes below describe earlier individual batches, not the current library totals.
+
 Current Preview 16.1 coverage is recorded in the manifests and release notes:
 4,380 indexed full-quality repaint IDs across the retained library, 621 more
 than Preview 15, with 35 fully covered recorded families and three partial.
@@ -70,7 +76,7 @@ Leaf RGB extends behind the original runtime cutout mask, with natural material
 response and single-leaf veins where required. All 389 earlier world maps are
 byte-identical. This remains partial coverage of the wider capture inventory.
 
-Choose **Materials → World texture style → Cyberpunk**. These IDs are shared, so
+Choose **Materials â†’ World texture style â†’ Cyberpunk**. These IDs are shared, so
 the artwork appears wherever AO uses them; it is not restricted to Newland or ICC.
 Classic HD retains the earlier ICC pack. Original removes the optional authored
 world/ICC artwork. Personal overrides keep priority. Original architecture alpha

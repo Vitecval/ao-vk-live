@@ -18,6 +18,10 @@
 
 namespace rvk::skin {
 
+namespace { std::atomic<uint64_t> nextSkinSerial{1}; }
+Palette::Palette() : serial(nextSkinSerial.fetch_add(1, std::memory_order_relaxed)) {}
+Job::Job() : serial(nextSkinSerial.fetch_add(1, std::memory_order_relaxed)) {}
+
 Palette::~Palette()
 {
     _aligned_free(bones);

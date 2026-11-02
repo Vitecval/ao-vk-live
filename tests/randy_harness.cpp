@@ -1597,6 +1597,7 @@ int main(int argc, char** argv)
     bool materialPressureTest = false;               // reserve address space while optional artwork loads
     bool sharedTerrainLoaderTest = false;
     bool terrainSettingsTest=false;
+    bool preview21SettingsTest=false;
     int terrainSettingsRestart=-1;
     std::vector<void*> pressureReservations;
     bool characterMaterialsTest = false;
@@ -1640,6 +1641,7 @@ int main(int argc, char** argv)
         else if (a == "--cyber-pack-test") { cyberPackTest = modernPackTest = true; }
         else if (a == "--material-pressure-test") { materialPressureTest = cyberPackTest = modernPackTest = true; }
         else if (a=="--terrain-settings-test") terrainSettingsTest=true;
+        else if (a=="--preview21-settings-test") preview21SettingsTest=true;
         else if (a=="--terrain-settings-restart" && i+1<argc) terrainSettingsRestart=std::atoi(argv[++i]);
         else if (a == "--shared-terrain-loader-test") {sharedTerrainLoaderTest=true;frames=std::max(frames,700);}
         else if (a == "--character-materials-test") characterMaterialsTest = true;
@@ -1778,6 +1780,31 @@ int main(int argc, char** argv)
     TestProcessVertices(render);
     if (g_materials) TestMaterials();
     if (g_texture) TestTextureStream();   // before the first present: in the frame=1 call log window
+    if (preview21SettingsTest) {
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        auto count=Export<uint32_t(__cdecl*)()>("RvkSettings_Count");
+        auto get=Export<int(__cdecl*)(uint32_t,RvkSettingInfo*)>("RvkSettings_Get");
+        auto preset=Export<int(__cdecl*)(uint32_t)>("RvkPresets_Apply");
+        auto value=[&](const char* name,bool defaults=false){
+            for(uint32_t i=0;i<count();++i){RvkSettingInfo info{};info.size=sizeof(info);if(get(i,&info)&&std::strcmp(info.name,name)==0)return defaults?info.defaultValue:info.value;}
+            return -999.f;
+        };
+        auto check=[&](bool ok,const char* why){if(!ok){std::printf("Preview 21 settings FAILED: %s\n",why);std::exit(3);}};
+        check(value("RVK_WindowDepth",true)==1,"new Medium windows default");
+        auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");
+        for(const char* name:{"RVK_LivePeople","RVK_LiveDrones","RVK_AirTraffic","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"}){
+            set(name,3);check(value(name)==-999.f&&effective(name)==0,"private-asset features hidden and blocked even with saved experimental settings");
+        }
+        for(int style:{0,2})for(uint32_t quality:{1u,2u,3u}){
+            set("RVK_ModernTex",float(style));set("RVK_TerrainHD",0);set("RVK_BuildingHD",1);
+            check(preset(quality)!=0,"preset applies");
+            check(value("RVK_ModernTex")==style&&value("RVK_TerrainHD")==0&&value("RVK_BuildingHD")==1,"texture choices survive every quality preset");
+            check(value("RVK_WindowDepth")==float(quality==3?2:1),"quality-specific window defaults");
+        }
+        set("RVK_WindowDepth",2);set("RVK_LivePeople",0);
+        check(value("RVK_WindowDepth")==2&&effective("RVK_LivePeople")==0,"manual Strong/Off overrides remain available");
+        std::puts("Preview 21 settings passed: presets, independent texture choices, new defaults and custom overrides");
+    }
     if (terrainSettingsTest || terrainSettingsRestart>=0) {
         auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
         auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");

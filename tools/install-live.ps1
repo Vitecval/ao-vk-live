@@ -3,9 +3,13 @@ param(
     [string]$PackageDir = $PSScriptRoot,
     [string]$LoaderDir = '',
     [switch]$Upgrade,
-    [switch]$Uninstall
+    [switch]$Uninstall,
+    [scriptblock]$ProgressCallback
 )
 $ErrorActionPreference = 'Stop'
+# Prefer this PowerShell host's built-in modules when launched from another host.
+$env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
+
 # Match the 32-bit game: 64-bit Windows PowerShell can return only the WOW64
 # loader modules, hiding randy31.dll and falsely identifying another client.
 if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
@@ -59,7 +63,7 @@ if ($manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
 }
 foreach ($relative in $assetHashes.Keys) {
-    if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+    if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Invalid optional material pack path or hash.'
     }
     $target = Join-Path $client $relative
@@ -79,13 +83,17 @@ function Test-OwnedHash($Target, $Hash) {
 }
 $unchangedTargets = @()
 $changingTargets = @()
+$checkedTargets = 0
 foreach ($target in $targets) {
+    $checkedTargets++
+    if ($ProgressCallback -and $checkedTargets % 250 -eq 0) { & $ProgressCallback "Checking existing files: $checkedTargets / $($targets.Count)" -1 }
     $name = Split-Path -Leaf $target
     if (!$Uninstall -and (Test-Path -LiteralPath $target) -and
         (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) {
         $unchangedTargets += $target
     } else { $changingTargets += $target }
 }
+function Assert-AoClientClosed {
 foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness')) {
     # Windows can keep terminated processes in its list while another program holds a handle.
     foreach ($running in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
@@ -108,6 +116,8 @@ foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness
         }
     }
 }
+}
+Assert-AoClientClosed
 if ($Uninstall) {
     foreach ($target in $targets) {
         $name = Split-Path -Leaf $target
@@ -155,8 +165,15 @@ foreach ($name in @('ddraw.dll', 'ao-vk.dll')) {
         throw "Package integrity check failed for $name."
     }
 }
+if ($manifest.materialParts) {
+    . (Join-Path $PSScriptRoot 'material-parts.ps1')
+    Expand-AoMaterialParts $package $manifest $client $ProgressCallback
+}
+$verifiedSourceFiles = 0
 foreach ($target in $targets) {
     $spec = $fileSpecs[$target]
+    $verifiedSourceFiles++
+    if ($ProgressCallback -and $verifiedSourceFiles % 128 -eq 1) { & $ProgressCallback "Verifying textures and files: $verifiedSourceFiles / $($targets.Count)" -1 }
     if ($spec.asset -and !$spec.retire -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
         throw "Package integrity check failed for $($spec.relative)."
     }
@@ -177,6 +194,21 @@ foreach ($target in $unchangedTargets) {
         throw 'A graphics file changed during the preflight checks. Try the update again.'
     }
 }
+# Prepare mandatory pipelines explicitly during installation, never in the first
+# populated scene. Only source-built code is shipped; the cache stays on this GPU.
+if ($manifest.cacheWarmup) {
+    $warm = $manifest.cacheWarmup
+    if ($warm.helper -ne 'ao-vk-cache-warm.exe' -or $warm.relativeCache -ne 'randy-vk-preview21-v9-living.cache') { throw 'Invalid cache preparation descriptor.' }
+    $helper = Join-Path $package $warm.helper
+    if ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash -ine $warm.sha256) { throw 'Cache preparation helper integrity failed.' }
+    Write-Output 'Preparing this release on your graphics card. This may take one or two minutes; AO is not started.'
+    if ($ProgressCallback) { & $ProgressCallback 'Preparing your graphics card (one or two minutes on first use)...' -1 }
+    Assert-AoClientClosed
+    & $helper --cache (Join-Path $client $warm.relativeCache)
+    if ($LASTEXITCODE -ne 0) { throw 'GPU cache preparation failed. Renderer files were not changed.' }
+}
+Assert-AoClientClosed
+if ($ProgressCallback) { & $ProgressCallback 'Installing verified files safely...' -1 }
 $targets = @($changingTargets)
 $staged = @()
 $installed = @()
@@ -194,7 +226,10 @@ $record = [ordered]@{
 }
 $targets += $receiptPath
 try {
+    $stagingFiles = 0
     foreach ($target in $targets) {
+        $stagingFiles++
+        if ($ProgressCallback -and $stagingFiles % 128 -eq 1) { & $ProgressCallback "Preparing installation: $stagingFiles / $($targets.Count)" -1 }
         $name = Split-Path -Leaf $target
         if (!(Test-Path -LiteralPath (Split-Path -Parent $target))) {
             New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
@@ -210,7 +245,9 @@ try {
         }
         $stageHashes[$target] = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
     }
+    Assert-AoClientClosed
     for ($i = 0; $i -lt $targets.Count; $i++) {
+        if ($ProgressCallback -and $i % 128 -eq 0) { & $ProgressCallback "Installing verified files: $i / $($targets.Count)" -1 }
         $target = $targets[$i]
         if (Test-Path -LiteralPath $target) {
             $backup = $target + '.upgrade-' + [guid]::NewGuid().ToString('N')

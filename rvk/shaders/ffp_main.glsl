@@ -176,6 +176,8 @@ vec3 SurfaceNoise(vec2 p)
                 mix(b-a,e-d,u.y)*du.x, mix(d-a,e-b,u.x)*du.y);
 }
 
+#include "weathering.glsl"
+#include "windows.glsl"
 bool gSurfaceReady = false;
 float gSurfaceHeight = 0.0;
 float gSurfaceMacro = 0.0;
@@ -962,6 +964,7 @@ void main()
                 gLightmapRelief *= mix(1.0,ratio,visibility);
             }
         }
+        if (D.weather.x>0.0) n=WeatherNormal(n);
         // PBR material: its maps, and the specular lobe the lights below use (lighting.glsl gPbr*). The ground's
         // lighting pass takes its chunk's base texture's material (MAT_BASE), read with the base's coordinates.
         gPbrOn = (D.mat.z & MAT_PBR) != 0u && FL.pbr2.y > 0.5 && (C.flags.x & F_SHADOWCHEAP) == 0u;
@@ -1017,6 +1020,11 @@ void main()
             // Specular anti-aliasing: how much the normal turns across the pixel widens the highlight (Kaplanyan /
             // Tokuyoshi), so small bright highlights don't sparkle on curved or bumpy surfaces in the distance.
             vec3 dnx = dFdx(gPbrNormal), dny = dFdy(gPbrNormal);
+            if (D.weather.x > 0.0) {
+                gPbrAlbedo = WeatherColour(gPbrAlbedo);
+                gPbrRough = clamp(gPbrRough + WeatherMask() * .38, .03, 1.0);
+                gPbrMetal *= 1.0 - WeatherMask() * .65;
+            }
             float a2 = gPbrRough * gPbrRough * gPbrRough * gPbrRough;
             a2 = clamp(a2 + min(0.5 * (dot(dnx, dnx) + dot(dny, dny)), 0.18), 1e-6, 1.0);
             gPbrAlpha = sqrt(a2);
@@ -1139,6 +1147,10 @@ void main()
         if ((D.mat.z & MAT_COMBINED) != 0u) t1.rgb = GlobalSurfaceColour(t1.rgb);
         else if ((C.flags.x & F_LIGHTING) == 0u) t0.rgb = GlobalSurfaceColour(t0.rgb);
     } else if (WorldMaterialKind() != 0u) t0.rgb = GlobalSurfaceColour(t0.rgb);
+    if (D.weather.x > 0.0) {
+        if(WeatherStage1()) t1.rgb = WeatherColour(t1.rgb);
+        else t0.rgb = WeatherColour(t0.rgb);
+    }
     if (terrainBasePass) t0.rgb = TerrainVariation(t0.rgb, vPosW, terrain);
     if (terrainBasePass && TerrainNative()) {
         // (The grit where the parallax met the ground: its cells' coordinates moved, the world point with them.)
@@ -1235,6 +1247,7 @@ void main()
             }
         }
     }
+    if (D.windows.x > 0.0) current.rgb = WindowInterior(current.rgb);
     // One glow per surface. On a surface the game lights itself (F_EMISSIVE: drawn unlit, or an emissive material -
     // signs, windows, screens) the night glow alone: by night its bright texels shine beyond white, for the bloom
     // (FL.effects.y, RVK_NightGlow), and an emissive map, when it has one, only says where - in place of "bright" -
@@ -1450,6 +1463,10 @@ void main()
     // before it behind it no longer glows through it.
     if ((C.flags.x & (F_GLOW | F_GLOWALPHA)) == F_GLOWALPHA)
         outGlow = vec4(0.0, 0.0, 0.0, (C.flags.x & F_BLENDED) != 0u ? clamp(current.a, 0.0, 1.0) : 1.0);
+    if (D.windows.x > 0.0) {
+        vec3 windowLight = gWindowGlow * fogF;
+        outGlow = vec4(windowLight,dot(windowLight,vec3(.3,.59,.11))*gl_FragCoord.w);
+    }
     // Blended with this fragment's alpha like the colour (attachment 2's blend state follows the colour's).
     outLocal = vec4(gLocalFraction, clamp(reflectivity, 0.0, 1.0), gSunShare, current.a);
     // Motion vectors (written by depth-writing draws only, see the blend state): where this point was last frame.
@@ -1497,6 +1514,7 @@ void main()
     // the temporal anti-aliasing spreads it - dark and coloured blobs jumping about the floor round it (the subway,
     // user 2026-10-19: in its tiles' grooves). Black instead, that pixel only.
     if (any(isnan(current)) || any(isinf(current))) current = vec4(0.0, 0.0, 0.0, any(isnan(current.aaaa)) ? 1.0 : current.a);
+    if (D.weather.x>0.0 && (uint(D.weather.y)&8u)!=0u) current.rgb=mix(vec3(.16,.08,.02),vec3(.06,1.0,.12),smoothstep(.015,.12,WeatherMask()));
     current.rgb = max(current.rgb, vec3(0.0));
     outColor = current;
 }

@@ -23,6 +23,7 @@ GetPlayfieldFn g_getPlayfield = nullptr;
 GetResourceIdFn g_getResourceId = nullptr;
 IsGroundFn g_isGround = nullptr;
 bool g_gaveUp = false;
+uint32_t g_contextId=~0u;bool g_contextOutdoor=false;const void* g_contextPlayfield=nullptr;uint64_t g_contextGeneration=0;
 const void* g_lastPlayfield = reinterpret_cast<const void*>(1);
 uint32_t g_lastId = ~0u;
 rvk::ThreadedDevice* g_lastDevice = nullptr;
@@ -51,8 +52,9 @@ bool Resolve()
 void StatelFrame()
 {
     rvk::ThreadedDevice* dev = g_rvk.device;
-    if (g_gaveUp || !dev || !Resolve())
-        return;
+    if(!dev)return;
+    const bool living=rvk_settings::GetEffective("RVK_LivePeople")>=1||rvk_settings::GetEffective("RVK_LiveDrones")>=1||rvk_settings::GetEffective("RVK_AirTraffic")>=1||rvk_settings::GetEffective("RVK_LiveWild")>=1||rvk_settings::GetEffective("RVK_LiveMachine")>=1||rvk_settings::GetEffective("RVK_LiveAtmos")>=1;
+    if(g_gaveUp||!Resolve()){if(living)dev->SetLivingContext(0,false,g_contextGeneration);return;}
     const void* pf = g_getPlayfield();
     uint32_t id = 0;
     bool ground = false;
@@ -62,6 +64,9 @@ void StatelFrame()
         id = identity[1];
         ground = g_isGround(pf, nullptr);
     }
+    if(id!=g_contextId||ground!=g_contextOutdoor||pf!=g_contextPlayfield){++g_contextGeneration;g_contextId=id;g_contextOutdoor=ground;g_contextPlayfield=pf;}
+    // Heartbeat also initializes a recreated renderer whose address happens to match its predecessor.
+    if(living)dev->SetLivingContext(id,pf&&ground,g_contextGeneration);
     if (pf == g_lastPlayfield && id == g_lastId && dev == g_lastDevice)
         return;
     g_lastPlayfield = pf;

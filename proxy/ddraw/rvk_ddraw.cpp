@@ -141,10 +141,10 @@ bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
         return device->Resize(width, height);
     }
     rvk::SetLogSink([](const char* line) { RvkLog("rvk: %s", line); });
-    {   // the pipeline cache next to randy-vk.ini (the client folder)
+    {   // Keep the combined shader build isolated from production and either experiment cache.
         std::string cache = rvk_settings::IniPath();
         size_t slash = cache.find_last_of("\\/");
-        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk.cache";
+        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk-preview21-v9-living.cache";
         rvk::SetPipelineCachePath(cache.c_str());
     }
     device = new rvk::ThreadedDevice;
@@ -320,6 +320,12 @@ bool RvkState::Frame()
 {
     if (device && window && !device->InFrame() && WindowDrawable())
     {
+        // Cosmetic context must precede this frame's queued draws; a post-present update is a frame late on zoning.
+        if(rvk_settings::GetEffective("RVK_LivePeople")>=1||rvk_settings::GetEffective("RVK_LiveDrones")>=1||
+           rvk_settings::GetEffective("RVK_AirTraffic")>=1||rvk_settings::GetEffective("RVK_LiveWild")>=1||
+           rvk_settings::GetEffective("RVK_LiveMachine")>=1||rvk_settings::GetEffective("RVK_LiveAtmos")>=1){
+            StatelFrame();GroundFrame();
+        }
         PollMaterialMaps(); // publish completed uploads before this frame can draw
         device->BeginFrame();
     }

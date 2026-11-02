@@ -32,8 +32,8 @@ enhanced surface textures and their original layout remain. Their saved values a
 unchanged and resume when returning to ordinary Shared Ground. Terrain controls
 show the effective automatic state. See [the fix and validation](shared-ground-plus-fix.md).
 
-**Colour grading → Brighter daylight look** (`RVK_DayLook`, default 0) is
-off by default, including Ultra. Try 0.6–0.8 to brighten shadows/midtones and
+**Colour grading â†’ Brighter daylight look** (`RVK_DayLook`, default 0) is
+off by default, including Ultra. Try 0.6â€“0.8 to brighten shadows/midtones and
 reduce warmth, golden-hour and night tint. HDR is required. This changes the
 presentation without setting the game clock or weather. Highlight glare
 reduction still follows it, and the interface is composed separately.
@@ -51,7 +51,7 @@ Ultra now selects Shared Ground+; daylight grading stays off. Decks/plaza paving
 
 ## Global terrain and building passes
 
-**Materials → Global terrain detail** (`RVK_TerrainHD`, 0..1) adds fine colour and
+**Materials â†’ Global terrain detail** (`RVK_TerrainHD`, 0..1) adds fine colour and
 normal detail in world coordinates to actual terrain draws, including unnamed
 tiles and the live combined lightmap path. It keeps the original biome colours,
 transition boundaries and terrain mesh. Details fade before becoming subpixel,
@@ -78,7 +78,7 @@ no glass transmission, room geometry or ray tracing is added.
 The optional `ao-cyber-world` pack adds **20 actual repaints**: 15 architecture
 textures, including the picked twin-window facade and its related cladding/pipes,
 plus 5 picked gravel/soil/rock/grass-transition tiles. Choose **World texture style
-→ AnarchyHD**. Shared IDs change wherever AO uses them. Window panes, framing and
+â†’ AnarchyHD**. Shared IDs change wherever AO uses them. Window panes, framing and
 walls have authored distinct material regions. The original ground mesh remains;
 leave experimental replacement ground disabled. Normal/ORM maps use reduced
 resolution to limit memory; one full-quality set of the 63 maps is about 91 MB on
@@ -105,7 +105,7 @@ layouts were reviewed; model fit still needs live confirmation.
 
 ## Character and equipment foundation
 
-**Materials → Character & equipment materials** (`RVK_AutoMat`, off by default)
+**Materials â†’ Character & equipment materials** (`RVK_AutoMat`, off by default)
 adds inferred material defaults to 3,661 identified character/equipment texture
 IDs. Skin and fabric stay non-metallic; leather, polymers and selected metal
 equipment receive distinct roughness/metallic responses. Of these, 1,718 unresolved
@@ -141,7 +141,7 @@ optional material cannot fit, its existing maps remain; changing the style later
 retries it. Replacement ground disabled also skips its whole-playfield texture
 preload. Grass over the game's original terrain uses captured visible draws.
 
-Open **Ctrl+Shift+F12 → Materials → World texture style**:
+Open **Ctrl+Shift+F12 â†’ Materials â†’ World texture style**:
 
 | Selection | Saved value | Result |
 |---|---|---|
@@ -175,7 +175,7 @@ remains necessary. The original combined ground
 draw now reads its normal/PBR maps from the actual stage-1 base texture and adds
 highlights once. Normal maps and reflections work without replacing the ground mesh.
 
-**Effects → Highlight glare reduction** (`RVK_SoftHi`, default 0.75) softens bright
+**Effects â†’ Highlight glare reduction** (`RVK_SoftHi`, default 0.75) softens bright
 world surfaces after grading, including pale stone/plaster lit by direct sunlight.
 It preserves dark tones, sky, interface and additive lamps. Zero restores the
 previous highlight response. Known natural rock/lava surfaces are also forced
@@ -196,3 +196,12 @@ loading cancellation, master Enhancements, ground maps and texture-quality varia
 Headless GPU checks exercise live's combined ground path. Live appearance and UV
 alignment still need comparison on the actual scene; screen-space reflections cannot
 show unseen objects and the fallback probe is an approximation.
+
+
+Preview 19 preserves every Preview 18 runtime map and imports 1,445 independently
+validated worker texture-ID bindings through the existing catalogs and incremental baking flow.
+The Full HD player ZIP contains all 19,968 runtime maps with their existing
+formats and resolution, plus provenance records and source-art hashes. Authoring
+images remain in the production source library; they are not runtime dependencies.
+No new native terrain-cell overrides are enabled. Experimental tree replacement
+renderers and geometry are excluded.

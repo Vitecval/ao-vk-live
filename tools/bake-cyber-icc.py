@@ -6,6 +6,7 @@ from albedo replacement, so coverage and new-art coverage can be audited indepen
 """
 import hashlib
 import json
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -25,6 +26,12 @@ def save(path, values):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--add-art', help='Comma-separated existing ORM-only world IDs receiving reviewed diffuse/normal art; preserve every existing map.')
+    args = parser.parse_args()
+    if args.add_art:
+        add_art([int(x) for x in args.add_art.split(',')])
+        return
     output = ROOT / 'maps'
     output.mkdir(exist_ok=True)
     catalog = json.loads((ROOT / 'catalog.json').read_text())
@@ -122,6 +129,50 @@ def main():
     (ROOT / 'manifest.json').write_text(json.dumps({'name': 'ao-cyber-icc', 'version': 1,
         'setting': 'RVK_ModernTex=2', 'materials': summary, 'new_art_surfaces': replaced, 'files': files}, indent=2) + '\n')
     print(f'{len(summary)} material assignments, {replaced} new-art surfaces, {len(files)} baked maps')
+
+
+def add_art(identities):
+    """Add artwork to explicit material-only providers without rebaking their ORM."""
+    manifest = json.loads((ROOT / 'manifest.json').read_text())
+    catalog = {(x['type'], x['id']): x for x in json.loads((ROOT / 'catalog.json').read_text())}
+    original_files = dict(manifest['files'])
+    for name, wanted in original_files.items():
+        if hashlib.sha256((ROOT / 'maps' / name).read_bytes()).hexdigest() != wanted:
+            raise RuntimeError(f'Existing ICC map changed: {name}')
+    for identity in identities:
+        item = catalog[1010004, identity]
+        previous = next(x for x in manifest['materials'] if x['type'] == 1010004 and x['id'] == identity)
+        if previous.get('source') == item['source'] and 'd' in previous['maps']:
+            continue
+        if previous['maps'] != ['orm'] or previous.get('source') is not None or not item.get('source'):
+            raise RuntimeError(f'Only explicit material-only upgrades are supported: {identity}')
+        if item['profile'] != previous['profile']:
+            raise RuntimeError(f'ICC material response must remain unchanged: {identity}')
+        stem = f'1010004_{identity}'
+        art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB').resize(tuple(item['size']), Image.Resampling.LANCZOS)
+        art.save(ROOT / 'maps' / (stem + '_d.png'), optimize=True)
+        grey = art.convert('L')
+        lum = np.asarray(grey, dtype=np.float32) / 255
+        smooth = np.asarray(grey.filter(ImageFilter.GaussianBlur(2)), dtype=np.float32) / 255
+        detail = np.clip(lum - smooth, -.15, .15)
+        dy, dx = np.gradient(detail)
+        strength = 0 if item['profile'] == 'glass' else .65
+        normal = np.stack((-dx * strength, dy * strength, np.ones_like(dx)), axis=2)
+        normal /= np.linalg.norm(normal, axis=2, keepdims=True)
+        save(ROOT / 'maps' / (stem + '_n.png'), normal * .5 + .5)
+        for suffix in ['d', 'n']:
+            name = stem + '_' + suffix + '.png'
+            manifest['files'][name] = hashlib.sha256((ROOT / 'maps' / name).read_bytes()).hexdigest()
+        previous.update(source=item['source'], size=item['size'], maps=['orm', 'd', 'n'], preserve_original_alpha=True,
+                        batch=item.get('batch'), review='Reviewed new artwork; original ICC provider and ORM response retained; live fit pending.')
+    for name, wanted in original_files.items():
+        if manifest['files'][name] != wanted or hashlib.sha256((ROOT / 'maps' / name).read_bytes()).hexdigest() != wanted:
+            raise RuntimeError(f'ICC upgrade changed an existing map: {name}')
+    manifest['new_art_surfaces'] = sum('d' in x['maps'] for x in manifest['materials'])
+    checkpoint = ROOT / 'manifest.json.tmp'
+    checkpoint.write_text(json.dumps(manifest, indent=2) + '\n')
+    checkpoint.replace(ROOT / 'manifest.json')
+    print(f'{len(identities)} reviewed ICC artwork upgrades; all {len(original_files)} earlier maps preserved')
 
 
 if __name__ == '__main__':

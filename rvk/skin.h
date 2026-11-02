@@ -43,7 +43,8 @@ struct Palette {
     };
     Columns* bones = nullptr;
     uint32_t count = 0, capacity = 0;
-    Palette() = default;
+    const uint64_t serial;                    // unique lifetime: allocator addresses can be reused within a frame
+    Palette();
     Palette(const Palette&) = delete;
     Palette& operator=(const Palette&) = delete;
     ~Palette();
@@ -75,6 +76,8 @@ struct Source {
 // the piece until the game skins it again; the vertices are skinned once, by whoever needs them first (the renderer
 // for a draw, the game's thread when it reads the buffer back).
 struct Job {
+    const uint64_t serial;                    // unique lifetime for renderer caches, independent of its address
+    Job();
     std::shared_ptr<const Source> source;
     std::shared_ptr<const Palette> bones;
     std::shared_ptr<const Palette> prevBones;    // the piece's bones before (motion vectors); null: none

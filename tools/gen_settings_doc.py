@@ -86,7 +86,10 @@ def main():
     by_name = {s["name"]: s for s in settings}
     knobs = set(re.findall(r'^\s*X\((\w+),', open(RVK_H, encoding="utf-8").read(), re.M))
 
+    living_available = "ReleaseContentAvailable = true" in open(os.path.join(ROOT,"rvk","living_release.h"),encoding="utf-8").read()
+
     def hidden(s):
+        if s["section"] == "Living Rubi-Ka" and not living_available: return True
         if s["section"] == "Debug" or s["name"] in always_on or s["name"] in hidden_list:
             return True
         p = s["parent"]
@@ -115,7 +118,9 @@ def main():
            "  the console (the key left of 1) takes any setting by name, with or without `RVK_` (`darkness 1`, `bloom 0.5`).",
            "- `RVK_Enhance` off gives the game's own look: each setting takes its *game value* (below) while the stored values",
            "  stay. A feature's on / off switch (its *switch* below) does the same for the settings under it.",
-           "- Presets (Original, Classic+, Modern, Ultra) set every setting outside General; Modern is the defaults.",
+           "- Presets preserve texture-library and HD-surface choices. Classic+ and Modern use Medium windows; Ultra uses Maximum.",
+           "- Ctrl+Shift+F12 opens standalone options: important controls first; Enter expands related settings.",
+           "- Living compatibility keys are inactive in Preview 21 because their current resources cannot be distributed.",
            "- A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.",
            "- *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).", "",
            f"{len(settings)} settings, {sum(1 for s in settings if not hidden(s))} of them in the settings window.", ""]

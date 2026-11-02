@@ -1,5 +1,6 @@
 // rvk backend: IDirect3DDevice7 and IDirect3DVertexBuffer7.
 #include "rvk_backend.h"
+#include "rvk_settings.h"
 #include "native/mesh.h"
 #include "native/scene.h"
 #include "native/device.h"
@@ -700,12 +701,17 @@ void NoteVisual(rvk::ThreadedDevice* dev)
         return;
     static const void* last = reinterpret_cast<const void*>(1);
     static int32_t lastList = -2;
+    static uint64_t boundsFrame=~uint64_t(0);
     const void* visual = rnative::scene::CurrentVisual();
     const int32_t list = rnative::scene::CurrentList();
-    if (visual == last && list == lastList)
-        return;
+    if (visual == last && list == lastList) {
+        if(boundsFrame==g_rvk.presentCount)return;
+        boundsFrame=g_rvk.presentCount;
+        if(rvk_settings::Get("RVK_WindowDepth")<=0)return;
+    }
     last = visual;
     lastList = list;
+    boundsFrame=g_rvk.presentCount;
     rnative::scene::VisualInfo info = rnative::scene::Describe(visual);
     // Whatever is drawn in render list 0 is the sky: its layers (clouds) and the far scenery that hangs in it -
     // placed around the camera, not where it appears, so it neither casts nor receives the sun's shadows.
@@ -719,6 +725,13 @@ void NoteVisual(rvk::ThreadedDevice* dev)
     }
     dev->SetDrawVisual(uint32_t(info.kind), name, uint32_t(reinterpret_cast<uintptr_t>(info.owner)),
                        uint32_t(reinterpret_cast<uintptr_t>(visual)));
+    if (rvk_settings::Get("RVK_WindowDepth")>0) {
+        float bounds[6];
+        const bool known=info.kind==Kind::Static && info.className &&
+            std::strcmp(info.className,"RTriMesh_t")==0 &&
+            rnative::mesh::WindowHouseBounds(visual,bounds);
+        dev->SetWindowHouseBounds(known?bounds:nullptr);
+    }
 }
 
 // The game's lights after its scene update (native scene tracking), to the renderer.

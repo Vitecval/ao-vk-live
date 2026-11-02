@@ -1,0 +1,53 @@
+Preview20 Newland Windows v5 — upright shared apartments
+
+Keep the v4 furniture, textured surfaces, bright lamps, interior door/frame/handle
+and native true-vertex bounds correction. Do not fit a room picture to a pane.
+
+The user's live v4 review found wrongly rotated/flipped contents, disconnected
+light states across one bay and some blank-looking windows. V5 creates an upright
+metric room frame using world gravity and the house's horizontal orientation.
+All eight true-model bounds corners are projected into this frame. Native
+negative-Y, Z-up, rotated and scaled model coordinates cannot turn the furniture
+upside down. This does not rotate or modify the real building or its textures.
+
+One apartment spans the whole native visual's horizontal footprint on a storey.
+The arbitrary X/Z 4.8-unit room cuts are removed. Three front windows and their
+corner pane therefore view the same furniture, door, lamp, wall and floor from
+different positions. Window width never scales the bed, room or other objects.
+Small windows clip that same space and show less. The floor grid targets 5-unit
+storeys; a sill/ceiling safeguard keeps an estimated ceiling out of an opening.
+The floor plan is inferred, not an exact reconstruction of hidden retail rooms.
+Separate native building visuals still have independent apartments.
+
+The latest instruction supersedes v3/v4's unoccupied-room distribution: every
+supported window now belongs to an inhabited apartment. All receive furnished
+content, with variation from quiet/dim to clearly lit and occasional hero rooms.
+Every pane of an apartment shares that state. Some apertures can reveal mostly
+a wall, door edge or fragment of furniture; they no longer randomly disable the
+interior. The user-requested bright lamp pool remains. Subtle keeps 16 furnishing
+primitives, Strong 24; both include the same 5 door/frame/handle pieces. Strong
+has four deterministic primary shadow rays, Subtle one. No moving people.
+
+RVK_WindowDepth: 0 Off (default), 1 Subtle, 2 Strong. Preserve stored settings.
+All seven reviewed Full HD family-5 window IDs and the previous playfield,
+material, geometry-identity and opaque-draw exclusions remain. All windows means
+these verified apertures, not functional screens, signs, vents, barred/closed
+insets, existing doors, other cities, Original/Lite or unsupported draws.
+
+No new raster assets: the same embedded 1024x512 material atlas, eight reusable
+256px tiles, 2,796,204 GPU bytes including mips. Native true-vertex cache and
+32-byte draw metadata remain as v4. No global render pass or dynamic scene light.
+Existing HDR bloom provides optical spill, not a cast outdoor light.
+
+Checks include the actual Vulkan 3-front-plus-1-corner bay with unchanged
+physical geometry and texture under negative model Y and a Z-up model basis.
+Off, Subtle and Strong must match their upright representation to within 32
+pixels differing by at most one 8-bit level. Every reviewed aperture must change
+in Strong; raw masks remain strictly confined to glass. These are controlled
+fixtures. Live Newland capture validation is separately recorded.
+
+Limits: whole-visual bounds approximate irregular/L-shaped house envelopes.
+Very large models can have overly open/sparse floors; furniture stays full size.
+Floor estimates can still differ for unusual window elevations or mesh pieces.
+Tiny/far/grazing panes lose detail. User captures remain the final appearance
+check; do not treat a diagnostic activation flag as visual success.

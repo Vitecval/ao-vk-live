@@ -7,6 +7,7 @@
 
 #include "d3d7.h"
 #include "skin.h"
+#include "living.h"
 #include "vk.h"
 
 #include <array>
@@ -250,6 +251,12 @@ struct DeviceInfo {
 // this name), the member it sets, and what a change must refresh (C the draws' constants, L the frame lights, G the
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
+    X(LivePeople, m_livePeople, 0) \
+    X(LiveDrones, m_liveDrones, 0) \
+    X(AirTraffic, m_liveAir, 0) \
+    X(LiveWild, m_liveWild, 0) \
+    X(LiveMachine, m_liveMachine, 0) \
+    X(LiveAtmos, m_liveAtmos, 0) \
     X(TerrainHD, m_terrainHD, C|L)                /* global original-mesh terrain detail, 0..1 */ \
     X(TerrainFar, m_terrainFar, C|L)              /* filtered distant land composition, 0..1 */ \
     X(BuildingHD, m_buildingHD, C|L)              /* global architecture material/detail pass, 0..1 */ \
@@ -278,6 +285,9 @@ struct DeviceInfo {
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
     X(FoliageLod, m_foliageLod, 0)                    /* foliage shaded cheaper past this (units; 0 off) */ \
     X(FolDither, m_foliageDither, 0)                  /* plants' soft edges dithered past this (units; 0 off) */ \
+    X(WearDebug, m_wearDebug, C)                        /* 0 off, 1 counters, 2 pixel coverage */ \
+    X(WindowDepth, m_windowDepth, C)                    /* Exterior windows: 0 off, 1 subtle, 2 strong */ \
+    X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
     X(GrassBright, m_grassBright, 0)                  /* the grass against its ground (1 as bright) */ \
     X(WindStorm, m_windStormScale, 0)                 /* a storm's wind, x (wind.cpp) */ \
@@ -328,7 +338,8 @@ struct DeviceInfo {
     X(AlienMap, m_alienMap, 0)                        /* AI missions' map on green */ \
     X(HillShade, m_hillShade, 0)                      /* the terrain shaded from a low sun */ \
     X(GroundOne, m_groundOnePass, C)                  /* the native ground drawn in one pass, not two */ \
-    X(SceneProf, m_sceneProfile, 0)                   /* debug: the scene timed and its overdraw counted by kind */
+    X(SceneProf, m_sceneProfile, 0)                   /* debug: the scene timed and its overdraw counted by kind */ \
+    X(WindowActivity, m_windowActivity, 0)            /* slow, stable apartment light schedules */
 enum class Knob : uint32_t {
 #define RVK_KNOB_NAME(name, member, refresh) name,
     RVK_FLOAT_KNOBS(RVK_KNOB_NAME) RVK_BOOL_KNOBS(RVK_KNOB_NAME)
@@ -788,6 +799,7 @@ public:
     void SetSkyTime(double t) { m_skyTime = t; }
     // The playfield the game is in (its resource id; 0 none): its climate leans the sky (sky.cpp SkyZoneLean).
     void SetSkyPlayfield(uint32_t playfield);
+    void SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation=0);
     void SetEffectGlow(float gain) { if (m_effectGlow != gain) { m_effectGlow = gain; m_constantsDirty = true; } }
     float EffectGlow() const { return m_effectGlow; }
     float BloomStrength() const { return m_bloomStrength; }
@@ -964,6 +976,7 @@ public:
     // The game's visual issuing the next draws (rnative::scene): its kind (VisualKind) and class name - for exact
     // decisions where the draw alone needs heuristics. 0 / "": not known.
     void SetDrawVisual(uint32_t kind, const char* className, uint32_t owner = 0, uint32_t visual = 0);
+    void SetWindowHouseBounds(const float* modelBounds); // six copied floats; nullptr: unknown
     // The game's lights of this frame (rnative::scene), each with its carrier's owner id (SetDrawVisual's) or 0: who
     // carries which light, exactly (FindCarriers).
     struct SceneLight { d3d::Light light; uint32_t owner; };
@@ -1041,6 +1054,8 @@ public:
     static constexpr uint32_t kFramesInFlight = 2;
 
 private:
+    friend struct LivingRuntimeProbe;
+    friend struct SkinLifetimeCheck;
     friend struct SmokeRingCheck;                 // regression fixture: force a flush at the smoke pass
     struct Frame {
         VkCommandBuffer upload = VK_NULL_HANDLE, main = VK_NULL_HANDLE;
@@ -1130,7 +1145,7 @@ private:
     VkSampler SamplerFor(uint32_t stage);
     void Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32_t vertexCount,
               const uint16_t* indices, uint32_t indexCount);
-    void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride);
+    void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride, bool windowGlow = false);
     // The draw's vertex buffer (slot 0; slot 1 is the null buffer) and index buffer (null: leave it), each bound only
     // when it differs from what is (StateCache): every bind is a call into the driver (through Wine's 32/64-bit thunk).
     void BindGeometry(VkCommandBuffer cmd, VkBuffer vb, VkBuffer ib);
@@ -1386,6 +1401,7 @@ private:
         uint32_t carrierGroup = ~0u;             // the ShadowItem group (run of draws) of that origin this frame
         std::vector<uint32_t> carrierGroups;     // every group that is the carrier's (sorted): the point shadow pass
         float carrier[3] = {};
+        uint32_t cosmeticGroup = ~0u;           // renderer-owned equipment light; never a game carrier
         float carried = 0.0f;                    // 0..1: counted as a character's light (smoothed over frames)
         uint32_t owner = 0;                      // its carrier (SetDrawVisual owner) when the scene's lights are known
     };
@@ -1920,6 +1936,7 @@ private:
     void ForgetCachedCaster(std::unordered_map<uint64_t, CachedCaster>::iterator it);
     void ForgetCasterTexture(Texture* texture);
     static double SwayClock();
+    static double WindowClock();
     static void TickFixedClock();
     d3d::Matrix SwayPose(const CachedCaster& e) const;
     void CaptureSun(const d3d::Light& light);
@@ -2185,6 +2202,7 @@ private:
     const MeshInfo* m_drawMesh = nullptr;        // the current draw's (null: external geometry, pre-transformed)
     const skin::Job* m_drawSkin = nullptr;       // the current draw is this skinned character piece (DrawSkinned)
     uint32_t m_drawVisualKind = 0;               // SetDrawVisual (VisualKind)
+    float m_windowHouseBounds[6] = {};
     uint32_t m_drawOwner = 0;                    // ... the character it belongs to (0: none / unknown)
     uint32_t m_drawVisual = 0;                   // ... the visual object itself (the game's; for picking)
     std::vector<SceneLight> m_sceneLights;       // SetSceneLights, of frame m_sceneLightsFrame
@@ -2201,6 +2219,8 @@ private:
         uint64_t lastFrame = 0;
     };
     struct SkinOutput {
+        uint64_t jobSerial=0, boneSerial=0, prevBoneSerial=0;
+        bool rest=false;
         SkinMesh* mesh = nullptr;
         VkDeviceSize vertexOffset = 0, prevOffset = 0, smoothOffset = 0;   // in the frame's skin arena
         bool smoothReady = false;
@@ -2275,7 +2295,7 @@ private:
     bool m_skinUploadsPending = false;
     std::unordered_map<const skin::Source*, SkinMesh> m_skinMeshes;
     std::unordered_map<const skin::Job*, SkinOutput> m_skinOutputs;   // this frame's
-    struct SkinBonesAt { VkDeviceSize offset, bytes; uint64_t generation; };
+    struct SkinBonesAt { VkDeviceSize offset, bytes; uint64_t generation, serial; };
     std::unordered_map<const skin::Palette*, SkinBonesAt> m_skinBonesAt;   // this frame's bones in the ring
     bool CreateSkinResources(std::string* error);
     void DestroySkinResources();
@@ -2306,6 +2326,16 @@ private:
     static constexpr float kGrassTileSize = 8.0f;   // world units a tile covers
     static constexpr int kGroundN = 32;          // cells along a tile's side (kGrassTileSize / kGroundCell)
     static constexpr int kGroundBlock = 8;       // cells along a capture block's side (4 x 4 blocks a tile)
+    float m_wearDebug=0.0f;
+    struct WearStat { uint64_t key=0; uint32_t draws=0,matched=0,eligible=0,active=0,pbr=0,hd=0,stage1=0,reasons=0; };
+    std::array<WearStat,256> m_wearStats{};
+    uint32_t m_wearDraws=0,m_wearMatched=0,m_wearEligible=0,m_wearActive=0,m_wearOverflow=0;
+    void ResetWeatherStats();
+    void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
+    void ReportWeatherStats(FILE* file=nullptr);
+    float m_buildWear = 0.0f;
+    float m_windowDepth = 0.0f;
+    bool m_windowActivity = true;
     bool m_grassOn = false;                      // RVK_GrassOn (off: nothing drawn, nothing captured)
     float m_grassDistance = 25.0f;               // RVK_GrassDist (radius around the camera, world units)
     float m_grassDensity = 5.0f;                 // RVK_GrassBlades (blades a patch)
@@ -3640,8 +3670,11 @@ private:
         uint8_t shadeClass[kShadeQueries] = {};
         uint64_t shadePixels = 0;                 // the scene target's pixels (what the counts are divided by)
         bool shadeOverflow = false;               // ran out of queries: the rest of the frame went uncounted
+        uint32_t livingSkinCount=0;
         bool cloudsTimed = false;                 // the clouds' own commands (Frame::clouds) timed: the pool's last two
     };
+    bool m_livingGpuProfile=false;
+    static constexpr uint32_t kLivingSkinQueries=128;
     bool m_shadeQueries = false;                  // pipelineStatisticsQuery enabled
     bool m_sceneProfile = false;                  // RANDYVK_SCENE_PROFILE=1: the scene timed and counted by class
     uint64_t m_shadeSum[kSceneClasses] = {};      // fragment shader invocations by class since the last log
@@ -3774,10 +3807,16 @@ private:
     std::array<VkPipeline, 3> m_pipelines{};   // per topology class: points, lines, triangles
     VkBuffer m_nullBuffer = VK_NULL_HANDLE;    // zeros, bound at stride 0 for attributes a format lacks
     VmaAllocation_T* m_nullAllocation = nullptr;
+    VkBuffer m_windowPaneBuffer = VK_NULL_HANDLE;
+    VmaAllocation_T* m_windowPaneAllocation = nullptr;
+    VkDeviceSize m_windowPaneBytes = 0;
     Texture* m_blackTexture = nullptr;         // what an unbound stage samples
     Texture* m_blueNoise = nullptr;            // 64 x 64 blue noise (r; g the same shifted half a tile): the cloud
                                                // march's offsets (clouds.cpp CreateBlueNoise)
     Texture* CreateBlueNoise();
+    Texture* m_windowRooms = nullptr;           // reusable surface-material atlas for geometric rooms, Newland only
+    bool m_windowRoomsTried = false;
+    void EnsureWindowRooms();
     std::unordered_map<uint64_t, VkSampler> m_samplers;
 
     std::string m_screenshotPath;
@@ -3805,6 +3844,30 @@ private:
     VkBuffer m_readback = VK_NULL_HANDLE;
     VmaAllocation_T* m_readbackAllocation = nullptr;
     void* m_readbackData = nullptr;
+
+    // Optional renderer-owned ambient population; never a game entity.
+    void PrepareLivingFrame();
+    bool SuppressLivingCached(uint32_t vc,uint32_t ic,const float* lo,const float* hi) const;
+    bool SuppressLivingOriginal(uint32_t fvf,const void* vertices,uint32_t vc,const uint16_t* indices,uint32_t ic);
+    uint32_t m_livingContextPlayfield=0;uint64_t m_livingContextGeneration=0;bool m_livingContextKnown=false,m_livingOutdoor=false;
+    static constexpr std::array<uint32_t,7> LivingFogStates{d3d::RS_FOGENABLE,d3d::RS_FOGCOLOR,d3d::RS_FOGTABLEMODE,d3d::RS_FOGSTART,d3d::RS_FOGEND,d3d::RS_FOGDENSITY,d3d::RS_FOGVERTEXMODE};
+    std::array<uint32_t,7> m_livingWorldFog{};
+    bool m_livingCameraValid=false,m_livingWorldCamera=false,m_livingHadLights=false,m_livingLightingValid=false;
+    uint32_t m_livingAmbient=0;std::vector<LightSlot> m_livingWorldLights;
+    d3d::Matrix m_livingView{},m_livingProj{};
+    d3d::Viewport m_livingViewport{};
+    uint32_t m_livingLightCount=0,m_livingReplaced=0,m_livingFallbackCount=0;
+    std::vector<std::pair<uint32_t,std::function<void()>>> m_livingOriginals;
+    std::array<uint32_t,6> m_livingDraws{};
+    void DrawLiving();
+    void DestroyLiving();
+    std::unique_ptr<living::Scene> m_living;
+    bool m_livingAttempt=false,m_livingDrawing=false;
+    const float (*m_livingPreviousWorld)[4]=nullptr;
+    uint64_t m_livingFrame=~uint64_t(0);
+    double m_livingStart=0;
+    std::array<double,6> m_livingEnabled{{-1,-1,-1,-1,-1,-1}};
+    float m_livePeople=0,m_liveDrones=0,m_liveAir=0,m_liveWild=0,m_liveMachine=0,m_liveAtmos=0;
 
     // D3D7 state
     std::array<uint32_t, d3d::RS_COUNT> m_rs{};

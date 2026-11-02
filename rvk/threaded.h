@@ -109,6 +109,7 @@ public:
     void LoadStatels(const char* path, uint32_t playfield);                   // (the path copied)
     void SetStatelMode(uint32_t mode);
     void SetSkyPlayfield(uint32_t playfield);
+    void SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation=0);
     void SetGrassField(bool on, float distance, float density, float height, bool texOnly);
     void SetGrassStyle(float variety, float flowers, float glow, float gusts, bool trails);
     void SetGrassTrailLook(float seconds, float shade);
@@ -208,6 +209,7 @@ public:
     bool WaterReady() const { return m_device.WaterReady(); }
     void SetTexture(uint32_t stage, Texture* texture);
     void SetDrawVisual(uint32_t kind, const char* className, uint32_t owner = 0, uint32_t visual = 0);   // className: stays valid (RTTI)
+    void SetWindowHouseBounds(const float* modelBounds);
     void SetSceneLights(const Device::SceneLight* lights, uint32_t count);   // copied
     void SetRenderTarget(Texture* target);
     Texture* GetRenderTarget() const { return m_target; }

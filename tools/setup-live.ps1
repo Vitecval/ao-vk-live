@@ -6,6 +6,9 @@ param(
     [switch]$ListCandidates
 )
 $ErrorActionPreference = 'Stop'
+# Prefer this PowerShell host's built-in modules when launched from another host.
+$env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
+
 # Windows PowerShell's 64-bit Process.Modules can silently omit WOW64 modules.
 # Use the game's bitness before inspecting clients, including direct script use.
 if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
@@ -44,6 +47,12 @@ function Find-AoFolders {
 }
 $folders = @(Find-AoFolders)
 if ($ListCandidates) { $folders; return }
+$fullHdSetup = $false
+$setupManifest = Join-Path $PackageDir 'manifest.json'
+if (Test-Path -LiteralPath $setupManifest) {
+    $setupInfo = Get-Content -LiteralPath $setupManifest -Raw | ConvertFrom-Json
+    $fullHdSetup = [bool]$setupInfo.materialDownload
+}
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -64,8 +73,10 @@ function Add-Text([string]$Text, [int]$X, [int]$Y, [int]$W, [int]$H) {
     return $label
 }
 $title = Add-Text 'AO-VK Live' 24 18 620 32
+if ($fullHdSetup) { $title.Text = 'AO-VK Live - Full HD Setup' }
 $title.Font = New-Object Drawing.Font('Segoe UI', 18, [Drawing.FontStyle]::Bold)
-$null = Add-Text 'Vulkan graphics for the classic Anarchy Online live client.' 26 56 620 26
+$subtitle = Add-Text 'Vulkan graphics for the classic Anarchy Online live client.' 26 56 620 26
+if ($fullHdSetup) { $subtitle.Text = 'HD textures download and verify automatically. One setup, all materials.' }
 $null = Add-Text 'AO installation folder (contains Anarchy.exe and AnarchyOnline.exe)' 26 98 620 24
 $path = New-Object Windows.Forms.ComboBox
 $path.SetBounds(26, 126, 514, 30)
@@ -95,6 +106,12 @@ $form.Controls.Add($operation)
 $null = Add-Text "Close AO and its launcher first. Game files and preferences are preserved.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 220 626 50
 $status = Add-Text '' 26 282 440 55
 $status.ForeColor = [Drawing.Color]::DarkSlateGray
+$downloadProgress = New-Object Windows.Forms.ProgressBar
+$downloadProgress.SetBounds(26, 344, 440, 10)
+$downloadProgress.Visible = $false
+$form.Controls.Add($downloadProgress)
+$script:setupBusy = $false
+$form.Add_FormClosing({ if ($script:setupBusy) { $_.Cancel = $true } })
 $apply = New-Object Windows.Forms.Button
 $apply.Text = $Action
 $apply.SetBounds(482, 296, 170, 38)
@@ -103,6 +120,9 @@ $operation.Add_SelectedIndexChanged({ $apply.Text = [string]$operation.SelectedI
 $apply.Add_Click({
     $apply.Enabled = $false
     $browse.Enabled = $false
+    $path.Enabled = $false
+    $operation.Enabled = $false
+    $script:setupBusy = $true
     try {
         if (!$path.Text -or !(Test-Path -LiteralPath (Join-Path $path.Text 'AnarchyOnline.exe'))) {
             throw 'Choose your AO folder containing AnarchyOnline.exe.'
@@ -110,6 +130,15 @@ $apply.Add_Click({
         $status.Text = 'Checking files...'
         $form.Refresh()
         $arguments = @{ ClientDir = $path.Text; PackageDir = $PackageDir }
+        $arguments.ProgressCallback = {
+            param($message, $percent)
+            $status.Text = $message
+            $downloadProgress.Visible = $true
+            if ($percent -ge 0) { $downloadProgress.Style = 'Continuous'; $downloadProgress.Value = [Math]::Min(100, $percent) }
+            else { $downloadProgress.Style = 'Marquee' }
+            $form.Refresh()
+            [Windows.Forms.Application]::DoEvents()
+        }
         if ($operation.SelectedItem -eq 'Update') { $arguments.Upgrade = $true }
         if ($operation.SelectedItem -eq 'Uninstall') { $arguments.Uninstall = $true }
         & (Join-Path $PSScriptRoot 'install-live.ps1') @arguments | Out-Null
@@ -130,6 +159,10 @@ $apply.Add_Click({
     } finally {
         $apply.Enabled = $true
         $browse.Enabled = $true
+        $path.Enabled = $true
+        $operation.Enabled = $true
+        $script:setupBusy = $false
+        $downloadProgress.Visible = $false
     }
 })
 $form.AcceptButton = $apply

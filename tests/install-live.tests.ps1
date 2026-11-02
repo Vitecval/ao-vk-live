@@ -63,6 +63,17 @@ try {
     $manifest = @{ build = 'fixture-v1'; client = $originals; addon = $oldHashes; previousAddons = @() }
     Save-Manifest
     $arguments = @{ ClientDir = $client; PackageDir = $package }
+    $manifest.cacheWarmup=@{helper='ao-vk-cache-warm.exe';relativeCache='../randy31.dll';sha256=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'Invalid cache preparation descriptor'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Rejected warmup descriptor changed renderer'
+    $manifest.cacheWarmup.relativeCache='randy-vk-preview21-v9-living.cache'
+    Write-Bytes (Join-Path $package 'ao-vk-cache-warm.exe') 'not executable and never run'
+    Save-Manifest
+    Reject $arguments 'helper integrity failed'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Rejected warmup hash changed renderer'
+    $manifest.Remove('cacheWarmup')
+    Save-Manifest
     $global:AoInstallerTestBusy = $true
     Reject $arguments 'Close the game'
     $global:AoInstallerTestBusy = $false

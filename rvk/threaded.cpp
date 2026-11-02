@@ -1108,6 +1108,9 @@ void ThreadedDevice::LoadStatels(const char* path, uint32_t playfield)
     Enqueue([this, p, playfield](const uint8_t*) { m_device.LoadStatels(p.c_str(), playfield); });
 }
 
+void ThreadedDevice::SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation)
+{ Enqueue([this,playfield,outdoor,generation](const uint8_t*) { m_device.SetLivingContext(playfield,outdoor,generation); }); }
+
 void ThreadedDevice::SetSkyPlayfield(uint32_t playfield)
 {
     Enqueue([this, playfield](const uint8_t*) { m_device.SetSkyPlayfield(playfield); });
@@ -1481,6 +1484,15 @@ void ThreadedDevice::SetDrawVisual(uint32_t kind, const char* className, uint32_
     Enqueue([this, kind, className, owner, visual](const uint8_t*) {
         m_device.SetDrawVisual(kind, className, owner, visual);
     });
+}
+
+void ThreadedDevice::SetWindowHouseBounds(const float* modelBounds)
+{
+    std::array<float,6> copy{};
+    if (modelBounds) std::copy_n(modelBounds,6,copy.begin());
+    // Kept ordered before the next draw. Its coalesced visual changes only the
+    // identity; the engine-owned bounds have already been copied by value.
+    Enqueue([this,copy](const uint8_t*) {m_device.SetWindowHouseBounds(copy.data());});
 }
 
 void ThreadedDevice::SetSceneLights(const Device::SceneLight* lights, uint32_t count)

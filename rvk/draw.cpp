@@ -1,5 +1,7 @@
 // D3D7 state, Clear, and drawing.
 #include "internal.h"
+#include "building_weathering.h"
+#include "window_materials.h"
 #include "weather_options.h"
 #include "terrain_materials.h"
 
@@ -300,6 +302,7 @@ void Device::CaptureLight(LightSlot& slot)
         return std::memcmp(&x, &y, sizeof(x)) == 0;
     };
     for (CapturedLight& c : m_lightsCur) {
+        if(c.cosmeticGroup<6)continue;
         float dx = c.light.position.x - l.position.x, dy = c.light.position.y - l.position.y,
               dz = c.light.position.z - l.position.z;
         if (dx * dx + dy * dy + dz * dz < 0.25f && sameKind(c.light, l)) {
@@ -480,6 +483,9 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrain2[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_native.ao, 0.0f, 1.0f);
     fl->terrain2[1] = fl->terrain2[2] = 0.0f;
     fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
+    fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
+    fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
+    fl->windowLife[2]=fl->windowLife[3]=0.0f;
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
     fl->terrain3[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
@@ -1554,8 +1560,8 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
     if (m_drawSkin) {
         // A skinned piece: new vertices with every skinning (a key of its own, as new vertices would get), its box
         // and index hash from the skinning - no pass over the vertices.
-        // (The frame number in it too: a job's memory may be reused by a later frame's.)
-        uint64_t key = (reinterpret_cast<uintptr_t>(m_drawSkin) * 0x9E3779B97F4A7C15ull) ^ (uint64_t(fvf) << 40) ^
+        // Lifetime serials also distinguish jobs recycled at the same address inside one deferred frame.
+        uint64_t key = (m_drawSkin->serial * 0x9E3779B97F4A7C15ull) ^ (uint64_t(fvf) << 40) ^
                        vertexCount ^ (uint64_t(indexCount) << 20) ^ (m_frameNumber * 0xC2B2AE3D27D4EB4Full);
         m_drawMeshKey = key;
         auto it = m_meshInfo.find(key);
@@ -1767,6 +1773,20 @@ void Device::SetDrawVisual(uint32_t kind, const char* className, uint32_t owner,
                       std::strncmp(className, "GenericMeshObject_t", 19) == 0;
     m_drawOwner = owner;
     m_drawVisual = visual;
+}
+
+void Device::SetWindowHouseBounds(const float* modelBounds)
+{
+    std::fill_n(m_windowHouseBounds,6,0.f);
+    if (!modelBounds) return;
+    int dimensions=0;
+    for (int a=0;a<3;++a) {
+        if (!std::isfinite(modelBounds[a]) || !std::isfinite(modelBounds[a+3]) ||
+            modelBounds[a+3]<modelBounds[a]) return;
+        dimensions+=modelBounds[a+3]-modelBounds[a]>=.1f;
+    }
+    if(dimensions<2)return;
+    std::copy_n(modelBounds,6,m_windowHouseBounds);
 }
 
 // The fog for a draw after the scene's: the ground's this frame (or lately), else the render states'.
@@ -2041,7 +2061,7 @@ void Device::SetVertexInput(VkCommandBuffer cmd, uint32_t fvf, uint32_t stride)
     vkCmdSetVertexInputEXT(cmd, 2, bindings, 6, attrs);
 }
 
-void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride)
+void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride, bool windowGlow)
 {
     VkCommandBuffer cmd = m_frames[m_frameIndex].main;
     StateCache& c = m_cache;
@@ -2147,9 +2167,12 @@ void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride
             blendDirty |= 2u;
             c.glowBlendSet = true;
         }
-        const uint8_t mode = GlowOccluder(fvf) ? 2 : 1;
+        const uint8_t mode = windowGlow ? 3 : GlowOccluder(fvf) ? 2 : 1;
         if (c.glowBlendMode != mode) {
-            VkColorBlendEquationEXT eq = mode == 1
+            VkColorBlendEquationEXT eq = mode == 3
+                ? VkColorBlendEquationEXT{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD,
+                                          VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ZERO, VK_BLEND_OP_ADD}
+                : mode == 1
                 ? VkColorBlendEquationEXT{VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_ADD,
                                           VK_BLEND_FACTOR_ONE, VK_BLEND_FACTOR_ONE, VK_BLEND_OP_ADD}
                 : VkColorBlendEquationEXT{VK_BLEND_FACTOR_ZERO, VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, VK_BLEND_OP_ADD,
@@ -2248,7 +2271,7 @@ void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride
         if (m_dynamicWriteMask) {
             const uint32_t all = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
                                  VK_COLOR_COMPONENT_A_BIT;
-            uint32_t masks[5] = {all, GlowDraw(fvf) || GlowOccluder(fvf) ? all : 0u,
+            uint32_t masks[5] = {all, windowGlow || GlowDraw(fvf) || GlowOccluder(fvf) ? all : 0u,
                                  blend && fSrc == d3d::BLEND_ZERO && fDst == d3d::BLEND_ONE ? 0u : all,
                                  keep ? 0u : all,
                                  blend && aSrc == d3d::BLEND_ZERO && aDst == d3d::BLEND_ONE ? 0u : all};
@@ -2368,7 +2391,8 @@ void Device::BindSceneArena(VkCommandBuffer cmd)
         VkDescriptorImageInfo shadow{m_shadowSampler, m_shadowView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo cubes{m_cubeSampler, m_cubeArrayView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo shadowDepths{m_shadowDepthSampler, m_shadowView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
-        VkWriteDescriptorSet arena[5] = {};
+        VkDescriptorBufferInfo windowPanes{m_windowPaneBuffer?m_windowPaneBuffer:m_nullBuffer,0,m_windowPaneBuffer?m_windowPaneBytes:64};
+        VkWriteDescriptorSet arena[6] = {};
         auto set = [&](int i, uint32_t binding, VkDescriptorType type, const void* info) {
             arena[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             arena[i].dstBinding = binding;
@@ -2384,7 +2408,8 @@ void Device::BindSceneArena(VkCommandBuffer cmd)
         set(2, 5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &shadow);
         set(3, 6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &cubes);
         set(4, 9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, &shadowDepths);
-        vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 5, arena);
+        set(5, 13, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, &windowPanes);
+        vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 6, arena);
         m_arenaBound = true;
     }
     if (!m_bindlessBound) {                       // set 1, once per frame's command buffer
@@ -2525,6 +2550,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
 {
     if (!m_inFrame || !vertexCount)
         return;
+    if(primitive==d3d::TriangleList && SuppressLivingOriginal(fvf,vertices,vertexCount,indices,indexCount))return;
     // The game's ground, drawn by rvk from the playfield's data instead (native_ground.cpp): its own draws skipped.
     // (Its base pass deferred to the lighting pass - RVK_GroundOne - but something else came first: drawn now.)
     if (m_native.basePending && !m_native.drawing &&
@@ -2665,6 +2691,36 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             m_particleOrphanTrigger = "end of the 3D scene";
             DrawOrphanParticles();
         }
+    }
+    if(!m_livingDrawing && !m_external && !m_livingWorldCamera && m_target==m_main &&
+       (m_livePeople>=1||m_liveDrones>=1||m_liveAir>=1||m_liveWild>=1||m_liveMachine>=1||m_liveAtmos>=1) &&
+       (fvf&d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW && m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE] &&
+       VisualKind(m_drawVisualKind)!=VisualKind::Sky && m_proj.m[2][3]==1 && m_proj.m[3][3]==0){
+        m_livingView=m_view;m_livingProj=m_proj;m_livingViewport=m_viewport;m_livingCameraValid=true;m_livingWorldCamera=true;
+    }
+    // Sky-only frames still have a current main camera. Keep a fallback until a depth-writing world draw
+    // supplies the preferred camera; never invent a zero-origin camera from a translation-free sky dome.
+    if(!m_livingDrawing && !m_external && !m_livingCameraValid && m_target==m_main && m_gameMainValid &&
+       (m_livePeople>=1||m_liveDrones>=1||m_liveAir>=1||m_liveWild>=1||m_liveMachine>=1||m_liveAtmos>=1) &&
+       VisualKind(m_drawVisualKind)==VisualKind::Sky && (fvf&d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW &&
+       m_proj.m[2][3]==1 && m_proj.m[3][3]==0){
+        m_livingView=m_gameMainView;m_livingProj=m_proj;m_livingViewport=m_viewport;m_livingCameraValid=true;m_sceneSaw3D=true;
+    }
+    if(!m_livingDrawing && !m_external && !m_livingLightingValid && m_target==m_main &&
+       (m_livePeople>=1||m_liveDrones>=1||m_liveAir>=1||m_liveWild>=1||m_liveMachine>=1||m_liveAtmos>=1) &&
+       (fvf&d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW && m_rs[d3d::RS_LIGHTING] && m_rs[d3d::RS_ZENABLE] &&
+       VisualKind(m_drawVisualKind)!=VisualKind::Sky && m_proj.m[2][3]==1 && m_proj.m[3][3]==0){
+        m_livingAmbient=m_rs[d3d::RS_AMBIENT];m_livingWorldLights=m_lights;for(size_t i=0;i<LivingFogStates.size();++i)m_livingWorldFog[i]=m_rs[LivingFogStates[i]];m_livingLightingValid=true;
+    }
+    // Non-HDR cosmetic submission uses the same first depth-writing world camera.
+    // Entirely gated: ordinary Preview 20 draws take the existing path when all six options are Off.
+    if (!m_hdr && !m_livingDrawing && m_target==m_main &&
+        (m_livePeople>=1 || m_liveDrones>=1 || m_liveAir>=1 || m_liveWild>=1 || m_liveMachine>=1 || m_liveAtmos>=1)) {
+        if ((fvf & d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW &&
+            m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE] && VisualKind(m_drawVisualKind)!=VisualKind::Sky) {
+            m_sceneSaw3D=true;
+            if(!m_aoProjValid){m_aoProj=m_proj;m_aoView=m_view;m_aoProjValid=true;m_aoCameraGen=0;}
+        } else if(m_sceneSaw3D && IsInterfaceDraw(fvf)) EndScene();
     }
     // HDR: the frame's first interface draw after its 3D ends the scene phase - the scene is tone mapped and the
     // interface drawn over it into the 8-bit target. (Not every pre-transformed draw is interface: IsInterfaceDraw.)
@@ -2860,7 +2916,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     ProfileDrawSection("draw: setup (mesh info)", since);
     NoteMeshPiece();                             // (mesh ids: which mesh the object drawing is)
     // The object's entry in the per-object cache (objects.cpp): a static mesh at its world matrix.
-    if (m_objectCache && m_drawMesh && m_drawMeshStatic && !m_external && !m_drawSkin && !m_drawGpu)
+    if (m_objectCache && m_drawMesh && m_drawMeshStatic && !m_external && !m_drawSkin && !m_drawGpu && !m_livingDrawing)
         m_drawObject = FindObject();
     ProfileDrawSection("draw: setup (mesh ids)", since);
     // (A GPU-skinned character has no vertices here: DrawSkinned hands the pick its CPU-skinned ones.)
@@ -3031,7 +3087,15 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     FrameLightMask(fvf, layout.stride, vertices, vertexCount, dt.lightMask);
     dt.lightMask[2] = swaying && m_grassPush > 0.0f ? PusherMask(1.4f * std::sqrt(m_grassPush) + 0.1f) : 0u;
     ProfileDrawSection("draw: light mask", since);
-    if (motion && m_drawObject && m_drawObject->seenLastFrame) {
+    if (motion && m_livingDrawing) {
+        if(m_livingPreviousWorld) std::memcpy(dt.prevWorld.m,m_livingPreviousWorld,sizeof(dt.prevWorld.m));
+        if(m_drawGpu && m_drawGpu->moved) {
+            prevPositionsBuffer=m_frames[m_frameIndex].skinArena;
+            prevPositionsOffset=m_drawGpu->prevOffset;
+            prevPositionsBytes=VkDeviceSize(vertexCount)*12;
+            dt.motion[1]=1;
+        }
+    } else if (motion && m_drawObject && m_drawObject->seenLastFrame) {
         // An object drawn last frame at this very matrix (the per-object cache): it stood still - its last matrix is
         // this one (as below's search finds), and it needn't be looked up or kept for the next frame's search. (A
         // still object that starts moving is a new entry, which searches - and finds nothing of it for that first
@@ -3134,7 +3198,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         // The native ground's rocks (ground_clutter.cpp): laid with rock from every side, lit by the ground's light
         // where they lie - the native ground's record, marked (terrainAt.y 2: terrain.glsl TerrainClutter).
         if (TerrainTexturingOn() && m_native.codes && m_native.ground) {
-            const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
+            const bool base = !m_groundOne && !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
             dt.terrain[0] = 1.0f / m_native.ground->cellX;
             dt.terrainAt[3] = float(base ? kTerrainBase : kTerrainLight);
             // (The pebbles 3, and the range they sink into the ground over the end of: ground_pebbles.cpp, ffp.vert.)
@@ -3158,7 +3222,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     } else if (terrain && m_textures[0]) {
         // (Each pass also carries how its chunk's base texture lies on the world: terrain.glsl lays it on cliffs.)
         const uint64_t chunk = TerrainChunkKey(vertices, vertexCount, layout.stride, indices, indexCount);
-        if (!m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE]) {
+        if (!m_groundOne && !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE]) {
             m_terrainBases[chunk] = m_textures[0];
             if (vertices && (m_tss[0][d3d::TSS_TEXCOORDINDEX] & 0xFFFFu) == 0 &&   // (stage 0 reads set 0 as it is)
                 m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS] == 0) {
@@ -3177,7 +3241,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                     }
                 }
             }
-        } else if (m_rs[d3d::RS_LIGHTING] && (IsMultiplyPass() || m_groundOne)) {
+        } else if (m_groundOne || (m_rs[d3d::RS_LIGHTING] && IsMultiplyPass())) {
+            // A native combined pass carries the tile table and lightmap even
+            // when retail leaves D3D lighting disabled. Do not classify its
+            // stand-in texture as an ordinary unlit base pass.
             auto it = m_terrainBases.find(chunk);
             if (it == m_terrainBases.end() && m_groundOne)   // (the one pass: its base pass's stand-in, not drawn)
                 it = m_terrainBases.emplace(chunk, m_blackTexture).first;
@@ -3873,6 +3940,178 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[0] = dt.texIdx[3];               // a valid slot even unused
         dt.mat[1] = dt.sampIdx[3];
     }
+    // Explicit reviewed exterior glazing, with a positive building-model guard
+    // on global profiles. Off skips classification. Upload is once per device,
+    // at BeginFrame; no per-draw loading or change to surface alpha/depth.
+    if (m_windowDepth > 0 && m_textures[0] && !terrain && !m_native.clutter &&
+        m_drawMeshStatic && m_drawMesh && !m_drawSkin && !m_drawGpu &&
+        VisualKind(m_drawVisualKind) == VisualKind::Static &&
+        !m_drawIsCharacter && !m_drawIsLabel && !m_external &&
+        !m_rs[d3d::RS_ALPHATESTENABLE] &&
+        (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZ && layout.offset[1] >= 0 &&
+        m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE]) {
+        const auto* base = m_textures[0];
+        const uint32_t pane = environment::WindowLayout(base->m_rdbType, base->m_rdbId);
+        // Only a plain lit RGB stage or AO's original-alpha + same RGB stage.
+        // Unsupported cascades, transforms, addressing and unknown artwork fail closed.
+        const auto op0 = m_tss[0][d3d::TSS_COLOROP], op1 = m_tss[1][d3d::TSS_COLOROP];
+        const bool simple = op0 == d3d::TOP_MODULATE &&
+            m_tss[0][d3d::TSS_COLORARG1] == d3d::TA_TEXTURE &&
+            m_tss[0][d3d::TSS_COLORARG2] == d3d::TA_DIFFUSE && op1 == d3d::TOP_DISABLE;
+        const bool combined = op0 == d3d::TOP_ADD &&
+            m_tss[0][d3d::TSS_COLORARG1] == (d3d::TA_TEXTURE | 0x20) &&
+            m_tss[0][d3d::TSS_COLORARG2] == d3d::TA_DIFFUSE &&
+            op1 == d3d::TOP_MODULATE && m_tss[1][d3d::TSS_COLORARG1] == d3d::TA_TEXTURE &&
+            m_tss[1][d3d::TSS_COLORARG2] == d3d::TA_CURRENT && m_textures[1] == base;
+        const int stage = combined ? 1 : 0;
+        const bool authored = base->m_albedoMap && (stage ? texStage1 : texStage0) == base->m_albedoMap;
+        const bool ordinaryLighting=m_rs[d3d::RS_LIGHTING] &&
+            m_material.emissive.r==0 && m_material.emissive.g==0 && m_material.emissive.b==0;
+        const auto addressU=m_tss[stage][d3d::TSS_ADDRESSU],addressV=m_tss[stage][d3d::TSS_ADDRESSV];
+        const bool legacy=pane&&authored&&ordinaryLighting&&addressU==d3d::TADDRESS_WRAP&&addressV==d3d::TADDRESS_WRAP;
+        const auto* global=!legacy&&m_windowPaneBuffer?
+            environment::GlobalWindowProfileOf(base->m_rdbType,base->m_rdbId,authored):nullptr;
+        bool corporateModel=false;
+        if(global && m_drawMesh->geo && !m_meshIds.empty()){
+            auto [first,last]=MeshIdsOf(m_drawMesh->geo);
+            corporateModel=first!=last && last-first<=128;
+            for(auto p=first;corporateModel&&p!=last;++p)
+                corporateModel=environment::GlobalWindowCorporateModel(base->m_rdbId,p->type,p->id);
+        }
+        bool modelSafe = true;
+        if ((legacy && environment::WindowNeedsModel(base->m_rdbId)) || (global && global->modelGuard)) {
+            modelSafe = false;
+            // Shared window materials also occur on doors/gates. Accept a
+            // positively identified building, never a texture-name inference.
+            // Geometry evidence is tied to the current draw. The debug-only
+            // visual-address cache is not a lifetime guarantee and is not used.
+            if (m_drawMesh->geo && !m_meshIds.empty()) {
+                auto [first, last] = MeshIdsOf(m_drawMesh->geo);
+                modelSafe = first != last && last - first <= 128;
+                for (auto p = first; modelSafe && p != last; ++p)
+                    modelSafe = global?environment::GlobalWindowModelAllowed(base->m_rdbId,p->type,p->id):
+                        environment::WindowModelAllowed(base->m_rdbId, p->type, p->id);
+            }
+            // A remapped 6134 roof draw has no geometry-table identity. Its
+            // material is exclusive to the audited 4736 building, and this
+            // narrow whole-visual size is an independent structural witness.
+            // Never override a known wrong/ambiguous model candidate.
+            if (!modelSafe && global && base->m_rdbId==6134u) {
+                auto [first,last]=MeshIdsOf(m_drawMesh->geo);
+                const float* b=m_windowHouseBounds;
+                const bool canonical=std::abs((b[3]-b[0])-4.000f)<.06f &&
+                    std::abs((b[4]-b[1])-7.594f)<.06f && std::abs((b[5]-b[2])-14.523f)<.06f;
+                const bool remapped=std::abs((b[3]-b[0])-4.046f)<.025f &&
+                    std::abs((b[4]-b[1])-7.560f)<.025f && std::abs((b[5]-b[2])-14.747f)<.025f;
+                if(first==last && (canonical||remapped)){
+                    modelSafe=true;
+                    if(m_dumpFile)std::fprintf(m_dumpFile,"# Window structural witness: material 6134 canonical 4736 whole-visual dimensions\n");
+                }
+            }
+            if (!modelSafe && m_dumpFile) {
+                std::fprintf(m_dumpFile,"# Window excluded whole bounds: %.3f %.3f %.3f / %.3f %.3f %.3f\n",
+                    m_windowHouseBounds[0],m_windowHouseBounds[1],m_windowHouseBounds[2],
+                    m_windowHouseBounds[3],m_windowHouseBounds[4],m_windowHouseBounds[5]);
+                std::fprintf(m_dumpFile, "# Newland windows excluded: material %u unverified/shared door-or-gate model\n", base->m_rdbId);
+                auto [first,last]=MeshIdsOf(m_drawMesh->geo);
+                std::fprintf(m_dumpFile,"# Window model candidates: material %u count %u",base->m_rdbId,unsigned(last-first));
+                if(last-first<=128)for(auto p=first;p!=last;++p)std::fprintf(m_dumpFile," %u:%u",p->type,p->id);
+                std::fprintf(m_dumpFile,"\n");
+            }
+        }
+        // Real see-through glass keeps the original view. Alpha-one statics
+        // have already been proven opaque above; no translucent exception.
+        const bool supportedBlend=!m_rs[d3d::RS_ALPHABLENDENABLE];
+        // Reviewed global facades can carry baked/self-lit architectural glass.
+        // The v5 Newland path retains its original lighting eligibility.
+        const auto supportedAddress=[](uint32_t value){return value==d3d::TADDRESS_WRAP || value==d3d::TADDRESS_CLAMP || value==d3d::TADDRESS_MIRROR;};
+        if ((legacy || global) && modelSafe && supportedBlend && (simple || combined) &&
+            m_tss[stage][d3d::TSS_TEXTURETRANSFORMFLAGS] == 0 &&
+            (m_tss[stage][d3d::TSS_TEXCOORDINDEX] & 0xFFFF0000u) == 0 &&
+            supportedAddress(addressU) && supportedAddress(addressV)) {
+            dt.windows[0] = m_windowDepth >= 1.5f ? 2.f : 1.f;
+            const uint32_t rooms = m_windowRooms ? BindlessImage(m_windowRooms)+1u : 0u;
+            dt.windows[1] = float((global?0:pane) + (rooms << 3));
+            dt.windows[2] = float(stage);
+            for(int a=0;a<3;++a){
+                dt.windowHouseLo[a]=m_windowHouseBounds[a];
+                dt.windowHouseHi[a]=m_windowHouseBounds[a+3];
+            }
+            dt.windowHouseLo[3]=(m_windowHouseBounds[3]-m_windowHouseBounds[0])+
+                (m_windowHouseBounds[4]-m_windowHouseBounds[1])+
+                (m_windowHouseBounds[5]-m_windowHouseBounds[2])>.1f?1.f:0.f;
+            dt.windowHouseHi[3]=global?float(global->flags|(corporateModel?(1024u|16u):0u)|
+                (addressU==d3d::TADDRESS_CLAMP?32u:addressU==d3d::TADDRESS_MIRROR?128u:0u)|
+                (addressV==d3d::TADDRESS_CLAMP?64u:addressV==d3d::TADDRESS_MIRROR?256u:0u)):0;
+            // Stable world-space bounds also distinguish statics whose vertex
+            // positions are already baked into the world (identity transform).
+            uint32_t seed = 2166136261u;
+            for (int a = 0; a < 3; ++a) {
+                float centre = m_world.m[3][a];
+                for (int axis = 0; axis < 3; ++axis)
+                    centre += .5f * (m_drawMesh->boundsMin[axis] + m_drawMesh->boundsMax[axis]) * m_world.m[axis][a];
+                if (m_drawObject) centre = m_drawObject->boxCentre[a];
+                if (!std::isfinite(centre)) centre = 0;
+                const auto cell = int32_t(std::floor(std::clamp(centre, -1e6f, 1e6f) * 2.f));
+                seed = (seed ^ uint32_t(cell)) * 16777619u;
+            }
+            seed = (seed ^ (seed >> 16)) & 65535u; // exactly representable in float
+            dt.windows[3] = global?float((global->first+1u)|((global->count-1u)<<16)):0.f;
+            if (m_dumpFile) std::fprintf(m_dumpFile, "# Newland windows: material %u mode %.0f seed %u\n", base->m_rdbId, dt.windows[0], seed);
+            if (m_dumpFile && global) std::fprintf(m_dumpFile,"# Global windows: material %u panes %u flags %u RGB-stage %d; address %u/%u; model verified; distance detail automatic\n",
+                base->m_rdbId,global->count,unsigned(dt.windowHouseHi[3]),stage,addressU,addressV);
+            if (m_dumpFile) std::fprintf(m_dumpFile,"# Newland house: whole-visual %u; model bounds %.3f %.3f %.3f / %.3f %.3f %.3f\n",
+                unsigned(dt.windowHouseLo[3]>0),dt.windowHouseLo[0],dt.windowHouseLo[1],dt.windowHouseLo[2],
+                dt.windowHouseHi[0],dt.windowHouseHi[1],dt.windowHouseHi[2]);
+        }
+    }
+    // Classify the original RDB identity; the selected albedo/normal/ORM images have no independent RDB identity.
+    if ((m_buildWear>0 || m_wearDebug>0) && m_textures[0] && !terrain && !m_native.clutter) {
+        const auto* material=environment::WeatherInfo(m_textures[0]->m_rdbType,m_textures[0]->m_rdbId);
+        const auto visual=VisualKind(m_drawVisualKind);
+        const bool architecture=visual==VisualKind::Static || visual==VisualKind::Room || visual==VisualKind::Unknown;
+        uint32_t blocked=0;
+        if(!material)blocked|=1;
+        if(!m_skyPlayfield)blocked|=2;
+        if(!m_drawMeshStatic || !m_drawMesh || m_drawSkin || m_drawGpu)blocked|=4;
+        if(!architecture || m_drawIsCharacter || m_drawIsLabel || m_external)blocked|=8;
+        if(m_rs[d3d::RS_ALPHABLENDENABLE])blocked|=16;
+        if(m_rs[d3d::RS_ALPHATESTENABLE])blocked|=32;
+        if((fvf&d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZ || layout.offset[1]<0 ||
+           !m_rs[d3d::RS_ZENABLE] || !m_rs[d3d::RS_ZWRITEENABLE] || !m_rs[d3d::RS_LIGHTING])blocked|=64;
+        if(m_material.emissive.r!=0 || m_material.emissive.g!=0 || m_material.emissive.b!=0)blocked|=128;
+        if(material && ((material->emissionMask && !m_textures[0]->m_emissiveMap) || (!material->emissionMask && m_textures[0]->m_emissiveMap)))blocked|=256;
+        // Follow the RGB-bearing stage, not an alpha-replicated stage-zero input.
+        auto textureRgb=[&](int stage){
+            const auto op=m_tss[stage][d3d::TSS_COLOROP];
+            auto rgb=[&](int arg){const auto v=m_tss[stage][arg];return (v&15)==d3d::TA_TEXTURE && !(v&0x20);};
+            if(op==d3d::TOP_DISABLE)return false;
+            if(op==d3d::TOP_SELECTARG1)return rgb(d3d::TSS_COLORARG1);
+            if(op==d3d::TOP_SELECTARG2)return rgb(d3d::TSS_COLORARG2);
+            return rgb(d3d::TSS_COLORARG1)||rgb(d3d::TSS_COLORARG2);
+        };
+        const bool rgb0=textureRgb(0),rgb1=textureRgb(1);
+        const bool same1=m_textures[1] && m_textures[1]->m_rdbId==m_textures[0]->m_rdbId && m_textures[1]->m_rdbType==m_textures[0]->m_rdbType;
+        const bool stage1=rgb1 && same1;
+        const auto op1=m_tss[1][d3d::TSS_COLOROP];
+        const bool discard1=(op1==d3d::TOP_SELECTARG1 && (m_tss[1][d3d::TSS_COLORARG1]&15)!=d3d::TA_CURRENT) ||
+                            (op1==d3d::TOP_SELECTARG2 && (m_tss[1][d3d::TSS_COLORARG2]&15)!=d3d::TA_CURRENT);
+        if((!rgb0 && !stage1) || (rgb1 && !same1) || (discard1 && !stage1))blocked|=512;
+        const bool active=material && !blocked && m_buildWear>0;
+        if(architecture || material)NoteWeatherDraw(m_textures[0],material!=nullptr,blocked,active,
+            (dt.mat[2]&kMatPbr)!=0 && m_pbr.enabled && m_pixelLighting,stage1?texStage1!=m_textures[1]:texStage0!=m_textures[0],stage1);
+        if(active) {
+            dt.weather[0]=std::clamp(m_buildWear,0.f,3.f);
+            dt.weather[1]=float(material->kind)+(m_wearDebug>=2?8.f:0.f)+(stage1?2097152.f:0.f);
+            // A mask descriptor is independent of PBR lighting. Packing 17 descriptor bits above bit 3
+            // stays exactly representable in float and does not change the draw-record layout.
+            if(material->emissionMask)dt.weather[1]+=float(BindlessImage(m_textures[0]->m_emissiveMap)+1u)*16.f;
+            float bottom=m_world.m[3][1];
+            for(int a=0;a<3;++a)bottom+=std::min(m_drawMesh->boundsMin[a]*m_world.m[a][1],m_drawMesh->boundsMax[a]*m_world.m[a][1]);
+            dt.weather[2]=m_drawObject?m_drawObject->boxCentre[1]-m_drawObject->boxExtent[1]:bottom;
+            dt.weather[3]=float(material->maintenance)/255.f;
+        }
+    }
     if (combinedTerrain) dt.mat[2] |= kMatCombined;
     const Texture* groundSurface = terrain ? (m_drawBumpBase ? m_drawBumpBase : m_textures[0]) : nullptr;
     if (groundSurface && m_skyPlayfield) {
@@ -3919,6 +4158,20 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     // GPU-driven M2: this draw's record, and the frame's two arrays (bindings 0 = constants, 12 = records) pushed
     // once per frame's command buffer. The record index travels in firstInstance (gl_InstanceIndex).
+    if (m_dumpFile && terrain && m_native.drawing) {
+        uint32_t codes = 0;
+        std::memcpy(&codes, &dt.terrain[1], sizeof(codes));
+        std::fprintf(m_dumpFile, "  terrain-record: pass %.0f; codes %u; one-pass %u; combined %u; lighting %u\n",
+            dt.terrainAt[3], codes, unsigned(m_groundOne), unsigned(combinedTerrain), unsigned(m_rs[d3d::RS_LIGHTING]));
+    }
+    const bool windowGlow = dt.windows[0] > 0.f && m_target->m_format == Format::RGBA16F;
+    // This state depends on a per-draw record, not shared constants. Split at
+    // transitions, while retaining ordinary and same-mode window batching.
+    if (m_target->m_format == Format::RGBA16F && m_group.active &&
+        (m_cache.glowBlendMode == 3) != windowGlow) {
+        FlushGroup();
+        extending = false;
+    }
     uint32_t recordIndex = AppendRecord(constIndex, dt);
     // A tree's own canopy (leaves.cpp): its sprigs drawn with the type's atlas - their own record, the canopy's but for
     // the textures (its material maps are laid on the game's cards, not on the atlas).
@@ -3964,7 +4217,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                     prevPositionsOffset, prevPositionsBytes, smoothBuffer, smoothOffset, smoothBytes, recordIndex,
                     m_drawPrepassCutout);
     if (!extending) {
-    ApplyDynamicState(primitive, fvf, layout.stride);
+    ApplyDynamicState(primitive, fvf, layout.stride, windowGlow);
     // The draw's buffers: the particles' own, a static snapshot's arena chunk (its indices retained there or in the
     // ring), a skinned piece's arena and mesh, or the ring.
     if (m_external)

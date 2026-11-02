@@ -1,46 +1,92 @@
 # AO-VK Live
 
-Optional **world texture styles**: choose Original or AnarchyHD in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables AnarchyHD, Shared Ground+, building materials and equipment art, with GroundOn off. Shared Ground+ uses GroundOn's detailed terrain, cliffs, boulders and pebbles with classic AO-style lighting and no added ripples. Standard Shared Ground keeps AO's terrain submissions. Enabling GroundOn selects its separate native lighting for comparison. Metal decks keep their original tread and transition artwork with a rough, lightly shiny finish; roads retain their asphalt sheen. Fuller 3D tree foliage is controlled by **Plants → Fuller 3D tree foliage**. Brighter daylight grading stays off by default. See [Preview 16 validation](docs/preview16-validation.md) and [modern materials](docs/modern-materials.md).
+An experimental graphics upgrade for the **classic Anarchy Online live client**.
+Choose one download below; both editions include the same renderer and window interiors.
 
-Preview 17 retains 621 additional replacements compared with Preview 15. The full-quality database inventory has 4,380 baked replacement IDs; 35 recorded material families have complete dependency coverage and three remain partial. The retained library contains 4,389 unique repaint identities, including nine outside that database index and style-dependent history. Deliberate originals and original model UVs/animations are preserved. Live-game visual fit and extended stability testing remain ongoing; this experimental preview may contain bugs.
+[Download Preview 21](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.6.0-preview.21)
 
-Weather preview: optional **Halloween fog** (about 30 m visibility), pale mist and custom fog colours, plus selectable Clear, Overcast, Rain and Thunderstorm weather. Open **Ctrl+Shift+F12 → Weather**. Both selectors default to Automatic. See [weather controls](docs/weather.md).
+## Choose your download
 
-A Vulkan renderer for the **classic Anarchy Online live client**, based on [wannabuh's AO-VK](https://github.com/wannabuh/ao-vk). Adds modern lighting, shadows, procedural grass and an in-game options panel while preserving the official launcher and original renderer on disk.
+**Lite:** Download `ao-vk-live-0.6.0-preview.21-windows-x86-lite.zip`, extract it,
+then run **Install.cmd**. Lite includes the renderer and essential resources,
+without the optional Full HD replacement library.
 
-## Download and install
+**Full HD:** Download `ao-vk-live-0.6.0-preview.21-windows-x86-full-setup.zip`,
+extract it, then run **Install.cmd**. Setup downloads and verifies all required
+Preview 21 material packs automatically. You do not need to download or extract
+the other material ZIPs yourself. Progress is shown, valid downloads are reused,
+and interrupted downloads can resume. No extra download manager or software is needed.
 
-Download **`ao-vk-live-0.6.0-preview.17-windows-x86-lite.zip`** or **`ao-vk-live-0.6.0-preview.17-windows-x86-full.zip`** from this repository's **Releases** page, together with `SHA256SUMS.txt`. Lite has the complete renderer, embedded terrain/shader resources and core ground maps. Full HD adds the optional world/character replacement library. Both editions use identical renderer/loader binaries. Players do not need a compiler, Python, or the Vulkan SDK.
+1. Close AO and its launcher. Open Install.cmd and choose your AO folder.
+2. Choose Install, or Update for an existing AO-VK installation.
+3. When setup finishes, launch AO normally and select **Primary Display Driver**.
+4. Press **Ctrl+Shift+F12** in game to open the graphics options.
 
-1. Extract the whole ZIP to a folder. Close AO and its launcher.
-2. Double-click **Install.cmd**. Select your AO installation folder, or use **Browse** to find it.
-3. Click **Install**, then start AO with your normal launcher.
-4. Select **Primary Display Driver** in AO's graphics configuration. This name refers to the Vulkan wrapper; your GPU does the rendering.
+Your graphics settings, personal packs and original game files are preserved.
+Setup verifies every pack before a transactional update and rolls back if the
+update fails. First-time graphics-card preparation can take one or two minutes.
+Allow roughly 10 GiB free for downloads, textures and safe installation staging.
 
-In-game options: **Ctrl+Shift+F12**. Tab changes category; Up/Down selects; Left/Right adjusts; Esc closes. Changes save automatically. Grass defaults to **on**, performance HUD to **off**. Select Shared Ground+ for native terrain with classic lighting and no added ripples; GroundOn is available separately. Existing saved settings are preserved on update.
+The three `full-materials-*.zip` assets below are for the installer and optional
+offline use. For offline installation, put all three matching ZIPs beside
+Install.cmd (or keep them in its parent download folder), then run setup.
+`SHA256SUMS.txt` contains checksums for all five ZIPs.
 
-For an existing AO-VK Live installation, use **Update.cmd** and select the same AO folder. To remove it, use **Uninstall.cmd** and select that folder. Uninstall preserves game files, AO preferences, AO-VK settings, logs and shader cache. The installer records any extra loader copy so uninstall can remove it too.
+## What's new
 
-If Windows denies access to your game folder, close setup and right-click the .cmd file, then choose **Run as administrator**. Setup does not automatically request elevation.
+- **Parallax Window Interiors V9:** homes and offices gain room depth, beds,
+  desks, curtains and belongings, with warmer and cooler lighting, dark/dim/lit
+  rooms, adjoining-room views and optional slow lighting changes.
+- **Expanded HD artwork:** **8,627 unique original texture IDs with HD albedo
+  replacements**, including 1,309 newly accepted IDs. The library contains 26,831 runtime
+  maps; normal, ORM and emission maps are not counted as extra artwork IDs.
+- **Building Weathering** and the existing GroundOn and Shared Ground+
+  improvements remain, including original ground colours and classic lighting.
+- **GPU pipeline-cache/startup work:** a compatible cache is prepared locally
+  during installation and reused on later launches. No hardware-specific cache
+  is distributed, and cold preparation can still be lengthy.
+- **Updated presets and controls:** Classic+ and Modern select Medium windows;
+  Ultra selects Maximum (V9 Strong). Existing saved Strong settings are retained.
+  Important options come first; Enter expands related settings.
+- **Independent HD selection:** choose texture styles and HD options in Classic+,
+  Modern or Ultra without having the quality preset reset those choices.
 
-## Supported client
+## Before you play
 
-- Windows classic live **18.8.62_EP1**, 32-bit; the installer verifies six original game DLLs before installing.
-- A GPU/driver supporting Vulkan 1.3 and the renderer's required features. Gameplay testing so far used an RTX 2070 Super.
-- **New Engine, TestLive, other client builds and Linux/Wine are not validated by this live package.**
+This is a **prerelease**, not a stable release or a complete game-wide visual
+overhaul. Some surfaces retain original artwork; retail mesh/UV appearance,
+long sessions, repeated zoning, Alt-Tab and multiple live clients still need
+player feedback. Offline renderer measurements are not AO launcher timings.
 
-Do not replace `randy31.dll`. The package adds `ddraw.dll`, `ao-vk.dll` and a small installation record. If an installed launcher addon relocates the game executable, setup also handles its detected AppData loader location. Settings remain in the real AO folder.
+Supported: the audited **Windows classic live 18.8.62_EP1, 32-bit** client and a
+compatible Vulkan GPU/driver. New Engine, TestLive and Linux/Wine are not validated.
+Setup refuses unsupported game builds and unknown `ddraw.dll` wrappers. Do not
+replace randy31.dll. If Windows denies access, rerun the CMD as administrator.
 
-Another wrapper such as dgVoodoo cannot use the same `ddraw.dll` filename. Setup refuses to overwrite unknown files. If an official patch changes the supported client, uninstall AO-VK Live until that build has been checked.
+Living Rubi-Ka decorative people, clothing, drones, traffic, wildlife and machinery
+are **not included**: their current resource packs are non-distributable. Old
+private caches cannot activate those systems in this build.
 
-## Source and releases
+Validation includes 28 regression checks, ten setup/download/recovery checks,
+exact V9 visual comparisons, and real material archive verification in 32-bit
+PowerShell. Download retry/resume was tested using a local HTTP fixture and
+offline installation paths; **a fresh end-to-end online game installation has
+not been tested**. Public asset reachability and hashes are checked separately.
 
-Source code is available from the repository/tag and GitHub's automatic source archives. No separate source ZIP is distributed. Optional generated artwork and baked replacement maps are kept outside Git history; prebuilt Full HD contains the player payload. Essential embedded renderer assets, catalogs and metadata remain in source. Build instructions are in [docs/build-windows.md](docs/build-windows.md). Technical compatibility notes are in [docs/live-client.md](docs/live-client.md).
+If you encounter a problem, keep your logs/crash dump and tell us the location,
+settings, steps and GPU/driver. Back up your working setup before experimenting.
 
-Release maintainers: see [docs/publishing.md](docs/publishing.md) for packaging and uploading ready-built downloads. SHA-256 checksums accompany release archives.
+[Project page](https://github.com/Vitecval/ao-vk-live) ·
+[Report a problem on GitHub Issues](https://github.com/Vitecval/ao-vk-live/issues)
 
-## Credits and license
+## Source and credits
 
-The renderer is derived from **wannabuh's AO-VK**. This project adds classic live loading and compatibility, standalone options, live terrain grass support, Halloween fog and weather controls, shutdown fixes, and a Windows installer. It is an unofficial community project and is not affiliated with Funcom or the upstream author.
+Renderer code and shaders match the validated Preview 21 integration. Owner-only
+experiment reports, private caches and generated optional artwork are excluded
+from this source tree. Prebuilt maps are in the release assets; their catalogues
+and provenance hashes remain in source. See docs/preview21-source-origin.md.
 
-The upstream [MIT license](LICENSE) and copyright are preserved. Third-party licenses and credits are included in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and `licenses/`. No Funcom game DLLs are distributed.
+Based on [wannabuh/AO-VK](https://github.com/wannabuh/ao-vk), under the preserved
+[MIT license](LICENSE). Third-party notices are in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and licenses/. This is an unofficial
+community project, not affiliated with Funcom. Original game DLLs are not bundled.

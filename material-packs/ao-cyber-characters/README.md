@@ -1,5 +1,11 @@
 # Cyber character artwork preview
 
+Preview 20 contains **655 material records**, including **655 repaint records**, and **2,620 runtime maps** in this pack. Counts across packs overlap; the release-wide unique total is in RELEASE-NOTES.md and TEXTURE-INVENTORY.json. Existing original-art policies and original alpha remain active. Full HD carries the optional library; Lite carries its core ground subset.
+
+## Historical production notes
+
+The notes below describe earlier individual batches, not the current library totals.
+
 14 actual replacement textures. The first six cover scout armour torso, arms, legs, boots and helmet,
 plus the picked back/shoulder armour. Brushed metal, carbon weave and restrained
 amber inlays follow the Cyber ICC art direction. Gloves and other equipment are

@@ -509,7 +509,8 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     if (SharedGroundPlus() && !m_native.lightmap) return false;
     if (m_drawVisualKind != uint32_t(VisualKind::Terrain) || !IsTerrain(fvf))
         return false;
-    const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
+    const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE] &&
+        m_tss[0][d3d::TSS_TEXCOORDINDEX] == 0 && m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS] == 0;
     const bool light = m_rs[d3d::RS_LIGHTING] && IsMultiplyPass();
     const bool combined = IsCombinedTerrainPass();
     // Retail combines (lightmap + diffuse) * base in one opaque draw. The old

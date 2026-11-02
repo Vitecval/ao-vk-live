@@ -189,6 +189,7 @@ void Device::EndFrameDump()
         DumpGroundTextures(base + "-ground.bmp");
         DumpLightmaps(base + "-lightmaps.bin");
     }
+    ReportWeatherStats(m_dumpFile);
     std::fprintf(m_dumpFile, "# %s\n", GpuMemoryReport().c_str());
     std::fprintf(m_dumpFile,"# native terrain: shared-plus %u; enabled %u; patches %zu; patches/frame %.2f; rocks %u; pebbles %u; AO %.2f; sun %.2f\n",
         unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),

@@ -2,7 +2,7 @@
 
 Optional **world texture styles**: choose Original or AnarchyHD in **Ctrl+Shift+F12 → Materials → World texture style**. Ultra enables AnarchyHD, Shared Ground+, building materials and equipment art, with GroundOn off. Shared Ground+ uses GroundOn's detailed terrain, cliffs, boulders and pebbles with classic AO-style lighting and no added ripples. Standard Shared Ground keeps AO's terrain submissions. Enabling GroundOn selects its separate native lighting for comparison. Metal decks keep their original tread and transition artwork with a rough, lightly shiny finish; roads retain their asphalt sheen. Fuller 3D tree foliage is controlled by **Plants → Fuller 3D tree foliage**. Brighter daylight grading stays off by default. See [Preview 16 validation](docs/preview16-validation.md) and [modern materials](docs/modern-materials.md).
 
-Preview 17 retains 621 additional replacements compared with Preview 15. The full-quality database inventory has 4,380 baked replacement IDs; 35 recorded material families have complete dependency coverage and three remain partial. The retained library contains 4,389 unique repaint identities, including nine outside that database index and style-dependent history. Deliberate originals and original model UVs/animations are preserved. Live-game visual fit and extended stability testing remain ongoing; this experimental preview may contain bugs.
+Preview 20 adds 866 verified original texture-ID bindings and preserves all Preview 19 approved maps and terrain fixes. Full HD contains 7,318 unique repaint identities and 22,903 runtime maps. Optional Building Weathering offers Off, Low, Medium and High on 92 reviewed architectural materials and defaults Off. Database coverage is 7,309 of 14,145 identified full-quality IDs (51.67%); this is not visible-world coverage. Live model fit, all-zone appearance and long sessions remain under evaluation.
 
 Weather preview: optional **Halloween fog** (about 30 m visibility), pale mist and custom fog colours, plus selectable Clear, Overcast, Rain and Thunderstorm weather. Open **Ctrl+Shift+F12 → Weather**. Both selectors default to Automatic. See [weather controls](docs/weather.md).
 
@@ -10,7 +10,7 @@ A Vulkan renderer for the **classic Anarchy Online live client**, based on [wann
 
 ## Download and install
 
-Download **`ao-vk-live-0.6.0-preview.17-windows-x86-lite.zip`** or **`ao-vk-live-0.6.0-preview.17-windows-x86-full.zip`** from this repository's **Releases** page, together with `SHA256SUMS.txt`. Lite has the complete renderer, embedded terrain/shader resources and core ground maps. Full HD adds the optional world/character replacement library. Both editions use identical renderer/loader binaries. Players do not need a compiler, Python, or the Vulkan SDK.
+Download **`ao-vk-live-0.6.0-preview.20-windows-x86-lite.zip`** or **`ao-vk-live-0.6.0-preview.20-windows-x86-full.zip`** from this repository's **Releases** page, together with `SHA256SUMS.txt`. Lite has the complete renderer, embedded terrain/shader resources and core ground maps. Full HD adds the optional world/character replacement library. Both editions use identical renderer/loader binaries. Players do not need a compiler, Python, or the Vulkan SDK.
 
 1. Extract the whole ZIP to a folder. Close AO and its launcher.
 2. Double-click **Install.cmd**. Select your AO installation folder, or use **Browse** to find it.

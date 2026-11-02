@@ -14,7 +14,7 @@ def main():
     manifest = json.loads((PACK/'manifest.json').read_text())
     completion=json.loads((PACK/'completion-catalog.json').read_text())
     effective={}
-    for name in ['catalog','city-catalog','props-catalog','shared-catalog','picked-catalog','scan-catalog','completion-catalog','family-catalog','rubika-catalog','rubika-ground-catalog']:
+    for name in ['catalog','city-catalog','props-catalog','shared-catalog','picked-catalog','scan-catalog','completion-catalog','worker-catalog','family-catalog','rubika-catalog','rubika-ground-catalog']:
         for item in json.loads((PACK/(name+'.json')).read_text()):effective[item['type'],item['id']]=item
     count=len(effective)
     assert len(manifest['materials']) == manifest['new_art_surfaces'] == count

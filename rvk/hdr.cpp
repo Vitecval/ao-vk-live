@@ -452,6 +452,7 @@ void Device::BeginScene()
     float w = m_scene ? float(m_scene->m_width) : 1.0f, h = m_scene ? float(m_scene->m_height) : 1.0f;
     m_taaJitter[0] = (halton(k, 2) - 0.5f) * 2.0f / w;
     m_taaJitter[1] = (halton(k, 3) - 0.5f) * 2.0f / h;
+    m_livingCameraValid=false;m_livingWorldCamera=false;m_livingLightingValid=false;m_livingLightCount=0;m_livingReplaced=0;
     m_sceneSaw3D = false;
     m_aoProjValid = false;
     m_sceneClass = 0;
@@ -481,10 +482,12 @@ void Device::BeginScene()
 // first interface draw, before a read-back of the main target, and at the end of the frame.
 void Device::EndScene()
 {
+    if (m_inFrame && !m_deviceLost && m_native.basePending && m_scenePhase) DrawPendingGroundBase();
+    try { DrawLiving(); }
+    catch (const std::exception& e) { m_drawSkin=nullptr; m_drawGpu=nullptr; m_drawSkinBase=nullptr; m_pickSkinned=nullptr; m_drawStaticBuffer=VK_NULL_HANDLE; m_drawStaticIndexBuffer=VK_NULL_HANDLE; DestroyLiving(); m_livingAttempt=true; Log("Living Rubi-Ka disabled: %s", e.what()); }
     if (!m_inFrame || m_deviceLost)
         return;
-    if (m_native.basePending && m_scenePhase)
-        DrawPendingGroundBase();                 // (RVK_GroundOne: no lighting pass came after the ground's base pass)
+
     if (!m_scenePhase)
         return;
     m_scenePhase = false;
@@ -497,7 +500,11 @@ void Device::EndScene()
     ProfileMark("scene");
     RenderGrassField(cmd);                       // RVK_GrassOn: our ground grass, over the scene (its own block)
     ProfileMark("ground grass");
+    // Living exhaust must retain the captured world camera even if a UI caller already changed D3D transforms.
+    const auto smokeView=m_view,smokeProj=m_proj;const auto smokeViewport=m_viewport;const auto smokeAmbient=m_rs[d3d::RS_AMBIENT];
+    if(m_liveAtmos>=1&&m_living&&m_livingCameraValid){m_view=m_livingView;m_proj=m_livingProj;m_viewport=m_livingViewport;if(m_livingLightingValid)m_rs[d3d::RS_AMBIENT]=m_livingAmbient;}
     RenderSmoke(cmd);                            // RVK_SmokeOn: the smoke's simulation, and it over the scene
+    m_view=smokeView;m_proj=smokeProj;m_viewport=smokeViewport;m_rs[d3d::RS_AMBIENT]=smokeAmbient;
     RenderDebris(cmd);                           // RVK_StormDebris: a storm's blown leaves, straw and twigs
     RenderRain(cmd);                             // RVK_WeatherOn: the rain, over all of it
     double cpu = ProfileCpu();

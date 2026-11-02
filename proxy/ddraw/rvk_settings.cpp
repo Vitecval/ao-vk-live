@@ -1,5 +1,6 @@
 // The renderer's settings table, randy-vk.ini persistence and the exported C interface (rvk_settings.h).
 #include "rvk_settings.h"
+#include "living_release.h"
 
 #include "rvk_backend.h"
 #include "native/mesh.h"
@@ -42,6 +43,12 @@ struct Setting {
 
 // Every renderer option. Order = display order within each section.
 Setting g_settings[] = {
+    {"RVK_LivePeople", "Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
+    {"RVK_LiveDrones", "Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
+    {"RVK_AirTraffic", "Distant air traffic: Off / Low / Medium (authored city routes only)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_LiveWild", "Ambient wildlife: Off / Low / Medium (requires reviewed animated assets)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_LiveMachine", "Living machinery: verified components only, Off / On", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_LiveAtmos", "Localized vent steam: Off / On (also requires Smoke enabled)", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
     // name               label                                                     section             type    min    max    step   default env                        value parent           choices
     {"RVK_Enhance",    "All enhancements (Ctrl+Shift+E)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_Prepass",    "Depth pre-pass", "General", Bool, 0, 1, 1, 1, nullptr, 0},
@@ -89,6 +96,10 @@ Setting g_settings[] = {
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
+    {"RVK_WearDebug", "Building weathering diagnostics: Off / Counters / Pixel coverage", "Debug", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_WindowDepth", "Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows)", "Materials", Choice, 0, 2, 1, 1, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
+    {"RVK_BuildWear", "Building Weathering: Off / Low / Medium / High", "Materials", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
     {"RVK_BuildingHD", "Global building materials", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
@@ -443,6 +454,10 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_WindowDepth", 0},
+    {"RVK_WindowActivity", 1},
+    {"RVK_WearDebug", 0}, {"RVK_BuildWear", 0},
+    {"RVK_LivePeople",0},{"RVK_LiveDrones",0},{"RVK_AirTraffic",0},{"RVK_LiveWild",0},{"RVK_LiveMachine",0},{"RVK_LiveAtmos",0},
     {"RVK_AutoMat", 0},
     {"RVK_TerrainHD", 0},
     {"RVK_TerrainFar", 0},
@@ -518,6 +533,7 @@ bool AlwaysOn(const char* name)
 
 bool Hidden(const Setting& s)
 {
+    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s.section,"Living Rubi-Ka")==0) return true;
     if (std::strcmp(s.section, "Debug") == 0 || AlwaysOn(s.name)) return true;
     for (const char* h : kHidden)
         if (std::strcmp(h, s.name) == 0) return true;
@@ -564,6 +580,7 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
+    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s->section,"Living Rubi-Ka")==0) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
@@ -1405,7 +1422,7 @@ const PresetValue kClassicPlus[] = {
     {"RVK_CloudsOn", 0}, {"RVK_WeatherOn", 0}, {"RVK_SmokeOn", 0}, {"RVK_WaterOn", 0},   // (the new features off)
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
-    {"RVK_ModernTex", 2}, {"RVK_TerrainHD", 1}, {"RVK_BuildingHD", 1},
+    {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1}, {"RVK_LivePeople", 2},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
     {"RVK_FarHaze", .6f}, {"RVK_HazeStart", 350}, {"RVK_HazeEnd", 1000},
@@ -1417,7 +1434,10 @@ constexpr uint32_t kPresetCount = 4;
 
 bool InPresets(const Setting& s)
 {
+    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s.section,"Living Rubi-Ka")==0) return false;
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
+    if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||
+        std::strcmp(s.name, "RVK_BuildingHD") == 0) return false;
     if (s.type == Colour) return false;            // (the sky's colours: their own presets - console skypreset)
     return std::strcmp(s.section, "General") != 0 || std::strcmp(s.name, "RVK_Enhance") == 0;
 }
@@ -1642,3 +1662,4 @@ int RvkSettings_Set(const char* name, float value)
 }
 
 }  // extern "C"
+

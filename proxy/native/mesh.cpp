@@ -741,6 +741,18 @@ void* __fastcall TriMeshSubjectDelete(void* self, void*, uint8_t flags)
 
 }  // namespace
 
+bool WindowHouseBounds(const void* visual, float bounds[6])
+{
+    if (!visual || !g_orig) return false;
+    // RTriMesh_t's current data. BVolume's historical Y/Z extreme-point bug
+    // must remain for culling parity, but must NOT size these virtual rooms.
+    // Query independently reduced vertex bounds; only six copied floats cross
+    // to the render thread. Class validation is performed by NoteVisual.
+    auto* data=Field<uint8_t*>(const_cast<void*>(visual),kData);
+    if (!data) return false;
+    return meshdata::WindowBounds(data,bounds);
+}
+
 void Install(HMODULE orig)
 {
     if (GetMode("Scene", Mode::On) != Mode::On) return;

@@ -1,0 +1,74 @@
+Preview 20 Newland Window Experiment — lived-in homes and offices (revision 3)
+
+RVK_WindowDepth: 0 Off (default), 1 Subtle, 2 Strong. Existing settings are
+preserved by the renderer-only installer. Full HD ao-cyber-world artwork is
+required. Original/Lite artwork is excluded. Newland playfields 566/567 only.
+
+Ten deterministic presets: bedroom, studio, home office, sleeping nook, sparse
+home, hero apartment, desk office, storage/work room, hero office, mixed studio.
+Expected assignment is approximately 65% homes, 25% offices and 10% mixed.
+Strong lighting is approximately 45% dark, 27% dim, 20% clear, 8% hero.
+Subtle is approximately 50% dark, 30% dim, 16% clear, 4% hero. Finite samples
+need not match these probabilities. Lit rooms are usually furnished; only 20%
+of dark rooms contain furniture. There are no people or animated room changes.
+
+Eight reusable textured room cards now carry beds, fabric bedding, desks,
+chairs, cabinets, books, plants and lamps with baked contact/bounced lighting.
+Their approximate depth maps support bounded relief projection: Subtle at most
+10 march + 3 refinement depth samples, Strong 24 + 4, plus one colour read.
+The ten presets reuse eight artwork tiles; storage and hero office reuse the
+office tile with tint/brightness/mirroring variation. A procedural 3/8-box room
+is retained as a safe fallback if the embedded atlas cannot load.
+Room depth is capped at 0.80 / 1.65 world units. Day interiors are muted;
+night interiors are warmer for homes and neutral/cooler and dimmer for offices.
+Existing PBR specular and the restrained classic glass sheen remain.
+
+Small outward optical spill uses the existing HDR bloom attachment and pass.
+It requires HDR/bloom enabled; no wall material is relit or modified, and no
+dynamic light is created. Glow is restricted to eligible window draws. Mixed
+window/non-window groups split at glow-state transitions; this may increase
+indirect submissions at those boundaries. There is no new global render pass.
+
+Stable assignment derives from window pane, UV tile, and world-space object
+bounds, falling back to transformed draw bounds. No independent animation or
+wall clock changes the furniture. As with v2, identical coincident draws can
+share an assignment and differently partitioned geometry can produce variation.
+
+Coverage: 6052 (4 panes), 6055 (2), 6081 (arched window incl. rounded cap),
+6059 (4 horizontal slots), 6060 (broad window), 6069 (2 vertical slots),
+6086 (wide transom). Total 7 materials / 15 reviewed aperture regions.
+The full family audit and per-model dispositions are in
+newland-window-coverage-v3.json. Runtime masks use conservative glass insets.
+
+6059 also appears on doors: require positive CURRENT geometry identification
+as model 1416, 1418, 1420 or 99415. 6069 also appears on gate4 (14212):
+require model 1419. Accepted identity types are 1010001/1010026. All geometry
+hash candidates must be allowed. Missing, ambiguous or untrusted identity fails
+closed. The debug visual-pointer cache is not used for this decision.
+
+6092 functional display, 6096 text/sign, 6053 SUPPLIES sign, 6095 pipe panel,
+6134 opaque closed blinds, 99647 small barred/vent-like inset, 6082 bar/vent,
+6085 and 99649 diffusers remain excluded. Other cladding/trim/doors and borrowed
+non-window materials remain excluded; see the exhaustive audit for each ID.
+Full-HD art and catalog ownership are evidence, not proof of every live placement.
+
+One embedded 1024x512 RGB/depth texture, eight 256x256 reusable rooms. GPU cost
+with mip chain: 2,796,204 bytes (2.67 MiB) per device, uploaded once when enabled
+in Newland. Off does not load it; hot Off retains an already uploaded atlas
+until device teardown. No external asset installation or per-window allocation.
+Source artwork, approximate depth, packing script, hashes and full generation
+prompts are in assets/newland-interiors and tools/pack_newland_rooms.py. Generated with
+the built-in image_gen tool; the user reference supplied style direction.
+Draw-record size is unchanged; layout and atlas slot share the existing field.
+
+Depth is an approximate single-view relief, not a reconstructed 3D room.
+Hidden surfaces cannot be recovered; oblique views can stretch furniture edges,
+and large camera changes lose realism. Lighting is baked into the cards, with
+runtime day/night scaling and muted glass/reflection over it. No live scene
+shadows or physically accurate spill are created. The original procedural draft
+is preserved in v3-procedural-draft for comparison with the textured refinement.
+
+Validation images are actual Vulkan output on controlled facade geometry,
+not captured Newland gameplay. Synthetic geometry identity witnesses test the
+shared-material guard; they are not retail model captures. Performance reports
+are controlled GPU timestamps, not whole-city or multi-client FPS guarantees.

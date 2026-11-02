@@ -1,5 +1,7 @@
 // Device setup, main targets, swapchain, frames, render target switching, screenshots.
 #include "internal.h"
+#include "material_maps.h"
+#include "window_global.h"
 
 #include <algorithm>
 #include <chrono>
@@ -13,6 +15,47 @@ namespace rvk {
 
 namespace {
 void (*g_logSink)(const char*) = nullptr;
+#include "window_rooms.png.inc"
+}
+
+void Device::EnsureWindowRooms()
+{
+    if (m_windowRoomsTried || m_windowDepth <= 0 || !m_bindless) return;
+    m_windowRoomsTried = true;
+    VkBufferCreateInfo bi{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    bi.size=sizeof(environment::windowPaneData);bi.usage=VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    VmaAllocationCreateInfo ac{};ac.usage=VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+    ac.flags=VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT|VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    VmaAllocationInfo info{};
+    if(vmaCreateBuffer(m_allocator,&bi,&ac,&m_windowPaneBuffer,&m_windowPaneAllocation,&info)==VK_SUCCESS){
+        std::memcpy(info.pMappedData,environment::windowPaneData,sizeof(environment::windowPaneData));
+        vmaFlushAllocation(m_allocator,m_windowPaneAllocation,0,VK_WHOLE_SIZE);
+        m_windowPaneBytes=sizeof(environment::windowPaneData);
+    }else Log("Global window pane table unavailable; reviewed global interiors disabled");
+    maps::Image image; std::string error;
+    if (!maps::LoadImageFromMemory(kWindowRooms, sizeof(kWindowRooms), &image, &error) ||
+        image.w != 1024 || image.h != 512) {
+        Log("Newland material atlas unavailable; interiors disabled: %s", error.c_str());
+        return;
+    }
+    // Opaque surface materials, not room pictures. Average channels independently.
+    maps::MipChain chain; chain.w = image.w; chain.h = image.h;
+    std::vector<float> values(image.rgba.size());
+    for (size_t i=0; i<values.size(); ++i) values[i]=image.rgba[i]/255.f;
+    int w=image.w,h=image.h;
+    for (;;) {
+        std::vector<uint32_t> pixels(size_t(w)*h);
+        for (size_t i=0; i<pixels.size(); ++i)
+            pixels[i]=maps::Byte(values[i*4+3])<<24 | maps::Byte(values[i*4])<<16 |
+                      maps::Byte(values[i*4+1])<<8 | maps::Byte(values[i*4+2]);
+        chain.levels.push_back(std::move(pixels));
+        if (w==1 && h==1) break;
+        int nw,nh; values=maps::Halve(values,w,h,4,&nw,&nh); w=nw; h=nh;
+    }
+    m_windowRooms=maps::Upload(*this,chain);
+    Log("Newland rooms: %s; 8 reusable 256px surface tiles, %.2f MiB with mips",
+        m_windowRooms?"material atlas ready":"upload failed, interiors disabled",
+        double(chain.Bytes())/(1024.0*1024.0));
 }
 
 void SetLogSink(void (*sink)(const char*)) { g_logSink = sink; }
@@ -193,6 +236,7 @@ Device::~Device()
     if (m_blackTexture) DestroyTextureNow(m_blackTexture);
     if (m_blueNoise) DestroyTextureNow(m_blueNoise);
     if (m_flatNormal) DestroyTextureNow(m_flatNormal);
+    if (m_windowRooms) DestroyTextureNow(m_windowRooms);
     if (m_rock.pending.valid()) m_rock.pending.wait();   // (the cliffs' rock: a decode still running finishes first)
     if (m_sharedGround.pending.valid()) m_sharedGround.pending.wait();
     for (Texture* t:m_sharedGround.images) DestroyTexture(t);
@@ -219,6 +263,7 @@ Device::~Device()
     DestroyLeafResources();
     DestroyWaterResources();
     DestroyRainResources();
+    DestroyLiving();
     DestroySmokeResources();
     DestroyCloudResources();
     DestroyStaticGeometry();
@@ -233,6 +278,7 @@ Device::~Device()
                                                  // slots aren't cleared)
     if (m_bindlessSetLayout) vkDestroyDescriptorSetLayout(m_device, m_bindlessSetLayout, nullptr);
     if (m_nullBuffer) vmaDestroyBuffer(m_allocator, m_nullBuffer, m_nullAllocation);
+    if (m_windowPaneBuffer) vmaDestroyBuffer(m_allocator,m_windowPaneBuffer,m_windowPaneAllocation);
     DestroyMainTargets();
     if (m_pool) vkDestroyCommandPool(m_device, m_pool, nullptr);
     DestroySwapchain();
@@ -344,7 +390,7 @@ void Device::CreatePipelineCache()
         uint32_t header[4] = {};
         if (data.size() >= 32)
             std::memcpy(header, data.data(), sizeof(header));
-        if (!data.empty() && (header[0] < 32 || header[1] != VK_PIPELINE_CACHE_HEADER_VERSION_ONE ||
+        if (!data.empty() && (header[0] < 32 || header[0] > data.size() || header[1] != VK_PIPELINE_CACHE_HEADER_VERSION_ONE ||
                               header[2] != m_props.vendorID || header[3] != m_props.deviceID ||
                               std::memcmp(data.data() + 16, m_props.pipelineCacheUUID, VK_UUID_SIZE) != 0)) {
             Log("pipeline cache %s is from another GPU or driver: starting afresh", file.c_str());
@@ -370,7 +416,7 @@ void Device::SavePipelineCache(const char* why)
     if (!m_pipelineCache || file.empty())
         return;
     size_t size = 0;
-    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size == m_pipelineCacheSaved)
+    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size >= (256u << 20) || size == m_pipelineCacheSaved)
         return;
     std::vector<uint8_t> data(size);
     if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, data.data()) != VK_SUCCESS)
@@ -939,7 +985,7 @@ bool Device::CreatePipelines(std::string* error)
     const VkShaderStageFlags vsfs = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     const VkShaderStageFlags tess = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT | VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
     const VkShaderStageFlags vsfstess = vsfs | tess;
-    VkDescriptorSetLayoutBinding bindings[12] = {
+    VkDescriptorSetLayoutBinding bindings[13] = {
         {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, vsfstess, nullptr},   // the deduplicated DrawConstants array
         {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
         {2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
@@ -952,12 +998,13 @@ bool Device::CreatePipelines(std::string* error)
         {10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},     // tessellation's normals
         {11, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},  // normal map
         {12, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, vsfstess, nullptr},  // the per-draw DrawRecords
+        {13, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // reviewed global panes
     };
     if (!m_tessSupported)
         for (auto& b : bindings) b.stageFlags &= ~tess;
     VkDescriptorSetLayoutCreateInfo sl{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
     sl.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-    sl.bindingCount = 12;
+    sl.bindingCount = 13;
     sl.pBindings = bindings;
     if (!Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, &m_setLayout), "vkCreateDescriptorSetLayout", error))
         return false;
@@ -1215,7 +1262,7 @@ bool Device::CreatePipelines(std::string* error)
     // Zero vertex data for attributes a format doesn't have (bound with stride 0).
     VkBufferCreateInfo bi{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     bi.size = 64;
-    bi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     VmaAllocationCreateInfo ac{};
     ac.usage = VMA_MEMORY_USAGE_AUTO;
     ac.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
@@ -1634,6 +1681,7 @@ void Device::BeginFrame()
 {
     if (m_deviceLost)
         return;
+    ResetWeatherStats();
     HeapCheck("the frame's start", 1);
     if (!m_heapBroken && HeapCheckLevel() > 0) m_heapLastOk = "the frame's start";
     // Indoors (a room's playfield: rooms drawn, no terrain) for 10 frames running, or out again: no weather in there
@@ -1709,6 +1757,7 @@ void Device::BeginFrame()
         m_ringPeak = std::max(m_ringPeak, f.ringOffset);
         f.ringOffset = 0;
     }
+    if ((m_wearDebug>0 && m_frameNumber%120==119) || (m_buildWear>0 && m_frameNumber%600==599)) ReportWeatherStats();
     if (m_frameNumber % 600 == 599) {            // how full frames get (logged with the profiler's numbers)
         Log("ring buffer: peak %.1f of %llu MB a frame, %u mid-frame flushes (last 600 frames)",
             double(m_ringPeak) / 1048576.0, (unsigned long long)(f.ringSize >> 20), m_midFrameFlushes);
@@ -1817,6 +1866,7 @@ void Device::BeginFrame()
     UpdateLightning();                           // (rain.cpp: the game's glow last frame)
     m_lightsPrev.swap(m_lightsCur);              // last frame's complete light set lights this frame
     m_lightsCur.clear();
+    PrepareLivingFrame();
     m_sunLuminance = 0.0f;
     m_casters.clear();
     m_blobShadowsReplaced.store(m_shadows && m_shadowValid, std::memory_order_relaxed);
@@ -1859,6 +1909,7 @@ void Device::BeginFrame()
     // which waits on frame work only an open frame submits.)
     PollTerrainRock();
     PollSharedTerrain();
+    EnsureWindowRooms();
 }
 
 void Device::EndFrame()

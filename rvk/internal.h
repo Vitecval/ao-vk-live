@@ -58,6 +58,10 @@ struct DrawTransform {
                                    // native ground's tile-code texture's bindless image + 1 (the float's bits; 0 = the
                                    // game's ground); z its normal maps' (lighting pass; 0 = none); w its sky visibility's
                                    // (lighting pass; 0 = none)
+    float windows[4];             // mode, layout low 3 bits / atlas image+1 above, RGB stage, stable spatial seed
+    float windowHouseLo[4];       // whole visual's MODEL-space bounds; w: known (current native visual)
+    float windowHouseHi[4];       // shared by every material/pane of this building; shader derives room cells
+    float weather[4];             // intensity, material kind (1 concrete / 2 steel / 3 paint), world base Y, clean factor
     float terrainAt[4];            // ... xyz: its tile's mean colour (the cliffs' rock is tinted to it; -1 unknown) - the
                                    // native ground's base pass: x its cells' mean colours' bindless image + 1 (bits); its
                                    // rocks: y 2, its pebbles: y 3 and z kPebbleRange; w: kTerrainBase / kTerrainLight
@@ -210,6 +214,7 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
     float sharedGround[5][4];      // five master images (uint bits + 1), their RGB mean
     float sharedGroundConfig[4];   // blend amount, repeats per world unit, spare, native geometry with classic lighting
     float terrainFar[4];           // filtered macro composition strength, remaining components reserved
+    float windowLife[4];           // UTC periodic seconds, activity enabled; reserved z/w
     GpuLight lights[kFrameLights];
 };
 

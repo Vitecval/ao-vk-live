@@ -11,18 +11,21 @@ by hand; run the script after changing a setting (`--check` tells whether this f
   the console (the key left of 1) takes any setting by name, with or without `RVK_` (`darkness 1`, `bloom 0.5`).
 - `RVK_Enhance` off gives the game's own look: each setting takes its *game value* (below) while the stored values
   stay. A feature's on / off switch (its *switch* below) does the same for the settings under it.
-- Presets (Original, Classic+, Modern, Ultra) set every setting outside General; Modern is the defaults.
+- Presets preserve texture-library and HD-surface choices. Classic+ and Modern use Medium windows; Ultra uses Maximum.
+- Ctrl+Shift+F12 opens standalone options: important controls first; Enter expands related settings.
+- Living compatibility keys are inactive in Preview 21 because their current resources cannot be distributed.
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-353 settings, 183 of them in the settings window.
+363 settings, 186 of them in the settings window.
 
 ## Sections
 
+- [Living Rubi-Ka](#living-rubi-ka) (6)
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
-- [Materials](#materials) (20)
-- [Debug](#debug) (7)
+- [Materials](#materials) (23)
+- [Debug](#debug) (8)
 - [Terrain](#terrain) (24)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
@@ -36,6 +39,17 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - [Anti-aliasing](#anti-aliasing) (6)
 - [Depth of field](#depth-of-field) (9)
 - [Particles](#particles) (18)
+
+## Living Rubi-Ka
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_LivePeople` | Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes) | 0 / 1 / 2 / 3 | 0 | ini only; game value 0; knob |
+| `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | ini only; game value 0; knob |
+| `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
+| `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
+| `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | ini only; game value off; knob |
+| `RVK_LiveAtmos` | Localized vent steam: Off / On (also requires Smoke enabled) | on / off | off | ini only; game value off; knob |
 
 ## General
 
@@ -92,7 +106,10 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
-| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (enhanced terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |
+| `RVK_WindowActivity` | Window lights: slow apartment activity (off uses static light states) | on / off | on | window; switch `RVK_WindowDepth`; game value on; knob |
+| `RVK_BuildWear` | Building Weathering: Off / Low / Medium / High | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
 | `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |
 | `RVK_MatStrength` | Character & equipment materials: material response strength | 0 .. 1 | 1 | window; switch `RVK_AutoMat`; knob |
@@ -103,6 +120,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_PbrDebug` | PBR materials: debug view (Ctrl+Shift+K) | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 | 0 | ini only; switch `RVK_Pbr` |
+| `RVK_WearDebug` | Building weathering diagnostics: Off / Counters / Pixel coverage | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
 | `RVK_ShadowView` | Debug: show the sun shadow map's light (white lit, dark shadowed; tint = cascade) | on / off | off | ini only; knob |
 | `RVK_SceneProf` | Debug: the scene's GPU time and overdraw by kind of draw in the gpu ms log (costs a little; console sceneprof 1) | on / off | off | ini only; knob; was env `RANDYVK_SCENE_PROFILE` |
 | `RVK_Occlusion` | The game's culling of what hills hide (off: all in view drawn - whole shadows, more draws) | on / off | on | ini only |

@@ -115,6 +115,12 @@ double Device::SwayClock()
 
 // Tests and benchmarks: the clock (simulations, wind, sway) steps `step` seconds a frame instead of following real
 // time, so a demo can render flat out - no sleeping, the GPU stays at its clocks - and still simulate at a game's pace.
+double Device::WindowClock()
+{
+    if(g_fixedClockStep>0.0)return std::fmod(1000.0+double(g_fixedClockTicks)*g_fixedClockStep,4096.0);
+    using namespace std::chrono;
+    return std::fmod(duration<double>(system_clock::now().time_since_epoch()).count(),4096.0);
+}
 void Device::SetFixedClock(double step) { g_fixedClockStep = step; }
 void Device::TickFixedClock() { ++g_fixedClockTicks; }
 
@@ -550,7 +556,7 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
     c.key = key;
     std::memcpy(c.sway, m_drawSway, sizeof(c.sway));
     c.draw = m_frameDraw;
-    c.animated = m_drawMesh && !m_drawMeshStatic;
+    c.animated = m_livingDrawing || (m_drawMesh && !m_drawMeshStatic);
     c.owner = m_drawOwner;
     c.kind = m_drawVisualKind;
     c.leafKey = m_drawLeaves ? m_drawLeafKey : 0;
@@ -966,7 +972,9 @@ bool Device::IsCombinedTerrainPass() const
 {
     using namespace d3d;
     if (m_native.drawing) return m_groundOne && m_native.combinedPass && SharedGroundPlus();
-    return !m_native.drawing && m_rs[RS_LIGHTING] && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
+    // Retail also submits this lightmap/base layout with fixed-function lighting
+    // disabled. Its texture stages and coordinates still define a combined pass.
+    return !m_native.drawing && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
            m_tss[0][TSS_COLOROP] == TOP_ADD && m_tss[0][TSS_COLORARG1] == TA_TEXTURE && m_tss[0][TSS_COLORARG2] == TA_DIFFUSE &&
            m_tss[1][TSS_COLOROP] == TOP_MODULATE && m_tss[1][TSS_COLORARG1] == TA_TEXTURE && m_tss[1][TSS_COLORARG2] == TA_CURRENT &&
            m_tss[0][TSS_TEXCOORDINDEX] == 1 && m_tss[1][TSS_TEXCOORDINDEX] == 0 &&
@@ -1144,6 +1152,7 @@ void Device::CollectShadowItems()
         m_shadowItems.push_back(it);
     }
     AddStatelShadowItems();                      // the playfield's placed objects (statels.cpp)
+    if(m_liveMachine>=1&&m_living)std::erase_if(m_shadowItems,[&](const ShadowItem& item){return item.cached&&SuppressLivingCached(item.vertexCount,item.indexCount,item.boundsMin,item.boundsMax);});
     // The drawn-static tally and the animated subset: the point-light pass asks "is anything animated in range?" once
     // per cube, and only animated casters (characters) can answer yes, so static casters need not be scanned.
     m_shadowItemsCount = uint32_t(m_shadowItems.size());

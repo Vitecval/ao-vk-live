@@ -52,7 +52,7 @@ def main():
     if city.exists(): catalog+=json.loads(city.read_text())
     props=ROOT/'props-catalog.json'
     if props.exists(): catalog+=json.loads(props.read_text())
-    for name in ['shared-catalog.json','picked-catalog.json','scan-catalog.json','completion-catalog.json']:
+    for name in ['shared-catalog.json','picked-catalog.json','scan-catalog.json','completion-catalog.json','worker-catalog.json']:
         path=ROOT/name
         if path.exists(): catalog+=json.loads(path.read_text())
     if len({(x['type'],x['id']) for x in catalog})!=len(catalog):
@@ -78,6 +78,8 @@ def main():
                 files[name]=prior['files'][name]
             materials.append(previous)
             continue
+        if item.get('worker'):
+            raise RuntimeError(f'Imported worker material {stem} requires its verified baked maps; use --only-new to retain them')
         art = Image.open(ROOT/'source-art'/(item['source']+'.png')).convert('RGB')
         w,h = item['size']
         art = art.resize((w,h),Image.Resampling.LANCZOS)

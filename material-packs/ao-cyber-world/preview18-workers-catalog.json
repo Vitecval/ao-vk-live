@@ -1,0 +1,263 @@
+[
+  {
+    "worker": 2,
+    "type": 1010004,
+    "id": 17881,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "846fefea5e5a1c521df25f3e6d03117f2c9b69b0798c70a3b73a0b8e43c98b8f",
+    "original_sha256": "d2047f30f20ae309b88ce45a056766da739bd5058d8d0ee35c4043445bc0e0c0",
+    "maps": {
+      "1010004_17881_d.png": "739e91c701ade53758fb8f58daf345a617ffd72f7f937dbdd619976a9d93f314",
+      "1010004_17881_n.png": "9c9734a3401732c875cc3e20fd0792426f362b3b6d1eeafb60583207b14399e0",
+      "1010004_17881_orm.png": "dac8a2ec8914d8d3474b722742daa14343af8d57e5796a901815c1e9c720dab8"
+    },
+    "size": [
+      2048,
+      2048
+    ],
+    "palette_max_mean_delta": 0.0022925283394570894,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u",
+      "v"
+    ]
+  },
+  {
+    "worker": 2,
+    "type": 1010004,
+    "id": 210773,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "c9491424df2dc6dba4bfe0d1cf39d6ca2e9c432c49304b4dcb5e8f7d6c80b1d7",
+    "original_sha256": "1712d5440439cde92d0e67ffe775e01d23343db37addc8431345a7f2d912a325",
+    "maps": {
+      "1010004_210773_d.png": "913d3a780f5e1a5817ec5c15411374e44830667061bfdfa95e1681b9284bc5d5",
+      "1010004_210773_n.png": "bcc457019939ef929f2e917131475acd9ea130f4b89d27d46aed37dfc84461fc",
+      "1010004_210773_orm.png": "574e7eb3c70c7381a466566cd35f3cb92225e953c3ba4225b8413bef3d55eddd",
+      "1010004_210773_e.png": "4e2eae2256953d94fedf31145e95afabbfa10953b13fb2a1374c3d36f0519c29"
+    },
+    "size": [
+      1024,
+      2048
+    ],
+    "palette_max_mean_delta": 0.00044567631739461655,
+    "profile": "mixed-metal-cyan-apertures",
+    "repeat_axes": []
+  },
+  {
+    "worker": 2,
+    "type": 1010004,
+    "id": 210777,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "c9491424df2dc6dba4bfe0d1cf39d6ca2e9c432c49304b4dcb5e8f7d6c80b1d7",
+    "original_sha256": "5595a198a74dd5e9e4f098c8dae85cf9f7d9bfd18f6cfdc0bf7e04f1c3faa58b",
+    "maps": {
+      "1010004_210777_d.png": "d852d9712205c659fab8ce6f85715f5963b6b202075a0830138ebe1f216337dc",
+      "1010004_210777_n.png": "34dbc67f8a26224ff0707abbfcd28ce597fc11835a99b7d6dd970a1fab219424",
+      "1010004_210777_orm.png": "1bc0f230401fc3c283a58d6c828c29c2a41eca8f9b8eba8e5c5796198724933d",
+      "1010004_210777_e.png": "eb46b17df93dabfddf74c51eeb2230ea7710244b1235573834f7cb781d45cf17"
+    },
+    "size": [
+      1024,
+      1024
+    ],
+    "palette_max_mean_delta": 0.0022738587622624373,
+    "profile": "mixed-metal-cyan-apertures",
+    "repeat_axes": []
+  },
+  {
+    "worker": 2,
+    "type": 1010004,
+    "id": 276153,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "11e0276d5f1d48ecf79a5592636c20dd657279366826300db62ea432a7d57dc7",
+    "original_sha256": "6e41699d45516eb650b5b56b258cc6b441c7a7452127bc245f17436d3fd22857",
+    "maps": {
+      "1010004_276153_d.png": "c51c5fc8cd7914d23fe5c6200d0c127580eff35d70439551739a0f50639b030b",
+      "1010004_276153_n.png": "31ea657f22c6270f2295d47ccd4ddd94f40ea102e6134ad2ef60e796c1479863",
+      "1010004_276153_orm.png": "800f2520af6b5a16f1d39269646f5172fad664d3930fe1544164290aa92fc1df"
+    },
+    "size": [
+      2048,
+      2048
+    ],
+    "palette_max_mean_delta": 0.0014977099848466902,
+    "profile": "painted-metal",
+    "repeat_axes": []
+  },
+  {
+    "worker": 2,
+    "type": 1010004,
+    "id": 279293,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "bb49a1211363a68eddc2065341c12a82ab255c521d6266c3b980712bb3272a7e",
+    "original_sha256": "539c07378dc777fbb9014bd8610d568a0cdfd737859be50f6622c354eff0b8ab",
+    "maps": {
+      "1010004_279293_d.png": "8490a06e951b1124cb2d673b8aab08cbc5ebe038bc2e3f43ecc02fe248901764",
+      "1010004_279293_n.png": "e1107454332e9ec63b875cc179e61b68b780e589a0b277085694efa24e150cdc",
+      "1010004_279293_orm.png": "752268f7a9b0483b519dfdd6dd6a81b4156a1ada907e1deaf98e66ca002ac1e1"
+    },
+    "size": [
+      2048,
+      2048
+    ],
+    "palette_max_mean_delta": 0.004379272460965422,
+    "profile": "mixed-woven-composite-metal-original-map",
+    "repeat_axes": []
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 38566,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "ad4cb0e663d6604a23b1f413725d81b7809c9c678357743292372e8d1eca473a",
+    "original_sha256": "cae4da311525fa0feeaacba8d0aebe3c68cabc93405708ed75c29663fa2e5757",
+    "maps": {
+      "1010004_38566_d.png": "4ead934d2cf1c15bf378e4e754ac1707a6634922ac98e6059e635becc4187b35",
+      "1010004_38566_n.png": "b60fca99064b849d24e8e9576d91039386f22064a5a29b939d725f6013d3c9a4",
+      "1010004_38566_orm.png": "52951120363e95656a90e03dc4c07033b6636c2688199b105c88db327cb20919"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.03323376225490171,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u",
+      "v"
+    ]
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 45132,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "b8b505ae640098ef27295175018ee048c0d35b7cd0465161681d313b5e7639a0",
+    "original_sha256": "388b1448b5b11da3891f438c1cf33e613aeb65a8ff06bcde8e73208d8c4f2bda",
+    "maps": {
+      "1010004_45132_d.png": "b2cac2d793f1b30450efa34f239da5a9e0da5ad33f96fd135cba65b0738d61fd",
+      "1010004_45132_n.png": "debe56b3125344074cdb84fb1d6c8d643aa7be7edd57097cb3d39577fe177841",
+      "1010004_45132_orm.png": "f3ff249a317c0512498091826d28c818a4c5351579514801b03110d9fa6ff493"
+    },
+    "size": [
+      512,
+      2048
+    ],
+    "palette_max_mean_delta": 0.017358877144610374,
+    "profile": "metal",
+    "repeat_axes": [
+      "v"
+    ]
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 85284,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "ef82d169196010bb70572ea9d1147f0cb0e6ec97dd1d12fae0e066ebcf7811c1",
+    "original_sha256": "62a82b9bb5e1b0e0a591125ef3948bdf318e2739bbc128009d3e41b762b89eef",
+    "maps": {
+      "1010004_85284_d.png": "133b66191b7035cdef297f17606289e79772091f626211a1e39bf82bead7eb39",
+      "1010004_85284_n.png": "88ca2ed0e3b35f84ae61c97de8d315562859a76e0876ff0eb08fdb444f07f004",
+      "1010004_85284_orm.png": "694396126274f56386aa93e7f2a2b2607f62bf1bc3495076e08eed4e778417d6"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.017486691942406096,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u"
+    ]
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 85289,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "ff9d47140a5cd125d5c24f4e287cee078c5e63dd588ab298368f83a97bc685d9",
+    "original_sha256": "ce4b0d43753b3e1e0c5191684fc0575ceec1fd13f50ec67d2540b4d3bb558099",
+    "maps": {
+      "1010004_85289_d.png": "73ce7cec72cd049867ce86d1d165b559b2c6e9d3ca4f3dfba10f0ce8113d878a",
+      "1010004_85289_n.png": "3d97252ab133a60f4ee680a2727ca603292759513809d89949c0bf33f0bd01c6",
+      "1010004_85289_orm.png": "dd9d679d2b56a001d0170a2b128e9194a1fb6261aac84ca16f834c5ee70296ff"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.016090303308825743,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u"
+    ]
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 269319,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "a3e78074cc8173218a98ab1d5c082639f7a761a096049df4b39c7b32370360ff",
+    "original_sha256": "2e54b411662fb5bdbf955510a7b53b61a28035aea43b1958b76f45d6f11c4eed",
+    "maps": {
+      "1010004_269319_d.png": "1f7bf45c88b57fd63b2e356a54185d02a9490e3b56c8b78bd78acb609ad84b0a",
+      "1010004_269319_n.png": "87122d22787a9303dbfbae276145f14959a129e74c3fa501dd97112084dad5a8",
+      "1010004_269319_orm.png": "fb40b386085c8a111d91827eb753c5ad9e99b095238444e45262c2fd56849500"
+    },
+    "size": [
+      2048,
+      2048
+    ],
+    "palette_max_mean_delta": 0.022757376876553714,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u",
+      "v"
+    ]
+  },
+  {
+    "worker": 3,
+    "type": 1010004,
+    "id": 269321,
+    "pack": "ao-cyber-world",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "fabc93ec144c9fb0c30d1e63e6f563816dff22116b3d26582c8755a049185615",
+    "original_sha256": "8c21f336787598ac4d7a07d1e71b9d281076e24fe4619c1a42b43de6404c9443",
+    "maps": {
+      "1010004_269321_d.png": "34331bfd8e1f61e9756c01e8d3fe9f6cd1f974d19afa11b8d7983ed6f4dd6843",
+      "1010004_269321_n.png": "6150f9bd51845a207a4f19c58b5b0318f6efe3ce978139dd90151815b7f92dc3",
+      "1010004_269321_orm.png": "075f199d545b75fed5b8dda397b5402d98f17e41792b7aa6d116f5e983d8e6ce"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.019367292815547554,
+    "profile": "painted-metal",
+    "repeat_axes": [
+      "u"
+    ]
+  }
+]

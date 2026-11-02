@@ -233,7 +233,7 @@ VkDeviceSize Device::SkinBones(const skin::Palette& bones, VkDeviceSize* bytes)
 {
     // A character's pieces share their bones: written once per frame (and ring restart).
     auto found = m_skinBonesAt.find(&bones);
-    if (found != m_skinBonesAt.end() && found->second.generation == m_ringGeneration) {
+    if (found != m_skinBonesAt.end() && found->second.generation == m_ringGeneration && found->second.serial == bones.serial) {
         *bytes = found->second.bytes;
         return found->second.offset;
     }
@@ -246,7 +246,7 @@ VkDeviceSize Device::SkinBones(const skin::Palette& bones, VkDeviceSize* bytes)
             for (int c = 0; c < 4; ++c)
                 rows[b * 12 + r * 4 + c] = bones.bones[b].c[c][r];
     if (!bones.count) std::memset(rows, 0, 48);
-    m_skinBonesAt[&bones] = {offset, *bytes, m_ringGeneration};
+    m_skinBonesAt[&bones] = {offset, *bytes, m_ringGeneration, bones.serial};
     return offset;
 }
 
@@ -280,7 +280,11 @@ void Device::SkinDispatch(SkinMesh& mesh, const skin::Job& job, uint32_t flags, 
     SkinPush push{n, job.bones->count, prev.count, flags | (job.rest ? 1u : 0u), uint32_t(out.vertexOffset / 4),
                   uint32_t(out.prevOffset / 4), uint32_t(out.smoothOffset / 4), mesh.membersBase};
     vkCmdPushConstants(cmd, m_skinLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
+    auto& timing=m_profile[m_frameIndex];const bool timed=m_livingDrawing&&m_livingGpuProfile&&timing.pool&&timing.livingSkinCount+2<=kLivingSkinQueries;
+    const uint32_t query=kProfileMarks+2+timing.livingSkinCount;
+    if(timed){if(!timing.livingSkinCount)vkCmdResetQueryPool(cmd,timing.pool,kProfileMarks+2,kLivingSkinQueries);vkCmdWriteTimestamp2(cmd,VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,timing.pool,query);}
     vkCmdDispatch(cmd, (n + kGroupSize - 1) / kGroupSize, 1, 1);
+    if(timed){vkCmdWriteTimestamp2(cmd,VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,timing.pool,query+1);timing.livingSkinCount+=2;}
     m_skinUploadsPending = true;
 }
 
@@ -291,7 +295,10 @@ Device::SkinOutput* Device::SkinOnGpu(skin::Job& job)
     if (!m_gpuSkin || !m_skinPipeline || !job.source || !job.bones)
         return nullptr;
     auto found = m_skinOutputs.find(&job);
-    if (found != m_skinOutputs.end())
+    if (found != m_skinOutputs.end() && found->second.jobSerial == job.serial &&
+        found->second.boneSerial == job.bones->serial &&
+        found->second.prevBoneSerial == (job.prevBones ? job.prevBones->serial : 0) &&
+        found->second.rest == job.rest && found->second.mesh->source == job.source)
         return &found->second;
     SkinMesh* mesh = SkinMeshFor(job.source);
     if (!mesh)
@@ -304,6 +311,8 @@ Device::SkinOutput* Device::SkinOnGpu(skin::Job& job)
     const VkDeviceSize n = job.source->vertices.size();
     SkinOutput out{};
     out.mesh = mesh;
+    out.jobSerial = job.serial;out.boneSerial = job.bones->serial;
+    out.prevBoneSerial = job.prevBones ? job.prevBones->serial : 0;out.rest = job.rest;
     if (!SkinArenaAlloc(n * sizeof(skin::Vertex), &out.vertexOffset) || !SkinArenaAlloc(n * 12, &out.prevOffset))
         return nullptr;
     EnsureRingSpace(2 * (VkDeviceSize(job.bones->count) * 48 + 512));

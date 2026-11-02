@@ -9,6 +9,8 @@
 #include "material_maps.h"
 #include "material_profiles.h"
 #include "grass_coverage.h"
+#include "mesh_id.h"
+#include <cstddef>
 
 #include <chrono>
 #include <thread>
@@ -1377,6 +1379,7 @@ bool g_walkerLight = false;    // --walker-light: the round "character" carries 
 int g_grassDense = 1;          // --grass-dense K: K x K as many tufts, K times closer (a field, for profiling)      // --grass-flip: the tufts modelled upside down, turned up by their world matrix
 bool g_grassBench = false;     // --grass-bench: RunGrassBench (a big terrain, the camera walking)
 bool g_grassCombined = false;  // --grass-combined: live's opaque lit ground, lightmap at stage 0 and base at stage 1
+bool g_nativeUnlitCombined = false; // retail terrain can retain this stage layout with D3D lighting off
 bool g_grassUploadTest = false;
 bool g_globalTerrainTest = false; // every-tile fallback with no authored material maps
 int g_grassLate = 0;               // --grass-late N: the grass switched on at frame N of the zone ground scene
@@ -1875,6 +1878,11 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
     }
     if (g_grassCombined) dev.SetPixelLighting(true);
     for (int frame = 0; frame < frames; ++frame) {
+        // These fixed-clock laboratory runs can otherwise finish before the
+        // asynchronous rock decode and clutter jobs receive wall-clock time.
+        // Pace the fixture; regression scripts also require ready resources.
+        // This does not run in the addon or alter simulation/fixed-clock time.
+        if (g_groundDetailFixture) std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if(g_grassLifetimeTest) GrassLifetimeStep(dev,frame,ground);
         if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
         if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"terrain window: ");
@@ -1946,7 +1954,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetTextureStageState(0, TSS_ALPHAARG1, TA_TEXTURE);
         dev.SetDrawVisual(uint32_t(VisualKind::Terrain), "AnarchyGround_t");
         if (g_grassCombined) {
-            dev.SetRenderState(RS_LIGHTING,1);
+            dev.SetRenderState(RS_LIGHTING,g_nativeUnlitCombined ? 0 : 1);
             dev.SetRenderState(RS_AMBIENT,0xFF515151);
             dev.SetRenderState(RS_ALPHABLENDENABLE,0);
             dev.SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);
@@ -5183,6 +5191,8 @@ LONG WINAPI Crashed(EXCEPTION_POINTERS* e)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
+#include "weathering_fixture.inc"
+
 int main(int argc, char** argv)
 {
     SetUnhandledExceptionFilter(&Crashed);
@@ -5281,6 +5291,51 @@ int main(int argc, char** argv)
         else if (a == "--city-no-cull") g_cityNoCull = true;
         else if (a == "--city-statels" && i + 1 < argc) g_cityStatels = argv[++i];
         else if (a == "--game-ms" && i + 1 < argc) g_benchGameMs = std::atof(argv[++i]);
+        else if (a == "--window-fixture") {g_windowFixture=g_wearFixture=true;g_wearId=6055;g_skyZone=566;}
+        else if (a == "--window-mode" && i+1<argc) g_windowMode=std::atoi(argv[++i]);
+        else if (a == "--window-angle" && i+1<argc) g_windowAngle=float(std::atof(argv[++i]))*kPi/180.f;
+        else if (a == "--window-repeat" && i+1<argc) g_windowRepeat=float(std::atof(argv[++i]));
+        else if (a == "--window-wall" && i+2<argc){g_windowWallWidth=float(std::atof(argv[++i]));g_windowWallHeight=float(std::atof(argv[++i]));}
+        else if (a == "--window-offset-y" && i+1<argc)g_windowWallOffsetY=float(std::atof(argv[++i]));
+        else if(a=="--window-corner")g_windowCorner=true;
+        else if(a=="--window-no-house")g_windowNoHouse=true;
+        else if(a=="--window-activity"&&i+1<argc)g_windowActivity=std::atoi(argv[++i]);
+        else if(a=="--window-mirror-y")g_windowMirrorY=true;
+        else if(a=="--window-z-up")g_windowZUp=true;
+        else if(a=="--window-bay")g_windowBay=true;
+        else if(a=="--window-flat-house")g_windowFlatHouse=true;
+        else if(a=="--window-unlit")g_windowUnlit=true;
+        else if(a=="--window-emissive")g_windowEmissive=true;
+        else if(a=="--window-alpha"&&i+1<argc)g_windowAlpha=std::clamp(std::atoi(argv[++i]),0,255);
+        else if(a=="--window-address"&&i+2<argc){g_windowAddressU=std::atoi(argv[++i]);g_windowAddressV=std::atoi(argv[++i]);}
+        else if(a=="--window-house-box"&&i+6<argc){g_windowHouseBox=true;for(int axis=0;axis<6;++axis)g_windowCustomHouse[axis]=float(std::atof(argv[++i]));}
+        else if(a=="--window-eye-y"&&i+1<argc)g_windowEyeY=float(std::atof(argv[++i]));
+        else if(a=="--window-house-depth"&&i+1<argc)g_windowHouseDepth=float(std::atof(argv[++i]));
+        else if(a=="--window-uv-scale"&&i+2<argc){g_windowRepeat=float(std::atof(argv[++i]));g_windowRepeatV=float(std::atof(argv[++i]));}
+        else if(a=="--window-house-y"&&i+2<argc){g_windowHouseY=true;g_windowHouseMinY=float(std::atof(argv[++i]));g_windowHouseMaxY=float(std::atof(argv[++i]));}
+        else if (a == "--window-origin" && i+2<argc) {g_windowOriginX=float(std::atof(argv[++i]));g_windowOriginZ=float(std::atof(argv[++i]));}
+        else if (a == "--window-baked") g_windowBaked=true;
+        else if (a == "--window-model" && i+1<argc) g_windowModel=std::atoi(argv[++i]);
+        else if (a == "--window-model2" && i+1<argc) g_windowModel2=std::atoi(argv[++i]);
+        else if (a == "--window-batch-probe") g_windowBatchProbe=true;
+        else if (a == "--wear-catalog" && i+1<argc) g_wearCatalog=argv[++i];
+        else if (a == "--wear-night") g_wearNight=true;
+        else if (a == "--wear-original" && i+1<argc) g_wearOriginal=argv[++i];
+        else if (a == "--wear-fixture") g_wearFixture=true;
+        else if (a == "--wear-id" && i+1<argc) g_wearId=std::atoi(argv[++i]);
+        else if (a == "--wear-level" && i+1<argc) g_wearLevel=std::atoi(argv[++i]);
+        else if (a == "--wear-debug" && i+1<argc) g_wearDebug=std::atoi(argv[++i]);
+        else if (a == "--wear-maps" && i+1<argc) g_wearMapRoot=argv[++i];
+        else if (a == "--wear-distance" && i+1<argc) g_wearDistance=float(std::atof(argv[++i]));
+        else if (a == "--wear-visual" && i+1<argc) g_wearVisual=std::atoi(argv[++i]);
+        else if (a == "--wear-no-pbr") g_wearPbr=false;
+        else if (a == "--wear-lite") g_wearFull=false;
+        else if (a == "--wear-classic") g_wearClassic=true;
+        else if (a == "--wear-hot-off") g_wearHotOff=true;
+        else if (a == "--wear-discard") g_wearDiscard=true;
+        else if (a == "--wear-sweep") g_wearSweep=true;
+        else if (a == "--wear-combined") g_wearCombined=true;
+        else if (a == "--wear-blend") g_wearBlend=true;
         else if (a == "--frames" && i + 1 < argc) frames = std::atoi(argv[++i]);
         else if (a == "--hdr") hdr = true;
         else if (a == "--dof" && i + 1 < argc) { dof = float(std::atof(argv[++i])); hdr = true; }
@@ -5296,6 +5351,7 @@ int main(int argc, char** argv)
         else if (a == "--grass-field") { g_grassFieldOn = true; hdr = true; }
         else if (a == "--grass-bench") { g_grassFieldOn = g_grassBench = true; hdr = true; }
         else if (a == "--grass-combined") g_grassCombined = true;
+        else if (a == "--native-unlit-combined") g_nativeUnlitCombined = true;
         else if (a == "--grass-upload-test") g_grassUploadTest = true;
         else if (a == "--grass-lifetime-test") {g_grassLifetimeTest=g_nativeGroundTest=g_groundDetailFixture=g_grassFieldOn=true;hdr=true;}
         else if (a == "--shared-terrain-test") {g_sharedTerrainTest=true;g_skyZone=655;}
@@ -5651,7 +5707,7 @@ int main(int argc, char** argv)
         if (!queued.Init(hwnd,g_width,g_height,&initError)) {std::printf("init failed: %s\n",initError.c_str());return 1;}
         queued.SetPixelLighting(pixelLighting);queued.SetLightingDebug(lightingDebug);
         queued.SetLightOverride(lightOverride);queued.SetShadows(shadows);
-        queued.SetHdr(hdr);queued.SetSkyPlayfield(g_skyZone);queued.SetKnob(Knob::TerraBlend,terrainBlend);
+        queued.SetHdr(hdr);queued.SetSkyPlayfield(g_skyZone);queued.SetKnob(Knob::TerraBlend,terrainBlend);queued.SetKnob(Knob::BuildWear,float(g_wearLevel));
         if(g_grassFieldOn)queued.SetGrassField(true,g_grassFieldDist,3.0f,.5f,g_grassFieldTex);
         RunNativeGroundTest(queued,frames,shot);queued.Sync();
         std::printf("rendered; screenshot %s\n",shot.c_str());return 0;
@@ -5741,6 +5797,8 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::HazeStart,hazeStart);
     dev.SetKnob(rvk::Knob::HazeEnd,hazeEnd);
     if ((g_globalTerrainTest || g_worldMaterialsTest) && !noWorldPlayfield) dev.SetSkyPlayfield(655);
+    dev.SetKnob(rvk::Knob::BuildWear, float(g_wearLevel));
+    dev.SetKnob(rvk::Knob::WearDebug, float(g_wearDebug));
     dev.SetKnob(rvk::Knob::BuildingHD, g_worldBuildingHD);
     dev.SetHdr(hdr);
     if (!g_meshIds.empty())
@@ -5874,6 +5932,80 @@ int main(int argc, char** argv)
     dev.SetMotionBlurMode(motionMode);
     dev.SetDof(dof > 0.0f, dofBokeh, true, dof, 16.0f, dofFocus, 0.2f, dofFar, 3.0f);
     dev.SetPointShadowFadeIn(fadeIn);    // frames here are milliseconds apart: no fade-in unless asked
+    if(g_wearFixture){
+        if(threaded){ThreadedDevice queued;std::string error;
+            if(!queued.Init(nullptr,g_width,g_height,&error)){std::printf("fixture init failed: %s\n",error.c_str());return 1;}
+            queued.SetHdr(hdr);queued.SetShadows(shadows);queued.SetLightOverride(lightOverride);queued.SetKnob(Knob::Headroom,headroom);
+    queued.SetTonemap(knee, 1.0f);
+    queued.SetBloom(bloom, 1.0f);
+    queued.SetEffectGlow(effectGlow);
+    queued.SetKnob(rvk::Knob::BloomOcc, bloomOcc);
+    queued.SetKnob(rvk::Knob::NeonSat, neonSat);
+    queued.SetKnob(rvk::Knob::SoftHi, softHi);
+    queued.SetKnob(rvk::Knob::DayLook, dayLook);
+    queued.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
+    if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
+    queued.SetKnob(rvk::Knob::BloomWide, bloomWide);
+    queued.SetKnob(rvk::Knob::SunSoft, sunSoft);
+    queued.SetLeafLight(leaf);
+    queued.SetKnob(rvk::Knob::NightGlow, nightGlow);
+    queued.SetKnob(rvk::Knob::MoonLight, g_moonLight);
+    queued.SetDarkness(g_darkness, g_darkFloor);
+    queued.SetKnob(rvk::Knob::Atmos, g_atmos);
+    queued.SetTwilight(g_twilight, g_skyGlow, 1.0f);
+    queued.SetKnob(rvk::Knob::DuskRays, g_duskRays);
+    queued.SetProcSky(g_procSky, g_skyZoneHint, 1.0f);
+    queued.SetSkyColours(g_skyColours);
+    queued.SetNightSky(g_nightSky);
+    queued.SetRainbow(1.0f, g_rainbowForce);
+    queued.SetKnob(rvk::Knob::DawnLight, g_dawnLight);
+    queued.SetKnob(rvk::Knob::Mist, g_mist);
+    queued.SetKnob(rvk::Knob::Contact, contact);
+    queued.SetKnob(rvk::Knob::Sway, sway);
+    queued.SetKnob(rvk::Knob::GrassPush, grassPush);
+    queued.SetGrassStyle(g_grassStyle[0], g_grassStyle[1], g_grassStyle[2], g_grassStyle[3], g_grassStyle[4] != 0.0f);
+    queued.SetGrassEven(g_grassEven);
+    queued.SetGrassShadows(g_grassShadow);
+    queued.SetKnob(rvk::Knob::PlantDetail, plantDetail);
+    queued.SetKnob(rvk::Knob::FoliageLod, foliageLod);
+    if (g_grassFieldOn)                  // --grass-field: the procedural ground grass (needs HDR: its pass draws into the scene)
+        queued.SetGrassField(true, g_grassFieldDist, 3.0f, 0.5f, g_grassFieldTex);
+    queued.SetShadowResolution(uint32_t(sunRes), uint32_t(ptRes));
+    queued.SetPointLightIntensity(ptLight, ptLight);
+    queued.SetTessellation(tess, 20.0f, uint32_t(tessLevel));
+    queued.SetTaa(taa, sharpen);
+    queued.SetRenderScale(uint32_t(renderScale));
+    queued.SetUpscaler(uint32_t(upscaler));
+    queued.SetFrameGen(frameGen);
+    queued.SetKnob(rvk::Knob::Fxaa, fxaa);
+    queued.SetGrading(saturation, contrast, warmth, 1.0f, nightTint, vignette);
+    if (lutSepia) {                      // --lut-sepia: a 16^3 sepia lookup table in the day slot (the 3D LUT path)
+        const uint32_t n = 16;
+        std::vector<uint8_t> lut(size_t(n) * n * n * 4);
+        for (uint32_t b = 0; b < n; ++b)
+            for (uint32_t g = 0; g < n; ++g)
+                for (uint32_t r = 0; r < n; ++r) {
+                    float y = (0.3f * r + 0.59f * g + 0.11f * b) / float(n - 1);
+                    uint8_t* p = &lut[((size_t(b) * n + g) * n + r) * 4];
+                    p[0] = uint8_t(std::min(1.0f, y * 1.07f) * 255); p[1] = uint8_t(y * 0.74f * 255);
+                    p[2] = uint8_t(y * 0.43f * 255); p[3] = 255;
+                }
+        queued.SetColorLut(0, n, lut.data());
+    }
+    queued.SetAo(ao, aoRadius);
+    queued.SetGi(gi, giRadius);
+    queued.SetVolume(volume, volHaze, volShafts);
+    queued.SetSsr(ssr, 1.0f, 0.3f, ssrWet);
+    queued.SetBump(bump);
+    queued.SetAnisotropy(anisotropy);
+    queued.SetMotionBlur(motionBlur, 8.0f);
+    queued.SetMotionBlurMode(motionMode);
+    queued.SetDof(dof > 0.0f, dofBokeh, true, dof, 16.0f, dofFocus, 0.2f, dofFar, 3.0f);
+    // Point-shadow fade-in is irrelevant to this shadow-disabled matched fixture.    // frames here are milliseconds apart: no fade-in unless asked
+            RunWeatheringFixture(queued,frames,shot);queued.Sync();
+        }else RunWeatheringFixture(dev,frames,shot);
+        return 0;
+    }
     if (glowOccludeTest) {
         RunGlowOccludeTest(dev, frames, shot);
         std::printf("rendered; screenshot %s\n", shot.c_str());
@@ -5978,7 +6110,7 @@ int main(int argc, char** argv)
         if (!g_statelPack.empty()) RunStatelTest(tdev, frames, shot, dump);
         else if (shadowTest) RunShadowTest(tdev, frames, shot, cacheTest, frameMs, dump);
         else if(g_nativeGroundTest) {
-            tdev.SetHdr(hdr);tdev.SetSkyPlayfield(g_skyZone);tdev.SetKnob(Knob::TerraBlend,terrainBlend);
+            tdev.SetHdr(hdr);tdev.SetSkyPlayfield(g_skyZone);tdev.SetKnob(Knob::TerraBlend,terrainBlend);tdev.SetKnob(Knob::BuildWear,float(g_wearLevel));
             if(g_grassFieldOn)tdev.SetGrassField(true,g_grassFieldDist,3.0f,.5f,g_grassFieldTex);
             RunNativeGroundTest(tdev,frames,shot);
             tdev.Sync();

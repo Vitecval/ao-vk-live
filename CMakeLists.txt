@@ -65,7 +65,7 @@ foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag 
     add_custom_command(OUTPUT "${out}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RVK_SHADER_OUT}"
         COMMAND ${GLSLC} --target-env=vulkan1.3 -O -mfmt=num -o "${out}" "${src}"
-        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
+        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/windows.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/window_geometry.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/weathering.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/ffp_main.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain.glsl"
@@ -105,7 +105,7 @@ foreach(entry "leaf.vert|ffp.vert|RVK_LEAF" "leaf_shadow.vert|shadow.vert|RVK_LE
     add_custom_command(OUTPUT "${out}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RVK_SHADER_OUT}"
         COMMAND ${GLSLC} --target-env=vulkan1.3 -O -mfmt=num -fshader-stage=${stage} -D${define} -o "${out}" "${src}"
-        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
+        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/windows.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/window_geometry.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/weathering.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/frame_lights.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/sway.glsl"
@@ -193,7 +193,21 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
 add_library(rvk STATIC rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
-target_sources(rvk PRIVATE rvk/shared_terrain.cpp)
+target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/living_data.cpp rvk/living.cpp)
+add_executable(living_check tests/living_check.cpp rvk/living_data.cpp proxy/native/stb_image.cpp)
+add_executable(ao_vk_cache_warm tools/cache-warm.cpp proxy/native/stb_image.cpp)
+set_target_properties(ao_vk_cache_warm PROPERTIES OUTPUT_NAME "ao-vk-cache-warm")
+target_link_libraries(ao_vk_cache_warm PRIVATE rvk user32)
+target_include_directories(ao_vk_cache_warm PRIVATE third_party)
+target_link_libraries(living_check PRIVATE rvk user32)
+target_include_directories(living_check PRIVATE third_party)
+add_executable(living_fixture tests/living_fixture.cpp proxy/native/stb_image.cpp)
+target_link_libraries(living_fixture PRIVATE rvk user32)
+target_include_directories(living_fixture PRIVATE third_party)
+add_executable(living_runtime_check tests/living_fixture.cpp proxy/native/stb_image.cpp)
+target_compile_definitions(living_runtime_check PRIVATE LIVING_RUNTIME_CHECK=1)
+target_link_libraries(living_runtime_check PRIVATE rvk user32)
+target_include_directories(living_runtime_check PRIVATE third_party)
 target_include_directories(rvk PUBLIC rvk PRIVATE "${RVK_SHADER_OUT}" third_party third_party/fsr2)   # (stb: terrain.cpp decodes the embedded rock)
 # Vulkan headers and VMA come from the SDK; /imsvc keeps their warnings quiet.
 target_compile_options(rvk PUBLIC "/imsvc${VULKAN_SDK_DIR}/include")
@@ -233,6 +247,8 @@ target_compile_options(grass_coverage_check PRIVATE /UNDEBUG)
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)
 target_link_libraries(native_check PRIVATE randy_native)
+add_executable(window_bounds_check tests/window_bounds_check.cpp)
+target_link_libraries(window_bounds_check PRIVATE randy_native)
 
 # Crash and hang reports in the cases that matter (run with tools/crash-check.sh).
 add_executable(crash_check tests/crash_check.cpp)
@@ -242,3 +258,11 @@ target_link_libraries(crash_check PRIVATE randy_native)
 add_executable(randy_harness tests/randy_harness.cpp)
 target_compile_definitions(randy_harness PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_link_libraries(randy_harness PRIVATE user32)
+
+
+
+
+
+add_executable(skin_lifetime_check tests/skin_lifetime_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(skin_lifetime_check PRIVATE third_party)
+target_link_libraries(skin_lifetime_check PRIVATE rvk)

@@ -24,6 +24,10 @@ struct DrawTransform {
                                 // the native ground's tile-code texture's bindless image + 1 (the float's bits; 0 =
                                 // the game's ground); z its normal maps' (lighting pass; 0 = none); w its sky
                                 // visibility's (lighting pass; 0 = none)
+    vec4 windows;              // mode, layout low 3 bits / atlas image+1 above, RGB stage, spatial seed
+    vec4 windowHouseLo;        // whole building's model bounds; w known
+    vec4 windowHouseHi;
+    vec4 weather;
     vec4 terrainAt;             // ... xyz: its tile's mean colour (the cliffs' rock is tinted to it; -1 unknown) - the
                                 // native ground's base pass: x its cells' mean colours' bindless image + 1 (bits); its
                                 // rocks: y 2, its pebbles: y 3 and z the range they sink over the end of; w:

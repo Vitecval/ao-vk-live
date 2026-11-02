@@ -62,7 +62,8 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object Windows.Forms.Form
 $form.Text = 'AO-VK Live Setup'
 if ($setupInfo.setupRevision) { $form.Text += ' - Setup ' + [string]$setupInfo.setupRevision }
-$form.ClientSize = New-Object Drawing.Size(680, 400)
+$licenseSpace = if ($fullHdSetup) { 60 } else { 0 }
+$form.ClientSize = New-Object Drawing.Size(680, (400 + $licenseSpace))
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
@@ -114,20 +115,29 @@ $memory.Enabled = $memoryOptionAvailable -and $Action -ne 'Uninstall'
 $form.Controls.Add($memory)
 $tip = New-Object Windows.Forms.ToolTip
 $tip.SetToolTip($memory, 'For 64-bit Windows. Recognized executables are backed up before changes. Existing AOSharp/AOPP patches are preserved. Uninstall restores only changes made by this setup.')
-$null = Add-Text "Close AO and its launcher first. Settings are preserved; 4 GB changes are backed up.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 243 626 46
-$status = Add-Text '' 26 296 440 62
+$artNotice = $null
+if ($fullHdSetup) {
+    $artNotice = Add-Text "Free to use with any compatible launcher.`r`nRedistribution of the HD artwork is not permitted without authorization.`r`nSee LICENSE-TEXTURES.md; existing third-party permissions remain in force." 26 243 626 58
+    $artNotice.Visible = $Action -ne 'Uninstall'
+}
+$null = Add-Text "Close AO and its launcher first. Settings are preserved; 4 GB changes are backed up.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 (243 + $licenseSpace) 626 46
+$status = Add-Text '' 26 (296 + $licenseSpace) 440 62
 $status.ForeColor = [Drawing.Color]::DarkSlateGray
 $downloadProgress = New-Object Windows.Forms.ProgressBar
-$downloadProgress.SetBounds(26, 384, 440, 10)
+$downloadProgress.SetBounds(26, (384 + $licenseSpace), 440, 10)
 $downloadProgress.Visible = $false
 $form.Controls.Add($downloadProgress)
 $script:setupBusy = $false
 $form.Add_FormClosing({ if ($script:setupBusy) { $_.Cancel = $true } })
 $apply = New-Object Windows.Forms.Button
 $apply.Text = $Action
-$apply.SetBounds(482, 336, 170, 38)
+$apply.SetBounds(482, (336 + $licenseSpace), 170, 38)
 $form.Controls.Add($apply)
-$operation.Add_SelectedIndexChanged({ $apply.Text = [string]$operation.SelectedItem; $memory.Enabled = $memoryOptionAvailable -and $operation.SelectedItem -ne 'Uninstall' })
+$operation.Add_SelectedIndexChanged({
+    $apply.Text = [string]$operation.SelectedItem
+    $memory.Enabled = $memoryOptionAvailable -and $operation.SelectedItem -ne 'Uninstall'
+    if ($artNotice) { $artNotice.Visible = $operation.SelectedItem -ne 'Uninstall' }
+})
 $apply.Add_Click({
     $apply.Enabled = $false
     $browse.Enabled = $false

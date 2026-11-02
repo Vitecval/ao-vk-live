@@ -12,7 +12,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DIRS = ['cmake', 'docs', 'ghidra-scripts', 'interface', 'proxy', 'rvk', 'tests', 'third_party', 'tools', 'release', 'licenses', 'material-packs']
 ROOT_FILES = ['.gitignore', 'CHANGELOG.md', 'CMakeLists.txt', 'CMakePresets.json', 'LICENSE',
-              'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']
+              'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md', 'LICENSE-TEXTURES.md']
 EXCLUDE_PARTS = {'__pycache__', '.git', '.codex', '.agents', 'private'}
 EXCLUDE_SUFFIXES = {'.dll', '.exe', '.lib', '.obj', '.pdb', '.pyc', '.log', '.cache', '.bmp'}
 EXCLUDE_FILES = {'tools/build-windows.ps1', 'tools/package-live.py'}
@@ -102,7 +102,7 @@ def main():
         shutil.copy2(ROOT / 'tools' / name, common / name)
     if args.version=='0.6.0-preview.21':
         shutil.copy2(build/'ao-vk-cache-warm.exe',common/'ao-vk-cache-warm.exe')
-    for name in ['LICENSE', 'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']:
+    for name in ['LICENSE', 'LICENSE-TEXTURES.md', 'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']:
         shutil.copy2(ROOT / name, common / name)
     shutil.copytree(ROOT / 'licenses', common / 'licenses')
     (common / 'docs').mkdir()
@@ -128,6 +128,7 @@ def main():
                 'addon': {name: digest(common / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
     manifest['largeAddressAware'] = json.loads((ROOT / 'release/large-address-aware.json').read_text(encoding='utf-8'))
+    manifest['artworkLicense'] = dict(file='LICENSE-TEXTURES.md',sha256=digest(common/'LICENSE-TEXTURES.md'))
     if args.version=='0.6.0-preview.21':manifest['cacheWarmup']=dict(helper='ao-vk-cache-warm.exe',sha256=digest(common/'ao-vk-cache-warm.exe'),relativeCache='randy-vk-preview21-v9-living.cache')
     if not (args.full_only or args.lite_only):
         shutil.copytree(player,lite)
@@ -158,6 +159,7 @@ def main():
             if edition=='lite':selected['new_art_surfaces']=sum('d' in x['maps'] for x in materials)
             (pack_dest/'manifest.json').write_text(json.dumps(selected,indent=2)+'\n')
             shutil.copy2(pack/'README.md',pack_dest/'README.md')
+            shutil.copy2(ROOT/'LICENSE-TEXTURES.md',pack_dest/'LICENSE-TEXTURES.md')
             if edition=='full':
                 if pack_name=='ao-cyber-world':
                     for name in ['building-families.json','rubika-worklist.json','art-publication.json']:

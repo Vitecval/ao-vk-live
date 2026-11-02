@@ -2,6 +2,13 @@
 
 AO-VK Live is derived from [AO-VK by wannabuh](https://github.com/wannabuh/ao-vk), copyright (c) 2026 wannabuh, under the MIT license. The full license is preserved in LICENSE and licenses/AO-VK-MIT.txt.
 
+The renderer software is MIT-licensed. Separately licensed AsyncStuff HD artwork
+is covered by [LICENSE-TEXTURES.md](LICENSE-TEXTURES.md); the software MIT license
+does not grant redistribution rights to that separately licensed collection.
+Existing MIT artwork grants, CC0 content and other third-party permissions retain
+their original terms. The artwork license expressly preserves those rights and
+does not claim ownership of Funcom's original assets.
+
 Bundled or compiled components:
 
 | Component | License / notice |

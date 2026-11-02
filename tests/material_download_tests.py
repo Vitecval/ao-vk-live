@@ -18,19 +18,32 @@ def main():
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
     out=output/('run-'+uuid.uuid4().hex[:10]);out.mkdir()
     payload={};parts=[];assets={}
+    license_bytes=(ROOT/'LICENSE-TEXTURES.md').read_bytes();license_hash=sha(license_bytes)
     for n in [1,2]:
         data=bytes(range(256))*8192;relative=f'randy-vk/packs/ao-cyber-world/1010004_{120+n}_d.png'
         b=io.BytesIO()
-        with zipfile.ZipFile(b,'w',zipfile.ZIP_STORED) as z:z.writestr(relative,data)
+        with zipfile.ZipFile(b,'w',zipfile.ZIP_STORED) as z:
+            z.writestr(relative,data);z.writestr('LICENSE-TEXTURES.md',license_bytes)
         name=f'ao-vk-live-{VERSION}-windows-x86-full-materials-{n}.zip';payload[name]=b.getvalue();assets[relative]=sha(data)
-        parts.append(dict(name=name,sha256=sha(payload[name]),bytes=len(payload[name]),unpackedBytes=len(data),files=[relative]))
+        parts.append(dict(name=name,sha256=sha(payload[name]),bytes=len(payload[name]),unpackedBytes=len(data)+len(license_bytes),files=[relative],notices={'LICENSE-TEXTURES.md':license_hash}))
+    alternate={}
+    for case,omit in [('bad-embedded-license',False),('missing-embedded-license',True)]:
+        alternate[case]={}
+        for name,raw in payload.items():
+            b=io.BytesIO()
+            with zipfile.ZipFile(io.BytesIO(raw)) as source,zipfile.ZipFile(b,'w',zipfile.ZIP_STORED) as target:
+                for member in source.namelist():
+                    if member=='LICENSE-TEXTURES.md':
+                        if not omit:target.writestr(member,b'tampered artwork license')
+                    else:target.writestr(member,source.read(member))
+            alternate[case][name]=b.getvalue()
     requests=[];modes={}
     class Handler(BaseHTTPRequestHandler):
         protocol_version='HTTP/1.1'
         def log_message(self,*a):pass
         def do_GET(self):
             case,name=self.path.strip('/').split('/',1);offset=int(self.headers.get('Range','bytes=0-').split('=')[1].split('-')[0]);requests.append(dict(case=case,name=name,offset=offset))
-            data=payload[name]
+            data=alternate.get(case,payload)[name]
             if modes.get(case)=='corrupt':data=data[:-1]+bytes([data[-1]^255])
             self.send_response(206 if offset else 200);self.send_header('Content-Length',str(len(data)-offset))
             if offset:self.send_header('Content-Range',f'bytes {offset}-{len(data)-1}/{len(data)}')
@@ -52,13 +65,16 @@ def main():
     for name in assets:
         path=fixture/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(bytes(range(256))*8192);fixture_assets[name]=sha(path.read_bytes())
     nested='randy-vk/packs/ao-cyber-world/manifest.json';(fixture/nested).write_text('{}');fixture_assets[nested]=sha(b'{}')
+    (fixture/'LICENSE-TEXTURES.md').write_bytes(license_bytes)
     addon={}
     for name in ['ao-vk.dll','ddraw.dll','Install.cmd']:
         (fixture/name).write_bytes(b'fixture');addon[name]=sha(b'fixture')
-    (fixture/'manifest.json').write_text(json.dumps(dict(version=VERSION,assets=fixture_assets,addon={k:v for k,v in addon.items() if k.endswith('.dll')},payload=dict(addon))))
+    (fixture/'manifest.json').write_text(json.dumps(dict(version=VERSION,assets=fixture_assets,addon={k:v for k,v in addon.items() if k.endswith('.dll')},payload=dict(addon,**{'LICENSE-TEXTURES.md':license_hash}))))
     archives=packager.build_full_setup(fixture,VERSION,part_limit=3*1024*1024)
     assert len(archives)==3
     with zipfile.ZipFile(archives[0]) as z:assert fixture.name+'/'+nested in z.namelist(),'Required nested catalogue omitted from Setup'
+    for archive in archives[1:]:
+        with zipfile.ZipFile(archive) as z:assert z.read('LICENSE-TEXTURES.md')==license_bytes
     results.append(dict(case='complete-setup-and-multi-archive-packaging',result='passed'))
     def run(case,offline=False,expect=True,reuse=False,wrong=False,disk=False):
         d=out/case;d.mkdir(exist_ok=True);client=d/'dummy client';client.mkdir(exist_ok=True)
@@ -67,6 +83,15 @@ def main():
             if not p.exists():p.write_text('preserved owner '+name)
         before={p.name:sha(p.read_bytes()) for p in client.iterdir()}
         manifest=dict(version=VERSION,assets=assets,materialParts=parts,materialDownload=dict(repository='Vitecval/ao-vk-live',tag='v'+VERSION,baseUrl=BASE),installBytes=4*1024*1024)
+        manifest['artworkLicense']=dict(file='LICENSE-TEXTURES.md',sha256=license_hash)
+        (d/'LICENSE-TEXTURES.md').write_bytes(b'tampered setup license' if case=='bad-setup-license' else license_bytes)
+        if case in alternate:
+            manifest['materialParts']=json.loads(json.dumps(parts))
+            for part in manifest['materialParts']:
+                raw=alternate[case][part['name']];part.update(bytes=len(raw),sha256=sha(raw))
+        if case=='unexpected-notice':
+            manifest['materialParts']=json.loads(json.dumps(parts))
+            manifest['materialParts'][0]['notices']['unexpected.txt']='0'*64
         if wrong:manifest['materialDownload']['tag']='v0.6.0-preview.20'
         (d/'manifest.json').write_text(json.dumps(manifest))
         if offline:
@@ -112,6 +137,8 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         modes['corrupt']='corrupt';d,p=run('corrupt',expect=False);assert 'SHA256' in p.stdout+p.stderr
         run('wrong-release',wrong=True,expect=False)
         run('no-space',disk=True,expect=False)
+        for case in ['bad-setup-license','unexpected-notice','bad-embedded-license','missing-embedded-license']:
+            run(case,expect=False)
         # The existing installer suite injects a commit failure and checks exact
         # restoration of DLLs, all optional pack files, receipt and preferences.
         p=subprocess.run([str(host),'-NoProfile','-ExecutionPolicy','Bypass','-File',str(ROOT/'tests/install-live.tests.ps1')],capture_output=True,text=True,timeout=180,env=env)

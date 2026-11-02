@@ -9,6 +9,10 @@ def build_full_setup(folder,version,essential=(),parts=None,part_limit=1450*2**2
     folder=Path(folder);out=folder.parent
     manifest=json.loads((folder/'manifest.json').read_text(encoding='utf-8-sig'))
     if version!='0.6.0-preview.21' or manifest['version']!=version:raise ValueError('Unsupported pinned setup release')
+    license_path=folder/'LICENSE-TEXTURES.md'
+    notices={'LICENSE-TEXTURES.md':digest(license_path)} if license_path.exists() else {}
+    if notices:
+        manifest['artworkLicense']=dict(file='LICENSE-TEXTURES.md',sha256=notices['LICENSE-TEXTURES.md'])
     if parts is None:
         groups=collections.defaultdict(list)
         for name in manifest['assets']:
@@ -25,16 +29,19 @@ def build_full_setup(folder,version,essential=(),parts=None,part_limit=1450*2**2
             name=f'ao-vk-live-{version}-windows-x86-full-materials-{index}.zip';path=out/name
             with zipfile.ZipFile(path,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
                 for n in names:z.write(folder/n,n)
+                if notices:z.write(license_path,'LICENSE-TEXTURES.md')
             with zipfile.ZipFile(path) as z:
                 assert z.testzip() is None
                 for n in names:assert hashlib.sha256(z.read(n)).hexdigest()==manifest['assets'][n],n
-            parts.append(dict(name=name,sha256=digest(path),bytes=path.stat().st_size,files=names))
+            parts.append(dict(name=name,sha256=digest(path),bytes=path.stat().st_size,files=names,notices=dict(notices)))
     omitted=set()
     for part in parts:
         path=out/part['name']
         assert path.stat().st_size==part['bytes'] and path.stat().st_size<2**31 and digest(path)==part['sha256']
         with zipfile.ZipFile(path) as z:
-            assert set(z.namelist())==set(part['files'])
+            assert set(z.namelist())==set(part['files'])|set(part.get('notices',{}))
+            assert part.get('notices',{})==notices,'Rebuild companions to include the matching artwork license'
+            for n,h in notices.items():assert hashlib.sha256(z.read(n)).hexdigest()==h
             part['unpackedBytes']=sum(x.file_size for x in z.infolist())
         assert not omitted.intersection(part['files']);omitted.update(part['files'])
     manifest['materialParts']=parts

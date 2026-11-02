@@ -78,18 +78,24 @@ def main():
                         previousAddons=[], installBytes=1024 * 1024)
         manifest['largeAddressAware'] = dict(gameSha256=sha(game), launcherBeforeSha256=sha(launcher),
             launcherAfterSha256=sha(patched_launcher), launcherOffset=400)
+        license_bytes=(ROOT/'LICENSE-TEXTURES.md').read_bytes()
+        (package/'LICENSE-TEXTURES.md').write_bytes(license_bytes)
+        manifest['artworkLicense']=dict(file='LICENSE-TEXTURES.md',sha256=sha(license_bytes))
+        manifest['setupRevision']=3
         if edition == 'full':
             parts = []
             names = list(assets)
-            for number, members in enumerate([names[:90], names[90:180], names[180:]], 1):
+            for number, members in enumerate([names[:64], names[64:128], names[128:]], 1):
                 name = f'ao-vk-live-{VERSION}-windows-x86-full-materials-{number}.zip'
                 archive = package / name
                 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_STORED) as z:
                     for member in members:
                         z.write(package / member, member)
+                    z.writestr('LICENSE-TEXTURES.md',license_bytes)
                 parts.append(dict(name=name, bytes=archive.stat().st_size,
                                   sha256=sha(archive.read_bytes()), files=members,
-                                  unpackedBytes=sum((package / m).stat().st_size for m in members)))
+                                  unpackedBytes=sum((package / m).stat().st_size for m in members)+len(license_bytes),
+                                  notices={'LICENSE-TEXTURES.md':sha(license_bytes)}))
             manifest['materialParts'] = parts
             manifest['materialDownload'] = dict(repository='Vitecval/ao-vk-live', tag='v' + VERSION,
                                                 baseUrl=f'https://github.com/Vitecval/ao-vk-live/releases/download/v{VERSION}/')
@@ -124,6 +130,7 @@ $stock = @{}
 $m = Get-Content (Join-Path $PackageDir 'manifest.json') -Raw | ConvertFrom-Json
 foreach ($p in $m.client.PSObject.Properties) { $stock[$p.Name] = Hash (Join-Path $ClientDir $p.Name) }
 try {
+    if($fullHdSetup){Assert ($artNotice.Visible -and $artNotice.Text.Contains('Redistribution')) 'Full HD artwork notice not visible before installation'}
     $callback = CALLBACK
     foreach ($v in @('-1', [int]-1, '0', 0, '50', 50, '100', 100, '150')) {
         & $callback 'Testing actual GUI progress callback' $v
@@ -142,6 +149,7 @@ try {
         $apply.PerformClick()
         Assert (![AoSetupDialogProbe]::Error) ($actionName + ': ' + [AoSetupDialogProbe]::Error)
         Assert ($status.Text -eq 'Finished.') ($actionName + ' GUI did not finish')
+        if($fullHdSetup){Assert ($artNotice.Visible -eq ($actionName -ne 'Uninstall')) 'Artwork notice visibility is incorrect'}
         Assert ($apply.Enabled -and !$script:setupBusy -and !$downloadProgress.Visible) 'GUI did not reset after operation'
         Assert ((Hash (Join-Path $ClientDir 'randy-vk.ini')) -eq $prefs) 'Preferences changed'
         Assert (Test-Path (Join-Path $ClientDir 'randy-vk/packs/personal/keep.txt')) 'Personal pack removed'

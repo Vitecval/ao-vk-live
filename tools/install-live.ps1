@@ -30,6 +30,10 @@ if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
 $client = (Resolve-Path -LiteralPath $ClientDir).Path
 $package = (Resolve-Path -LiteralPath $PackageDir).Path
 $manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw | ConvertFrom-Json
+if (!$Uninstall -and $manifest.edition -eq 'full' -and $manifest.artworkLicense) {
+    Write-Host 'Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.'
+    Write-Host 'See LICENSE-TEXTURES.md. Third-party licenses and permissions previously granted remain in force.'
+}
 $receiptPath = Join-Path $client 'ao-vk-live.install.json'
 $receipt = $null
 if (Test-Path -LiteralPath $receiptPath) {

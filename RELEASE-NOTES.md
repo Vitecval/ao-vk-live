@@ -1,5 +1,13 @@
 # AO-VK Live Preview 21 — Window Interiors & Expanded HD Textures
 
+Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.
+See LICENSE-TEXTURES.md; third-party licenses and permissions previously granted remain in force.
+
+**Updated artwork-license packaging:** use a fresh Full HD Setup ZIP with the
+matching material archives from this release. Each companion now includes the
+artwork license, so its pinned archive checksum has changed. The texture pixels
+and verified 8,627 texture IDs are unchanged.
+
 **Setup 2 — 4 GB memory support:** Lite and Full HD now offer **Allow up to 4 GB
 memory (recommended)** on 64-bit Windows. Setup backs up recognized game/launcher
 executables before changes, preserves existing AOSharp/AOPP patches, and restores

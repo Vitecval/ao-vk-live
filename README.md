@@ -5,6 +5,9 @@ Choose one download below; both editions include the same renderer and window in
 
 [Download Preview 21](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.6.0-preview.21)
 
+Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.
+See [the HD artwork license](LICENSE-TEXTURES.md); third-party licenses and permissions previously granted remain in force.
+
 ## Choose your download
 
 **Lite:** Download `ao-vk-live-0.6.0-preview.21-windows-x86-lite.zip`, extract it,
@@ -91,6 +94,8 @@ from this source tree. Prebuilt maps are in the release assets; their catalogues
 and provenance hashes remain in source. See docs/preview21-source-origin.md.
 
 Based on [wannabuh/AO-VK](https://github.com/wannabuh/ao-vk), under the preserved
-[MIT license](LICENSE). Third-party notices are in
+[MIT license](LICENSE) for the renderer software. Separately licensed HD artwork
+is covered by [LICENSE-TEXTURES.md](LICENSE-TEXTURES.md), with existing MIT/CC0
+artwork grants and third-party rights preserved. Third-party notices are in
 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and licenses/. This is an unofficial
 community project, not affiliated with Funcom. Original game DLLs are not bundled.

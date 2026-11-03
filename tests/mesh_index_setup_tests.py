@@ -22,16 +22,21 @@ def main():
     run = out / ('run-' + uuid.uuid4().hex[:8]); run.mkdir()
     index = (ROOT / 'release/model-index/mesh-ids.bin').read_bytes()
     count = struct.unpack_from('<I', index, 12)[0]
-    assert index[:8] == b'AOMESHID' and len(index) == 21 + 32 * count
-    assert index[-1:] == b'\0' and all(struct.unpack_from('<I', index, 48 + i * 32)[0] == 0 for i in range(count))
-    models = {(x[2], x[3]) for x in struct.iter_unpack('<QQIIHHI', index[20:-1])}
+    end = 20 + 32 * count
+    assert index[:8] == b'AOMESHID' and index[end:] == b'\0scenery_spaceship\0'
+    rows = list(struct.iter_unpack('<QQIIHHI', index[20:end]))
+    assert {x[6] for x in rows} == {0, 1} and sum(x[6] == 1 for x in rows) == 13
+    models = {(x[2], x[3]) for x in rows}
     assert all((1010001, x) in models for x in [296208, 296252, 296253, 296254])
     source = (ROOT / 'rvk/window_global.h').read_text()
     witnesses = re.findall(r'\{(\d+),(1010001|1010026),(\d+)\}', source.split('windowModelWitnesses[]={', 1)[1].split('};', 1)[0])
     coverage = {pair for _, t, m in witnesses if (pair := (int(t), int(m))) in models}
     assert len(coverage) > 200
-    named = bytearray(index[:-1] + b'local debug model\0')
-    struct.pack_into('<I', named, 16, len(b'local debug model\0'))
+    name_table = index[end:]
+    named = bytearray(index + b'local debug model\0')
+    struct.pack_into('<I', named, 16, len(name_table) + len(b'local debug model\0'))
+    for i, row in enumerate(rows):
+        if row[6] == 0: struct.pack_into('<I', named, 48 + i * 32, len(name_table))
     host = Path(os.environ['WINDIR']) / 'SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
     env = {k:v for k,v in os.environ.items() if k.lower() != 'psmodulepath'}
     env['PSModulePath'] = str(host.parent / 'Modules')

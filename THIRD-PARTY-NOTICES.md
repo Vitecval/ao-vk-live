@@ -23,7 +23,8 @@ Bundled or compiled components:
 Build-only tools such as LLVM, shaderc and SPIRV-Cross are not bundled in the player download. Game files are supplied by the player's installation, never by this package. Anarchy Online and Funcom names identify compatibility; this package is unofficial.
 
 The generated model-identification index contains only numeric identifiers,
-irreversible recognition hashes and piece counters; original model geometry,
+irreversible recognition hashes and piece counters, plus a fixed category label
+from the MIT renderer source; original model geometry,
 artwork and debug resource names are excluded. Its format, reproducible export
 and input/output hashes are documented in release/model-index/README.md and
 mesh-ids.json. It grants no rights to the original game assets.

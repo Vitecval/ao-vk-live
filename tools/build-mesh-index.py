@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Export only model identifiers and irreversible hashes, never game meshes/names."""
+"""Export model identifiers/hashes and a fixed renderer label, never game meshes or full resource names."""
 import argparse
 import hashlib
 import json
 from pathlib import Path
 import struct
 
+SKY_LABEL = b'scenery_spaceship'
+NAME_TABLE = b'\0' + SKY_LABEL + b'\0'
 
 def sanitize(data):
     if len(data) < 20 or data[:8] != b'AOMESHID':
@@ -18,10 +20,14 @@ def sanitize(data):
         raise ValueError('Index is not sorted by geometry hash')
     if any(r[2] not in (1010001, 1010026) or r[6] >= names for r in rows):
         raise ValueError('Invalid model type/name offset')
-    result = bytearray(b'AOMESHID' + struct.pack('<III', 1, count, 1))
+    names_data = data[20 + count * 32:]
+    result = bytearray(b'AOMESHID' + struct.pack('<III', 1, count, len(NAME_TABLE)))
     for row in rows:
-        result.extend(struct.pack('<QQIIHHI', *row[:6], 0))
-    result.append(0)
+        # This one fixed category label is part of the MIT renderer's shader
+        # eligibility logic, not merely a debug name. Preserve that predicate.
+        category = 1 if names_data[row[6]:].startswith(SKY_LABEL) else 0
+        result.extend(struct.pack('<QQIIHHI', *row[:6], category))
+    result.extend(NAME_TABLE)
     return bytes(result), rows
 
 
@@ -39,6 +45,8 @@ def main():
                   sourceSha256=hashlib.sha256(source).hexdigest(),
                   sha256=hashlib.sha256(output).hexdigest(), bytes=len(output),
                   containsGeometry=False, containsArtwork=False, containsNames=False,
+                  syntheticClassifierLabels=[SKY_LABEL.decode()],
+                  skySceneryRecords=sum(struct.unpack_from('<I', output, 48 + i * 32)[0] == 1 for i in range(len(rows))),
                   identityRecordsUnchanged=True)
     args.output.with_suffix('.json').write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report))

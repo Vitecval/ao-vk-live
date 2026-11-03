@@ -9,7 +9,10 @@ This generated lookup table contains only numeric resource identities,
 irreversible 64-bit geometry/raw hashes, and piece numbers/counts. It contains
 no vertex positions, indices, game models, textures, artwork, resource names,
 dialogue, account information, or local paths. It cannot reconstruct game meshes.
-The single empty name string replaces every source name. All 53,383 recognition
+Full debug/resource names are replaced with an empty string, except for a single
+fixed `scenery_spaceship` category label already defined by the renderer's MIT
+source. That label preserves the 13 distant-city-ship records' rendering predicate;
+it is not an original resource filename. All 53,383 recognition
 records and ambiguity candidates are retained; filtering to approved buildings
 would incorrectly accept geometry shared with excluded objects.
 

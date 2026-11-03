@@ -1,4 +1,4 @@
-# The bundled index contains hashes and numeric identities only, not game meshes.
+# The index contains hashes, numeric identities and a fixed renderer category, not game meshes.
 function Get-AoMeshIndexHash([string]$Path) {
     $bytes = [IO.File]::ReadAllBytes($Path)
     if ($bytes.Length -lt 21 -or $bytes.Length -gt 33554432 -or
@@ -9,13 +9,21 @@ function Get-AoMeshIndexHash([string]$Path) {
     if ($version -ne 1 -or !$count -or $count -gt 1000000 -or !$names -or
         [long]$bytes.Length -ne (20L + 32L * $count + $names)) { throw 'Invalid existing model-identification index. Its contents were preserved.' }
     $length = 20 + 32 * [int]$count
-    $canonical = New-Object byte[] ($length + 1)
+    $label = 'scenery_spaceship'
+    $nameTable = [Text.Encoding]::ASCII.GetBytes(([string][char]0) + $label + ([string][char]0))
+    $canonical = New-Object byte[] ($length + $nameTable.Length)
     [Array]::Copy($bytes, $canonical, $length)
-    [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $canonical, 16, 4)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]$nameTable.Length), 0, $canonical, 16, 4)
+    [Array]::Copy($nameTable, 0, $canonical, $length, $nameTable.Length)
     for ($i = 0; $i -lt $count; $i++) {
         $offset = 20 + $i * 32 + 28
-        if ([BitConverter]::ToUInt32($bytes, $offset) -ge $names) { throw 'Invalid existing model-index name offset. Its contents were preserved.' }
+        $nameOffset = [BitConverter]::ToUInt32($bytes, $offset)
+        if ($nameOffset -ge $names) { throw 'Invalid existing model-index name offset. Its contents were preserved.' }
         [Array]::Clear($canonical, $offset, 4)
+        if ($names - $nameOffset -ge $label.Length -and
+            [Text.Encoding]::ASCII.GetString($bytes, $length + $nameOffset, $label.Length) -ceq $label) {
+            [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $canonical, $offset, 4)
+        }
     }
     $sha = [Security.Cryptography.SHA256]::Create()
     try { return ([BitConverter]::ToString($sha.ComputeHash($canonical))).Replace('-', '').ToLowerInvariant() }

@@ -114,7 +114,7 @@ $memory.Checked = $memoryOptionAvailable
 $memory.Enabled = $memoryOptionAvailable -and $Action -ne 'Uninstall'
 $form.Controls.Add($memory)
 $tip = New-Object Windows.Forms.ToolTip
-$tip.SetToolTip($memory, 'For 64-bit Windows. Recognized executables are backed up before changes. Existing AOSharp/AOPP patches are preserved. Uninstall restores only changes made by this setup.')
+$tip.SetToolTip($memory, 'For 64-bit Windows. Changes recognized AnarchyOnline.exe and, when needed, Anarchy.exe for launcher compatibility. Originals are backed up. Existing AOSharp/AOPP patches are preserved. Antivirus may flag modified executables; check its protection history. Uninstall restores only changes made by setup.')
 $artNotice = $null
 if ($fullHdSetup) {
     $artNotice = Add-Text "Free to use with any compatible launcher.`r`nRedistribution of the HD artwork is not permitted without authorization.`r`nSee LICENSE-TEXTURES.md; existing third-party permissions remain in force." 26 243 626 58
@@ -181,7 +181,9 @@ $apply.Add_Click({
         $status.Text = 'Setup did not finish. See the error message.'
         $message = $_.Exception.Message
         if ($_.Exception -is [UnauthorizedAccessException] -or $message -match 'denied|unauthorized') {
-            $message += "`r`n`r`nWindows blocked access. Close this window, then right-click the setup .cmd file and choose Run as administrator."
+            $message += "`r`n`r`nWindows or security software blocked access. Close AO and its launcher and check antivirus protection history. If this is a folder-permission issue, right-click the setup .cmd file and choose Run as administrator."
+        } elseif ($message -match 'cannot find|could not find|does not exist|quarantin') {
+            $message += "`r`n`r`nCheck antivirus protection history and confirm the complete ZIP was extracted. See docs/antivirus.md for the expected files and memory-patch changes."
         }
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live setup', 'OK', 'Error')
     } finally {

@@ -1,5 +1,19 @@
 # AO-VK Live Preview 21 — Window Interiors & Expanded HD Textures
 
+**Setup 4 repair — 3 November 2026:** Both Lite and Full HD Setup now include the
+required building-identification index. Its omission prevented reviewed ICC and
+Omni-Trade window interiors from being identified on clean installations, even
+when some Newland windows worked. Download and extract a fresh setup ZIP, run
+**Install.cmd**, choose your AO folder, then select **Update**. Your settings and
+compatible existing indexes are preserved. The three material ZIPs are unchanged
+from Setup 3 and can be reused; no large texture re-download is required.
+
+This repairs the missing dependency without changing renderer binaries or window
+coverage. Not every window-like surface has an approved interior profile. A new
+live ICC zoning/crash test remains necessary if crashes persist after enabling
+4 GB memory. The installer now reports possible quarantine more clearly and
+checks committed files before success; see [antivirus notes](docs/antivirus.md).
+
 Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.
 See LICENSE-TEXTURES.md; third-party licenses and permissions previously granted remain in force.
 

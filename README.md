@@ -5,6 +5,12 @@ Choose one download below; both editions include the same renderer and window in
 
 [Download Preview 21](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.6.0-preview.21)
 
+**Setup 4:** fixes the missing building-identification index needed by ICC and
+Omni-Trade window interiors. Download a fresh Lite or Full HD Setup ZIP, extract
+it, run Install.cmd, then choose Update. The three existing Setup 3 material ZIPs
+can be reused. See [antivirus notes](docs/antivirus.md) for blocked files and the
+optional executable memory changes.
+
 Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.
 See [the HD artwork license](LICENSE-TEXTURES.md); third-party licenses and permissions previously granted remain in force.
 

@@ -61,6 +61,23 @@ foreach ($target in $targets) {
 }
 # Asset paths are deliberately restricted to this optional pack. Never trust a manifest
 # or install record to write/remove an arbitrary path outside its reserved directory.
+$meshIndexRelative = 'randy-vk/mesh-ids.bin'
+$preserveMeshIndex = $Uninstall -and !($receipt -and $receipt.assets -and $receipt.assets.$meshIndexRelative)
+if (!$Uninstall -and ($manifest.meshIndex -or $manifest.setupRevision -ge 4)) {
+    . (Join-Path $PSScriptRoot 'mesh-index.ps1')
+    $preserveMeshIndex = Test-AoPreserveMeshIndex $client $package $manifest $receipt $false
+}
+$preservedMeshIndexHash = $null
+if (!$Uninstall -and $preserveMeshIndex -and $manifest.meshIndex) {
+    $preservedMeshIndexHash = (Get-FileHash -LiteralPath (Join-Path $client $meshIndexRelative) -Algorithm SHA256).Hash
+}
+$recordAssets = [ordered]@{}
+if ($manifest.assets) {
+    foreach ($item in $manifest.assets.PSObject.Properties) {
+        if ($item.Name -eq $meshIndexRelative -and $preserveMeshIndex) { continue }
+        $recordAssets[$item.Name] = [string]$item.Value
+    }
+}
 $assetHashes = [ordered]@{}
 if ($receipt -and $receipt.assets) {
     foreach ($item in $receipt.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
@@ -69,7 +86,8 @@ if ($manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
 }
 foreach ($relative in $assetHashes.Keys) {
-    if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+    if ($relative -eq $meshIndexRelative -and $preserveMeshIndex) { continue }
+    if ($relative -notmatch '^randy-vk/(mesh-ids\.bin|packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Invalid optional material pack path or hash.'
     }
     $target = Join-Path $client $relative
@@ -259,7 +277,7 @@ $record = [ordered]@{
     clientDirectory = $client
     loaderDirectory = $(if ($LoaderDir) { $loader } else { '' })
     addon = $manifest.addon
-    assets = $manifest.assets
+    assets = $recordAssets
     edition = $manifest.edition
     largeAddressAware = @($memoryPlan.records)
 }
@@ -301,6 +319,25 @@ try {
         if ($fileSpecs[$target].retire) { continue }
         Move-Item -LiteralPath $staged[$i] -Destination $target
         $installed += $target
+    }
+    # Security software may remove a file after a successful rename. Detect it
+    # before committing, while verified originals are still available to roll back.
+    foreach ($target in $installed) {
+        if (!(Test-Path -LiteralPath $target -PathType Leaf)) {
+            throw "An installed file disappeared: $target. Security software may have quarantined it. Check antivirus protection history; installation is rolling back."
+        }
+        $spec = $fileSpecs[$target]
+        if (($target -eq $receiptPath -or !$spec.asset -or $spec.relative -eq $meshIndexRelative) -and
+            (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $stageHashes[$target]) {
+            throw "An installed program or model index changed unexpectedly: $target. Installation is rolling back. Check antivirus protection history."
+        }
+    }
+    if ($preservedMeshIndexHash) {
+        $existingIndex = Join-Path $client $meshIndexRelative
+        if (!(Test-Path -LiteralPath $existingIndex) -or
+            (Get-FileHash -LiteralPath $existingIndex -Algorithm SHA256).Hash -ine $preservedMeshIndexHash) {
+            throw 'The preserved model-identification index disappeared or changed during setup. Installation is rolling back; check antivirus protection history.'
+        }
     }
     $succeeded = $true
 } catch {

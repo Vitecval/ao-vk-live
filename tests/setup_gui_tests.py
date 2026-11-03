@@ -81,7 +81,7 @@ def main():
         license_bytes=(ROOT/'LICENSE-TEXTURES.md').read_bytes()
         (package/'LICENSE-TEXTURES.md').write_bytes(license_bytes)
         manifest['artworkLicense']=dict(file='LICENSE-TEXTURES.md',sha256=sha(license_bytes))
-        manifest['setupRevision']=3
+        manifest['setupRevision']=4
         if edition == 'full':
             parts = []
             names = list(assets)
@@ -101,8 +101,15 @@ def main():
                                                 baseUrl=f'https://github.com/Vitecval/ao-vk-live/releases/download/v{VERSION}/')
             for member in assets:
                 (package / member).unlink()
+        model_bytes = (ROOT / 'release/model-index/mesh-ids.bin').read_bytes()
+        model_relative = 'randy-vk/mesh-ids.bin'
+        model_path = package / model_relative
+        model_path.parent.mkdir(parents=True, exist_ok=True)
+        model_path.write_bytes(model_bytes)
+        manifest['assets'][model_relative] = sha(model_bytes)
+        manifest['meshIndex'] = dict(file=model_relative, formatVersion=1, sha256=sha(model_bytes))
         (package / 'manifest.json').write_text(json.dumps(manifest))
-        for name in ['install-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
+        for name in ['install-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1', 'mesh-index.ps1']:
             shutil.copyfile(args.tools / name, package / name)
         prelude = '''Add-Type -TypeDefinition @'
 public static class AoSetupDialogProbe {
@@ -192,7 +199,8 @@ try {
         (folder / 'run.log').write_text(process.stdout + process.stderr, encoding='utf-8')
         assert process.returncode == 0, (edition, process.stdout, process.stderr)
         assert process.stdout.count('PASS GUI:') == 4
-        results.append(dict(edition=edition, result='passed', assets=260,
+        results.append(dict(edition=edition, result='passed', assets=len(manifest['assets']),
+                            required_mesh_index_verified=True,
                             actual_winforms_button_handlers=True,
                             memory_option_default_on_and_disabled_tested=True,
                             progress_values=['string -1', 'integer -1', 0, 50, 100, 150],

@@ -1,0 +1,13 @@
+{
+  "format": "AOMESHID",
+  "formatVersion": 1,
+  "records": 53383,
+  "staticModels": 11215,
+  "sourceSha256": "7f30274f61bf43d8387b4b0e296185106c93b41f2d3ff48eba5542ff0627655c",
+  "sha256": "957844f44da00e1a7ff56ffa348483a53c7e24ae9cb456a4a185f5b40cae1259",
+  "bytes": 1708277,
+  "containsGeometry": false,
+  "containsArtwork": false,
+  "containsNames": false,
+  "identityRecordsUnchanged": true
+}

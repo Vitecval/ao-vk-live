@@ -98,7 +98,7 @@ def main():
         source.mkdir()
     for name in ['ao-vk.dll', 'ddraw.dll']:
         shutil.copy2(build / name, common / name)
-    for name in ['install-live.ps1', 'setup-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
+    for name in ['install-live.ps1', 'setup-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1', 'mesh-index.ps1']:
         shutil.copy2(ROOT / 'tools' / name, common / name)
     if args.version=='0.6.0-preview.21':
         shutil.copy2(build/'ao-vk-cache-warm.exe',common/'ao-vk-cache-warm.exe')
@@ -106,7 +106,7 @@ def main():
         shutil.copy2(ROOT / name, common / name)
     shutil.copytree(ROOT / 'licenses', common / 'licenses')
     (common / 'docs').mkdir()
-    for name in ['live-client.md', 'large-address-aware.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
+    for name in ['live-client.md', 'large-address-aware.md', 'antivirus.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
         shutil.copy2(ROOT / 'docs' / name, common / 'docs' / name)
     shutil.copy2(ROOT / 'material-packs/scan-coverage.json', common / 'docs/scan-coverage.json')
     shutil.copy2(ROOT / 'material-packs/building-families.json', common / 'docs/building-families.json')
@@ -129,6 +129,16 @@ def main():
                 'previousAddons': [item['addon'] for item in known]}
     manifest['largeAddressAware'] = json.loads((ROOT / 'release/large-address-aware.json').read_text(encoding='utf-8'))
     manifest['artworkLicense'] = dict(file='LICENSE-TEXTURES.md',sha256=digest(common/'LICENSE-TEXTURES.md'))
+    index_source = ROOT/'release/model-index/mesh-ids.bin'
+    index_meta = json.loads(index_source.with_suffix('.json').read_text())
+    if digest(index_source) != index_meta['sha256'] or index_meta['containsGeometry'] or index_meta['containsNames']:
+        raise RuntimeError('Missing or unverified metadata-only model index')
+    index_relative = 'randy-vk/mesh-ids.bin'
+    (common/'randy-vk').mkdir(exist_ok=True)
+    shutil.copy2(index_source, common/index_relative)
+    shutil.copy2(ROOT/'release/model-index/README.md', common/'docs/model-index.md')
+    manifest.update(setupRevision=4, meshIndex=dict(file=index_relative, formatVersion=1,
+                    records=index_meta['records'], sha256=index_meta['sha256']))
     if args.version=='0.6.0-preview.21':manifest['cacheWarmup']=dict(helper='ao-vk-cache-warm.exe',sha256=digest(common/'ao-vk-cache-warm.exe'),relativeCache='randy-vk-preview21-v9-living.cache')
     if not (args.full_only or args.lite_only):
         shutil.copytree(player,lite)
@@ -136,7 +146,7 @@ def main():
     for edition,destination in [('full',player),('lite',lite)]:
         if args.full_only and edition!='full': continue
         if args.lite_only and edition!='lite': continue
-        edition_manifest=dict(manifest,edition=edition,assets={},optionalTexturePack=edition=='full')
+        edition_manifest=dict(manifest,edition=edition,assets={index_relative:index_meta['sha256']},optionalTexturePack=edition=='full')
         for pack_name in ['ao-modern-icc','ao-cyber-icc','ao-cyber-characters','ao-cyber-world']:
             pack=ROOT/'material-packs'/pack_name
             pack_manifest=json.loads((pack/'manifest.json').read_text())

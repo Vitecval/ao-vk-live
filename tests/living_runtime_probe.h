@@ -58,7 +58,11 @@ struct LivingRuntimeProbe {
         if(d.m_living){uint32_t phase=0,large=0,air=0;
             for(const auto& a:d.m_living->actors)if(a.lastFrame+1>=d.m_frameNumber&&a.lastFrame!=~uint64_t(0)){
                 if(a.group==2&&a.parent<0){++air;phase+=a.motion==7;large+=a.motion==8;}
-                if(a.motion>=7){const auto& p=a.route.points;const float* w=a.world[3];
+                if(a.motion==7&&!d.m_living->flightLanes.empty()){bool inside=false;const auto* w=a.world[3];
+                    for(const auto& lane:d.m_living->flightLanes){auto x=lane.points[0],y=lane.points[1];float dx=y.x-x.x,dy=y.y-x.y,dz=y.z-x.z;float u=((w[0]-x.x)*dx+(w[1]-x.y)*dy+(w[2]-x.z)*dz)/(dx*dx+dy*dy+dz*dz);
+                        if(u>=0&&u<=1)inside|=std::hypot(std::hypot(w[0]-x.x-u*dx,w[2]-x.z-u*dz),w[1]-x.y-u*dy)<=1.2f;}
+                    Check(inside,"varied flight stays inside a prepared lane steering envelope");}
+                else if(a.motion>=7){const auto& p=a.route.points;const float* w=a.world[3];
                     for(int axis=0;axis<3;++axis)Check(w[axis]>=std::min((&p[0].x)[axis],(&p[1].x)[axis])-.01f&&w[axis]<=std::max((&p[0].x)[axis],(&p[1].x)[axis])+.01f,"flight remains inside validated straight segment");}
                 if(a.job)for(const auto& b:d.m_living->actors)if(&a!=&b&&b.job&&b.lastFrame==a.lastFrame)
                     Check(a.job.get()!=b.job.get()&&a.job->bones.get()!=b.job->bones.get(),"each original character owns its animation job and palette");}

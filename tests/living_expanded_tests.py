@@ -5,11 +5,14 @@ from pathlib import Path
 import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools/living'))
 from city_airspace import terrain_triangles,possible_collision
-from expanded_scenes import extend
+from expanded_scenes import extend,city_faction
 from prepare_static import opaque_material
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_omni_entertainment_is_not_a_neutral_palette(self):
+        self.assertEqual(city_faction({'cities':{'705':{'theme':'entertainment'}}},705),'omni')
+
     def test_large_medium_adds_staggered_fixed_period_instead_of_retiming(self):
         route=dict(start=[80,160,80],end=[240,160,80],speed=8)
         lines=['LRSCENE5 566 1 0 1 0 synthetic-routes','base.lrm','0','-']

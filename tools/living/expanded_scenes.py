@@ -5,6 +5,7 @@ import numpy as np
 
 def city_faction(config,pf):
     theme=config['cities'].get(str(pf),{}).get('theme','neutral')
+    if theme=='entertainment':return 'omni' # Omni-1 Entertainment keeps its own palette theme.
     return theme if theme in ('omni','clan') else 'neutral'
 
 

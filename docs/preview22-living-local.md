@@ -1,5 +1,15 @@
 # Preview 22 local Living integration candidate
 
+Candidate 4 removes distance-based pedestrian braking. Walk pace stays steady
+until arrival; the character settles to idle at the fixed destination within
+140 ms, with the gait still driven by actual travel distance. Short low-flight
+lanes in LRSCENE8 add occasional roughly 10-foot skims. Those use tighter 0.25 m
+steering, 0.08 m bob and 0.025 rad bank limits, and 6–10 m/s cruise. A full swept
+vehicle/rider box includes these bounds and a safety margin. Triangle SAT checks
+both original scenery and all covered native terrain cells, including slopes.
+Low lanes are omitted when continuous clearance cannot be established. The
+existing mid-height and large-craft routes remain available in every city.
+
 Candidate 3 adds a bounded pedestrian activity state machine. Original city
 floor triangles and terrain support new branching walking graphs; the full
 animated body envelope filters edges. Actors choose destinations, pause for

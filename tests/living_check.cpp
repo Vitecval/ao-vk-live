@@ -14,10 +14,13 @@ int main(int argc,char**argv){
     for(int z=0;z<3;++z)for(int x=0;x<4;++x)humanScene.walkNodes.push_back({{float(x)*4,0,float(z)*4},~0u});
     for(uint32_t i=0;i<12;++i)for(uint32_t j=i+1;j<12;++j)if(std::hypot(humanScene.walkNodes[i].point.x-humanScene.walkNodes[j].point.x,humanScene.walkNodes[i].point.z-humanScene.walkNodes[j].point.z)<5.7f)humanScene.walkEdges.push_back({i,j,~0u});
     for(int i=0;i<6;++i){Actor a;a.motion=3;a.speed=1.1f;a.route.points={humanScene.walkNodes[i].point};a.route.Finish();humanScene.actors.push_back(a);}
-    bool sat=false,gestured=false,paused=false;std::array<bool,12> visited{};std::array<Point,6> lastHuman{};
+    bool sat=false,gestured=false,paused=false;std::array<bool,12> visited{};std::array<Point,6> lastHuman{};std::array<float,6> cruise{};
     for(int f=0;f<18000;++f)for(uint32_t i=0;i<6;++i){auto p=AdvanceHuman(humanScene,humanScene.actors[i],f/30.,i);
         if(f)Check(std::hypot(p.point.x-lastHuman[i].x,p.point.z-lastHuman[i].z)<.065f,"human destination changes never teleport");
         lastHuman[i]=p.point;sat|=p.activity==4;gestured|=p.activity>=0&&p.activity<3;paused|=p.movement.walkWeight==0;
+        const auto& h=humanScene.actors[i].human;
+        if(!h.resting&&h.elapsed>.2f){cruise[i]=std::max(cruise[i],p.movement.speed);Check(p.movement.speed>=cruise[i]-.0001f,"pedestrian keeps cruise speed until arrival without a creeping brake tail");}
+        if(h.resting&&h.elapsed>.15f)Check(p.movement.walkWeight==0,"arrival blends fully to standing within 150 ms");
         if(humanScene.actors[i].human.node>=0)visited[humanScene.actors[i].human.node]=true;}
     Check(sat&&gestured&&paused&&std::count(visited.begin(),visited.end(),true)>=10,"human graph branches, pauses, gestures and rests occur over time");
     Scene flights;flights.behaviorSeed=123;for(float y:{14.f,33.f}){Route r;r.linear=true;r.points={{0,y,0},{280,y,0}};r.Finish();flights.flightLanes.push_back(r);}
@@ -26,6 +29,10 @@ int main(int argc,char**argv){
         lowFlight|=p.point.y<20;midFlight|=p.point.y>25;reverseFlight|=p.tangent.x<0;forwardFlight|=p.tangent.x>0;
         Check(p.point.x>=0&&p.point.x<=280&&std::fabs(p.point.z)<=1.001f&&p.alpha>=0&&p.alpha<=1,"random flight stays inside certified steering envelope");}
     Check(lowFlight&&midFlight&&reverseFlight&&forwardFlight,"flight choices vary altitude and direction across visits");
+    flights.flightLanes.clear();Route skim;skim.linear=true;skim.lowFlight=true;skim.points={{0,3.048f,0},{60,3.048f,0}};skim.Finish();flights.flightLanes.push_back(skim);bool sawSkim=false;
+    for(int i=0;i<12000;++i){auto p=PhasefrontFlight(flights,flyer,i/60.,0);if(!p.active)continue;sawSkim=true;
+        Check(std::fabs(p.point.y-3.048f)<=.0801f&&std::fabs(p.point.z)<=.2501f&&std::fabs(p.bank)<=.0251f,"10-foot pass respects its tighter vertical, steering and bank bounds");}
+    Check(sawSkim,"short low pass is scheduled and remains visible");
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");
     for(int i=0;i<=100;++i){Point t,p=corridor.At(float(i),&t);Check(std::fabs(p.x-i)<.0001&&p.y==40&&p.z==0&&t.x==100,"aerial route stays within swept straight corridor");}

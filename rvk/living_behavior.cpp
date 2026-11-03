@@ -42,7 +42,9 @@ HumanPose AdvanceHuman(Scene& s,Actor& a,double time,uint32_t index){
     }else{
         h.elapsed+=dt;const float maximum=std::clamp(a.speed,.65f,1.6f)*(.80f+.35f*Unit(h.seed+91));
         const float remaining=std::max(0.f,h.goal-h.progress);
-        h.speed=std::min({maximum,maximum*Smooth(h.elapsed/.8f),std::sqrt(1.8f*remaining)});
+        // Keep a normal walking pace right up to the destination. The old
+        // distance braking curve produced a long, sliding slow-motion finish.
+        h.speed=maximum*Smooth(h.elapsed/.18f);
         const float step=std::min(remaining,h.speed*dt);h.progress+=step;h.distance+=step;
         if(h.node<0){h.routeDistance+=step*h.direction;h.from=a.route.At(float(h.routeDistance));}
         if(h.goal-h.progress<.008f){
@@ -59,7 +61,7 @@ HumanPose AdvanceHuman(Scene& s,Actor& a,double time,uint32_t index){
     HumanPose p;p.point=h.node<0?a.route.At(float(h.routeDistance),&p.tangent):h.resting?h.from:Lerp(h.from,h.to,h.goal>0?h.progress/h.goal:0);
     if(h.node>=0&&!h.resting)h.tangent={h.to.x-h.from.x,h.to.y-h.from.y,h.to.z-h.from.z};
     if(h.node<0&&!h.resting){p.tangent.x*=h.direction;p.tangent.z*=h.direction;h.tangent=p.tangent;}
-    p.tangent=h.tangent;p.movement={h.distance,h.speed,h.resting?0.f:Smooth(h.speed/std::max(.1f,a.speed))};
+    p.tangent=h.tangent;p.movement={h.distance,h.speed,h.resting?1-Smooth(h.elapsed/.14f):Smooth(h.elapsed/.14f)};
     if(h.resting&&h.activity>=0&&h.elapsed>.8f){
         float t=h.elapsed-.8f;p.activity=h.activity;
         if(h.activity==3){const auto down=Clip(mesh,3),idle=Clip(mesh,4),up=Clip(mesh,5);const float stand=h.wait-up->seconds-.4f;
@@ -80,7 +82,8 @@ FlightPose PhasefrontFlight(const Scene& s,const Actor& a,double time,uint32_t i
     const double t=std::max(0.,time+Unit(seed)*220),window=100.;const uint32_t cycle=uint32_t(t/window);
     const uint32_t key=Mix(seed+cycle*977u);const float local=float(std::fmod(t,window));
     const auto& lane=s.flightLanes[Mix(key+1)%s.flightLanes.size()];const bool reverse=Mix(key+2)&1;
-    const float speed=8+Unit(key+3)*8,duration=lane.length/speed,start=3+Unit(key+4)*std::max(1.f,float(window)-duration-8);
+    const float speed=lane.lowFlight?6+Unit(key+3)*4:8+Unit(key+3)*8;
+    const float duration=lane.length/speed,start=3+Unit(key+4)*std::max(1.f,float(window)-duration-8);
     const float elapsed=local-start;if(Unit(key+5)<.30f||elapsed<0||elapsed>=duration)return p;
     float u=elapsed/duration;
     // Small speed variation and smooth lateral corrections resemble steering.
@@ -88,10 +91,11 @@ FlightPose PhasefrontFlight(const Scene& s,const Actor& a,double time,uint32_t i
     const float progress=u+.025f*std::sin(u*6.2831853f),distance=(reverse?1-progress:progress)*lane.length;
     p.point=lane.At(distance,&p.tangent);if(reverse){p.tangent.x=-p.tangent.x;p.tangent.z=-p.tangent.z;}
     const float length=std::max(.01f,std::hypot(p.tangent.x,p.tangent.z));
-    const float wave=std::sin(u*6.2831853f+Unit(key+6)*6.28f)*std::sin(u*3.14159265f);
+    const float wave=std::sin(u*6.2831853f+Unit(key+6)*6.28f)*std::sin(u*3.14159265f)*(lane.lowFlight?.25f:1.f);
     p.point.x+=p.tangent.z/length*wave;p.point.z-=p.tangent.x/length*wave;
-    p.point.y+=.55f*std::sin(u*6.2831853f)*std::sin(u*3.14159265f);
-    p.bank=.06f*std::cos(u*6.2831853f)*std::sin(u*3.14159265f);
-    p.alpha=Smooth(elapsed/3)*Smooth((duration-elapsed)/3);p.active=true;return p;
+    p.point.y+=(lane.lowFlight?.08f:.55f)*std::sin(u*6.2831853f)*std::sin(u*3.14159265f);
+    p.bank=(lane.lowFlight?.025f:.06f)*std::cos(u*6.2831853f)*std::sin(u*3.14159265f);
+    const float fade=std::min(3.f,duration*.2f);
+    p.alpha=Smooth(elapsed/fade)*Smooth((duration-elapsed)/fade);p.active=true;return p;
 }
 }

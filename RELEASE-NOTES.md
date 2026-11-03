@@ -1,5 +1,13 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 4 keeps pedestrians at walking pace until their destination, replacing
+the long braking/creeping finish with a brief 140 ms stationary idle transition.
+Occasional Phasefront skims target approximately 10 feet above terrain in newly
+checked clear corridors. Full vehicle/rider height, bank, bob and steering are
+included in a continuous swept-box/triangle test. Larger ground triangles are
+tested precisely rather than treated as imaginary solid AABB walls. Other
+flights and the large spacecraft keep their previous corridors and traffic caps.
+
 Candidate 3 adds human pedestrian activity: branching validated paths, varied
 destinations and pauses, occasional native shrugs, nods and head-scratching,
 and native sit-down / ground-rest / stand-up sequences at verified flat spots.

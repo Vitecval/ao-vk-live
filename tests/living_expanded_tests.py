@@ -8,9 +8,28 @@ from city_airspace import terrain_triangles,possible_collision
 from expanded_scenes import extend,city_faction
 from prepare_static import opaque_material
 from human_routes import build_graph
+from low_flight import low_corridors,swept_box_collision
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_low_pass_triangle_test_preserves_sloping_ground_clearance(self):
+        floor=np.array([[[0,0,0],[160,6.4,0],[160,6.4,160]],[[0,0,0],[160,6.4,160],[0,0,160]]],np.float32)
+        start=np.array([20,3.048+.8,80]);end=np.array([100,3.048+4,80])
+        self.assertFalse(swept_box_collision(floor,start,end,3.8,1.3))
+        wall=np.array([[[60,0,70],[60,10,90],[60,0,90]],[[60,0,70],[60,10,70],[60,10,90]]],np.float32)
+        self.assertTrue(swept_box_collision(wall,start,end,3.8,1.3))
+
+    def test_low_pass_checks_the_complete_vehicle_box_not_a_spherical_floor_collision(self):
+        floor=np.array([[[0,0,0],[160,0,0],[160,0,160]],[[0,0,0],[160,0,160],[0,0,160]]],np.float32)
+        lanes=low_corridors(floor,np.zeros((41,41)),4,[80,0,80],{'nodes':[]},3.5,1.1)
+        self.assertEqual(len(lanes),4)
+        for lane in lanes:self.assertAlmostEqual(lane['start'][1],3.048);self.assertTrue(lane['low_flight'])
+        # A three-metre tall wall spans every tested corridor's center.
+        wall=np.array([[[80,0,0],[80,5,160],[80,0,160]],[[0,0,80],[160,5,80],[160,0,80]]],np.float32)
+        blocked=low_corridors(np.concatenate((floor,wall)),np.zeros((41,41)),4,[80,0,80],{'nodes':[]},3.5,1.1)
+        for lane in blocked:
+            self.assertFalse(swept_box_collision(wall,np.array(lane['start']),np.array(lane['end']),lane['envelope'][0],lane['envelope'][1]))
+
     def test_pedestrian_branches_follow_real_platform_and_reject_wall(self):
         floor=np.array([[[-20,10,-20],[20,10,-20],[20,10,20]],[[-20,10,-20],[20,10,20],[-20,10,20]]],np.float32)
         wall=np.array([[[0,10,-20],[0,14,20],[0,10,20]]],np.float32)

@@ -55,7 +55,7 @@ bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& 
         const auto scene=std::to_string(playfield)+(variety?"-variety.lrs":".lrs");
         Require(hashes.count(scene)&&Hash(dir/scene)==hashes.at(scene),"playfield route missing or modified");
         std::ifstream routes(dir/scene);std::string provenance;uint32_t pf,verified,fixture,meshes,actors;
-        Require(bool(routes>>magic>>pf>>verified>>fixture>>meshes>>actors>>provenance)&&(magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7")&&pf==playfield&&!fixture&&meshes>0&&meshes<=(magic=="LRSCENE5"?16u:48u),"local route header mismatch");
+        Require(bool(routes>>magic>>pf>>verified>>fixture>>meshes>>actors>>provenance)&&(magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"||magic=="LRSCENE8")&&pf==playfield&&!fixture&&meshes>0&&meshes<=(magic=="LRSCENE5"?16u:48u),"local route header mismatch");
         LocalAssets result;result.scene=(dir/scene).string();
         // Verify only the current playfield's immutable meshes, once on loading.
         for(uint32_t i=0;i<meshes;++i){std::string name;Require(bool(routes>>name)&&Name(name),"invalid local mesh reference");

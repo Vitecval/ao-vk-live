@@ -177,8 +177,8 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
         const bool ram=expectedPlayfield==FixturePlayfield&&FixturePath(path);
         Scene s;auto stream=Open(path,ram);auto& f=*stream;std::string magic,provenance;uint32_t verified,fixture,mc,ac;
         const auto sceneBytes=Size(path,ram);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
-        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"),"bad scene header");
-        const bool v7=magic=="LRSCENE7",v6=magic=="LRSCENE6"||v7,v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
+        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"||magic=="LRSCENE8"),"bad scene header");
+        const bool v8=magic=="LRSCENE8",v7=magic=="LRSCENE7"||v8,v6=magic=="LRSCENE6"||v7,v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
         Require(v5||sceneBytes<65536,"legacy scene exceeds 64 KiB");
         Require(verified>=1&&verified<=(v4?2u:1u)&&fixture<=1&&mc>0&&mc<=(v6?48u:16u)&&ac<=(v5?256u:64u),"unreviewed placement or invalid budget");
         s.liveVerified=v4&&verified==2;
@@ -246,7 +246,9 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             for(uint32_t i=0;i<nodes;++i){Scene::WalkNode n;Require(bool(f>>n.point.x>>n.point.y>>n.point.z>>n.restMask)&&Finite(n.point.x)&&Finite(n.point.y)&&Finite(n.point.z),"invalid pedestrian node");s.walkNodes.push_back(n);}
             for(uint32_t i=0;i<edges;++i){Scene::WalkEdge e;Require(bool(f>>e.a>>e.b>>e.mask)&&e.a<nodes&&e.b<nodes&&e.a!=e.b&&e.mask,"invalid pedestrian edge");float d=Distance(s.walkNodes[e.a].point,s.walkNodes[e.b].point);Require(d>=1&&d<=18,"pedestrian edge outside validated length");s.walkEdges.push_back(e);}
             Require(bool(f>>token>>lanes)&&token=="FLIGHTLANES"&&lanes<=16,"invalid flight lane budget");
-            for(uint32_t i=0;i<lanes;++i){Route lane;lane.linear=true;lane.points.resize(2);for(auto& p:lane.points)Require(bool(f>>p.x>>p.y>>p.z),"missing lane endpoint");Require(lane.Finish()&&lane.length>=100&&lane.length<=440,"invalid flight lane");s.flightLanes.push_back(std::move(lane));}
+            for(uint32_t i=0;i<lanes;++i){Route lane;lane.linear=true;lane.points.resize(2);for(auto& p:lane.points)Require(bool(f>>p.x>>p.y>>p.z),"missing lane endpoint");
+                if(v8){uint32_t low;Require(bool(f>>low)&&low<=1,"invalid low-flight mode");lane.lowFlight=low!=0;}
+                Require(lane.Finish()&&lane.length>=(lane.lowFlight?24.f:100.f)&&lane.length<=440,"invalid flight lane");s.flightLanes.push_back(std::move(lane));}
             s.bytes+=nodes*sizeof(Scene::WalkNode)+edges*sizeof(Scene::WalkEdge)+lanes*128;Require(s.bytes<=MaxBytes,"behavior data exceeds budget");s.humanBehavior=true;
         }
         std::string trailing;Require(!(f>>trailing),"trailing scene data");out=std::move(s);return true;

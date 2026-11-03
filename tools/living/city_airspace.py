@@ -85,7 +85,7 @@ def appearance_clearance(low,high,heights,cell,lines,people):
     return result
 
 
-def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=None,people=()):
+def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=None,people=(),phase_half_height=0):
     objects=placements(client/f'cd_image/data/statels/{pf}.pf');decoded={};triangles=[];hashes={}
     for obj in objects:
         i=obj['id']
@@ -175,5 +175,8 @@ def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=N
             lanes=[dict(result['phasefront'],minimum_agl=20.45,maximum_agl=49.55)]
     from human_routes import build_graph
     graph=build_graph(geometry_low,geometry_high,heights,cell,lines,people,pf,geometry) if lines else dict(nodes=[],edges=[])
+    from low_flight import low_corridors
+    low_stats={};low_lanes=low_corridors(geometry,heights,cell,center,graph,phase_radius,phase_half_height,low_stats)
+    if low_lanes:lanes=lanes[:12]+low_lanes
     return dict(playfield=pf,placements=len(objects),decoded_models=len(decoded),triangles=len(geometry),appearance_clearance=allowed,
-                original_mesh_hashes=hashes,routes=result,blockers=rejected,flight_lanes=lanes,walk_graph=graph,live_verified=False)
+                original_mesh_hashes=hashes,routes=result,blockers=rejected,flight_lanes=lanes,low_flight_search=low_stats,walk_graph=graph,live_verified=False)

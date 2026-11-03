@@ -57,7 +57,7 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     if large and 'large' in airspace.get('routes',{}):
         add_flight(large,airspace['routes']['large'],8,(pf*79)%900,1,900)
         add_flight(large,airspace['routes']['large'],8,(pf*79+450)%900,2,900)
-    h[0]='LRSCENE7';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v7-human-city-static-review-live-check-required'
+    h[0]='LRSCENE8';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v8-ground-skimming-static-review-live-check-required'
     result=[' '.join(h),*names,*actors,*tail,'APPEARANCES '+str(len(appearances))]
     result+=[' '.join(map(str,row)) for row in appearances]
     if variety:
@@ -81,5 +81,5 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     result+=[' '.join(map(str,e)) for e in edges]
     lanes=airspace.get('flight_lanes',[])
     result+=['FLIGHTLANES '+str(len(lanes))]
-    result+=[' '.join(map(str,[*lane['start'],*lane['end']])) for lane in lanes]
+    result+=[' '.join(map(str,[*lane['start'],*lane['end'],int(lane.get('low_flight',False))])) for lane in lanes]
     return result,names

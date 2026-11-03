@@ -199,6 +199,7 @@ def prepare_expanded(db,client,out,errors):
             rigid[:,3:6]/=np.maximum(np.linalg.norm(rigid[:,3:6],axis=1,keepdims=True),1e-9);rigid[:,6:8]=v[:,12:14]
             center=(rigid[:,:3].min(0)+rigid[:,:3].max(0))/2;rigid[:,:3]-=center
             r['radius']=float(np.linalg.norm(rigid[:,:3],axis=1).max());r['rider_baked_from_original_pose']=True
+            r['flight_half_height']=float(np.abs(rigid[:,1]).max())+.06
             r['navigation_anchors']=[(rigid[np.argmin(rigid[:,0]),:3]-.025*np.array([1,0,0])).tolist(),
                                      (rigid[np.argmax(rigid[:,0]),:3]+.025*np.array([1,0,0])).tolist()]
             r['radius']=max(r['radius'],max(np.linalg.norm(p)+.06 for p in r['navigation_anchors']))

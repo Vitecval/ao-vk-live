@@ -12,7 +12,7 @@ constexpr uint32_t FixturePlayfield = 0xfffffffeu;
 constexpr size_t MaxBytes = 64u << 20; // hard cap including decoded source maps; shared materials counted once
 struct Point { float x=0,y=0,z=0; };
 struct Route {
-    bool linear=false;
+    bool linear=false,lowFlight=false;
     std::vector<Point> points;
     std::vector<float> arc;
     float length=0;

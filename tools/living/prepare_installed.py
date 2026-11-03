@@ -235,7 +235,8 @@ def prepare(client, metadata, playfields, review=False):
                 try:
                     print(f'Validating complete original city airspace: {pf}',flush=True)
                     air=corridors(db,client,pf,H,heights['cell'],city_center,
-                                  max((r['radius'] for r in vehicles),default=0),large['radius'] if large else 0,lines,people)
+                                   max((r['radius'] for r in vehicles),default=0),large['radius'] if large else 0,lines,people,
+                                   max((r['flight_half_height'] for r in vehicles),default=0))
                 except Exception as error:
                     print(f'City {pf} behavior/airspace unavailable: {error}',flush=True)
                     air=dict(playfield=pf,routes={},blockers={'city':str(error)},live_verified=False)

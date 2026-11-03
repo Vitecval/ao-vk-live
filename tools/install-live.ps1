@@ -342,17 +342,44 @@ try {
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
+$livingStatus=''
+$livingWarnings=@()
 if ($manifest.livingAssets) {
     # Optional cosmetics use a separate atomic cache generation. A failed local
     # conversion leaves the normal renderer installed and the previous cache intact.
     try {
         Assert-AoClientClosed
         if ($ProgressCallback) { & $ProgressCallback 'Preparing Living assets locally inside the selected AO folder' -1 }
-        & $livingHelper --client $client --metadata (Join-Path $package 'living-metadata')
-        if ($LASTEXITCODE -ne 0) { throw "Local preparation exited with code $LASTEXITCODE." }
+        $livingToken=[guid]::NewGuid().ToString('N')
+        $livingLog=Join-Path $client ('.ao-vk-living-'+$livingToken+'.log')
+        $livingErrorLog=Join-Path $client ('.ao-vk-living-'+$livingToken+'.error.log')
+        $livingClientArg='"'+($client -replace '(\\+)$','$1$1')+'"'
+        $livingMetadataArg='"'+((Join-Path $package 'living-metadata') -replace '(\\+)$','$1$1')+'"'
+        $livingArguments='--client '+$livingClientArg+' --metadata '+$livingMetadataArg
+        $livingProcess=Start-Process -FilePath $livingHelper -ArgumentList $livingArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $livingLog -RedirectStandardError $livingErrorLog
+        # Retain the handle before exit; Windows PowerShell otherwise loses the
+        # exit status of an asynchronously redirected native process.
+        $null=$livingProcess.Handle
+        $livingTimer=[Diagnostics.Stopwatch]::StartNew()
+        while (!$livingProcess.WaitForExit(200)) {
+            if ($ProgressCallback) { & $ProgressCallback 'Preparing local Living resources inside the selected AO folder...' -1 }
+            if ($livingTimer.Elapsed.TotalMinutes -gt 10) { $livingProcess.Kill(); throw 'Local preparation exceeded ten minutes. Keep Living Off and inspect the local preparation logs.' }
+        }
+        $livingProcess.WaitForExit()
+        if ($livingProcess.ExitCode -ne 0) {
+            $livingError=Get-Content -LiteralPath $livingErrorLog -Raw -ErrorAction SilentlyContinue
+            throw "Local preparation failed ($($livingProcess.ExitCode)). $livingError"
+        }
+        $livingStatus='Living assets prepared locally. Settings remain Off until an explicit Newland review test.'
+        $livingSummary=Get-Content -LiteralPath $livingLog -Tail 1 -ErrorAction SilentlyContinue
+        if ($livingSummary -match '([0-9]+) unsupported asset families' -and [int]$Matches[1] -gt 0) {
+            $livingWarnings=@('Some cosmetic assets are unavailable; affected instances will be skipped. See the local preparation log.')
+        }
         Write-Output 'Local Living assets prepared. New settings default Off; unverified routes require the separate Newland test command.'
     } catch {
-        Write-Warning ('The renderer is installed. Optional Living preparation did not finish: ' + $_.Exception.Message + ' Keep Living Off and retry preparation. Original archives and the previous cache are unchanged.')
+        $livingStatus='The renderer is installed, but Living assets were not prepared. Keep Living Off and retry preparation.'
+        $livingWarnings=@($_.Exception.Message)
+        Write-Warning ($livingStatus+' '+$_.Exception.Message+' Original archives were not modified by preparation.')
     }
 }
-Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })
+Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings); livingStatus=$livingStatus; livingWarnings=$livingWarnings })

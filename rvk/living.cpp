@@ -11,6 +11,12 @@ namespace rvk {
 namespace {
 constexpr uint64_t SmokeKey=0x20004c5200000000ull;
 double Now() {return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();}
+std::string InstalledClient() {
+    HMODULE mod=nullptr;wchar_t path[32768]={};
+    if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,reinterpret_cast<LPCWSTR>(&InstalledClient),&mod))return {};
+    const DWORD size=GetModuleFileNameW(mod,path,32768);if(!size||size>=32768)return {};
+    try{return std::filesystem::path(path).parent_path().string();}catch(const std::exception&){return {};}
+}
 std::string PackPath(uint32_t playfield) {
     if(const char* p=std::getenv("RANDYVK_LIVING_SCENE");p&&*p)return p;
     HMODULE mod=nullptr;char path[MAX_PATH]={};
@@ -130,9 +136,15 @@ void Device::DrawLiving() {
     if(m_skyPlayfield!=living::FixturePlayfield&&!m_livingContextKnown)return;
     if(!m_living&&!m_livingAttempt) {
         m_livingAttempt=true;auto s=std::make_unique<living::Scene>();std::string error;
-        const auto path=PackPath(m_skyPlayfield);const bool review=ReviewAllowed(path);
+        living::LocalAssets local;
+        const bool fixture=m_skyPlayfield==living::FixturePlayfield;
+        if(!fixture&&!living::ResolveInstalled(InstalledClient(),m_skyPlayfield,local,error)){
+            Log("Living Rubi-Ka: local assets unavailable (%s); %s",error.c_str(),living::UnavailableReason);return;
+        }
+        const auto path=fixture?PackPath(m_skyPlayfield):local.scene;const bool review=ReviewAllowed(path);
         Log("Living Rubi-Ka: pack '%s'; unverified-route review %s (not live certification)",path.c_str(),review?"enabled":"disabled");
-        if(!living::Load(path,*s,error,m_skyPlayfield,!review)){Log("Living Rubi-Ka: scene unavailable (%s); no actors submitted",error.c_str());return;}
+        if(!living::Load(path,*s,error,m_skyPlayfield,!review,fixture?nullptr:&local.verified)){Log("Living Rubi-Ka: scene unavailable (%s); no actors submitted",error.c_str());return;}
+        for(const auto& diagnostic:s->diagnostics)Log("Living Rubi-Ka: %s",diagnostic.c_str());
         if(!s->fixture&&!m_livingContextKnown){Log("Living Rubi-Ka: no current playfield/outdoor context; population disabled");return;}
         if(s->playfield!=m_skyPlayfield){Log("Living Rubi-Ka: pack is for %u, current playfield %u; placement rejected",s->playfield,m_skyPlayfield);return;}
         if(!s->fixture&&!s->liveVerified&&!review){Log("Living Rubi-Ka: static-only route pack DISABLED; live verification is pending. Explicit isolated review mode is required.");return;}
@@ -186,6 +198,7 @@ void Device::DrawLiving() {
     const uint32_t caps[6][4]={{0,6,12,20},{0,2,4,6},{0,1,2,2},{0,3,6,6},{0,8,8,8},{0,2,2,2}};
     for(size_t i=0;i<m_living->actors.size();++i) {
         auto& a=m_living->actors[i];const uint64_t key=SmokeKey|uint64_t(i+1);
+        if(!m_living->meshes[a.mesh].available||(a.parent>=0&&!m_living->meshes[m_living->actors[a.parent].mesh].available))continue;
         const uint32_t level=uint32_t(std::clamp(opts[a.group],0.f,3.f));
         if(level<a.tier||(a.parent<0&&accepted[a.group]>=caps[a.group][level])) {
             a.activationTime=-1;a.headingTime=-1;a.previous.reset();a.job.reset();for(auto& v:m_smokeVolumes)if(v.key==key||v.parent==key){v.key=0;v.parent=0;}continue;

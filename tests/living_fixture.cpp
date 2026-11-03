@@ -51,6 +51,7 @@ void Scene(Device& d,bool night,const std::string& camera){
     Light lamp{};lamp.type=LIGHT_POINT;lamp.position={-1,4,-1};lamp.diffuse=night?Color{1.5f,1.3f,1.f,1}:Color{.3f,.32f,.32f,1};lamp.range=18;lamp.attenuation0=1;lamp.attenuation2=.025f;d.SetLight(1,lamp);d.LightEnable(1,true);
         if(worldFog){d.SetRenderState(RS_FOGENABLE,1);d.SetRenderState(RS_FOGCOLOR,0xff536674);d.SetRenderState(RS_FOGVERTEXMODE,3);float start=6,end=38;uint32_t a,b;std::memcpy(&a,&start,4);std::memcpy(&b,&end,4);d.SetRenderState(RS_FOGSTART,a);d.SetRenderState(RS_FOGEND,b);}
     if(skyOnly||skyFirst){d.SetDrawVisual(uint32_t(VisualKind::Sky),"sky-only-camera-regression",0,0);d.SetRenderState(RS_ZWRITEENABLE,0);d.SetRenderState(RS_LIGHTING,0);Box(d,{400,27,315},{1800,1800,1800},0x87969c);if(skyOnly)return;d.SetRenderState(RS_ZWRITEENABLE,1);d.SetRenderState(RS_LIGHTING,1);}
+    d.SetDrawVisual(uint32_t(VisualKind::Static),"controlled laboratory architecture",0,0);
     if(!worldParts.empty()){DrawWorld(d);DrawCombinedWindow(d);return;}
     // Laboratory architecture only: all screenshots explicitly identify it as a fixture.
     Box(d,{0,-.15f,5},{30,.3f,28},0x535952);Box(d,{0,2.2f,9},{22,4.4f,.4f},0x68706c);
@@ -60,6 +61,7 @@ void Scene(Device& d,bool night,const std::string& camera){
         Box(d,{2.9f,.15f,2.4f},{.2f,.3f,.25f},0x39453f);
     }
     for(int i=0;i<6;++i)Box(d,{-4.f+i*.12f,1.1f,8.5f},{.055f,1.7f,.2f},0x383e3a);
+    DrawCombinedWindow(d);
 }
 }
 int main(int argc,char**argv){

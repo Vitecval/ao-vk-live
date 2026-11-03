@@ -46,6 +46,8 @@ Setting g_settings[] = {
     {"RVK_LivePeople", "Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
     {"RVK_LiveDrones", "Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
     {"RVK_AirTraffic", "Distant air traffic: Off / Low / Medium (authored city routes only)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_PhasefrontTraffic", "Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_OrbitalCraft", "Orbital craft: Off / Low / Medium (requires verified local spacecraft and routes)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_LiveWild", "Ambient wildlife: Off / Low / Medium (requires reviewed animated assets)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_LiveMachine", "Living machinery: verified components only, Off / On", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_LiveAtmos", "Localized vent steam: Off / On (also requires Smoke enabled)", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
@@ -533,6 +535,7 @@ bool AlwaysOn(const char* name)
 
 bool Hidden(const Setting& s)
 {
+    if (!rvk::living::AdditionalAircraftAvailable && (std::strcmp(s.name,"RVK_PhasefrontTraffic")==0 || std::strcmp(s.name,"RVK_OrbitalCraft")==0)) return true;
     if (!rvk::living::ReleaseContentAvailable && std::strcmp(s.section,"Living Rubi-Ka")==0) return true;
     if (std::strcmp(s.section, "Debug") == 0 || AlwaysOn(s.name)) return true;
     for (const char* h : kHidden)
@@ -580,6 +583,7 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
+    if (!rvk::living::AdditionalAircraftAvailable && (std::strcmp(name,"RVK_PhasefrontTraffic")==0 || std::strcmp(name,"RVK_OrbitalCraft")==0)) return 0.0f;
     if (!rvk::living::ReleaseContentAvailable && std::strcmp(s->section,"Living Rubi-Ka")==0) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
@@ -1434,7 +1438,7 @@ constexpr uint32_t kPresetCount = 4;
 
 bool InPresets(const Setting& s)
 {
-    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s.section,"Living Rubi-Ka")==0) return false;
+    if (std::strcmp(s.section,"Living Rubi-Ka")==0) return false; // independent saved population preferences; new installs remain Off
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
     if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||
         std::strcmp(s.name, "RVK_BuildingHD") == 0) return false;

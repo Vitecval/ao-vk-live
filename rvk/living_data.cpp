@@ -138,7 +138,7 @@ bool LocalReviewEnabled(const std::string& scenePath){
         }
     }catch(const std::exception&){}return false;
 }
-bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expectedPlayfield,bool requireLiveVerification) {
+bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expectedPlayfield,bool requireLiveVerification,const std::vector<std::string>* verifiedAssets) {
     try {
         Scene s;std::ifstream f(path);std::string magic,provenance;uint32_t verified,fixture,mc,ac;
         const auto sceneBytes=std::filesystem::file_size(path);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
@@ -153,9 +153,17 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
         Require(provenance.size()>=8&&provenance!="unknown","placement requires provenance record");
         for(uint32_t i=0;i<mc;++i){
             std::string name;Require(bool(f>>name),"missing asset");Require(name.size()<64&&name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==std::string::npos&&name.find("..") == std::string::npos,"unsafe asset name");
-            s.meshes.emplace_back();LoadMesh(std::filesystem::path(path).parent_path()/name,s.meshes.back(),s.bytes);
+            s.meshes.emplace_back();const auto before=s.bytes;
+            try {
+                Require(!verifiedAssets||std::find(verifiedAssets->begin(),verifiedAssets->end(),name)!=verifiedAssets->end(),"original asset missing or integrity check failed");
+                LoadMesh(std::filesystem::path(path).parent_path()/name,s.meshes.back(),s.bytes);
+            }catch(const std::exception& e){
+                if(!verifiedAssets)throw;
+                s.meshes.back()=Mesh{};s.meshes.back().available=false;s.bytes=before;
+                s.diagnostics.push_back(name+": "+e.what()+"; affected instances skipped");continue;
+            }
             auto& current=s.meshes.back();
-            for(uint32_t j=0;j<i;++j)if(s.meshes[j].materialOwner==~0u&&s.meshes[j].dimension==current.dimension&&s.meshes[j].pixels==current.pixels){
+            for(uint32_t j=0;j<i;++j)if(s.meshes[j].available&&s.meshes[j].materialOwner==~0u&&s.meshes[j].dimension==current.dimension&&s.meshes[j].pixels==current.pixels){
                 current.materialOwner=j;for(auto& pixels:current.pixels){s.bytes-=pixels.size()*4;pixels.clear();pixels.shrink_to_fit();}break;
             }
             Require(s.bytes<=MaxBytes,"64 MiB ambient source budget exceeded");
@@ -166,12 +174,12 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             Require(Finite(a.scale,20)&&a.scale>.01f&&Finite(a.speed,100)&&Finite(a.phase)&&Finite(a.range,1000)&&a.range>=10&&Finite(a.hover,1)&&a.hover>=0,"invalid actor parameters");
             Require(a.motion==0||a.motion>=3||count==1,"machinery/emitter must have a fixed anchor");
             // Grounded creatures require a reviewed independent animated asset, never static humanoids.
-            Require((a.group!=0&&a.group!=3)||s.meshes[a.mesh].bones,"people/wildlife require a rigged animated asset");
+            Require(!s.meshes[a.mesh].available||(a.group!=0&&a.group!=3)||s.meshes[a.mesh].bones,"people/wildlife require a rigged animated asset");
             a.route.points.resize(count);for(auto& p:a.route.points)Require(bool(f>>p.x>>p.y>>p.z),"missing route knot");
             if(locomotion)Require(bool(f>>a.walkSeconds>>a.pauseSeconds>>a.heading)&&Finite(a.walkSeconds,120)&&a.walkSeconds>=2&&Finite(a.pauseSeconds,60)&&a.pauseSeconds>=0&&Finite(a.heading,100),"invalid locomotion schedule");
             a.idleYaw=a.heading;
             if(v4)Require(bool(f>>a.idleYaw>>a.lightRange>>a.lightColour>>a.replacementMask>>a.parent)&&Finite(a.idleYaw,100)&&Finite(a.lightRange,8)&&a.lightRange>=0&&a.lightColour<=0xffffff&&a.replacementMask<(v5?0x1000000u:256u)&&a.parent>=-1&&a.parent<int32_t(i),"invalid activity, attachment or service light");
-            if(a.motion==3||a.motion==4)Require(s.meshes[a.mesh].walkFrames>0,"locomotion requires walk/idle clips");
+            if((a.motion==3||a.motion==4)&&s.meshes[a.mesh].available)Require(s.meshes[a.mesh].walkFrames>0,"locomotion requires walk/idle clips");
             if(v5){uint32_t surface;Require(bool(f>>surface)&&surface<=1,"invalid authored surface mode");a.surface=surface!=0;Require(!a.surface||a.motion==3,"authored support is only for grounded locomotion");}
             Require(a.route.Finish(),"invalid or degenerate route");
             s.bytes+=sizeof(Actor)+a.route.points.capacity()*sizeof(Point)+a.route.arc.capacity()*sizeof(float);Require(s.bytes<=MaxBytes,"route data exceeds source budget");s.actors.push_back(std::move(a));

@@ -29,7 +29,7 @@ struct Mesh {
     std::array<uint32_t,4> mapDimensions{};
     float walkSeconds=0, idleSeconds=0, stride=0;
     std::vector<float> gaitDistance;
-    bool cutout=false;
+    bool cutout=false,available=true;
     std::array<std::vector<uint32_t>,4> pixels; // ARGB albedo, GL normal, ORM, emission
     Texture* texture=nullptr;
 };
@@ -44,7 +44,7 @@ struct Actor {
     double headingTime=-1;float facingYaw=0;
     Route route;
     std::shared_ptr<const skin::Palette> previous;
-    std::shared_ptr<skin::Job> job; // retained through the frame: GPU caches key jobs/palettes by address
+    std::shared_ptr<skin::Job> job; // retained through the frame; GPU caches validate lifetime serials
     float world[4][4]={};
     uint64_t lastFrame=~uint64_t(0);
 };
@@ -71,9 +71,13 @@ struct Scene {
     float groundCell=0;
     std::vector<float> ground;
     size_t bytes=0;
+    std::vector<std::string> diagnostics;
 };
 bool LocalReviewEnabled(const std::string& scenePath);
-bool Load(const std::string& path, Scene& out, std::string& error,uint32_t expectedPlayfield=0,bool requireLiveVerification=false);
+bool Load(const std::string& path, Scene& out, std::string& error,uint32_t expectedPlayfield=0,bool requireLiveVerification=false,const std::vector<std::string>* verifiedAssets=nullptr);
+struct LocalAssets { std::string scene; std::vector<std::string> verified; };
+inline constexpr const char* InstalledIndex="9f3633726602ead5003bd3aec82f67f63462ff1080a5676f91c2f149ddfbf6d9";
+bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& result,std::string& error,const std::string& expectedIndex=InstalledIndex);
 float Fade(float distance,float range);
 bool InFrustum(const float viewProjection[4][4], Point p,float radius);
 struct Movement { double distance=0; float speed=0, walkWeight=0; };

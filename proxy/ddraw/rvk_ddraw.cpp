@@ -144,7 +144,7 @@ bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
     {   // Keep the combined shader build isolated from production and either experiment cache.
         std::string cache = rvk_settings::IniPath();
         size_t slash = cache.find_last_of("\\/");
-        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk-preview21-v9-living.cache";
+        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk-preview22-v9-living.cache";
         rvk::SetPipelineCachePath(cache.c_str());
     }
     device = new rvk::ThreadedDevice;

@@ -17,11 +17,11 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-363 settings, 186 of them in the settings window.
+365 settings, 194 of them in the settings window.
 
 ## Sections
 
-- [Living Rubi-Ka](#living-rubi-ka) (6)
+- [Living Rubi-Ka](#living-rubi-ka) (8)
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
 - [Materials](#materials) (23)
@@ -44,12 +44,14 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `RVK_LivePeople` | Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes) | 0 / 1 / 2 / 3 | 0 | ini only; game value 0; knob |
-| `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | ini only; game value 0; knob |
-| `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
-| `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
-| `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | ini only; game value off; knob |
-| `RVK_LiveAtmos` | Localized vent steam: Off / On (also requires Smoke enabled) | on / off | off | ini only; game value off; knob |
+| `RVK_LivePeople` | Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
+| `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
+| `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes) | 0 / 1 / 2 | 0 | window |
+| `RVK_OrbitalCraft` | Orbital craft: Off / Low / Medium (requires verified local spacecraft and routes) | 0 / 1 / 2 | 0 | window |
+| `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+| `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | window; game value off; knob |
+| `RVK_LiveAtmos` | Localized vent steam: Off / On (also requires Smoke enabled) | on / off | off | window; game value off; knob |
 
 ## General
 

@@ -1,3 +1,10 @@
+## Unreleased — Preview 22 local integration candidate
+
+- Prepare Living Rubi-Ka resources from the selected AO installation, keeping the generated cache inside that installation. No original asset pack accompanies the download.
+- Preserve V5/V5.1 animation, clothing, routes and stability fixes alongside Preview 21 rendering. Missing or damaged cosmetic models are skipped with diagnostics.
+- Restore the Living Rubi-Ka settings group with Off defaults and preferences independent of graphics presets. Additional Phasefront/orbital traffic remains unavailable pending verified models, riders and whole-route clearance.
+- Keep Preview 21 artwork frozen and use a separate Preview 22 graphics cache. Combined live gameplay and performance validation are pending.
+
 ## 0.6.0-preview.20
 
 - Add 866 verified worker original-ID bindings; preserve every Preview 19 map.

@@ -27,7 +27,10 @@ inline void DrawCombinedWindow(rvk::Device& d){
         FILE* f=std::fopen("combined-window-model.bin","wb");if(!f)throw std::runtime_error("window identity file");
         std::fwrite("AOMESHID",1,8,f);std::fwrite(header,4,3,f);std::fwrite(&geo,8,1,f);std::fwrite(&raw,8,1,f);std::fwrite(identity,4,2,f);std::fwrite(pieces,2,2,f);std::fwrite(&offset,4,1,f);std::fwrite(name,1,sizeof(name),f);std::fclose(f);d.LoadMeshIds("combined-window-model.bin");registered=true;
     }
-    Matrix world{};for(int i=0;i<4;++i)world.m[i][i]=1;world.m[3][0]=420;world.m[3][1]=25;world.m[3][2]=300;d.SetTransform(World,world);
+    Matrix world{};for(int i=0;i<4;++i)world.m[i][i]=1;
+    if(worldParts.empty()){world.m[3][2]=8.6f;} // CC0 laboratory fixture, no original world cache needed
+    else {world.m[3][0]=420;world.m[3][1]=25;world.m[3][2]=300;}
+    d.SetTransform(World,world);
     float bounds[]={-6,0,0,6,8,8};d.SetWindowHouseBounds(bounds);d.SetDrawVisual(uint32_t(VisualKind::Static),"Combined controlled window witness");
     Material material{};material.diffuse=material.ambient={1,1,1,1};d.SetMaterial(material);d.SetTexture(0,combinedWall);d.SetTexture(1,nullptr);
     d.SetRenderState(RS_ALPHATESTENABLE,0);d.SetRenderState(RS_LIGHTING,1);d.SetRenderState(RS_ALPHABLENDENABLE,0);d.SetRenderState(RS_CULLMODE,CULL_NONE);

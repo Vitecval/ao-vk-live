@@ -21,3 +21,12 @@ Bundled or compiled components:
 | Poly Haven Cliff Side terrain maps | CC0; authors and source in licenses/Poly-Haven-terrain.md |
 
 Build-only tools such as LLVM, shaderc and SPIRV-Cross are not bundled in the player download. Game files are supplied by the player's installation, never by this package. Anarchy Online and Funcom names identify compatibility; this package is unofficial.
+
+The Preview 22 local preparation helper additionally bundles unmodified CPython
+3.13, NumPy 2.5.4 (including its bundled numerical runtime), Pillow 13.0.0 and
+their required libraries. Their license texts accompany the helper. The helper
+is built with PyInstaller 6.16.0 and its bootloader exception; PyInstaller is not
+an AO resource provider. No Funcom code, DLL, model, animation, texture, terrain
+or converted cache is included in that helper. Generated AO-derived files must
+remain inside the selected AO installation and must never be redistributed.
+Local-only copying and user authorization do not establish Funcom permission.

@@ -1,3 +1,29 @@
+# Preview 22 — local Living Rubi-Ka test candidate
+
+This unpublished candidate reuses the recovered V5/V5.1 engine inside the exact
+Preview 21 renderer. Setup prepares original cosmetic resources from the selected
+AO installation and keeps the resulting cache inside that same AO directory.
+No original asset pack, game DLL, extracted model, animation or terrain export
+accompanies the download. Normal rendering, Parallax V9 and accepted Preview 21
+artwork are preserved. Living defaults Off, with an explicit isolated Newland
+test command and settings independent of graphics presets.
+
+Actual combined gameplay and original-cache GPU validation are pending. New
+Phasefront/orbital aircraft are unsupported and disabled; no guessed models,
+riders or flight corridors are used. Local-only caching does not establish
+Funcom permission. Read REPORT.txt and PLAYTEST-22.txt before testing. Nothing
+has been installed into F:, pushed or published by this task.
+
+Full HD Setup uses the exact pinned Preview 21 material companions. New worker
+artwork requires a separate accepted material freeze. The ordinary installer
+retains transactional rollback; optional local asset preparation follows it as
+a separate atomic cache-generation step and reports failures independently.
+
+## Preserved Preview 21 release notes
+
+The following describes the original Preview 21 scope, before this local-cache
+integration candidate.
+
 # AO-VK Live Preview 21 — Window Interiors & Expanded HD Textures
 
 Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.

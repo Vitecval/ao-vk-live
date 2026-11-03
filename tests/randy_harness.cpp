@@ -1793,13 +1793,17 @@ int main(int argc, char** argv)
         check(value("RVK_WindowDepth",true)==1,"new Medium windows default");
         auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");
         for(const char* name:{"RVK_LivePeople","RVK_LiveDrones","RVK_AirTraffic","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"}){
-            set(name,3);check(value(name)==-999.f&&effective(name)==0,"private-asset features hidden and blocked even with saved experimental settings");
+            check(value(name,true)==0,"population defaults Off");set(name,1);check(value(name)==1,"local population preference can be saved");
+        }
+        for(const char* name:{"RVK_PhasefrontTraffic","RVK_OrbitalCraft"}){
+            set(name,2);check(value(name)==-999.f&&effective(name)==0,"unsupported aircraft remain hidden and blocked");
         }
         for(int style:{0,2})for(uint32_t quality:{1u,2u,3u}){
             set("RVK_ModernTex",float(style));set("RVK_TerrainHD",0);set("RVK_BuildingHD",1);
             check(preset(quality)!=0,"preset applies");
             check(value("RVK_ModernTex")==style&&value("RVK_TerrainHD")==0&&value("RVK_BuildingHD")==1,"texture choices survive every quality preset");
             check(value("RVK_WindowDepth")==float(quality==3?2:1),"quality-specific window defaults");
+            check(value("RVK_LiveDrones")==1,"population preferences survive graphics presets");
         }
         set("RVK_WindowDepth",2);set("RVK_LivePeople",0);
         check(value("RVK_WindowDepth")==2&&effective("RVK_LivePeople")==0,"manual Strong/Off overrides remain available");

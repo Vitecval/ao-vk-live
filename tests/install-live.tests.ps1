@@ -63,6 +63,19 @@ try {
     $manifest = @{ build = 'fixture-v1'; client = $originals; addon = $oldHashes; previousAddons = @() }
     Save-Manifest
     $arguments = @{ ClientDir = $client; PackageDir = $package }
+    $manifest.assets=@{'randy-vk/living/ao-transporter.lrm'=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'validated local client provider'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Prohibited population payload changed renderer'
+    $manifest.Remove('assets')
+    $manifest.livingAssets=@{status='ready';provider='legacy-private-cache'}
+    Save-Manifest
+    Reject $arguments 'no recognized Living Rubi-Ka asset provider'
+    $manifest.livingAssets=@{status='local-test-candidate';provider='installation-local-v1';helperSha256=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'helper integrity failed'
+    $manifest.Remove('livingAssets')
+    Save-Manifest
     $manifest.cacheWarmup=@{helper='ao-vk-cache-warm.exe';relativeCache='../randy31.dll';sha256=('0'*64)}
     Save-Manifest
     Reject $arguments 'Invalid cache preparation descriptor'

@@ -76,7 +76,7 @@ def main():
     for archive in archives[1:]:
         with zipfile.ZipFile(archive) as z:assert z.read('LICENSE-TEXTURES.md')==license_bytes
     results.append(dict(case='complete-setup-and-multi-archive-packaging',result='passed'))
-    def run(case,offline=False,expect=True,reuse=False,wrong=False,disk=False):
+    def run(case,offline=False,expect=True,reuse=False,wrong=False,disk=False,frozen=False):
         d=out/case;d.mkdir(exist_ok=True);client=d/'dummy client';client.mkdir(exist_ok=True)
         for name in ['randy-vk.ini','ao-vk.dll','ao-vk-live.install.json']:
             p=client/name
@@ -92,6 +92,7 @@ def main():
         if case=='unexpected-notice':
             manifest['materialParts']=json.loads(json.dumps(parts))
             manifest['materialParts'][0]['notices']['unexpected.txt']='0'*64
+        if frozen:manifest.update(version='0.6.0-preview.22',materialSourceVersion=VERSION)
         if wrong:manifest['materialDownload']['tag']='v0.6.0-preview.20'
         (d/'manifest.json').write_text(json.dumps(manifest))
         if offline:
@@ -130,6 +131,7 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         for name in assets:(d/name).unlink()
         run('automatic',reuse=True)
         run('offline',offline=True)
+        run('preview22-frozen-materials',offline=True,frozen=True)
         modes['interrupted']='interrupt';d,p=run('interrupted',expect=False)
         assert list((d/'.ao-vk-downloads').glob('*.partial')),'Interrupted bytes were not retained'
         modes['interrupted']='normal';start=len(requests);run('interrupted')

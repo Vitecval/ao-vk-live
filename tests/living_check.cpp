@@ -53,6 +53,39 @@ int main(int argc,char**argv){
     Check(!LocalReviewEnabled((reviewDir/"other-client"/"566.lrs").string()),"review opt-in stays local to its pack directory");
     {std::ofstream f(reviewDir/"review.ini");f<<std::string(2049,'x');}Check(!LocalReviewEnabled(reviewScene),"oversize local-review configuration rejected");
     std::filesystem::remove(reviewDir/"review.ini");std::filesystem::remove(reviewDir);
+    // A synthetic installed-client cache, with an independently known SHA256
+    // for its empty index. Production callers always use the audited AO pin.
+    const auto localDir=std::filesystem::current_path()/("living-local-test-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto generation=localDir/"randy-vk/living-local/generation-synthetic";
+    std::filesystem::create_directories(generation);
+    std::filesystem::create_directories(localDir/"cd_image/data/db");
+    std::filesystem::create_directories(localDir/"cd_image/data/statels");
+    auto put=[](const std::filesystem::path& path,const std::string& value){std::ofstream f(path,std::ios::binary);f<<value;};
+    const std::string emptyHash="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    const std::string scene="LRSCENE5 566 1 0 1 1 synthetic-local-test\nmissing.lrm\n1 0 1 0 1 0 0 100 0 1 10 30 10 16 7 0 0 0 0 0 -1 0\n0\n-\n";
+    put(localDir/"cd_image/data/db/ResourceDatabase.idx","");
+    put(localDir/"cd_image/data/statels/566.pf","");
+    put(generation.parent_path()/"active.txt","generation-synthetic\n");
+    put(generation/"566.lrs",scene);put(generation/"ground-566.lrg","");put(generation/"review.ini","");
+    put(generation/"cache.receipt","LRLOCAL1 "+emptyHash+" 4\n566.lrs 4ed442eb6bdb7d1e0407c21a653f01d1c61aa200401e869eb1c3031c0da56d5d\nground-566.lrg "+emptyHash+"\nreview.ini "+emptyHash+"\nsource-566.pf "+emptyHash+"\n");
+    LocalAssets resolved;std::string localError;
+    Check(ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),localError.c_str());
+    Check(resolved.verified.empty(),"unverified mesh is never handed to the loader");
+    Scene partial;
+    Check(Load(resolved.scene,partial,localError,566,false,&resolved.verified),localError.c_str());
+    Check(partial.meshes.size()==1&&!partial.meshes[0].available&&partial.diagnostics.size()==1,"missing optional model skips its instances with a diagnostic");
+    Check(!Load(resolved.scene,partial,localError,566,false),"legacy fixture load stays strict");
+    Check(!ResolveInstalled(localDir.string(),567,resolved,localError,emptyHash),"another playfield cannot reuse Newland route");
+    put(generation/"review.ini","unverified override");
+    Check(!ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),"modified review file rejected");put(generation/"review.ini","");
+    put(generation/"566.lrs",scene+"modified");
+    Check(!ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),"modified scene rejected before loading");put(generation/"566.lrs",scene);
+    put(localDir/"cd_image/data/db/ResourceDatabase.idx","updated");
+    Check(!ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),"changed installation index rejected");
+    put(generation.parent_path()/"active.txt","../../outside\n");
+    Check(!ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),"cache generation cannot traverse directories");
+    if(std::filesystem::weakly_canonical(localDir).parent_path()==std::filesystem::canonical(std::filesystem::current_path()))std::filesystem::remove_all(localDir);
+    else Check(false,"synthetic cache cleanup must remain inside test workspace");
     if(argc>2&&std::string(argv[1])=="--scene"){Scene s;std::string e;const bool ok=Load(argv[2],s,e);Check(ok,e.c_str());if(!ok)return 1;std::printf("Scene: %u, %zu actors, %zu meshes, %.2f MiB\n",s.playfield,s.actors.size(),s.meshes.size(),s.bytes/1048576.);}
     else if(argc>1){Scene s;std::string e;bool loaded=Load(argv[1],s,e);Check(loaded,e.c_str());if(!loaded)return 1;Check(s.fixture&&s.playfield==FixturePlayfield,"fixture isolated from live zones");Check(s.actors.size()==5&&s.meshes.size()==3,"complete fixture inventory");Check(!s.meshes.empty()&&s.meshes[0].bones==4&&s.meshes[0].frameCount==90,"independent skeletal asset loaded");
         auto temp=std::filesystem::temp_directory_path()/"living-reject.lrs";

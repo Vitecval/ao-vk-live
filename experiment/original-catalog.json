@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "scope": "Original AO resources resolved from the owner's installation; no proprietary asset bytes in this catalog",
+  "assets": [
+    {
+      "name": "resident-jacket",
+      "model": 5907,
+      "head": 40681,
+      "walk": 10191,
+      "idle": 10173,
+      "textures": {
+        "arms": 42252,
+        "body": 42253,
+        "legs": 42250,
+        "feet": 40903,
+        "hands": {
+          "type": 1010011,
+          "id": 8773
+        }
+      }
+    },
+    {
+      "name": "traveler-bomber",
+      "model": 5927,
+      "head": 40630,
+      "walk": 10162,
+      "idle": 10135,
+      "textures": {
+        "arms": 247894,
+        "body": 247940,
+        "legs": 244580,
+        "feet": 9615,
+        "hands": {
+          "type": 1010011,
+          "id": 8865
+        }
+      }
+    },
+    {
+      "name": "technician-workshirt",
+      "model": 17532,
+      "head": 40666,
+      "walk": 10191,
+      "idle": 10173,
+      "textures": {
+        "arms": 9607,
+        "body": 9609,
+        "legs": 244580,
+        "feet": 9615,
+        "hands": 215123
+      }
+    },
+    {
+      "name": "minibronto",
+      "model": 15243,
+      "walk": 15394,
+      "idle": 15386,
+      "groups": [
+        "Minibronto"
+      ],
+      "dimension": 512,
+      "stride": 1.2,
+      "foot_bones": [
+        16,
+        21,
+        28,
+        33
+      ]
+    },
+    {
+      "name": "wingdings",
+      "model": 15295,
+      "walk": 15512,
+      "idle": 15509,
+      "dimension": 512,
+      "grounded": false
+    }
+  ],
+  "statics": [
+    {
+      "name": "ao-hoverdrone",
+      "model": 75384,
+      "dimension": 512
+    },
+    {
+      "name": "ao-transporter",
+      "model": 6579,
+      "dimension": 512
+    }
+  ]
+}

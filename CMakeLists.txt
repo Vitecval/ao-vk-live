@@ -193,7 +193,8 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
 add_library(rvk STATIC rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
-target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/living_data.cpp rvk/living.cpp)
+target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/living_data.cpp rvk/living.cpp rvk/living_local.cpp)
+target_link_libraries(rvk PUBLIC bcrypt)
 add_executable(living_check tests/living_check.cpp rvk/living_data.cpp proxy/native/stb_image.cpp)
 add_executable(ao_vk_cache_warm tools/cache-warm.cpp proxy/native/stb_image.cpp)
 set_target_properties(ao_vk_cache_warm PROPERTIES OUTPUT_NAME "ao-vk-cache-warm")

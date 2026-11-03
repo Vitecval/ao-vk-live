@@ -5,12 +5,19 @@ function Write-AoMaterialProgress([string]$Message, [int]$Percent = -1, [scriptb
 }
 
 function Assert-AoMaterialRelease($Manifest, $Part) {
+    $sourceVersion = [string]$Manifest.version
+    if ($Manifest.materialSourceVersion) {
+        if ($Manifest.version -cne '0.6.0-preview.22' -or $Manifest.materialSourceVersion -cne '0.6.0-preview.21') {
+            throw 'Invalid frozen material source release.'
+        }
+        $sourceVersion = [string]$Manifest.materialSourceVersion
+    }
     if ($Manifest.version) {
-        $prefix = '^ao-vk-live-' + [regex]::Escape([string]$Manifest.version) + '-windows-x86-full-materials-[0-9]+\.zip$'
+        $prefix = '^ao-vk-live-' + [regex]::Escape($sourceVersion) + '-windows-x86-full-materials-[0-9]+\.zip$'
         if ($Part.name -cnotmatch $prefix) { throw 'Material archive belongs to a different release. Nothing was installed.' }
     }
     if (!$Manifest.materialDownload) { return }
-    $version = [string]$Manifest.version
+    $version = $sourceVersion
     $expected = "https://github.com/Vitecval/ao-vk-live/releases/download/v$version/"
     if ($version -cne '0.6.0-preview.21' -or $Manifest.materialDownload.repository -cne 'Vitecval/ao-vk-live' -or
         $Manifest.materialDownload.tag -cne "v$version" -or $Manifest.materialDownload.baseUrl -cne $expected -or

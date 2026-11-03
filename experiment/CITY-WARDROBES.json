@@ -1,0 +1,400 @@
+{
+  "version": "V5.1",
+  "description": "Clothing colour grading and city-specific mixes only. Existing faces, skin, rig, routes and all non-people actors preserved. No faction logos or gameplay identities.",
+  "themes": {
+    "newland": {
+      "description": "Weathered sand, faded teal and olive",
+      "colours": [
+        "#98836a",
+        "#5e7774",
+        "#6a7357",
+        "#826b55",
+        "#7f5149",
+        "#657276",
+        "#8c805b",
+        "#54666a",
+        "#767761"
+      ]
+    },
+    "borealis": {
+      "description": "Mixed civilian slate, muted plum and teal",
+      "colours": [
+        "#5c7280",
+        "#785660",
+        "#5f7568",
+        "#78594c",
+        "#456e72",
+        "#6a6974",
+        "#6b737d",
+        "#887255",
+        "#576f66"
+      ]
+    },
+    "icc": {
+      "description": "Civic stone, blue grey and restrained teal",
+      "colours": [
+        "#a3a291",
+        "#617785",
+        "#537b7c",
+        "#8c8d84",
+        "#6e7980",
+        "#7f7362",
+        "#7c8e8a",
+        "#5c6d79",
+        "#9c8d73"
+      ]
+    },
+    "clan": {
+      "description": "Practical olive, rust and worn earth tones",
+      "colours": [
+        "#8c7150",
+        "#657052",
+        "#8a5646",
+        "#80634d",
+        "#7d645c",
+        "#546b60",
+        "#9a794a",
+        "#6d7457",
+        "#755952"
+      ]
+    },
+    "omni": {
+      "description": "Formal navy, industrial grey and light slate",
+      "colours": [
+        "#4c5e70",
+        "#68747f",
+        "#858d90",
+        "#526270",
+        "#696475",
+        "#6d767b",
+        "#526a75",
+        "#85775d",
+        "#5c666e"
+      ]
+    },
+    "entertainment": {
+      "description": "Muted plum, wine and blue teal accents",
+      "colours": [
+        "#71627c",
+        "#476f76",
+        "#815d60",
+        "#5d7280",
+        "#805e6b",
+        "#7f7769",
+        "#5e777a",
+        "#8b775b",
+        "#6f6479"
+      ]
+    },
+    "frontier": {
+      "description": "Dusty canvas, leather brown and faded olive",
+      "colours": [
+        "#8e7b5e",
+        "#7a705b",
+        "#68715a",
+        "#937553",
+        "#7f5d4b",
+        "#6b7460",
+        "#9e8658",
+        "#6b7465",
+        "#7b6d5b"
+      ]
+    }
+  },
+  "cities": {
+    "566": {
+      "theme": "newland",
+      "weights": [
+        5,
+        2,
+        2,
+        4,
+        2,
+        3,
+        3,
+        3,
+        2
+      ]
+    },
+    "800": {
+      "theme": "borealis",
+      "weights": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        2,
+        3,
+        3,
+        3
+      ]
+    },
+    "655": {
+      "theme": "icc",
+      "weights": [
+        5,
+        3,
+        2,
+        4,
+        3,
+        2,
+        3,
+        4,
+        2
+      ]
+    },
+    "640": {
+      "theme": "clan",
+      "weights": [
+        2,
+        3,
+        5,
+        3,
+        2,
+        4,
+        5,
+        3,
+        2
+      ]
+    },
+    "540": {
+      "theme": "clan",
+      "weights": [
+        2,
+        5,
+        3,
+        3,
+        3,
+        5,
+        2,
+        5,
+        3
+      ]
+    },
+    "545": {
+      "theme": "clan",
+      "weights": [
+        4,
+        4,
+        2,
+        5,
+        3,
+        2,
+        3,
+        4,
+        3
+      ]
+    },
+    "505": {
+      "theme": "clan",
+      "weights": [
+        5,
+        3,
+        2,
+        5,
+        3,
+        2,
+        3,
+        4,
+        2
+      ]
+    },
+    "700": {
+      "theme": "omni",
+      "weights": [
+        6,
+        3,
+        2,
+        5,
+        3,
+        2,
+        4,
+        2,
+        4
+      ]
+    },
+    "705": {
+      "theme": "entertainment",
+      "weights": [
+        3,
+        4,
+        3,
+        4,
+        4,
+        2,
+        3,
+        3,
+        3
+      ]
+    },
+    "710": {
+      "theme": "omni",
+      "weights": [
+        3,
+        5,
+        2,
+        3,
+        3,
+        4,
+        5,
+        4,
+        2
+      ]
+    },
+    "730": {
+      "theme": "omni",
+      "weights": [
+        3,
+        4,
+        5,
+        3,
+        4,
+        3,
+        3,
+        2,
+        5
+      ]
+    },
+    "735": {
+      "theme": "omni",
+      "weights": [
+        5,
+        3,
+        3,
+        4,
+        3,
+        3,
+        4,
+        2,
+        4
+      ]
+    },
+    "740": {
+      "theme": "omni",
+      "weights": [
+        3,
+        5,
+        3,
+        3,
+        3,
+        4,
+        3,
+        4,
+        3
+      ]
+    },
+    "665": {
+      "theme": "newland",
+      "weights": [
+        3,
+        4,
+        3,
+        5,
+        3,
+        2,
+        2,
+        4,
+        3
+      ]
+    },
+    "790": {
+      "theme": "newland",
+      "weights": [
+        3,
+        4,
+        3,
+        4,
+        4,
+        2,
+        3,
+        3,
+        4
+      ]
+    },
+    "685": {
+      "theme": "frontier",
+      "weights": [
+        5,
+        3,
+        2,
+        4,
+        4,
+        2,
+        3,
+        4,
+        3
+      ]
+    },
+    "687": {
+      "theme": "frontier",
+      "weights": [
+        3,
+        4,
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        3
+      ]
+    },
+    "560": {
+      "theme": "frontier",
+      "weights": [
+        3,
+        4,
+        3,
+        4,
+        3,
+        3,
+        5,
+        3,
+        2
+      ]
+    },
+    "565": {
+      "theme": "frontier",
+      "weights": [
+        5,
+        3,
+        2,
+        5,
+        3,
+        2,
+        5,
+        3,
+        2
+      ]
+    },
+    "795": {
+      "theme": "frontier",
+      "weights": [
+        4,
+        3,
+        3,
+        4,
+        4,
+        2,
+        3,
+        5,
+        2
+      ]
+    },
+    "760": {
+      "theme": "frontier",
+      "weights": [
+        3,
+        4,
+        3,
+        3,
+        3,
+        4,
+        4,
+        3,
+        3
+      ]
+    }
+  }
+}

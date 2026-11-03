@@ -34,6 +34,29 @@ if (!$Uninstall -and $manifest.edition -eq 'full' -and $manifest.artworkLicense)
     Write-Host 'Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.'
     Write-Host 'See LICENSE-TEXTURES.md. Third-party licenses and permissions previously granted remain in force.'
 }
+if (!$Uninstall -and $manifest.assets) {
+    foreach ($item in $manifest.assets.PSObject.Properties) {
+        if ($item.Name -match '^randy-vk[\\/]living[\\/]') {
+            throw 'Living Rubi-Ka assets must come from a validated local client provider, not this package.'
+        }
+    }
+}
+if (!$Uninstall -and $manifest.livingAssets) {
+    if ($manifest.livingAssets.provider -ne 'installation-local-v1' -or $manifest.livingAssets.status -ne 'local-test-candidate') {
+        throw 'This candidate has no recognized Living Rubi-Ka asset provider.'
+    }
+    $livingHelper = Join-Path $package 'living-preparer\ao-vk-living-prepare.exe'
+    if (!(Test-Path -LiteralPath $livingHelper) -or (Get-FileHash -LiteralPath $livingHelper -Algorithm SHA256).Hash -ine $manifest.livingAssets.helperSha256) {
+        throw 'Local Living preparation helper integrity failed.'
+    }
+    foreach ($item in $manifest.livingAssets.files.PSObject.Properties) {
+        if ($item.Name -notmatch '^(living-preparer/[A-Za-z0-9_./-]+|living-metadata/[A-Za-z0-9_./-]+)$' -or $item.Name.Contains('..') -or
+            !(Test-Path -LiteralPath (Join-Path $package $item.Name)) -or
+            (Get-FileHash -LiteralPath (Join-Path $package $item.Name) -Algorithm SHA256).Hash -ine $item.Value) {
+            throw 'Local Living preparation payload integrity failed.'
+        }
+    }
+}
 $receiptPath = Join-Path $client 'ao-vk-live.install.json'
 $receipt = $null
 if (Test-Path -LiteralPath $receiptPath) {
@@ -236,7 +259,8 @@ foreach ($target in $unchangedTargets) {
 # populated scene. Only source-built code is shipped; the cache stays on this GPU.
 if ($manifest.cacheWarmup) {
     $warm = $manifest.cacheWarmup
-    if ($warm.helper -ne 'ao-vk-cache-warm.exe' -or $warm.relativeCache -ne 'randy-vk-preview21-v9-living.cache') { throw 'Invalid cache preparation descriptor.' }
+    $expectedCache = if ($manifest.version -eq '0.6.0-preview.22') { 'randy-vk-preview22-v9-living.cache' } else { 'randy-vk-preview21-v9-living.cache' }
+    if ($warm.helper -ne 'ao-vk-cache-warm.exe' -or $warm.relativeCache -ne $expectedCache) { throw 'Invalid cache preparation descriptor.' }
     $helper = Join-Path $package $warm.helper
     if ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash -ine $warm.sha256) { throw 'Cache preparation helper integrity failed.' }
     Write-Output 'Preparing this release on your graphics card. This may take one or two minutes; AO is not started.'
@@ -318,4 +342,17 @@ try {
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
+if ($manifest.livingAssets) {
+    # Optional cosmetics use a separate atomic cache generation. A failed local
+    # conversion leaves the normal renderer installed and the previous cache intact.
+    try {
+        Assert-AoClientClosed
+        if ($ProgressCallback) { & $ProgressCallback 'Preparing Living assets locally inside the selected AO folder' -1 }
+        & $livingHelper --client $client --metadata (Join-Path $package 'living-metadata')
+        if ($LASTEXITCODE -ne 0) { throw "Local preparation exited with code $LASTEXITCODE." }
+        Write-Output 'Local Living assets prepared. New settings default Off; unverified routes require the separate Newland test command.'
+    } catch {
+        Write-Warning ('The renderer is installed. Optional Living preparation did not finish: ' + $_.Exception.Message + ' Keep Living Off and retry preparation. Original archives and the previous cache are unchanged.')
+    }
+}
 Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })

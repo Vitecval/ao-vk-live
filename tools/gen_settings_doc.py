@@ -120,7 +120,7 @@ def main():
            "  stay. A feature's on / off switch (its *switch* below) does the same for the settings under it.",
            "- Presets preserve texture-library and HD-surface choices. Classic+ and Modern use Medium windows; Ultra uses Maximum.",
            "- Ctrl+Shift+F12 opens standalone options: important controls first; Enter expands related settings.",
-           "- Living compatibility keys are inactive in Preview 21 because their current resources cannot be distributed.",
+           "- Living Rubi-Ka reads validated resources prepared inside the selected AO folder. New population and aircraft controls default Off; appearance variety defaults Normal.",
            "- A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.",
            "- *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).", "",
            f"{len(settings)} settings, {sum(1 for s in settings if not hidden(s))} of them in the settings window.", ""]

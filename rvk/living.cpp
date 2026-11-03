@@ -127,7 +127,10 @@ void Device::DrawLiving() {
         return;
     }
 
-    const float opts[6]={m_livePeople,m_liveDrones,m_liveAir,m_liveWild,m_liveMachine,m_liveAtmos};
+    const bool variety=m_npcVariety>=1||m_armoredCivilians>=1;
+    const uint32_t armored=uint32_t(std::clamp(m_armoredCivilians,0.f,2.f));
+    if(m_living&&(m_living->requestedVariety!=variety||m_living->armoredLevel!=armored))DestroyLiving();
+    const float opts[6]={m_livePeople,m_liveDrones,std::max({m_liveAir,m_phasefrontTraffic,m_orbitalCraft}),m_liveWild,m_liveMachine,m_liveAtmos};
     bool any=false;for(float x:opts)any|=x>=1;
     if(!any){if(m_living||m_livingAttempt)DestroyLiving();return;}
     if(m_livingFrame==m_frameNumber||!m_inFrame||m_deviceLost||m_livingDrawing||!m_sceneSaw3D||(!m_aoProjValid&&!m_livingCameraValid)||m_target!=m_main)return;
@@ -138,7 +141,7 @@ void Device::DrawLiving() {
         m_livingAttempt=true;auto s=std::make_unique<living::Scene>();std::string error;
         living::LocalAssets local;
         const bool fixture=m_skyPlayfield==living::FixturePlayfield;
-        if(!fixture&&!living::ResolveInstalled(InstalledClient(),m_skyPlayfield,local,error)){
+        if(!fixture&&!living::ResolveInstalled(InstalledClient(),m_skyPlayfield,local,error,living::InstalledIndex,variety)){
             Log("Living Rubi-Ka: local assets unavailable (%s); %s",error.c_str(),living::UnavailableReason);return;
         }
         const auto path=fixture?PackPath(m_skyPlayfield):local.scene;const bool review=ReviewAllowed(path);
@@ -148,6 +151,7 @@ void Device::DrawLiving() {
         if(!s->fixture&&!m_livingContextKnown){Log("Living Rubi-Ka: no current playfield/outdoor context; population disabled");return;}
         if(s->playfield!=m_skyPlayfield){Log("Living Rubi-Ka: pack is for %u, current playfield %u; placement rejected",s->playfield,m_skyPlayfield);return;}
         if(!s->fixture&&!s->liveVerified&&!review){Log("Living Rubi-Ka: static-only route pack DISABLED; live verification is pending. Explicit isolated review mode is required.");return;}
+        s->requestedVariety=variety;living::SelectAppearances(*s,armored);
         m_living=std::move(s);m_livingStart=Now();
         Log("Living Rubi-Ka: %zu actors, %zu shared assets, %.2f MiB; %s",m_living->actors.size(),m_living->meshes.size(),double(m_living->bytes)/1048576.,m_living->fixture?"CONTROLLED FIXTURE (not gameplay)":"STATIC-REVIEW PLAYFIELD PACK (not live-verified)");
     }
@@ -194,21 +198,28 @@ void Device::DrawLiving() {
     SetTextureStageState(0,TSS_ALPHAOP,TOP_MODULATE);SetTextureStageState(0,TSS_ALPHAARG1,TA_TEXTURE);SetTextureStageState(0,TSS_ALPHAARG2,TA_DIFFUSE);
     SetTextureStageState(0,TSS_TEXCOORDINDEX,0);SetTextureStageState(0,TSS_TEXTURETRANSFORMFLAGS,TTFF_DISABLE);
     SetTextureStageState(0,TSS_ADDRESS,TADDRESS_CLAMP);SetTextureStageState(0,TSS_MINFILTER,TFN_LINEAR);SetTextureStageState(0,TSS_MAGFILTER,TFG_LINEAR);SetTextureStageState(0,TSS_MIPFILTER,TFP_LINEAR);
-    size_t drawn=0;uint32_t groupDraws[6]={};uint32_t accepted[6]={};uint32_t largeUploads=0;
+    size_t drawn=0;uint32_t groupDraws[6]={};uint32_t accepted[6]={};uint32_t largeUploads=0,phasefronts=0,largeCraft=0,ordinaryAir=0;
     const uint32_t caps[6][4]={{0,6,12,20},{0,2,4,6},{0,1,2,2},{0,3,6,6},{0,8,8,8},{0,2,2,2}};
     for(size_t i=0;i<m_living->actors.size();++i) {
         auto& a=m_living->actors[i];const uint64_t key=SmokeKey|uint64_t(i+1);
+        if(a.group==0&&!m_living->appearances.empty()&&!a.appearanceMask)continue;
         if(!m_living->meshes[a.mesh].available||(a.parent>=0&&!m_living->meshes[m_living->actors[a.parent].mesh].available))continue;
-        const uint32_t level=uint32_t(std::clamp(opts[a.group],0.f,3.f));
-        if(level<a.tier||(a.parent<0&&accepted[a.group]>=caps[a.group][level])) {
+        const uint32_t flight=a.parent>=0?m_living->actors[a.parent].motion:a.motion;
+        const float option=flight==7?m_phasefrontTraffic:flight==8?m_orbitalCraft:a.group==2?m_liveAir:opts[a.group];
+        const uint32_t level=uint32_t(std::clamp(option,0.f,3.f));
+        const bool airCapped=a.group==2&&(accepted[2]>=3||(a.motion==7&&phasefronts>=(level>=2?2u:1u))||(a.motion==8&&largeCraft>=1)||(a.motion<7&&ordinaryAir>=caps[2][level]));
+        if(level<a.tier||(a.parent<0&&(a.group==2?airCapped:accepted[a.group]>=caps[a.group][level]))) {
             a.activationTime=-1;a.headingTime=-1;a.previous.reset();a.job.reset();for(auto& v:m_smokeVolumes)if(v.key==key||v.parent==key){v.key=0;v.parent=0;}continue;
         }
         if(a.replacementMask){bool ready=true;for(size_t k=0;k<m_living->replacements.size();++k)if(a.replacementMask&(1u<<k))ready&=m_living->replacements[k].suppressedFrame==m_frameNumber;if(!ready){a.activationTime=-1;continue;}if(a.activationTime<0)a.activationTime=time;}
         const bool stopping=a.motion==3||a.motion==5;
         const living::Movement movement=stopping?living::Locomotion(time,a):living::Movement{};
+        // Density changes add staggered schedules; a visible craft's own
+        // period never changes when Low/Medium is switched.
         const float slot=float(std::fmod(time+a.phase,double(a.walkSeconds+a.pauseSeconds)));
-        const double distance=stopping?movement.distance:a.motion==6?slot*a.speed:time*a.speed+a.phase;
-        const float travel=a.route.length>0?float(std::fmod(distance,double(a.route.length))):0.f;
+        if(a.motion>=7&&slot>=a.walkSeconds){a.previous.reset();continue;}
+        const double distance=stopping?movement.distance:a.motion>=6?slot*a.speed:time*a.speed+a.phase;
+        const float travel=a.route.linear?std::clamp(float(distance),0.f,a.route.length):a.route.length>0?float(std::fmod(distance,double(a.route.length))):0.f;
         living::Point tangent,p=a.route.At(travel,&tangent);
         if(a.parent>=0){const auto& parent=m_living->actors[a.parent];if(parent.lastFrame!=m_frameNumber)continue;const auto& w=parent.world;const auto local=p;
             p={local.x*w[0][0]+local.y*w[1][0]+local.z*w[2][0]+w[3][0],local.x*w[0][1]+local.y*w[1][1]+local.z*w[2][1]+w[3][1],local.x*w[0][2]+local.y*w[1][2]+local.z*w[2][2]+w[3][2]};tangent={w[2][0],w[2][1],w[2][2]};}
@@ -219,12 +230,13 @@ void Device::DrawLiving() {
         float alpha=living::Fade(dist,a.range)*Smooth(float(clock-m_livingEnabled[a.group])/1.5f);
         if(m_living->fixture&&std::getenv("RANDYVK_LIVING_TIME"))alpha=living::Fade(dist,a.range);
         if(a.replacementMask)alpha=living::Fade(dist,a.range);
-        if(a.motion==6)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
+        if(a.parent>=0&&flight>=7)alpha*=m_living->actors[a.parent].visibilityAlpha;
+        if(a.motion>=6)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
         else if(a.group==2){const float legacySlot=float(std::fmod(time+a.phase,90.0));alpha*=Smooth(legacySlot/2)*Smooth((30-legacySlot)/2);}
         if(a.parent>=0&&a.group==4)alpha*=.86f+.14f*std::sin(float(time*2.3+a.phase));
         auto& m=m_living->meshes[a.mesh];
         if(alpha<.005f||!living::InFrustum(vp.m,p,m.radius*a.scale+a.hover)){a.previous.reset();continue;}
-        if(a.parent<0)++accepted[a.group];
+        if(a.parent<0){++accepted[a.group];if(a.group==2){if(a.motion==7)++phasefronts;else if(a.motion==8)++largeCraft;else ++ordinaryAir;}}
         ++m_livingDraws[a.group];
         if(a.lightRange>0&&m_lightsCur.size()<512&&m_livingLightCount<4){
             CapturedLight light{};light.light.type=LIGHT_POINT;light.light.position={p.x+tangent.x/std::max(.001f,std::hypot(tangent.x,tangent.z))*.15f,p.y+.12f,p.z+tangent.z/std::max(.001f,std::hypot(tangent.x,tangent.z))*.15f};light.light.range=a.lightRange;
@@ -278,7 +290,7 @@ void Device::DrawLiving() {
         SetRenderState(RS_ALPHABLENDENABLE,alpha<.995f);SetRenderState(RS_ZWRITEENABLE,alpha>=.995f);
         SetRenderState(RS_ALPHATESTENABLE,m.cutout);SetRenderState(RS_ALPHAFUNC,CMP_GREATER);SetRenderState(RS_ALPHAREF,uint32_t(96*alpha));SetRenderState(RS_COLORKEYENABLE,0);
         SetRenderState(RS_SRCBLEND,BLEND_SRCALPHA);SetRenderState(RS_DESTBLEND,BLEND_INVSRCALPHA);
-        const int lod=dist>80?2:dist>30?1:0;
+        const int lod=a.motion>=7?(dist>std::max(80.f,m.radius*15)?2:dist>std::max(30.f,m.radius*6)?1:0):(dist>80?2:dist>30?1:0);
         if(m.skin) {
           if(!a.job||!a.previous||dist<60||m_frameNumber%2==i%2) {
             const double animationTime=a.replacementMask&&!m_living->fixture?std::max(0.,time-a.activationTime):time;
@@ -309,7 +321,7 @@ void Device::DrawLiving() {
             if(a.motion==3&&!m.contacts.empty()){w.m[3][1]+=living::ContactOffset(*m_living,m,*a.job->bones,w.m,a.surface);SetTransform(World,w);}
             DrawSkinned(TriangleList,skin::kVertexFvf,*a.job,0,m.vertexCount,m.skin->indices.data(),uint32_t(m.indices[lod]->size()));
         }else DrawSharedIndexed(TriangleList,skin::kVertexFvf,m.vertices,0,m.vertexCount,m.indexBytes[lod],uint32_t(m.indices[lod]->size()));
-        std::memcpy(a.world,w.m,sizeof(a.world));a.lastFrame=m_frameNumber;++drawn;++groupDraws[a.group];
+        std::memcpy(a.world,w.m,sizeof(a.world));a.visibilityAlpha=alpha;a.lastFrame=m_frameNumber;++drawn;++groupDraws[a.group];
     }
     for(auto& original:m_livingOriginals){
         bool replaced=false;for(const auto& a:m_living->actors)replaced|=(a.replacementMask&original.first)&&a.parent<0&&a.lastFrame==m_frameNumber;

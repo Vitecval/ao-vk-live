@@ -8,8 +8,10 @@ static std::vector<WorldPart> worldParts;
 static int worldGroundMode=0;
 static rvk::Texture* worldLightmap=nullptr;
 static bool LoadWorld(rvk::Device& d,const std::string& path){
-    std::ifstream f(path,std::ios::binary|std::ios::ate);if(!f)return false;auto size=f.tellg();if(size<12||size>256*1024*1024)return false;
-    std::vector<uint8_t> bytes{std::vector<uint8_t>(size_t(size))};f.seekg(0);if(!f.read(reinterpret_cast<char*>(bytes.data()),size))return false;size_t at=0;
+    std::vector<uint8_t> bytes;
+    if(path==":fixture:"){std::string value;if(!rvk::living::FixtureResource("world.tree",value))return false;bytes.assign(value.begin(),value.end());}
+    else {std::ifstream f(path,std::ios::binary|std::ios::ate);if(!f)return false;auto size=f.tellg();if(size<12||size>256*1024*1024)return false;bytes.resize(size_t(size));f.seekg(0);if(!f.read(reinterpret_cast<char*>(bytes.data()),size))return false;}
+    size_t at=0;
     auto take=[&](void* p,size_t n){if(n>bytes.size()-at)throw std::runtime_error("truncated private world");std::memcpy(p,bytes.data()+at,n);at+=n;};
     auto u32=[&](){uint32_t n;take(&n,4);return n;};std::map<std::string,rvk::Texture*> textures;
     try{char magic[4];take(magic,4);if(std::memcmp(magic,"RVKT",4)||u32()!=2)return false;auto count=u32();if(count>50000)return false;

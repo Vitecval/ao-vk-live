@@ -22,7 +22,7 @@ def sha(path):
 def read(path):return json.loads(path.read_text(encoding='utf-8-sig'))
 
 
-def package(baseline,build,helper,out):
+def package(baseline,build,helper,out,previous_candidate=None):
     out.mkdir(parents=True,exist_ok=True)
     frozen=read(baseline/'ao-vk-live-0.6.0-preview.21-windows-x86-full/manifest.json')
     companions=[]
@@ -64,6 +64,7 @@ def package(baseline,build,helper,out):
         shutil.copy2(ROOT/'tools/ground-data.py',metadata/'ground-data.py')
         shutil.copytree(ROOT/'experiment/assets/city-wardrobes-v5',metadata/'city-wardrobes-v5')
         (target/'Prepare Newland Test.cmd').write_bytes(b'@echo off\r\npowershell.exe -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0prepare-living.ps1" -NewlandTest\r\nif errorlevel 1 pause\r\n')
+        (target/'Prepare Living City Test.cmd').write_bytes(b'@echo off\r\npowershell.exe -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0prepare-living.ps1" -CityTest\r\nif errorlevel 1 pause\r\n')
         (target/'README.md').write_text('''# Preview 22 local integration candidate
 
 Unpublished test build; combined gameplay validation is pending.
@@ -76,15 +77,17 @@ It never modifies original game archives. A failed optional preparation leaves
 the normal renderer installed and the previous local cache intact.
 
 All Living settings default Off and remain independent of graphics presets.
-For an isolated first test, close AO, run Prepare Newland Test.cmd, select the
-AO folder, then launch normally and enable Ambient People Low in Newland.
-That command explicitly opts into static-reviewed routes; it is not live
-certification. Phasefront and additional orbital craft are unsupported and
-disabled. Do not distribute the generated local cache.
+For a city test, close clients from the selected installation, run Prepare
+Living City Test.cmd and select that AO folder. Launch normally and open Ctrl+Shift+F12 >
+Living Rubi-Ka. Start with Ambient People Low, then try NPC Appearance Variety
+High and Armored Civilians Low. Phasefront Traffic and Orbital / Large Spacecraft
+have separate Off / Low / Medium controls. All 21 supported cities have locally
+validated static aerial corridors. These test commands explicitly opt into
+static-reviewed routes; combined live gameplay validation is still pending.
+Do not distribute the generated local cache.
 
 Original AO model, texture, animation, terrain and world-export files are absent
-from this package. Local-only copying does not establish Funcom's permission;
-the license/provenance report records the unresolved terms separately.
+from this package. Local resources remain inside the selected AO installation.
 
 Read PLAYTEST-22.txt and REPORT.txt before an F: test. This candidate has not
 been installed into F: or launched in the game by the integration task.
@@ -96,6 +99,13 @@ been installed into F: or launched in the game by the integration task.
                  candidateStatus='combined-live-validation-pending',materialSourceVersion='0.6.0-preview.21',
                  addon={n:sha(target/n) for n in ('ao-vk.dll','ddraw.dll')},
                  previousAddons=[old['addon'],*old.get('previousAddons',[])])
+        if previous_candidate:
+            previous=previous_candidate/f'ao-vk-live-0.6.0-preview.22-windows-x86-{edition}'
+            prior_manifest=read(previous/'manifest.json')
+            if prior_manifest['version']!='0.6.0-preview.22' or any(sha(previous/name)!=value for name,value in prior_manifest['addon'].items()):
+                raise ValueError('Previous candidate addon integrity failed')
+            m['previousAddons'].insert(0,prior_manifest['addon'])
+        m['candidateRevision']=2
         m.pop('excludedFeatures',None)
         m.pop('sourceManifestSha256',None)
         m['sourceCommit']=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()
@@ -135,7 +145,8 @@ been installed into F: or launched in the game by the integration task.
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('baseline','build','helper','output'):p.add_argument('--'+name,required=True,type=Path)
-    a=p.parse_args();package(a.baseline,a.build,a.helper,a.output)
+    p.add_argument('--previous-candidate',type=Path)
+    a=p.parse_args();package(a.baseline,a.build,a.helper,a.output,a.previous_candidate)
 
 
 if __name__=='__main__':main()

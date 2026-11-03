@@ -9,6 +9,18 @@ using namespace rvk::living;
 static int failures=0;
 void Check(bool value,const char* message){if(!value){++failures;std::fprintf(stderr,"FAILED: %s\n",message);}}
 int main(int argc,char**argv){
+    Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
+    Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");
+    for(int i=0;i<=100;++i){Point t,p=corridor.At(float(i),&t);Check(std::fabs(p.x-i)<.0001&&p.y==40&&p.z==0&&t.x==100,"aerial route stays within swept straight corridor");}
+    Check(corridor.At(-20).x==0&&corridor.At(120).x==100,"aerial endpoints clamp without spline overshoot");
+    Scene roster;roster.playfield=566;roster.meshes.resize(20);
+    for(uint32_t i=0;i<20;++i)roster.appearances.push_back({i,i<12?0u:i<16?1u:i<19?2u:3u});
+    for(int i=0;i<40;++i){Actor a;a.route.points={{float(i%8)*7,0,float(i/8)*7}};roster.actors.push_back(a);}
+    auto second=roster;SelectAppearances(roster,2);SelectAppearances(second,2);
+    uint32_t armoredCount=0,heavyCount=0;std::array<bool,20> used{};
+    for(size_t i=0;i<roster.actors.size();++i){auto m=roster.actors[i].mesh;Check(m==second.actors[i].mesh,"appearance assignment is deterministic");used[m]=true;armoredCount+=m>=16;heavyCount+=m==19;}
+    Check(std::count(used.begin(),used.end(),true)>=12&&armoredCount>=6&&armoredCount<=14&&heavyCount<=4,"varied roster keeps occasional armor distribution");
+    SelectAppearances(second,0);for(auto& a:second.actors)Check(a.mesh<16,"armor Off never selects armored appearances");
     Timeline clock;clock.Advance(100);const double before=clock.Advance(100.02);
     Check(std::fabs(before-.02)<1e-6,"simulation follows ordinary frame time");
     Check(clock.Advance(110)==before,"focus/loading suspension cannot teleport actors");

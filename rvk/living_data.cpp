@@ -6,9 +6,20 @@
 #include <fstream>
 #include <limits>
 #include <stdexcept>
+#include <sstream>
 
 namespace rvk::living {
 namespace {
+std::map<std::string,std::string> fixtureResources;
+bool FixturePath(const std::filesystem::path& path){return path.string().starts_with(":fixture:");}
+std::unique_ptr<std::istream> Open(const std::filesystem::path& path,bool fixture=false){
+    if(fixture&&FixturePath(path)){auto it=fixtureResources.find(path.filename().string());if(it==fixtureResources.end())throw std::runtime_error("missing RAM fixture resource");return std::make_unique<std::istringstream>(it->second,std::ios::binary);}
+    return std::make_unique<std::ifstream>(path,std::ios::binary);
+}
+size_t Size(const std::filesystem::path& path,bool fixture=false){
+    if(fixture&&FixturePath(path)){auto it=fixtureResources.find(path.filename().string());if(it==fixtureResources.end())throw std::runtime_error("missing RAM fixture resource");return it->second.size();}
+    return std::filesystem::file_size(path);
+}
 Point Spline(const std::vector<Point>& p,float u) {
     const int n=int(p.size()),i=int(u)%n;float t=u-std::floor(u),t2=t*t,t3=t2*t;
     const Point a=p[(i+n-1)%n],b=p[i],c=p[(i+1)%n],d=p[(i+2)%n];
@@ -17,13 +28,13 @@ Point Spline(const std::vector<Point>& p,float u) {
 }
 float Distance(Point a,Point b) {return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));}
 void Require(bool ok,const char* msg) {if(!ok)throw std::runtime_error(msg);}
-template<class T> void Read(std::ifstream& f,T* out,size_t count) {
+template<class T> void Read(std::istream& f,T* out,size_t count) {
     f.read(reinterpret_cast<char*>(out),std::streamsize(sizeof(T)*count));Require(bool(f),"truncated mesh");
 }
 bool Finite(float f,float limit=100000) {return std::isfinite(f)&&std::fabs(f)<=limit;}
-void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes) {
-    const auto sz=std::filesystem::file_size(path);Require(sz<=32u*1024u*1024u&&bytes+sz<=MaxBytes+32u*1024u*1024u,"ambient source/staging budget exceeded");bytes+=size_t(sz);
-    std::ifstream f(path,std::ios::binary);uint32_t h[10];Read(f,h,10);
+void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes,bool fixture) {
+    const auto sz=Size(path,fixture);Require(sz<=32u*1024u*1024u&&bytes+sz<=MaxBytes+32u*1024u*1024u,"ambient source/staging budget exceeded");bytes+=size_t(sz);
+    auto stream=Open(path,fixture);auto& f=*stream;uint32_t h[10];Read(f,h,10);
     const bool clips=h[0]==0x334d524cu;
     Require(h[0]==0x324d524cu||clips,"mesh must be LRM2 or LRM3");
     m.vertexCount=h[1];m.dimension=h[5];m.bones=h[6];m.frameCount=h[7];std::memcpy(&m.fps,h+8,4);
@@ -93,10 +104,22 @@ void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes) {
     for(auto p:m.pixels[0])if((p>>24)<240){m.cutout=true;break;}
 }
 }
+bool ReadFixtureResources(std::istream& input,std::string& error){
+    try{uint32_t magic,count;Read(input,&magic,1);Read(input,&count,1);Require(magic==0x314d5246&&count<=128,"invalid RAM fixture bundle");
+        std::map<std::string,std::string> resources;size_t total=0;
+        for(uint32_t i=0;i<count;++i){uint32_t n,size;Read(input,&n,1);Require(n>0&&n<64,"invalid RAM fixture name");std::string name(n,'\0');Read(input,name.data(),n);
+            Require(name.find("..") == std::string::npos&&name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==std::string::npos,"unsafe RAM fixture name");
+            Read(input,&size,1);total+=size;Require(size<=256u*1024u*1024u&&total<=768u*1024u*1024u,"RAM fixture budget exceeded");
+            std::string bytes(size,'\0');Read(input,bytes.data(),size);Require(resources.emplace(name,std::move(bytes)).second,"duplicate RAM fixture resource");}
+        fixtureResources=std::move(resources);return true;
+    }catch(const std::exception& e){error=e.what();return false;}
+}
+bool FixtureResource(const std::string& name,std::string& bytes){auto it=fixtureResources.find(name);if(it==fixtureResources.end())return false;bytes=it->second;return true;}
 bool Route::Finish() {
     arc.clear();length=0;if(points.empty()||points.size()>32)return false;
     for(auto p:points)if(!Finite(p.x)||!Finite(p.y)||!Finite(p.z))return false;
     if(points.size()==1)return true;
+    if(linear){if(points.size()!=2)return false;length=Distance(points[0],points[1]);arc={0,length};return length>.01f&&Finite(length,1000000);}
     if(points.size()<4)return false;
     arc.reserve(points.size()*128+1);arc.push_back(0);Point a=points[0];
     for(size_t i=1;i<=points.size()*128;++i){Point b=Spline(points,float(i)/128);length+=Distance(a,b);arc.push_back(length);a=b;}
@@ -105,6 +128,7 @@ bool Route::Finish() {
 Point Route::At(float d,Point* tangent) const {
     if(points.size()==1){if(tangent)*tangent={0,0,1};return points[0];}
     if(arc.empty()||!std::isfinite(d)){if(tangent)*tangent={0,0,1};return {};}
+    if(linear){const auto a=points[0],b=points[1];const float t=std::clamp(d/length,0.f,1.f);if(tangent)*tangent={b.x-a.x,b.y-a.y,b.z-a.z};return {a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t,a.z+(b.z-a.z)*t};}
     d=std::fmod(d,length);if(d<0)d+=length;
     auto it=std::upper_bound(arc.begin(),arc.end(),d);size_t i=std::clamp<size_t>(size_t(it-arc.begin()),1,arc.size()-1);
     float den=arc[i]-arc[i-1],u=(float(i-1)+(den>1e-8f?(d-arc[i-1])/den:0))/128;
@@ -140,12 +164,13 @@ bool LocalReviewEnabled(const std::string& scenePath){
 }
 bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expectedPlayfield,bool requireLiveVerification,const std::vector<std::string>* verifiedAssets) {
     try {
-        Scene s;std::ifstream f(path);std::string magic,provenance;uint32_t verified,fixture,mc,ac;
-        const auto sceneBytes=std::filesystem::file_size(path);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
-        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"),"bad scene header");
-        const bool v5=magic=="LRSCENE5",v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
+        const bool ram=expectedPlayfield==FixturePlayfield&&FixturePath(path);
+        Scene s;auto stream=Open(path,ram);auto& f=*stream;std::string magic,provenance;uint32_t verified,fixture,mc,ac;
+        const auto sceneBytes=Size(path,ram);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
+        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"),"bad scene header");
+        const bool v6=magic=="LRSCENE6",v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
         Require(v5||sceneBytes<65536,"legacy scene exceeds 64 KiB");
-        Require(verified>=1&&verified<=(v4?2u:1u)&&fixture<=1&&mc>0&&mc<=16&&ac<=(v5?256u:64u),"unreviewed placement or invalid budget");
+        Require(verified>=1&&verified<=(v4?2u:1u)&&fixture<=1&&mc>0&&mc<=(v6?48u:16u)&&ac<=(v5?256u:64u),"unreviewed placement or invalid budget");
         s.liveVerified=v4&&verified==2;
         Require(!expectedPlayfield||s.playfield==expectedPlayfield,"playfield mismatch; asset loading refused");
         Require(!requireLiveVerification||fixture||s.liveVerified,"static-only route pack disabled; live verification pending (isolated review mode required)");
@@ -156,7 +181,7 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             s.meshes.emplace_back();const auto before=s.bytes;
             try {
                 Require(!verifiedAssets||std::find(verifiedAssets->begin(),verifiedAssets->end(),name)!=verifiedAssets->end(),"original asset missing or integrity check failed");
-                LoadMesh(std::filesystem::path(path).parent_path()/name,s.meshes.back(),s.bytes);
+                LoadMesh(std::filesystem::path(path).parent_path()/name,s.meshes.back(),s.bytes,ram);
             }catch(const std::exception& e){
                 if(!verifiedAssets)throw;
                 s.meshes.back()=Mesh{};s.meshes.back().available=false;s.bytes=before;
@@ -170,13 +195,15 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
         }
         for(uint32_t i=0;i<ac;++i) {
             Actor a;uint32_t count;Require(bool(f>>a.group>>a.mesh>>a.tier>>a.motion>>a.scale>>a.speed>>a.phase>>a.range>>a.hover>>count),"bad actor");
-            Require(a.group<6&&a.mesh<mc&&a.tier>=1&&a.tier<=3&&a.motion<=(v4?6u:locomotion?4u:2u)&&count>=1&&count<=32,"invalid actor indices");
+            Require(a.group<6&&a.mesh<mc&&a.tier>=1&&a.tier<=3&&a.motion<=(v6?8u:v4?6u:locomotion?4u:2u)&&count>=1&&count<=32,"invalid actor indices");
+            a.route.linear=a.motion>=7;
+            Require(a.motion<7||(a.group==2&&count==2&&a.hover==0),"aerial corridor must be a straight flight without hover");
             Require(Finite(a.scale,20)&&a.scale>.01f&&Finite(a.speed,100)&&Finite(a.phase)&&Finite(a.range,1000)&&a.range>=10&&Finite(a.hover,1)&&a.hover>=0,"invalid actor parameters");
             Require(a.motion==0||a.motion>=3||count==1,"machinery/emitter must have a fixed anchor");
             // Grounded creatures require a reviewed independent animated asset, never static humanoids.
             Require(!s.meshes[a.mesh].available||(a.group!=0&&a.group!=3)||s.meshes[a.mesh].bones,"people/wildlife require a rigged animated asset");
             a.route.points.resize(count);for(auto& p:a.route.points)Require(bool(f>>p.x>>p.y>>p.z),"missing route knot");
-            if(locomotion)Require(bool(f>>a.walkSeconds>>a.pauseSeconds>>a.heading)&&Finite(a.walkSeconds,120)&&a.walkSeconds>=2&&Finite(a.pauseSeconds,60)&&a.pauseSeconds>=0&&Finite(a.heading,100),"invalid locomotion schedule");
+            if(locomotion)Require(bool(f>>a.walkSeconds>>a.pauseSeconds>>a.heading)&&Finite(a.walkSeconds,120)&&a.walkSeconds>=2&&Finite(a.pauseSeconds,v6?3600.f:60.f)&&a.pauseSeconds>=0&&Finite(a.heading,100),"invalid locomotion schedule");
             a.idleYaw=a.heading;
             if(v4)Require(bool(f>>a.idleYaw>>a.lightRange>>a.lightColour>>a.replacementMask>>a.parent)&&Finite(a.idleYaw,100)&&Finite(a.lightRange,8)&&a.lightRange>=0&&a.lightColour<=0xffffff&&a.replacementMask<(v5?0x1000000u:256u)&&a.parent>=-1&&a.parent<int32_t(i),"invalid activity, attachment or service light");
             if((a.motion==3||a.motion==4)&&s.meshes[a.mesh].available)Require(s.meshes[a.mesh].walkFrames>0,"locomotion requires walk/idle clips");
@@ -191,15 +218,44 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             std::string name;Require(bool(f>>name),"missing ground declaration");
             if(name!="-"){
                 Require(name.size()<64&&name.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")==std::string::npos&&name.find("..") == std::string::npos,"unsafe ground name");
-                auto groundPath=std::filesystem::path(path).parent_path()/name;std::ifstream g(groundPath,std::ios::binary);uint32_t h[4];Read(g,h,4);Read(g,&s.groundCell,1);
+                auto groundPath=std::filesystem::path(path).parent_path()/name;auto groundStream=Open(groundPath,ram);auto& g=*groundStream;uint32_t h[4];Read(g,h,4);Read(g,&s.groundCell,1);
                 Require(h[0]==0x3152474c&&(h[1]==s.playfield||s.fixture)&&h[2]>=2&&h[3]>=2&&h[2]<=(v5?2049u:1025u)&&h[3]<=(v5?2049u:1025u)&&s.groundCell>=1&&s.groundCell<=32,"invalid original ground field");
-                s.groundWidth=h[2];s.groundHeight=h[3];s.ground.resize(size_t(h[2])*h[3]);Require(std::filesystem::file_size(groundPath)==20+s.ground.size()*4,"ground size mismatch");Read(g,s.ground.data(),s.ground.size());
+                s.groundWidth=h[2];s.groundHeight=h[3];s.ground.resize(size_t(h[2])*h[3]);Require(Size(groundPath,ram)==20+s.ground.size()*4,"ground size mismatch");Read(g,s.ground.data(),s.ground.size());
                 for(float x:s.ground)Require(Finite(x),"invalid ground height");s.bytes+=s.ground.size()*4;Require(s.bytes<=MaxBytes,"ground exceeds source budget");
             }
         }
+        if(v6){std::string token;uint32_t count;Require(bool(f>>token>>count)&&token=="APPEARANCES"&&count<=32,"invalid appearance pool");
+            for(uint32_t i=0;i<count;++i){Scene::Appearance appearance;Require(bool(f>>appearance.mesh>>appearance.role)&&appearance.mesh<mc&&appearance.role<=3,"invalid appearance descriptor");
+                Require(!s.meshes[appearance.mesh].available||s.meshes[appearance.mesh].bones,"appearance requires original animated body");
+                for(const auto& old:s.appearances)Require(old.mesh!=appearance.mesh,"duplicate appearance descriptor");s.appearances.push_back(appearance);}
+            if(count){uint32_t roster;Require(bool(f>>token>>roster)&&token=="ROSTER"&&roster<=ac,"missing verified appearance clearance roster");
+                std::vector<bool> seen(ac);for(uint32_t i=0;i<roster;++i){uint32_t actor,mask;Require(bool(f>>actor>>mask)&&actor<ac&&!seen[actor]&&s.actors[actor].group==0&&(count==32||mask<(1u<<count)),"invalid appearance clearance mask");seen[actor]=true;s.actors[actor].appearanceMask=mask;}
+                for(uint32_t i=0;i<ac;++i)Require(s.actors[i].group!=0||seen[i],"person missing appearance clearance");}}
         std::string trailing;Require(!(f>>trailing),"trailing scene data");out=std::move(s);return true;
     }catch(const std::exception& e){error=e.what();return false;}
 }
+void SelectAppearances(Scene& s,uint32_t armoredLevel) {
+    s.armoredLevel=std::min(armoredLevel,2u);
+    if(s.appearances.empty())return;
+    const float weights[3][4]={{72,28,0,0},{64,23,10,3},{52,23,20,5}};
+    std::array<uint32_t,4> roleCounts{};std::vector<uint32_t> counts(s.meshes.size());
+    struct Placed{Point point;uint32_t mesh;};std::vector<Placed> placed;uint32_t total=0;
+    auto hash=[](uint32_t n){n^=n>>16;n*=0x7feb352du;n^=n>>15;n*=0x846ca68bu;return n^(n>>16);};
+    for(size_t index=0;index<s.actors.size();++index){auto& actor=s.actors[index];if(actor.group!=0)continue;
+        Point p{};for(auto q:actor.route.points){p.x+=q.x;p.z+=q.z;}p.x/=actor.route.points.size();p.z/=actor.route.points.size();
+        float best=-1e9f;const Scene::Appearance* selected=nullptr;
+        for(size_t k=0;k<s.appearances.size();++k){const auto& choice=s.appearances[k];if(!(actor.appearanceMask&(1u<<k))||!s.meshes[choice.mesh].available||weights[s.armoredLevel][choice.role]==0)continue;
+            uint32_t alternatives=0;for(auto c:s.appearances)alternatives+=c.role==choice.role&&s.meshes[c.mesh].available;
+            const float roleDeficit=float(total+1)*weights[s.armoredLevel][choice.role]/100.f-roleCounts[choice.role];
+            float repeats=0;for(const auto& old:placed)if(old.mesh==choice.mesh)repeats+=std::max(0.f,1-std::hypot(p.x-old.point.x,p.z-old.point.z)/24.f);
+            const float noise=float(hash(s.playfield*773u+uint32_t(index)*997u+choice.mesh*37u)&65535)/65535.f;
+            const float score=roleDeficit*3-float(counts[choice.mesh])/std::max(1u,alternatives)-repeats*8+noise*.35f;
+            if(score>best){best=score;selected=&choice;}}
+        if(selected){actor.mesh=selected->mesh;++roleCounts[selected->role];++counts[selected->mesh];++total;placed.push_back({p,selected->mesh});}
+        else actor.appearanceMask=0; // no permitted, available body: skip this instance
+    }
+}
+
 double Timeline::Advance(double wall) {
     if(!std::isfinite(wall))return time;
     const double elapsed=last<0?0:wall-last;last=wall;

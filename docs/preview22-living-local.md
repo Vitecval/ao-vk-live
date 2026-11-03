@@ -32,7 +32,7 @@ attached children; normal AO draws and machinery fallback remain intact.
 Preparation keeps one previous generation for rollback. Older flat generations
 are removed only when every recorded file is still hash-matched and no unknown
 files or links are present. User-modified generations are preserved. Full
-preparation requires 2 GiB free for staging and produces about 1.05 GiB for all
+preparation requires 2 GiB free for staging and produces about 1.45 GiB for all
 seven wardrobe themes, 21 city/settlement areas and one outdoor wildlife habitat.
 This disk size is shared across clients, not allocated per AO process. GPU and
 decoded per-playfield source limits remain those of the recovered engine.
@@ -46,20 +46,53 @@ Routes remain static-reviewed, not live-certified. The separate Newland test
 command explicitly prepares playfield 566 with review enabled; it does not modify
 INI preferences or launch AO. The player then enables Ambient People Low.
 
-`RVK_PhasefrontTraffic` and `RVK_OrbitalCraft` are reserved Off/Low/Medium settings,
-hidden and effectively Off. The original index contains showroom holograms,
-skeletal hoverbike families and appearance resources, but the requested marketing
-family/variant/rider correspondence is not yet verified. No hoverboards are used
-as aircraft. No additional showcase spacecraft or guessed flight routes are
-enabled. `aerial_clearance.py` supplies a conservative continuous swept-path
-authoring check, including complete geometry, source identity, terrain coverage,
-vehicle envelope, bounds and Phasefront altitude gates. No real route is approved
-by those synthetic tests. The existing transporter (1010001:6579) is preserved.
+The second candidate adds 23 original appearances, with distinct body/head
+geometry, hairstyles, modular clothing, actual robe geometry, light/medium armor,
+Omni-only security outfits, elite armor and a complete battlesuit. Original skin
+underlays match the body breed and gender. Complete native armor/robe materials
+are retained. CAT flag 8 identifies alpha used for environment blending rather
+than transparency, so reflective armor and vehicle materials remain opaque.
+Static archived materials also honor their original blend/test states, preserving
+opaque hulls while retaining genuine transparent and cutout surfaces.
+Appearance choices are deterministic and penalize nearby identical outfits.
+City faction pools exclude Omni security from Clan and neutral populations.
+Every enlarged body is also filtered by conservative whole-route clearance using
+all animation poses, scale, cubic control-point hulls and original scenery.
+Instances with no compatible clear appearance are skipped. Normal preserves the
+previous wardrobe system; High and Armored Civilians opt into the larger pool.
+
+Phasefront item/nano/appearance chains now establish Wraith X2-45 (CIR 269458
+and 270681), Spectre (270811) and Banshee (270907). The original seated body,
+matching pose animation and head attractor are resolved together. A rigid
+composite preserves that authored rider pose. The showroom holograms are not
+used. Original material masks govern reflectivity; only native engine/Glow
+geometry receives subtle additional emission. Small navigation lenses attach at
+actual hull extremities. No mask is invented for an entire hull.
+
+The large showcase craft is the complete original Mech drop ship (ABIFF
+262333), approximately 88 m long. It follows a separate, higher corridor and a
+rare deterministic schedule. At most one large craft and two Phasefronts can
+submit locally; combined ordinary/Phasefront/large traffic is capped at three.
+Original transporter traffic is preserved. Aircraft use size-aware distant LODs,
+smooth distance and entry/exit fades, and no server entities or targeting.
+
+Local preparation validates both aircraft corridors in all 21 supported cities.
+Every placed mesh is decoded; unknown geometry blocks that city's new routes.
+The continuous swept envelope includes complete vehicle/rider dimensions,
+clearance margins, playfield bounds, exact native terrain triangles and complete
+20–50 m Phasefront centerline altitude coverage. Renderer flight follows the same
+straight segments, without spline overshoot or per-frame collision searches.
+The broader static geometry check does not certify dynamic live-game obstacles.
+
+Open the preserved expandable menu with Ctrl+Shift+F12. Run Prepare Living City Test.cmd for explicit static-route review in all cities,
+or Prepare Newland Test.cmd for Newland alone. Neither command edits saved
+preferences or launches AO. All new controls default Off (appearance variety
+defaults Normal), and Preview 21's expandable menu and Parallax V9 are preserved.
 
 Automated checks distinguish installed-resource conversion in RAM, synthetic
 filesystem preparation transactions, controlled renderer fixtures and actual
 gameplay. The first three have evidence beside this source; combined gameplay,
-actual local-cache GPU rendering, clean-install runtime behavior, multi-client
+clean-install runtime behavior, multi-client
 memory, dynamic obstacle clearance and live performance remain open. Parallax
 V9 matched twelve approved fixture renders; All-Off matched Preview 21 pixels.
 
@@ -68,10 +101,10 @@ game DLLs, private caches and hardware pipeline caches. Full HD uses exact pinne
 Preview 21 material companions; new worker artwork needs a separate accepted
 material freeze. No texture worker directory is read or modified by packaging.
 
-This is a local test candidate, not public release certification. The installed
-EULA and published AO terms restrict modifications and data collection. No written
-Funcom authorization or official modding permission was established. Keeping
-resources local removes redistribution from this design but does not settle those
-other restrictions. See https://www.anarchy-online.com/terms-of-service and the
-installation's `anarchy.eula`. Nothing has been published, installed into F: or
-launched in the game by this task.
+This is a local test candidate, not public release certification. Original asset
+conversion and renderer evidence run from read-only installed resources in RAM;
+no original mesh/material/terrain files are written outside the selected AO cache.
+Visual evidence is labeled as renderer fixtures rather than gameplay. Optional
+held props and true orbital/mothership traffic remain outside this candidate;
+unverified engine masks are omitted. No new worker artwork is integrated, no
+GitHub publication is performed, and this continuation does not modify F:.

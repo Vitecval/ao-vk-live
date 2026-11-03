@@ -34,7 +34,7 @@ std::string Hash(const fs::path& path){
     std::string result;for(auto c:digest){result+="0123456789abcdef"[c>>4];result+="0123456789abcdef"[c&15];}return result;
 }
 }
-bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& out,std::string& error,const std::string& expectedIndex){
+bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& out,std::string& error,const std::string& expectedIndex,bool variety){
     try{
         Require(!client.empty(),"AO installation path unavailable");
         const auto base=fs::absolute(fs::path(client));NoLinks(base);
@@ -52,10 +52,10 @@ bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& 
         Require(!(file>>extra),"trailing local receipt data");
         const auto placement="source-"+std::to_string(playfield)+".pf";
         Require(hashes.count(placement)&&Hash(base/"cd_image/data/statels"/(std::to_string(playfield)+".pf"))==hashes.at(placement),"installed placement data changed; old routes disabled");
-        const auto scene=std::to_string(playfield)+".lrs";
+        const auto scene=std::to_string(playfield)+(variety?"-variety.lrs":".lrs");
         Require(hashes.count(scene)&&Hash(dir/scene)==hashes.at(scene),"playfield route missing or modified");
         std::ifstream routes(dir/scene);std::string provenance;uint32_t pf,verified,fixture,meshes,actors;
-        Require(bool(routes>>magic>>pf>>verified>>fixture>>meshes>>actors>>provenance)&&magic=="LRSCENE5"&&pf==playfield&&!fixture&&meshes>0&&meshes<=16,"local route header mismatch");
+        Require(bool(routes>>magic>>pf>>verified>>fixture>>meshes>>actors>>provenance)&&(magic=="LRSCENE5"||magic=="LRSCENE6")&&pf==playfield&&!fixture&&meshes>0&&meshes<=(magic=="LRSCENE6"?48u:16u),"local route header mismatch");
         LocalAssets result;result.scene=(dir/scene).string();
         // Verify only the current playfield's immutable meshes, once on loading.
         for(uint32_t i=0;i<meshes;++i){std::string name;Require(bool(routes>>name)&&Name(name),"invalid local mesh reference");

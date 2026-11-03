@@ -1795,8 +1795,10 @@ int main(int argc, char** argv)
         for(const char* name:{"RVK_LivePeople","RVK_LiveDrones","RVK_AirTraffic","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"}){
             check(value(name,true)==0,"population defaults Off");set(name,1);check(value(name)==1,"local population preference can be saved");
         }
-        for(const char* name:{"RVK_PhasefrontTraffic","RVK_OrbitalCraft"}){
-            set(name,2);check(value(name)==-999.f&&effective(name)==0,"unsupported aircraft remain hidden and blocked");
+        for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"}){
+            check(value(name,true)==0,"new appearance/aircraft defaults are Off or Normal");
+            const float chosen=std::strcmp(name,"RVK_NPCVariety")==0?1.f:2.f;
+            set(name,chosen);check(value(name)==chosen&&effective(name)==chosen,"new optional appearance/aircraft controls are exposed and saved");
         }
         for(int style:{0,2})for(uint32_t quality:{1u,2u,3u}){
             set("RVK_ModernTex",float(style));set("RVK_TerrainHD",0);set("RVK_BuildingHD",1);
@@ -1804,8 +1806,10 @@ int main(int argc, char** argv)
             check(value("RVK_ModernTex")==style&&value("RVK_TerrainHD")==0&&value("RVK_BuildingHD")==1,"texture choices survive every quality preset");
             check(value("RVK_WindowDepth")==float(quality==3?2:1),"quality-specific window defaults");
             check(value("RVK_LiveDrones")==1,"population preferences survive graphics presets");
+            check(value("RVK_NPCVariety")==1&&value("RVK_ArmoredCivilians")==2&&value("RVK_PhasefrontTraffic")==2&&value("RVK_OrbitalCraft")==2,"new appearance/aircraft preferences survive graphics presets");
         }
         set("RVK_WindowDepth",2);set("RVK_LivePeople",0);
+        for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"})set(name,0);
         check(value("RVK_WindowDepth")==2&&effective("RVK_LivePeople")==0,"manual Strong/Off overrides remain available");
         std::puts("Preview 21 settings passed: presets, independent texture choices, new defaults and custom overrides");
     }

@@ -252,6 +252,10 @@ struct DeviceInfo {
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
     X(LivePeople, m_livePeople, 0) \
+    X(NPCVariety, m_npcVariety, 0) \
+    X(ArmoredCivilians, m_armoredCivilians, 0) \
+    X(PhasefrontTraffic, m_phasefrontTraffic, 0) \
+    X(OrbitalCraft, m_orbitalCraft, 0) \
     X(LiveDrones, m_liveDrones, 0) \
     X(AirTraffic, m_liveAir, 0) \
     X(LiveWild, m_liveWild, 0) \
@@ -3868,6 +3872,7 @@ private:
     double m_livingStart=0;
     std::array<double,6> m_livingEnabled{{-1,-1,-1,-1,-1,-1}};
     float m_livePeople=0,m_liveDrones=0,m_liveAir=0,m_liveWild=0,m_liveMachine=0,m_liveAtmos=0;
+    float m_npcVariety=0,m_armoredCivilians=0,m_phasefrontTraffic=0,m_orbitalCraft=0;
 
     // D3D7 state
     std::array<uint32_t, d3d::RS_COUNT> m_rs{};

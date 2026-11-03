@@ -5,6 +5,7 @@ namespace rvk {
 struct LivingRuntimeProbe {
     inline static int failures=0;inline static uint32_t actorFrames=0,replaced=0,nativeFrames=0,controlFrames=0;
     inline static std::array<uint32_t,6> peak{};
+    inline static uint32_t peakPhase=0,peakLarge=0;
     inline static std::shared_ptr<skin::Job> control;
     static void Check(bool ok,const char* why){if(!ok){++failures;std::fprintf(stderr,"RUNTIME CONTRACT FAILED: %s\n",why);}}
     static void Stress(Device& d,int frame){
@@ -51,6 +52,15 @@ struct LivingRuntimeProbe {
         if(d.m_native.ground&&(d.m_native.drawnBase==d.m_frameNumber||d.m_native.drawnLight==d.m_frameNumber||d.m_native.drawnBase+1==d.m_frameNumber||d.m_native.drawnLight+1==d.m_frameNumber))++nativeFrames;
         for(const auto& l:d.m_lightsCur)if(l.cosmeticGroup<6)Check(!l.hasCarrier&&!l.owner&&l.carried==0,"equipment lights cannot become game-character carriers");
         if(d.m_living)Check(d.m_living->bytes<=living::MaxBytes,"decoded source budget");
+        if(d.m_living){uint32_t phase=0,large=0,air=0;
+            for(const auto& a:d.m_living->actors)if(a.lastFrame+1>=d.m_frameNumber&&a.lastFrame!=~uint64_t(0)){
+                if(a.group==2&&a.parent<0){++air;phase+=a.motion==7;large+=a.motion==8;}
+                if(a.motion>=7){const auto& p=a.route.points;const float* w=a.world[3];
+                    for(int axis=0;axis<3;++axis)Check(w[axis]>=std::min((&p[0].x)[axis],(&p[1].x)[axis])-.01f&&w[axis]<=std::max((&p[0].x)[axis],(&p[1].x)[axis])+.01f,"flight remains inside validated straight segment");}
+                if(a.job)for(const auto& b:d.m_living->actors)if(&a!=&b&&b.job&&b.lastFrame==a.lastFrame)
+                    Check(a.job.get()!=b.job.get()&&a.job->bones.get()!=b.job->bones.get(),"each original character owns its animation job and palette");}
+            peakPhase=std::max(peakPhase,phase);peakLarge=std::max(peakLarge,large);
+            Check(air<=3&&phase<=2&&large<=1,"combined air traffic and showcase caps");}
         if(d.m_living&&(d.m_frameNumber%30)==0)for(const auto& a:d.m_living->actors)if(a.motion==3&&a.job&&a.lastFrame+1>=d.m_frameNumber){
             std::vector<skin::Vertex> vertices(a.job->source->vertices.size());skin::SkinVertices(a.job->source->vertices.data(),uint32_t(vertices.size()),vertices.data(),*a.job->bones,false,nullptr,nullptr);float minimum=1e9f;
             for(const auto& v:vertices){float p[3];for(int j=0;j<3;++j)p[j]=v.pos[0]*a.world[0][j]+v.pos[1]*a.world[1][j]+v.pos[2]*a.world[2][j]+a.world[3][j];float h=a.surface?a.supportHeight:0;if(!a.surface&&!d.m_living->ground.empty()&&!living::GroundHeight(*d.m_living,p[0],p[2],h))continue;minimum=std::min(minimum,p[1]-h);}
@@ -73,6 +83,7 @@ struct LivingRuntimeProbe {
     }
     static int Finish(Device& d,bool expected,bool ground,bool ordinary=true){
         Check(expected?actorFrames>0:actorFrames==0,"normal end-of-scene submission/review gate");
+        if(std::getenv("RANDYVK_LIVING_EXPECT_AIR"))Check(peakPhase==2&&peakLarge==1&&peak[2]==3,"forced-schedule fixture actually exercised all three aircraft caps");
         if(expected){if(ordinary)Check(controlFrames>0,"ordinary skinned draw coexists");if(ground)Check(nativeFrames>0,"native/shared ground replacement really executed");}
         std::printf("RUNTIME CONTRACT: %s; actor_frames=%u; normal_skin_frames=%u; replaced_parts=%u; native_ground_frames=%u; fallback_parts=%u; peak_groups=%u,%u,%u,%u,%u,%u; NOT LIVE GAMEPLAY\n",failures?"FAILED":"PASS",actorFrames,controlFrames,replaced,nativeFrames,d.m_livingFallbackCount,peak[0],peak[1],peak[2],peak[3],peak[4],peak[5]);
         d.DestroyLiving();control.reset();return failures?1:0;

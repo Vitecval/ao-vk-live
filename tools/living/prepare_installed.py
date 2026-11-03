@@ -23,6 +23,9 @@ from prepare_static import build_static
 import cache_v3 as cache
 from city_wardrobes import FAMILIES, grade
 from survey_world import placements
+from expanded_assets import prepare_expanded,make_lods
+from expanded_scenes import center,extend
+from city_airspace import corridors
 
 
 def sha(path):
@@ -198,13 +201,24 @@ def prepare(client, metadata, playfields, review=False):
         except Exception as error:
             errors['ao-verified-fan-rotors'] = str(error)
         lenses(stage)
+        people,vehicles=prepare_expanded(db,client,stage,errors)
+        large=None
+        try:
+            large=build_static(db,client,dict(name='ao-mech-dropship',model=262333,dimension=512),stage)
+            mesh=cache.mesh(stage/'ao-mech-dropship.lrm')
+            large['lods']=make_lods(mesh);cache.save(stage/'ao-mech-dropship.lrm',mesh)
+            large['sha256']=sha(stage/'ao-mech-dropship.lrm')
+            large['radius']=float(np.linalg.norm(mesh['vertices'][:,:3],axis=1).max())
+            v=mesh['vertices'];large['navigation_anchors']=[(v[np.argmin(v[:,0]),:3]-.025*np.array([1,0,0])).tolist(),(v[np.argmax(v[:,0]),:3]+.025*np.array([1,0,0])).tolist()]
+            large['radius']=max(large['radius'],max(np.linalg.norm(p)+.22 for p in large['navigation_anchors']))
+        except Exception as error:errors['ao-mech-dropship']=str(error)
         spec=importlib.util.spec_from_file_location('installed_ground',metadata/'ground-data.py')
         ground=importlib.util.module_from_spec(spec); spec.loader.exec_module(ground)
         class Adapter:
             def execute(self, query, args):
                 self.data=db.get(1000009,args[0])[12:]; return self
             def fetchone(self): return (self.data,)
-        required=set()
+        required=set();airspaces=[]
         for source in sources:
             pf=int(source.stem)
             print(f'Preparing local terrain support and preserved routes: {pf}',flush=True)
@@ -215,6 +229,20 @@ def prepare(client, metadata, playfields, review=False):
             (stage/name).write_bytes(struct.pack('<4If',0x3152474c,pf,H.shape[1],H.shape[0],heights['cell'])+H.astype('<f4').tobytes())
             required.update((source.name,name))
             (stage/source.name).write_text('\n'.join(lines)+'\n')
+            city_center=center(lines)
+            if city_center is not None:
+                try:
+                    print(f'Validating complete original city airspace: {pf}',flush=True)
+                    air=corridors(db,client,pf,H,heights['cell'],city_center,
+                                  max((r['radius'] for r in vehicles),default=0),large['radius'] if large else 0,lines,people)
+                except Exception as error:air=dict(playfield=pf,routes={},blockers={'city':str(error)},live_verified=False)
+                airspaces.append(air)
+                for variety in (False,True):
+                    try:
+                        expanded,mesh_names=extend(lines,people,vehicles,large,air,config,pf,variety)
+                        target=f'{pf}-variety.lrs' if variety else source.name
+                        (stage/target).write_text('\n'.join(expanded)+'\n');required.update(mesh_names);required.add(target)
+                    except Exception as error:errors[f'scene-{pf}-variety-{int(variety)}']=str(error)
         (stage/'review.ini').write_text('[LivingRubiKa]\nReviewUnverifiedRoutes='+str(int(review))+'\n')
         required.add('review.ini')
         # Remove temporary local atlases and intermediate variants before activation.
@@ -227,7 +255,7 @@ def prepare(client, metadata, playfields, review=False):
         provenance={'schema':1,'source_index':db.index_sha256,'files':files,'assets':receipts,
                     'errors':errors,'playfields':playfields,'source_playfield_hashes':source_hashes,'private_local_only':True,
                     'permissions':'User-authorized local preparation; no claim of Funcom permission.',
-                    'live_verified':False}
+                    'live_verified':False,'expanded_appearances':people,'phasefronts':vehicles,'large_craft':large,'airspaces':airspaces}
         (stage/'provenance.json').write_text(json.dumps(provenance,indent=2))
         if (root/'active.txt').is_file():
             (root/'previous.txt').write_text((root/'active.txt').read_text())
@@ -256,9 +284,27 @@ def main():
     parser.add_argument('--metadata',required=True,type=Path)
     parser.add_argument('--playfield',type=int,action='append')
     parser.add_argument('--review-routes',action='store_true',help='Explicit isolated static-route review; not live certification')
+    parser.add_argument('--verify-resources',action='store_true',help='Decode original appearances and aircraft in RAM without creating or modifying an installed cache')
     args=parser.parse_args()
     fields=args.playfield or [int(p.stem) for p in (args.metadata/'city-wardrobes-v5').glob('*.lrs')]
-    try:prepare(args.client,args.metadata,fields,args.review_routes)
+    try:
+        if args.verify_resources:
+            from memory_resources import MemoryDirectory,MemoryFile
+            client=no_links(args.client);db=Database(client/'cd_image/data/db')
+            expected=json.loads((args.metadata/'routes-v4.json').read_text())
+            if db.index_sha256!=expected['source_index']:raise ValueError('Unsupported original resource index')
+            out=MemoryDirectory();errors={};old_safe=cache.safe
+            cache.safe=lambda p:p if isinstance(p,MemoryFile) else old_safe(p)
+            try:
+                catalog=json.loads((args.metadata/'original-catalog.json').read_text())
+                base=[build(db,client,item,out) for item in catalog['assets']]
+                base.extend(build_static(db,client,item,out) for item in catalog['statics'])
+                people,vehicles=prepare_expanded(db,client,out,errors)
+                large=build_static(db,client,dict(name='ao-mech-dropship',model=262333,dimension=512),out)
+                if errors:raise ValueError('Unsupported original resources: '+json.dumps(errors))
+                print(json.dumps(dict(verified_in_ram=True,original_installation_writes=0,base_assets=len(base),distinct_appearances=len(people),phasefront_variants=len(vehicles),large_craft=large['original_model'],source_index=db.index_sha256)),flush=True)
+            finally:cache.safe=old_safe
+        else:prepare(args.client,args.metadata,fields,args.review_routes)
     except Exception as error:
         print('Local Living preparation failed: '+str(error),file=sys.stderr,flush=True)
         raise SystemExit(1)

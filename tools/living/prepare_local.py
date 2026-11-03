@@ -64,13 +64,35 @@ def build(db,client,item,out):
     model=parse_mesh(db.get(1010002,item['model']));walk=parse_animation(db.get(1010003,item['walk']));idle=parse_animation(db.get(1010003,item['idle']));dim=item.get('dimension',1024)
     if model['skeleton']!=walk['skeleton'] or model['skeleton']!=idle['skeleton']:raise ValueError('model/walk/idle skeleton identities differ')
     if len(model['bones'])>64:raise ValueError('ambient bone limit exceeded')
+    # Vehicle idles may contain one authored pose with zero duration. Keep
+    # that pose; never substitute an unrelated humanoid animation.
+    if item.get('posed_vehicle'):
+        for clip in (walk,idle):
+            if clip['length'] < 200:
+                clip['length']=1000.;clip['events']=[]
     images=[Image.new('RGBA' if i==0 else 'RGB',(dim,dim),c) for i,c in enumerate(((0,0,0,255),(128,128,255),(255,205,0),(0,0,0)))];tiles={};textures=[]
-    def add_material(identity,kind=None,base=None,repeat=(1,1)):
-        key=(identity,kind,repeat)
+    def add_material(identity,kind=None,base=None,repeat=(1,1),material=None):
+        opaque=bool(material and material['flags']&8)
+        glow=bool(item.get('posed_vehicle') and material and material['name'].lower() in ('engine','glow'))
+        key=(identity,kind,repeat,opaque,glow,hashlib.sha256(base.tobytes()).digest() if base else None)
         if key in tiles:return tiles[key]
         tile=len(tiles)
         if tile>=16:raise ValueError('too many original material slots')
-        maps,receipt=texture_maps(db,client,identity,kind,base);textures.append(receipt)
+        maps,receipt=texture_maps(db,client,identity,kind,base)
+        if opaque:
+            # CAT flag 8 explicitly disables alpha transparency (cat_data.cpp).
+            # Its alpha supplies the environment blend, not holes in the hull.
+            mask=np.asarray(original_image(db,identity,kind)[0].getchannel('A'))
+            maps[0].putalpha(255)
+            if not receipt['hd'] and mask.min()!=mask.max():
+                a=np.asarray(maps[2]).copy();m=Image.fromarray(mask).resize(maps[2].size)
+                a[:,:,1]=np.clip(205-np.asarray(m)*.45,70,205).astype(np.uint8)
+                a[:,:,2]=(np.asarray(m)*.65).astype(np.uint8);maps[2].paste(Image.fromarray(a))
+        if glow:
+            a=np.asarray(maps[0].convert('RGB')).astype(float)*.12
+            maps[3].paste(Image.fromarray(np.clip(a,0,32).astype(np.uint8)))
+        receipt.update(original_alpha_as_environment=opaque,original_engine_geometry=glow)
+        textures.append(receipt)
         side=dim//4;x=(tile%4)*side;y=(tile//4)*side;gutter=4
         for target,im in zip(images,maps):
             if repeat!=(1,1):
@@ -93,13 +115,17 @@ def build(db,client,item,out):
             override=overrides.get(name,original)
             kind=override.get('type') if isinstance(override,dict) else None
             identity=override['id'] if isinstance(override,dict) else override
-            base=original_image(db,original)[0] if identity!=original else None
+            skin=item.get('skin',{}).get(name)
+            # A CIR can already contain a complete robe or armor material.
+            # Skin is the underlay for modular overrides, never a replacement
+            # for the body's own authored clothing/armor atlas.
+            base=original_image(db,skin,1010011)[0] if skin and identity!=skin and identity!=original else original_image(db,original)[0] if identity!=original else None
             v=part['vertices'].copy();bi=part['bone_ids'].copy();bi[v[:,16]>.99,1]=bi[v[:,16]>.99,0]
             if bi.min()<0 or bi.max()>=len(model['bones']):raise ValueError('skin bone outside independent skeleton')
             side=dim//4;g=4;uv=v[:,12:14].copy()
             lo=np.floor(uv.min(0)+.0001);hi=np.ceil(uv.max(0)-.0001);repeat=np.maximum(hi-lo,1).astype(int)
             if np.any(repeat>4):raise ValueError('original UV repeat exceeds 4x4 budget')
-            tile=add_material(identity,kind=kind,base=base,repeat=tuple(repeat));uv=(uv-lo)/repeat
+            tile=add_material(identity,kind=kind,base=base,repeat=tuple(repeat),material=mat);uv=(uv-lo)/repeat
             v[:,12]=(tile%4+(g+uv[:,0]*(side-2*g))/side)/4;v[:,13]=(tile//4+(g+uv[:,1]*(side-2*g))/side)/4
             indices.extend((part['indices']+sum(len(x) for x in vertices)).tolist());vertices.append(v);ids.append(bi)
     if item.get('head'):
@@ -114,7 +140,7 @@ def build(db,client,item,out):
     wa,wb=loop(walk);ia,ib=loop(idle);nw=min(48,max(24,round((wb-wa)*.03)));ni=min(60,max(24,round((ib-ia)*.016)))
     if len(v)>20000 or len(idx)>60000:raise ValueError('original mesh exceeds ambient geometry budget')
     # Extract only actual looping locomotion. Animation events are never dispatched.
-    frames=[];mins=[];foot_samples=[]
+    frames=[];mins=[];foot_samples=[];horizontal_radius=0.;height=0.
     foot_indices=item.get('foot_bones',[]).copy()
     if item.get('grounded',True) and not foot_indices:
         for token in ('l foot','r foot'):
@@ -124,6 +150,8 @@ def build(db,client,item,out):
         for i in range(count):
             pose=palettes(model,anim,start+(end-start)*i/count);skin=skin_points(v,bi,pose)
             floor=float(skin[:,1].min()) if item.get('grounded',True) else float((skin[:,1].max()+skin[:,1].min())/2)
+            horizontal_radius=max(horizontal_radius,float(np.linalg.norm(skin[:,(0,2)],axis=1).max()))
+            height=max(height,float(skin[:,1].max()-floor))
             pose[:,3,1]-=floor;mins.append(floor);frames.append(pose)
             if len(frames)<=nw and len(foot_indices)>=2:foot_samples.append(pose[foot_indices,3,:3].copy())
     # Distance phase curve follows the lowest foot's rearward motion during stance.
@@ -146,6 +174,7 @@ def build(db,client,item,out):
             rgba=np.asarray(im.convert('RGBA'),dtype=np.uint32);argb=(rgba[:,:,3]<<24)|(rgba[:,:,0]<<16)|(rgba[:,:,1]<<8)|rgba[:,:,2];f.write(argb.astype('<u4').tobytes())
     images[0].save(out/(item['name']+'-atlas.png'))
     receipt={'name':item['name'],'original_model':item['model'],'head':item.get('head'),'walk':item['walk'],'idle':item['idle'],'loop_ms':[wa,wb],'idle_loop_ms':[ia,ib],'walk_frames':nw,'idle_frames':ni,'stride':stride,'walk_m_per_second':stride/duration,'estimated_stance_phase_residual_m':gait_error,'vertices':len(v),'triangles':len(idx)//3,'bones':nb,'textures':textures,'private_derived_asset':True,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}
+    receipt.update(horizontal_radius=horizontal_radius,animated_height=height)
     print(json.dumps(receipt),flush=True);return receipt
 
 def main():

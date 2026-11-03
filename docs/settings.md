@@ -13,15 +13,15 @@ by hand; run the script after changing a setting (`--check` tells whether this f
   stay. A feature's on / off switch (its *switch* below) does the same for the settings under it.
 - Presets preserve texture-library and HD-surface choices. Classic+ and Modern use Medium windows; Ultra uses Maximum.
 - Ctrl+Shift+F12 opens standalone options: important controls first; Enter expands related settings.
-- Living compatibility keys are inactive in Preview 21 because their current resources cannot be distributed.
+- Living Rubi-Ka reads validated resources prepared inside the selected AO folder. New population and aircraft controls default Off; appearance variety defaults Normal.
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-365 settings, 194 of them in the settings window.
+367 settings, 196 of them in the settings window.
 
 ## Sections
 
-- [Living Rubi-Ka](#living-rubi-ka) (8)
+- [Living Rubi-Ka](#living-rubi-ka) (10)
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
 - [Materials](#materials) (23)
@@ -45,10 +45,12 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_LivePeople` | Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
+| `RVK_NPCVariety` | NPC appearance variety: Normal / High | 0 / 1 | 0 | window; knob |
+| `RVK_ArmoredCivilians` | Armored civilians: Off / Low / Medium | 0 / 1 / 2 | 0 | window; knob |
 | `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
 | `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | window; game value 0; knob |
-| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes) | 0 / 1 / 2 | 0 | window |
-| `RVK_OrbitalCraft` | Orbital craft: Off / Low / Medium (requires verified local spacecraft and routes) | 0 / 1 / 2 | 0 | window |
+| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes) | 0 / 1 / 2 | 0 | window; knob |
+| `RVK_OrbitalCraft` | Orbital / large spacecraft: Off / Low / Medium (verified local spacecraft and corridors) | 0 / 1 / 2 | 0 | window; knob |
 | `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | window; game value 0; knob |
 | `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | window; game value off; knob |
 | `RVK_LiveAtmos` | Localized vent steam: Off / On (also requires Smoke enabled) | on / off | off | window; game value off; knob |

@@ -8,11 +8,22 @@ accompanies the download. Normal rendering, Parallax V9 and accepted Preview 21
 artwork are preserved. Living defaults Off, with an explicit isolated Newland
 test command and settings independent of graphics presets.
 
-Actual combined gameplay and original-cache GPU validation are pending. New
-Phasefront/orbital aircraft are unsupported and disabled; no guessed models,
-riders or flight corridors are used. Local-only caching does not establish
-Funcom permission. Read REPORT.txt and PLAYTEST-22.txt before testing. Nothing
-has been installed into F:, pushed or published by this task.
+Candidate 2 adds 23 original appearances, compatible skin/clothing materials,
+different body/head shapes, coats and occasional original armor. Faction pools
+and deterministic assignment preserve city identity. Enlarged bodies are
+filtered against complete original scenery along the whole pedestrian route.
+
+Wraith X2-45, Spectre and Banshee use their actual item-linked models, original
+rider poses and correctly attached heads. All 21 supported cities have static
+swept-corridor checks for Phasefronts and the rare, larger original Mech drop
+ship. New aircraft have separate settings, shared traffic caps, native material
+masks, navigation lights, distant LODs and smooth entry/exit fading.
+
+Run Prepare Living City Test.cmd to opt into all-city static-route review, then
+open Ctrl+Shift+F12 > Living Rubi-Ka. All new features remain optional. Actual
+combined live gameplay, long sessions and dynamic obstacle validation remain
+pending. Read REPORT.txt and PLAYTEST-22.txt before testing. This continuation
+does not modify F:, push to GitHub or publish a release.
 
 Full HD Setup uses the exact pinned Preview 21 material companions. New worker
 artwork requires a separate accepted material freeze. The ordinary installer

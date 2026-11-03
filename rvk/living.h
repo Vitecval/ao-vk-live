@@ -3,6 +3,8 @@
 #include "skin.h"
 #include <array>
 #include <string>
+#include <map>
+#include <istream>
 
 namespace rvk { class Texture; }
 namespace rvk::living {
@@ -10,6 +12,7 @@ constexpr uint32_t FixturePlayfield = 0xfffffffeu;
 constexpr size_t MaxBytes = 64u << 20; // hard cap including decoded source maps; shared materials counted once
 struct Point { float x=0,y=0,z=0; };
 struct Route {
+    bool linear=false;
     std::vector<Point> points;
     std::vector<float> arc;
     float length=0;
@@ -35,9 +38,11 @@ struct Mesh {
 };
 struct Actor {
     uint32_t group=0, mesh=0, tier=1, motion=0;
+    uint32_t appearanceMask=~0u;
     float scale=1,speed=1,phase=0,range=100,hover=0;
     float walkSeconds=16,pauseSeconds=5,heading=0;
     float idleYaw=0,lightRange=0;
+    float visibilityAlpha=0;
     uint32_t lightColour=0, replacementMask=0;
     int32_t parent=-1;double activationTime=-1;
     bool surface=false;float supportHeight=0;uint32_t replacementStable=0;
@@ -65,6 +70,10 @@ struct Scene {
     bool liveVerified=false;
     std::vector<Mesh> meshes;
     std::vector<Actor> actors;
+    struct Appearance {uint32_t mesh=0,role=0;};
+    std::vector<Appearance> appearances;
+    bool requestedVariety=false;
+    uint32_t armoredLevel=0;
     std::vector<Replacement> replacements;uint32_t replacementStable=0;
     std::vector<uint64_t> diagnosticCandidates; // bounded distinct near-equipment hashes for live diagnosis
     uint32_t groundWidth=0,groundHeight=0;
@@ -77,7 +86,12 @@ bool LocalReviewEnabled(const std::string& scenePath);
 bool Load(const std::string& path, Scene& out, std::string& error,uint32_t expectedPlayfield=0,bool requireLiveVerification=false,const std::vector<std::string>* verifiedAssets=nullptr);
 struct LocalAssets { std::string scene; std::vector<std::string> verified; };
 inline constexpr const char* InstalledIndex="9f3633726602ead5003bd3aec82f67f63462ff1080a5676f91c2f149ddfbf6d9";
-bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& result,std::string& error,const std::string& expectedIndex=InstalledIndex);
+bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& result,std::string& error,const std::string& expectedIndex=InstalledIndex,bool variety=false);
+void SelectAppearances(Scene& scene,uint32_t armoredLevel);
+// Reserved fixture playfield only. Binary stdin resources allow renderer
+// evidence without storing extracted assets outside the selected installation.
+bool ReadFixtureResources(std::istream& input,std::string& error);
+bool FixtureResource(const std::string& name,std::string& bytes);
 float Fade(float distance,float range);
 bool InFrustum(const float viewProjection[4][4], Point p,float radius);
 struct Movement { double distance=0; float speed=0, walkWeight=0; };

@@ -370,12 +370,12 @@ if ($manifest.livingAssets) {
             $livingError=Get-Content -LiteralPath $livingErrorLog -Raw -ErrorAction SilentlyContinue
             throw "Local preparation failed ($($livingProcess.ExitCode)). $livingError"
         }
-        $livingStatus='Living assets prepared locally. Settings remain Off until an explicit Newland review test.'
+        $livingStatus='Living assets prepared locally. To test them, run Prepare Living City Test.cmd, then open Ctrl+Shift+F12. New controls default Off.'
         $livingSummary=Get-Content -LiteralPath $livingLog -Tail 1 -ErrorAction SilentlyContinue
         if ($livingSummary -match '([0-9]+) unsupported asset families' -and [int]$Matches[1] -gt 0) {
             $livingWarnings=@('Some cosmetic assets are unavailable; affected instances will be skipped. See the local preparation log.')
         }
-        Write-Output 'Local Living assets prepared. New settings default Off; unverified routes require the separate Newland test command.'
+        Write-Output 'Local Living assets prepared. Run Prepare Living City Test.cmd to opt into city route review before enabling Living options.'
     } catch {
         $livingStatus='The renderer is installed, but Living assets were not prepared. Keep Living Off and retry preparation.'
         $livingWarnings=@($_.Exception.Message)

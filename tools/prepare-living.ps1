@@ -1,4 +1,4 @@
-param([string]$ClientDir, [switch]$NewlandTest)
+param([string]$ClientDir, [switch]$NewlandTest, [switch]$CityTest)
 $ErrorActionPreference='Stop'
 if (!$ClientDir) {
     Add-Type -AssemblyName System.Windows.Forms
@@ -9,9 +9,12 @@ if (!$ClientDir) {
 }
 $client=(Resolve-Path -LiteralPath $ClientDir).Path
 foreach ($name in @('AnarchyOnline','Anarchy','AnarchyPatcher','randy_harness')) {
-    # A separate preparation command cannot safely inspect all shared x86 loaders
-    # from both PowerShell hosts. Ask for a closed session instead of guessing.
-    if (Get-Process -Name $name -ErrorAction SilentlyContinue) { throw 'Close AO clients and launchers before local asset preparation.' }
+    foreach ($running in @(Get-Process -Name $name -ErrorAction SilentlyContinue)) {
+        $runningPath=$null
+        try { $runningPath=$running.Path } catch { }
+        if (!$runningPath) { throw 'Cannot identify a running AO installation. Close that client or launcher before preparation.' }
+        if ($runningPath.StartsWith($client.TrimEnd('\')+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Close clients and launchers from the selected AO folder before local asset preparation.' }
+    }
 }
 $manifest=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'manifest.json') -Raw | ConvertFrom-Json
 foreach ($item in $manifest.client.PSObject.Properties) {
@@ -25,6 +28,7 @@ $helper=Join-Path $PSScriptRoot 'living-preparer/ao-vk-living-prepare.exe'
 if ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash -ine $manifest.livingAssets.helperSha256) { throw 'Preparation helper integrity failed.' }
 $arguments=@('--client',$client,'--metadata',(Join-Path $PSScriptRoot 'living-metadata'))
 if ($NewlandTest) { $arguments+=@('--playfield','566','--review-routes') }
+elseif ($CityTest) { $arguments+='--review-routes' }
 & $helper @arguments
 if ($LASTEXITCODE) { throw "Local asset preparation failed ($LASTEXITCODE)." }
-Write-Output 'Prepared locally. Enable Ambient People Low in the Living Rubi-Ka options group for the isolated Newland test.'
+Write-Output 'Prepared locally. Open Ctrl+Shift+F12 > Living Rubi-Ka. Start with Ambient People Low; the new appearance and aircraft settings are independently optional.'

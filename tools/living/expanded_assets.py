@@ -66,7 +66,7 @@ def recipes():
             if 'hands' not in t or isinstance(t['hands'],dict):t['hands']={'type':1010011,'id':skins[breed]['hands']}
             t.setdefault('feet',9615)
         result.append(dict(name='av-'+n,model=m,head=h,textures=t,skin=skins[breed],walk=10162 if m in female else 10191,
-                           idle=10135 if m in female else 10173,dimension=512,appearance_role=role,factions=faction))
+                           idle=10135 if m in female else 10173,dimension=512,appearance_role=role,factions=faction,human=True))
     return result
 
 

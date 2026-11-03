@@ -1,5 +1,25 @@
 # Preview 22 local Living integration candidate
 
+Candidate 3 adds a bounded pedestrian activity state machine. Original city
+floor triangles and terrain support new branching walking graphs; the full
+animated body envelope filters edges. Actors choose destinations, pause for
+different lengths, avoid occupied rest destinations and vary their next branch.
+When a branch is unavailable, they vary stops and direction on preserved routes.
+Native male/female shrug, scratch and nod animations are blended during selected
+pauses. Checked flat rest nodes permit sit-down, ground idle and stand-up clips.
+Coats and heavy suits omit sitting where compatibility is not established.
+LRM4 records separate activity clips and source vertex contacts across poses,
+keeping sit/stand transitions grounded. No animation event reaches the game.
+
+LRSCENE7 carries the authored walking graph and up to sixteen checked flight
+lanes. Phasefront choices vary by session and pass: lane, direction, 8–16 m/s
+cruise speed, start delay and occasional skipped flights. Passes include modest
+speed variation, bank and steering offsets bounded by 1.2 m, inside the 3 m
+prepared clearance margin. Usable lanes generally span roughly 11–49 m above
+ground as city roofs permit; constrained cities retain their certified corridor.
+The renderer does not invent unverified low routes through tall buildings.
+Activity and flight clocks preserve the existing focus/suspension safeguards.
+
 The isolated source starts at published Preview 21 Setup 3 commit
 `85862ddf596646295e2bea9bd3045e879f835d60`, including its installer progress,
 optional memory-support and artwork-license fixes. Its validated renderer origin
@@ -107,4 +127,4 @@ no original mesh/material/terrain files are written outside the selected AO cach
 Visual evidence is labeled as renderer fixtures rather than gameplay. Optional
 held props and true orbital/mothership traffic remain outside this candidate;
 unverified engine masks are omitted. No new worker artwork is integrated, no
-GitHub publication is performed, and this continuation does not modify F:.
+GitHub publication is performed. Installation occurs only when the user requests it.

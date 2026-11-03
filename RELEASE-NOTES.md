@@ -1,5 +1,14 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 3 adds human pedestrian activity: branching validated paths, varied
+destinations and pauses, occasional native shrugs, nods and head-scratching,
+and native sit-down / ground-rest / stand-up sequences at verified flat spots.
+The complete activity envelope and floor-contact samples participate in local
+preparation. Unsupported bodies remain standing rather than using a bad pose.
+Phasefronts choose freshly varied passes, directions, speeds, timing and small
+steering corrections within prevalidated low/mid-height corridors. Choices are
+stable within a pass and differ between visits; no per-frame random teleporting.
+
 This unpublished candidate reuses the recovered V5/V5.1 engine inside the exact
 Preview 21 renderer. Setup prepares original cosmetic resources from the selected
 AO installation and keeps the resulting cache inside that same AO directory.
@@ -22,8 +31,8 @@ masks, navigation lights, distant LODs and smooth entry/exit fading.
 Run Prepare Living City Test.cmd to opt into all-city static-route review, then
 open Ctrl+Shift+F12 > Living Rubi-Ka. All new features remain optional. Actual
 combined live gameplay, long sessions and dynamic obstacle validation remain
-pending. Read REPORT.txt and PLAYTEST-22.txt before testing. This continuation
-does not modify F:, push to GitHub or publish a release.
+pending. Read REPORT.txt and PLAYTEST-22.txt before testing. Installation is
+performed only when requested; no GitHub push or release publication is included.
 
 Full HD Setup uses the exact pinned Preview 21 material companions. New worker
 artwork requires a separate accepted material freeze. The ordinary installer

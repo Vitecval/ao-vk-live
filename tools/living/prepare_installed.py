@@ -176,6 +176,7 @@ def prepare(client, metadata, playfields, review=False):
         receipts, errors = [], {}
         for item in catalog['assets']:
             try:
+                if item['name'] in ('resident-jacket','traveler-bomber','technician-workshirt'):item=dict(item,human=True)
                 print('Preparing original animated asset: '+item['name'], flush=True)
                 receipts.append(build(db, client, item, stage))
             except Exception as error:
@@ -235,7 +236,9 @@ def prepare(client, metadata, playfields, review=False):
                     print(f'Validating complete original city airspace: {pf}',flush=True)
                     air=corridors(db,client,pf,H,heights['cell'],city_center,
                                   max((r['radius'] for r in vehicles),default=0),large['radius'] if large else 0,lines,people)
-                except Exception as error:air=dict(playfield=pf,routes={},blockers={'city':str(error)},live_verified=False)
+                except Exception as error:
+                    print(f'City {pf} behavior/airspace unavailable: {error}',flush=True)
+                    air=dict(playfield=pf,routes={},blockers={'city':str(error)},live_verified=False)
                 airspaces.append(air)
                 for variety in (False,True):
                     try:

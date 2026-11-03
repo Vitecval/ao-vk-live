@@ -152,6 +152,7 @@ void Device::DrawLiving() {
         if(s->playfield!=m_skyPlayfield){Log("Living Rubi-Ka: pack is for %u, current playfield %u; placement rejected",s->playfield,m_skyPlayfield);return;}
         if(!s->fixture&&!s->liveVerified&&!review){Log("Living Rubi-Ka: static-only route pack DISABLED; live verification is pending. Explicit isolated review mode is required.");return;}
         s->requestedVariety=variety;living::SelectAppearances(*s,armored);
+        if(!s->fixture)s->behaviorSeed=uint32_t(std::chrono::steady_clock::now().time_since_epoch().count());
         m_living=std::move(s);m_livingStart=Now();
         Log("Living Rubi-Ka: %zu actors, %zu shared assets, %.2f MiB; %s",m_living->actors.size(),m_living->meshes.size(),double(m_living->bytes)/1048576.,m_living->fixture?"CONTROLLED FIXTURE (not gameplay)":"STATIC-REVIEW PLAYFIELD PACK (not live-verified)");
     }
@@ -213,14 +214,21 @@ void Device::DrawLiving() {
         }
         if(a.replacementMask){bool ready=true;for(size_t k=0;k<m_living->replacements.size();++k)if(a.replacementMask&(1u<<k))ready&=m_living->replacements[k].suppressedFrame==m_frameNumber;if(!ready){a.activationTime=-1;continue;}if(a.activationTime<0)a.activationTime=time;}
         const bool stopping=a.motion==3||a.motion==5;
-        const living::Movement movement=stopping?living::Locomotion(time,a):living::Movement{};
+        const bool human=m_living->humanBehavior&&a.group==0&&a.motion==3;
+        const auto humanPose=human?living::AdvanceHuman(*m_living,a,time,uint32_t(i)):living::HumanPose{};
+        const living::Movement movement=human?humanPose.movement:stopping?living::Locomotion(time,a):living::Movement{};
+        const bool variedFlight=a.motion==7&&!m_living->flightLanes.empty();
+        const auto flightPose=variedFlight?living::PhasefrontFlight(*m_living,a,time,uint32_t(i)):living::FlightPose{};
+        if(variedFlight&&!flightPose.active){a.previous.reset();continue;}
         // Density changes add staggered schedules; a visible craft's own
         // period never changes when Low/Medium is switched.
         const float slot=float(std::fmod(time+a.phase,double(a.walkSeconds+a.pauseSeconds)));
-        if(a.motion>=7&&slot>=a.walkSeconds){a.previous.reset();continue;}
+        if(a.motion>=7&&!variedFlight&&slot>=a.walkSeconds){a.previous.reset();continue;}
         const double distance=stopping?movement.distance:a.motion>=6?slot*a.speed:time*a.speed+a.phase;
         const float travel=a.route.linear?std::clamp(float(distance),0.f,a.route.length):a.route.length>0?float(std::fmod(distance,double(a.route.length))):0.f;
         living::Point tangent,p=a.route.At(travel,&tangent);
+        if(human){p=humanPose.point;tangent=humanPose.tangent;}
+        if(variedFlight){p=flightPose.point;tangent=flightPose.tangent;}
         if(a.parent>=0){const auto& parent=m_living->actors[a.parent];if(parent.lastFrame!=m_frameNumber)continue;const auto& w=parent.world;const auto local=p;
             p={local.x*w[0][0]+local.y*w[1][0]+local.z*w[2][0]+w[3][0],local.x*w[0][1]+local.y*w[1][1]+local.z*w[2][1]+w[3][1],local.x*w[0][2]+local.y*w[1][2]+local.z*w[2][2]+w[3][2]};tangent={w[2][0],w[2][1],w[2][2]};}
         else if(a.motion==3&&!a.surface&&!m_living->ground.empty()){float y;if(!living::GroundHeight(*m_living,p.x,p.z,y))continue;p.y=y+.008f;}
@@ -231,7 +239,8 @@ void Device::DrawLiving() {
         if(m_living->fixture&&std::getenv("RANDYVK_LIVING_TIME"))alpha=living::Fade(dist,a.range);
         if(a.replacementMask)alpha=living::Fade(dist,a.range);
         if(a.parent>=0&&flight>=7)alpha*=m_living->actors[a.parent].visibilityAlpha;
-        if(a.motion>=6)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
+        if(variedFlight)alpha*=flightPose.alpha;
+        else if(a.motion>=6)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
         else if(a.group==2){const float legacySlot=float(std::fmod(time+a.phase,90.0));alpha*=Smooth(legacySlot/2)*Smooth((30-legacySlot)/2);}
         if(a.parent>=0&&a.group==4)alpha*=.86f+.14f*std::sin(float(time*2.3+a.phase));
         auto& m=m_living->meshes[a.mesh];
@@ -270,9 +279,9 @@ void Device::DrawLiving() {
         }
         m.texture=materialMesh.texture;
         float yaw=a.motion==1?float(time*a.speed+a.phase):std::atan2(tangent.x,tangent.z);
-        if(a.route.length>0){auto before=a.route.At(travel-.45f),after=a.route.At(travel+.45f);yaw=std::atan2(after.x-before.x,after.z-before.z);}
+        if(a.route.length>0&&!human&&!variedFlight){auto before=a.route.At(travel-.45f),after=a.route.At(travel+.45f);yaw=std::atan2(after.x-before.x,after.z-before.z);}
         yaw+=a.heading;
-        if(stopping)yaw+=std::clamp(Angle(yaw,a.idleYaw),-.4f,.4f)*(1-movement.walkWeight)+(.07f*std::sin(float(time*.31+a.phase)))*(1-movement.walkWeight);
+        if(stopping)yaw+=std::clamp(Angle(yaw,a.idleYaw),-.4f,.4f)*(1-movement.walkWeight)+(human?.18f:.07f)*std::sin(float(time*.31+a.phase))*(1-movement.walkWeight);
         if(a.parent<0&&a.motion!=1){
             const bool continuous=a.headingTime>=0&&time>=a.headingTime&&time-a.headingTime<.25&&a.lastFrame+1==m_frameNumber;
             if(a.headingTime>=0&&!continuous){a.previous.reset();a.job.reset();a.lastFrame=~uint64_t(0);}
@@ -281,6 +290,7 @@ void Device::DrawLiving() {
         }
         const float cs=std::cos(yaw)*a.scale,sn=std::sin(yaw)*a.scale;
         Matrix w{};w.m[0][0]=cs;w.m[0][2]=-sn;w.m[1][1]=a.scale;w.m[2][0]=sn;w.m[2][2]=cs;w.m[3][0]=p.x;w.m[3][1]=p.y;w.m[3][2]=p.z;w.m[3][3]=1;
+        if(variedFlight)for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(flightPose.bank)+y*std::sin(flightPose.bank);w.m[1][j]=-x*std::sin(flightPose.bank)+y*std::cos(flightPose.bank);}
         if(a.parent>=0){const auto& parent=m_living->actors[a.parent].world;const float localC=std::cos(a.heading)*a.scale,localS=std::sin(a.heading)*a.scale;
             for(int c=0;c<3;++c){w.m[0][c]=localC*parent[0][c]-localS*parent[2][c];w.m[1][c]=a.scale*parent[1][c];w.m[2][c]=localS*parent[0][c]+localC*parent[2][c];}}
         if((a.motion==4||a.motion==6)&&a.route.length>0){living::Point aheadT;a.route.At(travel+1,&aheadT);float turn=Angle(yaw-a.heading,std::atan2(aheadT.x,aheadT.z));float bank=std::clamp(-std::atan(a.speed*a.speed*turn/9.81f),-.28f,.28f);for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(bank)+y*std::sin(bank);w.m[1][j]=-x*std::sin(bank)+y*std::cos(bank);}}
@@ -298,14 +308,21 @@ void Device::DrawLiving() {
             uint32_t count=m.frameCount;
             if(m.walkFrames){count=m.walkFrames;frame=a.motion==3?living::GaitFrame(m,movement.distance/a.scale):float(std::fmod(time*m.fps+a.phase,double(count)));}
             const uint32_t i0=uint32_t(frame)%count,i1=(i0+1)%count;const float u=frame-std::floor(frame);
-            const uint32_t idleCount=m.frameCount-m.walkFrames;
+            const uint32_t idleCount=m.idleFrames?m.idleFrames:m.frameCount-m.walkFrames;
             const float idleFrame=m.walkFrames?float(std::fmod((time+a.phase)*idleCount/m.idleSeconds,double(idleCount))):0.f;
             const uint32_t j0=m.walkFrames+uint32_t(idleFrame),j1=m.walkFrames+(uint32_t(idleFrame)+1)%std::max(idleCount,1u);const float idleU=idleFrame-std::floor(idleFrame);
             const float walking=a.motion==3?movement.walkWeight:1.f;
+            const living::Mesh::Clip* activity=nullptr;
+            if(human&&humanPose.activity>=0)for(const auto& clip:m.activities)if(clip.kind==uint32_t(humanPose.activity))activity=&clip;
+            float activityFrame=activity?std::clamp(humanPose.activityTime/activity->seconds,0.f,1.f)*float(activity->kind==4?activity->count:activity->count-1):0;
+            uint32_t k0=activity?activity->first+std::min(uint32_t(activityFrame),activity->count-1):0;
+            uint32_t k1=activity?activity->first+(activity->kind==4?(uint32_t(activityFrame)+1)%activity->count:std::min(uint32_t(activityFrame)+1,activity->count-1)):0;
+            float activityU=activityFrame-std::floor(activityFrame);
             auto& bones=m.poseScratch;
             for(uint32_t b=0;b<m.bones;++b)for(int j=0;j<12;++j){
                 float value=m.frames[i0*m.bones+b].m[j]*(1-u)+m.frames[i1*m.bones+b].m[j]*u;
                 if(m.walkFrames&&walking<1){float idle=m.frames[j0*m.bones+b].m[j]*(1-idleU)+m.frames[j1*m.bones+b].m[j]*idleU;value=value*walking+idle*(1-walking);}
+                if(activity){float pose=m.frames[k0*m.bones+b].m[j]*(1-activityU)+m.frames[k1*m.bones+b].m[j]*activityU;float blend=humanPose.activityWeight*(1-walking);value=value*(1-blend)+pose*blend;}
                 bones[b].m[j]=value;
             }
             for(auto& bone:bones) {

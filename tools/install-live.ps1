@@ -5,6 +5,7 @@ param(
     [switch]$Upgrade,
     [switch]$Uninstall,
     [switch]$DisableLargeAddressAware,
+    [switch]$ReviewLivingRoutes,
     [scriptblock]$ProgressCallback
 )
 $ErrorActionPreference = 'Stop'
@@ -356,6 +357,7 @@ if ($manifest.livingAssets) {
         $livingClientArg='"'+($client -replace '(\\+)$','$1$1')+'"'
         $livingMetadataArg='"'+((Join-Path $package 'living-metadata') -replace '(\\+)$','$1$1')+'"'
         $livingArguments='--client '+$livingClientArg+' --metadata '+$livingMetadataArg
+        if ($ReviewLivingRoutes) { $livingArguments+=' --review-routes' }
         $livingProcess=Start-Process -FilePath $livingHelper -ArgumentList $livingArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $livingLog -RedirectStandardError $livingErrorLog
         # Retain the handle before exit; Windows PowerShell otherwise loses the
         # exit status of an asynchronously redirected native process.

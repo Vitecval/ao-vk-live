@@ -10,6 +10,9 @@ struct LivingRuntimeProbe {
     static void Check(bool ok,const char* why){if(!ok){++failures;std::fprintf(stderr,"RUNTIME CONTRACT FAILED: %s\n",why);}}
     static void Stress(Device& d,int frame){
         if(!d.m_living)return;
+        if(frame==2&&d.m_living->fixture&&std::getenv("RANDYVK_LIVING_TEST_ACTIONS")){
+            uint32_t index=0;for(auto& a:d.m_living->actors)if(a.group==0){auto& h=a.human;h={};h.last=2./60;h.from=h.to=a.route.At(0);h.tangent={0,0,-1};h.resting=true;h.wait=12;h.activity=int32_t(index++%4);}
+        }
         if(frame==60){
             d.DrawLiving();const double time=d.m_living->timeline.time;
             std::vector<std::array<float,3>> positions;

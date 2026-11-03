@@ -35,15 +35,15 @@ bool Finite(float f,float limit=100000) {return std::isfinite(f)&&std::fabs(f)<=
 void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes,bool fixture) {
     const auto sz=Size(path,fixture);Require(sz<=32u*1024u*1024u&&bytes+sz<=MaxBytes+32u*1024u*1024u,"ambient source/staging budget exceeded");bytes+=size_t(sz);
     auto stream=Open(path,fixture);auto& f=*stream;uint32_t h[10];Read(f,h,10);
-    const bool clips=h[0]==0x334d524cu;
+    const bool activities=h[0]==0x344d524cu,clips=h[0]==0x334d524cu||activities;
     Require(h[0]==0x324d524cu||clips,"mesh must be LRM2 or LRM3");
     m.vertexCount=h[1];m.dimension=h[5];m.bones=h[6];m.frameCount=h[7];std::memcpy(&m.fps,h+8,4);
     Require((clips||h[9]==0)&&m.vertexCount>=3&&m.vertexCount<=20000,"invalid vertex count or reserved field");
     Require(m.dimension>=4&&m.dimension<=1024&&(m.dimension&(m.dimension-1))==0,"texture must be a power of two, <=1024");
-    Require(m.bones<=64&&m.frameCount<=120,"rig budget exceeded");
+    Require(m.bones<=64&&m.frameCount<=(activities?256u:120u),"rig budget exceeded");
     Require((m.bones&&m.frameCount>=2&&m.fps>=1&&m.fps<=60)||(!m.bones&&!m.frameCount&&m.fps==0),"incomplete animation rig");
     const size_t stride=m.bones?sizeof(skin::TriVertex):sizeof(skin::Vertex);
-    size_t clipBytes=0;
+    size_t clipBytes=0;std::vector<uint32_t> contactVertices;
     if(clips) {
         float timing[3];uint32_t count;Read(f,timing,3);Read(f,&count,1);
         m.walkFrames=h[9];m.walkSeconds=timing[0];m.idleSeconds=timing[1];m.stride=timing[2];
@@ -53,6 +53,15 @@ void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes,bool fixtu
         Require(m.gaitDistance[0]==0&&std::fabs(m.gaitDistance.back()-m.stride)<.001f,"invalid gait distance endpoints");
         for(size_t i=1;i<count;++i)Require(Finite(m.gaitDistance[i],20)&&m.gaitDistance[i]>m.gaitDistance[i-1],"gait phase distance must increase");
         clipBytes=16+count*4;
+        m.idleFrames=m.frameCount-m.walkFrames;
+        if(activities){uint32_t n;Read(f,&m.idleFrames,1);Read(f,&n,1);Require(n>=1&&n<=6&&m.idleFrames>=2&&m.walkFrames+m.idleFrames<m.frameCount,"invalid human activity partition");
+            uint32_t first=m.walkFrames+m.idleFrames;uint32_t seen=0;
+            for(uint32_t i=0;i<n;++i){Mesh::Clip c;Read(f,&c.kind,1);Read(f,&c.first,1);Read(f,&c.count,1);Read(f,&c.seconds,1);
+                Require(c.kind<6&&!(seen&(1u<<c.kind))&&c.first==first&&c.count>=2&&c.count<=48&&Finite(c.seconds,15)&&c.seconds>.2f&&first+c.count<=m.frameCount,"invalid human activity clip");
+                seen|=1u<<c.kind;first+=c.count;m.activities.push_back(c);}
+            Require(first==m.frameCount,"unclaimed activity frames");clipBytes+=8+n*16;
+            uint32_t contacts;Read(f,&contacts,1);Require(contacts>0&&contacts<=96,"invalid human contact budget");contactVertices.resize(contacts);Read(f,contactVertices.data(),contacts);
+            for(auto index:contactVertices)Require(index<m.vertexCount,"invalid human contact vertex");clipBytes+=4+contacts*4;}
     }
     const size_t expected=40+clipBytes+stride*m.vertexCount+2ull*(h[2]+h[3]+h[4])+sizeof(skin::Bone)*m.bones*m.frameCount+16ull*m.dimension*m.dimension;
     Require(expected==sz,"mesh size mismatch");
@@ -88,7 +97,8 @@ void LoadMesh(const std::filesystem::path& path,Mesh& m,size_t& bytes,bool fixtu
         m.skin->indices=*m.indices[0];m.skin->Finish();
         m.poseScratch.resize(m.bones);bytes+=m.bones*sizeof(skin::Bone);
         float floor=1e9f;for(const auto& v:m.skin->vertices)floor=std::min(floor,v.bind[1]);
-        for(const auto& v:m.skin->vertices)if(v.bind[1]<=floor+.16f&&m.contacts.size()<96)m.contacts.push_back(v);
+        if(activities){for(auto index:contactVertices)m.contacts.push_back(m.skin->vertices[index]);}
+        else for(const auto& v:m.skin->vertices)if(v.bind[1]<=floor+.16f&&m.contacts.size()<96)m.contacts.push_back(v);
         bytes+=m.contacts.size()*sizeof(skin::TriVertex);
 
         // Animation bounds are conservative across every authored keyframe.
@@ -167,8 +177,8 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
         const bool ram=expectedPlayfield==FixturePlayfield&&FixturePath(path);
         Scene s;auto stream=Open(path,ram);auto& f=*stream;std::string magic,provenance;uint32_t verified,fixture,mc,ac;
         const auto sceneBytes=Size(path,ram);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
-        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"),"bad scene header");
-        const bool v6=magic=="LRSCENE6",v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
+        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"),"bad scene header");
+        const bool v7=magic=="LRSCENE7",v6=magic=="LRSCENE6"||v7,v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
         Require(v5||sceneBytes<65536,"legacy scene exceeds 64 KiB");
         Require(verified>=1&&verified<=(v4?2u:1u)&&fixture<=1&&mc>0&&mc<=(v6?48u:16u)&&ac<=(v5?256u:64u),"unreviewed placement or invalid budget");
         s.liveVerified=v4&&verified==2;
@@ -231,6 +241,14 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             if(count){uint32_t roster;Require(bool(f>>token>>roster)&&token=="ROSTER"&&roster<=ac,"missing verified appearance clearance roster");
                 std::vector<bool> seen(ac);for(uint32_t i=0;i<roster;++i){uint32_t actor,mask;Require(bool(f>>actor>>mask)&&actor<ac&&!seen[actor]&&s.actors[actor].group==0&&(count==32||mask<(1u<<count)),"invalid appearance clearance mask");seen[actor]=true;s.actors[actor].appearanceMask=mask;}
                 for(uint32_t i=0;i<ac;++i)Require(s.actors[i].group!=0||seen[i],"person missing appearance clearance");}}
+        if(v7){std::string token;uint32_t nodes,edges,lanes;
+            Require(bool(f>>token>>nodes>>edges)&&token=="WALKGRAPH"&&nodes<=768&&edges<=4096,"invalid pedestrian graph budget");
+            for(uint32_t i=0;i<nodes;++i){Scene::WalkNode n;Require(bool(f>>n.point.x>>n.point.y>>n.point.z>>n.restMask)&&Finite(n.point.x)&&Finite(n.point.y)&&Finite(n.point.z),"invalid pedestrian node");s.walkNodes.push_back(n);}
+            for(uint32_t i=0;i<edges;++i){Scene::WalkEdge e;Require(bool(f>>e.a>>e.b>>e.mask)&&e.a<nodes&&e.b<nodes&&e.a!=e.b&&e.mask,"invalid pedestrian edge");float d=Distance(s.walkNodes[e.a].point,s.walkNodes[e.b].point);Require(d>=1&&d<=18,"pedestrian edge outside validated length");s.walkEdges.push_back(e);}
+            Require(bool(f>>token>>lanes)&&token=="FLIGHTLANES"&&lanes<=16,"invalid flight lane budget");
+            for(uint32_t i=0;i<lanes;++i){Route lane;lane.linear=true;lane.points.resize(2);for(auto& p:lane.points)Require(bool(f>>p.x>>p.y>>p.z),"missing lane endpoint");Require(lane.Finish()&&lane.length>=100&&lane.length<=440,"invalid flight lane");s.flightLanes.push_back(std::move(lane));}
+            s.bytes+=nodes*sizeof(Scene::WalkNode)+edges*sizeof(Scene::WalkEdge)+lanes*128;Require(s.bytes<=MaxBytes,"behavior data exceeds budget");s.humanBehavior=true;
+        }
         std::string trailing;Require(!(f>>trailing),"trailing scene data");out=std::move(s);return true;
     }catch(const std::exception& e){error=e.what();return false;}
 }
@@ -310,7 +328,8 @@ float ContactOffset(const Scene& scene,const Mesh& mesh,const skin::Palette& pal
         float ground=w[3][1];if(!authoredSurface&&!scene.ground.empty()){if(!GroundHeight(scene,q[0],q[2],ground))continue;ground+=.008f;}
         correction=std::max(correction,ground-q[1]);
     }
-    return correction<-100?0:std::clamp(correction,-.08f,.08f);
+    const float limit=mesh.activities.empty()?.08f:.16f;
+    return correction<-100?0:std::clamp(correction,-limit,limit);
 }
 
 }

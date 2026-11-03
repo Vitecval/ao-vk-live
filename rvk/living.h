@@ -29,6 +29,9 @@ struct Mesh {
     uint32_t vertexCount=0, bones=0, frameCount=0, dimension=0;
     float fps=0, radius=0;
     uint32_t walkFrames=0, materialOwner=~0u;
+    uint32_t idleFrames=0;
+    struct Clip {uint32_t kind=0,first=0,count=0;float seconds=0;};
+    std::vector<Clip> activities;
     std::array<uint32_t,4> mapDimensions{};
     float walkSeconds=0, idleSeconds=0, stride=0;
     std::vector<float> gaitDistance;
@@ -52,6 +55,11 @@ struct Actor {
     std::shared_ptr<skin::Job> job; // retained through the frame; GPU caches validate lifetime serials
     float world[4][4]={};
     uint64_t lastFrame=~uint64_t(0);
+    struct Human {
+        double last=-1,distance=0,routeDistance=0;float elapsed=0,wait=0,speed=0,goal=0,progress=0;
+        int32_t node=-1,next=-1,previousNode=-1,activity=-1;uint32_t serial=0,seed=0;
+        float direction=1;Point from,to,tangent{0,0,1};bool resting=false;
+    } human;
 };
 struct Replacement {
     uint32_t vertices=0,indices=0;
@@ -74,6 +82,13 @@ struct Scene {
     std::vector<Appearance> appearances;
     bool requestedVariety=false;
     uint32_t armoredLevel=0;
+    bool humanBehavior=false;
+    uint32_t behaviorSeed=1;
+    struct WalkNode {Point point;uint32_t restMask=0;};
+    struct WalkEdge {uint32_t a=0,b=0,mask=0;};
+    std::vector<WalkNode> walkNodes;
+    std::vector<WalkEdge> walkEdges;
+    std::vector<Route> flightLanes;
     std::vector<Replacement> replacements;uint32_t replacementStable=0;
     std::vector<uint64_t> diagnosticCandidates; // bounded distinct near-equipment hashes for live diagnosis
     uint32_t groundWidth=0,groundHeight=0;
@@ -95,6 +110,10 @@ bool FixtureResource(const std::string& name,std::string& bytes);
 float Fade(float distance,float range);
 bool InFrustum(const float viewProjection[4][4], Point p,float radius);
 struct Movement { double distance=0; float speed=0, walkWeight=0; };
+struct HumanPose {Point point,tangent;Movement movement;int32_t activity=-1;float activityTime=0,activityWeight=0;};
+HumanPose AdvanceHuman(Scene& scene,Actor& actor,double time,uint32_t actorIndex);
+struct FlightPose {Point point,tangent;float alpha=0,bank=0;bool active=false;};
+FlightPose PhasefrontFlight(const Scene& scene,const Actor& actor,double time,uint32_t actorIndex);
 Movement Locomotion(double time,const Actor& actor);
 float GaitFrame(const Mesh& mesh,double distance);
 float TurnTowards(float previous,float desired,float seconds,float radiansPerSecond);

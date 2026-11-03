@@ -9,6 +9,23 @@ using namespace rvk::living;
 static int failures=0;
 void Check(bool value,const char* message){if(!value){++failures;std::fprintf(stderr,"FAILED: %s\n",message);}}
 int main(int argc,char**argv){
+    Scene humanScene;humanScene.playfield=566;humanScene.meshes.resize(1);humanScene.humanBehavior=true;
+    for(uint32_t i=0;i<6;++i)humanScene.meshes[0].activities.push_back({i,0,24,i==3?2.9f:i==4?2.2f:i==5?.93f:2.f});
+    for(int z=0;z<3;++z)for(int x=0;x<4;++x)humanScene.walkNodes.push_back({{float(x)*4,0,float(z)*4},~0u});
+    for(uint32_t i=0;i<12;++i)for(uint32_t j=i+1;j<12;++j)if(std::hypot(humanScene.walkNodes[i].point.x-humanScene.walkNodes[j].point.x,humanScene.walkNodes[i].point.z-humanScene.walkNodes[j].point.z)<5.7f)humanScene.walkEdges.push_back({i,j,~0u});
+    for(int i=0;i<6;++i){Actor a;a.motion=3;a.speed=1.1f;a.route.points={humanScene.walkNodes[i].point};a.route.Finish();humanScene.actors.push_back(a);}
+    bool sat=false,gestured=false,paused=false;std::array<bool,12> visited{};std::array<Point,6> lastHuman{};
+    for(int f=0;f<18000;++f)for(uint32_t i=0;i<6;++i){auto p=AdvanceHuman(humanScene,humanScene.actors[i],f/30.,i);
+        if(f)Check(std::hypot(p.point.x-lastHuman[i].x,p.point.z-lastHuman[i].z)<.065f,"human destination changes never teleport");
+        lastHuman[i]=p.point;sat|=p.activity==4;gestured|=p.activity>=0&&p.activity<3;paused|=p.movement.walkWeight==0;
+        if(humanScene.actors[i].human.node>=0)visited[humanScene.actors[i].human.node]=true;}
+    Check(sat&&gestured&&paused&&std::count(visited.begin(),visited.end(),true)>=10,"human graph branches, pauses, gestures and rests occur over time");
+    Scene flights;flights.behaviorSeed=123;for(float y:{14.f,33.f}){Route r;r.linear=true;r.points={{0,y,0},{280,y,0}};r.Finish();flights.flightLanes.push_back(r);}
+    Actor flyer;bool lowFlight=false,midFlight=false,reverseFlight=false,forwardFlight=false;
+    for(int i=0;i<36000;++i){auto p=PhasefrontFlight(flights,flyer,i/60.,0);if(!p.active)continue;
+        lowFlight|=p.point.y<20;midFlight|=p.point.y>25;reverseFlight|=p.tangent.x<0;forwardFlight|=p.tangent.x>0;
+        Check(p.point.x>=0&&p.point.x<=280&&std::fabs(p.point.z)<=1.001f&&p.alpha>=0&&p.alpha<=1,"random flight stays inside certified steering envelope");}
+    Check(lowFlight&&midFlight&&reverseFlight&&forwardFlight,"flight choices vary altitude and direction across visits");
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");
     for(int i=0;i<=100;++i){Point t,p=corridor.At(float(i),&t);Check(std::fabs(p.x-i)<.0001&&p.y==40&&p.z==0&&t.x==100,"aerial route stays within swept straight corridor");}
@@ -98,7 +115,14 @@ int main(int argc,char**argv){
     Check(!ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),"cache generation cannot traverse directories");
     if(std::filesystem::weakly_canonical(localDir).parent_path()==std::filesystem::canonical(std::filesystem::current_path()))std::filesystem::remove_all(localDir);
     else Check(false,"synthetic cache cleanup must remain inside test workspace");
-    if(argc>2&&std::string(argv[1])=="--scene"){Scene s;std::string e;const bool ok=Load(argv[2],s,e);Check(ok,e.c_str());if(!ok)return 1;std::printf("Scene: %u, %zu actors, %zu meshes, %.2f MiB\n",s.playfield,s.actors.size(),s.meshes.size(),s.bytes/1048576.);}
+    if(argc>3&&std::string(argv[1])=="--installed"){const auto pf=uint32_t(std::stoul(argv[3]));LocalAssets local;Scene s;std::string e;
+        bool ok=ResolveInstalled(argv[2],pf,local,e,InstalledIndex,true);Check(ok,e.c_str());if(!ok)return 1;
+        ok=Load(local.scene,s,e,pf,!LocalReviewEnabled(local.scene),&local.verified);Check(ok,e.c_str());if(!ok)return 1;
+        Check(s.humanBehavior&&!s.walkEdges.empty()&&!s.flightLanes.empty(),"installed city contains activity graph and varied flight lanes");
+        for(const auto& a:s.appearances)Check(s.meshes[a.mesh].available&&!s.meshes[a.mesh].activities.empty(),"installed appearances contain verified native actions");
+        std::printf("Installed city %u: %zu walking edges, %zu flight lanes, %.2f MiB; receipt/decoder PASS\n",pf,s.walkEdges.size(),s.flightLanes.size(),s.bytes/1048576.);
+    }
+    else if(argc>2&&std::string(argv[1])=="--scene"){Scene s;std::string e;const bool ok=Load(argv[2],s,e);Check(ok,e.c_str());if(!ok)return 1;std::printf("Scene: %u, %zu actors, %zu meshes, %.2f MiB\n",s.playfield,s.actors.size(),s.meshes.size(),s.bytes/1048576.);}
     else if(argc>1){Scene s;std::string e;bool loaded=Load(argv[1],s,e);Check(loaded,e.c_str());if(!loaded)return 1;Check(s.fixture&&s.playfield==FixturePlayfield,"fixture isolated from live zones");Check(s.actors.size()==5&&s.meshes.size()==3,"complete fixture inventory");Check(!s.meshes.empty()&&s.meshes[0].bones==4&&s.meshes[0].frameCount==90,"independent skeletal asset loaded");
         auto temp=std::filesystem::temp_directory_path()/"living-reject.lrs";
         for(const auto& text:{"LRSCENE2 566 0 0 1 1 unknown\n", "LRSCENE2 566 1 1 1 1 fixture-provenance\n", "LRSCENE2 566 1 0 1 1 reviewed-route\n../../game.lrm\n"}){

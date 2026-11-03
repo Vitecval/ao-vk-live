@@ -22,7 +22,7 @@ def sha(path):
 def read(path):return json.loads(path.read_text(encoding='utf-8-sig'))
 
 
-def package(baseline,build,helper,out,previous_candidate=None):
+def package(baseline,build,helper,out,previous_candidate=None,revision=2):
     out.mkdir(parents=True,exist_ok=True)
     frozen=read(baseline/'ao-vk-live-0.6.0-preview.21-windows-x86-full/manifest.json')
     companions=[]
@@ -105,7 +105,8 @@ been installed into F: or launched in the game by the integration task.
             if prior_manifest['version']!='0.6.0-preview.22' or any(sha(previous/name)!=value for name,value in prior_manifest['addon'].items()):
                 raise ValueError('Previous candidate addon integrity failed')
             m['previousAddons'].insert(0,prior_manifest['addon'])
-        m['candidateRevision']=2
+            m['previousAddons'].extend(prior_manifest.get('previousAddons',[]))
+        m['candidateRevision']=revision
         m.pop('excludedFeatures',None)
         m.pop('sourceManifestSha256',None)
         m['sourceCommit']=subprocess.check_output(['git','-C',str(ROOT),'rev-parse','HEAD'],text=True).strip()
@@ -146,7 +147,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('baseline','build','helper','output'):p.add_argument('--'+name,required=True,type=Path)
     p.add_argument('--previous-candidate',type=Path)
-    a=p.parse_args();package(a.baseline,a.build,a.helper,a.output,a.previous_candidate)
+    p.add_argument('--revision',type=int,default=2)
+    a=p.parse_args();package(a.baseline,a.build,a.helper,a.output,a.previous_candidate,a.revision)
 
 
 if __name__=='__main__':main()

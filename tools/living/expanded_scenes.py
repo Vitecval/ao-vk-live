@@ -57,7 +57,7 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     if large and 'large' in airspace.get('routes',{}):
         add_flight(large,airspace['routes']['large'],8,(pf*79)%900,1,900)
         add_flight(large,airspace['routes']['large'],8,(pf*79+450)%900,2,900)
-    h[0]='LRSCENE6';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v6-installed-originals-static-review-live-check-required'
+    h[0]='LRSCENE7';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v7-human-city-static-review-live-check-required'
     result=[' '.join(h),*names,*actors,*tail,'APPEARANCES '+str(len(appearances))]
     result+=[' '.join(map(str,row)) for row in appearances]
     if variety:
@@ -69,4 +69,17 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
             masks.append((i,mask))
         if not any(mask for i,mask in masks):raise ValueError('No expanded body clears the existing city routes')
         result+=['ROSTER '+str(len(masks)),*[' '.join(map(str,row)) for row in masks]]
+    graph=airspace.get('walk_graph',dict(nodes=[],edges=[]))
+    normal={'av-jacket-male','av-jacket-female','av-jacket-stocky'}
+    def mask(allowed):
+        if not variety:return 0xffffffff if normal<=set(allowed) else 0
+        return sum(1<<i for i,r in enumerate(pool) if r['name'] in allowed)
+    edges=[(e['a'],e['b'],mask(e['allowed'])) for e in graph['edges']]
+    edges=[e for e in edges if e[2]]
+    result+=['WALKGRAPH '+str(len(graph['nodes']))+' '+str(len(edges))]
+    result+=[' '.join(map(str,[*n['point'],mask(n['rest'])])) for n in graph['nodes']]
+    result+=[' '.join(map(str,e)) for e in edges]
+    lanes=airspace.get('flight_lanes',[])
+    result+=['FLIGHTLANES '+str(len(lanes))]
+    result+=[' '.join(map(str,[*lane['start'],*lane['end']])) for lane in lanes]
     return result,names

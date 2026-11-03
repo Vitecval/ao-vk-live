@@ -7,9 +7,22 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools/living'))
 from city_airspace import terrain_triangles,possible_collision
 from expanded_scenes import extend,city_faction
 from prepare_static import opaque_material
+from human_routes import build_graph
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_pedestrian_branches_follow_real_platform_and_reject_wall(self):
+        floor=np.array([[[-20,10,-20],[20,10,-20],[20,10,20]],[[-20,10,-20],[20,10,20],[-20,10,20]]],np.float32)
+        wall=np.array([[[0,10,-20],[0,14,20],[0,10,20]]],np.float32)
+        geometry=np.concatenate((floor,wall));people=[dict(name='av-jacket-male',horizontal_radius=.4,animated_height=2)]
+        actor='0 0 1 3 1 1 0 100 0 4 -5 10.008 -5 5 10.008 -5 5 10.008 5 -5 10.008 5 16 5 0 0 0 0 0 -1 1'
+        graph=build_graph(geometry.min(1),geometry.max(1),np.zeros((20,20)),4,['LRSCENE5 566 1 0 1 1 synthetic','base.lrm',actor],people,566,geometry)
+        self.assertGreater(len(graph['edges']),0)
+        self.assertTrue(all(abs(n['point'][1]-10.008)<.001 for n in graph['nodes']))
+        for e in graph['edges']:
+            a,b=graph['nodes'][e['a']]['point'],graph['nodes'][e['b']]['point']
+            self.assertGreater(a[0]*b[0],0,'wall-crossing edge must be rejected')
+
     def test_omni_entertainment_is_not_a_neutral_palette(self):
         self.assertEqual(city_faction({'cities':{'705':{'theme':'entertainment'}}},705),'omni')
 

@@ -27,8 +27,11 @@ def safe(path):
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def mesh(path):
     path=safe(path);b=path.read_bytes();h=list(struct.unpack_from('<10I',b));at=40;extra=b''
-    if h[0]==0x334d524c:
+    if h[0] in (0x334d524c,0x344d524c):
         n=struct.unpack_from('<I',b,52)[0];extra=b[40:56+n*4];at=56+n*4
+        if h[0]==0x344d524c:
+            count=struct.unpack_from('<I',b,at+4)[0];at+=8+16*count
+            contacts=struct.unpack_from('<I',b,at)[0];at+=4+4*contacts;extra=b[40:at]
     v=np.frombuffer(b,'<f4',h[1]*(17 if h[6] else 8),at).reshape(h[1],-1).copy();at+=v.nbytes;indices=[]
     for n in h[2:5]:indices.append(np.frombuffer(b,'<u2',n,at).copy());at+=n*2
     palettes=b[at:at+h[6]*h[7]*48];at+=len(palettes)

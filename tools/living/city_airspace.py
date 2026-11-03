@@ -145,5 +145,35 @@ def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=N
                 failures.append(reason)
         if label not in result:rejected[label]=sorted(set(failures)) or ['No corridor meets terrain coverage and altitude requirements']
     allowed=appearance_clearance(geometry_low,geometry_high,heights,cell,lines,people) if lines and people else {}
+    lanes=[]
+    if phase_radius:
+        radius=phase_radius;margin=3.
+        for axis in (0,2):
+            for offset,half in [(o,n) for n in (140,110,80,55) for o in (0,35,-35,70,-70,110,-110)]:
+                c=np.array(center,dtype=float);c[2 if axis==0 else 0]+=offset
+                start,end=c.copy(),c.copy();start[axis]-=half;end[axis]+=half
+                guard=radius+margin+1
+                for point in (start,end):
+                    point[0]=np.clip(point[0],guard,extent[0]-guard);point[2]=np.clip(point[2],guard,extent[1]-guard)
+                if np.linalg.norm(end-start)<100:continue
+                terrain=terrain_triangles(heights,cell,start,end,radius+margin)
+                lo=np.minimum(start,end)-(radius+margin);hi=np.maximum(start,end)+(radius+margin)
+                nearby=geometry[np.all(geometry_high[:,(0,2)]>=lo[[0,2]],axis=1)&np.all(geometry_low[:,(0,2)]<=hi[[0,2]],axis=1)]
+                for altitude in (14,23,33,43,48):
+                    y=float(terrain[:,:,1].min())+altitude
+                    if y-float(terrain[:,:,1].max())<11:continue
+                    start[1]=end[1]=y
+                    if possible_collision(nearby,start,end,radius+margin) or possible_collision(terrain,start,end,radius+margin):continue
+                    ok,reason=validate(start.tolist(),end.tolist(),radius,margin,bounds,[],terrain.tolist(),complete=True,outdoor=True,identity_matches=True,phasefront=False)
+                    if ok:lanes.append(dict(start=start.tolist(),end=end.tolist(),radius=radius,margin=margin,minimum_agl=y-float(terrain[:,:,1].max())-.55,maximum_agl=altitude+.55,complete_static_clearance=True))
+                if len(lanes)>=(8 if axis==0 else 16):break
+            if len(lanes)>=16:break
+        lanes=lanes[:16]
+        if not lanes and 'phasefront' in result:
+            # A city may only have the previously certified broad edge corridor.
+            # It still receives variable scheduling, speed and both directions.
+            lanes=[dict(result['phasefront'],minimum_agl=20.45,maximum_agl=49.55)]
+    from human_routes import build_graph
+    graph=build_graph(geometry_low,geometry_high,heights,cell,lines,people,pf,geometry) if lines else dict(nodes=[],edges=[])
     return dict(playfield=pf,placements=len(objects),decoded_models=len(decoded),triangles=len(geometry),appearance_clearance=allowed,
-                original_mesh_hashes=hashes,routes=result,blockers=rejected,live_verified=False)
+                original_mesh_hashes=hashes,routes=result,blockers=rejected,flight_lanes=lanes,walk_graph=graph,live_verified=False)

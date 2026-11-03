@@ -137,19 +137,37 @@ def build(db,client,item,out):
             side=dim//4;g=4;v[:,12]=(tile%4+(g+np.clip(src[:,6],0,1)*(side-2*g))/side)/4;v[:,13]=(tile//4+(g+np.clip(src[:,7],0,1)*(side-2*g))/side)/4;v[:,16]=1
             indices.extend((part['indices']+sum(len(x) for x in vertices)).tolist());vertices.append(v);ids.append(np.full((nv,2),attach['bone'],np.int32))
     v=np.concatenate(vertices);bi=np.concatenate(ids);idx=np.asarray(indices,dtype='<u2');nb=len(model['bones'])
-    wa,wb=loop(walk);ia,ib=loop(idle);nw=min(48,max(24,round((wb-wa)*.03)));ni=min(60,max(24,round((ib-ia)*.016)))
+    wa,wb=loop(walk);ia,ib=loop(idle);nw=min(48,max(24,round((wb-wa)*.03)));ni=24 if item.get('human') else min(60,max(24,round((ib-ia)*.016)))
+    activities=[]
+    if item.get('human'):
+        female=item['walk']==10162
+        definitions=[(0,13081 if female else 14855,16),(1,13083 if female else 14853,24),(2,13088 if female else 14841,16)]
+        if item['model'] not in (17870,17919,246883,247037,41416):
+            definitions += [(3,13592 if female else 14749,24),(4,13591 if female else 14752,20),(5,13590 if female else 14750,12)]
+        for kind,identity,count in definitions:
+            clip=parse_animation(db.get(1010003,identity))
+            if clip['skeleton']!=model['skeleton']:raise ValueError('human activity skeleton differs')
+            if not .2<clip['length']/1000<15:raise ValueError('human activity duration outside budget')
+            # One-shot CAT clips hold their final keys; locomotion's wrap-to-first
+            # rule must not restart a sit-down or stand-up on its last frame.
+            for track in clip['tracks']:
+                for channel in ('positions','rotations'):
+                    if track[channel]:track[channel].append((clip['length']+1,track[channel][-1][1].copy()))
+            activities.append((kind,identity,clip,count))
     if len(v)>20000 or len(idx)>60000:raise ValueError('original mesh exceeds ambient geometry budget')
     # Extract only actual looping locomotion. Animation events are never dispatched.
-    frames=[];mins=[];foot_samples=[];horizontal_radius=0.;height=0.
+    frames=[];mins=[];foot_samples=[];horizontal_radius=0.;height=0.;contact_vertices=set()
     foot_indices=item.get('foot_bones',[]).copy()
     if item.get('grounded',True) and not foot_indices:
         for token in ('l foot','r foot'):
             found=[i for i,b in enumerate(model['bones']) if token in b['name'].lower()]
             if found:foot_indices.append(found[0])
-    for anim,start,end,count in ((walk,wa,wb,nw),(idle,ia,ib,ni)):
+    clips=[(walk,wa,wb,nw),(idle,ia,ib,ni)]+[(a,0,a['length'],n) for _,_,a,n in activities]
+    for clip_index,(anim,start,end,count) in enumerate(clips):
         for i in range(count):
-            pose=palettes(model,anim,start+(end-start)*i/count);skin=skin_points(v,bi,pose)
+            pose=palettes(model,anim,start+(end-start)*i/(count if clip_index<2 or activities[clip_index-2][0]==4 else count-1));skin=skin_points(v,bi,pose)
             floor=float(skin[:,1].min()) if item.get('grounded',True) else float((skin[:,1].max()+skin[:,1].min())/2)
+            if activities:contact_vertices.update(map(int,np.argsort(skin[:,1])[:2]))
             horizontal_radius=max(horizontal_radius,float(np.linalg.norm(skin[:,(0,2)],axis=1).max()))
             height=max(height,float(skin[:,1].max()-floor))
             pose[:,3,1]-=floor;mins.append(floor);frames.append(pose)
@@ -165,8 +183,15 @@ def build(db,client,item,out):
     stride=float(curve[-1]);duration=(wb-wa)/1000;idle_duration=(ib-ia)/1000
     target=out/(item['name']+'.lrm');out.mkdir(parents=True,exist_ok=True)
     with target.open('wb') as f:
-        f.write(struct.pack('<8IfI',0x334d524c,len(v),len(idx),len(idx),len(idx),dim,nb,nw+ni,nw/duration,nw))
+        f.write(struct.pack('<8IfI',0x344d524c if activities else 0x334d524c,len(v),len(idx),len(idx),len(idx),dim,nb,len(frames),nw/duration,nw))
         f.write(struct.pack('<3fI',duration,idle_duration,stride,len(curve)));f.write(np.asarray(curve,dtype='<f4').tobytes())
+        if activities:
+            f.write(struct.pack('<II',ni,len(activities)));first=nw+ni
+            for kind,identity,clip,count in activities:
+                f.write(struct.pack('<IIIf',kind,first,count,clip['length']/1000));first+=count
+            contacts=sorted(contact_vertices)
+            if len(contacts)>96:raise ValueError('human floor-contact samples exceed budget')
+            f.write(struct.pack('<I',len(contacts)));f.write(np.asarray(contacts,dtype='<u4').tobytes())
         packed=v.astype('<f4').copy();packed.view('<i4')[:,14:16]=bi;f.write(packed.tobytes())
         for _ in range(3):f.write(idx.tobytes())
         for pose in frames:f.write(np.c_[pose[:,:3,:3].reshape(nb,9),pose[:,3,:3]].astype('<f4').tobytes())
@@ -175,6 +200,7 @@ def build(db,client,item,out):
     images[0].save(out/(item['name']+'-atlas.png'))
     receipt={'name':item['name'],'original_model':item['model'],'head':item.get('head'),'walk':item['walk'],'idle':item['idle'],'loop_ms':[wa,wb],'idle_loop_ms':[ia,ib],'walk_frames':nw,'idle_frames':ni,'stride':stride,'walk_m_per_second':stride/duration,'estimated_stance_phase_residual_m':gait_error,'vertices':len(v),'triangles':len(idx)//3,'bones':nb,'textures':textures,'private_derived_asset':True,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}
     receipt.update(horizontal_radius=horizontal_radius,animated_height=height)
+    if activities:receipt['activities']=[dict(kind=k,id=i,frames=n,seconds=a['length']/1000,sha256=hashlib.sha256(db.get(1010003,i)).hexdigest()) for k,i,a,n in activities]
     print(json.dumps(receipt),flush=True);return receipt
 
 def main():

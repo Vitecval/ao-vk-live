@@ -78,6 +78,39 @@ def build_loops(geometry,heights,cell,center,lanes,radius,half_height,large_radi
             p[:,1]=max(roof+vertical+8,float(center[1])+18)
             if check(p,horizontal,vertical):
                 phase.append(dict(points=p.tolist(),low_flight=False,complete_static_clearance=True,envelope=[horizontal,vertical,horizontal]));break
+    # Distinct ground tracks, not copies of one oval at different altitudes.
+    # Prefer neighbourhood-height flyovers before using roof-clearing fallbacks.
+    from human_routes import ground_height
+    def signature(points):
+        p=[tuple(np.round(v[[0,2]],1)) for v in np.asarray(points)]
+        return min(tuple(p[i:]+p[:i]) for i in range(len(p)))
+    seen={signature(p['points']) for p in phase}
+    for pattern in range(96):
+        if len(phase)>=24:break
+        angle=pattern*2.399963229728653;offset=0 if pattern<4 else 25+((pattern*17)%100)
+        c=np.array(center,float)+np.array([math.cos(angle)*offset,0,math.sin(angle)*offset])
+        span=44+(pattern%7)*11;aspect=.45+(pattern%4)*.12;rotation=(pattern%16)*math.pi/8
+        p=[]
+        for i in range(8):
+            t=i*math.pi/4;wobble=1+.14*math.sin(2*t+pattern*.7)
+            x,z=math.cos(t)*span*wobble,math.sin(t)*span*aspect*wobble
+            p.append(c+np.array([x*math.cos(rotation)-z*math.sin(rotation),0,x*math.sin(rotation)+z*math.cos(rotation)]))
+        p=np.array(p);hull=np.concatenate(controls(p));lo=hull[:,(0,2)].min(0)-horizontal-1;hi=hull[:,(0,2)].max(0)+horizontal+1
+        p[:,(0,2)]+=np.maximum(-lo,0)+np.minimum(extent-hi,0)
+        key=signature(p)
+        if key in seen:continue
+        ground=np.array([ground_height(heights,cell,v[0],v[2]) for v in p]);altitude=(12,18,26,34)[pattern%4]
+        accepted=False
+        for lift in (0,8,16,28,48):
+            p[:,1]=ground+altitude+lift
+            if check(p,horizontal,vertical):accepted=True;break
+        if not accepted:
+            hull=np.concatenate(controls(p));ids=np.all(gh[:,(0,2)]>=hull[:,(0,2)].min(0)-horizontal,axis=1)&np.all(gl[:,(0,2)]<=hull[:,(0,2)].max(0)+horizontal,axis=1)
+            terrain=terrain_triangles(heights,cell,hull.min(0),hull.max(0),horizontal)
+            p[:,1]=max(float(gh[ids,1].max()) if np.any(ids) else -1e6,float(terrain[:,:,1].max()))+vertical+8
+            accepted=check(p,horizontal,vertical)
+        if accepted:
+            seen.add(key);phase.append(dict(points=p.tolist(),low_flight=False,category='neighbourhood',complete_static_clearance=True,envelope=[horizontal,vertical,horizontal]))
     if large_radius:
         for offset in ((0,0),(40,40)):
             c=np.array(center,float);c[[0,2]]+=offset;span=min(180,float(extent.min())*.24)

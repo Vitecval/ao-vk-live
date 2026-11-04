@@ -57,8 +57,18 @@ int main(int argc,char**argv){
     for(int i=3;i<9000;++i){auto next=AdvanceAircraft(continuous,aircraft,i*.05,0,4,visibleView,{0,0,-10},false);
         Check(next.active&&next.alpha==1,"a visible aircraft survives its full route and every schedule deadline without timer fading");
         Check(std::hypot(std::hypot(next.point.x-flight.point.x,next.point.z-flight.point.z),next.point.y-flight.point.y)<.85f,"closed flight seam never teleports");flight=next;}
-    Check(!AdvanceAircraft(continuous,aircraft,450,0,4,hiddenView,{0,0,-10},false).active,"completed aircraft retires only outside view");
+    for(int i=0;i<20;++i)flight=AdvanceAircraft(continuous,aircraft,450+i*.05,0,4,hiddenView,{0,0,-10},false);
+    Check(!flight.active,"completed aircraft retires only after a sustained exit from view");
     Check(!AdvanceAircraft(continuous,aircraft,451,0,0,hiddenView,{0,0,-10},true).active,"explicit traffic Off remains immediate");
+    Scene deck;deck.meshes.resize(1);deck.meshes[0].radius=2;
+    for(int i=0;i<24;++i){auto r=loop;for(auto& p:r.points)p.x+=i*120;r.Finish();deck.flightLoops.push_back(r);}
+    deck.actors.resize(4);for(auto& a:deck.actors){a.motion=7;a.range=10000;}
+    std::array<bool,24> seenRoutes{};uint32_t starts=0;
+    for(int tick=0;tick<2400;++tick)for(uint32_t i=0;i<4;++i){auto& a=deck.actors[i];const bool wasActive=a.flight.active;
+        auto p=AdvanceAircraft(deck,a,tick*.05,i,4,hiddenView,{0,0,-10},true);
+        if(p.active&&!wasActive){if(starts<24){Check(!seenRoutes[a.flight.lane],"all 24 city routes are offered before any route repeats");seenRoutes[a.flight.lane]=true;}++starts;a.flight.seen=true;}
+        if(p.active)for(uint32_t j=0;j<i;++j)if(deck.actors[j].flight.active)Check(a.flight.lane!=deck.actors[j].flight.lane,"simultaneous Phasefronts use different paths");}
+    Check(starts>=48&&std::count(seenRoutes.begin(),seenRoutes.end(),true)==24,"route rotation covers the complete city deck across multiple visits");
     std::printf("One-hour four-craft schedule: Medium=%u High=%u Ultra=%u complete pass starts (before view/cap culling)\n",visits[2],visits[3],visits[4]);
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");

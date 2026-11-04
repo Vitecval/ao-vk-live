@@ -12,6 +12,17 @@ from low_flight import low_corridors,swept_box_collision
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_city_routes_have_24_distinct_ground_tracks(self):
+        from flight_loops import build_loops
+        floor=np.array([[[0,0,0],[400,0,0],[400,0,400]],[[0,0,0],[400,0,400],[0,0,400]]],np.float32)
+        routes,_=build_loops(floor,np.zeros((101,101)),4,[200,0,200],[],3.5,1.1)
+        self.assertGreaterEqual(len(routes),24)
+        signatures=set()
+        for route in routes:
+            p=[tuple(np.round(np.array(v)[[0,2]],1)) for v in route['points']]
+            signatures.add(min(tuple(q[i:]+q[:i]) for q in (p,list(reversed(p))) for i in range(len(q))))
+        self.assertEqual(len(signatures),len(routes),'Changing altitude or reversing one path does not count as a new ground track')
+
     def test_closed_curve_checks_curved_sections_and_clamps_altitude(self):
         from flight_loops import controls,certify
         points=np.array([[30,4,30],[70,4,30],[90,45,70],[10,45,70]],float)

@@ -1,5 +1,15 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 8 prepares at least 24 distinct Phasefront ground tracks per city
+where full continuous clearance can be established. Neighbourhood flyovers vary
+their centers, orientations, spans, shapes and terrain-following altitudes.
+The city-wide selector chooses the least recently used free route, replacing
+the single-low-route bias; simultaneous craft reserve different paths. Either
+direction is possible. A completed visible pass can retire after 750 ms outside
+view, allowing the next visit to choose another route; watched craft stay solid
+and continue flying. Existing aircraft budgets and original resources remain
+unchanged. Flight plan decoding permits up to 64 Phasefront paths per city.
+
 Candidate 7 completes LRSCENE9 acceptance in the installed-client resolver.
 The synthetic installed-cache regression now exercises the new format through
 both the production resolver and scene decoder.

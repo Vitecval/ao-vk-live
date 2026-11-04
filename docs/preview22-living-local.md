@@ -1,5 +1,18 @@
 # Preview 22 local Living integration candidate
 
+Candidate 8 expands the Phasefront deck to 24 distinct checked ground tracks per
+city. New neighbourhood routes vary location, orientation, size, curvature and
+height over native terrain, with roof-clearance fallbacks where needed. Reverse
+travel adds variation without counting as an additional path. The decoder permits
+64 Phasefront loops; the source and memory caps still apply.
+
+Routes use shared least-recently-used history across the city's craft, excluding
+paths already in flight. The former 35/50-percent bias toward a single low route
+is removed. Once a visible pass has left the view for 750 ms it can retire and
+rotate to another route, without waiting to repeat the complete loop. Aircraft
+remain continuous and opaque while watched; normal distance fading and the
+existing simultaneous traffic budgets remain in effect.
+
 Candidate 6 replaces short visible visits with closed flight plans (LRSCENE9).
 Curves use the existing Catmull-Rom horizontal shape and monotone Hermite height,
 preventing altitude overshoot between low controls. Matching Bezier hulls are

@@ -75,6 +75,8 @@ struct LivingRuntimeProbe {
                 if(a.job)for(const auto& b:d.m_living->actors)if(&a!=&b&&b.job&&b.lastFrame==a.lastFrame)
                     Check(a.job.get()!=b.job.get()&&a.job->bones.get()!=b.job->bones.get(),"each original character owns its animation job and palette");}
             peakPhase=std::max(peakPhase,phase);peakLarge=std::max(peakLarge,large);
+            if(d.m_living->flightLoops.size()>=4){std::vector<int32_t> lanes;
+                for(const auto& a:d.m_living->actors)if(a.motion==7&&a.flight.active){Check(std::find(lanes.begin(),lanes.end(),a.flight.lane)==lanes.end(),"active Phasefronts reserve distinct city routes");lanes.push_back(a.flight.lane);}}
             const auto level=uint32_t(std::clamp(d.m_phasefrontTraffic,0.f,4.f));
             Check(air<=living::CombinedAirLimit(level)&&phase<=living::PhasefrontLimit(level)&&large<=1,"combined air traffic and showcase caps");}
         if(d.m_living&&(d.m_frameNumber%30)==0)for(const auto& a:d.m_living->actors)if(a.motion==3&&a.job&&a.lastFrame+1>=d.m_frameNumber){

@@ -255,7 +255,7 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
             s.bytes+=nodes*sizeof(Scene::WalkNode)+edges*sizeof(Scene::WalkEdge)+lanes*128;Require(s.bytes<=MaxBytes,"behavior data exceeds budget");s.humanBehavior=true;
         }
         if(v9){for(auto pair:{std::make_pair("FLIGHTLOOPS",&s.flightLoops),std::make_pair("LARGELOOPS",&s.largeLoops)}){
-            std::string token;uint32_t count;Require(bool(f>>token>>count)&&token==pair.first&&count<=16,"invalid continuous-flight budget");
+            std::string token;uint32_t count;Require(bool(f>>token>>count)&&token==pair.first&&count<=(std::string(pair.first)=="FLIGHTLOOPS"?64u:4u),"invalid continuous-flight budget");
             for(uint32_t i=0;i<count;++i){Route route;route.smoothFlight=true;uint32_t low,points;Require(bool(f>>low>>points)&&low<=1&&points>=4&&points<=16,"invalid closed flight plan");route.lowFlight=low!=0;route.points.resize(points);
                 for(auto& p:route.points)Require(bool(f>>p.x>>p.y>>p.z),"missing flight plan control point");
                 Require(route.Finish()&&route.length>=80&&route.length<=10000,"invalid closed flight length");s.bytes+=sizeof(Route)+points*sizeof(Point)+route.arc.size()*sizeof(float);pair.second->push_back(std::move(route));}

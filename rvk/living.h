@@ -60,7 +60,7 @@ struct Actor {
         int32_t node=-1,next=-1,previousNode=-1,activity=-1;uint32_t serial=0,seed=0;
         float direction=1;Point from,to,tangent{0,0,1};bool resting=false;
     } human;
-    struct Flight {double last=-1,distance=0,travelled=0,next=0;int32_t lane=-1;uint32_t serial=0;bool active=false;} flight;
+    struct Flight {double last=-1,distance=0,travelled=0,next=0;float hiddenFor=0;int32_t lane=-1;uint32_t serial=0;bool active=false,seen=false;} flight;
 };
 struct Replacement {
     uint32_t vertices=0,indices=0;
@@ -91,6 +91,7 @@ struct Scene {
     std::vector<WalkEdge> walkEdges;
     std::vector<Route> flightLanes;
     std::vector<Route> flightLoops,largeLoops;
+    std::vector<uint64_t> flightVisits;uint64_t flightVisitSerial=0;
     std::vector<Replacement> replacements;uint32_t replacementStable=0;
     std::vector<uint64_t> diagnosticCandidates; // bounded distinct near-equipment hashes for live diagnosis
     uint32_t groundWidth=0,groundHeight=0;
@@ -119,7 +120,7 @@ uint32_t PhasefrontLimit(uint32_t level);
 uint32_t CombinedAirLimit(uint32_t phasefrontLevel);
 FlightPose PhasefrontFlight(const Scene& scene,const Actor& actor,double time,uint32_t actorIndex,uint32_t density=2);
 bool HasContinuousFlight(const Scene& scene,const Actor& actor);
-FlightPose AdvanceAircraft(const Scene& scene,Actor& actor,double time,uint32_t actorIndex,uint32_t density,const float viewProjection[4][4],Point eye,bool allowStart);
+FlightPose AdvanceAircraft(Scene& scene,Actor& actor,double time,uint32_t actorIndex,uint32_t density,const float viewProjection[4][4],Point eye,bool allowStart);
 Movement Locomotion(double time,const Actor& actor);
 float GaitFrame(const Mesh& mesh,double distance);
 float TurnTowards(float previous,float desired,float seconds,float radiansPerSecond);

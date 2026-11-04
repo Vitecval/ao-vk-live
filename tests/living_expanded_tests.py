@@ -12,6 +12,20 @@ from low_flight import low_corridors,swept_box_collision
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_closed_curve_checks_curved_sections_and_clamps_altitude(self):
+        from flight_loops import controls,certify
+        points=np.array([[30,4,30],[70,4,30],[90,45,70],[10,45,70]],float)
+        points[:,(0,2)]+=30
+        floor=np.array([[[0,0,0],[120,0,0],[120,0,120]],[[0,0,0],[120,0,120],[0,0,120]]],float)
+        self.assertTrue(certify(points,np.empty((0,3,3)),floor,2,1,np.array([180,180])))
+        for c in controls(points):
+            for t in np.linspace(0,1,50):
+                p=(1-t)**3*c[0]+3*(1-t)**2*t*c[1]+3*(1-t)*t*t*c[2]+t**3*c[3]
+                self.assertGreaterEqual(p[1],min(c[0,1],c[3,1])-1e-8)
+                self.assertLessEqual(p[1],max(c[0,1],c[3,1])+1e-8)
+        wall=np.array([[[80,0,0],[80,90,180],[80,0,180]],[[80,0,0],[80,90,0],[80,90,180]]],float)
+        self.assertFalse(certify(points,wall,floor,2,1,np.array([180,180])))
+
     def test_low_pass_triangle_test_preserves_sloping_ground_clearance(self):
         floor=np.array([[[0,0,0],[160,6.4,0],[160,6.4,160]],[[0,0,0],[160,6.4,160],[0,0,160]]],np.float32)
         start=np.array([20,3.048+.8,80]);end=np.array([100,3.048+4,80])

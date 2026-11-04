@@ -58,7 +58,15 @@ struct LivingRuntimeProbe {
         if(d.m_living){uint32_t phase=0,large=0,air=0;
             for(const auto& a:d.m_living->actors)if(a.lastFrame==d.m_frameNumber){
                 if(a.group==2&&a.parent<0){++air;phase+=a.motion==7;large+=a.motion==8;}
-                if(a.motion==7&&!d.m_living->flightLanes.empty()){bool inside=false;const auto* w=a.world[3];
+                if(a.parent<0&&living::HasContinuousFlight(*d.m_living,a)){
+                    const auto& view=d.m_livingView.m;float eye[3];for(int j=0;j<3;++j)eye[j]=-(view[3][0]*view[j][0]+view[3][1]*view[j][1]+view[3][2]*view[j][2]);
+                    float distance=std::hypot(std::hypot(a.world[3][0]-eye[0],a.world[3][2]-eye[2]),a.world[3][1]-eye[1]);
+                    Check(std::fabs(a.visibilityAlpha-living::Fade(distance,a.range))<.001f,"visible aircraft opacity has distance fading only, never schedule fading");}
+                if((a.motion==7&&!d.m_living->flightLoops.empty())||(a.motion==8&&!d.m_living->largeLoops.empty())){bool inside=false;const auto* w=a.world[3];
+                    const auto& loops=a.motion==7?d.m_living->flightLoops:d.m_living->largeLoops;
+                    for(const auto& loop:loops)for(float distance=0;distance<loop.length;distance+=1){auto p=loop.At(distance);if(std::hypot(std::hypot(p.x-w[0],p.z-w[2]),p.y-w[1])<1.2f){inside=true;break;}}
+                    Check(inside,"continuous aircraft stays on a certified closed flight plan");}
+                else if(a.motion==7&&!d.m_living->flightLanes.empty()){bool inside=false;const auto* w=a.world[3];
                     for(const auto& lane:d.m_living->flightLanes){auto x=lane.points[0],y=lane.points[1];float dx=y.x-x.x,dy=y.y-x.y,dz=y.z-x.z;float u=((w[0]-x.x)*dx+(w[1]-x.y)*dy+(w[2]-x.z)*dz)/(dx*dx+dy*dy+dz*dz);
                         if(u>=0&&u<=1)inside|=std::hypot(std::hypot(w[0]-x.x-u*dx,w[2]-x.z-u*dz),w[1]-x.y-u*dy)<=1.2f;}
                     Check(inside,"varied flight stays inside a prepared lane steering envelope");}

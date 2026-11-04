@@ -1,5 +1,23 @@
 # Preview 22 local Living integration candidate
 
+Candidate 6 replaces short visible visits with closed flight plans (LRSCENE9).
+Curves use the existing Catmull-Rom horizontal shape and monotone Hermite height,
+preventing altitude overshoot between low controls. Matching Bezier hulls are
+subdivided with a bounded chord-error envelope; SAT checks every full swept
+vehicle/rider box against native geometry and complete underlying terrain cells.
+No route is inferred from a few obstacle samples. Low passes join checked
+approach, climb and return sections. Cities may omit a particular low loop when
+its complete route cannot clear scenery.
+
+Aircraft can enter only offscreen or beyond draw distance. They reserve their
+traffic slots while in flight, so a newly scheduled actor cannot preempt a craft
+already visible. After a complete lap, retirement waits until outside view.
+Watching a craft keeps it following the closed path; there is no frozen endpoint
+or timed alpha fade. Only normal distance/near-camera fading applies. Explicit
+Off, zoning and feature shutdown still take effect immediately. Low/Medium /
+High/Ultra keep their simultaneous budgets; visit rates now depend on complete
+route lengths and the camera, rather than the candidate5 short-pass averages.
+
 Candidate 5 exposes Phasefront Off / Low / Medium / High / Ultra (0–4).
 High uses 12–24 second gaps and a 10% skip chance per craft; Ultra uses 2–6
 second gaps without skipped visits. Within deterministic ten-minute blocks,

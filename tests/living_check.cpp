@@ -48,6 +48,17 @@ int main(int argc,char**argv){
     }
     Check(visits[3]>visits[2]*2&&visits[4]>visits[3]*1.25,"High and Ultra produce successively more complete passes than Medium");
     Check(!PhasefrontFlight(flights,flyer,10,0,0).active,"traffic Off schedules no craft");
+    Scene continuous;continuous.meshes.resize(1);continuous.meshes[0].radius=2;
+    Route loop;loop.smoothFlight=true;loop.points={{-40,3.048f,-40},{40,3.048f,-40},{60,60,40},{-60,60,40}};Check(loop.Finish(),"continuous flight curve builds");continuous.flightLoops.push_back(loop);
+    Actor aircraft;aircraft.motion=7;aircraft.range=10000;float visibleView[4][4]={},hiddenView[4][4]={};hiddenView[3][3]=-1;
+    Check(!AdvanceAircraft(continuous,aircraft,0,0,4,visibleView,{0,0,-10},true).active,"aircraft cannot appear inside the current view");
+    Check(!AdvanceAircraft(continuous,aircraft,.05,0,4,hiddenView,{0,0,-10},false).active,"new craft requires a free reserved traffic slot");
+    auto flight=AdvanceAircraft(continuous,aircraft,.1,0,4,hiddenView,{0,0,-10},true);Check(flight.active,"hidden approach can be admitted");
+    for(int i=3;i<9000;++i){auto next=AdvanceAircraft(continuous,aircraft,i*.05,0,4,visibleView,{0,0,-10},false);
+        Check(next.active&&next.alpha==1,"a visible aircraft survives its full route and every schedule deadline without timer fading");
+        Check(std::hypot(std::hypot(next.point.x-flight.point.x,next.point.z-flight.point.z),next.point.y-flight.point.y)<.85f,"closed flight seam never teleports");flight=next;}
+    Check(!AdvanceAircraft(continuous,aircraft,450,0,4,hiddenView,{0,0,-10},false).active,"completed aircraft retires only outside view");
+    Check(!AdvanceAircraft(continuous,aircraft,451,0,0,hiddenView,{0,0,-10},true).active,"explicit traffic Off remains immediate");
     std::printf("One-hour four-craft schedule: Medium=%u High=%u Ultra=%u complete pass starts (before view/cap culling)\n",visits[2],visits[3],visits[4]);
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");

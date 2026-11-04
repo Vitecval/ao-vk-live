@@ -20,6 +20,10 @@ def center(lines):
 def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     h=lines[0].split();mc,ac=map(int,h[4:6]);names=lines[1:1+mc];actors=lines[1+mc:1+mc+ac]
     tail=lines[1+mc+ac:];appearances=[]
+    for index,route in airspace.get('ordinary_routes',{}).items():
+        fields=actors[int(index)].split();count=int(fields[9]);points=route['points']
+        if len(points)!=count:raise ValueError('Distant aircraft control count changed')
+        fields[10:10+count*3]=map(str,(v for p in points for v in p));actors[int(index)]=' '.join(fields)
     if variety:
         faction=city_faction(config,pf)
         pool=[r for r in people if r['factions']=='all' or faction in r['factions'].split()]
@@ -57,7 +61,7 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     if large and 'large' in airspace.get('routes',{}):
         add_flight(large,airspace['routes']['large'],8,(pf*79)%900,1,900)
         add_flight(large,airspace['routes']['large'],8,(pf*79+450)%900,2,900)
-    h[0]='LRSCENE8';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v8-ground-skimming-static-review-live-check-required'
+    h[0]='LRSCENE9';h[4]=str(len(names));h[5]=str(len(actors));h[6]='v9-continuous-flight-static-review-live-check-required'
     result=[' '.join(h),*names,*actors,*tail,'APPEARANCES '+str(len(appearances))]
     result+=[' '.join(map(str,row)) for row in appearances]
     if variety:
@@ -82,4 +86,7 @@ def extend(lines,people,vehicles,large,airspace,config,pf,variety=False):
     lanes=airspace.get('flight_lanes',[])
     result+=['FLIGHTLANES '+str(len(lanes))]
     result+=[' '.join(map(str,[*lane['start'],*lane['end'],int(lane.get('low_flight',False))])) for lane in lanes]
+    for label,key in (('FLIGHTLOOPS','flight_loops'),('LARGELOOPS','large_loops')):
+        loops=airspace.get(key,[]);result.append(label+' '+str(len(loops)))
+        result+=[' '.join(map(str,[int(l.get('low_flight',False)),len(l['points']),*(v for p in l['points'] for v in p)])) for l in loops]
     return result,names

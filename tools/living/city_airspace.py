@@ -178,5 +178,24 @@ def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=N
     from low_flight import low_corridors
     low_stats={};low_lanes=low_corridors(geometry,heights,cell,center,graph,phase_radius,phase_half_height,low_stats)
     if low_lanes:lanes=lanes[:12]+low_lanes
+    from flight_loops import build_loops
+    loops,large_loops=build_loops(geometry,heights,cell,center,lanes,phase_radius,phase_half_height,large_radius)
+    from flight_loops import certify,controls
+    ordinary_clearance={};ordinary_routes={}
+    if lines:
+        mc,ac=map(int,lines[0].split()[4:6])
+        for index,line in enumerate(lines[1+mc:1+mc+ac]):
+            f=line.split()
+            if f[0]!='2' or f[3]!='6' or f[-2]!='-1':continue
+            n=int(f[9]);p=np.array(list(map(float,f[10:10+3*n]))).reshape(n,3);scale=float(f[4])
+            hull=np.concatenate(controls(p));lo=hull[:,(0,2)].min(0)-15*scale;hi=hull[:,(0,2)].max(0)+15*scale
+            shift=np.maximum(-lo,0)+np.minimum(extent-hi,0);p[:,(0,2)]+=shift
+            terrain=terrain_triangles(heights,cell,p.min(0),p.max(0),15*scale)
+            ordinary_clearance[str(index)]=False
+            for lift in (0,5,10,20,35,60,100,200):
+                candidate=p.copy();candidate[:,1]+=lift
+                if certify(candidate,geometry,terrain,15*scale,10*scale,extent,(geometry_low,geometry_high)):
+                    ordinary_clearance[str(index)]=True;ordinary_routes[str(index)]=dict(points=candidate.tolist(),lift=lift,shift=shift.tolist(),complete_static_clearance=True);break
+            if not ordinary_clearance[str(index)]:raise ValueError('No complete distant aircraft path clears native geometry: '+str(index))
     return dict(playfield=pf,placements=len(objects),decoded_models=len(decoded),triangles=len(geometry),appearance_clearance=allowed,
-                original_mesh_hashes=hashes,routes=result,blockers=rejected,flight_lanes=lanes,low_flight_search=low_stats,walk_graph=graph,live_verified=False)
+                original_mesh_hashes=hashes,routes=result,blockers=rejected,flight_lanes=lanes,flight_loops=loops,large_loops=large_loops,ordinary_loop_clearance=ordinary_clearance,ordinary_routes=ordinary_routes,low_flight_search=low_stats,walk_graph=graph,live_verified=False)

@@ -76,6 +76,30 @@ HumanPose AdvanceHuman(Scene& s,Actor& a,double time,uint32_t index){
 
 uint32_t PhasefrontLimit(uint32_t level){return std::min(level,4u);}
 uint32_t CombinedAirLimit(uint32_t level){return level>=4?5u:level==3?4u:3u;}
+bool HasContinuousFlight(const Scene& s,const Actor& a){return (a.motion==6&&!s.flightLoops.empty()&&!a.route.linear&&a.route.points.size()>=4)||(a.motion==7&&!s.flightLoops.empty())||(a.motion==8&&!s.largeLoops.empty());}
+FlightPose AdvanceAircraft(const Scene& s,Actor& a,double time,uint32_t index,uint32_t density,const float vp[4][4],Point eye,bool allowStart){
+    FlightPose p;auto& h=a.flight;
+    if(!density||density<a.tier){h={};return p;}
+    const auto* routes=a.motion==7?&s.flightLoops:a.motion==8?&s.largeLoops:nullptr;
+    const uint32_t seed=Mix(s.behaviorSeed^s.playfield*337u^index*1999u);
+    const float dt=h.last<0?0.f:float(std::clamp(time-h.last,0.,.1));h.last=time;
+    if(h.lane<0){const uint32_t key=Mix(seed+h.serial*977u);h.lane=routes?int32_t(Mix(key)%routes->size()):0;
+        if(routes&&a.motion==7&&Unit(key+7)<(density>=4?.5f:density==3?.35f:0.f)){
+            uint32_t low=0;for(const auto& r:*routes)low+=r.lowFlight;
+            if(low){uint32_t pick=Mix(key+8)%low;for(uint32_t i=0;i<routes->size();++i)if((*routes)[i].lowFlight&&!pick--){h.lane=int32_t(i);break;}}}
+        const auto& route=routes?(*routes)[h.lane]:a.route;h.distance=Unit(key+1)*route.length;h.travelled=0;}
+    const auto& route=routes?(*routes)[h.lane]:a.route;
+    const float speed=a.motion==7?(route.lowFlight?6+Unit(seed+3)*4:8+Unit(seed+3)*8):a.speed;
+    h.distance+=dt*speed;if(h.active)h.travelled+=dt*speed;
+    p.point=route.At(float(h.distance),&p.tangent);p.bank=a.motion==7?.025f*std::sin(float(h.distance)*.03f):0;
+    const bool visible=Fade(Length(p.point,eye),a.range)>.005f&&InFrustum(vp,p.point,s.meshes[a.mesh].radius*a.scale+2);
+    // A scheduled visit cannot begin in view. Once seen, it retains its slot
+    // and completes further laps until it leaves view or reaches draw distance.
+    if(h.active&&h.travelled>=route.length&&!visible){h.active=false;++h.serial;h.lane=-1;
+        const float u=Unit(seed+h.serial*313u);h.next=time+(a.motion==7?(density>=4?2+u*4:density==3?12+u*12:40+u*60):a.pauseSeconds);return {};}
+    if(!h.active&&time>=h.next&&allowStart&&!visible)h.active=true;
+    p.active=h.active;p.alpha=h.active?1.f:0.f;return p;
+}
 FlightPose PhasefrontFlight(const Scene& s,const Actor& a,double time,uint32_t index,uint32_t density){
     FlightPose p;if(s.flightLanes.empty()||!density)return p;
     const uint32_t seed=Mix(s.behaviorSeed^s.playfield*337u^index*1999u);

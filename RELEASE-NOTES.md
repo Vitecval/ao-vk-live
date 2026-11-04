@@ -1,5 +1,17 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 6 removes timer fading from continuous aircraft. They enter only while
+outside view or beyond draw distance, retain their traffic slots, and continue
+complete closed flight plans while visible. A visit retires after a full lap
+only once hidden again. High and Ultra retain their simultaneous limits and
+shorter rests; their former short-pass rate figures do not describe these longer
+visits. LRSCENE9 carries complete curved Phasefront and large-craft plans. Every
+cubic segment is checked with a continuous full-craft envelope against native
+scenery and terrain. Low passes have complete checked climb/return paths where
+possible; an unverified approach is omitted. Original distant transport loops
+also keep flying through schedule deadlines. Existing original resources and
+Preview21 artwork remain unchanged.
+
 Candidate 5 adds Phasefront High and Ultra. High rests 12–24 seconds between
 complete passes per craft with 10% skipped visits; Ultra rests 2–6 seconds and
 does not skip visits. Dense schedules favor already checked low lanes, retaining

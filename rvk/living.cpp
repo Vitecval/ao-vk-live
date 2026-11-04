@@ -185,6 +185,18 @@ void Device::DrawLiving() {
     if(m_livingCameraValid)m_viewport=m_livingViewport;++m_cameraGen;
     d3d::Matrix vp{};for(int i=0;i<4;++i)for(int j=0;j<4;++j)for(int k=0;k<4;++k)vp.m[i][j]+=m_view.m[i][k]*m_proj.m[k][j];
     living::Point eye{};float* e=&eye.x;for(int i=0;i<3;++i)e[i]=-(m_view.m[3][0]*m_view.m[i][0]+m_view.m[3][1]*m_view.m[i][1]+m_view.m[3][2]*m_view.m[i][2]);
+    std::vector<living::FlightPose> aircraft(m_living->actors.size());
+    uint32_t reserved=0,reservedPhase=0,reservedLarge=0,reservedOrdinary=0;
+    const uint32_t phaseLevel=uint32_t(std::clamp(m_phasefrontTraffic,0.f,4.f));
+    auto airLevel=[&](const living::Actor& a){return uint32_t(std::clamp(a.motion==7?m_phasefrontTraffic:a.motion==8?m_orbitalCraft:m_liveAir,0.f,4.f));};
+    auto reserve=[&](const living::Actor& a){++reserved;if(a.motion==7)++reservedPhase;else if(a.motion==8)++reservedLarge;else ++reservedOrdinary;};
+    for(uint32_t i=0;i<m_living->actors.size();++i){auto& a=m_living->actors[i];if(a.parent<0&&a.group==2&&living::HasContinuousFlight(*m_living,a)){
+        aircraft[i]=living::AdvanceAircraft(*m_living,a,time,i,airLevel(a),vp.m,eye,false);if(aircraft[i].active)reserve(a);}}
+    // Existing flights reserve slots even when culled. New visits cannot steal
+    // a slot from a visible craft and make it vanish halfway through a pass.
+    for(uint32_t type:{8u,7u,6u})for(uint32_t i=0;i<m_living->actors.size();++i){auto& a=m_living->actors[i];if(a.parent>=0||a.group!=2||a.motion!=type||aircraft[i].active||!living::HasContinuousFlight(*m_living,a))continue;
+        const uint32_t level=airLevel(a);const bool available=reserved<living::CombinedAirLimit(phaseLevel)&&(type==7?reservedPhase<living::PhasefrontLimit(level):type==8?reservedLarge<1:reservedOrdinary<std::min(level,2u));
+        if(available){aircraft[i]=living::AdvanceAircraft(*m_living,a,time,i,level,vp.m,eye,true);if(aircraft[i].active)reserve(a);}}
     SetDrawVisual(uint32_t(VisualKind::Other),"LivingRubiKa",0,0);
     using namespace d3d;
     SetRenderState(RS_ZENABLE,1);SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);SetRenderState(RS_CULLMODE,CULL_NONE);
@@ -206,11 +218,12 @@ void Device::DrawLiving() {
         if(a.group==0&&!m_living->appearances.empty()&&!a.appearanceMask)continue;
         if(!m_living->meshes[a.mesh].available||(a.parent>=0&&!m_living->meshes[m_living->actors[a.parent].mesh].available))continue;
         const uint32_t flight=a.parent>=0?m_living->actors[a.parent].motion:a.motion;
+        const bool continuousFlight=living::HasContinuousFlight(*m_living,a.parent>=0?m_living->actors[a.parent]:a);
         const float option=flight==7?m_phasefrontTraffic:flight==8?m_orbitalCraft:a.group==2?m_liveAir:opts[a.group];
         const uint32_t level=uint32_t(std::clamp(option,0.f,flight==7?4.f:3.f));
         const uint32_t airLimit=living::CombinedAirLimit(uint32_t(std::clamp(m_phasefrontTraffic,0.f,4.f)));
         const bool airCapped=a.group==2&&(accepted[2]>=airLimit||(a.motion==7&&phasefronts>=living::PhasefrontLimit(level))||(a.motion==8&&largeCraft>=1)||(a.motion<7&&ordinaryAir>=caps[2][level]));
-        if(level<a.tier||(a.parent<0&&(a.group==2?airCapped:accepted[a.group]>=caps[a.group][level]))) {
+        if(level<a.tier||(a.parent<0&&(a.group==2?(continuousFlight?!aircraft[i].active:airCapped):accepted[a.group]>=caps[a.group][level]))) {
             a.activationTime=-1;a.headingTime=-1;a.previous.reset();a.job.reset();for(auto& v:m_smokeVolumes)if(v.key==key||v.parent==key){v.key=0;v.parent=0;}continue;
         }
         if(a.replacementMask){bool ready=true;for(size_t k=0;k<m_living->replacements.size();++k)if(a.replacementMask&(1u<<k))ready&=m_living->replacements[k].suppressedFrame==m_frameNumber;if(!ready){a.activationTime=-1;continue;}if(a.activationTime<0)a.activationTime=time;}
@@ -218,18 +231,19 @@ void Device::DrawLiving() {
         const bool human=m_living->humanBehavior&&a.group==0&&a.motion==3;
         const auto humanPose=human?living::AdvanceHuman(*m_living,a,time,uint32_t(i)):living::HumanPose{};
         const living::Movement movement=human?humanPose.movement:stopping?living::Locomotion(time,a):living::Movement{};
-        const bool variedFlight=a.motion==7&&!m_living->flightLanes.empty();
-        const auto flightPose=variedFlight?living::PhasefrontFlight(*m_living,a,time,uint32_t(i),level):living::FlightPose{};
+        const bool variedFlight=!continuousFlight&&a.motion==7&&!m_living->flightLanes.empty();
+        const auto flightPose=continuousFlight?aircraft[i]:variedFlight?living::PhasefrontFlight(*m_living,a,time,uint32_t(i),level):living::FlightPose{};
         if(variedFlight&&!flightPose.active){a.previous.reset();continue;}
         // Density changes add staggered schedules; a visible craft's own
         // period never changes when Low/Medium is switched.
         const float slot=float(std::fmod(time+a.phase,double(a.walkSeconds+a.pauseSeconds)));
-        if(a.motion>=7&&!variedFlight&&slot>=a.walkSeconds){a.previous.reset();continue;}
+        if(a.motion>=7&&!continuousFlight&&!variedFlight&&slot>=a.walkSeconds){a.previous.reset();continue;}
         const double distance=stopping?movement.distance:a.motion>=6?slot*a.speed:time*a.speed+a.phase;
         const float travel=a.route.linear?std::clamp(float(distance),0.f,a.route.length):a.route.length>0?float(std::fmod(distance,double(a.route.length))):0.f;
         living::Point tangent,p=a.route.At(travel,&tangent);
         if(human){p=humanPose.point;tangent=humanPose.tangent;}
         if(variedFlight){p=flightPose.point;tangent=flightPose.tangent;}
+        if(continuousFlight&&a.parent<0){p=flightPose.point;tangent=flightPose.tangent;}
         if(a.parent>=0){const auto& parent=m_living->actors[a.parent];if(parent.lastFrame!=m_frameNumber)continue;const auto& w=parent.world;const auto local=p;
             p={local.x*w[0][0]+local.y*w[1][0]+local.z*w[2][0]+w[3][0],local.x*w[0][1]+local.y*w[1][1]+local.z*w[2][1]+w[3][1],local.x*w[0][2]+local.y*w[1][2]+local.z*w[2][2]+w[3][2]};tangent={w[2][0],w[2][1],w[2][2]};}
         else if(a.motion==3&&!a.surface&&!m_living->ground.empty()){float y;if(!living::GroundHeight(*m_living,p.x,p.z,y))continue;p.y=y+.008f;}
@@ -237,12 +251,13 @@ void Device::DrawLiving() {
         p.y+=a.hover*(.7f*std::sin(float(time*1.3+a.phase))+.3f*std::sin(float(time*2.7+a.phase*.37)));
         const float dist=std::sqrt((p.x-eye.x)*(p.x-eye.x)+(p.y-eye.y)*(p.y-eye.y)+(p.z-eye.z)*(p.z-eye.z));
         float alpha=living::Fade(dist,a.range)*Smooth(float(clock-m_livingEnabled[a.group])/1.5f);
+        if(continuousFlight)alpha=living::Fade(dist,a.range);
         if(m_living->fixture&&std::getenv("RANDYVK_LIVING_TIME"))alpha=living::Fade(dist,a.range);
         if(a.replacementMask)alpha=living::Fade(dist,a.range);
-        if(a.parent>=0&&flight>=7)alpha*=m_living->actors[a.parent].visibilityAlpha;
+        if(a.parent>=0&&flight>=6)alpha*=m_living->actors[a.parent].visibilityAlpha;
         if(variedFlight)alpha*=flightPose.alpha;
-        else if(a.motion>=6)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
-        else if(a.group==2){const float legacySlot=float(std::fmod(time+a.phase,90.0));alpha*=Smooth(legacySlot/2)*Smooth((30-legacySlot)/2);}
+        else if(a.motion>=6&&!continuousFlight)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
+        else if(a.group==2&&!continuousFlight){const float legacySlot=float(std::fmod(time+a.phase,90.0));alpha*=Smooth(legacySlot/2)*Smooth((30-legacySlot)/2);}
         if(a.parent>=0&&a.group==4)alpha*=.86f+.14f*std::sin(float(time*2.3+a.phase));
         auto& m=m_living->meshes[a.mesh];
         if(alpha<.005f||!living::InFrustum(vp.m,p,m.radius*a.scale+a.hover)){a.previous.reset();continue;}
@@ -280,7 +295,7 @@ void Device::DrawLiving() {
         }
         m.texture=materialMesh.texture;
         float yaw=a.motion==1?float(time*a.speed+a.phase):std::atan2(tangent.x,tangent.z);
-        if(a.route.length>0&&!human&&!variedFlight){auto before=a.route.At(travel-.45f),after=a.route.At(travel+.45f);yaw=std::atan2(after.x-before.x,after.z-before.z);}
+        if(a.route.length>0&&!human&&!variedFlight&&!continuousFlight){auto before=a.route.At(travel-.45f),after=a.route.At(travel+.45f);yaw=std::atan2(after.x-before.x,after.z-before.z);}
         yaw+=a.heading;
         if(stopping)yaw+=std::clamp(Angle(yaw,a.idleYaw),-.4f,.4f)*(1-movement.walkWeight)+(human?.18f:.07f)*std::sin(float(time*.31+a.phase))*(1-movement.walkWeight);
         if(a.parent<0&&a.motion!=1){
@@ -291,10 +306,10 @@ void Device::DrawLiving() {
         }
         const float cs=std::cos(yaw)*a.scale,sn=std::sin(yaw)*a.scale;
         Matrix w{};w.m[0][0]=cs;w.m[0][2]=-sn;w.m[1][1]=a.scale;w.m[2][0]=sn;w.m[2][2]=cs;w.m[3][0]=p.x;w.m[3][1]=p.y;w.m[3][2]=p.z;w.m[3][3]=1;
-        if(variedFlight)for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(flightPose.bank)+y*std::sin(flightPose.bank);w.m[1][j]=-x*std::sin(flightPose.bank)+y*std::cos(flightPose.bank);}
+        if(variedFlight||continuousFlight)for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(flightPose.bank)+y*std::sin(flightPose.bank);w.m[1][j]=-x*std::sin(flightPose.bank)+y*std::cos(flightPose.bank);}
         if(a.parent>=0){const auto& parent=m_living->actors[a.parent].world;const float localC=std::cos(a.heading)*a.scale,localS=std::sin(a.heading)*a.scale;
             for(int c=0;c<3;++c){w.m[0][c]=localC*parent[0][c]-localS*parent[2][c];w.m[1][c]=a.scale*parent[1][c];w.m[2][c]=localS*parent[0][c]+localC*parent[2][c];}}
-        if((a.motion==4||a.motion==6)&&a.route.length>0){living::Point aheadT;a.route.At(travel+1,&aheadT);float turn=Angle(yaw-a.heading,std::atan2(aheadT.x,aheadT.z));float bank=std::clamp(-std::atan(a.speed*a.speed*turn/9.81f),-.28f,.28f);for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(bank)+y*std::sin(bank);w.m[1][j]=-x*std::sin(bank)+y*std::cos(bank);}}
+        if((a.motion==4||a.motion==6)&&a.route.length>0){living::Point aheadT;a.route.At((continuousFlight?float(a.flight.distance):travel)+1,&aheadT);float turn=Angle(yaw-a.heading,std::atan2(aheadT.x,aheadT.z));float bank=std::clamp(-std::atan(a.speed*a.speed*turn/9.81f),-.28f,.28f);for(int j=0;j<3;++j){float x=w.m[0][j],y=w.m[1][j];w.m[0][j]=x*std::cos(bank)+y*std::sin(bank);w.m[1][j]=-x*std::sin(bank)+y*std::cos(bank);}}
         SetTransform(World,w);SetTexture(0,m.texture);
         m_livingPreviousWorld=a.lastFrame+1==m_frameNumber?a.world:nullptr;
         Material mat{};mat.diffuse={1,1,1,alpha};mat.ambient={1,1,1,1};mat.specular={.12f,.12f,.12f,1};mat.power=24;SetMaterial(mat);

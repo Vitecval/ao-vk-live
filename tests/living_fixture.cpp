@@ -69,11 +69,13 @@ void Scene(Device& d,bool night,const std::string& camera){
 }
 }
 int main(int argc,char**argv){
-    bool ram=false;int variety=0,armor=0,phasefront=0,orbital=0;double timeOffset=0;
+    bool ram=false,airEntryDemo=false;int variety=0,armor=0,phasefront=0,orbital=0;double timeOffset=0;
     for(int i=1;i<argc;++i){std::string a=argv[i];if(a=="--ram")ram=true;else if(a=="--variety")variety=std::atoi(argv[++i]);else if(a=="--armor")armor=std::atoi(argv[++i]);else if(a=="--phasefronts")phasefront=std::atoi(argv[++i]);else if(a=="--orbital")orbital=std::atoi(argv[++i]);else if(a=="--time-offset")timeOffset=std::atof(argv[++i]);}
     if(ram){_setmode(_fileno(stdin),_O_BINARY);std::string error;if(!living::ReadFixtureResources(std::cin,error)){std::fprintf(stderr,"%s\n",error.c_str());return 5;}}
     std::string shot="fixture.bmp",scene,camera="wide",film,world,groundData;const char* windowFile=nullptr;int windowMode=0;int groundMode=0;bool liveStress=false;bool occlude=false,review=false,indoor=false,fanDrop=false,unknownContext=false,lateContext=false,lifecycle=false,animate=false,tour=false,fog=false,expectNone=false,timeJump=false;int frames=120,level=1,group=-1,cycles=0;bool night=false,hdr=true,toggle=false,shadows=false;uint32_t zone=0xfffffffeu;
     for(int i=1;i<argc;++i){std::string a=argv[i];if(a=="--window-map")windowFile=argv[++i];else if(a=="--window-mode")windowMode=std::atoi(argv[++i]);else if(a=="--sky-first")skyFirst=true;else if(a=="--sky-only")skyOnly=true;else if(a=="--live-stress")liveStress=true;else if(a=="--time-jump")timeJump=true;else if(a=="--expect-none")expectNone=true;else if(a=="--unknown-context")unknownContext=true;else if(a=="--late-context")lateContext=true;else if(a=="--lifecycle")lifecycle=true;else if(a=="--animate")animate=true;else if(a=="--tour")tour=true;else if(a=="--fog")fog=true;else if(a=="--fan-drop")fanDrop=true;else if(a=="--shot")shot=argv[++i];else if(a=="--scene")scene=argv[++i];else if(a=="--fov")fixtureFov=float(std::atof(argv[++i]));else if(a=="--eye"){overrideEye={float(std::atof(argv[i+1])),float(std::atof(argv[i+2])),float(std::atof(argv[i+3]))};i+=3;customEye=true;}else if(a=="--at"){overrideAt={float(std::atof(argv[i+1])),float(std::atof(argv[i+2])),float(std::atof(argv[i+3]))};i+=3;customAt=true;}else if(a=="--indoor")indoor=true;else if(a=="--review")review=true;else if(a=="--occlude")occlude=true;else if(a=="--ground-mode")groundMode=std::atoi(argv[++i]);else if(a=="--ground-data")groundData=argv[++i];else if(a=="--world")world=argv[++i];else if(a=="--frames")frames=std::atoi(argv[++i]);else if(a=="--level")level=std::atoi(argv[++i]);else if(a=="--group")group=std::atoi(argv[++i]);else if(a=="--camera")camera=argv[++i];else if(a=="--shadows")shadows=true;else if(a=="--night")night=true;else if(a=="--hdr-off")hdr=false;else if(a=="--toggle")toggle=true;else if(a=="--cycles")cycles=std::atoi(argv[++i]);else if(a=="--zone")zone=uint32_t(std::strtoul(argv[++i],nullptr,0));else if(a=="--film")film=argv[++i];}
+    for(int i=1;i<argc;++i)if(std::string(argv[i])=="--air-entry-demo")airEntryDemo=true;
+    const auto arrivalAt=overrideAt;
     if(ram)scene=":fixture:/scene.lrs";
     worldFog=fog;
     if(!scene.empty())_putenv_s("RANDYVK_LIVING_SCENE",scene.c_str());
@@ -98,6 +100,7 @@ int main(int argc,char**argv){
         if(lifecycle){if(f==40)d.SetLivingContext(zone,false,2);if(f==70)d.SetLivingContext(zone,true,3);if(f==110)d.SetLivingContext(zone,true,4);if(f==200){d.SetLivingContext(565,true,5);d.SetSkyPlayfield(565);}if(f==225){d.SetLivingContext(zone,true,6);d.SetSkyPlayfield(zone);}}
         if(tour){customEye=customAt=true;switch((f/360)%5){case 0:overrideEye={432.57615f,26.7f,320.17865f};overrideAt={422.57615f,25.9f,302.85814f};break;case 1:overrideEye={418,61,302};overrideAt={418,34,339};break;case 2:overrideEye={410,49,332};overrideAt={412,47,358};break;case 3:overrideEye={340,130,300};overrideAt={325,151,360};break;default:overrideEye={392,106,282};overrideAt={382,104,302};break;}fixtureFov=.95f;}
         if(!film.empty()||animate||ram) {std::string t=std::to_string(timeOffset+double(f)/60+(timeJump&&f>=100&&f<150?30.:0.));_putenv_s("RANDYVK_LIVING_TIME",t.c_str());}
+        if(airEntryDemo){overrideAt=f<2?Vector{overrideEye.x,overrideEye.y,overrideEye.z-100}:arrivalAt;customAt=true;}
         d.BeginFrame();const auto start=std::chrono::steady_clock::now();worldSkipPart=fanDrop&&f>=100&&f<107?946:-1;Scene(d,night,camera);
         if(occlude)Box(d,{0,3,0},{80,10,.3f},0x535952);
 #ifdef LIVING_RUNTIME_CHECK

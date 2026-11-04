@@ -20,11 +20,14 @@ size_t Size(const std::filesystem::path& path,bool fixture=false){
     if(fixture&&FixturePath(path)){auto it=fixtureResources.find(path.filename().string());if(it==fixtureResources.end())throw std::runtime_error("missing RAM fixture resource");return it->second.size();}
     return std::filesystem::file_size(path);
 }
-Point Spline(const std::vector<Point>& p,float u) {
+Point Spline(const std::vector<Point>& p,float u,bool smoothFlight=false) {
     const int n=int(p.size()),i=int(u)%n;float t=u-std::floor(u),t2=t*t,t3=t2*t;
     const Point a=p[(i+n-1)%n],b=p[i],c=p[(i+1)%n],d=p[(i+2)%n];
     auto f=[&](float a,float b,float c,float d){return .5f*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t2+(-a+3*b-3*c+d)*t3);};
-    return {f(a.x,b.x,c.x,d.x),f(a.y,b.y,c.y,d.y),f(a.z,b.z,c.z,d.z)};
+    float y=f(a.y,b.y,c.y,d.y);
+    if(smoothFlight){auto slope=[](float a,float b,float c){float x=b-a,y=c-b;return x*y<=0?0.f:std::copysign(std::min({std::fabs((x+y)/2),3*std::fabs(x),3*std::fabs(y)}),x);};
+        const float m=slope(a.y,b.y,c.y),n=slope(b.y,c.y,d.y);y=(2*t3-3*t2+1)*b.y+(t3-2*t2+t)*m+(-2*t3+3*t2)*c.y+(t3-t2)*n;}
+    return {f(a.x,b.x,c.x,d.x),y,f(a.z,b.z,c.z,d.z)};
 }
 float Distance(Point a,Point b) {return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));}
 void Require(bool ok,const char* msg) {if(!ok)throw std::runtime_error(msg);}
@@ -132,7 +135,7 @@ bool Route::Finish() {
     if(linear){if(points.size()!=2)return false;length=Distance(points[0],points[1]);arc={0,length};return length>.01f&&Finite(length,1000000);}
     if(points.size()<4)return false;
     arc.reserve(points.size()*128+1);arc.push_back(0);Point a=points[0];
-    for(size_t i=1;i<=points.size()*128;++i){Point b=Spline(points,float(i)/128);length+=Distance(a,b);arc.push_back(length);a=b;}
+    for(size_t i=1;i<=points.size()*128;++i){Point b=Spline(points,float(i)/128,smoothFlight);length+=Distance(a,b);arc.push_back(length);a=b;}
     return length>.01f&&Finite(length,1000000);
 }
 Point Route::At(float d,Point* tangent) const {
@@ -142,8 +145,8 @@ Point Route::At(float d,Point* tangent) const {
     d=std::fmod(d,length);if(d<0)d+=length;
     auto it=std::upper_bound(arc.begin(),arc.end(),d);size_t i=std::clamp<size_t>(size_t(it-arc.begin()),1,arc.size()-1);
     float den=arc[i]-arc[i-1],u=(float(i-1)+(den>1e-8f?(d-arc[i-1])/den:0))/128;
-    Point p=Spline(points,u);
-    if(tangent){Point q=Spline(points,u+.001f);*tangent={q.x-p.x,q.y-p.y,q.z-p.z};}return p;
+    Point p=Spline(points,u,smoothFlight);
+    if(tangent){Point q=Spline(points,u+.001f,smoothFlight);*tangent={q.x-p.x,q.y-p.y,q.z-p.z};}return p;
 }
 float Fade(float d,float range) {
     float x=std::clamp((range-d)/(range*.2f),0.f,1.f),near=std::clamp((d-1.5f)/1.5f,0.f,1.f);
@@ -177,8 +180,8 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
         const bool ram=expectedPlayfield==FixturePlayfield&&FixturePath(path);
         Scene s;auto stream=Open(path,ram);auto& f=*stream;std::string magic,provenance;uint32_t verified,fixture,mc,ac;
         const auto sceneBytes=Size(path,ram);Require(sceneBytes<512u*1024u,"scene exceeds 512 KiB");
-        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"||magic=="LRSCENE8"),"bad scene header");
-        const bool v8=magic=="LRSCENE8",v7=magic=="LRSCENE7"||v8,v6=magic=="LRSCENE6"||v7,v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
+        Require(bool(f>>magic>>s.playfield>>verified>>fixture>>mc>>ac>>provenance)&&(magic=="LRSCENE2"||magic=="LRSCENE3"||magic=="LRSCENE4"||magic=="LRSCENE5"||magic=="LRSCENE6"||magic=="LRSCENE7"||magic=="LRSCENE8"||magic=="LRSCENE9"),"bad scene header");
+        const bool v9=magic=="LRSCENE9",v8=magic=="LRSCENE8"||v9,v7=magic=="LRSCENE7"||v8,v6=magic=="LRSCENE6"||v7,v5=magic=="LRSCENE5"||v6,v4=magic=="LRSCENE4"||v5,locomotion=magic!="LRSCENE2";
         Require(v5||sceneBytes<65536,"legacy scene exceeds 64 KiB");
         Require(verified>=1&&verified<=(v4?2u:1u)&&fixture<=1&&mc>0&&mc<=(v6?48u:16u)&&ac<=(v5?256u:64u),"unreviewed placement or invalid budget");
         s.liveVerified=v4&&verified==2;
@@ -251,6 +254,12 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
                 Require(lane.Finish()&&lane.length>=(lane.lowFlight?24.f:100.f)&&lane.length<=440,"invalid flight lane");s.flightLanes.push_back(std::move(lane));}
             s.bytes+=nodes*sizeof(Scene::WalkNode)+edges*sizeof(Scene::WalkEdge)+lanes*128;Require(s.bytes<=MaxBytes,"behavior data exceeds budget");s.humanBehavior=true;
         }
+        if(v9){for(auto pair:{std::make_pair("FLIGHTLOOPS",&s.flightLoops),std::make_pair("LARGELOOPS",&s.largeLoops)}){
+            std::string token;uint32_t count;Require(bool(f>>token>>count)&&token==pair.first&&count<=16,"invalid continuous-flight budget");
+            for(uint32_t i=0;i<count;++i){Route route;route.smoothFlight=true;uint32_t low,points;Require(bool(f>>low>>points)&&low<=1&&points>=4&&points<=16,"invalid closed flight plan");route.lowFlight=low!=0;route.points.resize(points);
+                for(auto& p:route.points)Require(bool(f>>p.x>>p.y>>p.z),"missing flight plan control point");
+                Require(route.Finish()&&route.length>=80&&route.length<=10000,"invalid closed flight length");s.bytes+=sizeof(Route)+points*sizeof(Point)+route.arc.size()*sizeof(float);pair.second->push_back(std::move(route));}
+        }Require(s.bytes<=MaxBytes,"continuous flight plans exceed budget");}
         std::string trailing;Require(!(f>>trailing),"trailing scene data");out=std::move(s);return true;
     }catch(const std::exception& e){error=e.what();return false;}
 }

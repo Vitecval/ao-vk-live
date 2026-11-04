@@ -1,5 +1,23 @@
 # Preview 22 local Living integration candidate
 
+Candidate 9 gives High six Phasefront slots and Ultra twelve, reusing the four
+verified rigid models. Runtime expansion retains correct parent/light bindings
+and checks actor/source budgets; no extra original model preparation is needed.
+Combined aircraft budgets are eight/fourteen. Ultra rests 0.25–1 second when a
+visit has left view. Low/Medium retain their previous caps.
+
+When a city has at least four low choices, dense-mode admissions prefer low
+routes for two visits out of three. Least-recently-used selection still rotates
+within each category and avoids occupied paths. Initial low approaches select a
+hidden point just before the low section instead of starting randomly along the
+high return. Borealis, ICC and Newland receive twelve additional checked low
+plans each, anchored within 160 m of their primary pedestrian hub. Their actual
+walkable surfaces, including platforms above native terrain, define the height.
+Closed low loops and longer street passes with checked climb/return sections
+report sampled street clearances separately from full collision certification.
+Continuous aircraft use far-distance fading only; close overhead flybys no
+longer dissolve through the pedestrian near-camera fade.
+
 Candidate 8 expands the Phasefront deck to 24 distinct checked ground tracks per
 city. New neighbourhood routes vary location, orientation, size, curvature and
 height over native terrain, with roof-clearance fallbacks where needed. Reverse

@@ -152,6 +152,7 @@ float Fade(float d,float range) {
     float x=std::clamp((range-d)/(range*.2f),0.f,1.f),near=std::clamp((d-1.5f)/1.5f,0.f,1.f);
     return x*x*(3-2*x)*near*near*(3-2*near);
 }
+float FlightFade(float d,float range){float x=std::clamp((range-d)/(range*.2f),0.f,1.f);return x*x*(3-2*x);}
 bool InFrustum(const float vp[4][4],Point p,float r) {
     const float xyz[4]={p.x,p.y,p.z,1};float q[4]={};for(int j=0;j<4;++j)for(int i=0;i<4;++i)q[j]+=xyz[i]*vp[i][j];
     // D3D clip planes, including the near plane (z >= 0). Sphere-plane radius in clip space.
@@ -260,7 +261,7 @@ bool Load(const std::string& path,Scene& out,std::string& error,uint32_t expecte
                 for(auto& p:route.points)Require(bool(f>>p.x>>p.y>>p.z),"missing flight plan control point");
                 Require(route.Finish()&&route.length>=80&&route.length<=10000,"invalid closed flight length");s.bytes+=sizeof(Route)+points*sizeof(Point)+route.arc.size()*sizeof(float);pair.second->push_back(std::move(route));}
         }Require(s.bytes<=MaxBytes,"continuous flight plans exceed budget");}
-        std::string trailing;Require(!(f>>trailing),"trailing scene data");out=std::move(s);return true;
+        std::string trailing;Require(!(f>>trailing),"trailing scene data");ExpandPhasefrontPool(s);out=std::move(s);return true;
     }catch(const std::exception& e){error=e.what();return false;}
 }
 void SelectAppearances(Scene& s,uint32_t armoredLevel) {

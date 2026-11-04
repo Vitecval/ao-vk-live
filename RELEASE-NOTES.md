@@ -1,5 +1,16 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 9 raises High to six Phasefronts and Ultra to twelve, with combined
+aircraft limits of eight/fourteen. Additional instances reuse the same verified
+four original models and correctly attached navigation lights. Ultra rests only
+0.25–1 second between available visits. Low and Medium retain their budgets.
+Dense traffic prefers varied low routes for two of three new admissions when
+at least four low choices exist. Each category still rotates and active routes
+remain distinct. Low approaches begin at the nearest hidden point before their
+street pass. New low plans use actual pedestrian surfaces, including raised
+platforms, and full original-geometry checks. Aircraft no longer use pedestrian
+near-camera fading, so close overhead passes remain opaque.
+
 Candidate 8 prepares at least 24 distinct Phasefront ground tracks per city
 where full continuous clearance can be established. Neighbourhood flyovers vary
 their centers, orientations, spans, shapes and terrain-following altitudes.

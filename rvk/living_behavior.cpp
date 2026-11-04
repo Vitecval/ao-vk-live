@@ -74,8 +74,22 @@ HumanPose AdvanceHuman(Scene& s,Actor& a,double time,uint32_t index){
     return p;
 }
 
-uint32_t PhasefrontLimit(uint32_t level){return std::min(level,4u);}
-uint32_t CombinedAirLimit(uint32_t level){return level>=4?5u:level==3?4u:3u;}
+uint32_t PhasefrontLimit(uint32_t level){return level>=4?12u:level==3?6u:level;}
+uint32_t CombinedAirLimit(uint32_t level){return level>=4?14u:level==3?8u:3u;}
+void ExpandPhasefrontPool(Scene& s){
+    if(s.flightLoops.empty())return;
+    struct Template {Actor root;std::vector<Actor> children;};std::vector<Template> pool;
+    const size_t original=s.actors.size();
+    for(size_t i=0;i<original;++i)if(s.actors[i].motion==7&&s.actors[i].parent<0){Template t;t.root=s.actors[i];for(size_t j=0;j<original;++j)if(s.actors[j].parent==int32_t(i))t.children.push_back(s.actors[j]);pool.push_back(std::move(t));}
+    if(pool.empty())return;
+    for(size_t count=pool.size();count<12;++count){const auto& source=pool[count%pool.size()];const uint32_t tier=count<6?3u:4u;
+        size_t bytes=0;for(const auto* a:{&source.root})bytes+=sizeof(Actor)+a->route.points.size()*sizeof(Point)+a->route.arc.size()*sizeof(float);
+        for(const auto& a:source.children)bytes+=sizeof(Actor)+a.route.points.size()*sizeof(Point)+a.route.arc.size()*sizeof(float);
+        if(s.actors.size()+1+source.children.size()>256||s.bytes+bytes>MaxBytes)break;
+        auto root=source.root;root.tier=tier;root.phase+=float(count*37);root.flight={};const int32_t parent=int32_t(s.actors.size());s.actors.push_back(std::move(root));
+        for(auto child:source.children){child.tier=tier;child.parent=parent;child.phase+=float(count*37);s.actors.push_back(std::move(child));}s.bytes+=bytes;
+    }
+}
 bool HasContinuousFlight(const Scene& s,const Actor& a){return (a.motion==6&&!s.flightLoops.empty()&&!a.route.linear&&a.route.points.size()>=4)||(a.motion==7&&!s.flightLoops.empty())||(a.motion==8&&!s.largeLoops.empty());}
 FlightPose AdvanceAircraft(Scene& s,Actor& a,double time,uint32_t index,uint32_t density,const float vp[4][4],Point eye,bool allowStart){
     FlightPose p;auto& h=a.flight;
@@ -84,29 +98,39 @@ FlightPose AdvanceAircraft(Scene& s,Actor& a,double time,uint32_t index,uint32_t
     const uint32_t seed=Mix(s.behaviorSeed^s.playfield*337u^index*1999u);
     const float dt=h.last<0?0.f:float(std::clamp(time-h.last,0.,.1));h.last=time;
     auto busy=[&](int32_t lane){for(const auto& other:s.actors)if(&other!=&a&&other.motion==7&&other.flight.active&&other.flight.lane==lane)return true;return false;};
+    int preferred=-1;
+    if(a.motion==7&&density>=3){size_t low=0;for(const auto& r:*routes)low+=r.lowFlight;
+        if(low>=4&&low<routes->size())preferred=s.flightVisitSerial%3<2?1:0;}
+    auto eligible=[&](uint32_t lane){return preferred<0||int((*routes)[lane].lowFlight)==preferred;};
     if(a.motion==7){if(s.flightVisits.size()!=routes->size())s.flightVisits.assign(routes->size(),0);
-        if(!h.active&&h.lane>=0){uint64_t oldest=~uint64_t(0);for(uint32_t lane=0;lane<routes->size();++lane)if(!busy(int32_t(lane)))oldest=std::min(oldest,s.flightVisits[lane]);
-            if((routes->size()>=PhasefrontLimit(density)&&busy(h.lane))||s.flightVisits[h.lane]>oldest)h.lane=-1;}}
+        if(!h.active&&h.lane>=0){uint64_t oldest=~uint64_t(0);for(uint32_t lane=0;lane<routes->size();++lane)if(eligible(lane)&&!busy(int32_t(lane)))oldest=std::min(oldest,s.flightVisits[lane]);
+            if((oldest!=~uint64_t(0)&&!eligible(uint32_t(h.lane)))||(routes->size()>=PhasefrontLimit(density)&&busy(h.lane))||s.flightVisits[h.lane]>oldest)h.lane=-1;}}
     if(h.lane<0){const uint32_t key=Mix(seed+h.serial*977u);h.lane=routes?int32_t(Mix(key)%routes->size()):0;
         if(routes&&a.motion==7){
             if(s.flightVisits.size()!=routes->size())s.flightVisits.assign(routes->size(),0);
             uint64_t oldest=~uint64_t(0);uint32_t tie=~0u;int32_t selected=-1;
-            for(uint32_t lane=0;lane<routes->size();++lane){if(busy(int32_t(lane)))continue;const auto visits=s.flightVisits[lane];const auto rank=Mix(key+lane*104729u);
+            for(uint32_t lane=0;lane<routes->size();++lane){if(!eligible(lane)||busy(int32_t(lane)))continue;const auto visits=s.flightVisits[lane];const auto rank=Mix(key+lane*104729u);
                 if(visits<oldest||(visits==oldest&&rank<tie)){oldest=visits;tie=rank;selected=int32_t(lane);}}
+            if(selected<0)for(uint32_t lane=0;lane<routes->size();++lane)if(!busy(int32_t(lane))&&(selected<0||s.flightVisits[lane]<s.flightVisits[selected]))selected=int32_t(lane);
             if(selected>=0)h.lane=selected;
         }
-        const auto& route=routes?(*routes)[h.lane]:a.route;h.distance=Unit(key+1)*route.length;h.travelled=0;h.seen=false;h.hiddenFor=0;}
+        const auto& route=routes?(*routes)[h.lane]:a.route;h.distance=Unit(key+1)*route.length;h.travelled=0;h.seen=false;h.hiddenFor=0;
+        if(a.motion==7&&route.lowFlight&&route.points.size()>=3&&route.arc.size()>256){
+            const bool reverse=Mix(seed+h.serial*977u+2)&1u;const float anchor=reverse?route.arc[256]:0,sign=reverse?-1.f:1.f;
+            for(float offset=12;offset<std::min(route.length,240.f);offset+=8){const float distance=anchor-sign*offset;auto approach=route.At(distance);
+                if(FlightFade(Length(approach,eye),a.range)<.005f||!InFrustum(vp,approach,s.meshes[a.mesh].radius*a.scale+2)){h.distance=distance;break;}}
+        }}
     const auto& route=routes?(*routes)[h.lane]:a.route;
     const float speed=a.motion==7?(route.lowFlight?6+Unit(seed+3)*4:8+Unit(seed+3)*8):a.speed;
     const bool reverse=a.motion==7&&(Mix(seed+h.serial*977u+2)&1u);
     h.distance+=dt*speed*(reverse?-1:1);if(h.active)h.travelled+=dt*speed;
     p.point=route.At(float(h.distance),&p.tangent);if(reverse){p.tangent.x=-p.tangent.x;p.tangent.y=-p.tangent.y;p.tangent.z=-p.tangent.z;}p.bank=a.motion==7?.025f*std::sin(float(h.distance)*.03f):0;
-    const bool visible=Fade(Length(p.point,eye),a.range)>.005f&&InFrustum(vp,p.point,s.meshes[a.mesh].radius*a.scale+2);
+    const bool visible=FlightFade(Length(p.point,eye),a.range)>.005f&&InFrustum(vp,p.point,s.meshes[a.mesh].radius*a.scale+2);
     // Keep watched flights continuous. Once a visible pass has left view for
     // 750 ms, release it so the next visit can use a different checked route.
     if(h.active){h.seen|=visible;h.hiddenFor=visible?0:h.hiddenFor+dt;}
     if(h.active&&(h.seen||h.travelled>=route.length)&&h.hiddenFor>=.75f){h.active=false;++h.serial;h.lane=-1;
-        const float u=Unit(seed+h.serial*313u);h.next=time+(a.motion==7?(density>=4?2+u*4:density==3?12+u*12:40+u*60):a.pauseSeconds);return {};}
+        const float u=Unit(seed+h.serial*313u);h.next=time+(a.motion==7?(density>=4?.25f+u*.75f:density==3?4+u*4:40+u*60):a.pauseSeconds);return {};}
     if(!h.active&&time>=h.next&&allowStart&&!visible){h.active=true;if(a.motion==7)s.flightVisits[h.lane]=++s.flightVisitSerial;}
     p.active=h.active;p.alpha=h.active?1.f:0.f;return p;
 }

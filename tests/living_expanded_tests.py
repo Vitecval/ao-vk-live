@@ -12,6 +12,18 @@ from low_flight import low_corridors,swept_box_collision
 import struct
 
 class Expanded(unittest.TestCase):
+    def test_low_loops_follow_the_actual_raised_city_surface(self):
+        from flight_loops import near_surface_loops
+        floor=np.array([[[0,20,0],[400,20,0],[400,20,400]],[[0,20,0],[400,20,400],[0,20,400]]],np.float32)
+        graph={'nodes':[{'point':[200,20.008,200]}]}
+        routes=near_surface_loops(floor,np.zeros((101,101)),4,[200,20,200],graph,3.8,1.4,target=4)
+        self.assertEqual(len(routes),4)
+        for r in routes:
+            self.assertTrue(r['near_surface_loop'])
+            self.assertGreaterEqual(r['sampled_minimum_surface_clearance'],3)
+            self.assertLessEqual(r['sampled_maximum_surface_clearance'],13.5)
+            self.assertTrue(all(23<=p[1]<=31 for p in r['points']))
+
     def test_city_routes_have_24_distinct_ground_tracks(self):
         from flight_loops import build_loops
         floor=np.array([[[0,0,0],[400,0,0],[400,0,400]],[[0,0,0],[400,0,400],[0,0,400]]],np.float32)

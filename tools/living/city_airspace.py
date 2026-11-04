@@ -179,7 +179,7 @@ def corridors(db,client,pf,heights,cell,center,phase_radius,large_radius,lines=N
     low_stats={};low_lanes=low_corridors(geometry,heights,cell,center,graph,phase_radius,phase_half_height,low_stats)
     if low_lanes:lanes=lanes[:12]+low_lanes
     from flight_loops import build_loops
-    loops,large_loops=build_loops(geometry,heights,cell,center,lanes,phase_radius,phase_half_height,large_radius)
+    loops,large_loops=build_loops(geometry,heights,cell,center,lanes,phase_radius,phase_half_height,large_radius,graph=graph)
     from flight_loops import certify,controls
     ordinary_clearance={};ordinary_routes={}
     if lines:

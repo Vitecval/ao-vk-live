@@ -106,11 +106,13 @@ struct LocalAssets { std::string scene; std::vector<std::string> verified; };
 inline constexpr const char* InstalledIndex="9f3633726602ead5003bd3aec82f67f63462ff1080a5676f91c2f149ddfbf6d9";
 bool ResolveInstalled(const std::string& client,uint32_t playfield,LocalAssets& result,std::string& error,const std::string& expectedIndex=InstalledIndex,bool variety=false);
 void SelectAppearances(Scene& scene,uint32_t armoredLevel);
+void ExpandPhasefrontPool(Scene& scene);
 // Reserved fixture playfield only. Binary stdin resources allow renderer
 // evidence without storing extracted assets outside the selected installation.
 bool ReadFixtureResources(std::istream& input,std::string& error);
 bool FixtureResource(const std::string& name,std::string& bytes);
 float Fade(float distance,float range);
+float FlightFade(float distance,float range);
 bool InFrustum(const float viewProjection[4][4], Point p,float radius);
 struct Movement { double distance=0; float speed=0, walkWeight=0; };
 struct HumanPose {Point point,tangent;Movement movement;int32_t activity=-1;float activityTime=0,activityWeight=0;};

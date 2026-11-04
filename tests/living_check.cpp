@@ -33,8 +33,9 @@ int main(int argc,char**argv){
     for(int i=0;i<12000;++i){auto p=PhasefrontFlight(flights,flyer,i/60.,0);if(!p.active)continue;sawSkim=true;
         Check(std::fabs(p.point.y-3.048f)<=.0801f&&std::fabs(p.point.z)<=.2501f&&std::fabs(p.bank)<=.0251f,"10-foot pass respects its tighter vertical, steering and bank bounds");}
     Check(sawSkim,"short low pass is scheduled and remains visible");
-    Check(PhasefrontLimit(0)==0&&PhasefrontLimit(1)==1&&PhasefrontLimit(2)==2&&PhasefrontLimit(3)==3&&PhasefrontLimit(4)==4,"all five Phasefront settings have distinct simultaneous limits");
-    Check(CombinedAirLimit(2)==3&&CombinedAirLimit(3)==4&&CombinedAirLimit(4)==5,"dense traffic remains bounded with one large craft");
+    Check(PhasefrontLimit(0)==0&&PhasefrontLimit(1)==1&&PhasefrontLimit(2)==2&&PhasefrontLimit(3)==6&&PhasefrontLimit(4)==12,"High and Ultra have genuinely distinct six/twelve craft limits");
+    Check(CombinedAirLimit(2)==3&&CombinedAirLimit(3)==8&&CombinedAirLimit(4)==14,"dense traffic remains bounded alongside other aircraft");
+    Check(FlightFade(0,100)==1&&FlightFade(1.7f,100)==1&&FlightFade(100,100)==0,"low overhead aircraft never dissolve from the pedestrian near-camera fade");
     Route mid;mid.linear=true;mid.points={{0,33,0},{280,33,0}};mid.Finish();flights.flightLanes.push_back(mid);
     std::array<uint32_t,5> visits{};
     for(uint32_t level=2;level<=4;++level)for(uint32_t actor=0;actor<4;++actor){
@@ -69,6 +70,17 @@ int main(int argc,char**argv){
         if(p.active&&!wasActive){if(starts<24){Check(!seenRoutes[a.flight.lane],"all 24 city routes are offered before any route repeats");seenRoutes[a.flight.lane]=true;}++starts;a.flight.seen=true;}
         if(p.active)for(uint32_t j=0;j<i;++j)if(deck.actors[j].flight.active)Check(a.flight.lane!=deck.actors[j].flight.lane,"simultaneous Phasefronts use different paths");}
     Check(starts>=48&&std::count(seenRoutes.begin(),seenRoutes.end(),true)==24,"route rotation covers the complete city deck across multiple visits");
+    Scene weighted;weighted.meshes=deck.meshes;weighted.flightLoops=deck.flightLoops;
+    for(int i=0;i<12;++i)weighted.flightLoops[i].lowFlight=true;weighted.actors.resize(1);weighted.actors[0].motion=7;weighted.actors[0].range=10000;
+    uint32_t lowVisits=0,highVisits=0;std::array<bool,12> lowDeck{};
+    for(int tick=0;tick<6000;++tick){auto& a=weighted.actors[0];const bool active=a.flight.active;auto p=AdvanceAircraft(weighted,a,tick*.05,0,4,hiddenView,{0,0,-10},true);
+        if(p.active&&!active){if(a.flight.lane<12){if(lowVisits<12){Check(!lowDeck[a.flight.lane],"preferred low flights rotate before a low path repeats");lowDeck[a.flight.lane]=true;}++lowVisits;}else ++highVisits;a.flight.seen=true;}}
+    Check(lowVisits>60&&std::abs(int(lowVisits)-int(highVisits*2))<=2,"two out of three new dense-mode visits prefer varied low paths");
+    Scene pool;pool.flightLoops.push_back(loop);
+    for(int i=0;i<4;++i){Actor a;a.motion=7;a.tier=i<3?1:2;const int32_t parent=int32_t(pool.actors.size());pool.actors.push_back(a);Actor light;light.group=4;light.parent=parent;pool.actors.push_back(light);}
+    ExpandPhasefrontPool(pool);uint32_t roots=0,highRoots=0,ultraRoots=0;
+    for(size_t i=0;i<pool.actors.size();++i){const auto& a=pool.actors[i];if(a.motion==7){++roots;highRoots+=a.tier<=3;ultraRoots+=a.tier<=4;}else Check(a.parent>=0&&pool.actors[a.parent].motion==7,"expanded navigation lights stay attached to the correct craft");}
+    Check(roots==12&&highRoots==6&&ultraRoots==12,"existing verified models expand to the full High/Ultra pools");
     std::printf("One-hour four-craft schedule: Medium=%u High=%u Ultra=%u complete pass starts (before view/cap culling)\n",visits[2],visits[3],visits[4]);
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");
@@ -163,6 +175,7 @@ int main(int argc,char**argv){
         bool ok=ResolveInstalled(argv[2],pf,local,e,InstalledIndex,true);Check(ok,e.c_str());if(!ok)return 1;
         ok=Load(local.scene,s,e,pf,!LocalReviewEnabled(local.scene),&local.verified);Check(ok,e.c_str());if(!ok)return 1;
         Check(s.humanBehavior&&!s.walkEdges.empty()&&!s.flightLanes.empty(),"installed city contains activity graph and varied flight lanes");
+        Check(std::count_if(s.actors.begin(),s.actors.end(),[](const Actor& a){return a.motion==7&&a.parent<0;})==12,"installed city provides the twelve-craft Ultra pool from verified original meshes");
         for(const auto& a:s.appearances)Check(s.meshes[a.mesh].available&&!s.meshes[a.mesh].activities.empty(),"installed appearances contain verified native actions");
         std::printf("Installed city %u: %zu walking edges, %zu flight lanes, %.2f MiB; receipt/decoder PASS\n",pf,s.walkEdges.size(),s.flightLanes.size(),s.bytes/1048576.);
         if(argc>4&&std::string(argv[4])=="--rates")for(uint32_t level=2;level<=4;++level){

@@ -61,7 +61,7 @@ struct LivingRuntimeProbe {
                 if(a.parent<0&&living::HasContinuousFlight(*d.m_living,a)){
                     const auto& view=d.m_livingView.m;float eye[3];for(int j=0;j<3;++j)eye[j]=-(view[3][0]*view[j][0]+view[3][1]*view[j][1]+view[3][2]*view[j][2]);
                     float distance=std::hypot(std::hypot(a.world[3][0]-eye[0],a.world[3][2]-eye[2]),a.world[3][1]-eye[1]);
-                    Check(std::fabs(a.visibilityAlpha-living::Fade(distance,a.range))<.001f,"visible aircraft opacity has distance fading only, never schedule fading");}
+                    Check(std::fabs(a.visibilityAlpha-living::FlightFade(distance,a.range))<.001f,"visible aircraft opacity has far-distance fading only, never near-camera or schedule fading");}
                 if((a.motion==7&&!d.m_living->flightLoops.empty())||(a.motion==8&&!d.m_living->largeLoops.empty())){bool inside=false;const auto* w=a.world[3];
                     const auto& loops=a.motion==7?d.m_living->flightLoops:d.m_living->largeLoops;
                     for(const auto& loop:loops)for(float distance=0;distance<loop.length;distance+=1){auto p=loop.At(distance);if(std::hypot(std::hypot(p.x-w[0],p.z-w[2]),p.y-w[1])<1.2f){inside=true;break;}}

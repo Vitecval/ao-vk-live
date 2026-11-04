@@ -254,6 +254,7 @@ void Device::DrawLiving() {
         if(continuousFlight)alpha=living::Fade(dist,a.range);
         if(m_living->fixture&&std::getenv("RANDYVK_LIVING_TIME"))alpha=living::Fade(dist,a.range);
         if(a.replacementMask)alpha=living::Fade(dist,a.range);
+        if(continuousFlight)alpha=living::FlightFade(dist,a.range);
         if(a.parent>=0&&flight>=6)alpha*=m_living->actors[a.parent].visibilityAlpha;
         if(variedFlight)alpha*=flightPose.alpha;
         else if(a.motion>=6&&!continuousFlight)alpha*=Smooth(slot/3)*Smooth((a.walkSeconds-slot)/3);
@@ -301,7 +302,7 @@ void Device::DrawLiving() {
         if(a.parent<0&&a.motion!=1){
             const bool continuous=a.headingTime>=0&&time>=a.headingTime&&time-a.headingTime<.25&&a.lastFrame+1==m_frameNumber;
             if(a.headingTime>=0&&!continuous){a.previous.reset();a.job.reset();a.lastFrame=~uint64_t(0);}
-            if(continuous)yaw=living::TurnTowards(a.facingYaw,yaw,float(time-a.headingTime),a.group==1?.85f:a.group==2?.65f:1.6f);
+            if(continuous)yaw=living::TurnTowards(a.facingYaw,yaw,float(time-a.headingTime),a.group==1?.85f:a.group==2?(continuousFlight&&a.motion==7?2.4f:.65f):1.6f);
             a.facingYaw=yaw;a.headingTime=time;
         }
         const float cs=std::cos(yaw)*a.scale,sn=std::sin(yaw)*a.scale;

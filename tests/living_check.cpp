@@ -125,12 +125,12 @@ int main(int argc,char**argv){
     std::filesystem::create_directories(localDir/"cd_image/data/statels");
     auto put=[](const std::filesystem::path& path,const std::string& value){std::ofstream f(path,std::ios::binary);f<<value;};
     const std::string emptyHash="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-    const std::string scene="LRSCENE5 566 1 0 1 1 synthetic-local-test\nmissing.lrm\n1 0 1 0 1 0 0 100 0 1 10 30 10 16 7 0 0 0 0 0 -1 0\n0\n-\n";
+    const std::string scene="LRSCENE9 566 1 0 1 1 synthetic-local-test\nmissing.lrm\n1 0 1 0 1 0 0 100 0 1 10 30 10 16 7 0 0 0 0 0 -1 0\n0\n-\nAPPEARANCES 0\nWALKGRAPH 0 0\nFLIGHTLANES 0\nFLIGHTLOOPS 0\nLARGELOOPS 0\n";
     put(localDir/"cd_image/data/db/ResourceDatabase.idx","");
     put(localDir/"cd_image/data/statels/566.pf","");
     put(generation.parent_path()/"active.txt","generation-synthetic\n");
     put(generation/"566.lrs",scene);put(generation/"ground-566.lrg","");put(generation/"review.ini","");
-    put(generation/"cache.receipt","LRLOCAL1 "+emptyHash+" 4\n566.lrs 4ed442eb6bdb7d1e0407c21a653f01d1c61aa200401e869eb1c3031c0da56d5d\nground-566.lrg "+emptyHash+"\nreview.ini "+emptyHash+"\nsource-566.pf "+emptyHash+"\n");
+    put(generation/"cache.receipt","LRLOCAL1 "+emptyHash+" 4\n566.lrs 4174870804252712d9a7e6b4c577a38dd27861b0e56613e8abd29b7e45318539\nground-566.lrg "+emptyHash+"\nreview.ini "+emptyHash+"\nsource-566.pf "+emptyHash+"\n");
     LocalAssets resolved;std::string localError;
     Check(ResolveInstalled(localDir.string(),566,resolved,localError,emptyHash),localError.c_str());
     Check(resolved.verified.empty(),"unverified mesh is never handed to the loader");

@@ -1,5 +1,9 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 7 completes LRSCENE9 acceptance in the installed-client resolver.
+The synthetic installed-cache regression now exercises the new format through
+both the production resolver and scene decoder.
+
 Candidate 6 removes timer fading from continuous aircraft. They enter only while
 outside view or beyond draw distance, retain their traffic slots, and continue
 complete closed flight plans while visible. A visit retires after a full lap

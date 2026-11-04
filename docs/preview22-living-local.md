@@ -1,5 +1,15 @@
 # Preview 22 local Living integration candidate
 
+Candidate 5 exposes Phasefront Off / Low / Medium / High / Ultra (0–4).
+High uses 12–24 second gaps and a 10% skip chance per craft; Ultra uses 2–6
+second gaps without skipped visits. Within deterministic ten-minute blocks,
+only complete passes fit; the remaining tail is idle. Fresh lane choices favor
+checked low corridors (35% / 50% additional low-lane selections). Cruise speeds,
+whole-craft clearance bounds, and the current LRSCENE8 cache are unchanged.
+High permits three simultaneous Phasefronts and four total aircraft; Ultra
+permits four Phasefronts and five total aircraft. Large craft remain capped at
+one. Low and Medium retain their original schedules and caps.
+
 Candidate 4 removes distance-based pedestrian braking. Walk pace stays steady
 until arrival; the character settles to idle at the fixed destination within
 140 ms, with the gait still driven by actual travel distance. Short low-flight

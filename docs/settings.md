@@ -49,7 +49,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_ArmoredCivilians` | Armored civilians: Off / Low / Medium | 0 / 1 / 2 | 0 | window; knob |
 | `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
 | `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | window; game value 0; knob |
-| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes) | 0 / 1 / 2 | 0 | window; knob |
+| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium / High / Ultra (checked local flight routes) | 0 / 1 / 2 / 3 / 4 | 0 | window; knob |
 | `RVK_OrbitalCraft` | Orbital / large spacecraft: Off / Low / Medium (verified local spacecraft and corridors) | 0 / 1 / 2 | 0 | window; knob |
 | `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | window; game value 0; knob |
 | `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | window; game value off; knob |

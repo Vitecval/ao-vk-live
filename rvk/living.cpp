@@ -207,8 +207,9 @@ void Device::DrawLiving() {
         if(!m_living->meshes[a.mesh].available||(a.parent>=0&&!m_living->meshes[m_living->actors[a.parent].mesh].available))continue;
         const uint32_t flight=a.parent>=0?m_living->actors[a.parent].motion:a.motion;
         const float option=flight==7?m_phasefrontTraffic:flight==8?m_orbitalCraft:a.group==2?m_liveAir:opts[a.group];
-        const uint32_t level=uint32_t(std::clamp(option,0.f,3.f));
-        const bool airCapped=a.group==2&&(accepted[2]>=3||(a.motion==7&&phasefronts>=(level>=2?2u:1u))||(a.motion==8&&largeCraft>=1)||(a.motion<7&&ordinaryAir>=caps[2][level]));
+        const uint32_t level=uint32_t(std::clamp(option,0.f,flight==7?4.f:3.f));
+        const uint32_t airLimit=living::CombinedAirLimit(uint32_t(std::clamp(m_phasefrontTraffic,0.f,4.f)));
+        const bool airCapped=a.group==2&&(accepted[2]>=airLimit||(a.motion==7&&phasefronts>=living::PhasefrontLimit(level))||(a.motion==8&&largeCraft>=1)||(a.motion<7&&ordinaryAir>=caps[2][level]));
         if(level<a.tier||(a.parent<0&&(a.group==2?airCapped:accepted[a.group]>=caps[a.group][level]))) {
             a.activationTime=-1;a.headingTime=-1;a.previous.reset();a.job.reset();for(auto& v:m_smokeVolumes)if(v.key==key||v.parent==key){v.key=0;v.parent=0;}continue;
         }
@@ -218,7 +219,7 @@ void Device::DrawLiving() {
         const auto humanPose=human?living::AdvanceHuman(*m_living,a,time,uint32_t(i)):living::HumanPose{};
         const living::Movement movement=human?humanPose.movement:stopping?living::Locomotion(time,a):living::Movement{};
         const bool variedFlight=a.motion==7&&!m_living->flightLanes.empty();
-        const auto flightPose=variedFlight?living::PhasefrontFlight(*m_living,a,time,uint32_t(i)):living::FlightPose{};
+        const auto flightPose=variedFlight?living::PhasefrontFlight(*m_living,a,time,uint32_t(i),level):living::FlightPose{};
         if(variedFlight&&!flightPose.active){a.previous.reset();continue;}
         // Density changes add staggered schedules; a visible craft's own
         // period never changes when Low/Medium is switched.

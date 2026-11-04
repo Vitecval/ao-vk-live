@@ -80,8 +80,9 @@ All Living settings default Off and remain independent of graphics presets.
 For a city test, close clients from the selected installation, run Prepare
 Living City Test.cmd and select that AO folder. Launch normally and open Ctrl+Shift+F12 >
 Living Rubi-Ka. Start with Ambient People Low, then try NPC Appearance Variety
-High and Armored Civilians Low. Phasefront Traffic and Orbital / Large Spacecraft
-have separate Off / Low / Medium controls. All 21 supported cities have locally
+High and Armored Civilians Low. Phasefront Traffic supports Off / Low / Medium /
+High / Ultra. Orbital / Large Spacecraft has a separate Off / Low / Medium
+control. All 21 supported cities have locally
 validated static aerial corridors. These test commands explicitly opt into
 static-reviewed routes; combined live gameplay validation is still pending.
 Do not distribute the generated local cache.

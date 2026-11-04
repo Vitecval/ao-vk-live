@@ -1797,16 +1797,18 @@ int main(int argc, char** argv)
         }
         for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"}){
             check(value(name,true)==0,"new appearance/aircraft defaults are Off or Normal");
-            const float chosen=std::strcmp(name,"RVK_NPCVariety")==0?1.f:2.f;
+            const float chosen=std::strcmp(name,"RVK_NPCVariety")==0?1.f:std::strcmp(name,"RVK_PhasefrontTraffic")==0?4.f:2.f;
             set(name,chosen);check(value(name)==chosen&&effective(name)==chosen,"new optional appearance/aircraft controls are exposed and saved");
         }
+        set("RVK_PhasefrontTraffic",3);check(value("RVK_PhasefrontTraffic")==3&&effective("RVK_PhasefrontTraffic")==3,"Phasefront High is independently selectable");
+        set("RVK_PhasefrontTraffic",4);check(value("RVK_PhasefrontTraffic")==4&&effective("RVK_PhasefrontTraffic")==4,"Phasefront Ultra is independently selectable");
         for(int style:{0,2})for(uint32_t quality:{1u,2u,3u}){
             set("RVK_ModernTex",float(style));set("RVK_TerrainHD",0);set("RVK_BuildingHD",1);
             check(preset(quality)!=0,"preset applies");
             check(value("RVK_ModernTex")==style&&value("RVK_TerrainHD")==0&&value("RVK_BuildingHD")==1,"texture choices survive every quality preset");
             check(value("RVK_WindowDepth")==float(quality==3?2:1),"quality-specific window defaults");
             check(value("RVK_LiveDrones")==1,"population preferences survive graphics presets");
-            check(value("RVK_NPCVariety")==1&&value("RVK_ArmoredCivilians")==2&&value("RVK_PhasefrontTraffic")==2&&value("RVK_OrbitalCraft")==2,"new appearance/aircraft preferences survive graphics presets");
+            check(value("RVK_NPCVariety")==1&&value("RVK_ArmoredCivilians")==2&&value("RVK_PhasefrontTraffic")==4&&value("RVK_OrbitalCraft")==2,"new appearance/aircraft preferences survive graphics presets");
         }
         set("RVK_WindowDepth",2);set("RVK_LivePeople",0);
         for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"})set(name,0);

@@ -48,7 +48,7 @@ Setting g_settings[] = {
     {"RVK_ArmoredCivilians", "Armored civilians: Off / Low / Medium", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_LiveDrones", "Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
     {"RVK_AirTraffic", "Distant air traffic: Off / Low / Medium (authored city routes only)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
-    {"RVK_PhasefrontTraffic", "Phasefront traffic: Off / Low / Medium (requires verified local models and swept routes)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_PhasefrontTraffic", "Phasefront traffic: Off / Low / Medium / High / Ultra (checked local flight routes)", "Living Rubi-Ka", Choice, 0, 4, 1, 0, nullptr, 0, nullptr, "0 1 2 3 4"},
     {"RVK_OrbitalCraft", "Orbital / large spacecraft: Off / Low / Medium (verified local spacecraft and corridors)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_LiveWild", "Ambient wildlife: Off / Low / Medium (requires reviewed animated assets)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_LiveMachine", "Living machinery: verified components only, Off / On", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},

@@ -74,17 +74,36 @@ HumanPose AdvanceHuman(Scene& s,Actor& a,double time,uint32_t index){
     return p;
 }
 
-FlightPose PhasefrontFlight(const Scene& s,const Actor& a,double time,uint32_t index){
-    FlightPose p;if(s.flightLanes.empty())return p;
+uint32_t PhasefrontLimit(uint32_t level){return std::min(level,4u);}
+uint32_t CombinedAirLimit(uint32_t level){return level>=4?5u:level==3?4u:3u;}
+FlightPose PhasefrontFlight(const Scene& s,const Actor& a,double time,uint32_t index,uint32_t density){
+    FlightPose p;if(s.flightLanes.empty()||!density)return p;
     const uint32_t seed=Mix(s.behaviorSeed^s.playfield*337u^index*1999u);
-    // Fixed windows permit direct evaluation after culling; each window makes
-    // fresh decisions. No random numbers or collision searches occur per frame.
-    const double t=std::max(0.,time+Unit(seed)*220),window=100.;const uint32_t cycle=uint32_t(t/window);
-    const uint32_t key=Mix(seed+cycle*977u);const float local=float(std::fmod(t,window));
-    const auto& lane=s.flightLanes[Mix(key+1)%s.flightLanes.size()];const bool reverse=Mix(key+2)&1;
-    const float speed=lane.lowFlight?6+Unit(key+3)*4:8+Unit(key+3)*8;
-    const float duration=lane.length/speed,start=3+Unit(key+4)*std::max(1.f,float(window)-duration-8);
-    const float elapsed=local-start;if(Unit(key+5)<.30f||elapsed<0||elapsed>=duration)return p;
+    // Low/Medium retain their exact schedules. Dense modes pack complete passes
+    // into ten-minute blocks, separated by short rests; no pass is cut short.
+    // This bounded itinerary can be evaluated directly after camera culling.
+    const double t=std::max(0.,time+Unit(seed)*220),window=density>=3?600.:100.;
+    const uint32_t cycle=uint32_t(t/window);const float local=float(std::fmod(t,window));
+    uint32_t key=0;const Route* selected=nullptr;float duration=0,elapsed=0,cursor=0;
+    for(uint32_t visit=0;visit<(density>=3?256u:1u);++visit){
+        key=Mix(seed+cycle*977u+visit*104729u);
+        selected=&s.flightLanes[Mix(key+1)%s.flightLanes.size()];
+        if(density>=3&&Unit(key+7)<(density>=4?.50f:.35f)){
+            size_t count=0;for(const auto& lane:s.flightLanes)count+=lane.lowFlight;
+            if(count){size_t pick=Mix(key+8)%count;for(const auto& lane:s.flightLanes)if(lane.lowFlight){if(!pick--){selected=&lane;break;}}}
+        }
+        const float speed=selected->lowFlight?6+Unit(key+3)*4:8+Unit(key+3)*8;
+        duration=selected->length/speed;
+        const float start=density<3?3+Unit(key+4)*std::max(1.f,float(window)-duration-8):
+            cursor+(density>=4?2+Unit(key+4)*4:12+Unit(key+4)*12);
+        if(start+duration>window)return p;
+        elapsed=local-start;
+        if(elapsed<0)return p;
+        if(elapsed<duration){if(Unit(key+5)<(density>=4?0.f:density==3?.10f:.30f))return p;break;}
+        cursor=start+duration;selected=nullptr;
+    }
+    if(!selected)return p;
+    const auto& lane=*selected;const bool reverse=Mix(key+2)&1;
     float u=elapsed/duration;
     // Small speed variation and smooth lateral corrections resemble steering.
     // Offset norm is bounded by 1.2 m, inside the prepared 3 m safety margin.

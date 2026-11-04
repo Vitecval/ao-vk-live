@@ -33,6 +33,22 @@ int main(int argc,char**argv){
     for(int i=0;i<12000;++i){auto p=PhasefrontFlight(flights,flyer,i/60.,0);if(!p.active)continue;sawSkim=true;
         Check(std::fabs(p.point.y-3.048f)<=.0801f&&std::fabs(p.point.z)<=.2501f&&std::fabs(p.bank)<=.0251f,"10-foot pass respects its tighter vertical, steering and bank bounds");}
     Check(sawSkim,"short low pass is scheduled and remains visible");
+    Check(PhasefrontLimit(0)==0&&PhasefrontLimit(1)==1&&PhasefrontLimit(2)==2&&PhasefrontLimit(3)==3&&PhasefrontLimit(4)==4,"all five Phasefront settings have distinct simultaneous limits");
+    Check(CombinedAirLimit(2)==3&&CombinedAirLimit(3)==4&&CombinedAirLimit(4)==5,"dense traffic remains bounded with one large craft");
+    Route mid;mid.linear=true;mid.points={{0,33,0},{280,33,0}};mid.Finish();flights.flightLanes.push_back(mid);
+    std::array<uint32_t,5> visits{};
+    for(uint32_t level=2;level<=4;++level)for(uint32_t actor=0;actor<4;++actor){
+        bool wasActive=false;FlightPose last;
+        for(int frame=0;frame<36000;++frame){auto pose=PhasefrontFlight(flights,flyer,frame/10.,actor,level);
+            if(pose.active&&!wasActive)++visits[level];
+            if(pose.active&&wasActive)Check(std::hypot(pose.point.x-last.point.x,pose.point.z-last.point.z)<1.9f,"dense schedules never cut or teleport an active pass");
+            if(pose.active)Check(pose.alpha>=0&&pose.alpha<=1&&pose.point.x>=0&&pose.point.x<=280,"dense traffic stays in checked routes with bounded fades");
+            wasActive=pose.active;last=pose;
+        }
+    }
+    Check(visits[3]>visits[2]*2&&visits[4]>visits[3]*1.25,"High and Ultra produce successively more complete passes than Medium");
+    Check(!PhasefrontFlight(flights,flyer,10,0,0).active,"traffic Off schedules no craft");
+    std::printf("One-hour four-craft schedule: Medium=%u High=%u Ultra=%u complete pass starts (before view/cap culling)\n",visits[2],visits[3],visits[4]);
     Route corridor;corridor.linear=true;corridor.points={{0,40,0},{100,40,0}};
     Check(corridor.Finish()&&corridor.length==100,"aerial line has exact validated length");
     for(int i=0;i<=100;++i){Point t,p=corridor.At(float(i),&t);Check(std::fabs(p.x-i)<.0001&&p.y==40&&p.z==0&&t.x==100,"aerial route stays within swept straight corridor");}
@@ -128,6 +144,12 @@ int main(int argc,char**argv){
         Check(s.humanBehavior&&!s.walkEdges.empty()&&!s.flightLanes.empty(),"installed city contains activity graph and varied flight lanes");
         for(const auto& a:s.appearances)Check(s.meshes[a.mesh].available&&!s.meshes[a.mesh].activities.empty(),"installed appearances contain verified native actions");
         std::printf("Installed city %u: %zu walking edges, %zu flight lanes, %.2f MiB; receipt/decoder PASS\n",pf,s.walkEdges.size(),s.flightLanes.size(),s.bytes/1048576.);
+        if(argc>4&&std::string(argv[4])=="--rates")for(uint32_t level=2;level<=4;++level){
+            uint32_t starts=0;
+            for(uint32_t i=0;i<s.actors.size();++i)if(s.actors[i].motion==7){bool active=false;
+                for(int tick=0;tick<18000;++tick){const bool next=PhasefrontFlight(s,s.actors[i],tick/10.,i,level).active;starts+=next&&!active;active=next;}}
+            std::printf("Installed city %u level %u: %u pass starts / 30 minutes = %.2f per minute before camera and overlap culling\n",pf,level,starts,starts/30.);
+        }
     }
     else if(argc>2&&std::string(argv[1])=="--scene"){Scene s;std::string e;const bool ok=Load(argv[2],s,e);Check(ok,e.c_str());if(!ok)return 1;std::printf("Scene: %u, %zu actors, %zu meshes, %.2f MiB\n",s.playfield,s.actors.size(),s.meshes.size(),s.bytes/1048576.);}
     else if(argc>1){Scene s;std::string e;bool loaded=Load(argv[1],s,e);Check(loaded,e.c_str());if(!loaded)return 1;Check(s.fixture&&s.playfield==FixturePlayfield,"fixture isolated from live zones");Check(s.actors.size()==5&&s.meshes.size()==3,"complete fixture inventory");Check(!s.meshes.empty()&&s.meshes[0].bones==4&&s.meshes[0].frameCount==90,"independent skeletal asset loaded");

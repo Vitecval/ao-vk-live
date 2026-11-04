@@ -1,5 +1,13 @@
 # Preview 22 — local Living Rubi-Ka test candidate
 
+Candidate 5 adds Phasefront High and Ultra. High rests 12–24 seconds between
+complete passes per craft with 10% skipped visits; Ultra rests 2–6 seconds and
+does not skip visits. Dense schedules favor already checked low lanes, retaining
+the original cruise speeds and clearance envelopes. High permits three local
+Phasefronts, Ultra four; combined air caps are four and five respectively,
+including at most one large spacecraft. Low and Medium retain their schedules.
+Existing city caches are compatible; no original resource preparation is needed.
+
 Candidate 4 keeps pedestrians at walking pace until their destination, replacing
 the long braking/creeping finish with a brief 140 ms stationary idle transition.
 Occasional Phasefront skims target approximately 10 feet above terrain in newly

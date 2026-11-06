@@ -97,3 +97,12 @@ is untouched. Testing there requires the owner's separate approval.
 The inherited 4 GB option, local asset preparer, model-index safeguards,
 transactional update and modified-file refusal are retained. No unrelated
 material downloads or active texture-worker outputs are incorporated.
+
+Setup revision 3 of the Preview 23 candidate preserves a pre-existing compatible
+`randy-vk/mesh-ids.bin`, including older descriptive names. It verifies model
+identities and the renderer's scenery categories, leaves the preserved bytes
+unchanged and excludes that file from uninstall ownership. A missing index is
+installed normally. Do not delete an existing index to work around the errors
+from candidate revisions 1 or 2; extract the revision 3 ZIP into a fresh folder
+and retry Update. A damaged index or incompatible identities still produce a
+specific refusal before installation writes.

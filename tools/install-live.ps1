@@ -67,6 +67,13 @@ if (Test-Path -LiteralPath $receiptPath) {
     }
     if (!$LoaderDir -and $receipt.loaderDirectory) { $LoaderDir = [string]$receipt.loaderDirectory }
 }
+$meshRelative = 'randy-vk/mesh-ids.bin'
+$preserveMeshIndex = $false
+if ($manifest.meshIndex -or $manifest.setupRevision -ge 4 -or
+    $manifest.assets.$meshRelative -or $receipt.assets.$meshRelative) {
+    . (Join-Path $PSScriptRoot 'mesh-index.ps1')
+    $preserveMeshIndex = Test-AoPreserveMeshIndex $client $package $manifest $receipt ([bool]$Uninstall)
+}
 $targets = New-Object 'Collections.Generic.List[string]'
 $targets.Add((Join-Path $client 'ao-vk.dll'))
 $targets.Add((Join-Path $client 'ddraw.dll'))
@@ -106,6 +113,7 @@ foreach ($relative in $assetHashes.Keys) {
     if ($relative -notmatch '^randy-vk/(mesh-ids\.bin|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw "Invalid optional material pack path or hash: $relative."
     }
+    if ($preserveMeshIndex -and $relative -ceq $meshRelative) { continue }
     $target = Join-Path $client $relative
     $newHash = $newAssetHashes[$relative]
     $oldHash = $oldAssetHashes[$relative]
@@ -256,7 +264,10 @@ foreach ($target in $targets) {
         $name = Split-Path -Leaf $target
         $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
         $owned = Test-OwnedHash $target $hash
-        if (!$owned) { throw "Refusing to replace unrecognized graphics wrapper $target." }
+        if (!$owned) {
+            if ($fileSpecs[$target].asset) { throw "Refusing to replace an unrecognized existing asset: $target. Its contents were preserved." }
+            throw "Refusing to replace unrecognized graphics wrapper $target."
+        }
     }
 }
 # Leave byte-identical DLLs in place, including a shared loader used by an unrelated installation.
@@ -298,6 +309,14 @@ $record = [ordered]@{
     assets = $manifest.assets
     edition = $manifest.edition
     largeAddressAware = @($memoryPlan.records)
+}
+if ($preserveMeshIndex) {
+    # Do not claim ownership of a pre-existing compatible index or remove it on uninstall.
+    $recordAssets = [ordered]@{}
+    foreach ($item in $manifest.assets.PSObject.Properties) {
+        if ($item.Name -cne $meshRelative) { $recordAssets[$item.Name] = $item.Value }
+    }
+    $record.assets = $recordAssets
 }
 $targets += $receiptPath
 try {

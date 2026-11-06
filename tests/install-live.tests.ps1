@@ -143,8 +143,16 @@ try {
     $meshRelative = 'randy-vk/mesh-ids.bin'
     $meshSource = Join-Path $package $meshRelative
     $meshTarget = Join-Path $client $meshRelative
-    Write-Bytes $meshSource 'fixture model-identification index'
+    $meshNames = [Text.Encoding]::ASCII.GetBytes(([string][char]0) + 'scenery_spaceship' + ([string][char]0))
+    $meshBytes = New-Object byte[] (52 + $meshNames.Length)
+    [Array]::Copy([Text.Encoding]::ASCII.GetBytes('AOMESHID'), $meshBytes, 8)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $meshBytes, 8, 4)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $meshBytes, 12, 4)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]$meshNames.Length), 0, $meshBytes, 16, 4)
+    [Array]::Copy($meshNames, 0, $meshBytes, 52, $meshNames.Length)
+    [IO.File]::WriteAllBytes($meshSource, $meshBytes)
     $manifest.assets[$meshRelative] = Hash $meshSource
+    $manifest.meshIndex = @{ file=$meshRelative; formatVersion=1; sha256=(Hash $meshSource) }
     $cyberRelative = 'randy-vk/packs/ao-cyber-icc/1010004_295610_orm.png'
     $cyberSource = Join-Path $package $cyberRelative
     $cyberTarget = Join-Path $client $cyberRelative
@@ -202,7 +210,7 @@ try {
     Save-Manifest
     # Full -> Lite removes only owned optional files transactionally, preserving settings.
     $fullAssets=$manifest.assets.Clone()
-    $manifest.assets=@{}
+    $manifest.assets=@{ $meshRelative=$fullAssets[$meshRelative] }
     Save-Manifest
     # A removal rollback is tested by failing receipt replacement.
     $global:AoInstallerTestFailTarget=Join-Path $client 'ao-vk-live.install.json'

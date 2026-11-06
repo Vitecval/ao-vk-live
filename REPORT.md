@@ -1,5 +1,26 @@
 # AO-VK Live Preview 23 — isolated candidate report
 
+## Existing model-index correction, candidate revision 3
+
+Revision 2 allowed the model-index filename but did not connect the existing
+compatibility helper to the install transaction. A legacy index with identical
+model identities and renderer categories but different descriptive names was
+therefore rejected as an unknown graphics wrapper. Read-only inspection of the
+reported F: index confirmed exactly this case: its raw SHA-256 is
+`7f30274f61bf43d8387b4b0e296185106c93b41f2d3ff48eba5542ff0627655c`,
+and its normalized identity/category SHA-256 matches the packaged index:
+`315c08db99c3885481292d3bf50a752b5d38f80e6c6b4e63ca185619ff411553`.
+
+Revision 3 validates the required packaged index, checks compatibility, and
+preserves existing compatible annotations byte for byte. Preserved files are
+excluded from the install receipt so uninstall cannot delete them. Missing
+indexes are installed and owned normally. Different model identities/categories,
+malformed indexes and damaged/missing required package data remain blocked before
+installation writes. Asset conflicts now identify an asset rather than a graphics
+wrapper. Renderer binaries and artwork are unchanged. Tests include complete
+synthetic update/rollback/uninstall transactions and an isolated copy of the
+reported index; the actual F: installation remains untouched by this work.
+
 ## Setup correction, candidate revision 2
 
 The first private candidate incorrectly rejected its own required

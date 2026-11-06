@@ -7,7 +7,8 @@ function Get-AoMeshIndexHash([string]$Path) {
     $count = [BitConverter]::ToUInt32($bytes, 12)
     $names = [BitConverter]::ToUInt32($bytes, 16)
     if ($version -ne 1 -or !$count -or $count -gt 1000000 -or !$names -or
-        [long]$bytes.Length -ne (20L + 32L * $count + $names)) { throw 'Invalid existing model-identification index. Its contents were preserved.' }
+        [long]$bytes.Length -ne (20L + 32L * $count + $names) -or
+        $bytes[$bytes.Length - 1] -ne 0) { throw 'Invalid existing model-identification index. Its contents were preserved.' }
     $length = 20 + 32 * [int]$count
     $label = 'scenery_spaceship'
     $nameTable = [Text.Encoding]::ASCII.GetBytes(([string][char]0) + $label + ([string][char]0))
@@ -52,5 +53,7 @@ function Test-AoPreserveMeshIndex([string]$Client, [string]$Package, $Manifest, 
     }
     if (!(Test-Path -LiteralPath $target)) { return $false }
     if ((Get-AoMeshIndexHash $target) -cne $index.sha256) { throw 'The existing model-identification index differs from this supported client build. It was preserved; back it up before resolving the conflict.' }
-    return !$owned
+    # Names are descriptive except for the renderer's scenery_spaceship prefix.
+    # Preserve compatible annotations even if an older setup once owned this file.
+    return (!$owned -or (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $index.sha256)
 }

@@ -1,4 +1,4 @@
-# Preview 23 — renderer and HD update
+# Preview 23 revision 5 — frame-generation presentation correction
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
@@ -36,6 +36,23 @@ True exclusive Vulkan ownership remains unavailable. Exclusive requests use the
 existing borderless fallback; desktop resolution and refresh are retained.
 FSR safeguards remain included, with driver-specific and actual crash validation
 still pending as described in REPORT.md.
+
+## Frame generation
+
+Revision 4 hung after frame generation was enabled in the owner's game. The
+captured renderer, interpolation and presenter threads were blocked in graphics
+driver synchronization/presentation. Revision 5 waits for queued presentation
+work to finish before entering the driver's present call, with other queues
+unlocked during that wait. A five-second timeout or graphics failure stops
+presentation without reusing an unfinished fence. This reduces asynchronous
+overlap and may affect performance; a real-game comparison is still required.
+
+The old present-boundary regression fails and the corrected boundary passes,
+including independent queue progress and injected timeout/allocation/submission
+failures. Real GPU native-resolution, threaded UI, slow-presenter and FSR
+switching fixtures pass. These fixtures do not establish that the owner's exact
+freeze is resolved. Frame generation stays off in the F: preferences until the
+owner deliberately tests it again. Other preferences and HD materials remain.
 
 ## ICC controls
 

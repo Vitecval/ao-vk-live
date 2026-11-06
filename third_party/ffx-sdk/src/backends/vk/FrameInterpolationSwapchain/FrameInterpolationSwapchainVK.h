@@ -188,6 +188,9 @@ struct FrameinterpolationPresentInfo
     VkSemaphore presentSemaphore                                                             = VK_NULL_HANDLE;  // TODO: probably delete this one
     VkSemaphore replacementBufferSemaphore                                                   = VK_NULL_HANDLE;
     VkSemaphore compositionSemaphore                                                         = VK_NULL_HANDLE;
+    // AO-VK: finish queued image work before entering a potentially blocking WSI present.
+    VkFence presentReadyFence = VK_NULL_HANDLE;
+    VkResult presentReadyResult = VK_SUCCESS; // sticky failure; never reset/reuse a pending fence
 
     uint64_t    lastPresentSemaphoreValue = 0;
 

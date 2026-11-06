@@ -762,6 +762,36 @@ FfxErrorCode ffxFrameInterpolationSwapchainGetGpuMemoryUsageVK(FfxSwapchain game
 //////////////////////////////////////////////
 VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex = 0)
 {
+    // AO-VK: some Windows presentation paths retain a driver-wide graphics lock
+    // while waiting for the submitted image. The render worker can then block in
+    // descriptor recording while another SDK queue still needs to make progress.
+    // Drain just this present queue to a fence before entering WSI. Crucially,
+    // the CPU wait owns no queue mutex, so game/interpolation/acquire submissions
+    // remain possible. Keep the image's binary semaphore in the actual present.
+    struct SwapchainLock {
+        CRITICAL_SECTION& section;
+        explicit SwapchainLock(CRITICAL_SECTION& s) : section(s) { EnterCriticalSection(&section); }
+        ~SwapchainLock() { LeaveCriticalSection(&section); }
+    } swapchainLock(pPresenter->swapchainCriticalSection);
+    VkResult& readiness = pPresenter->presentReadyResult;
+    if (readiness != VK_SUCCESS)
+        return readiness;
+    if (!pPresenter->presentReadyFence) {
+        VkFenceCreateInfo fenceInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        readiness = vkCreateFence(pPresenter->device, &fenceInfo, nullptr, &pPresenter->presentReadyFence);
+        if (readiness != VK_SUCCESS) return readiness;
+    }
+    readiness = vkResetFences(pPresenter->device, 1, &pPresenter->presentReadyFence);
+    if (readiness != VK_SUCCESS) return readiness;
+    SubmissionSemaphores noWait, noSignal;
+    readiness = pPresenter->presentQueue.submit(VK_NULL_HANDLE, noWait, noSignal, pPresenter->presentReadyFence);
+    if (readiness != VK_SUCCESS) return readiness;
+    readiness = vkWaitForFences(pPresenter->device, 1, &pPresenter->presentReadyFence, VK_TRUE, 5000000000ull);
+    // A timed-out fence may still be pending. Latch the failure and never reset
+    // or submit it again; report a stopped device instead of another driver wait.
+    if (readiness == VK_TIMEOUT) readiness = VK_ERROR_DEVICE_LOST;
+    if (readiness != VK_SUCCESS) return readiness;
+
     VkPresentInfoKHR presentInfoKHR   = {};
     presentInfoKHR.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfoKHR.pNext              = nullptr;
@@ -772,13 +802,11 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
     presentInfoKHR.pImageIndices      = &imageIndex;
     presentInfoKHR.pResults           = nullptr;  // Optional
 
-    EnterCriticalSection(&pPresenter->swapchainCriticalSection);
     VkResult res;
     {
         std::lock_guard<std::mutex> lock(ffxQueueMutex());   // (ao-vk)
         res = vkQueuePresentKHR(pPresenter->presentQueue.queue, &presentInfoKHR);
     }
-    LeaveCriticalSection(&pPresenter->swapchainCriticalSection);
 
     ++(pPresenter->realPresentCount);
     return res;
@@ -1743,6 +1771,10 @@ void FrameInterpolationSwapChainVK::destroySwapchain(VkDevice device, const VkAl
     destroySemaphore(presentInfo.presentSemaphore);
     destroySemaphore(presentInfo.replacementBufferSemaphore);
     destroySemaphore(presentInfo.compositionSemaphore);
+    if (presentInfo.presentReadyFence) {
+        vkDestroyFence(device, presentInfo.presentReadyFence, nullptr); // paired with the guard's null allocator
+        presentInfo.presentReadyFence = VK_NULL_HANDLE;
+    }
 
     for (uint32_t i = 0; i < FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_ACQUIRE_SEMAPHORE_COUNT; ++i)
     {

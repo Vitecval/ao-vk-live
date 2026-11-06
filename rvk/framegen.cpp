@@ -109,6 +109,7 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     }
     m_fg = s;
     Log("frame generation: on (the frame interpolation swapchain, %ux%u)", ci.imageExtent.width, ci.imageExtent.height);
+    Log("frame generation: GPU-ready presentation guard enabled (5 s limit, queue unlocked while waiting)");
     return true;
 }
 
@@ -152,7 +153,12 @@ VkResult Device::FgAcquire(uint64_t timeout, VkSemaphore semaphore, uint32_t* in
 
 VkResult Device::FgPresent(const VkPresentInfoKHR* info)
 {
-    return m_fg->fns.queuePresentKHR(m_queue, info);
+    const VkResult result = m_fg->fns.queuePresentKHR(m_queue, info);
+    if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR) {
+        Log("frame generation: presentation stopped (VkResult %d); restart with frame generation off", int(result));
+        m_deviceLost = true;
+    }
+    return result;
 }
 
 uint64_t Device::FgShownFrames() const

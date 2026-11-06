@@ -270,5 +270,9 @@ add_executable(fsr_lifecycle_check tests/fsr_lifecycle_check.cpp proxy/native/st
 target_include_directories(fsr_lifecycle_check PRIVATE third_party)
 target_link_libraries(fsr_lifecycle_check PRIVATE rvk user32)
 
+add_executable(framegen_present_check tests/framegen_present_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(framegen_present_check PRIVATE third_party "${FFX_SDK}/include" "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
+target_link_libraries(framegen_present_check PRIVATE rvk user32)
+
 add_executable(fullscreen_fallback_check tests/fullscreen_fallback_check.cpp)
 target_link_libraries(fullscreen_fallback_check PRIVATE user32 dxguid)

@@ -1,4 +1,36 @@
-# AO-VK Live Preview 23 — candidate revision 4
+# AO-VK Live Preview 23 — candidate revision 5
+
+## Revision 5: frame-generation correction and limits
+
+Revision 4 was installed and its startup fix allowed the owner to play. Enabling
+frame generation then produced a real hang: the game thread waited for the
+render worker, which was blocked in the NVIDIA driver while the SDK presenter
+was in NtGdiDdDDIPresent and its interpolation thread waited on GPU synchronization.
+The full captured evidence is in build/preview23/checks/framegen-freeze-r4.
+The owner approved closing that single frozen process and saving FrameGen=0;
+all other settings bytes were preserved. The exact first bad runtime dependency
+and possible Twitch Studio capture interaction remain unproven.
+
+The corrected SDK present boundary submits a fence after existing work on the
+present queue and waits for its completion before entering vkQueuePresentKHR.
+The CPU wait holds no queue mutex, allowing other queues to progress and avoiding
+an unready image being waited on inside a driver presentation lock. The acquired
+image's binary semaphore remains attached to the real present. Readiness waits
+are limited to five seconds; fence allocation/reset/submission/wait failures are
+latched, preventing reuse of a potentially pending fence. Frame-generation
+presentation errors stop submission and log the need for a restart. The fence
+is destroyed after SDK presenter teardown and queue-idle checks.
+
+The production boundary fails its new test before this guard and passes after it.
+Tests verify progress on another queue while waiting and timeout/allocation/
+submission/reset error handling. Native 1914x1051 direct and threaded UI, slow
+presentation, FSR mode/scale/size switching and injected FSR initialization failure
+all pass on the local RTX 2070 SUPER. Source-built real GPU fixtures continue to
+request and present generated frames; frame generation was not replaced by an
+always-off fallback. The extra present-queue completion point may reduce overlap
+or add latency. Actual game stability, frame pacing and performance require the
+owner's live retest. Do not claim the captured game freeze conclusively resolved
+from isolated tests alone.
 
 ## Current result
 
@@ -177,7 +209,7 @@ No player package includes the Living helper, metadata, commands or generated
 client assets. Package payload and available asset hashes are audited; deferred
 Full HD assets retain the exact pinned Preview 21 archive descriptors.
 
-Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r4`:
+Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r5`:
 
 - `ao-vk-live-0.6.0-preview.23-windows-x86-lite.zip`
 - `ao-vk-live-0.6.0-preview.23-windows-x86-full-setup.zip`

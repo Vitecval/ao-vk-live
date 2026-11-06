@@ -1,4 +1,4 @@
-# Preview 23 revision 8 — presentation on the window's owning thread
+# Preview 23 revision 9 — NVIDIA presentation completion pacing
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
@@ -39,6 +39,20 @@ FSR safeguards remain included, with driver-specific and actual crash validation
 still pending as described in REPORT.md.
 
 ## Frame generation
+
+Revision 8 still froze, including a controlled launch without either Twitch or
+RTSS Vulkan overlays. Revision 9 adds NVIDIA compatibility pacing: the next
+game frame's GPU work waits until the previous generated/real pair has actually
+returned from presentation. The earlier ready fence alone did not prevent later
+dependent work from being queued before an earlier presentation call.
+
+A frame-origin regression found 104 such overlaps in revision 8 and zero in
+revision 9. Twelve GPU scenarios plus the CPU wait/failure guards pass. The
+completion wait has a five-second failure limit, and the first eight driver
+present entries/returns are logged. Actual game confirmation is still needed.
+This path can trade some throughput/overlap for compatibility. Other GPU vendors
+retain asynchronous scheduling; no global driver/overlay setting is changed.
+Frame generation remains off in the saved F: preferences after recovery.
 
 Revision 7 also froze in the actual game. Revision 8 sends frame-generation
 presents to a private message-only window on the game's window thread. This

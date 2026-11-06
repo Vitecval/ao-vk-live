@@ -74,6 +74,8 @@ typedef struct VkFrameInterpolationInfoFFX
     // AO-VK private integration. Callback provides present-queue synchronization.
     VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*);
     void* queuePresentContext;
+    // AO-VK: keep future game submissions behind the actual WSI pair return.
+    bool serializePresentation;
 } VkFrameInterpolationInfoFFX;
 
 /// Query how much memory is required for the Vulkan backend's scratch buffer.

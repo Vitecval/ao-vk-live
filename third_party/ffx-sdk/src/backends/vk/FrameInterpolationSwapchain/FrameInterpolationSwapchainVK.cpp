@@ -1125,6 +1125,8 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
 
                     presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
+                    presenter->completedPresentation.store(numFramesSentForPresentation, std::memory_order_release);
+                    WakeByAddressAll(&presenter->completedPresentation);
                 }
             }
         }
@@ -1243,6 +1245,8 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
 
                     presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
+                    presenter->completedPresentation.store(numFramesSentForPresentation, std::memory_order_release);
+                    WakeByAddressAll(&presenter->completedPresentation);
                 }
             }
         }
@@ -1555,6 +1559,7 @@ VkResult FrameInterpolationSwapChainVK::init(const VkSwapchainCreateInfoKHR* pCr
     presentInfo.presentQueue       = pFrameInterpolationInfo->presentQueue;
     presentInfo.queuePresentCallback = pFrameInterpolationInfo->queuePresentCallback;
     presentInfo.queuePresentContext = pFrameInterpolationInfo->queuePresentContext;
+    presentInfo.serializePresentation = pFrameInterpolationInfo->serializePresentation;
     imageAcquireQueue              = pFrameInterpolationInfo->imageAcquireQueue;
 
     // check that the queues are separate
@@ -2771,6 +2776,29 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
     replacementSwapBufferIndex = presentCount % gameBufferCount;
 
     LeaveCriticalSection(&criticalSection);
+
+    if (presentInfo.serializePresentation && runInterpolation) {
+        // A ready GPU fence is insufficient on driver paths that drain other
+        // queues during WSI. Do not let the engine queue the next game's work
+        // (which can wait for a future composition) until this pair has returned
+        // from the real presentation calls. Own no SDK/queue mutex while waiting.
+        const DWORD began = GetTickCount();
+        for (;;) {
+            uint64_t completed = presentInfo.completedPresentation.load(std::memory_order_acquire);
+            if (completed >= framesSentForPresentation) break;
+            const VkResult failure = presentInfo.lastPresentResult.load();
+            if (failure < 0 && failure != VK_ERROR_OUT_OF_DATE_KHR) return failure;
+            const DWORD elapsed = GetTickCount() - began;
+            if (elapsed >= 5000) {
+                presentInfo.lastPresentResult.store(VK_ERROR_DEVICE_LOST);
+                return VK_ERROR_DEVICE_LOST;
+            }
+            WaitOnAddress(reinterpret_cast<volatile void*>(&presentInfo.completedPresentation),
+                          &completed, sizeof(completed), (std::min)(DWORD(100), DWORD(5000 - elapsed)));
+        }
+        res = presentInfo.lastPresentResult.load();
+        if (res < 0 && res != VK_ERROR_OUT_OF_DATE_KHR) return res;
+    }
 
     waitForSemaphoreValue(
         presentInfo.device, presentInfo.replacementBufferSemaphore, replacementSwapBuffers[replacementSwapBufferIndex].availabilitySemaphoreValue, UINT64_MAX, presentInfo.waitCallback);

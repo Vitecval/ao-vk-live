@@ -74,7 +74,11 @@ LRESULT CALLBACK PresentWindowProc(HWND window, UINT message, WPARAM wp, LPARAM 
     if (message == kPresentMessage) {
         auto& request = *reinterpret_cast<OwnerPresentRequest*>(lp);
         std::lock_guard<std::mutex> lock(ffxQueueMutex());
+        const auto ordinal = uintptr_t(GetWindowLongPtrW(window, GWLP_USERDATA)) + 1;
+        SetWindowLongPtrW(window, GWLP_USERDATA, LONG_PTR(ordinal));
+        if (ordinal <= 8) Log("frame generation: driver present %u begin, image %u", unsigned(ordinal), request.info->pImageIndices[0]);
         request.result = vk::vkQueuePresentKHR(request.queue, request.info);
+        if (ordinal <= 8) Log("frame generation: driver present %u returned %d", unsigned(ordinal), int(request.result));
         return 1;
     }
     return DefWindowProcW(window, message, wp, lp);
@@ -174,6 +178,7 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     s->info.compositionMode = VK_COMPOSITION_MODE_NOT_FORCED_FFX;
     s->info.queuePresentCallback = PresentOnWindowOwner;
     s->info.queuePresentContext = m_fgDispatchWindow;
+    s->info.serializePresentation = m_props.vendorID == 0x10de;
     s->format = ci.imageFormat;
     const VkResult r = s->fns.createSwapchainFFX(m_device, &ci, nullptr, &m_swapchain, &s->info);
     if (r != VK_SUCCESS) {
@@ -187,6 +192,8 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     Log("frame generation: GPU-ready presentation guard enabled (5 s limit, queue unlocked while waiting)");
     Log("frame generation: complete generated/real GPU pair submitted before WSI (requested images %u)", ci.minImageCount);
     Log("frame generation: WSI presents run on window owner %lu through a private dispatcher", GetWindowThreadProcessId(m_window, nullptr));
+    if (s->info.serializePresentation)
+        Log("frame generation: NVIDIA compatibility pacing waits for the full WSI pair before the next game GPU submission");
     return true;
 }
 

@@ -8,6 +8,7 @@
 #include <mutex>
 #include <vector>
 #include <cwchar>
+#include <algorithm>
 
 namespace {
 PFN_vkGetDeviceProcAddr realGet;
@@ -40,9 +41,14 @@ VkResult VKAPI_PTR LimitedCaps(VkPhysicalDevice device,VkSurfaceKHR surface,VkSu
     if(result==VK_SUCCESS){caps->maxImageCount=caps->minImageCount;++limitedCapsCalls;}
     return result;
 }
-struct BinarySubmission {VkQueue queue;VkSemaphore binary;};
+struct BinarySubmission {VkQueue queue;VkSemaphore binary;uint64_t frame;};
 std::mutex submissionMutex;
 std::vector<BinarySubmission> binarySubmissions;
+std::atomic<unsigned> activeSdkPresents{0},overlappingFrameSubmits{0};
+uint64_t lastGameSubmission=0;
+struct SubmissionOrigin {VkSemaphore semaphore;uint64_t value,frame;};
+std::vector<SubmissionOrigin> submissionOrigins;
+bool detectFrameOverlap=false;
 std::recursive_mutex driverWindowLock;
 std::atomic<unsigned> ownerPresents{0},ownerTimeouts{0},wrongPresentThread{0};
 DWORD ownerThread=0;
@@ -57,6 +63,22 @@ bool IsSdkPresent(VkQueue queue,const VkPresentInfoKHR* info){
         if(entry.queue==queue&&info->waitSemaphoreCount&&entry.binary==info->pWaitSemaphores[0])return true;
     return false;
 }
+VkResult VKAPI_PTR DrainPresent(VkQueue queue,const VkPresentInfoKHR* info){
+    if(!IsSdkPresent(queue,info))return realPresent(queue,info);
+    {
+        std::lock_guard<std::mutex> lock(submissionMutex);
+        for(auto i=binarySubmissions.rbegin();i!=binarySubmissions.rend();++i)
+            if(i->queue==queue&&i->binary==info->pWaitSemaphores[0]){
+                if(i->frame&&lastGameSubmission>i->frame)++overlappingFrameSubmits;
+                break;
+            }
+    }
+    ++activeSdkPresents;
+    Sleep(45); // model the driver retaining its presentation transaction
+    const auto result=realPresent(queue,info);
+    --activeSdkPresents;
+    return result;
+}
 VkResult VKAPI_PTR OwnerPresent(VkQueue queue,const VkPresentInfoKHR* info){
     if(IsSdkPresent(queue,info)){
         ++ownerPresents;
@@ -69,18 +91,34 @@ VkResult VKAPI_PTR OwnerPresent(VkQueue queue,const VkPresentInfoKHR* info){
 }
 std::atomic<unsigned> pairedPresentCalls{0},withheldGpuPairs{0};
 VkResult VKAPI_PTR ObserveSubmit(VkQueue queue,uint32_t count,const VkSubmitInfo* submits,VkFence fence){
+    if(detectFrameOverlap&&activeSdkPresents){
+        for(uint32_t n=0;n<count;++n)
+            if(!submits[n].pNext&&submits[n].commandBufferCount)++overlappingFrameSubmits;
+    }
     const VkResult result=realSubmit(queue,count,submits,fence);
     if(result!=VK_SUCCESS)return result;
     for(uint32_t n=0;n<count;++n){
         auto* next=static_cast<const VkBaseInStructure*>(submits[n].pNext);
         while(next&&next->sType!=VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO)next=next->pNext;
+        const auto* timelineInfo=reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(next);
+        std::lock_guard<std::mutex> lock(submissionMutex);
+        uint64_t origin=0;
+        for(uint32_t w=0;w<submits[n].waitSemaphoreCount;++w){
+            const uint64_t value=timelineInfo&&w<timelineInfo->waitSemaphoreValueCount?timelineInfo->pWaitSemaphoreValues[w]:0;
+            for(auto i=submissionOrigins.rbegin();i!=submissionOrigins.rend();++i)
+                if(i->semaphore==submits[n].pWaitSemaphores[w]&&i->value==value){origin=std::max(origin,i->frame);break;}
+        }
+        if(!next&&submits[n].commandBufferCount&&submits[n].signalSemaphoreCount==1)origin=++lastGameSubmission;
+        for(uint32_t s=0;s<submits[n].signalSemaphoreCount;++s){
+            const uint64_t value=timelineInfo&&s<timelineInfo->signalSemaphoreValueCount?timelineInfo->pSignalSemaphoreValues[s]:0;
+            submissionOrigins.push_back({submits[n].pSignalSemaphores[s],value,origin});
+        }
         if(!next)continue;
         const auto& timeline=*reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(next);
         bool hasTimeline=false;for(uint32_t i=0;i<timeline.signalSemaphoreValueCount;++i)hasTimeline|=timeline.pSignalSemaphoreValues[i]!=0;
         if(!hasTimeline)continue;
-        std::lock_guard<std::mutex> lock(submissionMutex);
         for(uint32_t i=0;i<submits[n].signalSemaphoreCount&&i<timeline.signalSemaphoreValueCount;++i)
-            if(!timeline.pSignalSemaphoreValues[i])binarySubmissions.push_back({queue,submits[n].pSignalSemaphores[i]});
+            if(!timeline.pSignalSemaphoreValues[i])binarySubmissions.push_back({queue,submits[n].pSignalSemaphores[i],origin});
     }
     return result;
 }
@@ -130,8 +168,9 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     const bool limited=argc>1 && std::string(argv[1])=="--limited-images";
     const bool handoff=argc>1 && std::string(argv[1])=="--handoff-timeout";
     const bool replaceWindow=argc>1 && std::string(argv[1])=="--window-replacement";
+    const bool frameOverlap=argc>1 && std::string(argv[1])=="--frame-overlap";
     const bool owner=replaceWindow || (argc>1 && std::string(argv[1])=="--owner-wsi");
-    const bool native=owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
+    const bool native=frameOverlap || owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
     const bool fg=native || (argc>1 && std::string(argv[1])=="--framegen");
     const unsigned width=native?1914:768,height=native?1051:512;
     using namespace rvk;using namespace rvk::d3d;
@@ -154,6 +193,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(messages)vk::vkQueuePresentKHR=MessagePresent;
         if(pairs){vk::vkQueuePresentKHR=PairPresent;vk::vkQueueSubmit=ObserveSubmit;}
         if(owner){vk::vkQueuePresentKHR=OwnerPresent;vk::vkQueueSubmit=ObserveSubmit;}
+        if(frameOverlap){detectFrameOverlap=true;vk::vkQueuePresentKHR=DrainPresent;vk::vkQueueSubmit=ObserveSubmit;}
         if(timeouts)vk::vkAcquireNextImageKHR=TimeoutAcquire;
         if(limited){vk::vkGetPhysicalDeviceSurfaceCapabilitiesKHR=LimitedCaps;vk::vkQueuePresentKHR=PairPresent;}
         if(handoff){vk::vkWaitSemaphores=DelayHandoff;rvk::SetLogSink(HandoffLog);}
@@ -202,6 +242,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(inject){vk::vkGetDeviceProcAddr=realGet;if(!injectedCalls){std::puts("failure injection was not exercised");return 5;}std::printf("injected pipeline failures: %u; contexts must be logged once per mode\n",injectedCalls);}
     }
     DestroyWindow(window);
+    if(frameOverlap){std::printf("WSI calls overlapping later queued game work: %u\n",overlappingFrameSubmits.load());if(overlappingFrameSubmits)return 16;}
     if(owner){std::printf("owner WSI: %u presents, %u wrong-thread, %u callbacks timed out\n",ownerPresents.load(),wrongPresentThread.load(),ownerTimeouts.load());if(ownerPresents<72||wrongPresentThread||ownerTimeouts)return 12;}
     if(handoff){rvk::SetLogSink(nullptr);std::printf("handoff delayed=%u stopped/logged=%u\n",unsigned(delayedHandoff.load()),unsigned(stoppedHandoff.load()));if(!delayedHandoff||!stoppedHandoff)return 11;}
     if(timeouts){std::printf("injected real-image acquisition timeouts: %u\n",acquireTimeouts.load());if(!acquireTimeouts)return 9;}
@@ -222,6 +263,6 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     return 0;
 }
 int main(int argc,char**argv) {
-    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"||std::string(argv[1])=="--owner-wsi"||std::string(argv[1])=="--window-replacement"))return Run<rvk::ThreadedDevice>(argc,argv);
+    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"||std::string(argv[1])=="--owner-wsi"||std::string(argv[1])=="--window-replacement"||std::string(argv[1])=="--frame-overlap"))return Run<rvk::ThreadedDevice>(argc,argv);
     return Run<rvk::Device>(argc,argv);
 }

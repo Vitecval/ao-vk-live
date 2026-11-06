@@ -193,6 +193,8 @@ struct FrameinterpolationPresentInfo
     VkResult presentReadyResult = VK_SUCCESS; // sticky failure; never reset/reuse a pending fence
     VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*) = nullptr;
     void* queuePresentContext = nullptr;
+    bool serializePresentation = false;
+    alignas(8) std::atomic<uint64_t> completedPresentation = 0;
 
     uint64_t    lastPresentSemaphoreValue = 0;
 

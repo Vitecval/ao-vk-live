@@ -1,4 +1,61 @@
-# AO-VK Live Preview 23 — candidate revision 8
+# AO-VK Live Preview 23 — candidate revision 9
+
+## Revision 9: keep later game GPU work behind actual presentation completion
+
+Revision 8 failed in the real client. PID 57900, launch file time
+134384696396085918, loaded SHA-256 82dac3d5... and wrote randy-vk-5.log.
+The capture confirms WSI ran on the window owner as intended. That thread
+blocked in NtGdiDdDDIPresent, the SDK presenter waited for its synchronous
+owner-thread callback, interpolation waited on the GPU, and the rendering worker
+was idle after the five-second handoff failure. Moving WSI to the owner did
+not resolve the underlying driver stall.
+
+A controlled comparison launched the unchanged revision-8 renderer with only
+Twitch and RTSS Vulkan layers disabled in the F: launcher's child environment.
+No global/user environment, registry or driver profile was changed. The new
+client, PID 18348, launch file time 134384701457875573, loaded neither overlay
+DLL and still froze after enabling frame generation. Its log is randy-vk-6.log.
+Both are therefore unnecessary for reproducing this failure; neither is blamed.
+The normal isolated GPU fixture also loads both overlays and passes. Both F:
+launches were captured and closed, with FrameGen restored to 0 and all other
+settings bytes preserved. The temporary diagnostic launch settings expire with
+those processes. Evidence and receipts: checks/framegen-freeze-r8.
+
+The earlier ready-fence/pair changes only cover the pair being presented. The
+engine could still queue a later game frame before that pair entered WSI. The
+later work can depend on future composition/replacement signals that the CPU
+presenter has not submitted. A driver presentation path that drains other queues
+can then wait for work whose progress depends on that same blocked presenter.
+This is a dependency class supported by the new trace, not a claim to have proven
+NVIDIA's private internal implementation or the real-game root cause.
+
+For NVIDIA devices (vendor 0x10de), revision 9 waits for a CPU completion marker
+published only after the entire generated/real pair's actual presentation calls
+return. Both SDK composition modes publish it. The rendering worker owns no
+SDK critical section or queue mutex while waiting. Completion is monotonic and
+the wait is limited to five seconds, with failure returned through the existing
+stop/log path. The next game frame's GPU work cannot be submitted past an
+unfinished pair on a successful path. Passthrough presents already return
+synchronously. Other GPU vendors retain the existing asynchronous scheduling.
+The first eight driver-present entries/returns are now logged for a future
+capture. A driver call itself remains uncancellable by this mechanism.
+
+The regression propagates game-frame origins through binary/timeline semaphore
+submissions. Revision 8 records 104 WSI calls with later game work already queued.
+Revision 9 records zero. A simpler active-call-only probe recorded zero in both
+versions and was insufficient: the problematic later work was queued before the
+earlier WSI call started. The traced before/after fixture is the relevant control.
+
+All twelve GPU scenarios pass on the local RTX 2070 SUPER: frame-origin overlap,
+window replacement, direct/native threaded rendering, paired submission, window
+callbacks, resize/scale/toggles, image-acquisition timeouts, limited surfaces,
+slow presentation, initialization failure and delayed interpolation handoff.
+Slow presentation still produces 348 driver presents for 180 rendered frames.
+The delayed-handoff scenario exercises the new completion timeout and exits.
+Four sent-message wait cases, twelve worker faults and ready-guard failure cases
+also pass. Actual game confirmation of revision 9 is still pending. This
+compatibility scheduling can reduce render/presentation overlap and throughput;
+no FPS improvement or general driver-level fix is claimed.
 
 ## Revision 8: present on the game window's owning thread
 
@@ -349,7 +406,7 @@ No player package includes the Living helper, metadata, commands or generated
 client assets. Package payload and available asset hashes are audited; deferred
 Full HD assets retain the exact pinned Preview 21 archive descriptors.
 
-Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r8`:
+Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r9`:
 
 - `ao-vk-live-0.6.0-preview.23-windows-x86-lite.zip`
 - `ao-vk-live-0.6.0-preview.23-windows-x86-full-setup.zip`

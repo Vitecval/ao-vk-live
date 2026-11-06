@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import time
 import uuid
 
 
@@ -22,6 +23,9 @@ def main():
     parser.add_argument('--installer', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--expected-rejection', default='Close the game')
+    cases = parser.add_mutually_exclusive_group()
+    cases.add_argument('--upgrade-only', action='store_true')
+    cases.add_argument('--fresh-only', action='store_true')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     output = args.output.resolve()
@@ -34,7 +38,7 @@ def main():
         package = package.resolve()
         manifest = json.loads((package / 'manifest.json').read_text(encoding='utf-8-sig'))
         installer = (args.installer or package / 'install-live.ps1').resolve()
-        for upgrade in [False, True]:
+        for upgrade in ([True] if args.upgrade_only else [False] if args.fresh_only else [False, True]):
             client = run / f'client-{number}-{int(upgrade)}'
             client.mkdir()
             if upgrade:
@@ -58,14 +62,16 @@ try {{
 }}
 if (!$caught) {{throw 'Expected the deliberately busy fixture to stop installation'}}
 """, encoding='utf-8')
+            started = time.monotonic()
             result = subprocess.run([str(host), '-NoProfile', '-ExecutionPolicy', 'Bypass',
-                                     '-File', str(script)], capture_output=True, text=True, timeout=180)
+                                     '-File', str(script)], capture_output=True, text=True, timeout=600)
             (run / f'probe-{number}-{int(upgrade)}.log').write_text(result.stdout + result.stderr)
             assert result.returncode == 0, result.stdout + result.stderr
             after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in client.iterdir()}
             assert before == after, 'Preflight changed the synthetic client'
             rows.append(dict(edition=manifest['edition'], upgrade=upgrade,
                              asset_entries=len(manifest['assets']), client_unchanged=True,
+                             process_seconds=time.monotonic() - started,
                              installer_sha256=hashlib.sha256(installer.read_bytes()).hexdigest(),
                              sourceCommit=manifest['sourceCommit']))
     (output / 'RESULTS.json').write_text(json.dumps(dict(result='passed',

@@ -67,7 +67,9 @@ if (Test-Path -LiteralPath $receiptPath) {
     }
     if (!$LoaderDir -and $receipt.loaderDirectory) { $LoaderDir = [string]$receipt.loaderDirectory }
 }
-$targets = @((Join-Path $client 'ao-vk.dll'), (Join-Path $client 'ddraw.dll'))
+$targets = New-Object 'Collections.Generic.List[string]'
+$targets.Add((Join-Path $client 'ao-vk.dll'))
+$targets.Add((Join-Path $client 'ddraw.dll'))
 if (!$LoaderDir -and !$receipt -and (Test-Path -LiteralPath (Join-Path $client 'MSWSOCK.dll'))) {
     $candidate = Join-Path $env:APPDATA 'AOPP'
     if (Test-Path -LiteralPath (Join-Path $candidate 'AnarchyOnline.exe')) { $LoaderDir = $candidate }
@@ -76,7 +78,7 @@ $loader = ''
 if ($LoaderDir) {
     $loader = [IO.Path]::GetFullPath($LoaderDir)
     if (!$Uninstall -and !(Test-Path -LiteralPath (Join-Path $loader 'AnarchyOnline.exe'))) { throw 'The extra loader folder must contain AnarchyOnline.exe.' }
-    if ($loader -ine $client) { $targets += Join-Path $loader 'ddraw.dll' }
+    if ($loader -ine $client) { $targets.Add((Join-Path $loader 'ddraw.dll')) }
 }
 $fileSpecs = @{}
 foreach ($target in $targets) {
@@ -86,21 +88,29 @@ foreach ($target in $targets) {
 # Asset paths are restricted to the reserved packs and the exact model-index file.
 # Never trust a manifest or install record to write/remove an arbitrary path.
 $assetHashes = [ordered]@{}
+$newAssetHashes = @{}
+$oldAssetHashes = @{}
 if ($receipt -and $receipt.assets) {
-    foreach ($item in $receipt.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
+    foreach ($item in $receipt.assets.PSObject.Properties) {
+        $oldAssetHashes[$item.Name] = [string]$item.Value
+        $assetHashes[$item.Name] = [string]$item.Value
+    }
 }
 if ($manifest.assets) {
-    foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
+    foreach ($item in $manifest.assets.PSObject.Properties) {
+        $newAssetHashes[$item.Name] = [string]$item.Value
+        $assetHashes[$item.Name] = [string]$item.Value
+    }
 }
 foreach ($relative in $assetHashes.Keys) {
     if ($relative -notmatch '^randy-vk/(mesh-ids\.bin|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw "Invalid optional material pack path or hash: $relative."
     }
     $target = Join-Path $client $relative
-    $newHash = $(if ($manifest.assets) { $manifest.assets.$relative })
-    $oldHash = $(if ($receipt -and $receipt.assets) { $receipt.assets.$relative })
+    $newHash = $newAssetHashes[$relative]
+    $oldHash = $oldAssetHashes[$relative]
     $fileSpecs[$target] = @{ relative = $relative; hash = $newHash; oldHash = $oldHash; asset = $true; retire = (!$newHash -and !$Uninstall) }
-    $targets += $target
+    $targets.Add($target)
 }
 $memoryPlan = @{ records=@(); changes=@(); warnings=@(); status='Left unchanged' }
 if ($manifest.largeAddressAware -or $receipt.largeAddressAware) {
@@ -109,7 +119,7 @@ if ($manifest.largeAddressAware -or $receipt.largeAddressAware) {
     foreach ($change in $memoryPlan.changes) {
         if ($fileSpecs.ContainsKey($change.target)) { throw 'Duplicate executable memory-patch target.' }
         $fileSpecs[$change.target] = $change
-        $targets += $change.target
+        $targets.Add($change.target)
     }
 }
 function Test-OwnedHash($Target, $Hash) {
@@ -121,8 +131,8 @@ function Test-OwnedHash($Target, $Hash) {
     }
     return $false
 }
-$unchangedTargets = @()
-$changingTargets = @()
+$unchangedTargets = New-Object 'Collections.Generic.List[string]'
+$changingTargets = New-Object 'Collections.Generic.List[string]'
 $checkedTargets = 0
 foreach ($target in $targets) {
     $checkedTargets++
@@ -130,8 +140,8 @@ foreach ($target in $targets) {
     $name = Split-Path -Leaf $target
     if (!$Uninstall -and (Test-Path -LiteralPath $target) -and
         (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) {
-        $unchangedTargets += $target
-    } else { $changingTargets += $target }
+        $unchangedTargets.Add($target)
+    } else { $changingTargets.Add($target) }
 }
 function Assert-AoClientClosed {
 foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness')) {

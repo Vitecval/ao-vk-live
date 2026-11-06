@@ -11,6 +11,11 @@ artwork are unchanged. Revision 1 should be replaced by the revision 2 setup ZIP
 The installer regression now covers model-index install/update/removal and unsafe
 near-matching names. A separate package preflight test exercises the actual Lite
 and Full manifests through the x86 installer in isolated fresh/update fixtures.
+Preflight target lists now grow without repeatedly copying arrays, and asset
+hashes use direct dictionary lookups. This preserves the same validation rules.
+The initial full-manifest test exceeded its three-minute fixture timeout; that
+timeout is preserved separately from assertion results. Large-manifest parsing
+in Windows PowerShell can still take time; no setup speedup is claimed here.
 
 ## Status
 

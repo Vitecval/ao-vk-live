@@ -1,4 +1,4 @@
-# Preview 23 revision 5 — frame-generation presentation correction
+# Preview 23 revision 6 — Windows presentation message deadlock correction
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
@@ -38,6 +38,23 @@ FSR safeguards remain included, with driver-specific and actual crash validation
 still pending as described in REPORT.md.
 
 ## Frame generation
+
+Revision 5 still froze in the owner's game. Revision 6 corrects a Windows
+threading requirement: Vulkan presentation may synchronously message the window
+owner, so that thread must keep processing those messages while waiting for
+rendering. The previous futex-only caller waits could deadlock the game, render
+worker and SDK presenter in a cycle.
+
+Caller waits now service only synchronous sent messages. Posted keyboard/mouse
+input, timers and quit requests remain with the normal game loop. Renderer idle
+and SDK presenter teardown waits on the window-owning thread use a helper while
+that thread services sent messages. The render worker keeps its efficient
+indefinite idle wait. No global NVIDIA profile or capture-layer settings change.
+
+The original waits fail four CPU regressions and the GPU presenter test stalls
+with callback timeouts; the corrected tests complete all callbacks. These checks
+also cover resize, scale changes, frame-generation toggles, posted-input/quit
+preservation and shutdown. The actual game's retest remains required.
 
 Revision 4 hung after frame generation was enabled in the owner's game. The
 captured renderer, interpolation and presenter threads were blocked in graphics

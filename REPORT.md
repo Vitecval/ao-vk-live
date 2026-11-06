@@ -1,4 +1,41 @@
-# AO-VK Live Preview 23 — candidate revision 5
+# AO-VK Live Preview 23 — candidate revision 6
+
+## Revision 6: Windows message-aware renderer waits
+
+The owner retested revision 5 and it froze again. PID 63696 loaded the expected
+revision-5 DLL. Its log was randy-vk-2.log (the previous terminated process still
+retained the first log), and it confirmed the GPU-ready guard was active. The
+new captured presenter was still in NtGdiDdDDIPresent; the renderer waited for
+the SDK interpolation event and the game waited in ThreadedDevice::EndFrame.
+The owner authorized closing F: as needed; only this frozen F: process was closed
+and FrameGen=0 restored, with all other settings bytes preserved.
+
+Revision 6 addresses a concrete Win32 WSI contract violation: the caller could
+wait indefinitely for rendering while never servicing synchronous window
+messages required by a presenter on another thread. Caller-side futex waits now
+service only sent messages and use one-millisecond sleep slices; worker idle
+waits are unchanged. Shutdown handle waits use MsgWaitForMultipleObjectsEx.
+Idle and SDK teardown operations invoked on the HWND owner run on a helper while
+that owner services sent messages. Posted input, timers and WM_QUIT are neither
+removed nor dispatched by these waits. The previous GPU-ready guard remains,
+but it did not solve the owner's freeze alone.
+
+Evidence: all four original CPU waits (sync/frame/queue/shutdown) failed to
+acknowledge a synchronous cross-thread message, taking 359-406 ms to hit the
+test sender's timeout. Corrected waits pass, including posted-input and quit
+preservation. The GPU regression invokes synchronous HWND callbacks from the
+actual FSR presenter: original waits repeatedly time out and hit a 20-second
+watchdog; corrected waits complete all callbacks, including final teardown.
+See checks/framegen-freeze-r5 for captured logs, baseline objects and receipts.
+Twelve worker-failure cases and the GPU-ready boundary error tests still pass.
+Native UI, FSR/scale/resize/toggle and slow-presenter checks are recorded there.
+The owner's actual game still requires live confirmation; isolated regression
+coverage is not presented as a successful game retest.
+
+Win32 requirements: [Vulkan Win32 WSI](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateWin32SurfaceKHR.html)
+and [Microsoft PeekMessage](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-peekmessagew).
+Twitch's implicit Vulkan layer was found, but it has not been proven responsible.
+Driver profiles were read only; no system, NVIDIA or overlay settings changed.
 
 ## Revision 5: frame-generation correction and limits
 
@@ -209,7 +246,7 @@ No player package includes the Living helper, metadata, commands or generated
 client assets. Package payload and available asset hashes are audited; deferred
 Full HD assets retain the exact pinned Preview 21 archive descriptors.
 
-Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r5`:
+Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r6`:
 
 - `ao-vk-live-0.6.0-preview.23-windows-x86-lite.zip`
 - `ao-vk-live-0.6.0-preview.23-windows-x86-full-setup.zip`

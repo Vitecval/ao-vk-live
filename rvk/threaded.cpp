@@ -1,4 +1,5 @@
 #include "threaded.h"
+#include "win32_wait.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -27,6 +28,14 @@ LONG CALLBACK RenderWorkerFault(EXCEPTION_POINTERS* e)
 template <typename T>
 void WaitWhileEqual(std::atomic<T>& value, T expected, DWORD timeoutMs)
 {
+    if (!g_renderWorker) {
+        // The window-owning caller must service WSI's synchronous sends while
+        // waiting for renderer progress. A pure futex wait can deadlock the
+        // presenter, renderer and game thread in a cycle. Bound only caller
+        // sleeps to 1 ms; the render worker retains its indefinite idle futex.
+        win32::PumpSentMessages();
+        timeoutMs = std::min(timeoutMs, DWORD(1));
+    }
     // WaitOnAddress is a futex under Wine: cheap, and returns at once if the value already changed.
     WaitOnAddress(reinterpret_cast<volatile void*>(&value), &expected, sizeof(T), timeoutMs);
 }
@@ -89,7 +98,7 @@ void ThreadedDevice::StopWorker()
         // Setting m_stop and waking an unchanged write position could lose the wake just before its wait.
         Enqueue([this](const uint8_t*) { m_stop.store(true); });
         Publish();
-        while(WaitForSingleObject(m_thread,100)==WAIT_TIMEOUT)CheckWorkerFailed(true);
+        while(win32::WaitWithSentMessages(m_thread,100)==WAIT_TIMEOUT)CheckWorkerFailed(true);
         CheckWorkerFailed(true);
         CloseHandle(m_thread);
         m_thread = nullptr;

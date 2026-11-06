@@ -11,6 +11,7 @@
 // - The interface isn't interpolated: its layer (interface.cpp) isn't laid over our frame but registered with the
 //   swapchain, which lays it over the real and the generated frame alike (premultiplied, as ui_composite.frag).
 #include "internal.h"
+#include "win32_wait.h"
 
 #include <FidelityFX/host/ffx_fsr3.h>
 #include <FidelityFX/host/backends/vk/ffx_vk.h>
@@ -118,6 +119,21 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
 // wait under its lock on them (its last present may come after).
 void Device::WaitIdle()
 {
+    // Resize/destruction can call this on the HWND owner after the render
+    // worker was synchronized/stopped. Let a helper perform the blocking driver
+    // waits while that owner continues servicing WSI's synchronous messages.
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        HANDLE helper = CreateThread(nullptr, 0, [](void* context) -> DWORD {
+            static_cast<Device*>(context)->WaitIdle();
+            return 0;
+        }, this, 0, nullptr);
+        if (helper) {
+            win32::WaitWithSentMessages(helper, INFINITE);
+            CloseHandle(helper);
+            return;
+        }
+        Log("graphics idle: could not start the message-aware wait helper (error %lu)", GetLastError());
+    }
     if (!m_fg || !m_swapchain) {
         vkDeviceWaitIdle(m_device);
         return;
@@ -131,6 +147,20 @@ void Device::FgDestroySwapchain()
 {
     if (!m_fg)
         return;
+    // Idle GPU work does not mean the SDK's CPU presenter has returned from
+    // WSI yet. Its shutdown/join must also leave the HWND owner message-aware.
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        HANDLE helper = CreateThread(nullptr, 0, [](void* context) -> DWORD {
+            static_cast<Device*>(context)->FgDestroySwapchain();
+            return 0;
+        }, this, 0, nullptr);
+        if (helper) {
+            win32::WaitWithSentMessages(helper, INFINITE);
+            CloseHandle(helper);
+            return;
+        }
+        Log("frame generation shutdown: could not start the message-aware wait helper (error %lu)", GetLastError());
+    }
     // The swapchain first (its presenter thread ends), then the context its frame generation called into.
     if (m_swapchain) m_fg->fns.destroySwapchainKHR(m_device, m_swapchain, nullptr);
     m_swapchain = VK_NULL_HANDLE;

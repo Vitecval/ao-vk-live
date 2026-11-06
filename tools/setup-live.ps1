@@ -62,8 +62,8 @@ Add-Type -AssemblyName System.Drawing
 $form = New-Object Windows.Forms.Form
 $form.Text = 'AO-VK Live Setup'
 if ($setupInfo.setupRevision) { $form.Text += ' - Setup ' + [string]$setupInfo.setupRevision }
-$licenseSpace = if ($fullHdSetup) { 60 } else { 0 }
-$form.ClientSize = New-Object Drawing.Size(680, (400 + $licenseSpace))
+$licenseSpace = 0
+$form.ClientSize = New-Object Drawing.Size(680, (520 + $licenseSpace))
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
@@ -115,28 +115,29 @@ $memory.Enabled = $memoryOptionAvailable -and $Action -ne 'Uninstall'
 $form.Controls.Add($memory)
 $tip = New-Object Windows.Forms.ToolTip
 $tip.SetToolTip($memory, 'For 64-bit Windows. Recognized executables are backed up before changes. Existing AOSharp/AOPP patches are preserved. Uninstall restores only changes made by this setup.')
-$artNotice = $null
-if ($fullHdSetup) {
-    $artNotice = Add-Text "Free to use with any compatible launcher.`r`nRedistribution of the HD artwork is not permitted without authorization.`r`nSee LICENSE-TEXTURES.md; existing third-party permissions remain in force." 26 243 626 58
-    $artNotice.Visible = $Action -ne 'Uninstall'
-}
 $null = Add-Text "Close AO and its launcher first. Settings are preserved; 4 GB changes are backed up.`r`nOnly the supported classic live build is accepted; New Engine is unsupported." 26 (243 + $licenseSpace) 626 46
-$status = Add-Text '' 26 (296 + $licenseSpace) 440 62
+$status = Add-Text '' 26 (296 + $licenseSpace) 626 40
 $status.ForeColor = [Drawing.Color]::DarkSlateGray
+$activity = Add-Text '' 26 (340 + $licenseSpace) 626 22
+$details = New-Object Windows.Forms.TextBox
+$details.SetBounds(26, (386 + $licenseSpace), 626, 62)
+$details.Multiline = $true
+$details.ReadOnly = $true
+$details.ScrollBars = 'Vertical'
+$form.Controls.Add($details)
 $downloadProgress = New-Object Windows.Forms.ProgressBar
-$downloadProgress.SetBounds(26, (384 + $licenseSpace), 440, 10)
+$downloadProgress.SetBounds(26, (366 + $licenseSpace), 626, 12)
 $downloadProgress.Visible = $false
 $form.Controls.Add($downloadProgress)
 $script:setupBusy = $false
 $form.Add_FormClosing({ if ($script:setupBusy) { $_.Cancel = $true } })
 $apply = New-Object Windows.Forms.Button
 $apply.Text = $Action
-$apply.SetBounds(482, (336 + $licenseSpace), 170, 38)
+$apply.SetBounds(482, (466 + $licenseSpace), 170, 38)
 $form.Controls.Add($apply)
 $operation.Add_SelectedIndexChanged({
     $apply.Text = [string]$operation.SelectedItem
     $memory.Enabled = $memoryOptionAvailable -and $operation.SelectedItem -ne 'Uninstall'
-    if ($artNotice) { $artNotice.Visible = $operation.SelectedItem -ne 'Uninstall' }
 })
 $apply.Add_Click({
     $apply.Enabled = $false
@@ -145,39 +146,81 @@ $apply.Add_Click({
     $operation.Enabled = $false
     $memory.Enabled = $false
     $script:setupBusy = $true
+    $worker = $null
     try {
         if (!$path.Text -or !(Test-Path -LiteralPath (Join-Path $path.Text 'AnarchyOnline.exe'))) {
             throw 'Choose your AO folder containing AnarchyOnline.exe.'
         }
         $status.Text = 'Checking files...'
+        $details.Clear()
+        $activity.Text = 'Starting setup...'
+        $downloadProgress.Visible = $true
+        $downloadProgress.Style = 'Marquee'
         $form.Refresh()
         $arguments = @{ ClientDir = $path.Text; PackageDir = $PackageDir }
         if (!$memory.Checked) { $arguments.DisableLargeAddressAware = $true }
-        $arguments.ProgressCallback = {
-            # Negative command arguments can arrive as strings in Windows
-            # PowerShell. Bind numerically before comparing the marquee marker.
-            param([string]$message, [int]$percent = -1)
-            $status.Text = $message
-            $downloadProgress.Visible = $true
-            if ($percent -ge 0) { $downloadProgress.Style = 'Continuous'; $downloadProgress.Value = [Math]::Min(100, $percent) }
-            else { $downloadProgress.Style = 'Marquee' }
-            $form.Refresh()
-            [Windows.Forms.Application]::DoEvents()
-        }
         if ($operation.SelectedItem -eq 'Update') { $arguments.Upgrade = $true }
         if ($operation.SelectedItem -eq 'Uninstall') { $arguments.Uninstall = $true }
-        $setupOutput = @(& (Join-Path $PSScriptRoot 'install-live.ps1') @arguments)
+        # A worker runspace prevents a single long hash, download, driver call or
+        # converter step from freezing the UI. Only this thread touches controls.
+        $queue = New-Object 'Collections.Concurrent.ConcurrentQueue[object]'
+        $worker = [PowerShell]::Create()
+        $null = $worker.AddScript({
+            param($installer, $arguments, $queue)
+            $ErrorActionPreference = 'Stop'
+            $arguments.ProgressCallback = {
+                param([string]$message, [int]$percent = -1, [object]$detail = $null)
+                $queue.Enqueue([pscustomobject]@{message=$message;percent=$percent;detail=$detail})
+            }
+            & $installer @arguments
+        }).AddArgument((Join-Path $PSScriptRoot 'install-live.ps1')).AddArgument($arguments).AddArgument($queue)
+        $pending = $worker.BeginInvoke()
+        $elapsed = [Diagnostics.Stopwatch]::StartNew()
+        $history = New-Object 'Collections.Generic.List[string]'
+        $lastMessage = ''
+        $nativeDetail = $null
+        $nativeDetailAt = 0.0
+        do {
+            [object]$item = $null
+            while ($queue.TryDequeue([ref]$item)) {
+                $status.Text = [string]$item.message
+                [int]$percent = $item.percent
+                if ($percent -ge 0) { $downloadProgress.Style = 'Continuous'; $downloadProgress.Value = [Math]::Min(100, $percent) }
+                else { $downloadProgress.Style = 'Marquee' }
+                if ($lastMessage -ne $status.Text) {
+                    $history.Add($status.Text)
+                    if ($history.Count -gt 30) { $history.RemoveAt(0) }
+                    $details.Lines = $history.ToArray()
+                    $details.SelectionStart = $details.TextLength
+                    $details.ScrollToCaret()
+                    $lastMessage = $status.Text
+                }
+                $nativeDetail = $item.detail
+                $nativeDetailAt = $elapsed.Elapsed.TotalSeconds
+            }
+            $activity.Text = 'Elapsed ' + $elapsed.Elapsed.ToString('h\:mm\:ss') + ' | Current step is running'
+            if ($nativeDetail) {
+                $idle = [int]($nativeDetail.idleSeconds + $elapsed.Elapsed.TotalSeconds - $nativeDetailAt)
+                $activity.Text += ' | Last helper activity ' + $idle + 's ago'
+            }
+            $form.Refresh()
+            [Windows.Forms.Application]::DoEvents()
+            if (!$pending.IsCompleted) { Start-Sleep -Milliseconds 80 }
+        } while (!$pending.IsCompleted -or !$queue.IsEmpty)
+        $setupOutput = @($worker.EndInvoke($pending))
+        if ($worker.HadErrors) { throw $worker.Streams.Error[0].Exception }
         $setupResult = $setupOutput | Where-Object { $_.AoVkSetupResult } | Select-Object -Last 1
         if ($operation.SelectedItem -eq 'Uninstall') {
             $message = 'AO-VK Live was removed. Your settings were preserved. Installer-owned 4 GB changes were restored where files still match.'
         } else {
-            $message = "Ready. Start AO normally and select Primary Display Driver.`r`nIn-game options: Ctrl+Shift+F12. Grass is enabled by default."
+            $message = "Renderer ready. Start AO normally and select Primary Display Driver.`r`nIn-game options: Ctrl+Shift+F12. Grass is enabled by default."
         }
         if ($setupResult.memoryStatus) { $message += "`r`n`r`n" + $setupResult.memoryStatus }
         if ($setupResult.memoryWarnings) { $message += "`r`n`r`n" + ($setupResult.memoryWarnings -join "`r`n") }
         if ($setupResult.livingStatus) { $message += "`r`n`r`n" + $setupResult.livingStatus }
         if ($setupResult.livingWarnings) { $message += "`r`n`r`n" + ($setupResult.livingWarnings -join "`r`n") }
         $status.Text = 'Finished.'
+        $activity.Text = 'Completed in ' + $elapsed.Elapsed.ToString('h\:mm\:ss')
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live', 'OK', 'Information')
     } catch {
         $status.Text = 'Setup did not finish. See the error message.'
@@ -187,6 +230,7 @@ $apply.Add_Click({
         }
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live setup', 'OK', 'Error')
     } finally {
+        if ($worker) { $worker.Dispose() }
         $apply.Enabled = $true
         $browse.Enabled = $true
         $path.Enabled = $true

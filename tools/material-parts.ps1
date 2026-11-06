@@ -3,6 +3,8 @@ $env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
 . (Join-Path $PSScriptRoot 'material-download.ps1')
 function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scriptblock]$ProgressCallback) {
     if (!$Manifest.materialParts) { return }
+    $pinnedHashes = @{}
+    foreach ($entry in $Manifest.assets.PSObject.Properties) { $pinnedHashes[$entry.Name] = [string]$entry.Value }
     if ($Manifest.artworkLicense) {
         if ($Manifest.artworkLicense.file -cne 'LICENSE-TEXTURES.md' -or $Manifest.artworkLicense.sha256 -cnotmatch '^[a-f0-9]{64}$' -or
             !(Test-Path -LiteralPath (Join-Path $Package 'LICENSE-TEXTURES.md')) -or
@@ -19,6 +21,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
     $archives = @{}; $pending = @(); [long]$downloadBytes = 0; [long]$unpackedBytes = 0
     $identities = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
     $members = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    $checkedMembers = 0
     foreach ($part in $Manifest.materialParts) {
         if ($part.name -notmatch '^ao-vk-live-[A-Za-z0-9.-]+-materials-[0-9]+\.zip$' -or $part.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'Invalid material package descriptor.' }
         Assert-AoMaterialRelease $Manifest $part
@@ -29,7 +32,9 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
         }
         if ($Manifest.artworkLicense -and !$part.notices.'LICENSE-TEXTURES.md') { throw 'Companion is missing the pinned artwork license.' }
         foreach ($relative in $part.files) {
-            if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$members.Add([string]$relative) -or $Manifest.assets.$relative -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
+            $checkedMembers++
+            if ($checkedMembers % 256 -eq 1) { Write-AoMaterialProgress "Checking HD texture list: $checkedMembers files ($($part.name))" -1 $ProgressCallback }
+            if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$members.Add([string]$relative) -or $pinnedHashes[$relative] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
         }
         if (!@($part.files | Where-Object { !(Test-Path -LiteralPath (Join-Path $Package $_)) }).Count) { continue }
         $pending += $part
@@ -72,7 +77,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
                 $prepared++
                 if ($prepared % 64 -eq 1) { Write-AoMaterialProgress "Preparing HD textures: $prepared / $($allowed.Count)" ([int](100.0*$prepared/$allowed.Count)) $ProgressCallback }
                 $relative = $entry.FullName.Replace('\','/')
-                $expectedHash = if ($part.notices.$relative) { [string]$part.notices.$relative } else { [string]$Manifest.assets.$relative }
+                $expectedHash = if ($part.notices.$relative) { [string]$part.notices.$relative } else { $pinnedHashes[$relative] }
                 if (!$allowed.Contains($relative) -or !$expectedHash -or $found.ContainsKey($relative)) { throw 'Unexpected or duplicate companion archive entry.' }
                 $target = [IO.Path]::GetFullPath((Join-Path $stage $relative))
                 if (!$target.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe companion archive path.' }

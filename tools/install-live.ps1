@@ -30,11 +30,8 @@ if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
 }
 $client = (Resolve-Path -LiteralPath $ClientDir).Path
 $package = (Resolve-Path -LiteralPath $PackageDir).Path
+if ($ProgressCallback) { & $ProgressCallback 'Reading setup manifest...' -1 }
 $manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw | ConvertFrom-Json
-if (!$Uninstall -and $manifest.edition -eq 'full' -and $manifest.artworkLicense) {
-    Write-Host 'Free to use with any compatible launcher. Redistribution of the HD artwork is not permitted without authorization.'
-    Write-Host 'See LICENSE-TEXTURES.md. Third-party licenses and permissions previously granted remain in force.'
-}
 if (!$Uninstall -and $manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) {
         if ($item.Name -match '^randy-vk[\\/]living[\\/]') {
@@ -43,6 +40,7 @@ if (!$Uninstall -and $manifest.assets) {
     }
 }
 if (!$Uninstall -and $manifest.livingAssets) {
+    if ($ProgressCallback) { & $ProgressCallback 'Checking local Living preparation tools and recipes...' -1 }
     if ($manifest.livingAssets.provider -ne 'installation-local-v1' -or $manifest.livingAssets.status -ne 'local-test-candidate') {
         throw 'This candidate has no recognized Living Rubi-Ka asset provider.'
     }
@@ -50,7 +48,10 @@ if (!$Uninstall -and $manifest.livingAssets) {
     if (!(Test-Path -LiteralPath $livingHelper) -or (Get-FileHash -LiteralPath $livingHelper -Algorithm SHA256).Hash -ine $manifest.livingAssets.helperSha256) {
         throw 'Local Living preparation helper integrity failed.'
     }
+    $livingChecked = 0
     foreach ($item in $manifest.livingAssets.files.PSObject.Properties) {
+        $livingChecked++
+        if ($ProgressCallback -and $livingChecked % 8 -eq 1) { & $ProgressCallback "Checking Living preparation file $livingChecked : $($item.Name)" -1 }
         if ($item.Name -notmatch '^(living-preparer/[A-Za-z0-9_./-]+|living-metadata/[A-Za-z0-9_./-]+)$' -or $item.Name.Contains('..') -or
             !(Test-Path -LiteralPath (Join-Path $package $item.Name)) -or
             (Get-FileHash -LiteralPath (Join-Path $package $item.Name) -Algorithm SHA256).Hash -ine $item.Value) {
@@ -61,6 +62,7 @@ if (!$Uninstall -and $manifest.livingAssets) {
 $receiptPath = Join-Path $client 'ao-vk-live.install.json'
 $receipt = $null
 if (Test-Path -LiteralPath $receiptPath) {
+    if ($ProgressCallback) { & $ProgressCallback 'Reading the existing installation record...' -1 }
     $receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
     if ($receipt.product -ne 'AO-VK Live' -or $receipt.clientDirectory -ine $client) {
         throw 'The existing AO-VK install record does not belong to this folder.'
@@ -71,6 +73,7 @@ $meshRelative = 'randy-vk/mesh-ids.bin'
 $preserveMeshIndex = $false
 if ($manifest.meshIndex -or $manifest.setupRevision -ge 4 -or
     $manifest.assets.$meshRelative -or $receipt.assets.$meshRelative) {
+    if ($ProgressCallback) { & $ProgressCallback 'Checking compatibility of the existing model index...' -1 }
     . (Join-Path $PSScriptRoot 'mesh-index.ps1')
     $preserveMeshIndex = Test-AoPreserveMeshIndex $client $package $manifest $receipt ([bool]$Uninstall)
 }
@@ -104,6 +107,7 @@ if ($receipt -and $receipt.assets) {
     }
 }
 if ($manifest.assets) {
+    if ($ProgressCallback) { & $ProgressCallback 'Building the list of files to check...' -1 }
     foreach ($item in $manifest.assets.PSObject.Properties) {
         $newAssetHashes[$item.Name] = [string]$item.Value
         $assetHashes[$item.Name] = [string]$item.Value
@@ -289,8 +293,13 @@ if ($manifest.cacheWarmup) {
     if ($ProgressCallback) { & $ProgressCallback 'Preparing your graphics card (one or two minutes on first use)...' -1 }
     Assert-AoClientClosed
     $cacheArgument = if ($warm.relativeCache -eq 'auto') { 'auto' } else { Join-Path $client $warm.relativeCache }
-    & $helper --cache $cacheArgument
-    if ($LASTEXITCODE -ne 0) { throw 'GPU cache preparation failed. Renderer files were not changed.' }
+    . (Join-Path $PSScriptRoot 'setup-progress.ps1')
+    $warmToken=[guid]::NewGuid().ToString('N')
+    $warmLog=Join-Path $package ('.ao-vk-cache-'+$warmToken+'.log')
+    $warmError=Join-Path $package ('.ao-vk-cache-'+$warmToken+'.error.log')
+    $warmArgs='--cache "'+($cacheArgument -replace '(\\+)$','$1$1')+'"'
+    $warmProcess=Start-Process -FilePath $helper -ArgumentList $warmArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $warmLog -RedirectStandardError $warmError
+    Wait-AoSetupHelper $warmProcess $warmLog $warmError 'Preparing graphics pipelines on this GPU' $ProgressCallback
 }
 Assert-AoClientClosed
 if ($ProgressCallback) { & $ProgressCallback 'Installing verified files safely...' -1 }
@@ -380,6 +389,8 @@ if ($manifest.livingAssets) {
     # conversion leaves the normal renderer installed and the previous cache intact.
     try {
         Assert-AoClientClosed
+        . (Join-Path $PSScriptRoot 'setup-progress.ps1')
+        Preserve-AoInterruptedLivingLock $client
         if ($ProgressCallback) { & $ProgressCallback 'Preparing Living assets locally inside the selected AO folder' -1 }
         $livingToken=[guid]::NewGuid().ToString('N')
         $livingLog=Join-Path $client ('.ao-vk-living-'+$livingToken+'.log')
@@ -389,19 +400,7 @@ if ($manifest.livingAssets) {
         $livingArguments='--client '+$livingClientArg+' --metadata '+$livingMetadataArg
         if ($ReviewLivingRoutes) { $livingArguments+=' --review-routes' }
         $livingProcess=Start-Process -FilePath $livingHelper -ArgumentList $livingArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $livingLog -RedirectStandardError $livingErrorLog
-        # Retain the handle before exit; Windows PowerShell otherwise loses the
-        # exit status of an asynchronously redirected native process.
-        $null=$livingProcess.Handle
-        $livingTimer=[Diagnostics.Stopwatch]::StartNew()
-        while (!$livingProcess.WaitForExit(200)) {
-            if ($ProgressCallback) { & $ProgressCallback 'Preparing local Living resources inside the selected AO folder...' -1 }
-            if ($livingTimer.Elapsed.TotalMinutes -gt 10) { $livingProcess.Kill(); throw 'Local preparation exceeded ten minutes. Keep Living Off and inspect the local preparation logs.' }
-        }
-        $livingProcess.WaitForExit()
-        if ($livingProcess.ExitCode -ne 0) {
-            $livingError=Get-Content -LiteralPath $livingErrorLog -Raw -ErrorAction SilentlyContinue
-            throw "Local preparation failed ($($livingProcess.ExitCode)). $livingError"
-        }
+        Wait-AoSetupHelper $livingProcess $livingLog $livingErrorLog 'Preparing local Living resources' $ProgressCallback
         $livingStatus='Living assets prepared locally. To test them, run Prepare Living City Test.cmd, then open Ctrl+Shift+F12. New controls default Off.'
         $livingSummary=Get-Content -LiteralPath $livingLog -Tail 1 -ErrorAction SilentlyContinue
         if ($livingSummary -match '([0-9]+) unsupported asset families' -and [int]$Matches[1] -gt 0) {

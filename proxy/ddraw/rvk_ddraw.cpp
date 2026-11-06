@@ -898,9 +898,19 @@ HRESULT RDirectDraw::DoGetFourCCCodes(LPDWORD count, LPDWORD codes)
 
 HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD flags)
 {
-    if (!hwnd || !IsWindow(hwnd)) return DDERR_INVALIDPARAMS;
+    // AO's native windowed Initialize deliberately passes NULL with
+    // DDSCL_NORMAL | DDSCL_FPUPRESERVE (0x1008). DirectDraw permits this before
+    // a device window is associated. Rejecting it makes AO exit before Vulkan.
+    const bool normal = (flags & DDSCL_NORMAL) != 0;
+    if ((hwnd && !IsWindow(hwnd)) || (!hwnd && !normal) ||
+        (normal && (flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX))))
+        return DDERR_INVALIDPARAMS;
     if (m_borderlessFallback && (!(flags & DDSCL_FULLSCREEN) || hwnd != m_modeWindow))
         DoRestoreDisplayMode();
+    if (!hwnd) {
+        RvkLog("window mode: accepted normal cooperative level without a window (flags 0x%08lx); window association follows during native initialization", flags);
+        return DD_OK;
+    }
     g_rvk.SetWindow(hwnd);
     if ((flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) == (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) {
         // This backend has no VK_EXT_full_screen_exclusive acquisition/release path.

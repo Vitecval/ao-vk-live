@@ -32,10 +32,13 @@ def main():
     run = output / ('run-' + uuid.uuid4().hex[:10])
     run.mkdir()
     source = (args.tools / 'setup-live.ps1').read_text(encoding='utf-8-sig')
-    callback = re.search(r'\$arguments.ProgressCallback = (\{.*?\n        \})', source, re.S).group(1)
+    callback = re.search(r'\$arguments.ProgressCallback = (\{.*?\n            \})', source, re.S).group(1)
     assert source.count('[Windows.Forms.MessageBox]::Show(') == 2
     head = source.split('$form.AcceptButton = $apply')[0]
     head = head.replace('[Windows.Forms.MessageBox]::Show(', '[AoSetupDialogProbe]::Show(')
+    # Only the fixture worker's process inventory and a deliberate slow step are
+    # replaced. The real installer, queue, UI pump and button handler still run.
+    head = head.replace("$ErrorActionPreference = 'Stop'\n            $arguments.ProgressCallback", "$ErrorActionPreference = 'Stop'\n            function global:Get-Process {param($Name,$ErrorAction)}\n            Start-Sleep -Milliseconds 800\n            $arguments.ProgressCallback")
     host = Path(os.environ['WINDIR']) / 'SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
     env = {k: v for k, v in os.environ.items() if k.lower() != 'psmodulepath'}
     env['PSModulePath'] = str(host.parent / 'Modules')
@@ -102,7 +105,7 @@ def main():
             for member in assets:
                 (package / member).unlink()
         (package / 'manifest.json').write_text(json.dumps(manifest))
-        for name in ['install-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
+        for name in ['install-live.ps1', 'setup-progress.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
             shutil.copyfile(args.tools / name, package / name)
         prelude = '''Add-Type -TypeDefinition @'
 public static class AoSetupDialogProbe {
@@ -130,12 +133,18 @@ $stock = @{}
 $m = Get-Content (Join-Path $PackageDir 'manifest.json') -Raw | ConvertFrom-Json
 foreach ($p in $m.client.PSObject.Properties) { $stock[$p.Name] = Hash (Join-Path $ClientDir $p.Name) }
 try {
-    if($fullHdSetup){Assert ($artNotice.Visible -and $artNotice.Text.Contains('Redistribution')) 'Full HD artwork notice not visible before installation'}
+    $pulseTimer=New-Object Windows.Forms.Timer
+    $pulseTimer.Interval=100
+    $script:pulses=0
+    $pulseTimer.Add_Tick({$script:pulses++})
+    $pulseTimer.Start()
     $callback = CALLBACK
+    $queue = New-Object 'Collections.Concurrent.ConcurrentQueue[object]'
     foreach ($v in @('-1', [int]-1, '0', 0, '50', 50, '100', 100, '150')) {
         & $callback 'Testing actual GUI progress callback' $v
-        if ([int]$v -lt 0) { Assert ($downloadProgress.Style -eq 'Marquee') 'Negative progress did not select marquee' }
-        else { Assert ($downloadProgress.Value -eq [Math]::Min(100,[int]$v)) 'Incorrect bounded progress' }
+        [object]$queued=$null
+        Assert ($queue.TryDequeue([ref]$queued)) 'Progress callback failed to queue a UI update'
+        Assert ($queued.percent -is [int] -and $queued.percent -eq [int]$v) 'Progress values were not bound numerically'
     }
     foreach ($actionName in @('Install', 'Update', 'Uninstall', 'Uninstall')) {
         if ($actionName -eq 'Update') {
@@ -149,7 +158,9 @@ try {
         $apply.PerformClick()
         Assert (![AoSetupDialogProbe]::Error) ($actionName + ': ' + [AoSetupDialogProbe]::Error)
         Assert ($status.Text -eq 'Finished.') ($actionName + ' GUI did not finish')
-        if($fullHdSetup){Assert ($artNotice.Visible -eq ($actionName -ne 'Uninstall')) 'Artwork notice visibility is incorrect'}
+        Assert ($script:pulses -gt 2) 'UI timer did not run while the installer was busy'
+        Assert ($activity.Text -like 'Completed in *') 'Elapsed status missing'
+        Assert ($details.Text.Length -gt 0) 'Current task history missing'
         Assert ($apply.Enabled -and !$script:setupBusy -and !$downloadProgress.Visible) 'GUI did not reset after operation'
         Assert ((Hash (Join-Path $ClientDir 'randy-vk.ini')) -eq $prefs) 'Preferences changed'
         Assert (Test-Path (Join-Path $ClientDir 'randy-vk/packs/personal/keep.txt')) 'Personal pack removed'
@@ -182,7 +193,7 @@ try {
     $operation.SelectedItem='Uninstall';$apply.PerformClick()
     Assert (![AoSetupDialogProbe]::Error) [AoSetupDialogProbe]::Error
     Write-Output 'PASS MEMORY GUI: unchecked option preserves executables'
-} finally { $form.Dispose() }
+} finally { $pulseTimer.Stop();$pulseTimer.Dispose();$form.Dispose() }
 '''.replace('CALLBACK', callback)
         script = package / 'setup-gui-probe.ps1'
         script.write_text(instrumented + tail, encoding='utf-8-sig')

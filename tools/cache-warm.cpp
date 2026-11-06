@@ -21,6 +21,7 @@ int main(int argc,char** argv) {
         const Vertex vertices[]={{-1,-1,3,0,0,-1,0xffffffff,0,1},{1,-1,3,0,0,-1,0xffffffff,1,1},{0,1,3,0,0,-1,0xffffffff,.5f,0}};
         Material material{};material.diffuse=material.ambient={1,1,1,1};
         for(int frame=0;frame<8;++frame){
+            std::printf("Preparing HDR and post-process cache: sample frame %d of 8\n",frame+1);std::fflush(stdout);
             device.BeginFrame();device.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xff17212b,1);
             device.SetTransform(World,world);device.SetTransform(View,world);device.SetTransform(Projection,projection);
             device.SetRenderState(RS_ZENABLE,1);device.SetRenderState(RS_ZWRITEENABLE,1);device.SetRenderState(RS_LIGHTING,1);device.SetRenderState(RS_AMBIENT,0xff808080);device.SetRenderState(RS_CULLMODE,CULL_NONE);

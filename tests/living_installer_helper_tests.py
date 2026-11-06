@@ -12,7 +12,7 @@ if not O.is_relative_to(S.resolve()):raise ValueError('Fixture output must remai
 O.mkdir(parents=True,exist_ok=True)
 F=O/('run-'+uuid.uuid4().hex[:8]);C=F/'Anarchy Online';P=F/'package with spaces';C.mkdir(parents=True,exist_ok=True);P.mkdir(exist_ok=True)
 sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
-for n in ['install-live.ps1','material-parts.ps1','material-download.ps1']:shutil.copy2(S/'tools'/n,P/n)
+for n in ['install-live.ps1','setup-progress.ps1','material-parts.ps1','material-download.ps1']:shutil.copy2(S/'tools'/n,P/n)
 shutil.copytree(args.helper.resolve(),P/'living-preparer')
 M=P/'living-metadata';M.mkdir()
 D=C/'cd_image/data/db';D.mkdir(parents=True);ST=C/'cd_image/data/statels';ST.mkdir()

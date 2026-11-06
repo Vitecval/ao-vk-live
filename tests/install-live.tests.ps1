@@ -133,6 +133,12 @@ try {
     New-Item -ItemType Directory -Path (Split-Path -Parent $assetSource) -Force | Out-Null
     Write-Bytes $assetSource 'fixture texture one'
     $manifest.assets = @{ $assetRelative = (Hash $assetSource) }
+    $enhancedRelative = 'randy-vk/packs/ao-icc-enhanced-original/1010004_295610_orm.png'
+    $enhancedSource = Join-Path $package $enhancedRelative
+    $enhancedTarget = Join-Path $client $enhancedRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $enhancedSource) -Force | Out-Null
+    Write-Bytes $enhancedSource 'fixture Enhanced Original material'
+    $manifest.assets[$enhancedRelative] = Hash $enhancedSource
     $cyberRelative = 'randy-vk/packs/ao-cyber-icc/1010004_295610_orm.png'
     $cyberSource = Join-Path $package $cyberRelative
     $cyberTarget = Join-Path $client $cyberRelative
@@ -165,6 +171,7 @@ try {
     & $installer @arguments | Out-Null
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset absent'
     Assert ((Hash $cyberTarget) -eq $manifest.assets[$cyberRelative]) 'Cyber pack asset absent'
+    Assert ((Hash $enhancedTarget) -eq $manifest.assets[$enhancedRelative]) 'Enhanced Original asset absent'
     Assert ((Hash $characterTarget) -eq $manifest.assets[$characterRelative]) 'Character pack asset absent'
     Assert ((Hash $worldTarget) -eq $manifest.assets[$worldRelative]) 'World pack asset absent'
     $otherPack = Join-Path $client 'randy-vk/packs/personal/keep.txt'
@@ -190,7 +197,7 @@ try {
     $global:AoInstallerTestFailTarget=''
     Assert (Test-Path -LiteralPath $assetTarget) 'Failed Lite switch lost previous HD assets'
     & $installer @arguments | Out-Null
-    foreach ($path in @($assetTarget,$cyberTarget,$characterTarget,$worldTarget)) {Assert (!(Test-Path -LiteralPath $path)) 'Lite switch left HD texture'}
+    foreach ($path in @($assetTarget,$cyberTarget,$characterTarget,$worldTarget,$enhancedTarget)) {Assert (!(Test-Path -LiteralPath $path)) 'Lite switch left HD texture'}
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Edition switch changed preferences'
     $manifest.assets=$fullAssets
     Save-Manifest
@@ -218,6 +225,7 @@ try {
     & $installer @uninstall | Out-Null
     Assert (!(Test-Path -LiteralPath $assetTarget)) 'Uninstall left owned pack asset'
     Assert (!(Test-Path -LiteralPath $cyberTarget)) 'Uninstall left cyber pack asset'
+    Assert (!(Test-Path -LiteralPath $enhancedTarget)) 'Uninstall left Enhanced Original asset'
     Assert (!(Test-Path -LiteralPath $characterTarget)) 'Uninstall left character pack asset'
     Assert (!(Test-Path -LiteralPath $worldTarget)) 'Uninstall left world pack asset'
     Assert ([IO.File]::ReadAllText($otherPack) -eq 'personal pack') 'Uninstall changed personal pack'

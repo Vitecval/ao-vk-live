@@ -291,6 +291,7 @@ struct DeviceInfo {
     X(FolDither, m_foliageDither, 0)                  /* plants' soft edges dithered past this (units; 0 off) */ \
     X(WearDebug, m_wearDebug, C)                        /* 0 off, 1 counters, 2 pixel coverage */ \
     X(WindowDepth, m_windowDepth, C)                    /* Exterior windows: 0 off, 1 subtle, 2 strong */ \
+    X(ICCGlossiness, m_iccGlossiness, C)               /* verified ICC targets only, 0..1 */ \
     X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
     X(GrassBright, m_grassBright, 0)                  /* the grass against its ground (1 as bright) */ \
@@ -702,6 +703,7 @@ public:
     // RVK_Upscaler: what brings the scaled scene up to the output's size - 0 our TAA (taa.frag), 1 AMD's FSR 2.2
     // (fsr2.cpp). At 100% the TAA either way.
     void SetUpscaler(uint32_t which) { m_upscaler = which; }
+    const std::string& PipelineCacheFilePath() const { return m_pipelineCacheFile; }
     // RVK_FrameGen: AMD's FSR 3.1 frame generation (framegen.cpp) - the swapchain made again at the next frame.
     void SetFrameGen(bool enable) { if (enable != m_frameGenWanted) m_frameGenFailed = false; m_frameGenWanted = enable; }
     // Frames the frame interpolation swapchain has presented (generated ones too); 0 without frame generation.
@@ -1134,6 +1136,8 @@ private:
     // The pipeline cache: loaded from its file when the device starts, saved after the pipelines are made, once the
     // game has run a while (the pipelines made on demand), and when the device goes.
     VkPipelineCache m_pipelineCache = VK_NULL_HANDLE;
+    std::string m_pipelineCacheFile;
+    uint64_t m_pipelineCacheHash = 0;
     size_t m_pipelineCacheSaved = 0;             // the size of what the file holds (loaded or last saved)
     void CreatePipelineCache();
     void SavePipelineCache(const char* why);
@@ -2337,6 +2341,7 @@ private:
     void ResetWeatherStats();
     void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
     void ReportWeatherStats(FILE* file=nullptr);
+    float m_iccGlossiness = 1.0f;
     float m_buildWear = 0.0f;
     float m_windowDepth = 0.0f;
     bool m_windowActivity = true;
@@ -3210,6 +3215,7 @@ private:
     uint32_t m_upscaler = 0;
     struct Fsr2State;
     Fsr2State* m_fsr2 = nullptr;
+    bool m_fsr2Failed = false, m_fsr3Failed = false;
     struct Fsr3State;
     Fsr3State* m_fsr3 = nullptr;
     Texture* m_fsrMotion = nullptr;

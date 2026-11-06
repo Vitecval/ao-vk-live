@@ -380,6 +380,7 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
          std::strcmp(s.name,"RVK_SandGlint")==0 || std::strcmp(s.name,"RVK_SandPrints")==0 ||
          std::strcmp(s.name,"RVK_WaterRipple")==0) &&
         rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
+    if (std::strcmp(s.name,"RVK_ICCArtwork")==0) return v>0 ? "Enhanced Original" : "AnarchyHD";
     if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
         return v>0 ? "AnarchyHD" : "Original";
     }

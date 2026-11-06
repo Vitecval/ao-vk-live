@@ -249,6 +249,7 @@ uint64_t Device::NativeMapsSignature() const
         h = (h ^ o) * 1099511628211ull;
         h = (h ^ uint64_t(t && t->m_image)) * 1099511628211ull;
     }
+    h ^= m_skyPlayfield==icc::Playfield ? 0x494343u : 0u;
     return (h ^ uint64_t(reinterpret_cast<uintptr_t>(m_native.pebbleTable.get()))) * 1099511628211ull;   // (the sand)
 }
 
@@ -309,8 +310,10 @@ void Device::MakeNativeCodes()
         const uint32_t tile = code & 0x3FFFu, turn = code >> 14;
         const uint32_t t = tile < image.size() ? tile : 0;
         const uint32_t img = image.empty() ? 0u : image[t];
-        const uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
+        uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
                                     (t < authored.size() && authored[t] ? 0xBFu : 0xFFu);
+        if (m_skyPlayfield==icc::Playfield && t<g.tiles.size() && g.tiles[t] && g.tiles[t]->m_albedoMap &&
+            icc::Target(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId)) attributes &= ~32u;
         codes[k] = attributes << 24 | (img & 0xFFu) << 16 |
                    ((img >> 8) & 0xFFu) << 8 | turn;
         means[k] = mean.empty() ? 0x00808080u : mean[t];

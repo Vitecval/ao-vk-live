@@ -7,7 +7,7 @@ function Write-AoMaterialProgress([string]$Message, [int]$Percent = -1, [scriptb
 function Assert-AoMaterialRelease($Manifest, $Part) {
     $sourceVersion = [string]$Manifest.version
     if ($Manifest.materialSourceVersion) {
-        if ($Manifest.version -cne '0.6.0-preview.22' -or $Manifest.materialSourceVersion -cne '0.6.0-preview.21') {
+        if ($Manifest.version -cnotin @('0.6.0-preview.22','0.6.0-preview.23') -or $Manifest.materialSourceVersion -cne '0.6.0-preview.21') {
             throw 'Invalid frozen material source release.'
         }
         $sourceVersion = [string]$Manifest.materialSourceVersion

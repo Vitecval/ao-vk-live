@@ -93,7 +93,7 @@ if ($manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
 }
 foreach ($relative in $assetHashes.Keys) {
-    if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+    if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
         throw 'Invalid optional material pack path or hash.'
     }
     $target = Join-Path $client $relative
@@ -260,14 +260,15 @@ foreach ($target in $unchangedTargets) {
 # populated scene. Only source-built code is shipped; the cache stays on this GPU.
 if ($manifest.cacheWarmup) {
     $warm = $manifest.cacheWarmup
-    $expectedCache = if ($manifest.version -eq '0.6.0-preview.22') { 'randy-vk-preview22-v9-living.cache' } else { 'randy-vk-preview21-v9-living.cache' }
+    $expectedCache = if ($manifest.version -eq '0.6.0-preview.23') { 'auto' } elseif ($manifest.version -eq '0.6.0-preview.22') { 'randy-vk-preview22-v9-living.cache' } else { 'randy-vk-preview21-v9-living.cache' }
     if ($warm.helper -ne 'ao-vk-cache-warm.exe' -or $warm.relativeCache -ne $expectedCache) { throw 'Invalid cache preparation descriptor.' }
     $helper = Join-Path $package $warm.helper
     if ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash -ine $warm.sha256) { throw 'Cache preparation helper integrity failed.' }
     Write-Output 'Preparing this release on your graphics card. This may take one or two minutes; AO is not started.'
     if ($ProgressCallback) { & $ProgressCallback 'Preparing your graphics card (one or two minutes on first use)...' -1 }
     Assert-AoClientClosed
-    & $helper --cache (Join-Path $client $warm.relativeCache)
+    $cacheArgument = if ($warm.relativeCache -eq 'auto') { 'auto' } else { Join-Path $client $warm.relativeCache }
+    & $helper --cache $cacheArgument
     if ($LASTEXITCODE -ne 0) { throw 'GPU cache preparation failed. Renderer files were not changed.' }
 }
 Assert-AoClientClosed

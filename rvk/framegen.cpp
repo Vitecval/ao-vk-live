@@ -19,6 +19,7 @@
 #include <cstring>
 #include <mutex>
 #include <vector>
+#include <new>
 
 // The frame interpolation swapchain's lock on its queues (third_party/ffx-sdk, FrameInterpolationSwapchainVK_Helpers).
 std::mutex& ffxQueueMutex();
@@ -33,6 +34,7 @@ struct Device::FrameGenState {
     VkFrameInterpolationInfoFFX info{};
     VkFormat format = VK_FORMAT_UNDEFINED;       // the swapchain's
     // The interpolation-only context, made at the first prepared frame, again when a size changes.
+    bool failed = false;
     bool made = false;
     FfxFsr3Context context{};
     VkDeviceContext deviceContext{};             // (ffxGetDeviceVK keeps a pointer to it)
@@ -81,7 +83,8 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
 {
     if (!m_fgPresentQueue || !m_timelineSemaphores)   // (its pacing waits on timeline semaphores)
         return false;
-    auto* s = new FrameGenState;
+    auto* s = new (std::nothrow) FrameGenState;
+    if (!s) { if (error) *error="frame generation CPU allocation failed"; return false; }
     // (Its device argument is the VkDevice itself, unlike the rest of the SDK's.)
     if (ffxGetSwapchainReplacementFunctionsVK(reinterpret_cast<FfxDevice>(m_device), &s->fns) != FFX_OK ||
         !s->fns.createSwapchainFFX) {
@@ -163,7 +166,7 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
 {
     FrameGenState& s = *m_fg;
     s.prepared = false;
-    if (!m_depth || !m_scene || !m_swapExtent.width)
+    if (s.failed || m_deviceLost || !m_depth || !m_scene || !m_swapExtent.width)
         return;
     const uint32_t rw = m_scene->m_width, rh = m_scene->m_height, dw = m_swapExtent.width, dh = m_swapExtent.height;
     if (s.made && (s.renderW != rw || s.renderH != rh || s.displayW != dw || s.displayH != dh)) {
@@ -172,7 +175,8 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
     }
     if (!s.made) {
         s.deviceContext = {m_device, m_physical, vkGetDeviceProcAddr};
-        s.scratch.assign(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT), 0);
+        try { s.scratch.assign(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT), 0); }
+        catch (const std::bad_alloc&) { s.failed=true; Log("frame generation: backend memory allocation failed; interpolation disabled for this swapchain"); return; }
         FfxFsr3ContextDescription desc{};
         FfxErrorCode e = ffxGetInterfaceVK(&desc.backendInterfaceFrameInterpolation, ffxGetDeviceVK(&s.deviceContext),
                                            s.scratch.data(), s.scratch.size(), FFX_FSR3_CONTEXT_COUNT);
@@ -190,6 +194,7 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
         if (e != FFX_OK) {
             static bool logged;
             if (!logged) { logged = true; Log("frame generation: the context could not be made (error 0x%x)", unsigned(e)); }
+            s.failed = true;
             return;
         }
         s.made = true;
@@ -219,8 +224,9 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
     d.cameraFovAngleVertical = p[1][1] > 0.0f ? 2.0f * std::atan(1.0f / p[1][1]) : 1.0f;
     d.viewSpaceToMetersFactor = 1.0f;
     d.frameID = ++s.frame;
-    if (ffxFsr3ContextDispatchFrameGenerationPrepare(&s.context, &d) == FFX_OK)
-        s.prepared = true;
+    const FfxErrorCode prepared = ffxFsr3ContextDispatchFrameGenerationPrepare(&s.context, &d);
+    if (prepared == FFX_OK) s.prepared = true;
+    else { s.failed=true; Log("frame generation: prepare failed 0x%x; interpolation disabled",unsigned(prepared)); }
 }
 
 // The name labels (EndScene, after the post passes) into a layer of their own, cleared, for the overlay - drawn as the
@@ -361,7 +367,12 @@ void Device::FgBeforePresent(VkCommandBuffer cmd)
         // generated frame was a copy of the next real one.)
         config.interpolationRect = {0, 0, int32_t(s.displayW), int32_t(s.displayH)};
         config.frameID = s.frame;
-        ffxFsr3ConfigureFrameGeneration(&s.context, &config);
+        const FfxErrorCode configured = ffxFsr3ConfigureFrameGeneration(&s.context, &config);
+        if (configured != FFX_OK) {
+            s.failed = true; s.prepared = false;
+            Log("frame generation: configuration failed 0x%x; presentation stopped safely",unsigned(configured));
+            m_deviceLost = true; // SDK configuration state is unknown; never submit invalid dependent work.
+        }
     }
     // The overlay: the interface layer alone when nothing else is over the frame, otherwise put together - the name
     // labels, the interface, the console, what the game drew after the interface (the mouse pointer) - in an image of

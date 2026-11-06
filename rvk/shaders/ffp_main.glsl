@@ -78,6 +78,7 @@ float gSunShare = 0.0;                          // how much of the colour is dir
 bool gPbrOn = false, gPbrBase = false;
 vec3 gPbrAlbedo = vec3(0.0), gPbrNormal = vec3(0.0, 0.0, 1.0), gPbrSpec = vec3(0.0);
 float gPbrAo = 1.0, gPbrRough = 1.0, gPbrMetal = 0.0;
+float gIccReflection = 1.0; // verified ICC targets only; direct physical highlights stay enabled
 
 #ifndef RVK_PREPASS_CUTOUT                       // (the pre-pass: depth only, no colour attachment)
 layout(location = 0) out vec4 outColor;
@@ -613,6 +614,7 @@ vec3 PbrAmbientSpecular(vec3 nu, vec3 V, vec3 ambientLight)
 #undef ENVATLAS
         env = mix(env, p.rgb, clamp(p.a, 0.0, 1.0) * strength);
     }
+    env *= gIccReflection;
     gPbrEnv = env;
     float so = clamp(pow(nv + gPbrAo, exp2(-16.0 * gPbrRough - 1.0)) - 1.0 + gPbrAo, 0.0, 1.0);
     return EnvBrdfApprox(gPbrF0, gPbrRough, nv) * env * so;
@@ -990,6 +992,16 @@ void main()
             gPbrOn = ormCover > 0.0;
             gPbrAo = mix(1.0, orm.r, clamp(FL.pbr.w, 0.0, 1.0));
             gPbrRough = clamp(orm.g, 0.03, 1.0);
+            // No lighting/metallic change. Broader physical highlights naturally suppress
+            // sharp environment and SSR response through the existing PBR model.
+            bool iccTarget=D.icc.y>0.5 && (gPbrBase && terrainMapped && TerrainNative()
+                ? !terrain.rock && !terrain.clutter && NativeCellIcc(terrain.uv[0]) : D.icc.z>0.5);
+            if (iccTarget) {
+                gIccReflection=mix(0.12,1.0,pow(clamp(D.icc.x,0.0,1.0),0.8));
+                float corrected=min(1.0,gPbrRough+0.035);
+                float amount=1.0-clamp(D.icc.x,0.0,1.0);
+                gPbrRough=mix(corrected,max(corrected,0.90),pow(amount,0.65));
+            }
             gPbrMetal = clamp(orm.b, 0.0, 1.0);
             if ((D.mat.z & MAT_ASPHALT) != 0u && terrainMapped && !TerrainNative()) {
                 // Use the original road mask, so dirt/gravel portions of a
@@ -1339,6 +1351,7 @@ void main()
     // PBR: smooth surfaces reflect the scene (metals most); rough ones only their ambient environment.
     if (gPbrOn)
         reflectivity = max(reflectivity, FL.pbr.z * (1.0 - smoothstep(0.1, 0.55, gPbrRough)) * mix(0.12, 0.9, gPbrMetal));
+    reflectivity *= gIccReflection; // Also calibrate the independent wet-weather/legacy SSR contribution.
     // ... and their albedo for indirect light is the diffuse part: none on metal, less in occluded creases.
     if (gPbrOn && !gPbrBase)
         albedo *= (1.0 - gPbrMetal) * gPbrAo;

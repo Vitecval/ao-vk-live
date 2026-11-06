@@ -70,6 +70,12 @@ bool AddonFor(void* caller)
     name = name ? name + 1 : process;
     if (_wcsicmp(name, L"AnarchyOnline.exe") && _wcsicmp(name, L"randy_harness.exe")) return false;
     static const bool ready = [module] {
+    FILETIME created,exited,kernel,user,now; GetSystemTimeAsFileTime(&now);
+    if (GetProcessTimes(GetCurrentProcess(),&created,&exited,&kernel,&user)) {
+        ULARGE_INTEGER a{},b{}; a.LowPart=now.dwLowDateTime; a.HighPart=now.dwHighDateTime;
+        b.LowPart=created.dwLowDateTime; b.HighPart=created.dwHighDateTime;
+        char text[180]; std::snprintf(text,sizeof(text),"loader entry utc-filetime-100ns=%llu process-start-filetime-100ns=%llu process-age=%llu ms tid=%lu",a.QuadPart,b.QuadPart,(a.QuadPart-b.QuadPart)/10000,GetCurrentThreadId()); Log(text);
+    }
     // AOPP launches a copy of the executable in AppData. Its ddraw shim lives there, but the
     // renderer, addon, settings and assets still belong to the actual client installation.
     wchar_t path[MAX_PATH] = {};
@@ -77,12 +83,18 @@ bool AddonFor(void* caller)
     wchar_t* slash = wcsrchr(path, L'\\');
     if (!slash || size_t(slash - path) + 11 >= MAX_PATH) return false;
     wcscpy(slash + 1, L"ao-vk.dll");
+    const ULONGLONG loadStart=GetTickCount64();
     HMODULE addon = path[0] ? LoadLibraryExW(path, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH) : nullptr;
+    const DWORD loadError=addon?0:GetLastError();
+    char timing[180];std::snprintf(timing,sizeof(timing),"startup loader: LoadLibrary %llu ms result=%s error=%lu",GetTickCount64()-loadStart,addon?"ok":"failed",loadError);Log(timing);
     using Bootstrap = BOOL(__cdecl*)(HMODULE, void**, void**);
     auto boot = reinterpret_cast<Bootstrap>(addon ? GetProcAddress(addon, "RvkBootstrap") : nullptr);
     void* create = nullptr;
     void* enumerate = nullptr;
-    if (!boot || !boot(module, &create, &enumerate) || !create || !enumerate) {
+    const ULONGLONG bootStart=GetTickCount64();
+    const bool bootOK=boot && boot(module,&create,&enumerate) && create && enumerate;
+    std::snprintf(timing,sizeof(timing),"startup loader: bootstrap %llu ms result=%s",GetTickCount64()-bootStart,bootOK?"ok":"failed");Log(timing);
+    if (!bootOK) {
         Log("addon unavailable or client unsupported; using system renderer");
         return false;
     }

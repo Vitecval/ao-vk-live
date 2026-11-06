@@ -6,10 +6,13 @@
 int main(int argc,char** argv) {
     if(argc!=3 || std::string(argv[1])!="--cache") {std::fprintf(stderr,"Usage: ao-vk-cache-warm --cache <file>\n");return 2;}
     rvk::SetLogSink([](const char* line){std::printf("%s\n",line);std::fflush(stdout);});
-    rvk::SetPipelineCachePath(argv[2]);
+    const bool automatic=std::string(argv[2])=="auto";
+    rvk::SetPipelineCachePath(automatic ? "" : argv[2]);
+    std::string cachePath;
     {
         rvk::Device device;std::string error;
         if(!device.Init(nullptr,320,240,&error)){std::fprintf(stderr,"Cache preparation failed: %s\n",error.c_str());return 1;}
+        cachePath=device.PipelineCacheFilePath();
         using namespace rvk::d3d;
         device.SetHdr(true);device.SetShadows(true);device.SetKnob(rvk::Knob::WindowDepth,2);
         Matrix world{};for(int i=0;i<4;++i)world.m[i][i]=1;
@@ -25,7 +28,7 @@ int main(int argc,char** argv) {
             device.DrawPrimitive(TriangleList,0x152,vertices,3);device.EndFrame();
         }
     } // Serialize after startup and after the representative HDR/post passes.
-    std::ifstream cache(argv[2],std::ios::binary|std::ios::ate);
+    std::ifstream cache(cachePath,std::ios::binary|std::ios::ate);
     if(!cache || cache.tellg()<32 || cache.tellg()>=(256ll<<20)){std::fprintf(stderr,"Cache was not saved within the supported bound.\n");return 1;}
     std::puts("GPU cache prepared locally. No game process or proprietary game data was used.");return 0;
 }

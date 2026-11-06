@@ -296,7 +296,7 @@ bool Device::CreateHdrResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = layout;
-        bool ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, out), "post pipeline", error);
+        bool ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, out), "post pipeline", error);
         vkDestroyShaderModule(m_device, frag, nullptr);
         return ok;
     };
@@ -356,6 +356,8 @@ bool Device::CreateHdrResources(std::string* error)
 
 void Device::DestroyHdrResources()
 {
+    DestroyFsr2(); // Contexts and reactive image views precede their backing images.
+    DestroyFsr3();
     for (Texture* t : m_bloomLevels) DestroyTextureNow(t);
     m_bloomLevels.clear();
     for (Texture*& t : m_aoTex)
@@ -385,8 +387,6 @@ void Device::DestroyHdrResources()
     if (m_tonemapped) { DestroyTextureNow(m_tonemapped); m_tonemapped = nullptr; }
     if (m_fxaaOut) { DestroyTextureNow(m_fxaaOut); m_fxaaOut = nullptr; }
     if (m_taaOut) { DestroyTextureNow(m_taaOut); m_taaOut = nullptr; }
-    DestroyFsr2();
-    DestroyFsr3();
     if (m_uiLayer) { DestroyTextureNow(m_uiLayer); m_uiLayer = nullptr; }
     if (m_fgLabels) { DestroyTextureNow(m_fgLabels); m_fgLabels = nullptr; }
     if (m_fgOverlay) { DestroyTextureNow(m_fgOverlay); m_fgOverlay = nullptr; }
@@ -588,9 +588,11 @@ void Device::EndScene()
     ProfileMark("tonemap");
     // (RVK_Upscaler 1: FSR 2 upscales the scaled scene - fsr2.cpp; 2: FSR 3.1 - fsr3.cpp; the TAA if they can't.)
     Texture* upscaled = blur ? blurSrc : m_ldrMain;
-    if (taa && !(scaled && m_upscaler == 1 && RenderFsr2(cmd, upscaled, taaParams)) &&
-        !(scaled && m_upscaler == 2 && RenderFsr3(cmd, upscaled, taaParams)))
-        RenderTaa(cmd, upscaled, taaParams);
+    bool fsrUpscaled=false;
+    if (taa && scaled && m_upscaler==1) fsrUpscaled=RenderFsr2(cmd,upscaled,taaParams);
+    if (taa && scaled && m_upscaler==2) fsrUpscaled=RenderFsr3(cmd,upscaled,taaParams);
+    if (m_deviceLost) return; // Never submit a partially failed SDK dispatch.
+    if (taa && !fsrUpscaled) RenderTaa(cmd,upscaled,taaParams);
     if (taa && m_fg)
         FgPrepare(cmd, taaParams);               // (RVK_FrameGen: the scene's depth and motion for the generated frame)
     if (fxaa) {

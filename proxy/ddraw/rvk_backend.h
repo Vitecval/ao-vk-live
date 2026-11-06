@@ -85,6 +85,8 @@ class RSurface;
 void AttachMaterialMaps(RSurface* top);           // after the surface's rvk texture is (re)created
 void PollMaterialMaps();                          // each present: uploads maps decoded in the background
 void ForgetMaterialMaps(RSurface* top);           // the surface is going: it no longer waits for maps
+void SetIccArtwork(unsigned style);
+void SetIccPlayfield(uint32_t playfield);
 void SetModernTextureStyle(unsigned style); // 0 original, 1 classic ICC, 2 cyberpunk ICC; refreshes live surfaces
 void SetSharedTerrainSetting(bool enabled);
 void SetCharacterMaterialPack(bool enabled);       // optional replacement artwork follows the character toggle
@@ -385,14 +387,9 @@ protected:
     HRESULT DoGetMonitorFrequency(LPDWORD hz) override { if (hz) *hz = 60; return DD_OK; }
     HRESULT DoGetVerticalBlankStatus(LPBOOL in) override { if (in) *in = FALSE; return DD_OK; }
     HRESULT DoInitialize(GUID*) override { return DDERR_ALREADYINITIALIZED; }
-    HRESULT DoRestoreDisplayMode() override { return DD_OK; }
+    HRESULT DoRestoreDisplayMode() override;
     HRESULT DoSetCooperativeLevel(HWND hwnd, DWORD flags) override;
-    HRESULT DoSetDisplayMode(DWORD w, DWORD h, DWORD, DWORD, DWORD) override
-    {
-        g_rvk.displayWidth = w;
-        g_rvk.displayHeight = h;
-        return DD_OK;
-    }
+    HRESULT DoSetDisplayMode(DWORD w, DWORD h, DWORD bpp, DWORD refresh, DWORD flags) override;
     HRESULT DoWaitForVerticalBlank(DWORD, HANDLE) override { return DD_OK; }
     HRESULT DoGetAvailableVidMem(LPDDSCAPS2, LPDWORD total, LPDWORD free) override;
     HRESULT DoRestoreAllSurfaces() override { return DD_OK; }
@@ -400,6 +397,10 @@ protected:
     HRESULT DoGetDeviceIdentifier(LPDDDEVICEIDENTIFIER2 out, DWORD) override;
 
 private:
+    HWND m_modeWindow = nullptr;
+    LONG_PTR m_modeStyle = 0, m_modeExStyle = 0;
+    RECT m_modeRect{};
+    bool m_borderlessFallback = false;
     RDirect3D* m_d3d = nullptr;       // weak: created on demand by QueryInterface
     friend class RDirect3D;
 };

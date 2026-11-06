@@ -474,7 +474,7 @@ bool Device::CreateSmokeResources(std::string* error)
         ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module,
                     "main", nullptr};
         ci.layout = m_smokeSimLayout;
-        bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSimPipeline),
+        bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSimPipeline),
                         "smoke sim pipeline", error);
         vkDestroyShaderModule(m_device, module, nullptr);
         if (!ok)
@@ -581,7 +581,7 @@ bool Device::CreateSmokeResources(std::string* error)
             ci.pColorBlendState = &cb;
             ci.pDynamicState = &ds;
             ci.layout = layout;
-            ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
+            ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
                        "vkCreateGraphicsPipelines (smoke)", error);
         }
         if (vert) vkDestroyShaderModule(m_device, vert, nullptr);
@@ -634,7 +634,7 @@ bool Device::CreateSmokeSeen()
     ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module, "main",
                 nullptr};
     ci.layout = m_smokeSeenLayout;
-    const bool ok = vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSeenPipeline) == VK_SUCCESS;
+    const bool ok = startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSeenPipeline) == VK_SUCCESS;
     vkDestroyShaderModule(m_device, module, nullptr);
     if (!ok)
         return false;

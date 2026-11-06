@@ -2,6 +2,8 @@
 #pragma once
 
 #include "rvk.h"
+#include "startup.h"
+#include "icc_materials.h"
 
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -49,6 +51,7 @@ struct DrawTransform {
                                    // fades out by, the rock's depth out of the cliffs
     uint32_t texIdx[4];            // bindless (M1): image slots for stage 0, stage 1, bump base, normal map
     uint32_t sampIdx[4];           // bindless (M1): sampler slots for stage 0, stage 1, bump, normal
+    float icc[4]; // saved glossiness, ICC zone guard, verified identity, reserved
     uint32_t mat[4];               // PBR material: occlusion/roughness/metallic image slot, the maps' sampler slot,
                                    // kMat* bits, emissive image slot
     float leaf[4];                 // a canopy with leaves (leaves.cpp): its crown's centre (model space), radius (0 = none)

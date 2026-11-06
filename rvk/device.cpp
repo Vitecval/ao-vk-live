@@ -221,9 +221,11 @@ Device::Device()
 
 Device::~Device()
 {
+    if (startup::Active()) startup::Finish("device ended before first presentation");
     if (!m_device)
         return;
     WaitIdle();
+    DestroySwapchain(); // Stop the optional SDK presenter and its context before destroying sampled inputs.
     ReleaseParticleTextures(true);
     m_completed = UINT64_MAX;                   // the device is idle: everything deferred can go
     CollectGarbage();
@@ -306,6 +308,7 @@ void Device::StopPresentation()
 
 bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* error)
 {
+    startup::Begin(false);
     m_window = window;
     m_width = width;
     m_height = height;
@@ -319,7 +322,12 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
     auto step = [&](const char* name, auto&& run) {
         if (!ok)
             return;
+        startup::Stage(name);
+        const auto driverBefore = startup::DriverMicroseconds();
         ok = run();
+        Log("startup-stage: %s wall=%lld ms driver=%.3f ms result=%s", name,
+            static_cast<long long>(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now()-mark).count()),
+            (startup::DriverMicroseconds()-driverBefore)/1000.0, ok ? "ok" : "failed");
         char part[64];
         std::snprintf(part, sizeof(part), "%s%s %d", timings.empty() ? "" : ", ", name,
                       int(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - mark).count()));
@@ -339,8 +347,8 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
         SavePipelineCache("after the pipelines were made");
     Log("startup: %s%s; total %d ms", timings.c_str(), ok ? "" : " (failed)",
         int(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - begin).count()));
-    if (!ok)
-        return false;
+    if (!ok) { startup::Finish(error ? error->c_str() : "renderer initialization failed"); return false; }
+    startup::Stage("Preparing renderer resources");
     uint32_t black = 0xFF000000;
     m_blackTexture = CreateTexture(1, 1, &black);
     uint32_t flat = 0xFF8080FF;                  // (0.5, 0.5, 1): the unbent normal
@@ -352,16 +360,19 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
 namespace {
 
 std::string g_pipelineCachePath;
+uint64_t CacheHash(const std::vector<uint8_t>& data) {
+    uint64_t h=14695981039346656037ull;
+    for (uint8_t b:data) { h ^= b; h *= 1099511628211ull; }
+    return h;
+}
 
 // Where the cache lives: what the proxy set, else RANDYVK_PIPELINE_CACHE ("off" = none).
 std::string PipelineCacheFile()
 {
-    if (!g_pipelineCachePath.empty())
-        return g_pipelineCachePath;
-    char path[MAX_PATH] = {};
-    if (GetEnvironmentVariableA("RANDYVK_PIPELINE_CACHE", path, sizeof(path)) == 0)
-        return {};
-    return _stricmp(path, "off") == 0 ? std::string() : std::string(path);
+    char path[32768] = {};
+    const DWORD n = GetEnvironmentVariableA("RANDYVK_PIPELINE_CACHE", path, sizeof(path));
+    if (n && n < sizeof(path)) return _stricmp(path,"off") == 0 ? "off" : std::string(path);
+    return g_pipelineCachePath;
 }
 
 }  // namespace
@@ -373,7 +384,23 @@ void SetPipelineCachePath(const char* path) { g_pipelineCachePath = path ? path 
 void Device::CreatePipelineCache()
 {
     std::vector<uint8_t> data;
-    const std::string file = PipelineCacheFile();
+    bool wrapped=false;
+    std::string base = PipelineCacheFile();
+    if (base.empty()) {
+        char local[32768] = {};
+        const DWORD n = GetEnvironmentVariableA("LOCALAPPDATA", local, sizeof(local));
+        if (n && n < sizeof(local)) {
+            base = std::string(local) + "\\AO-VK"; CreateDirectoryA(base.c_str(), nullptr);
+            base += "\\pipelines-v1"; CreateDirectoryA(base.c_str(), nullptr);
+            char key[160];
+            std::snprintf(key,sizeof(key),"\\%08x-%08x-%08x-",m_props.vendorID,m_props.deviceID,m_props.driverVersion);
+            base += key;
+            for (uint8_t b : m_props.pipelineCacheUUID) { char hex[3]; std::snprintf(hex,sizeof(hex),"%02x",b); base += hex; }
+            base += ".cache";
+        }
+    }
+    m_pipelineCacheFile = base == "off" ? std::string() : base;
+    const std::string file = m_pipelineCacheFile;
     if (!file.empty()) {
         if (FILE* f = std::fopen(file.c_str(), "rb")) {
             std::fseek(f, 0, SEEK_END);
@@ -385,6 +412,16 @@ void Device::CreatePipelineCache()
                     data.clear();
             }
             std::fclose(f);
+        }
+        // Our envelope detects damaged payloads before passing opaque bytes to a driver.
+        if (data.size()>=32 && std::memcmp(data.data(),"AOVKPC23",8)==0) {
+            wrapped=true;
+            uint32_t meta[8]; std::memcpy(meta,data.data(),32);
+            const uint64_t expected=uint64_t(meta[4]) | uint64_t(meta[5])<<32;
+            std::vector<uint8_t> payload(data.begin()+32,data.end());
+            if (meta[2]!=payload.size() || meta[3]!=1 || meta[6]!=m_props.driverVersion || CacheHash(payload)!=expected) {
+                Log("pipeline cache: corrupt/incompatible envelope; rebuilding locally"); data.clear();
+            } else data.swap(payload);
         }
         // The header (Vulkan spec): size, version 1, vendor, device, the driver's cache UUID. Anything else is not ours.
         uint32_t header[4] = {};
@@ -400,38 +437,54 @@ void Device::CreatePipelineCache()
     VkPipelineCacheCreateInfo ci{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
     ci.initialDataSize = data.size();
     ci.pInitialData = data.empty() ? nullptr : data.data();
-    if (vkCreatePipelineCache(m_device, &ci, nullptr, &m_pipelineCache) != VK_SUCCESS) {
+    VkResult cacheResult;
+    { startup::DriverCall timer("vkCreatePipelineCache"); cacheResult = vkCreatePipelineCache(m_device, &ci, nullptr, &m_pipelineCache); }
+    if (cacheResult != VK_SUCCESS && !data.empty()) {
+        Log("pipeline cache: driver rejected %zu bytes (VkResult %d); retrying empty",data.size(),int(cacheResult));
+        data.clear(); ci.initialDataSize=0; ci.pInitialData=nullptr;
+        cacheResult=vkCreatePipelineCache(m_device,&ci,nullptr,&m_pipelineCache);
+    }
+    if (cacheResult != VK_SUCCESS) {
+        Log("pipeline cache: creation failed VkResult %d",int(cacheResult));
         m_pipelineCache = VK_NULL_HANDLE;        // (VK_NULL_HANDLE is also what the pipelines were made with before)
         return;
     }
-    m_pipelineCacheSaved = data.size();
+    m_pipelineCacheSaved = wrapped ? data.size() : 0; // upgrade compatible legacy files with a checksum envelope
+    m_pipelineCacheHash = CacheHash(data);
+    Log("pipeline cache: GPU=%04x:%04x driver=%08x SPIR-V-keyed driver cache (compatible shader entries retained)",m_props.vendorID,m_props.deviceID,m_props.driverVersion);
     if (!file.empty())
         Log("pipeline cache: %zu bytes loaded from %s", data.size(), file.c_str());
 }
 
-// Write the cache out if it holds more than the file does. Through a temporary file, so a crash can't leave half of one.
+// Write the cache whenever its content changed, even at the same byte size. Through a temporary file, so a crash can't leave half of one.
 void Device::SavePipelineCache(const char* why)
 {
-    const std::string file = PipelineCacheFile();
+    const std::string file = m_pipelineCacheFile;
     if (!m_pipelineCache || file.empty())
         return;
     size_t size = 0;
-    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size >= (256u << 20) || size == m_pipelineCacheSaved)
+    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size >= (256u << 20))
         return;
     std::vector<uint8_t> data(size);
     if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, data.data()) != VK_SUCCESS)
         return;
     data.resize(size);
+    const uint64_t hash = CacheHash(data);
+    if (data.size() == m_pipelineCacheSaved && hash == m_pipelineCacheHash) return;
     const std::string temp = file + "." + std::to_string(GetCurrentProcessId()) + ".tmp";   // (two clients in one folder)
     FILE* f = std::fopen(temp.c_str(), "wb");
-    if (!f)
-        return;
-    const bool written = std::fwrite(data.data(), 1, data.size(), f) == data.size();
-    std::fclose(f);
-    if (written && MoveFileExA(temp.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+    if (!f) { Log("pipeline cache: cannot write %s (errno %d); next launch may rebuild",temp.c_str(),errno); return; }
+    uint32_t meta[8]={}; std::memcpy(meta,"AOVKPC23",8);
+    meta[2]=uint32_t(data.size()); meta[3]=1; meta[4]=uint32_t(hash); meta[5]=uint32_t(hash>>32); meta[6]=m_props.driverVersion;
+    const bool written = std::fwrite(meta,1,sizeof(meta),f)==sizeof(meta) && std::fwrite(data.data(), 1, data.size(), f) == data.size();
+    const bool flushed = std::fflush(f) == 0;
+    const bool closed = std::fclose(f) == 0;
+    if (written && flushed && closed && MoveFileExA(temp.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         m_pipelineCacheSaved = data.size();
+        m_pipelineCacheHash = hash;
         Log("pipeline cache: %zu bytes saved (%s)", data.size(), why);
     } else {
+        Log("pipeline cache: persistence failed for %s (Windows error %lu)",file.c_str(),GetLastError());
         DeleteFileA(temp.c_str());
     }
 }
@@ -451,7 +504,7 @@ bool Device::CreateInstance(std::string* error)
     ci.pApplicationInfo = &app;
     ci.enabledExtensionCount = 2;
     ci.ppEnabledExtensionNames = extensions;
-    if (!Check(vkCreateInstance(&ci, nullptr, &m_instance), "vkCreateInstance", error))
+    if (!Check([&] { startup::DriverCall timer("vkCreateInstance"); return vkCreateInstance(&ci, nullptr, &m_instance); }(), "vkCreateInstance", error))
         return false;
     LoadInstance(m_instance);
     if (m_window) {
@@ -557,6 +610,8 @@ bool Device::CreateLogicalDevice(std::string* error)
     VkPhysicalDeviceRobustness2FeaturesEXT rob2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT};
     VkPhysicalDeviceTimelineSemaphoreFeatures timeline{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES};
     VkPhysicalDeviceFeatures2 features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    VkPhysicalDeviceShaderFloat16Int8Features fp16{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES};
+    timeline.pNext = &fp16;
     features.pNext = &v13;
     v13.pNext = &descIdx;
     descIdx.pNext = &rob2;
@@ -614,6 +669,7 @@ bool Device::CreateLogicalDevice(std::string* error)
     enDescIdx.shaderSampledImageArrayNonUniformIndexing = m_bindless ? VK_TRUE : VK_FALSE;
     enDescIdx.descriptorBindingSampledImageUpdateAfterBind = m_bindless ? VK_TRUE : VK_FALSE;
     enDescIdx.descriptorBindingPartiallyBound = m_bindless ? VK_TRUE : VK_FALSE;
+    enDescIdx.shaderStorageBufferArrayNonUniformIndexing = descIdx.shaderStorageBufferArrayNonUniformIndexing;
     VkPhysicalDeviceRobustness2FeaturesEXT enRob2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT};
     enRob2.nullDescriptor = m_bindless ? VK_TRUE : VK_FALSE;
     enRob2.pNext = &enEds3;
@@ -623,10 +679,15 @@ bool Device::CreateLogicalDevice(std::string* error)
     enTimeline.timelineSemaphore = timeline.timelineSemaphore;
     m_timelineSemaphores = timeline.timelineSemaphore == VK_TRUE;
     enVertexInput.pNext = &enTimeline;
+    VkPhysicalDeviceShaderFloat16Int8Features enFp16{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES};
+    enFp16.shaderFloat16=fp16.shaderFloat16;
+    enTimeline.pNext=&enFp16;
     VkPhysicalDeviceVulkan13Features enV13{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
     enV13.pNext = &enDescIdx;
     enV13.dynamicRendering = VK_TRUE;
     enV13.synchronization2 = VK_TRUE;
+    enV13.subgroupSizeControl=v13.subgroupSizeControl;
+    enV13.computeFullSubgroups=v13.computeFullSubgroups;
     enV13.shaderDemoteToHelperInvocation = VK_TRUE;     // glslc turns `discard` into OpDemoteToHelperInvocation
     VkPhysicalDeviceFeatures2 enabled{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     enabled.pNext = &enV13;
@@ -635,6 +696,9 @@ bool Device::CreateLogicalDevice(std::string* error)
     // Out-of-range vertex indices in game data read zeros instead of faulting the GPU.
     enabled.features.robustBufferAccess = features.features.robustBufferAccess;
     enabled.features.textureCompressionBC = features.features.textureCompressionBC;
+    enabled.features.shaderInt16=features.features.shaderInt16;
+    enabled.features.shaderStorageImageExtendedFormats=features.features.shaderStorageImageExtendedFormats;
+    Log("FSR Vulkan features: float16=%u int16=%u extended-storage=%u subgroup-control=%u full-subgroups=%u",enFp16.shaderFloat16,enabled.features.shaderInt16,enabled.features.shaderStorageImageExtendedFormats,enV13.subgroupSizeControl,enV13.computeFullSubgroups);
     enabled.features.imageCubeArray = VK_TRUE;           // point light shadow maps
     enabled.features.tessellationShader = features.features.tessellationShader;   // characters' Phong tessellation
     m_tessSupported = features.features.tessellationShader;
@@ -675,7 +739,7 @@ bool Device::CreateLogicalDevice(std::string* error)
     ci.pQueueCreateInfos = &qci;
     ci.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     ci.ppEnabledExtensionNames = extensions.data();
-    if (!Check(vkCreateDevice(m_physical, &ci, nullptr, &m_device), "vkCreateDevice", error))
+    if (!Check([&] { startup::DriverCall timer("vkCreateDevice"); return vkCreateDevice(m_physical, &ci, nullptr, &m_device); }(), "vkCreateDevice", error))
         return false;
     LoadDevice(m_device);
     vkGetDeviceQueue(m_device, m_queueFamily, 0, &m_queue);
@@ -948,7 +1012,7 @@ bool Device::CreateSwapchain(std::string* error)
             Log("frame generation: off - %s", why.empty() ? "no second queue for its presenting" : why.c_str());
         }
     }
-    if (!fg && !Check(vkCreateSwapchainKHR(m_device, &ci, nullptr, &m_swapchain), "vkCreateSwapchainKHR", error))
+    if (!fg && !Check([&] { startup::DriverCall timer("vkCreateSwapchainKHR"); return vkCreateSwapchainKHR(m_device, &ci, nullptr, &m_swapchain); }(), "vkCreateSwapchainKHR", error))
         return false;
     if (fg) {
         FgGetSwapchainImages(&n, nullptr);
@@ -1057,6 +1121,7 @@ bool Device::CreatePipelines(std::string* error)
         ci.pCode = code;
         return Check(vkCreateShaderModule(m_device, &ci, nullptr, out), "vkCreateShaderModule", error);
     };
+    startup::Stage("Loading embedded SPIR-V shader modules");
     VkShaderModule vert, frag, fragGlow, fragNoCut, fragGlowNoCut;
     if (!module(kVertSpirv, sizeof(kVertSpirv), &vert) || !module(kFragSpirv, sizeof(kFragSpirv), &frag) ||
         !module(kFragGlowSpirv, sizeof(kFragGlowSpirv), &fragGlow) ||
@@ -1108,6 +1173,7 @@ bool Device::CreatePipelines(std::string* error)
                                                           VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
                                                           VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
     bool ok = true;
+    startup::Stage("Preparing mandatory graphics pipelines");
     // One set for the 8-bit targets, one for the HDR scene (float); each also as a no-discard variant (early-Z for
     // draws that never cut out).
     for (int set = 0; set < 2 && ok; ++set)
@@ -1132,7 +1198,7 @@ bool Device::CreatePipelines(std::string* error)
         ci.layout = m_pipelineLayout;
         VkPipeline* dst = set ? (nc ? &m_pipelinesHdrNoCut[c] : &m_pipelinesHdr[c])
                               : (nc ? &m_pipelinesNoCut[c] : &m_pipelines[c]);
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
                    "vkCreateGraphicsPipelines", error);
     }
     // Characters' Phong tessellation: triangles as 3-point patches, through ffp.tesc / ffp.tese (both targets).
@@ -1171,7 +1237,7 @@ bool Device::CreatePipelines(std::string* error)
             ci.pDynamicState = &ds;
             ci.layout = m_pipelineLayout;
             VkPipeline* dst = nc ? &m_tessPipelinesNoCut[set] : &m_tessPipelines[set];
-            ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
+            ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
                        "tessellation pipeline", error);
         }
     }
@@ -1201,7 +1267,7 @@ bool Device::CreatePipelines(std::string* error)
             ci.pDynamicState = &ds;
             ci.layout = m_pipelineLayout;
             std::string leafError;
-            if (!Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPipelines[set]),
+            if (!Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPipelines[set]),
                        "leaf pipeline", &leafError))
                 m_leafPipelines[set] = VK_NULL_HANDLE;
         }
@@ -2032,6 +2098,7 @@ void Device::EndFrame()
     }
     if (m_fg && present)
         FgBeforePresent(f.main);                 // (frame generation: whether to generate, the interface's layer)
+    if (m_deviceLost) { m_inFrame=false; return; }
     vkEndCommandBuffer(f.main);
 
     VkCommandBuffer cmds[5];
@@ -2063,6 +2130,7 @@ void Device::EndFrame()
     }
     f.uploadsRecorded = false;
     FrameCommandsSubmitted(f);
+    if (!m_window && !m_deviceLost) startup::Finish();
     if (present) {
         VkPresentInfoKHR pi{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
         pi.waitSemaphoreCount = 1;
@@ -2071,6 +2139,7 @@ void Device::EndFrame()
         pi.pSwapchains = &m_swapchain;
         pi.pImageIndices = &imageIndex;
         VkResult r = m_fg ? FgPresent(&pi) : vkQueuePresentKHR(m_queue, &pi);
+        if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) startup::Finish();
         if (r == VK_SUBOPTIMAL_KHR || r == VK_ERROR_OUT_OF_DATE_KHR)
             m_swapchainStale = true;
         else if (r < 0) {

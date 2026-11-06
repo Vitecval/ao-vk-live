@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstring>
 #include <vector>
+#include <new>
 
 namespace rvk {
 
@@ -60,6 +61,7 @@ void Device::DestroyFsr3()
 // params: TaaParams'. False: FSR 3 couldn't run (no context) - the TAA does it.
 bool Device::RenderFsr3(VkCommandBuffer cmd, Texture* dst, const float params[28])
 {
+    if (m_fsr3Failed || m_deviceLost) return false;
     if (!m_motionFillPipeline || !m_reactiveMaskPipeline || !m_tonemapped || !m_depth)
         return false;
     const uint32_t rw = m_scene->m_width, rh = m_scene->m_height, dw = m_ldrMain->m_width, dh = m_ldrMain->m_height;
@@ -67,9 +69,12 @@ bool Device::RenderFsr3(VkCommandBuffer cmd, Texture* dst, const float params[28
     if (m_fsr3 && (m_fsr3->renderW != rw || m_fsr3->renderH != rh || m_fsr3->displayW != dw || m_fsr3->displayH != dh))
         DestroyFsr3();
     if (!m_fsr3) {
-        auto* s = new Fsr3State;
+        auto* s = new (std::nothrow) Fsr3State;
+        if (!s) { m_fsr3Failed = true; Log("FSR 3: CPU context allocation failed; using TAA for this session"); return false; }
         s->deviceContext = {m_device, m_physical, vkGetDeviceProcAddr};
-        s->scratch.resize(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT));
+        try { s->scratch.resize(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT)); } catch (const std::bad_alloc&) {
+            delete s; m_fsr3Failed = true; Log("FSR 3: backend memory allocation failed; using TAA for this session"); return false;
+        }
         FfxFsr3ContextDescription desc{};
         FfxErrorCode e = ffxGetInterfaceVK(&desc.backendInterfaceUpscaling, ffxGetDeviceVK(&s->deviceContext),
                                            s->scratch.data(), s->scratch.size(), FFX_FSR3_CONTEXT_COUNT);
@@ -87,6 +92,7 @@ bool Device::RenderFsr3(VkCommandBuffer cmd, Texture* dst, const float params[28
             static bool logged;
             if (!logged) { logged = true; Log("FSR 3: the context could not be made (error 0x%x): our TAA upscales", unsigned(e)); }
             delete s;
+            m_fsr3Failed = true;
             return false;
         }
         s->renderW = rw;
@@ -144,7 +150,9 @@ bool Device::RenderFsr3(VkCommandBuffer cmd, Texture* dst, const float params[28
     m_fsrOut->m_layout = VK_IMAGE_LAYOUT_GENERAL;
     if (e != FFX_OK) {
         static bool logged;
-        if (!logged) { logged = true; Log("FSR 3: dispatch failed (error 0x%x)", unsigned(e)); }
+        if (!logged) { logged = true; Log("FSR 3: dispatch failed (error 0x%x); disabled for this session", unsigned(e)); }
+        m_fsr3Failed = true;
+        m_deviceLost = true; // A failed dispatch may have partially recorded work; stop submission safely.
         return false;
     }
     Transition(cmd, m_fsrOut, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

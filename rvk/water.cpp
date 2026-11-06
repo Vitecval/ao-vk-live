@@ -368,7 +368,7 @@ bool Device::CreateWaterResources(std::string* error)
         ci.pColorBlendState = &cb;
         ci.pDynamicState = &ds;
         ci.layout = m_waterLayout;
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterPipeline),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterPipeline),
                    "vkCreateGraphicsPipelines", error);
         // The falls' spray: the same set, its own shaders; blended over the scene's colour (premultiplied), depth
         // tested but not written. (All targets blend alike - no independent blending - the shader gives the others
@@ -387,7 +387,7 @@ bool Device::CreateWaterResources(std::string* error)
                 a.dstColorBlendFactor = a.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
                 a.colorBlendOp = a.alphaBlendOp = VK_BLEND_OP_ADD;
             }
-            if (!Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterSprayPipeline),
+            if (!Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterSprayPipeline),
                        "vkCreateGraphicsPipelines (spray)", &sprayError))
                 Log("water spray unavailable: %s\n", sprayError.c_str());
         }
@@ -904,7 +904,7 @@ bool Device::CreateWaterSim(std::string* error)
     VkComputePipelineCreateInfo ci{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
     ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module, "main", nullptr};
     ci.layout = m_waterSimLayout;
-    bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterSimPipeline),
+    bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_waterSimPipeline),
                     "water sim pipeline", error);
     vkDestroyShaderModule(m_device, module, nullptr);
     if (!ok)

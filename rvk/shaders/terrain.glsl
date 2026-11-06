@@ -181,6 +181,15 @@ bool NativeCellAuthored(vec2 cell)
     return (attributes & 64u) == 0u;
 }
 
+// Bit 5 cleared only for the two verified ICC tiles in playfield 655.
+bool NativeCellIcc(vec2 cell) {
+    const uint codes=floatBitsToUint(D.terrain.y)-1u;
+    const ivec2 size=textureSize(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),0);
+    uint attributes=uint(texelFetch(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)),ivec2(0),size-1),0).a*255.0+0.5);
+    return (attributes & 32u)==0u;
+}
+
 // Within a cell (a along x, b along z, 0..1) its tile's coordinates as the game lays them, by the turn
 // (docs/ground-format.md): 0 (a, 1 - b), 1 (1 - b, 1 - a), 2 (1 - a, b), 3 (b, a). And a step's.
 vec2 NativeTurn(vec2 f, uint turn)

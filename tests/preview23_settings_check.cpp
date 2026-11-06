@@ -1,0 +1,32 @@
+// Runs next to an isolated addon copy. Never bootstraps or launches a game.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include "ddraw/rvk_settings.h"
+#include <cstdio>
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+
+int main(int argc,char**) {
+    HMODULE lib=LoadLibraryA("ao-vk.dll");
+    if(!lib) {std::printf("load failed %lu\n",GetLastError());return 1;}
+    auto set=reinterpret_cast<int(__cdecl*)(const char*,float)>(GetProcAddress(lib,"RvkSettings_Set"));
+    auto get=reinterpret_cast<int(__cdecl*)(uint32_t,RvkSettingInfo*)>(GetProcAddress(lib,"RvkSettings_Get"));
+    auto count=reinterpret_cast<uint32_t(__cdecl*)()>(GetProcAddress(lib,"RvkSettings_Count"));
+    auto preset=reinterpret_cast<int(__cdecl*)(uint32_t)>(GetProcAddress(lib,"RvkPresets_Apply"));
+    if(!set||!get||!count||!preset)return 2;
+    auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
+    auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(info("RVK_LivePeople").value==1,"restart people");std::puts("saved selections survived process restart");return 0;}
+    const char* cosmetics[]={"RVK_LivePeople","RVK_NPCVariety","RVK_ArmoredCivilians","RVK_LiveDrones","RVK_AirTraffic","RVK_PhasefrontTraffic","RVK_OrbitalCraft","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"};
+    for(const char* name:cosmetics)check(info(name).value==0 && info(name).defaultValue==0,"new cosmetics default Off");
+    for(unsigned p=0;p<4;++p){preset(p);for(const char* name:cosmetics)check(info(name).value==0,"preset enabled cosmetics");}
+    for(const char* name:cosmetics)set(name,1);
+    check(info("RVK_ICCArtwork").defaultValue==0,"default artwork");
+    const auto gloss=info("RVK_ICCGlossiness");
+    check(gloss.min==0 && gloss.max==1 && std::fabs(gloss.step-.1f)<.0001 && gloss.defaultValue==1,"slider schema");
+    for(int v=0;v<=10;++v){set("RVK_ICCGlossiness",v/10.f);check(std::fabs(info("RVK_ICCGlossiness").value-v/10.f)<.0001,"slider values");}
+    set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
+    for(unsigned p=0;p<4;++p){preset(p);check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(info(name).value==1,"saved cosmetic preference reset");}
+    std::puts("settings passed: all 11 gloss values, artwork independence, four presets, 10 cosmetics defaults and saved preferences");
+}

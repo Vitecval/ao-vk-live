@@ -97,6 +97,8 @@ Setting g_settings[] = {
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
     {"RVK_ModernTex", "World texture style: Original / AnarchyHD", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 2"},
+    {"RVK_ICCArtwork", "ICC Surface Artwork: AnarchyHD / Enhanced Original", "Materials", Choice, 0, 1, 1, 0, nullptr, 0, "RVK_ModernTex", "0 1"},
+    {"RVK_ICCGlossiness", "ICC Glossiness", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_ModernTex"},
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
@@ -814,6 +816,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     auto is = [n](const char* a) { return std::strcmp(n, a) == 0; };
     // Static meshes the game culls cast anyway within the shadows' reach (native mesh.cpp; as the renderer's memory of
     // casters: 1.4 x the shadow distance), meshes under a unit across left out.
+    if (std::strcmp(n,"RVK_ICCArtwork")==0) { SetIccArtwork(unsigned(V("RVK_ICCArtwork"))); return; }
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
@@ -1428,7 +1431,7 @@ const PresetValue kClassicPlus[] = {
     {"RVK_CloudsOn", 0}, {"RVK_WeatherOn", 0}, {"RVK_SmokeOn", 0}, {"RVK_WaterOn", 0},   // (the new features off)
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
-    {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1}, {"RVK_LivePeople", 2},
+    {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
     {"RVK_FarHaze", .6f}, {"RVK_HazeStart", 350}, {"RVK_HazeEnd", 1000},
@@ -1440,6 +1443,7 @@ constexpr uint32_t kPresetCount = 4;
 
 bool InPresets(const Setting& s)
 {
+    if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
     if (std::strcmp(s.section,"Living Rubi-Ka")==0) return false; // independent saved population preferences; new installs remain Off
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
     if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||

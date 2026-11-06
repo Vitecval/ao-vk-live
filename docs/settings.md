@@ -17,14 +17,14 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-367 settings, 196 of them in the settings window.
+369 settings, 198 of them in the settings window.
 
 ## Sections
 
 - [Living Rubi-Ka](#living-rubi-ka) (10)
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
-- [Materials](#materials) (23)
+- [Materials](#materials) (25)
 - [Debug](#debug) (8)
 - [Terrain](#terrain) (24)
 - [Plants](#plants) (39)
@@ -109,6 +109,8 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
+| `RVK_ICCArtwork` | ICC Surface Artwork: AnarchyHD / Enhanced Original | 0 / 1 | 0 | window; switch `RVK_ModernTex` |
+| `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 1 | window; switch `RVK_ModernTex`; knob |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
 | `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |

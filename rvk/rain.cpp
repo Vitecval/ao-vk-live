@@ -224,7 +224,7 @@ bool Device::CreateRainResources(std::string* error)
         ci.pColorBlendState = &cb;
         ci.pDynamicState = &ds;
         ci.layout = m_rainLayout;
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
                    "vkCreateGraphicsPipelines (rain)", error);
     }
     if (vert) vkDestroyShaderModule(m_device, vert, nullptr);

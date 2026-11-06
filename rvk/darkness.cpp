@@ -55,7 +55,7 @@ bool Device::CreateDarknessResources(std::string* error)
     ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module, "main",
                 nullptr};
     ci.layout = m_lumaLayout;
-    const bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_lumaPipeline),
+    const bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_lumaPipeline),
                           "scene brightness pipeline", error);
     vkDestroyShaderModule(m_device, module, nullptr);
     if (!ok)

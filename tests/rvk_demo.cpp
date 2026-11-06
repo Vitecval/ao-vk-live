@@ -916,6 +916,7 @@ bool g_pbrRoom = false;       // --pbr-room: unlit coloured walls around (red le
 // --pbr-maps DIR: the side-loaded files, through the proxy's loader (rvk/material_maps.h): the floor gets
 // floor_n.png, floor_h.png, floor_ao.png / floor_r.png / floor_m.png (separate) and floor_d.png; the bottom row's middle ball
 // ball_n.png and ball_orm.png (packed). Missing files are skipped.
+bool g_iccFloorTest=false;
 std::string g_pbrMaps;
 bool g_pbrSelfLit = false;          // --pbr-selflit: the emissive map's ball drawn with an emissive (self-lit) material
 extern float g_sunDir[3];               // (--sun-dir, below: also the PBR scene's sun - from under the ground, night)
@@ -1076,7 +1077,8 @@ void RunPbrTest(D& dev, int frames, const std::string& shot)
     Texture* floor = dev.CreateTexture(64, 64, floorPixels.data());
     dev.SetMaterialMaps(floor, orm(1.0f, 0.3f, 0.0f), nullptr);
     if (!g_pbrMaps.empty()) {
-        AttachFileMaps(dev, floor, "floor");
+        AttachFileMaps(dev, floor, g_iccFloorTest ? "1010004_295610" : "floor");
+        if(g_iccFloorTest) dev.SetTextureRdbId(floor,295610,1010004);
         AttachFileMaps(dev, tex[3][2], "ball");
     }
     if (g_buildingFamilyTest >= 0) {
@@ -3343,6 +3345,7 @@ float g_cloudSheet = 1.0f;        // --cloud-sheet X: RVK_CloudSheet
 float g_cloudShadow = 0.6f;       // --cloud-shadow X: RVK_CloudShadow
 float g_cloudNight = 0.8f;        // --cloud-night X: RVK_CloudNight
 float g_skyVary = 0.0f;           // --sky-vary X: RVK_SkyVary (off: the demo's skies as they were)
+float g_iccGlossiness=1.f;
 uint32_t g_skyZone = 0;      // --sky-zone PF: the sky leans by that playfield's climate (sky.cpp)
 double g_skyTime = -1.0;          // --sky-time T: the sky weather's clock (seconds)
 float g_moonLight = 1.0f;         // --moon-light X: RVK_MoonLight
@@ -5598,6 +5601,7 @@ int main(int argc, char** argv)
         else if (a == "--aniso" && i + 1 < argc) anisotropy = uint32_t(std::atoi(argv[++i]));
         else if (a == "--bump" && i + 1 < argc) bump = float(std::atof(argv[++i]));
         else if (a == "--normal-map-test") normalMapTest = true;
+        else if (a=="--icc-floor-test") {g_iccFloorTest=true;pbrTest=true;}
         else if (a == "--pbr-test") pbrTest = true;
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
@@ -5654,6 +5658,7 @@ int main(int argc, char** argv)
         else if (a == "--lamp-wobble") g_lampWobble = true;
         else if (a == "--sharpen" && i + 1 < argc) sharpen = float(std::atof(argv[++i]));
         else if (a == "--render-scale" && i + 1 < argc) renderScale = std::atoi(argv[++i]);
+        else if (a=="--icc-gloss" && i+1<argc) g_iccGlossiness=std::clamp(float(std::atof(argv[++i])),0.f,1.f);
         else if (a == "--upscaler" && i + 1 < argc) upscaler = std::atoi(argv[++i]);
         else if (a == "--frame-gen") frameGen = true;
         else if (a == "--ui-window") g_uiWindow = true;
@@ -5906,6 +5911,8 @@ int main(int argc, char** argv)
     dev.SetTaa(taa, sharpen);
     dev.SetRenderScale(uint32_t(renderScale));
     dev.SetUpscaler(uint32_t(upscaler));
+    dev.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
+    if(g_iccFloorTest) dev.SetSkyPlayfield(g_skyZone);
     dev.SetFrameGen(frameGen);
     dev.SetKnob(rvk::Knob::Fxaa, fxaa);
     dev.SetGrading(saturation, contrast, warmth, 1.0f, nightTint, vignette);
@@ -5976,6 +5983,7 @@ int main(int argc, char** argv)
     queued.SetTaa(taa, sharpen);
     queued.SetRenderScale(uint32_t(renderScale));
     queued.SetUpscaler(uint32_t(upscaler));
+    queued.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
     queued.SetFrameGen(frameGen);
     queued.SetKnob(rvk::Knob::Fxaa, fxaa);
     queued.SetGrading(saturation, contrast, warmth, 1.0f, nightTint, vignette);
@@ -6071,6 +6079,7 @@ int main(int argc, char** argv)
             tdev.SetTaa(true, sharpen);
             tdev.SetRenderScale(uint32_t(renderScale));
             tdev.SetUpscaler(uint32_t(upscaler));
+            tdev.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
         }
         if (g_pbrDebug) {
             Device::PbrSettings pbr;

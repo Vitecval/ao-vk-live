@@ -51,6 +51,8 @@
 #include <vector>
 
 #include "rvk_backend.h"
+#include "icc_materials.h"
+#include "startup.h"
 #include "native/native.h"
 
 #include "material_maps.h"
@@ -58,6 +60,10 @@
 #include "building_families.h"
 
 namespace rvkproxy {
+namespace { std::atomic<unsigned> g_iccArtwork{0}; std::atomic<bool> g_iccZone{false},g_iccChanged{false}; }
+void SetIccArtwork(unsigned style) { if(g_iccArtwork.exchange(style)!=style) g_iccChanged=true; }
+void SetIccPlayfield(uint32_t id) { const bool zone=id==rvk::icc::Playfield; if(g_iccZone.exchange(zone)!=zone) g_iccChanged=true; }
+
 
 // {6a1f0e52-2d43-4b8e-9c55-7f3a0b1d9e10}
 const GUID IID_RvkSurface = {0x6a1f0e52, 0x2d43, 0x4b8e, {0x9c, 0x55, 0x7f, 0x3a, 0x0b, 0x1d, 0x9e, 0x10}};
@@ -229,7 +235,7 @@ void ScanPacks(const std::string& root)
         f.dir = root + name + "\\";
         f.world = Lower(name) == "ao-cyber-world";
         f.modern = Lower(name) == "ao-modern-icc" ? 1u : (Lower(name) == "ao-cyber-icc" || f.world) ? 2u :
-                   Lower(name) == "ao-cyber-characters" ? 3u : 0u;
+                   Lower(name) == "ao-cyber-characters" ? 3u : Lower(name)=="ao-icc-enhanced-original" ? 4u : 0u;
         ScanFolder(f);
         RvkLog("materials: pack '%s', %u files", name.c_str(), unsigned(f.files.size()));
         if (!f.files.empty())
@@ -242,6 +248,8 @@ void Scan()
     if (g_scanned)
         return;
     g_scanned = true;
+    rvk::startup::Stage("Indexing Full HD material filenames");
+    const ULONGLONG scanStart=GetTickCount64();
     char path[MAX_PATH] = {};
     HMODULE self = nullptr;
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -261,6 +269,7 @@ void Scan()
         ScanFolder(g_live);
         RebuildLiveKeys();
     }
+    RvkLog("startup-materials: filename index %llu ms (first scan; may follow presentation); image decode is demand-driven",GetTickCount64()-scanStart);
     RvkLog("materials: %u files in %s%s", unsigned(g_mat.files.size()), g_mat.dir.c_str(),
            g_hot ? "; hot reload on (watching it and live\\)" : "");
 }
@@ -315,6 +324,10 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
     Scan();
     if (g_liveKeys.count(KeyOf(type, id)))
         return g_live;
+    if (!HasAny(g_mat,type,id) && g_iccZone.load() && g_iccArtwork.load()==1 && g_modernStyle.load()==2 && rvk::icc::Target(type,id))
+        for (const Folder& pack:g_packs)
+            if(pack.name=="ao-icc-enhanced-original" && !FindIn(pack,type,id,"_d.png").empty() &&
+                !FindIn(pack,type,id,"_n.png").empty() && !FindIn(pack,type,id,"_orm.png").empty()) return pack;
     if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
         if (const auto* resource=rvk::buildings::ResourceOf(type,id)) {
             for (const Folder& pack:g_packs)
@@ -377,7 +390,7 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     if (folder.modern && rvk::materials::IsGroundType(type) &&
         !rvk::materials::AuthoredGround(type, id)) return f;
     if (folder.modern) f.maxSize = 512; // bounded built-in artwork in the 2 GB retail process
-    f.preserveAlbedoAlpha = folder.modern == 3 ||
+    f.preserveAlbedoAlpha = (folder.modern==4 && FullQualityType(type)!=1010006) || folder.modern == 3 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
     f.height = FindMap(type, id, "_h.png");
@@ -909,14 +922,16 @@ void Reload(uint64_t key)
 
 void PollModernPack()
 {
+    const bool iccChanged = g_iccChanged.exchange(false);
     const bool modernChanged = g_modernChanged.exchange(false);
     const bool characterChanged = g_characterChanged.exchange(false);
     const bool terrainChanged = g_sharedTerrainChanged.exchange(false);
-    if (!modernChanged && !characterChanged && !terrainChanged)
+    if (!iccChanged && !modernChanged && !characterChanged && !terrainChanged)
         return;
     Scan();
     std::unordered_set<uint64_t> keys;
     for (RSurface* top : g_identified) {
+        if (iccChanged && rvk::icc::Target(top->rdbType,top->rdbId)) keys.insert(KeyOf(top->rdbType,top->rdbId));
         if (terrainChanged && FullQualityType(top->rdbType) == 1010006)
             keys.insert(KeyOf(top->rdbType, top->rdbId));
         for (const Folder& pack : g_packs)

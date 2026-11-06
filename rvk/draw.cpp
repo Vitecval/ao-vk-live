@@ -3907,6 +3907,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     dt.sampIdx[1] = StageSamplerSlot(1);
     dt.sampIdx[2] = FixedSamplerSlot(0, m_bumpSampler);
     dt.sampIdx[3] = FixedSamplerSlot(1, m_normalSampler);
+    const Texture* iccBase = m_drawBumpBase ? m_drawBumpBase : m_textures[0];
+    dt.icc[0]=std::clamp(m_iccGlossiness,0.f,1.f);
+    dt.icc[1]=m_skyPlayfield==icc::Playfield ? 1.f : 0.f;
+    dt.icc[2]=iccBase && iccBase->m_albedoMap && icc::Target(iccBase->m_rdbType,iccBase->m_rdbId) ? 1.f : 0.f;
     // The PBR material (the shader uses it only where the draw is lit per pixel and isn't far foliage).
     if (m_drawOrm) {
         dt.mat[0] = BindlessImage(m_drawOrm);

@@ -344,7 +344,7 @@ bool Device::CreateShadowResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = m_shadowPipelineLayout;
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_shadowPipelines[alphaTest]),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_shadowPipelines[alphaTest]),
                    "shadow pipeline", error);
     }
     // A canopy's leaves (leaves.cpp): leaf_shadow.vert, cut out by shadow.frag. Not fatal.
@@ -368,7 +368,7 @@ bool Device::CreateShadowResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = m_shadowPipelineLayout;
-        if (!Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_leafShadowPipeline),
+        if (!Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_leafShadowPipeline),
                    "leaf shadow pipeline", &leafError))
             m_leafShadowPipeline = VK_NULL_HANDLE;
         vkDestroyShaderModule(m_device, leafVert, nullptr);

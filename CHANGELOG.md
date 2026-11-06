@@ -1,3 +1,13 @@
+## Unreleased — Preview 23 isolated stabilization candidate
+
+- Record process age, renderer stages and slow Vulkan calls; reuse a GPU/driver cache in the user's local app-data folder, detect corrupt cache payloads, retry rejected caches and report failed writes.
+- Show a delayed, independently responsive preparation window on slow live renderer starts; quick starts add no window. First presentation closes it; full-client usability validation remains pending.
+- Handle legacy exclusive requests with an explicit borderless fallback on the window's monitor. True Vulkan exclusive ownership remains unsupported.
+- Enable the Vulkan features selected by the FSR backends; latch failed contexts to avoid repeated attempts and handle CPU allocation failure. Stop submitting partially failed SDK dispatches.
+- Add independent ICC Surface Artwork and ICC Glossiness settings for the three verified ICC floor/tile IDs, with a subtle default roughness correction. New Enhanced Original images are a separate private test pack awaiting rights and live-fit review.
+- Preserve cosmetic population preferences and Off defaults across all quality presets; remove the obsolete Ultra population entry.
+- Keep the frozen Preview 22 renderer/Living integration and validated setup payload. No installation or public publication is performed.
+
 ## Unreleased â€” Preview 22 local integration candidate
 
 - Prepare Living Rubi-Ka resources from the selected AO installation, keeping the generated cache inside that installation. No original asset pack accompanies the download.

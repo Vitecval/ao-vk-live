@@ -92,7 +92,7 @@ def main():
         if case=='unexpected-notice':
             manifest['materialParts']=json.loads(json.dumps(parts))
             manifest['materialParts'][0]['notices']['unexpected.txt']='0'*64
-        if frozen:manifest.update(version='0.6.0-preview.22',materialSourceVersion=VERSION)
+        if frozen:manifest.update(version='0.6.0-preview.22' if frozen is True else frozen,materialSourceVersion=VERSION)
         if wrong:manifest['materialDownload']['tag']='v0.6.0-preview.20'
         (d/'manifest.json').write_text(json.dumps(manifest))
         if offline:
@@ -132,6 +132,7 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         run('automatic',reuse=True)
         run('offline',offline=True)
         run('preview22-frozen-materials',offline=True,frozen=True)
+        run('preview23-frozen-materials',offline=True,frozen='0.6.0-preview.23')
         modes['interrupted']='interrupt';d,p=run('interrupted',expect=False)
         assert list((d/'.ao-vk-downloads').glob('*.partial')),'Interrupted bytes were not retained'
         modes['interrupted']='normal';start=len(requests);run('interrupted')

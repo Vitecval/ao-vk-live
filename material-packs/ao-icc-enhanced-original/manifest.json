@@ -1,0 +1,94 @@
+{
+  "name": "Enhanced Original ICC",
+  "version": 1,
+  "playfield": 655,
+  "status": "private-test-only-rights-and-live-fit-review-pending",
+  "provider": "built-in imagegen; separate prompt and immutable generated PNG per identity",
+  "redistributionApproved": false,
+  "originalPixelsIncluded": false,
+  "originalReferencesUsed": true,
+  "sources": [
+    {
+      "path": "source-art/1010004_295610.png",
+      "sha256": "3163c47a80b65879cb0dfa07c77ccb96808bcd729090eb32b4f4e0cd8e65fced",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source-art/1010006_21.png",
+      "sha256": "69179b766e9749342e8a64ddce046062576b89739b0000e8fe88618966a2bba9",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "path": "source-art/1010006_22.png",
+      "sha256": "a586eb89e4b643ddadc4cf94e71fc3a2651e357578ef2e4b2dfb9f8622d3bbfc",
+      "size": [
+        1254,
+        1254
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "type": 1010004,
+      "id": 295610,
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.66,
+      "metallic": 0.65
+    },
+    {
+      "type": 1010006,
+      "id": 21,
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.74,
+      "metallic": 0.08
+    },
+    {
+      "type": 1010006,
+      "id": 22,
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.72,
+      "metallic": 0.08
+    }
+  ],
+  "files": {
+    "1010004_295610_d.png": "75ed4e8020b17915f7ded3c8e4adb7b6a1aa97e69498b3e482d1d21bcbb2898c",
+    "1010004_295610_n.png": "2db49a80e7590b846ec25b6f659e7adba23d4dc0b8e7ba07ba2c2c539a9ee866",
+    "1010004_295610_orm.png": "ce0e644d72b87cfe156db942bffc19b838f486fc7850c09ff9123004acbe53d9",
+    "1010006_21_d.png": "2631bb426d20bacea3eedff0da2d30ab7f41172dda53806a542fe87b5a98cc1b",
+    "1010006_21_n.png": "c169d31166ecae79de8f94a7cce319e48cb0565619b4c31a5a70eee91a4685bb",
+    "1010006_21_orm.png": "685e81fb3e7e24abddcf2964b18a4e9dd9615c5d0935c2926635965462d7a88c",
+    "1010006_22_d.png": "105fdfadc79314c35a6cfc4ac42f8d050f63aeda8f53443f37c02c04eb16ded7",
+    "1010006_22_n.png": "1c331a10ac5d346fe856440d60328613f742b1e3bf7fee74a00c5bfdcf2c48fb",
+    "1010006_22_orm.png": "8ad4e796e978383907c1dc492a49cf643db15fc0766ab435648bf7a7363af68a"
+  }
+}

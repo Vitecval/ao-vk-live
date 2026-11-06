@@ -192,7 +192,7 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
     OBJECT_DEPENDS "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h")
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
-add_library(rvk STATIC rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
+add_library(rvk STATIC rvk/startup.cpp rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
 target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/living_data.cpp rvk/living.cpp rvk/living_local.cpp rvk/living_behavior.cpp)
 target_link_libraries(rvk PUBLIC bcrypt)
 add_executable(living_check tests/living_check.cpp rvk/living_data.cpp rvk/living_behavior.cpp proxy/native/stb_image.cpp)
@@ -267,3 +267,18 @@ target_link_libraries(randy_harness PRIVATE user32)
 add_executable(skin_lifetime_check tests/skin_lifetime_check.cpp proxy/native/stb_image.cpp)
 target_include_directories(skin_lifetime_check PRIVATE third_party)
 target_link_libraries(skin_lifetime_check PRIVATE rvk)
+
+# Preview 23 isolated regression programs (no AO process is created).
+add_executable(startup_progress_check tests/startup_progress_check.cpp proxy/native/stb_image.cpp)
+target_link_libraries(startup_progress_check PRIVATE rvk user32 gdi32)
+target_include_directories(startup_progress_check PRIVATE third_party)
+add_executable(preview23_settings_check tests/preview23_settings_check.cpp)
+target_include_directories(preview23_settings_check PRIVATE proxy)
+
+
+add_executable(fsr_lifecycle_check tests/fsr_lifecycle_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(fsr_lifecycle_check PRIVATE third_party)
+target_link_libraries(fsr_lifecycle_check PRIVATE rvk user32)
+
+add_executable(fullscreen_fallback_check tests/fullscreen_fallback_check.cpp)
+target_link_libraries(fullscreen_fallback_check PRIVATE user32 dxguid)

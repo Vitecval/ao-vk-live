@@ -71,6 +71,9 @@ typedef struct VkFrameInterpolationInfoFFX
     VkQueueInfoFFX               imageAcquireQueue;
     VkCompositonModeFFX          compositionMode;
     const VkAllocationCallbacks* pAllocator;
+    // AO-VK private integration. Callback provides present-queue synchronization.
+    VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*);
+    void* queuePresentContext;
 } VkFrameInterpolationInfoFFX;
 
 /// Query how much memory is required for the Vulkan backend's scratch buffer.

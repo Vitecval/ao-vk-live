@@ -1,4 +1,4 @@
-# Preview 23 revision 7 — complete GPU pairs before presentation
+# Preview 23 revision 8 — presentation on the window's owning thread
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
@@ -39,6 +39,18 @@ FSR safeguards remain included, with driver-specific and actual crash validation
 still pending as described in REPORT.md.
 
 ## Frame generation
+
+Revision 7 also froze in the actual game. Revision 8 sends frame-generation
+presents to a private message-only window on the game's window thread. This
+avoids crossing threads during the driver's window callbacks. The game's input
+window and global driver/overlay settings are preserved. If the private
+dispatcher cannot be made, normal presentation continues with a logged reason.
+
+A regression using a driver lock and synchronous window callback timed out all
+108 callbacks with revision 7; revision 8 completes them on the owning thread
+with zero timeouts. Single-thread rendering also keeps servicing sent messages
+during SDK and GPU waits. These are controlled tests; another actual-game retest
+is still needed. Frame generation remains off in the saved F: preferences.
 
 Revision 6 also stalled in the actual game. Revision 7 prepares both generated
 and real-frame GPU work before the first presentation call, preserving their

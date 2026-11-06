@@ -43,6 +43,30 @@ VkResult VKAPI_PTR LimitedCaps(VkPhysicalDevice device,VkSurfaceKHR surface,VkSu
 struct BinarySubmission {VkQueue queue;VkSemaphore binary;};
 std::mutex submissionMutex;
 std::vector<BinarySubmission> binarySubmissions;
+std::recursive_mutex driverWindowLock;
+std::atomic<unsigned> ownerPresents{0},ownerTimeouts{0},wrongPresentThread{0};
+DWORD ownerThread=0;
+constexpr UINT driverCallbackMessage=WM_APP+19;
+LRESULT CALLBACK FixtureWindowProc(HWND window,UINT message,WPARAM wp,LPARAM lp){
+    if(message==driverCallbackMessage){std::lock_guard<std::recursive_mutex> lock(driverWindowLock);return 1;}
+    return DefWindowProcW(window,message,wp,lp);
+}
+bool IsSdkPresent(VkQueue queue,const VkPresentInfoKHR* info){
+    std::lock_guard<std::mutex> lock(submissionMutex);
+    for(const auto& entry:binarySubmissions)
+        if(entry.queue==queue&&info->waitSemaphoreCount&&entry.binary==info->pWaitSemaphores[0])return true;
+    return false;
+}
+VkResult VKAPI_PTR OwnerPresent(VkQueue queue,const VkPresentInfoKHR* info){
+    if(IsSdkPresent(queue,info)){
+        ++ownerPresents;
+        if(GetCurrentThreadId()!=ownerThread)++wrongPresentThread;
+        std::lock_guard<std::recursive_mutex> lock(driverWindowLock);
+        DWORD_PTR result=0;
+        if(!SendMessageTimeoutW(messageWindow,driverCallbackMessage,0,0,SMTO_BLOCK|SMTO_ABORTIFHUNG,400,&result))++ownerTimeouts;
+    }
+    return realPresent(queue,info);
+}
 std::atomic<unsigned> pairedPresentCalls{0},withheldGpuPairs{0};
 VkResult VKAPI_PTR ObserveSubmit(VkQueue queue,uint32_t count,const VkSubmitInfo* submits,VkFence fence){
     const VkResult result=realSubmit(queue,count,submits,fence);
@@ -61,7 +85,7 @@ VkResult VKAPI_PTR ObserveSubmit(VkQueue queue,uint32_t count,const VkSubmitInfo
     return result;
 }
 VkResult VKAPI_PTR PairPresent(VkQueue queue,const VkPresentInfoKHR* info){
-    const bool presenter=IsPresenter();
+    const bool presenter=IsSdkPresent(queue,info);
     if(presenter && (++pairedPresentCalls&1)){
         bool complete=false;
         {
@@ -105,11 +129,14 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     const bool timeouts=argc>1 && std::string(argv[1])=="--acquire-timeout";
     const bool limited=argc>1 && std::string(argv[1])=="--limited-images";
     const bool handoff=argc>1 && std::string(argv[1])=="--handoff-timeout";
-    const bool native=handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
+    const bool replaceWindow=argc>1 && std::string(argv[1])=="--window-replacement";
+    const bool owner=replaceWindow || (argc>1 && std::string(argv[1])=="--owner-wsi");
+    const bool native=owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
     const bool fg=native || (argc>1 && std::string(argv[1])=="--framegen");
     const unsigned width=native?1914:768,height=native?1051:512;
     using namespace rvk;using namespace rvk::d3d;
-    WNDCLASSW wc{};wc.lpfnWndProc=DefWindowProcW;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"AOVKFsrLaboratory";RegisterClassW(&wc);
+    ownerThread=GetCurrentThreadId();
+    WNDCLASSW wc{};wc.lpfnWndProc=FixtureWindowProc;wc.hInstance=GetModuleHandleW(nullptr);wc.lpszClassName=L"AOVKFsrLaboratory";RegisterClassW(&wc);
     RECT bounds{0,0,LONG(width),LONG(height)};AdjustWindowRect(&bounds,WS_OVERLAPPEDWINDOW,FALSE);
     HWND window=CreateWindowExW(WS_EX_NOACTIVATE,wc.lpszClassName,L"AO-VK isolated FSR fixture",WS_OVERLAPPEDWINDOW,40,40,bounds.right-bounds.left,bounds.bottom-bounds.top,nullptr,nullptr,wc.hInstance,nullptr);
     if(!window)return 1;
@@ -126,6 +153,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(stress)vk::vkQueuePresentKHR=SlowPresent;
         if(messages)vk::vkQueuePresentKHR=MessagePresent;
         if(pairs){vk::vkQueuePresentKHR=PairPresent;vk::vkQueueSubmit=ObserveSubmit;}
+        if(owner){vk::vkQueuePresentKHR=OwnerPresent;vk::vkQueueSubmit=ObserveSubmit;}
         if(timeouts)vk::vkAcquireNextImageKHR=TimeoutAcquire;
         if(limited){vk::vkGetPhysicalDeviceSurfaceCapabilitiesKHR=LimitedCaps;vk::vkQueuePresentKHR=PairPresent;}
         if(handoff){vk::vkWaitSemaphores=DelayHandoff;rvk::SetLogSink(HandoffLog);}
@@ -145,6 +173,17 @@ template<class RenderDevice> int Run(int argc,char**argv) {
             if(messages&&frame==30&&!d.Resize(640,480))return 3;
             if(messages&&frame==42&&!d.Resize(width,height))return 4;
             if(messages&&frame==48)d.SetRenderScale(100);
+            if(replaceWindow&&frame==30){
+                HWND previous=window;
+                if(!d.SetWindow(nullptr))return 13;
+                window=CreateWindowExW(WS_EX_NOACTIVATE,wc.lpszClassName,L"AO-VK replacement FSR fixture",WS_OVERLAPPEDWINDOW,40,40,bounds.right-bounds.left,bounds.bottom-bounds.top,nullptr,nullptr,wc.hInstance,nullptr);
+                if(!window)return 14;
+                messageWindow=window;
+                ShowWindow(window,SW_SHOWNOACTIVATE);
+                SetWindowPos(window,HWND_BOTTOM,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
+                if(!d.SetWindow(window))return 15;
+                DestroyWindow(previous);
+            }
             if(!native&&!inject && frame==30){SetWindowLongPtrW(window,GWL_STYLE,WS_POPUP);if(!d.Resize(640,480))return 3;}
             if(!native&&!inject && frame==42){SetWindowLongPtrW(window,GWL_STYLE,WS_OVERLAPPEDWINDOW);if(!d.Resize(768,512))return 4;}
             if(!stress&&fg && frame==54)d.SetFrameGen(false);
@@ -163,6 +202,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(inject){vk::vkGetDeviceProcAddr=realGet;if(!injectedCalls){std::puts("failure injection was not exercised");return 5;}std::printf("injected pipeline failures: %u; contexts must be logged once per mode\n",injectedCalls);}
     }
     DestroyWindow(window);
+    if(owner){std::printf("owner WSI: %u presents, %u wrong-thread, %u callbacks timed out\n",ownerPresents.load(),wrongPresentThread.load(),ownerTimeouts.load());if(ownerPresents<72||wrongPresentThread||ownerTimeouts)return 12;}
     if(handoff){rvk::SetLogSink(nullptr);std::printf("handoff delayed=%u stopped/logged=%u\n",unsigned(delayedHandoff.load()),unsigned(stoppedHandoff.load()));if(!delayedHandoff||!stoppedHandoff)return 11;}
     if(timeouts){std::printf("injected real-image acquisition timeouts: %u\n",acquireTimeouts.load());if(!acquireTimeouts)return 9;}
     if(limited){std::printf("limited surface queries %u; framegen presenter calls %u\n",limitedCapsCalls.load(),pairedPresentCalls.load());if(!limitedCapsCalls || pairedPresentCalls)return 10;}
@@ -182,6 +222,6 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     return 0;
 }
 int main(int argc,char**argv) {
-    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"))return Run<rvk::ThreadedDevice>(argc,argv);
+    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"||std::string(argv[1])=="--owner-wsi"||std::string(argv[1])=="--window-replacement"))return Run<rvk::ThreadedDevice>(argc,argv);
     return Run<rvk::Device>(argc,argv);
 }

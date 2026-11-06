@@ -3253,6 +3253,8 @@ private:
     Texture* m_fgShot = nullptr;
     Texture* FgComposedFrame(VkCommandBuffer cmd);   // the frame as seen, for reading back (null: m_main is)
     bool FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* error);
+    void FgInitDispatcher(HWND window);
+    void FgReleaseDispatcher();
     void FgDestroySwapchain();
     void WaitIdle();                             // vkDeviceWaitIdle, frame generation's presents done first
     VkResult FgGetSwapchainImages(uint32_t* count, VkImage* images);
@@ -3617,6 +3619,7 @@ private:
     std::array<bool, size_t(Format::Count)> m_formatSupported{};
 
     HWND m_window = nullptr;
+    HWND m_fgDispatchWindow = nullptr;
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
     std::vector<VkImage> m_swapImages;

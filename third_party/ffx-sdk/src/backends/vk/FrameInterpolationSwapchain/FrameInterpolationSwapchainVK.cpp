@@ -803,7 +803,12 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
     presentInfoKHR.pResults           = nullptr;  // Optional
 
     VkResult res;
-    {
+    if (pPresenter->queuePresentCallback) {
+        // Do not hold the queue mutex across a synchronous HWND-owner handoff.
+        // Its callback acquires the mutex on the executing thread instead.
+        res = pPresenter->queuePresentCallback(pPresenter->presentQueue.queue, &presentInfoKHR,
+                                              pPresenter->queuePresentContext);
+    } else {
         std::lock_guard<std::mutex> lock(ffxQueueMutex());   // (ao-vk)
         res = vkQueuePresentKHR(pPresenter->presentQueue.queue, &presentInfoKHR);
     }
@@ -1548,6 +1553,8 @@ VkResult FrameInterpolationSwapChainVK::init(const VkSwapchainCreateInfoKHR* pCr
     presentInfo.interpolationQueue = presentInfo.gameQueue;
     presentInfo.asyncComputeQueue  = pFrameInterpolationInfo->asyncComputeQueue;
     presentInfo.presentQueue       = pFrameInterpolationInfo->presentQueue;
+    presentInfo.queuePresentCallback = pFrameInterpolationInfo->queuePresentCallback;
+    presentInfo.queuePresentContext = pFrameInterpolationInfo->queuePresentContext;
     imageAcquireQueue              = pFrameInterpolationInfo->imageAcquireQueue;
 
     // check that the queues are separate

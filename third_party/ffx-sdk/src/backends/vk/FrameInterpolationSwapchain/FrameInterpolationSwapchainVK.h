@@ -191,6 +191,8 @@ struct FrameinterpolationPresentInfo
     // AO-VK: finish queued image work before entering a potentially blocking WSI present.
     VkFence presentReadyFence = VK_NULL_HANDLE;
     VkResult presentReadyResult = VK_SUCCESS; // sticky failure; never reset/reuse a pending fence
+    VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*) = nullptr;
+    void* queuePresentContext = nullptr;
 
     uint64_t    lastPresentSemaphoreValue = 0;
 

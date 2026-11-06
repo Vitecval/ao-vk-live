@@ -1,4 +1,61 @@
-# AO-VK Live Preview 23 — candidate revision 7
+# AO-VK Live Preview 23 — candidate revision 8
+
+## Revision 8: present on the game window's owning thread
+
+The actual revision-7 client froze after enabling frame generation. PID 72860,
+launch file time 134384679739441033, loaded renderer SHA-256 7e7554a9...
+and wrote randy-vk-4.log. The five-second handoff guard fired and logged
+presentation stopped, but did not recover the game. Its window thread was then
+inside NVIDIA's window handling and a driver lock wait, the rendering worker
+was inside VMA image allocation/binding and the driver, interpolation waited on
+GPU synchronization, and the presenter remained in NtGdiDdDDIPresent.
+This implicates a driver/window-thread interaction; exact private NVIDIA lock
+ownership and the internal cause are not proven by these snapshots.
+
+Only that captured F: launch was terminated, with path and creation-time guards.
+Windows reported HasExited=true while retaining a teardown thread and an
+unsignaled process handle; recovery accepts the exit status rather than retrying
+the same wait forever. Only FrameGen=1 was changed to 0 in the settings.
+Evidence and recovery receipt: checks/framegen-freeze-r7. The old wait-chain
+utility had hardcoded revision-6 thread IDs, so its output is not evidence for
+this freeze. The new independent stacks and exact revision-7 map are retained.
+
+Revision 8 routes actual FFX WSI presents to a private message-only window on
+the game HWND's owning thread. It does not subclass the game's window, dispatch
+posted input, or change driver/overlay settings. The SDK callback releases the
+sender-side queue mutex before the synchronous handoff; the receiving thread
+acquires that mutex around the real vkQueuePresentKHR call. The request and
+VkPresentInfo remain alive until the call returns. Dispatcher creation failure
+uses the existing normal-presentation fallback with a logged reason. Dispatcher
+windows/classes are released after SDK presenter teardown, including window
+replacement and initialization failure.
+
+The normal threaded renderer continues recording on its existing worker. For
+the direct Device path, potentially blocking preparation/configuration/present
+calls use short-lived helpers while the owner pumps sent messages; owner-side
+frame-fence waits poll in one-millisecond intervals and pump sent messages.
+This avoids introducing a new deadlock in the single-thread mode. That mode
+can pay extra thread-creation overhead; no performance improvement is claimed.
+The existing GPU-ready fence, complete-pair scheduling and bounded SDK handoff
+remain. A Vulkan driver call itself still has no cancellable timeout guarantee.
+
+The regression models a recursive driver lock held during a synchronous window
+callback. Revision 7 presents all 108 frames on a different thread and times
+out all 108 callbacks; revision 8 presents them on the owner, with zero wrong-
+thread calls and zero callback timeouts. The model demonstrates this corrected
+interaction, not a reproduction of NVIDIA's private implementation. Additional
+GPU scenarios cover native threaded and direct rendering, FSR switches,
+resize/scale/toggles, acquisition failures, limited surfaces, paired ordering,
+slow presentation, initialization failure and delayed interpolation handoff.
+All ten GPU scenarios pass, plus a window-replacement scenario that tears down
+and recreates the dispatcher with frame generation active. Slow presentation
+still produces 338 driver presents for 180 rendered frames. Four sent-message
+wait cases, twelve worker-fault cases and readiness-guard failure cases pass.
+Actual game confirmation is still required after installation. Earlier reports
+of fixture success must not be treated as a successful real-game retest.
+
+Relevant contracts: [Vulkan Win32 WSI](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateWin32SurfaceKHR.html)
+and [Microsoft SendMessage](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-sendmessagew).
 
 ## Revision 7: paired GPU work before a blocking WSI call
 
@@ -292,7 +349,7 @@ No player package includes the Living helper, metadata, commands or generated
 client assets. Package payload and available asset hashes are audited; deferred
 Full HD assets retain the exact pinned Preview 21 archive descriptors.
 
-Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r7`:
+Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r8`:
 
 - `ao-vk-live-0.6.0-preview.23-windows-x86-lite.zip`
 - `ao-vk-live-0.6.0-preview.23-windows-x86-full-setup.zip`

@@ -2,6 +2,7 @@
 #include "internal.h"
 #include "material_maps.h"
 #include "window_global.h"
+#include "win32_wait.h"
 
 #include <algorithm>
 #include <chrono>
@@ -222,8 +223,10 @@ Device::Device()
 Device::~Device()
 {
     if (startup::Active()) startup::Finish("device ended before first presentation");
-    if (!m_device)
+    if (!m_device) {
+        FgReleaseDispatcher();
         return;
+    }
     WaitIdle();
     DestroySwapchain(); // Stop the optional SDK presenter and its context before destroying sampled inputs.
     ReleaseParticleTextures(true);
@@ -288,6 +291,7 @@ Device::~Device()
     vkDestroyDevice(m_device, nullptr);
     if (m_surface) vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     if (m_instance) vkDestroyInstance(m_instance, nullptr);
+    FgReleaseDispatcher();
 }
 
 void Device::StopPresentation()
@@ -297,6 +301,7 @@ void Device::StopPresentation()
     Log("shutdown: draining presentation");
     WaitIdle();
     DestroySwapchain();                       // joins the optional frame-generation presenter threads
+    FgReleaseDispatcher();
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     m_surface = VK_NULL_HANDLE;
     m_window = nullptr;
@@ -310,6 +315,7 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
 {
     startup::Begin(false);
     m_window = window;
+    FgInitDispatcher(window);
     m_width = width;
     m_height = height;
     m_viewport = {0, 0, width, height, 0.0f, 1.0f};
@@ -940,7 +946,9 @@ bool Device::SetWindow(HWND window)
         vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
         m_surface = VK_NULL_HANDLE;
     }
+    FgReleaseDispatcher();
     m_window = window;
+    FgInitDispatcher(window);
     if (!window)
         return true;
     VkWin32SurfaceCreateInfoKHR si{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
@@ -1444,11 +1452,16 @@ VkDeviceSize Device::Allocate(VkDeviceSize size, VkDeviceSize alignment, void** 
 bool Device::WaitFrame(Frame& f, const char* what)
 {
     // Reports a stuck GPU instead of hanging silently; gives up on a lost device.
-    for (int seconds = 1; !m_deviceLost; ++seconds) {
-        VkResult r = vkWaitForFences(m_device, 1, &f.fence, VK_TRUE, 1000000000ull);
+    const bool owner = m_fg && m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId();
+    const ULONGLONG began = GetTickCount64();
+    ULONGLONG reported = 0;
+    while (!m_deviceLost) {
+        if (owner) win32::PumpSentMessages();
+        VkResult r = vkWaitForFences(m_device, 1, &f.fence, VK_TRUE, owner ? 1000000ull : 1000000000ull);
+        const ULONGLONG seconds = (GetTickCount64() - began) / 1000;
         if (r == VK_SUCCESS) {
-            if (seconds > 1)
-                Log("%s finished after %d s", what, seconds);
+            if (seconds)
+                Log("%s finished after %llu s", what, seconds);
             m_completed = std::max(m_completed, f.serial);
             return true;
         }
@@ -1462,7 +1475,10 @@ bool Device::WaitFrame(Frame& f, const char* what)
             Log("GPU fence wait failed (%d, %s); rendering stops (restart the client)", int(r), what);
             return false;
         }
-        Log("still waiting for %s after %d s", what, seconds);
+        if (seconds > reported) {
+            Log("still waiting for %s after %llu s", what, seconds);
+            reported = seconds;
+        }
     }
     return false;
 }

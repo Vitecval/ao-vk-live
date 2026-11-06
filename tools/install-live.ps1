@@ -83,8 +83,8 @@ foreach ($target in $targets) {
     $name = Split-Path -Leaf $target
     $fileSpecs[$target] = @{ relative = $name; hash = $manifest.addon.$name; oldHash = $(if ($receipt) { $receipt.addon.$name }) }
 }
-# Asset paths are deliberately restricted to this optional pack. Never trust a manifest
-# or install record to write/remove an arbitrary path outside its reserved directory.
+# Asset paths are restricted to the reserved packs and the exact model-index file.
+# Never trust a manifest or install record to write/remove an arbitrary path.
 $assetHashes = [ordered]@{}
 if ($receipt -and $receipt.assets) {
     foreach ($item in $receipt.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
@@ -93,8 +93,8 @@ if ($manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) { $assetHashes[$item.Name] = [string]$item.Value }
 }
 foreach ($relative in $assetHashes.Keys) {
-    if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
-        throw 'Invalid optional material pack path or hash.'
+    if ($relative -notmatch '^randy-vk/(mesh-ids\.bin|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$' -or $assetHashes[$relative] -notmatch '^[a-fA-F0-9]{64}$') {
+        throw "Invalid optional material pack path or hash: $relative."
     }
     $target = Join-Path $client $relative
     $newHash = $(if ($manifest.assets) { $manifest.assets.$relative })

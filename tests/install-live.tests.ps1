@@ -139,6 +139,12 @@ try {
     New-Item -ItemType Directory -Path (Split-Path -Parent $enhancedSource) -Force | Out-Null
     Write-Bytes $enhancedSource 'fixture Enhanced Original material'
     $manifest.assets[$enhancedRelative] = Hash $enhancedSource
+    # Setup 4's real manifests include this metadata outside the artwork packs.
+    $meshRelative = 'randy-vk/mesh-ids.bin'
+    $meshSource = Join-Path $package $meshRelative
+    $meshTarget = Join-Path $client $meshRelative
+    Write-Bytes $meshSource 'fixture model-identification index'
+    $manifest.assets[$meshRelative] = Hash $meshSource
     $cyberRelative = 'randy-vk/packs/ao-cyber-icc/1010004_295610_orm.png'
     $cyberSource = Join-Path $package $cyberRelative
     $cyberTarget = Join-Path $client $cyberRelative
@@ -172,6 +178,7 @@ try {
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset absent'
     Assert ((Hash $cyberTarget) -eq $manifest.assets[$cyberRelative]) 'Cyber pack asset absent'
     Assert ((Hash $enhancedTarget) -eq $manifest.assets[$enhancedRelative]) 'Enhanced Original asset absent'
+    Assert ((Hash $meshTarget) -eq $manifest.assets[$meshRelative]) 'Setup 4 model index absent'
     Assert ((Hash $characterTarget) -eq $manifest.assets[$characterRelative]) 'Character pack asset absent'
     Assert ((Hash $worldTarget) -eq $manifest.assets[$worldRelative]) 'World pack asset absent'
     $otherPack = Join-Path $client 'randy-vk/packs/personal/keep.txt'
@@ -186,6 +193,12 @@ try {
     Save-Manifest
     Reject $arguments 'Invalid optional material pack'
     $manifest.assets.Remove('../escape.png')
+    foreach ($unsafeIndex in @('randy-vk/mesh-idsXbin', 'randy-vk/other.bin', 'randy-vk/../mesh-ids.bin')) {
+        $manifest.assets[$unsafeIndex] = Hash $meshSource
+        Save-Manifest
+        Reject $arguments 'Invalid optional material pack'
+        $manifest.assets.Remove($unsafeIndex)
+    }
     Save-Manifest
     # Full -> Lite removes only owned optional files transactionally, preserving settings.
     $fullAssets=$manifest.assets.Clone()
@@ -226,6 +239,7 @@ try {
     Assert (!(Test-Path -LiteralPath $assetTarget)) 'Uninstall left owned pack asset'
     Assert (!(Test-Path -LiteralPath $cyberTarget)) 'Uninstall left cyber pack asset'
     Assert (!(Test-Path -LiteralPath $enhancedTarget)) 'Uninstall left Enhanced Original asset'
+    Assert (!(Test-Path -LiteralPath $meshTarget)) 'Uninstall left owned model index'
     Assert (!(Test-Path -LiteralPath $characterTarget)) 'Uninstall left character pack asset'
     Assert (!(Test-Path -LiteralPath $worldTarget)) 'Uninstall left world pack asset'
     Assert ([IO.File]::ReadAllText($otherPack) -eq 'personal pack') 'Uninstall changed personal pack'

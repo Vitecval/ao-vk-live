@@ -1,5 +1,17 @@
 # AO-VK Live Preview 23 — isolated candidate report
 
+## Setup correction, candidate revision 2
+
+The first private candidate incorrectly rejected its own required
+`randy-vk/mesh-ids.bin` entry as an invalid optional material-pack path. This
+preflight failure occurs before cache preparation or installation writes. The
+installer now accepts that exact filename with the existing SHA-256 and ownership
+checks; other binary paths and traversal remain rejected. Renderer binaries and
+artwork are unchanged. Revision 1 should be replaced by the revision 2 setup ZIP.
+The installer regression now covers model-index install/update/removal and unsafe
+near-matching names. A separate package preflight test exercises the actual Lite
+and Full manifests through the x86 installer in isolated fresh/update fixtures.
+
 ## Status
 
 Windows x86 renderer and private Lite/Full HD test setup candidates are prepared.

@@ -806,6 +806,12 @@ FfxErrorCode CreateBackendContextVK(FfxFsr2Interface* backendInterface, FfxDevic
 
     // load vulkan functions
     loadVKFunctions(backendContext, backendContext->vkFunctionTable.vkGetDeviceProcAddr);
+    struct BackendRollback {
+        FfxFsr2Interface* api;
+        bool committed = false;
+        ~BackendRollback() { if (!committed) DestroyBackendContextVK(api); }
+    } rollback{backendInterface};
+
 
     // enumerate all the device extensions 
     backendContext->numDeviceExtensions = 0;
@@ -880,7 +886,8 @@ FfxErrorCode CreateBackendContextVK(FfxFsr2Interface* backendInterface, FfxDevic
         allocateInfo.descriptorSetCount = 1;
         allocateInfo.pSetLayouts = &backendContext->samplerDescriptorSetLayout;
 
-        backendContext->vkFunctionTable.vkAllocateDescriptorSets(backendContext->device, &allocateInfo, &backendContext->samplerDescriptorSet);
+        if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(backendContext->device, &allocateInfo, &backendContext->samplerDescriptorSet) != VK_SUCCESS)
+            return FFX_ERROR_BACKEND_API_ERROR;
     }
 
     // allocate ring buffer of uniform buffers
@@ -965,6 +972,7 @@ FfxErrorCode CreateBackendContextVK(FfxFsr2Interface* backendInterface, FfxDevic
     backendContext->srcStageMask = 0;
     backendContext->dstStageMask = 0;
     backendContext->uboRingBufferIndex = 0;
+    rollback.committed = true;
 
     return FFX_OK;
 }
@@ -978,6 +986,7 @@ FfxErrorCode DestroyBackendContextVK(FfxFsr2Interface* backendInterface)
     for (uint32_t i = 0; i < backendContext->stagingResourceCount; i++)
         DestroyResourceVK(backendInterface, backendContext->stagingResources[i]);
 
+    const bool memoryMapped = backendContext->uboRingBuffer[0].pData != nullptr;
     for (uint32_t i = 0; i < FSR2_UBO_RING_BUFFER_SIZE; i++)
     {
         BackendContext_VK::UniformBuffer& ubo = backendContext->uboRingBuffer[i];
@@ -988,7 +997,8 @@ FfxErrorCode DestroyBackendContextVK(FfxFsr2Interface* backendInterface)
         ubo.pData = nullptr;
     }
 
-    backendContext->vkFunctionTable.vkUnmapMemory(backendContext->device, backendContext->uboMemory);
+    if (memoryMapped)
+        backendContext->vkFunctionTable.vkUnmapMemory(backendContext->device, backendContext->uboMemory);
     backendContext->vkFunctionTable.vkFreeMemory(backendContext->device, backendContext->uboMemory, nullptr);
     backendContext->uboMemory = VK_NULL_HANDLE;
 
@@ -1295,6 +1305,19 @@ FfxErrorCode CreatePipelineVK(FfxFsr2Interface* backendInterface, FfxFsr2Pass pa
         useLut = true;
     }
 
+    // Core 1.3 support alone does not allow a required compute subgroup size.
+    // The renderer enables subgroupSizeControl only when the physical feature exists.
+    VkPhysicalDeviceVulkan13Features subgroupFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+    VkPhysicalDeviceFeatures2 subgroupDeviceFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    subgroupDeviceFeatures.pNext = &subgroupFeatures;
+    vkGetPhysicalDeviceFeatures2(backendContext->physicalDevice, &subgroupDeviceFeatures);
+    VkPhysicalDeviceVulkan13Properties subgroupProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES};
+    VkPhysicalDeviceProperties2 subgroupDeviceProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+    subgroupDeviceProperties.pNext = &subgroupProperties;
+    vkGetPhysicalDeviceProperties2(backendContext->physicalDevice, &subgroupDeviceProperties);
+    canForceWave64 = canForceWave64 && subgroupFeatures.subgroupSizeControl &&
+        (subgroupProperties.requiredSubgroupSizeStages & VK_SHADER_STAGE_COMPUTE_BIT);
+
     // check if we have 16bit floating point.
     bool supportedFP16 = deviceCapabilities.fp16Supported;
 
@@ -1350,6 +1373,7 @@ FfxErrorCode CreatePipelineVK(FfxFsr2Interface* backendInterface, FfxFsr2Pass pa
     // create descriptor set layout
     FFX_ASSERT(backendContext->allocatedPipelineLayoutCount < FFX_FSR2_PASS_COUNT);
     BackendContext_VK::PipelineLayout& pipelineLayout = backendContext->pipelineLayouts[backendContext->allocatedPipelineLayoutCount++];
+    outPipeline->rootSignature = reinterpret_cast<FfxRootSignature>(&pipelineLayout);
     VkDescriptorSetLayoutBinding bindings[32];
     uint32_t bindingIndex = 0;
 
@@ -1403,7 +1427,8 @@ FfxErrorCode CreatePipelineVK(FfxFsr2Interface* backendInterface, FfxFsr2Pass pa
         allocateInfo.descriptorSetCount = 1;
         allocateInfo.pSetLayouts = &pipelineLayout.descriptorSetLayout;
 
-        backendContext->vkFunctionTable.vkAllocateDescriptorSets(backendContext->device, &allocateInfo, &pipelineLayout.descriptorSets[i]);
+        if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(backendContext->device, &allocateInfo, &pipelineLayout.descriptorSets[i]) != VK_SUCCESS)
+            return FFX_ERROR_BACKEND_API_ERROR;
     }
 
     // create pipeline layout
@@ -1455,11 +1480,14 @@ FfxErrorCode CreatePipelineVK(FfxFsr2Interface* backendInterface, FfxFsr2Pass pa
     pipelineCreateInfo.layout = pipelineLayout.pipelineLayout;
 
     VkPipeline computePipeline = VK_NULL_HANDLE;
-    if (backendContext->vkFunctionTable.vkCreateComputePipelines(backendContext->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, VK_NULL_HANDLE, &computePipeline) != VK_SUCCESS) {
+    const VkResult pipelineResult = backendContext->vkFunctionTable.vkCreateComputePipelines(
+        backendContext->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, VK_NULL_HANDLE, &computePipeline);
+    backendContext->vkFunctionTable.vkDestroyShaderModule(backendContext->device, shaderModule, nullptr);
+    if (pipelineResult != VK_SUCCESS) {
+        if (computePipeline)
+            backendContext->vkFunctionTable.vkDestroyPipeline(backendContext->device, computePipeline, nullptr);
         return FFX_ERROR_BACKEND_API_ERROR;
     }
-
-    backendContext->vkFunctionTable.vkDestroyShaderModule(backendContext->device, shaderModule, nullptr);
 
     outPipeline->pipeline = reinterpret_cast<FfxPipeline>(computePipeline);
     outPipeline->rootSignature = reinterpret_cast<FfxRootSignature>(&pipelineLayout);

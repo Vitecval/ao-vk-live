@@ -48,9 +48,6 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
     FfxErrorCode            ret            = FFX_OK;
     FfxFsr3Context_Private* contextPrivate = (FfxFsr3Context_Private*)(context);
 
-    // Prepare backend
-    memset(context, 0, sizeof(FfxFsr3Context_Private));
-
     // check pointers are valid.
     FFX_RETURN_ON_ERROR(
         context,
@@ -58,6 +55,28 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
     FFX_RETURN_ON_ERROR(
         contextDescription,
         FFX_ERROR_INVALID_POINTER);
+
+    memset(context, 0, sizeof(FfxFsr3Context_Private));
+
+    // Roll back every successfully created component on any later early return.
+    // A component that itself fails is responsible for its own partial state.
+    struct CreationRollback {
+        FfxFsr3Context_Private* context;
+        bool shared = false, upscaler = false, opticalFlow = false, interpolation = false;
+        bool committed = false;
+        ~CreationRollback() {
+            if (committed) return;
+            if (interpolation) ffxFrameInterpolationContextDestroy(&context->fiContext);
+            if (opticalFlow) ffxOpticalflowContextDestroy(&context->ofContext);
+            if (upscaler) ffxFsr3UpscalerContextDestroy(&context->upscalerContext);
+            if (shared) {
+                for (auto resource : context->sharedResources)
+                    ffxSafeReleaseResource(&context->backendInterfaceSharedResources, resource, context->effectContextIdSharedResources);
+                context->backendInterfaceSharedResources.fpDestroyBackendContext(
+                    &context->backendInterfaceSharedResources, context->effectContextIdSharedResources);
+            }
+        }
+    } rollback{contextPrivate};
 
     contextPrivate->description = *contextDescription;
 
@@ -128,6 +147,7 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
             FFX_EFFECT_SHAREDRESOURCES,
             nullptr,
             &contextPrivate->effectContextIdSharedResources));
+        rollback.shared = true;
     }
     else
     {
@@ -155,6 +175,7 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
 		upDesc.backendInterface = contextDescription->backendInterfaceUpscaling;
 		upDesc.fpMessage = contextDescription->fpMessage;
 		FFX_VALIDATE(ffxFsr3UpscalerContextCreate(&contextPrivate->upscalerContext, &upDesc));
+        rollback.upscaler = true;
 	}
 
     if (!upscalingOnly)
@@ -166,6 +187,7 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
 
         // set up Opticalflow
         FFX_VALIDATE(ffxOpticalflowContextCreate(&contextPrivate->ofContext, &ofDescription));
+        rollback.opticalFlow = true;
 
         FfxFrameInterpolationContextDescription fiDescription = {};
         fiDescription.backendInterface  = contextDescription->backendInterfaceFrameInterpolation;
@@ -184,6 +206,7 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
 
         // set up Frameinterpolation
         FFX_VALIDATE(ffxFrameInterpolationContextCreate(&contextPrivate->fiContext, &fiDescription));
+        rollback.interpolation = true;
         contextPrivate->effectContextIdFrameGeneration = reinterpret_cast<FfxFrameInterpolationContext_Private*>(&contextPrivate->fiContext)->effectContextId;
 
         // set up optical flow resources
@@ -237,6 +260,7 @@ FfxErrorCode ffxFsr3ContextCreate(FfxFsr3Context* context, FfxFsr3ContextDescrip
         }
     }
 
+    rollback.committed = true;
     return ret;
 }
 

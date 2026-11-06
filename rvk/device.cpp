@@ -3,6 +3,7 @@
 #include "material_maps.h"
 #include "window_global.h"
 #include "win32_wait.h"
+#include "fsr_support.h"
 
 #include <algorithm>
 #include <chrono>
@@ -544,7 +545,7 @@ bool Device::PickDevice(std::string* error)
             VkBool32 present = VK_TRUE;
             if (m_surface)
                 vkGetPhysicalDeviceSurfaceSupportKHR(devices[i], q, m_surface, &present);
-            if (!(qf[q].queueFlags & VK_QUEUE_GRAPHICS_BIT) || !present)
+            if ((qf[q].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) != (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT) || !present)
                 continue;
             bool discrete = p.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
             if (best < 0 || discrete) {
@@ -659,6 +660,28 @@ bool Device::CreateLogicalDevice(std::string* error)
         if (error) *error = "required Vulkan features missing (descriptor indexing, robustness2 nullDescriptor)";
         return false;
     }
+    const detail::FsrHardware fsrHardware{
+        (p11.subgroupSupportedStages & VK_SHADER_STAGE_COMPUTE_BIT) != 0,
+        (p11.subgroupSupportedOperations & VK_SUBGROUP_FEATURE_QUAD_BIT) != 0,
+        (p11.subgroupSupportedOperations & VK_SUBGROUP_FEATURE_ARITHMETIC_BIT) != 0,
+        features.features.shaderStorageImageExtendedFormats != 0,
+        timeline.timelineSemaphore != 0,
+        m_props.limits.maxComputeWorkGroupInvocations,
+        m_props.limits.maxComputeWorkGroupSize[0], m_props.limits.maxComputeWorkGroupSize[1], m_props.limits.maxComputeWorkGroupSize[2],
+        p11.subgroupSize, m_queueFamilyCount};
+    if (const char* reason = detail::FsrUnsupported(fsrHardware, true, false)) {
+        m_fsr2Failed = true;
+        Log("FSR 2: disabled on this GPU (%s); using TAA", reason);
+    }
+    if (const char* reason = detail::FsrUnsupported(fsrHardware, false, false)) {
+        m_fsr3Failed = true;
+        Log("FSR 3: disabled on this GPU (%s); using TAA", reason);
+    }
+    m_fgUnsupported = detail::FsrUnsupported(fsrHardware, false, true);
+    Log("FSR hardware: subgroup=%u compute=%u quad=%u arithmetic=%u queues=%u; upscalers=%s/%s; framegen=%s",
+        p11.subgroupSize, unsigned(fsrHardware.computeSubgroups), unsigned(fsrHardware.quad),
+        unsigned(fsrHardware.arithmetic), m_queueFamilyCount, m_fsr2Failed ? "off" : "available",
+        m_fsr3Failed ? "off" : "available", m_fgUnsupported ? m_fgUnsupported : "experimental");
     // Enable only what is used.
     VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT enVertexInput{
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT};
@@ -704,6 +727,8 @@ bool Device::CreateLogicalDevice(std::string* error)
     enabled.features.textureCompressionBC = features.features.textureCompressionBC;
     enabled.features.shaderInt16=features.features.shaderInt16;
     enabled.features.shaderStorageImageExtendedFormats=features.features.shaderStorageImageExtendedFormats;
+    enabled.features.shaderStorageImageReadWithoutFormat=features.features.shaderStorageImageReadWithoutFormat;
+    enabled.features.shaderStorageImageWriteWithoutFormat=features.features.shaderStorageImageWriteWithoutFormat;
     Log("FSR Vulkan features: float16=%u int16=%u extended-storage=%u subgroup-control=%u full-subgroups=%u",enFp16.shaderFloat16,enabled.features.shaderInt16,enabled.features.shaderStorageImageExtendedFormats,enV13.subgroupSizeControl,enV13.computeFullSubgroups);
     enabled.features.imageCubeArray = VK_TRUE;           // point light shadow maps
     enabled.features.tessellationShader = features.features.tessellationShader;   // characters' Phong tessellation

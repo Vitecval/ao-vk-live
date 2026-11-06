@@ -274,9 +274,16 @@ add_executable(framegen_present_check tests/framegen_present_check.cpp proxy/nat
 target_include_directories(framegen_present_check PRIVATE third_party "${FFX_SDK}/include" "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
 target_link_libraries(framegen_present_check PRIVATE rvk user32)
 
+add_executable(fsr_init_failure_check tests/fsr_init_failure_check.cpp)
+target_include_directories(fsr_init_failure_check PRIVATE third_party/ffx-sdk/include)
+target_link_libraries(fsr_init_failure_check PRIVATE rvk)
+
 add_executable(threaded_message_check tests/threaded_message_check.cpp proxy/native/stb_image.cpp)
 target_include_directories(threaded_message_check PRIVATE third_party)
 target_link_libraries(threaded_message_check PRIVATE rvk user32)
 
 add_executable(fullscreen_fallback_check tests/fullscreen_fallback_check.cpp)
 target_link_libraries(fullscreen_fallback_check PRIVATE user32 dxguid)
+
+add_executable(fsr_support_check tests/fsr_support_check.cpp)
+target_include_directories(fsr_support_check PRIVATE rvk)

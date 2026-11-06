@@ -151,16 +151,43 @@ VkResult VKAPI_PTR SlowPresent(VkQueue queue,const VkPresentInfoKHR* info) {
     ++driverPresents;
     return realPresent(queue,info);
 }
+std::string rejectedApi = "vkCreateComputePipelines";
+#define REJECT_CALL(fn, signature) VkResult VKAPI_PTR Reject##fn signature { ++injectedCalls; return VK_ERROR_OUT_OF_DEVICE_MEMORY; }
+REJECT_CALL(Buffer,(VkDevice,const VkBufferCreateInfo*,const VkAllocationCallbacks*,VkBuffer*))
+REJECT_CALL(Memory,(VkDevice,const VkMemoryAllocateInfo*,const VkAllocationCallbacks*,VkDeviceMemory*))
+REJECT_CALL(Map,(VkDevice,VkDeviceMemory,VkDeviceSize,VkDeviceSize,VkMemoryMapFlags,void**))
+REJECT_CALL(Bind,(VkDevice,VkBuffer,VkDeviceMemory,VkDeviceSize))
+REJECT_CALL(Pool,(VkDevice,const VkDescriptorPoolCreateInfo*,const VkAllocationCallbacks*,VkDescriptorPool*))
+REJECT_CALL(Sampler,(VkDevice,const VkSamplerCreateInfo*,const VkAllocationCallbacks*,VkSampler*))
+REJECT_CALL(Layout,(VkDevice,const VkDescriptorSetLayoutCreateInfo*,const VkAllocationCallbacks*,VkDescriptorSetLayout*))
+REJECT_CALL(Sets,(VkDevice,const VkDescriptorSetAllocateInfo*,VkDescriptorSet*))
+REJECT_CALL(PipelineLayout,(VkDevice,const VkPipelineLayoutCreateInfo*,const VkAllocationCallbacks*,VkPipelineLayout*))
+REJECT_CALL(Module,(VkDevice,const VkShaderModuleCreateInfo*,const VkAllocationCallbacks*,VkShaderModule*))
+REJECT_CALL(Image,(VkDevice,const VkImageCreateInfo*,const VkAllocationCallbacks*,VkImage*))
+REJECT_CALL(View,(VkDevice,const VkImageViewCreateInfo*,const VkAllocationCallbacks*,VkImageView*))
+#undef REJECT_CALL
 VkResult VKAPI_PTR RejectPipeline(VkDevice,VkPipelineCache,uint32_t,const VkComputePipelineCreateInfo*,const VkAllocationCallbacks*,VkPipeline*) {
     ++injectedCalls; return VK_ERROR_OUT_OF_DEVICE_MEMORY;
 }
 PFN_vkVoidFunction VKAPI_PTR GetProc(VkDevice device,const char* name) {
-    if(std::strcmp(name,"vkCreateComputePipelines")==0)return reinterpret_cast<PFN_vkVoidFunction>(&RejectPipeline);
+    if(rejectedApi==name) {
+#define SELECT_API(api,fn) if(std::strcmp(name,api)==0)return reinterpret_cast<PFN_vkVoidFunction>(&Reject##fn)
+        SELECT_API("vkCreateComputePipelines",Pipeline);
+        SELECT_API("vkCreateBuffer",Buffer); SELECT_API("vkAllocateMemory",Memory);
+        SELECT_API("vkMapMemory",Map); SELECT_API("vkBindBufferMemory",Bind);
+        SELECT_API("vkCreateDescriptorPool",Pool); SELECT_API("vkCreateSampler",Sampler);
+        SELECT_API("vkCreateDescriptorSetLayout",Layout); SELECT_API("vkAllocateDescriptorSets",Sets);
+        SELECT_API("vkCreatePipelineLayout",PipelineLayout); SELECT_API("vkCreateShaderModule",Module);
+        SELECT_API("vkCreateImage",Image); SELECT_API("vkCreateImageView",View);
+#undef SELECT_API
+    }
     return realGet(device,name);
 }
 }
 template<class RenderDevice> int Run(int argc,char**argv) {
-    const bool inject=argc>1 && std::string(argv[1])=="--fail-init";
+    const bool failFramegen=argc>1 && std::string(argv[1])=="--fail-framegen";
+    const bool inject=failFramegen || (argc>1 && std::string(argv[1]).starts_with("--fail-init"));
+    if(argc>1 && std::string(argv[1]).starts_with("--fail-init=")) rejectedApi=std::string(argv[1]).substr(12);
     const bool stress=argc>1 && std::string(argv[1])=="--pacing-stress";
     const bool messages=argc>1 && std::string(argv[1])=="--wsi-send";
     const bool pairs=argc>1 && std::string(argv[1])=="--paired-wsi";
@@ -171,7 +198,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     const bool frameOverlap=argc>1 && std::string(argv[1])=="--frame-overlap";
     const bool owner=replaceWindow || (argc>1 && std::string(argv[1])=="--owner-wsi");
     const bool native=frameOverlap || owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
-    const bool fg=native || (argc>1 && std::string(argv[1])=="--framegen");
+    const bool fg=failFramegen || native || (argc>1 && std::string(argv[1])=="--framegen");
     const unsigned width=native?1914:768,height=native?1051:512;
     using namespace rvk;using namespace rvk::d3d;
     ownerThread=GetCurrentThreadId();

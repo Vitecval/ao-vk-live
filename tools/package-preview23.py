@@ -23,7 +23,7 @@ def sha(p):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--baseline',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--previous',type=Path);p.add_argument('--baseline',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     assert subprocess.call(['git','diff','--quiet','HEAD'],cwd=ROOT)==0,'Commit source changes before packaging'
@@ -43,10 +43,15 @@ def main():
         manifest.pop('livingAssets',None)
         previous=manifest['addon'].copy()
         manifest['previousAddons'].insert(0,previous)
+        if a.previous:
+            old=json.loads((a.previous.resolve()/f'ao-vk-live-{VERSION}-windows-x86-{edition}'/'manifest.json').read_text())
+            for known in [old['addon'],*old.get('previousAddons',[])]:
+                if known not in manifest['previousAddons']:manifest['previousAddons'].insert(0,known)
+
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(build/name,folder/name)
         for name in ['install-live.ps1','setup-live.ps1','setup-progress.ps1','material-download.ps1','material-parts.ps1','large-address-aware.ps1','mesh-index.ps1','startup-report.ps1']:
             shutil.copy2(ROOT/'tools'/name,folder/name)
-        for name in ['preview23.md','settings.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
+        for name in ['preview23.md','settings.md','fsr-stability-audit.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
         shutil.copy2(ROOT/'REPORT.md',folder/'REPORT.md')
         text=(ROOT/'docs/preview23.md').read_text(encoding='utf-8')
         (folder/'README.md').write_text(text,encoding='utf-8')
@@ -61,7 +66,7 @@ def main():
             shutil.copy2(file,dest/file.name);rel=(dest/file.name).relative_to(folder).as_posix()
             manifest['assets'][rel]=sha(dest/file.name);added+=file.stat().st_size
         manifest.update(version=VERSION,build='ao-vk-preview23-private-stabilization-candidate',sourceCommit=commit,
-            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=5,candidateRevision=9,livingIncluded=False,candidateStatus='nvidia-presentation-completion-regression-validated-live-retest-pending-and-art-rights-pending',
+            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=5,candidateRevision=10,livingIncluded=False,candidateStatus='fsr-failure-handling-validated-live-framegen-and-multigpu-validation-pending-and-art-rights-pending',
             publicDistributionApproved=False,originalGameAssetsIncluded=False,
             iccArtwork=dict(status='private-generated-reference-derived-art-rights-review-pending',playfield=655,targets=['1010004:295610','1010006:21','1010006:22']))
         manifest['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}

@@ -1,4 +1,8 @@
-# Preview 23 revision 9 — NVIDIA presentation completion pacing
+# Preview 23 revision 10 — FSR stability audit
+
+This update fixes confirmed FSR initialization leaks, ignored pipeline/descriptor errors, and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation is experimental and stays off by default. The older full-game presentation freeze is not yet proven fixed; live revision-10 and multi-GPU validation remain pending. See [the detailed audit](fsr-stability-audit.md).
+
+The following release notes retain the prior rendering changes.
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.

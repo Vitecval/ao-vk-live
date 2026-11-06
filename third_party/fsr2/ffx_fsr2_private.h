@@ -58,6 +58,7 @@ typedef struct FfxFsr2Context_Private {
     FfxFsr2ContextDescription   contextDescription;
     Fsr2Constants               constants;
     FfxDevice                   device;
+    bool backendContextCreated;
     FfxDeviceCapabilities       deviceCapabilities;
     FfxPipelineState            pipelineDepthClip;
     FfxPipelineState            pipelineReconstructPreviousDepth;

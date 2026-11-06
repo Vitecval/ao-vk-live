@@ -181,7 +181,7 @@ static FfxErrorCode createPipelineStates(FfxOpticalflowContext_Private* context)
     pipelineDescription.rootConstants           = rootConstantDescs;
 
     FfxDeviceCapabilities capabilities;
-    context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities);
+    FFX_VALIDATE(context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities));
 
     bool haveShaderModel66 = capabilities.maximumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
     bool supportedFP16     = capabilities.fp16Supported;
@@ -212,18 +212,18 @@ static FfxErrorCode createPipelineStates(FfxOpticalflowContext_Private* context)
             context->effectContextId,
             pipeline));
 
-        patchResourceBindings(pipeline);
+        FFX_VALIDATE(patchResourceBindings(pipeline));
         return FFX_OK;
     };
 
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_OPTICAL_FLOW_INPUT_PYRAMID, L"Opticalflow_InputPyramid", & context->pipelineGenerateOpticalFlowInputPyramid);
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_OPTICAL_FLOW_INPUT_PYRAMID, L"Opticalflow_InputPyramid", & context->pipelineGenerateOpticalFlowInputPyramid));
     pipelineDescription.rootConstantBufferCount = 1;
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_PREPARE_LUMA, L"Opticalflow_Luma", &context->pipelinePrepareLuma);
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_SCD_HISTOGRAM, L"Opticalflow_SCD_Histogram", &context->pipelineGenerateSCDHistogram);
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_SCD_DIVERGENCE, L"Opticalflow_SCD_Divergence", &context->pipelineComputeSCDDivergence);
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Search", &context->pipelineComputeOpticalFlowAdvancedV5);
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_FILTER_OPTICAL_FLOW_V5, L"Opticalflow_Filter", &context->pipelineFilterOpticalFlowV5);
-    CreateComputePipeline(FFX_OPTICALFLOW_PASS_SCALE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Upscale", &context->pipelineScaleOpticalFlowAdvancedV5);
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_PREPARE_LUMA, L"Opticalflow_Luma", &context->pipelinePrepareLuma));
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_GENERATE_SCD_HISTOGRAM, L"Opticalflow_SCD_Histogram", &context->pipelineGenerateSCDHistogram));
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_SCD_DIVERGENCE, L"Opticalflow_SCD_Divergence", &context->pipelineComputeSCDDivergence));
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_COMPUTE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Search", &context->pipelineComputeOpticalFlowAdvancedV5));
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_FILTER_OPTICAL_FLOW_V5, L"Opticalflow_Filter", &context->pipelineFilterOpticalFlowV5));
+    FFX_VALIDATE(CreateComputePipeline(FFX_OPTICALFLOW_PASS_SCALE_OPTICAL_FLOW_ADVANCED_V5, L"Opticalflow_Upscale", &context->pipelineScaleOpticalFlowAdvancedV5));
 
     return FFX_OK;
 }
@@ -282,6 +282,7 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
 
     errorCode = context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, FFX_EFFECT_OPTICALFLOW, nullptr, &context->effectContextId);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
+    context->backendContextCreated = true;
 
     errorCode = context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &context->deviceCapabilities);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
@@ -443,6 +444,9 @@ static FfxErrorCode opticalflowCreate(FfxOpticalflowContext_Private* context, co
 static FfxErrorCode opticalflowRelease(FfxOpticalflowContext_Private* context)
 {
     FFX_ASSERT(context);
+    if (!context->backendContextCreated)
+        return FFX_OK;
+    context->backendContextCreated = false;
 
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelinePrepareLuma, context->effectContextId);
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelineGenerateOpticalFlowInputPyramid, context->effectContextId);
@@ -904,6 +908,8 @@ FfxErrorCode ffxOpticalflowContextCreate(FfxOpticalflowContext* context, FfxOpti
 
     FfxOpticalflowContext_Private* contextPrivate = (FfxOpticalflowContext_Private*)(context);
     FfxErrorCode errorCode = opticalflowCreate(contextPrivate, contextDescription);
+    if (errorCode != FFX_OK && contextPrivate->backendContextCreated)
+        opticalflowRelease(contextPrivate);
 
     return errorCode;
 }

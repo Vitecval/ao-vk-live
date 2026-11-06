@@ -89,6 +89,7 @@ typedef struct FfxFsr3UpscalerContext_Private {
 
     FfxFsr3UpscalerContextDescription   contextDescription;
     FfxUInt32                           effectContextId;
+    bool backendContextCreated;
     Fsr3UpscalerConstants               constants;
     FfxDevice                           device;
     FfxDeviceCapabilities               deviceCapabilities;

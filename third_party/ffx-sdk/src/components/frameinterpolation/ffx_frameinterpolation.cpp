@@ -264,7 +264,7 @@ static FfxErrorCode createPipelineStates(FfxFrameInterpolationContext_Private* c
 
     // Query device capabilities
     FfxDeviceCapabilities capabilities;
-    context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities);
+    FFX_VALIDATE(context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities));
 
     // Setup a few options used to determine permutation flags
     bool haveShaderModel66 = capabilities.maximumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
@@ -297,7 +297,7 @@ static FfxErrorCode createPipelineStates(FfxFrameInterpolationContext_Private* c
             &pipelineDescription,
             context->effectContextId,
             pipeline));
-        patchResourceBindings(pipeline);
+        FFX_VALIDATE(patchResourceBindings(pipeline));
 
         return FFX_OK;
     };
@@ -319,17 +319,17 @@ static FfxErrorCode createPipelineStates(FfxFrameInterpolationContext_Private* c
     };
 
     // Frame Interpolation Pipelines
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_AND_DILATE,               L"RECONSTRUCT_AND_DILATE", &context->pipelineFiReconstructAndDilate);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_SETUP,                                L"SETUP", &context->pipelineFiSetup);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_PREV_DEPTH,               L"RECONSTRUCT_PREV_DEPTH", &context->pipelineFiReconstructPreviousDepth);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_GAME_MOTION_VECTOR_FIELD,             L"GAME_MOTION_VECTOR_FIELD", &context->pipelineFiGameMotionVectorField);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_OPTICAL_FLOW_VECTOR_FIELD,            L"OPTICAL_FLOW_VECTOR_FIELD", &context->pipelineFiOpticalFlowVectorField);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_DISOCCLUSION_MASK,                    L"DISOCCLUSION_MASK", &context->pipelineFiDisocclusionMask);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INTERPOLATION,                        L"INTERPOLATION", &context->pipelineFiScfi);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INPAINTING_PYRAMID,                   L"INPAINTING_PYRAMID", &context->pipelineInpaintingPyramid);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INPAINTING,                           L"INPAINTING", &context->pipelineInpainting);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_GAME_VECTOR_FIELD_INPAINTING_PYRAMID, L"GAME_VECTOR_FIELD_INPAINTING_PYRAMID", & context->pipelineGameVectorFieldInpaintingPyramid);
-    CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_DEBUG_VIEW,                           L"DEBUG_VIEW", &context->pipelineDebugView);
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_AND_DILATE,               L"RECONSTRUCT_AND_DILATE", &context->pipelineFiReconstructAndDilate));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_SETUP,                                L"SETUP", &context->pipelineFiSetup));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_RECONSTRUCT_PREV_DEPTH,               L"RECONSTRUCT_PREV_DEPTH", &context->pipelineFiReconstructPreviousDepth));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_GAME_MOTION_VECTOR_FIELD,             L"GAME_MOTION_VECTOR_FIELD", &context->pipelineFiGameMotionVectorField));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_OPTICAL_FLOW_VECTOR_FIELD,            L"OPTICAL_FLOW_VECTOR_FIELD", &context->pipelineFiOpticalFlowVectorField));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_DISOCCLUSION_MASK,                    L"DISOCCLUSION_MASK", &context->pipelineFiDisocclusionMask));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INTERPOLATION,                        L"INTERPOLATION", &context->pipelineFiScfi));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INPAINTING_PYRAMID,                   L"INPAINTING_PYRAMID", &context->pipelineInpaintingPyramid));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_INPAINTING,                           L"INPAINTING", &context->pipelineInpainting));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_GAME_VECTOR_FIELD_INPAINTING_PYRAMID, L"GAME_VECTOR_FIELD_INPAINTING_PYRAMID", & context->pipelineGameVectorFieldInpaintingPyramid));
+    FFX_VALIDATE(CreateComputePipeline(FFX_FRAMEINTERPOLATION_PASS_DEBUG_VIEW,                           L"DEBUG_VIEW", &context->pipelineDebugView));
 
     return FFX_OK;
 }
@@ -401,6 +401,8 @@ static FfxErrorCode frameinterpolationCreate(FfxFrameInterpolationContext_Privat
     FFX_ASSERT(context);
     FFX_ASSERT(contextDescription);
 
+    memset(context, 0, sizeof(FfxFrameInterpolationContext_Private));
+
     // validate compatibility between backbuffer and hudless formats
     int backBufferGroup = GetFormatPrecisionGroup(contextDescription->backBufferFormat);
     int previousInterpolationSourceGroup = GetFormatPrecisionGroup(contextDescription->previousInterpolationSourceFormat);
@@ -419,6 +421,7 @@ static FfxErrorCode frameinterpolationCreate(FfxFrameInterpolationContext_Privat
     // Create the context.
     FfxErrorCode errorCode = context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, FFX_EFFECT_FRAMEINTERPOLATION, nullptr, &context->effectContextId);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
+    context->backendContextCreated = true;
 
     // call out for device caps.
     errorCode = context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &context->deviceCapabilities);
@@ -522,6 +525,9 @@ static FfxErrorCode frameinterpolationCreate(FfxFrameInterpolationContext_Privat
 static FfxErrorCode frameinterpolationRelease(FfxFrameInterpolationContext_Private* context)
 {
     FFX_ASSERT(context);
+    if (!context->backendContextCreated)
+        return FFX_OK;
+    context->backendContextCreated = false;
 
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelineFiReconstructAndDilate, context->effectContextId);
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelineFiSetup, context->effectContextId);
@@ -690,6 +696,8 @@ FfxErrorCode ffxFrameInterpolationContextCreate(FfxFrameInterpolationContext* co
     // create the context.
     FfxFrameInterpolationContext_Private* contextPrivate = (FfxFrameInterpolationContext_Private*)(context);
     FfxErrorCode errorCode = frameinterpolationCreate(contextPrivate, contextDescription);
+    if (errorCode != FFX_OK && contextPrivate->backendContextCreated)
+        frameinterpolationRelease(contextPrivate);
 
     return errorCode;
 }

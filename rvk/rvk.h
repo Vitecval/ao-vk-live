@@ -3228,6 +3228,7 @@ private:
     bool FsrInputs(VkCommandBuffer cmd, const float params[28]);   // the motion vectors filled in, the output image
     uint64_t m_fsrInputsFrame = ~0ull;           // (FsrInputs: once a frame - FSR and frame generation both ask)
     // RVK_FrameGen (framegen.cpp): non-null while the swapchain is the frame interpolation one.
+    const char* m_fgUnsupported = nullptr;
     bool m_frameGenWanted = false;
     bool m_frameGenFailed = false;               // (it couldn't be made: not tried again until the setting changes)
     struct FrameGenState;

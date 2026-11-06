@@ -154,8 +154,10 @@ void Device::FgReleaseDispatcher()
 // made - CreateSwapchain makes a plain one.
 bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* error)
 {
-    if (!m_fgPresentQueue || !m_timelineSemaphores)   // (its pacing waits on timeline semaphores)
+    if (m_fgUnsupported || !m_fgPresentQueue || !m_fgAcquireQueue || !m_timelineSemaphores) {
+        if (error) *error = m_fgUnsupported ? m_fgUnsupported : "independent frame generation queues unavailable";
         return false;
+    }
     if (!m_fgDispatchWindow || GetWindowThreadProcessId(m_fgDispatchWindow, nullptr) != GetWindowThreadProcessId(m_window, nullptr)) {
         if (error) *error = "window-owner presentation dispatcher unavailable";
         return false;

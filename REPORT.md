@@ -1,4 +1,12 @@
-# AO-VK Live Preview 23 — candidate revision 9
+# AO-VK Live Preview 23 — candidate revision 10
+
+## Revision 10: FSR failure handling and hardware requirements
+
+A deeper audit reproduced ignored pipeline and descriptor-allocation errors, partial initialization leaks in both FSR versions, and incomplete hardware checks. These paths now unwind or fall back safely. The baseline real Vulkan pipeline-allocation failure left 419 objects allocated; the corrected case reports no leaks. The expanded CPU audit passes 289 failure points and 31 capability profiles.
+
+See [the full FSR stability audit](docs/fsr-stability-audit.md) for evidence and limits. The previous full-game kernel presentation hang is **not proven fixed**. Revision 9 was not live-tested before this work. Frame generation remains experimental, default off, and pending actual-game and multi-GPU validation.
+
+The sections below preserve the earlier revision history.
 
 ## Revision 9: keep later game GPU work behind actual presentation completion
 

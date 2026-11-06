@@ -983,6 +983,17 @@ bool Device::CreateSwapchain(std::string* error)
     ci.surface = m_surface;
     ci.minImageCount = std::max(caps.minImageCount, 2u);
     if (caps.maxImageCount) ci.minImageCount = std::min(ci.minImageCount + 1, caps.maxImageCount);
+    if (m_frameGenWanted && !m_frameGenFailed) {
+        // Two real images must be acquirable before the first present. The WSI
+        // guarantee is imageCount - surface.minImageCount + 1; request one extra.
+        const uint32_t pairedCount = caps.minImageCount + 1;
+        if (pairedCount <= 6 && (!caps.maxImageCount || pairedCount <= caps.maxImageCount))
+            ci.minImageCount = std::max(ci.minImageCount, pairedCount);
+        else {
+            m_frameGenFailed = true;
+            Log("frame generation: surface cannot provide paired presentation images; using normal presentation");
+        }
+    }
     ci.imageFormat = format.format;
     ci.imageColorSpace = format.colorSpace;
     ci.imageExtent = m_swapExtent;

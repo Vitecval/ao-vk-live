@@ -967,6 +967,28 @@ VkResult compositeSwapChainFrame(FrameinterpolationPresentInfo* pPresenter,
     }
 }
 
+// AO-VK: prepare the whole generated/real pair before the first WSI call. A
+// blocking Win32 present must not withhold composition/replacement signals that
+// a later game/acquire submission already waits for on another queue.
+struct PreparedPresent
+{
+    uint32_t imageIndex;
+    uint64_t pacingDelta;
+};
+
+void presentPreparedPair(FrameinterpolationPresentInfo* presenter, const PreparedPresent* prepared,
+                         uint32_t count, int64_t& previousPresentQpc)
+{
+    for (uint32_t i = 0; i < count; ++i) {
+        waitForPerformanceCount(previousPresentQpc + prepared[i].pacingDelta);
+        QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
+        const VkResult result = presentToSwapChain(presenter, prepared[i].imageIndex, prepared[i].imageIndex);
+        presenter->lastPresentResult.store(result);
+        if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR)
+            break;
+    }
+}
+
 DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
 {
     FrameinterpolationPresentInfo* presenter = static_cast<FrameinterpolationPresentInfo*>(pParam);
@@ -999,6 +1021,8 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
                         presenter->lastPresentSemaphoreValue = entry.numFramesSentForPresentationBase;
                     }
 
+                    PreparedPresent prepared[PacingData::FrameType::Count]{};
+                    uint32_t preparedCount = 0;
                     for (uint32_t frameType = 0; frameType < PacingData::FrameType::Count; frameType++)
                     {
                         const PacingData::FrameInfo& frameInfo = entry.frames[frameType];
@@ -1080,14 +1104,8 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
 
                                 res = presentCommandList->execute(toWait, toSignal);
 
-                                waitForPerformanceCount(previousPresentQpc + frameInfo.presentQpcDelta);
-                                QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
-
-                                res = presentToSwapChain(presenter, imageIndex, imageIndex);
-                                // VK_SUBOPTIMAL_KHR & VK_ERROR_OUT_OF_DATE_KHR: the swapchain has been recreated
-                                FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
-                                                          "presentToSwapChain failed with error %d",
-                                                          res);
+                                if (res == VK_SUCCESS)
+                                    prepared[preparedCount++] = {imageIndex, frameInfo.presentQpcDelta};
                             }
                             else
                             {
@@ -1100,6 +1118,7 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
                         }
                     }
 
+                    presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
                 }
             }
@@ -1144,6 +1163,8 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                         presenter->lastPresentSemaphoreValue = entry.numFramesSentForPresentationBase;
                     }
 
+                    PreparedPresent prepared[PacingData::FrameType::Count]{};
+                    uint32_t preparedCount = 0;
                     SubmissionSemaphores toWait;
                     toWait.add(presenter->gameSemaphore, entry.gameSemaphoreValue);
 
@@ -1194,14 +1215,8 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                                                               uiSurfaceTransfered);
                                 FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS, "compositeSwapChainFrame failed with error %d", res);
 
-                                waitForPerformanceCount(previousPresentQpc + frameInfo.presentQpcDelta);
-                                QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
-
-                                res = presentToSwapChain(presenter, realSwapchainImageIndex, realSwapchainImageIndex);
-                                // VK_SUBOPTIMAL_KHR & VK_ERROR_OUT_OF_DATE_KHR: the swapchain has been recreated
-                                FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
-                                                          "presentToSwapChain failed with error %d",
-                                                          res);
+                                if (res == VK_SUCCESS)
+                                    prepared[preparedCount++] = {realSwapchainImageIndex, frameInfo.presentQpcDelta};
                             }
                             else
                             {
@@ -1221,6 +1236,7 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                         { SubmissionSemaphores noSignal; presenter->presentQueue.submit(VK_NULL_HANDLE, toWait, noSignal); }   // (ao-vk: a named one - clang-cl binds no temporary to it)
                     }
 
+                    presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
                 }
             }
@@ -2611,7 +2627,7 @@ VkResult FrameinterpolationPresentInfo::acquireNextRealImage(uint32_t& imageInde
 {
     acquireSemaphore = acquireSemaphores[nextAcquireSemaphoreIndex];
     EnterCriticalSection(&swapchainCriticalSection);
-    VkResult res = vkAcquireNextImageKHR(device, realSwapchain, UINT64_MAX, acquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult res = vkAcquireNextImageKHR(device, realSwapchain, 250000000ull, acquireSemaphore, VK_NULL_HANDLE, &imageIndex);
     LeaveCriticalSection(&swapchainCriticalSection);
     
     // only increment on success
@@ -2663,7 +2679,13 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
 
     if (runInterpolation)
     {
-        WaitForSingleObject(presentInfo.interpolationEvent, INFINITE);
+        if (WaitForSingleObject(presentInfo.interpolationEvent, 5000) != WAIT_OBJECT_0) {
+            // AO-VK: do not strand the render worker forever if a presenter or
+            // GPU dependency stops. The engine latches this and logs a restart.
+            presentInfo.lastPresentResult.store(VK_ERROR_DEVICE_LOST);
+            LeaveCriticalSection(&criticalSection);
+            return VK_ERROR_DEVICE_LOST;
+        }
 
         res = presentInterpolated(pPresentInfo, currentBackBufferIndex, needUICopy);
     }

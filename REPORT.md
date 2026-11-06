@@ -1,4 +1,50 @@
-# AO-VK Live Preview 23 — candidate revision 6
+# AO-VK Live Preview 23 — candidate revision 7
+
+## Revision 7: paired GPU work before a blocking WSI call
+
+The owner enabled frame generation in revision 6 and the actual client stalled
+again. PID 52308 loaded the expected DLL (SHA-256 beginning 31c8eb23). The new
+randy-vk-3.log recorded initialization and a 20-second hang. External thread
+captures found the presenter in NtGdiDdDDIPresent, interpolation waiting on GPU
+synchronization, and the renderer waiting on the SDK interpolation event. Windows
+wait-chain inspection reported no CPU ownership cycle; the game thread remained
+running in its message-aware producer wait. The owner authorized closing F: at
+any time and went AFK. Only F: was stopped, and FrameGen=0 restored without other
+settings changes. See checks/framegen-freeze-r6/RECOVERY.json and captured evidence.
+
+The SDK previously prepared/presented the generated image before preparing the
+real image. Completion/replacement signals for that real image could therefore
+remain unsubmitted behind a blocking first present while another queue already
+waited for them. Revision 7 prepares the entire pair first, in both SDK presenter
+modes, then presents generated/real images in the original order and pacing.
+The existing ready-fence guard now covers all queued pair work before WSI.
+This is a scheduling correction/workaround for the observed class of stall; the
+driver's exact internal blocking reason is not claimed proven.
+
+The swapchain requests at least surface.minImageCount+1 images for two-image
+forward progress, within the SDK/surface limits; otherwise normal presentation
+is retained with a logged reason. Image acquisition is bounded to 250 ms with
+the existing skipped-frame semaphore completion path. The renderer's SDK handoff
+wait is bounded to five seconds; failure stops submission and logs a restart
+instead of stranding the worker indefinitely. Window-message safeguards remain.
+
+The control build using the original SDK loop withheld real-frame GPU submission
+on 54 of 108 presenter calls. The changed loop records zero such calls in repeated
+tests. Nine GPU scenarios pass: paired submission twice, synchronous window
+callbacks/resize/scale/toggles, twelve injected real-image acquisition timeouts,
+a surface that cannot support paired images (normal fallback), native threaded
+rendering, FSR mode switching, slow presentation and FSR initialization failure.
+Slow presentation still produced 344 presentations for 180 rendered frames.
+An additional 6.1-second interpolation-thread delay exercises the five-second
+handoff failure, which stops/logs and exits the controlled fixture. Four sent-
+message wait cases, twelve worker-fault cases and readiness failure tests pass.
+
+No global driver profile, overlay setting, texture or stock game file changes
+are part of this correction. The owner is away, so the real-game retest is pending.
+Do not treat fixture success as confirmation that the actual freeze is resolved.
+Batching may add latency, and the extra swapchain image uses more GPU memory;
+frame pacing/performance/visual quality need live validation. Earlier sections
+below describe historical revisions and do not override this current limitation.
 
 ## Revision 6: Windows message-aware renderer waits
 
@@ -246,7 +292,7 @@ No player package includes the Living helper, metadata, commands or generated
 client assets. Package payload and available asset hashes are audited; deferred
 Full HD assets retain the exact pinned Preview 21 archive descriptors.
 
-Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r6`:
+Packages are in `C:\AOSharp\AO-VK\ao-vk-main\build\preview23\candidate-r7`:
 
 - `ao-vk-live-0.6.0-preview.23-windows-x86-lite.zip`
 - `ao-vk-live-0.6.0-preview.23-windows-x86-full-setup.zip`

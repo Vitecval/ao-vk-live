@@ -1,4 +1,4 @@
-# Preview 23 revision 6 — Windows presentation message deadlock correction
+# Preview 23 revision 7 — complete GPU pairs before presentation
 
 This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
@@ -22,15 +22,16 @@ The three bulky license lines were removed from the installer window.
 Settings, personal packs, the original game DLLs and existing executable patches
 are preserved by the normal ownership checks. Keep `ao-vk-live.install.json`;
 Update uses it to recognize the installed renderer. Use Uninstall.cmd for
-installer-owned files and backups. No update was installed automatically.
+installer-owned files and backups. The owner-authorized F: renderer update is
+recorded separately in the delivery verification receipt.
 
 ## Fixed startup path
 
 The previous fullscreen change rejected AO's valid pre-window call
 `SetCooperativeLevel(NULL, DDSCL_NORMAL | DDSCL_FPUPRESERVE)`. It now succeeds.
 The old binary failed the regression fixture; this binary also completes native
-Randy windowed initialization through Vulkan. These are isolated fixture checks;
-the owner's next full-client launch is the live verification step.
+Randy windowed initialization through Vulkan. The owner subsequently launched
+the actual F: client successfully before testing frame generation.
 
 True exclusive Vulkan ownership remains unavailable. Exclusive requests use the
 existing borderless fallback; desktop resolution and refresh are retained.
@@ -38,6 +39,23 @@ FSR safeguards remain included, with driver-specific and actual crash validation
 still pending as described in REPORT.md.
 
 ## Frame generation
+
+Revision 6 also stalled in the actual game. Revision 7 prepares both generated
+and real-frame GPU work before the first presentation call, preserving their
+order and pacing. Previously the presenter could block inside the driver before
+submitting completion signals needed by later rendering/acquisition work.
+
+Frame generation requests enough swapchain images to acquire the pair safely;
+surfaces that cannot provide them use normal presentation with a logged reason.
+Real-image acquisition is bounded to 250 ms, and the render worker's interpolation
+handoff has a five-second failure limit instead of an infinite wait.
+
+The old SDK loop fails the paired-submission regression; the changed loop passes,
+along with image-acquisition failures, limited surfaces, window callbacks,
+resize/scale/toggles, initialization failure and slow presentation. These are
+controlled tests. Actual game confirmation is still pending while the owner is
+away; frame generation remains off in the saved F: preferences. The extra image
+and up-front work may affect memory, pacing or latency and require a live check.
 
 Revision 5 still froze in the owner's game. Revision 6 corrects a Windows
 threading requirement: Vulkan presentation may synchronously message the window

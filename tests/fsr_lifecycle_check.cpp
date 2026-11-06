@@ -5,6 +5,9 @@
 #include <cstring>
 #include <string>
 #include <atomic>
+#include <mutex>
+#include <vector>
+#include <cwchar>
 
 namespace {
 PFN_vkGetDeviceProcAddr realGet;
@@ -14,6 +17,65 @@ std::atomic<unsigned> driverPresents{0};
 HWND messageWindow=nullptr;
 std::atomic<unsigned> sentMessages{0},sentTimeouts{0};
 std::atomic<int> messagePhase{-1};
+PFN_vkQueueSubmit realSubmit;
+PFN_vkAcquireNextImageKHR realAcquire;
+PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR realCaps;
+PFN_vkWaitSemaphores realWaitSemaphores;
+std::atomic<bool> delayedHandoff{false},stoppedHandoff{false};
+void HandoffLog(const char* line){std::fprintf(stderr,"%s\n",line);if(std::strstr(line,"frame generation: presentation stopped"))stoppedHandoff=true;}
+VkResult VKAPI_PTR DelayHandoff(VkDevice device,const VkSemaphoreWaitInfo* info,uint64_t timeout){
+    PWSTR name=nullptr;GetThreadDescription(GetCurrentThread(),&name);
+    const bool interpolation=name&&std::wcsstr(name,L"FSR Interpolation");if(name)LocalFree(name);
+    if(interpolation&&!delayedHandoff.exchange(true))Sleep(6100);
+    return realWaitSemaphores(device,info,timeout);
+}
+std::atomic<unsigned> acquireCalls{0},acquireTimeouts{0},limitedCapsCalls{0};
+bool IsPresenter(){PWSTR name=nullptr;GetThreadDescription(GetCurrentThread(),&name);bool yes=name&&std::wcsstr(name,L"FSR Presenter");if(name)LocalFree(name);return yes;}
+VkResult VKAPI_PTR TimeoutAcquire(VkDevice d,VkSwapchainKHR s,uint64_t timeout,VkSemaphore semaphore,VkFence fence,uint32_t* index){
+    if(IsPresenter() && (++acquireCalls%9==0)){++acquireTimeouts;return VK_TIMEOUT;}
+    return realAcquire(d,s,timeout,semaphore,fence,index);
+}
+VkResult VKAPI_PTR LimitedCaps(VkPhysicalDevice device,VkSurfaceKHR surface,VkSurfaceCapabilitiesKHR* caps){
+    VkResult result=realCaps(device,surface,caps);
+    if(result==VK_SUCCESS){caps->maxImageCount=caps->minImageCount;++limitedCapsCalls;}
+    return result;
+}
+struct BinarySubmission {VkQueue queue;VkSemaphore binary;};
+std::mutex submissionMutex;
+std::vector<BinarySubmission> binarySubmissions;
+std::atomic<unsigned> pairedPresentCalls{0},withheldGpuPairs{0};
+VkResult VKAPI_PTR ObserveSubmit(VkQueue queue,uint32_t count,const VkSubmitInfo* submits,VkFence fence){
+    const VkResult result=realSubmit(queue,count,submits,fence);
+    if(result!=VK_SUCCESS)return result;
+    for(uint32_t n=0;n<count;++n){
+        auto* next=static_cast<const VkBaseInStructure*>(submits[n].pNext);
+        while(next&&next->sType!=VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO)next=next->pNext;
+        if(!next)continue;
+        const auto& timeline=*reinterpret_cast<const VkTimelineSemaphoreSubmitInfo*>(next);
+        bool hasTimeline=false;for(uint32_t i=0;i<timeline.signalSemaphoreValueCount;++i)hasTimeline|=timeline.pSignalSemaphoreValues[i]!=0;
+        if(!hasTimeline)continue;
+        std::lock_guard<std::mutex> lock(submissionMutex);
+        for(uint32_t i=0;i<submits[n].signalSemaphoreCount&&i<timeline.signalSemaphoreValueCount;++i)
+            if(!timeline.pSignalSemaphoreValues[i])binarySubmissions.push_back({queue,submits[n].pSignalSemaphores[i]});
+    }
+    return result;
+}
+VkResult VKAPI_PTR PairPresent(VkQueue queue,const VkPresentInfoKHR* info){
+    const bool presenter=IsPresenter();
+    if(presenter && (++pairedPresentCalls&1)){
+        bool complete=false;
+        {
+            std::lock_guard<std::mutex> lock(submissionMutex);
+            size_t current=binarySubmissions.size();
+            for(size_t i=binarySubmissions.size();i>0;--i)
+                if(binarySubmissions[i-1].queue==queue&&binarySubmissions[i-1].binary==info->pWaitSemaphores[0]){current=i-1;break;}
+            for(size_t i=current+1;current<binarySubmissions.size()&&i<binarySubmissions.size();++i)
+                complete|=binarySubmissions[i].queue==queue;
+        }
+        if(!complete){++withheldGpuPairs;Sleep(50);} // model a WSI call blocking before the second submission
+    }
+    return realPresent(queue,info);
+}
 VkResult VKAPI_PTR MessagePresent(VkQueue queue,const VkPresentInfoKHR* info) {
     DWORD_PTR result=0;
     ++sentMessages;
@@ -39,7 +101,11 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     const bool inject=argc>1 && std::string(argv[1])=="--fail-init";
     const bool stress=argc>1 && std::string(argv[1])=="--pacing-stress";
     const bool messages=argc>1 && std::string(argv[1])=="--wsi-send";
-    const bool native=messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
+    const bool pairs=argc>1 && std::string(argv[1])=="--paired-wsi";
+    const bool timeouts=argc>1 && std::string(argv[1])=="--acquire-timeout";
+    const bool limited=argc>1 && std::string(argv[1])=="--limited-images";
+    const bool handoff=argc>1 && std::string(argv[1])=="--handoff-timeout";
+    const bool native=handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
     const bool fg=native || (argc>1 && std::string(argv[1])=="--framegen");
     const unsigned width=native?1914:768,height=native?1051:512;
     using namespace rvk;using namespace rvk::d3d;
@@ -50,12 +116,19 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     messageWindow=window;
     {
         RenderDevice d;std::string error;
-        if(native){ShowWindow(window,SW_SHOWNOACTIVATE);SetWindowPos(window,HWND_BOTTOM,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);}
+        if(native){ShowWindow(window,SW_SHOWNOACTIVATE);SetWindowPos(window,pairs?HWND_TOP:HWND_BOTTOM,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);}
         if(!d.Init(window,width,height,&error)){std::fprintf(stderr,"%s\n",error.c_str());return 2;}
         realGet=vk::vkGetDeviceProcAddr;
         realPresent=vk::vkQueuePresentKHR;
+        realSubmit=vk::vkQueueSubmit;
+        realAcquire=vk::vkAcquireNextImageKHR;realCaps=vk::vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+        realWaitSemaphores=vk::vkWaitSemaphores;
         if(stress)vk::vkQueuePresentKHR=SlowPresent;
         if(messages)vk::vkQueuePresentKHR=MessagePresent;
+        if(pairs){vk::vkQueuePresentKHR=PairPresent;vk::vkQueueSubmit=ObserveSubmit;}
+        if(timeouts)vk::vkAcquireNextImageKHR=TimeoutAcquire;
+        if(limited){vk::vkGetPhysicalDeviceSurfaceCapabilitiesKHR=LimitedCaps;vk::vkQueuePresentKHR=PairPresent;}
+        if(handoff){vk::vkWaitSemaphores=DelayHandoff;rvk::SetLogSink(HandoffLog);}
         if(inject)vk::vkGetDeviceProcAddr=GetProc;
         d.SetHdr(true);d.SetTaa(true,.4f);d.SetRenderScale(native?100:67);d.SetFrameGen(fg&&!native);
         Matrix identity{};for(int i=0;i<4;++i)identity.m[i][i]=1;
@@ -90,6 +163,13 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(inject){vk::vkGetDeviceProcAddr=realGet;if(!injectedCalls){std::puts("failure injection was not exercised");return 5;}std::printf("injected pipeline failures: %u; contexts must be logged once per mode\n",injectedCalls);}
     }
     DestroyWindow(window);
+    if(handoff){rvk::SetLogSink(nullptr);std::printf("handoff delayed=%u stopped/logged=%u\n",unsigned(delayedHandoff.load()),unsigned(stoppedHandoff.load()));if(!delayedHandoff||!stoppedHandoff)return 11;}
+    if(timeouts){std::printf("injected real-image acquisition timeouts: %u\n",acquireTimeouts.load());if(!acquireTimeouts)return 9;}
+    if(limited){std::printf("limited surface queries %u; framegen presenter calls %u\n",limitedCapsCalls.load(),pairedPresentCalls.load());if(!limitedCapsCalls || pairedPresentCalls)return 10;}
+    if(pairs){
+        std::printf("paired WSI: %u presenter calls, %u calls withheld the real-frame GPU submission\n",pairedPresentCalls.load(),withheldGpuPairs.load());
+        if(pairedPresentCalls<72 || withheldGpuPairs)return 8;
+    }
     if(messages){
         std::printf("WSI window callbacks: %u sends, %u timed out\n",sentMessages.load(),sentTimeouts.load());
         if(sentMessages<72 || sentTimeouts!=0)return 7;
@@ -102,6 +182,6 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     return 0;
 }
 int main(int argc,char**argv) {
-    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"))return Run<rvk::ThreadedDevice>(argc,argv);
+    if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"))return Run<rvk::ThreadedDevice>(argc,argv);
     return Run<rvk::Device>(argc,argv);
 }

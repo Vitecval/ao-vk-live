@@ -111,6 +111,7 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     m_fg = s;
     Log("frame generation: on (the frame interpolation swapchain, %ux%u)", ci.imageExtent.width, ci.imageExtent.height);
     Log("frame generation: GPU-ready presentation guard enabled (5 s limit, queue unlocked while waiting)");
+    Log("frame generation: complete generated/real GPU pair submitted before WSI (requested images %u)", ci.minImageCount);
     return true;
 }
 

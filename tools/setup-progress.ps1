@@ -51,23 +51,3 @@ function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [st
         $Process.Dispose()
     }
 }
-
-function Preserve-AoInterruptedLivingLock([string]$Client) {
-    $root = Join-Path $Client 'randy-vk\living-local'
-    $lock = Join-Path $root 'preparing.lock'
-    if (!(Test-Path -LiteralPath $lock)) { return }
-    foreach ($path in @((Join-Path $Client 'randy-vk'), $root, $lock)) {
-        if ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Local Living preparation paths may not be links.' }
-    }
-    $ownerText = (Get-Content -LiteralPath $lock -Raw).Trim()
-    [int]$ownerId = 0
-    if (![int]::TryParse($ownerText, [ref]$ownerId) -or $ownerId -le 0) { throw 'An unrecognized Living preparation lock was preserved. Inspect preparing.lock before retrying.' }
-    try {
-        $owner = [Diagnostics.Process]::GetProcessById($ownerId)
-        try { if (!$owner.HasExited) { throw 'Another Living preparation process is still running. Wait for it to finish.' } }
-        finally { $owner.Dispose() }
-    } catch [ArgumentException] { }
-    # Keep evidence of the interrupted run. Its unfinished generation and the
-    # previous active cache are not removed or adopted by the installer.
-    Move-Item -LiteralPath $lock -Destination (Join-Path $root ('interrupted-' + [guid]::NewGuid().ToString('N') + '.lock'))
-}

@@ -1,7 +1,7 @@
 $env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
 # Companion archives are complete material packages, each independently hashed.
 . (Join-Path $PSScriptRoot 'material-download.ps1')
-function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scriptblock]$ProgressCallback) {
+function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scriptblock]$ProgressCallback, $RequiredAssets = $null) {
     if (!$Manifest.materialParts) { return }
     $pinnedHashes = @{}
     foreach ($entry in $Manifest.assets.PSObject.Properties) { $pinnedHashes[$entry.Name] = [string]$entry.Value }
@@ -36,7 +36,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             if ($checkedMembers % 256 -eq 1) { Write-AoMaterialProgress "Checking HD texture list: $checkedMembers files ($($part.name))" -1 $ProgressCallback }
             if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$members.Add([string]$relative) -or $pinnedHashes[$relative] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
         }
-        if (!@($part.files | Where-Object { !(Test-Path -LiteralPath (Join-Path $Package $_)) }).Count) { continue }
+        if (!@($part.files | Where-Object { ($null -eq $RequiredAssets -or $RequiredAssets.Contains([string]$_)) -and !(Test-Path -LiteralPath (Join-Path $Package $_)) }).Count) { continue }
         $pending += $part
         $unpackedBytes += [long]$part.unpackedBytes
         Write-AoMaterialProgress 'Checking saved Full HD packs...' -1 $ProgressCallback
@@ -46,6 +46,10 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             if (Test-Path -LiteralPath $candidate) { Write-Host "Checksum/size mismatch: ignoring $candidate and seeking the pinned release copy." }
         }
         if (!$archives.ContainsKey($part.name)) { $downloadBytes += [long]$part.bytes }
+    }
+    if (!$pending.Count) {
+        Write-AoMaterialProgress 'Existing HD textures verified; no material download or unpacking is needed.' -1 $ProgressCallback
+        return
     }
     Assert-AoMaterialSpace $Package $Client ($downloadBytes + $unpackedBytes) ([long]$Manifest.installBytes)
     Write-Host ('Full HD: {0} material packs; {1:N2} GiB to download; {2:N2} GiB to prepare.' -f $pending.Count, ($downloadBytes / 1GB), ($unpackedBytes / 1GB))
@@ -60,7 +64,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
         foreach ($relative in $part.files) {
             if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$allowed.Add($relative)) { throw 'Invalid or duplicate material member.' }
         }
-        $needed = @($part.files | Where-Object { !(Test-Path -LiteralPath (Join-Path $Package $_)) })
+        $needed = @($part.files | Where-Object { ($null -eq $RequiredAssets -or $RequiredAssets.Contains([string]$_)) -and !(Test-Path -LiteralPath (Join-Path $Package $_)) })
         foreach ($notice in @($part.notices.PSObject.Properties)) { if ($notice) { $null = $allowed.Add($notice.Name) } }
         if (!$needed.Count) { continue } # Installer separately verifies every decoded asset hash.
         $archive = $archives[$part.name]

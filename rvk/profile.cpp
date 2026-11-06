@@ -49,8 +49,8 @@ bool Device::CreateProfiler(std::string* error)
     Log("profiling: a clock read costs %.0f ns", m_timerCost * 1e6);
     VkQueryPoolCreateInfo qi{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO};
     qi.queryType = VK_QUERY_TYPE_TIMESTAMP;
-    m_livingGpuProfile=std::getenv("RANDYVK_LIVING_GPU_PROFILE")&&std::strcmp(std::getenv("RANDYVK_LIVING_GPU_PROFILE"),"1")==0;
-    qi.queryCount = kProfileMarks + 2 + kLivingSkinQueries;          // (the last two: the clouds' own pass, ProfileFrame::cloudsTimed)
+    m_livingGpuProfile=false; // Population profiling belongs to the separate add-on.
+    qi.queryCount = kProfileMarks + 2;          // (the last two: the clouds' own pass, ProfileFrame::cloudsTimed)
     for (ProfileFrame& p : m_profile)
         if (!Check(vkCreateQueryPool(m_device, &qi, nullptr, &p.pool), "timestamp query pool", error))
             return false;

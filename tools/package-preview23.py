@@ -29,27 +29,29 @@ def main():
     assert subprocess.call(['git','diff','--quiet','HEAD'],cwd=ROOT)==0,'Commit source changes before packaging'
     assert subprocess.call(['git','merge-base','--is-ancestor',BASE,commit],cwd=ROOT)==0
     build=a.build.resolve();baseline=a.baseline.resolve();rows=[]
-    skip={'REPORT.txt','SOURCE-AUDIT.json','REGRESSION-RESULTS.json','FINAL-VALIDATION.json','PLAYTEST-22.txt','PACKAGE-AUDIT.json','SHA256SUMS.txt','ALL-OFF-PARITY.json'}
+    skip={'REPORT.txt','SOURCE-AUDIT.json','REGRESSION-RESULTS.json','FINAL-VALIDATION.json','PLAYTEST-22.txt','PACKAGE-AUDIT.json','SHA256SUMS.txt','ALL-OFF-PARITY.json','living-preparer','living-metadata','prepare-living.ps1','Prepare Living City Test.cmd','Prepare Newland Test.cmd'}
     for edition,suffix in [('lite','lite.zip'),('full','full-setup.zip')]:
         seed=baseline/f'ao-vk-live-0.6.0-preview.22-windows-x86-{suffix}'
         folder=out/f'ao-vk-live-{VERSION}-windows-x86-{edition}';folder.mkdir()
         with zipfile.ZipFile(seed) as z:
             for item in z.infolist():
                 rel=Path(*Path(item.filename).parts[1:])
-                if not rel.parts or rel.parts[0] in skip or item.is_dir():continue
+                if not rel.parts or rel.parts[0] in skip or item.is_dir() or 'living' in rel.name.lower():continue
                 assert not rel.is_absolute() and '..' not in rel.parts
                 dest=folder/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(z.read(item))
         manifest=json.loads((folder/'manifest.json').read_text())
+        manifest.pop('livingAssets',None)
         previous=manifest['addon'].copy()
         manifest['previousAddons'].insert(0,previous)
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(build/name,folder/name)
-        for name in ['install-live.ps1','setup-live.ps1','setup-progress.ps1','material-download.ps1','material-parts.ps1','large-address-aware.ps1','mesh-index.ps1','prepare-living.ps1','startup-report.ps1']:
+        for name in ['install-live.ps1','setup-live.ps1','setup-progress.ps1','material-download.ps1','material-parts.ps1','large-address-aware.ps1','mesh-index.ps1','startup-report.ps1']:
             shutil.copy2(ROOT/'tools'/name,folder/name)
         for name in ['preview23.md','settings.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
         shutil.copy2(ROOT/'REPORT.md',folder/'REPORT.md')
         text=(ROOT/'docs/preview23.md').read_text(encoding='utf-8')
         (folder/'README.md').write_text(text,encoding='utf-8')
         (folder/'RELEASE-NOTES.md').write_text(text,encoding='utf-8')
+        (folder/'PLAYTEST.md').write_text(text,encoding='utf-8')
         pack=ROOT/'material-packs/ao-icc-enhanced-original';dest=folder/'randy-vk/packs/ao-icc-enhanced-original';dest.mkdir(parents=True)
         for name in ['manifest.json','generation-prompts.json','README.md']:shutil.copy2(pack/name,dest/name)
         added=0
@@ -59,7 +61,7 @@ def main():
             shutil.copy2(file,dest/file.name);rel=(dest/file.name).relative_to(folder).as_posix()
             manifest['assets'][rel]=sha(dest/file.name);added+=file.stat().st_size
         manifest.update(version=VERSION,build='ao-vk-preview23-private-stabilization-candidate',sourceCommit=commit,
-            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=5,candidateRevision=4,candidateStatus='offline-validated-live-validation-and-art-rights-pending',
+            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=5,candidateRevision=4,livingIncluded=False,candidateStatus='offline-validated-live-validation-and-art-rights-pending',
             publicDistributionApproved=False,originalGameAssetsIncluded=False,
             iccArtwork=dict(status='private-generated-reference-derived-art-rights-review-pending',playfield=655,targets=['1010004:295610','1010006:21','1010006:22']))
         manifest['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}

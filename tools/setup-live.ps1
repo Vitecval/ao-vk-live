@@ -217,8 +217,6 @@ $apply.Add_Click({
         }
         if ($setupResult.memoryStatus) { $message += "`r`n`r`n" + $setupResult.memoryStatus }
         if ($setupResult.memoryWarnings) { $message += "`r`n`r`n" + ($setupResult.memoryWarnings -join "`r`n") }
-        if ($setupResult.livingStatus) { $message += "`r`n`r`n" + $setupResult.livingStatus }
-        if ($setupResult.livingWarnings) { $message += "`r`n`r`n" + ($setupResult.livingWarnings -join "`r`n") }
         $status.Text = 'Finished.'
         $activity.Text = 'Completed in ' + $elapsed.Elapsed.ToString('h\:mm\:ss')
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live', 'OK', 'Information')

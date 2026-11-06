@@ -7,7 +7,7 @@
 
 #include "d3d7.h"
 #include "skin.h"
-#include "living.h"
+#include "optional_population.h"
 #include "vk.h"
 
 #include <array>

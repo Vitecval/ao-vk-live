@@ -65,15 +65,15 @@ try {
     $arguments = @{ ClientDir = $client; PackageDir = $package }
     $manifest.assets=@{'randy-vk/living/ao-transporter.lrm'=('0'*64)}
     Save-Manifest
-    Reject $arguments 'validated local client provider'
+    Reject $arguments 'separate add-on'
     Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Prohibited population payload changed renderer'
     $manifest.Remove('assets')
     $manifest.livingAssets=@{status='ready';provider='legacy-private-cache'}
     Save-Manifest
-    Reject $arguments 'no recognized Living Rubi-Ka asset provider'
+    Reject $arguments 'separate add-on'
     $manifest.livingAssets=@{status='local-test-candidate';provider='installation-local-v1';helperSha256=('0'*64)}
     Save-Manifest
-    Reject $arguments 'helper integrity failed'
+    Reject $arguments 'separate add-on'
     $manifest.Remove('livingAssets')
     Save-Manifest
     $manifest.cacheWarmup=@{helper='ao-vk-cache-warm.exe';relativeCache='../randy31.dll';sha256=('0'*64)}
@@ -197,6 +197,15 @@ try {
     Save-Manifest
     & $installer @arguments | Out-Null
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset update failed'
+    # An already verified HD installation must update without re-downloading or
+    # unpacking the same texture just to verify an unused package-side copy.
+    $manifest.materialParts=@(@{name='ao-vk-live-fixture-materials-1.zip';sha256=('0'*64);bytes=1;unpackedBytes=1;files=@($assetRelative)})
+    Move-Item -LiteralPath $assetSource -Destination ($assetSource+'.saved')
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Verified texture was changed during archive-free update'
+    Move-Item -LiteralPath ($assetSource+'.saved') -Destination $assetSource
+    $manifest.Remove('materialParts')
     $manifest.assets['../escape.png'] = Hash $assetSource
     Save-Manifest
     Reject $arguments 'Invalid optional material pack'

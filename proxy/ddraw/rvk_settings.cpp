@@ -1,6 +1,5 @@
 // The renderer's settings table, randy-vk.ini persistence and the exported C interface (rvk_settings.h).
 #include "rvk_settings.h"
-#include "living_release.h"
 
 #include "rvk_backend.h"
 #include "native/mesh.h"
@@ -43,16 +42,6 @@ struct Setting {
 
 // Every renderer option. Order = display order within each section.
 Setting g_settings[] = {
-    {"RVK_LivePeople", "Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
-    {"RVK_NPCVariety", "NPC appearance variety: Normal / High", "Living Rubi-Ka", Choice, 0, 1, 1, 0, nullptr, 0, nullptr, "0 1"},
-    {"RVK_ArmoredCivilians", "Armored civilians: Off / Low / Medium", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
-    {"RVK_LiveDrones", "Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only)", "Living Rubi-Ka", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
-    {"RVK_AirTraffic", "Distant air traffic: Off / Low / Medium (authored city routes only)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
-    {"RVK_PhasefrontTraffic", "Phasefront traffic: Off / Low / Medium / High / Ultra (checked local flight routes)", "Living Rubi-Ka", Choice, 0, 4, 1, 0, nullptr, 0, nullptr, "0 1 2 3 4"},
-    {"RVK_OrbitalCraft", "Orbital / large spacecraft: Off / Low / Medium (verified local spacecraft and corridors)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
-    {"RVK_LiveWild", "Ambient wildlife: Off / Low / Medium (requires reviewed animated assets)", "Living Rubi-Ka", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
-    {"RVK_LiveMachine", "Living machinery: verified components only, Off / On", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_LiveAtmos", "Localized vent steam: Off / On (also requires Smoke enabled)", "Living Rubi-Ka", Bool, 0, 1, 1, 0, nullptr, 0},
     // name               label                                                     section             type    min    max    step   default env                        value parent           choices
     {"RVK_Enhance",    "All enhancements (Ctrl+Shift+E)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_Prepass",    "Depth pre-pass", "General", Bool, 0, 1, 1, 1, nullptr, 0},
@@ -539,8 +528,6 @@ bool AlwaysOn(const char* name)
 
 bool Hidden(const Setting& s)
 {
-    if (!rvk::living::AdditionalAircraftAvailable && (std::strcmp(s.name,"RVK_PhasefrontTraffic")==0 || std::strcmp(s.name,"RVK_OrbitalCraft")==0)) return true;
-    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s.section,"Living Rubi-Ka")==0) return true;
     if (std::strcmp(s.section, "Debug") == 0 || AlwaysOn(s.name)) return true;
     for (const char* h : kHidden)
         if (std::strcmp(h, s.name) == 0) return true;
@@ -587,8 +574,6 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
-    if (!rvk::living::AdditionalAircraftAvailable && (std::strcmp(name,"RVK_PhasefrontTraffic")==0 || std::strcmp(name,"RVK_OrbitalCraft")==0)) return 0.0f;
-    if (!rvk::living::ReleaseContentAvailable && std::strcmp(s->section,"Living Rubi-Ka")==0) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
@@ -1444,7 +1429,6 @@ constexpr uint32_t kPresetCount = 4;
 bool InPresets(const Setting& s)
 {
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
-    if (std::strcmp(s.section,"Living Rubi-Ka")==0) return false; // independent saved population preferences; new installs remain Off
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
     if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||
         std::strcmp(s.name, "RVK_BuildingHD") == 0) return false;

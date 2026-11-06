@@ -1,3 +1,10 @@
+## Preview 23 candidate revision 4
+
+- Correct pre-window DirectDraw normal-mode initialization.
+- Responsive setup with current tasks, elapsed time and HD reuse.
+- Living separated into its own development archive and excluded from this build.
+- Remove the bulky license notice from the installer window.
+
 ## Unreleased — Preview 23 isolated stabilization candidate
 
 - Record process age, renderer stages and slow Vulkan calls; reuse a GPU/driver cache in the user's local app-data folder, detect corrupt cache payloads, retry rejected caches and report failed writes.

@@ -17,11 +17,10 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-369 settings, 198 of them in the settings window.
+359 settings, 188 of them in the settings window.
 
 ## Sections
 
-- [Living Rubi-Ka](#living-rubi-ka) (10)
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
 - [Materials](#materials) (25)
@@ -39,21 +38,6 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - [Anti-aliasing](#anti-aliasing) (6)
 - [Depth of field](#depth-of-field) (9)
 - [Particles](#particles) (18)
-
-## Living Rubi-Ka
-
-| Setting | What it does | Values | Default | Notes |
-| --- | --- | --- | --- | --- |
-| `RVK_LivePeople` | Ambient people: Off / Low / Medium / High (requires reviewed animated assets and routes) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
-| `RVK_NPCVariety` | NPC appearance variety: Normal / High | 0 / 1 | 0 | window; knob |
-| `RVK_ArmoredCivilians` | Armored civilians: Off / Low / Medium | 0 / 1 / 2 | 0 | window; knob |
-| `RVK_LiveDrones` | Maintenance drones: Off / Low / Medium / High (reviewed outdoor packs only) | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
-| `RVK_AirTraffic` | Distant air traffic: Off / Low / Medium (authored city routes only) | 0 / 1 / 2 | 0 | window; game value 0; knob |
-| `RVK_PhasefrontTraffic` | Phasefront traffic: Off / Low / Medium / High / Ultra (checked local flight routes) | 0 / 1 / 2 / 3 / 4 | 0 | window; knob |
-| `RVK_OrbitalCraft` | Orbital / large spacecraft: Off / Low / Medium (verified local spacecraft and corridors) | 0 / 1 / 2 | 0 | window; knob |
-| `RVK_LiveWild` | Ambient wildlife: Off / Low / Medium (requires reviewed animated assets) | 0 / 1 / 2 | 0 | window; game value 0; knob |
-| `RVK_LiveMachine` | Living machinery: verified components only, Off / On | on / off | off | window; game value off; knob |
-| `RVK_LiveAtmos` | Localized vent steam: Off / On (also requires Smoke enabled) | on / off | off | window; game value off; knob |
 
 ## General
 

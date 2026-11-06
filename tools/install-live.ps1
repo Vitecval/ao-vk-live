@@ -5,7 +5,6 @@ param(
     [switch]$Upgrade,
     [switch]$Uninstall,
     [switch]$DisableLargeAddressAware,
-    [switch]$ReviewLivingRoutes,
     [scriptblock]$ProgressCallback
 )
 $ErrorActionPreference = 'Stop'
@@ -35,30 +34,11 @@ $manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw |
 if (!$Uninstall -and $manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) {
         if ($item.Name -match '^randy-vk[\\/]living[\\/]') {
-            throw 'Living Rubi-Ka assets must come from a validated local client provider, not this package.'
+            throw 'Living is a separate add-on and is not included in this renderer package.'
         }
     }
 }
-if (!$Uninstall -and $manifest.livingAssets) {
-    if ($ProgressCallback) { & $ProgressCallback 'Checking local Living preparation tools and recipes...' -1 }
-    if ($manifest.livingAssets.provider -ne 'installation-local-v1' -or $manifest.livingAssets.status -ne 'local-test-candidate') {
-        throw 'This candidate has no recognized Living Rubi-Ka asset provider.'
-    }
-    $livingHelper = Join-Path $package 'living-preparer\ao-vk-living-prepare.exe'
-    if (!(Test-Path -LiteralPath $livingHelper) -or (Get-FileHash -LiteralPath $livingHelper -Algorithm SHA256).Hash -ine $manifest.livingAssets.helperSha256) {
-        throw 'Local Living preparation helper integrity failed.'
-    }
-    $livingChecked = 0
-    foreach ($item in $manifest.livingAssets.files.PSObject.Properties) {
-        $livingChecked++
-        if ($ProgressCallback -and $livingChecked % 8 -eq 1) { & $ProgressCallback "Checking Living preparation file $livingChecked : $($item.Name)" -1 }
-        if ($item.Name -notmatch '^(living-preparer/[A-Za-z0-9_./-]+|living-metadata/[A-Za-z0-9_./-]+)$' -or $item.Name.Contains('..') -or
-            !(Test-Path -LiteralPath (Join-Path $package $item.Name)) -or
-            (Get-FileHash -LiteralPath (Join-Path $package $item.Name) -Algorithm SHA256).Hash -ine $item.Value) {
-            throw 'Local Living preparation payload integrity failed.'
-        }
-    }
-}
+if (!$Uninstall -and $manifest.livingAssets) { throw 'Living is a separate add-on and is not included in this renderer package.' }
 $receiptPath = Join-Path $client 'ao-vk-live.install.json'
 $receipt = $null
 if (Test-Path -LiteralPath $receiptPath) {
@@ -150,8 +130,10 @@ foreach ($target in $targets) {
     $checkedTargets++
     if ($ProgressCallback -and $checkedTargets % 250 -eq 0) { & $ProgressCallback "Checking existing files: $checkedTargets / $($targets.Count)" -1 }
     $name = Split-Path -Leaf $target
-    if (!$Uninstall -and (Test-Path -LiteralPath $target) -and
-        (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) {
+    $observed = if (Test-Path -LiteralPath $target) { (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash } else { $null }
+    $fileSpecs[$target].observedHash = $observed
+    if (!$Uninstall -and $observed -and $observed -ieq $fileSpecs[$target].hash) {
+        $fileSpecs[$target].unchanged = $true
         $unchangedTargets.Add($target)
     } else { $changingTargets.Add($target) }
 }
@@ -251,14 +233,19 @@ foreach ($name in @('ddraw.dll', 'ao-vk.dll')) {
 }
 if ($manifest.materialParts) {
     . (Join-Path $PSScriptRoot 'material-parts.ps1')
-    Expand-AoMaterialParts $package $manifest $client $ProgressCallback
+    $neededAssets = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    foreach ($target in $changingTargets) {
+        $spec=$fileSpecs[$target]
+        if ($spec.asset -and !$spec.retire) { $null=$neededAssets.Add([string]$spec.relative) }
+    }
+    Expand-AoMaterialParts $package $manifest $client $ProgressCallback $neededAssets
 }
 $verifiedSourceFiles = 0
 foreach ($target in $targets) {
     $spec = $fileSpecs[$target]
     $verifiedSourceFiles++
     if ($ProgressCallback -and $verifiedSourceFiles % 128 -eq 1) { & $ProgressCallback "Verifying textures and files: $verifiedSourceFiles / $($targets.Count)" -1 }
-    if ($spec.asset -and !$spec.retire -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
+    if ($spec.asset -and !$spec.retire -and !$spec.unchanged -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
         throw "Package integrity check failed for $($spec.relative)."
     }
 }
@@ -266,7 +253,7 @@ foreach ($target in $targets) {
     if (Test-Path -LiteralPath $target) {
         if (!$Upgrade -and !$fileSpecs[$target].special) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
         $name = Split-Path -Leaf $target
-        $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash
+        $hash = $fileSpecs[$target].observedHash
         $owned = Test-OwnedHash $target $hash
         if (!$owned) {
             if ($fileSpecs[$target].asset) { throw "Refusing to replace an unrecognized existing asset: $target. Its contents were preserved." }
@@ -276,6 +263,7 @@ foreach ($target in $targets) {
 }
 # Leave byte-identical DLLs in place, including a shared loader used by an unrelated installation.
 foreach ($target in $unchangedTargets) {
+    if ($fileSpecs[$target].asset) { continue } # No write is made to verified unchanged artwork.
     $name = Split-Path -Leaf $target
     if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) {
         throw 'A graphics file changed during the preflight checks. Try the update again.'
@@ -357,6 +345,10 @@ try {
         $target = $targets[$i]
         if ($fileSpecs[$target].executable -and !(Test-Path -LiteralPath $target)) { throw 'An executable disappeared during installation; retry after the game updater has finished.' }
         if (Test-Path -LiteralPath $target) {
+            if ($target -ine $receiptPath -and !$fileSpecs[$target].special -and
+                !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) {
+                throw 'An installation file changed after preflight; the previous installation was preserved.'
+            }
             if ($fileSpecs[$target].special -and !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) { throw 'An executable or memory backup changed during installation.' }
             $backup = $target + '.upgrade-' + [guid]::NewGuid().ToString('N')
             Move-Item -LiteralPath $target -Destination $backup
@@ -382,35 +374,4 @@ try {
     if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
-$livingStatus=''
-$livingWarnings=@()
-if ($manifest.livingAssets) {
-    # Optional cosmetics use a separate atomic cache generation. A failed local
-    # conversion leaves the normal renderer installed and the previous cache intact.
-    try {
-        Assert-AoClientClosed
-        . (Join-Path $PSScriptRoot 'setup-progress.ps1')
-        Preserve-AoInterruptedLivingLock $client
-        if ($ProgressCallback) { & $ProgressCallback 'Preparing Living assets locally inside the selected AO folder' -1 }
-        $livingToken=[guid]::NewGuid().ToString('N')
-        $livingLog=Join-Path $client ('.ao-vk-living-'+$livingToken+'.log')
-        $livingErrorLog=Join-Path $client ('.ao-vk-living-'+$livingToken+'.error.log')
-        $livingClientArg='"'+($client -replace '(\\+)$','$1$1')+'"'
-        $livingMetadataArg='"'+((Join-Path $package 'living-metadata') -replace '(\\+)$','$1$1')+'"'
-        $livingArguments='--client '+$livingClientArg+' --metadata '+$livingMetadataArg
-        if ($ReviewLivingRoutes) { $livingArguments+=' --review-routes' }
-        $livingProcess=Start-Process -FilePath $livingHelper -ArgumentList $livingArguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $livingLog -RedirectStandardError $livingErrorLog
-        Wait-AoSetupHelper $livingProcess $livingLog $livingErrorLog 'Preparing local Living resources' $ProgressCallback
-        $livingStatus='Living assets prepared locally. To test them, run Prepare Living City Test.cmd, then open Ctrl+Shift+F12. New controls default Off.'
-        $livingSummary=Get-Content -LiteralPath $livingLog -Tail 1 -ErrorAction SilentlyContinue
-        if ($livingSummary -match '([0-9]+) unsupported asset families' -and [int]$Matches[1] -gt 0) {
-            $livingWarnings=@('Some cosmetic assets are unavailable; affected instances will be skipped. See the local preparation log.')
-        }
-        Write-Output 'Local Living assets prepared. Run Prepare Living City Test.cmd to opt into city route review before enabling Living options.'
-    } catch {
-        $livingStatus='The renderer is installed, but Living assets were not prepared. Keep Living Off and retry preparation.'
-        $livingWarnings=@($_.Exception.Message)
-        Write-Warning ($livingStatus+' '+$_.Exception.Message+' Original archives were not modified by preparation.')
-    }
-}
-Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings); livingStatus=$livingStatus; livingWarnings=$livingWarnings })
+Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })

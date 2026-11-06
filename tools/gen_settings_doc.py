@@ -86,7 +86,7 @@ def main():
     by_name = {s["name"]: s for s in settings}
     knobs = set(re.findall(r'^\s*X\((\w+),', open(RVK_H, encoding="utf-8").read(), re.M))
 
-    living_available = "ReleaseContentAvailable = true" in open(os.path.join(ROOT,"rvk","living_release.h"),encoding="utf-8").read()
+    living_available = "ReleaseContentAvailable = true" in open(os.path.join(ROOT,"rvk","optional_population.h"),encoding="utf-8").read()
 
     def hidden(s):
         if s["section"] == "Living Rubi-Ka" and not living_available: return True

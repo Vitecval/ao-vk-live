@@ -1595,11 +1595,11 @@ void HudFrame(rvk::ThreadedDevice* device)
         else std::snprintf(out, size, "%-6s     - ms", name);
     };
     char lines[6][48];
-    std::snprintf(lines[0], sizeof(lines[0]), "%4.0f fps  %5.2f ms", fps, fps > 0.0 ? 1000.0 / fps : 0.0);
+    std::snprintf(lines[0], sizeof(lines[0]), shownFps>0.0?"%4.0f rendered fps  %5.2f ms":"%4.0f fps  %5.2f ms", fps, fps > 0.0 ? 1000.0 / fps : 0.0);
     ms(lines[1], sizeof(lines[1]), "game", game);
     ms(lines[2], sizeof(lines[2]), "render", t.renderMs > 0.0f ? render : 0.0f);
-    ms(lines[3], sizeof(lines[3]), "GPU", t.gpuMs);
-    if (t.gpuMs > 0.0f && fps > 0.0) {           // (its share of the time: busy ms a second)
+    ms(lines[3], sizeof(lines[3]), shownFps>0.0?"scene GPU":"GPU", t.gpuMs);
+    if (shownFps<=0.0 && t.gpuMs > 0.0f && fps > 0.0) { // scene duty cycle; SDK interpolation is not timed here
         const size_t at = std::strlen(lines[3]);
         std::snprintf(lines[3] + at, sizeof(lines[3]) - at, " %3.0f%%", std::min(100.0, t.gpuMs * fps / 10.0));
     }

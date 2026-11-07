@@ -265,6 +265,7 @@ public:
     static uint32_t FvfStride(uint32_t fvf) { return Device::FvfStride(fvf); }
 
     void Sync();                                       // waits until the worker has executed everything queued
+    VkResult WaitForPresentation();                    // also drains deferred actual WSI calls (owner-message aware)
 
     static constexpr uint32_t kMaxFramesAhead = 1;
     static constexpr uint32_t kQueueBytes = 48u << 20;

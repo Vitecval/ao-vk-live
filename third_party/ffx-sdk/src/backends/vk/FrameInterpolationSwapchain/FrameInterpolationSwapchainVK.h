@@ -200,6 +200,8 @@ struct FrameinterpolationPresentInfo
     VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*) = nullptr;
     void* queuePresentContext = nullptr;
     bool serializePresentation = false;
+    bool deferPresentationWait = false;
+    alignas(8) std::atomic<uint64_t> pendingPresentation = 0;
     alignas(8) std::atomic<uint64_t> completedPresentation = 0;
     alignas(8) std::atomic<int64_t> completedPairQpc = 0;
     double (*getCpuFrameMs)(void*) = nullptr;
@@ -210,7 +212,7 @@ struct FrameinterpolationPresentInfo
     VkSemaphore acquireSemaphores[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_ACQUIRE_SEMAPHORE_COUNT] = {};
     uint32_t    nextAcquireSemaphoreIndex                                                         = 0;
 
-    uint64_t realPresentCount = 0;
+    alignas(8) std::atomic<uint64_t> realPresentCount = 0;
 
     // using win32 threads to set the priorities
     HANDLE           presenterThreadHandle         = NULL;
@@ -255,6 +257,7 @@ public:  // vulkan functions reimplementation
     VkResult getSwapchainImages(VkDevice device, uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages);
 
     VkResult queuePresent(VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
+    VkResult waitForPresentation();
 
     void setHdrMetadata(VkDevice device, const VkHdrMetadataEXT* pMetadata);
 

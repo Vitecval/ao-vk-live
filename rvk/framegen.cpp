@@ -21,6 +21,7 @@
 #include <mutex>
 #include <vector>
 #include <new>
+#include <cstdlib>
 
 // The frame interpolation swapchain's lock on its queues (third_party/ffx-sdk, FrameInterpolationSwapchainVK_Helpers).
 std::mutex& ffxQueueMutex();
@@ -182,6 +183,9 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     s->info.queuePresentCallback = PresentOnWindowOwner;
     s->info.queuePresentContext = m_fgDispatchWindow;
     s->info.serializePresentation = m_props.vendorID == 0x10de;
+    const char* defer=std::getenv("RANDYVK_DEFER_PRESENT_GUARD");
+    s->info.deferPresentationWait=s->info.serializePresentation&&!(defer&&*defer=='0');
+    if(s->info.deferPresentationWait&&!s->fns.waitForPresentationFFX){delete s;if(error)*error="presentation submission guard unavailable";return false;}
     s->info.getCpuFrameMs = [](void* context) -> double {
         return static_cast<Device*>(context)->m_fgCpuProductionMs.load(std::memory_order_relaxed);
     };
@@ -201,6 +205,7 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     Log("frame generation: WSI presents run on window owner %lu through a private dispatcher", GetWindowThreadProcessId(m_window, nullptr));
     if (s->info.serializePresentation)
         Log("frame generation: NVIDIA compatibility pacing waits for the full WSI pair before the next game GPU submission; timing excludes prior pair wait and retains game CPU work");
+    if(s->info.deferPresentationWait)Log("frame generation: CPU recording overlaps presentation; every GPU submission still waits for actual WSI pair return");
     return true;
 }
 
@@ -228,6 +233,7 @@ void Device::WaitIdle()
         vkDeviceWaitIdle(m_device);
         return;
     }
+    (void)FgWaitForPresentation(); // retain the original GPU drain on failure too
     ffxWaitForPresents(FfxSwapchain(m_swapchain));
     std::lock_guard<std::mutex> lock(ffxQueueMutex());
     vkDeviceWaitIdle(m_device);
@@ -252,6 +258,7 @@ void Device::FgDestroySwapchain()
         Log("frame generation shutdown: could not start the message-aware wait helper (error %lu)", GetLastError());
     }
     // The swapchain first (its presenter thread ends), then the context its frame generation called into.
+    (void)FgWaitForPresentation();
     if (m_swapchain) m_fg->fns.destroySwapchainKHR(m_device, m_swapchain, nullptr);
     m_swapchain = VK_NULL_HANDLE;
     m_liveShown.store(0, std::memory_order_relaxed);
@@ -268,7 +275,40 @@ VkResult Device::FgGetSwapchainImages(uint32_t* count, VkImage* images)
 
 VkResult Device::FgAcquire(uint64_t timeout, VkSemaphore semaphore, uint32_t* index)
 {
+    // The SDK's logical acquire itself submits a GPU semaphore signal.
+    const auto ready=FgWaitForPresentation();
+    if(ready<0)return ready;
     return m_fg->fns.acquireNextImageKHR(m_device, m_swapchain, timeout, semaphore, VK_NULL_HANDLE, index);
+}
+
+VkResult Device::FgWaitForPresentation()
+{
+    if(m_deviceLost)return VK_ERROR_DEVICE_LOST;
+    if(!m_fg||!m_swapchain||!m_fg->info.deferPresentationWait)return VK_SUCCESS;
+    if(m_window&&GetWindowThreadProcessId(m_window,nullptr)==GetCurrentThreadId()){
+        VkResult result=VK_ERROR_DEVICE_LOST;
+        auto work=[&]{result=FgWaitForPresentation();};
+        if(!SdkCallWithOwnerPumping(work)){m_deviceLost=true;return VK_ERROR_DEVICE_LOST;}
+        return result;
+    }
+    const double guardStart=ProfileCpu();
+    const auto result=m_fg->fns.waitForPresentationFFX(m_swapchain);
+    ProfileCpuAdd("wait for presentation guard",guardStart);
+    if(result==VK_ERROR_OUT_OF_DATE_KHR||result==VK_SUBOPTIMAL_KHR)m_swapchainStale=true;
+    else if(result<0){Log("frame generation: presentation stopped (VkResult %d); GPU submission blocked; restart with frame generation off",int(result));m_deviceLost=true;}
+    return result;
+}
+
+VkResult Device::SubmitGpuWork(uint32_t count,const VkSubmitInfo* submits,VkFence fence)
+{
+    // All engine queue submissions, including uploads and readbacks, use this
+    // boundary. CPU recording may overlap; later GPU work must never do so.
+    if(m_deviceLost)return VK_ERROR_DEVICE_LOST;
+    const auto ready=FgWaitForPresentation();
+    if(ready<0&&ready!=VK_ERROR_OUT_OF_DATE_KHR)return ready;
+    const auto result=vkQueueSubmit(m_queue,count,submits,fence);
+    if(result!=VK_SUCCESS){Log("GPU submission failed (%d); rendering stops",int(result));m_deviceLost=true;}
+    return result;
 }
 
 VkResult Device::FgPresent(const VkPresentInfoKHR* info)

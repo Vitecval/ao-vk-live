@@ -1,4 +1,56 @@
-# Preview 23 revision 13: pacing cost and actual-game findings
+# Preview 23 revision 14: overlap CPU preparation, preserve GPU ordering
+
+Revision 14 moves the NVIDIA actual-presentation completion wait from the end
+of SDK queuePresent to the next GPU submission boundary. All four engine submit
+sites use one guarded helper; the SDK logical acquisition is gated separately
+because it also submits a semaphore signal. Resource drains and swapchain teardown
+also wait for actual completion. CPU command recording can therefore overlap the
+previous GPU/presentation interval. Later GPU commands still cannot be queued
+while the previous actual WSI calls are outstanding. The old wait placement can
+be selected with process-local `RANDYVK_DEFER_PRESENT_GUARD=0` for diagnosis.
+
+Pending completion tracks only asynchronous interpolation entries; inline
+passthrough presentations have already returned. Timeout/error handling retains
+the five-second bound and sticky failure, and outdated swapchains propagate to
+recreation. The presentation counter is atomic for concurrent CPU recording.
+Guard wait duration is included in the CPU profile. An explicit message-aware
+presentation drain allows benchmarks to include their last actual WSI returns.
+
+The user clarified that the reported 38% GPU usage came from the in-game readout.
+That value was scene timestamp duration multiplied by rendered FPS and excluded
+SDK interpolation/composition. It was not total hardware utilization. During
+generation the HUD now says `scene GPU`, omits this incomplete percentage and
+labels the primary rate as rendered FPS.
+
+| Matched fixture: 8 ms renderer-worker delay, same binary | Wait at queuePresent end | Wait before GPU submission |
+| --- | ---: | ---: |
+| Generation off, real/presented FPS | 61.79 | 61.30 |
+| Generation on, real FPS | 23.28 | 32.87 |
+| Generation on, presentation requests/sec | 46.57 | 65.74 |
+| Generation on, 95th-percentile request interval | 29.98 ms | 22.03 ms |
+
+This is a 41.2% throughput improvement in a fixture with injected worker delay,
+not an actual-game claim or proof of physical scanout cadence. A separate
+32 ms game-thread delay case was similar (58.82 versus 57.73 requests/sec), rather
+than exhibiting the renderer-delay gain. GPU shaders and scene quality settings are unchanged.
+
+Driver-timing experiments are archived in the workspace's
+`checks/driver-pacing-research`. The ratified relative-timing path increased
+request counts but provided only one nonzero scanout timestamp per pair; a
+provisional NV metering experiment returned feedback 1, which NVIDIA's own
+DXVK Remix integration treats as rejected and falls back to host pacing.
+These experiments were not installed and are absent from the production path.
+No driver settings, overlays, global timer resolution or other clients changed.
+
+The final revision-14 runtime passes 21 x86 regression programs/scenarios and
+nine isolated x64 core/synchronization validation scenarios with zero errors.
+Both normal and readback overlap traces report zero later GPU submissions during
+prior WSI. Injection verifies outdated-swapchain recovery, stopped rendering on
+GPU submission failure, the bounded/sticky guard timeout, and owner-message
+pumping. Physical validation remains limited to this RTX 2070 SUPER; actual AO
+smoothness and broader GPU/driver testing remain required.
+
+## Earlier revision 12-13 results and limits
 
 Revision 12 did not resolve actual-game smoothness. In a subsequent stationary
 scene it produced 15.5–15.8 rendered FPS / about 31 presents per second, while

@@ -1566,7 +1566,7 @@ void Device::EnsureRingSpace(VkDeviceSize bytes)
         // Between frames the slot's fence is signalled (UploadCommands waited on it); a fence must be
         // unsignalled to be submitted, or waits return early while the GPU still runs the commands.
         vkResetFences(m_device, 1, &f.fence);
-        vkQueueSubmit(m_queue, 1, &si, f.fence);
+        SubmitGpuWork(1, &si, f.fence);
         WaitFrame(f, "GPU frame work");
         // Leave the fence signalled: BeginFrame waits on it before using this slot.
         f.uploadsRecorded = false;
@@ -2173,7 +2173,7 @@ void Device::EndFrame()
         si.pSignalSemaphores = &m_renderDone[imageIndex];
     }
     f.serial = ++m_submitted;
-    VkResult submitted = vkQueueSubmit(m_queue, 1, &si, f.fence);
+    VkResult submitted = SubmitGpuWork(1, &si, f.fence);
     if (submitted != VK_SUCCESS) {
         Log("frame submit failed: %d; rendering stops (restart the client)", int(submitted));
         m_deviceLost = true;
@@ -2228,7 +2228,7 @@ void Device::SubmitAndWait()
     si.commandBufferCount = n;
     si.pCommandBuffers = cmds;
     f.serial = ++m_submitted;
-    vkQueueSubmit(m_queue, 1, &si, f.fence);
+    SubmitGpuWork(1, &si, f.fence);
     WaitFrame(f, "mid-frame flush");
     vkResetFences(m_device, 1, &f.fence);
     FrameCommandsSubmitted(f);                 // f.main stays the buffer being recorded
@@ -2295,7 +2295,7 @@ bool Device::ReadPixels(Texture* target, void* out)
         VkSubmitInfo si{VK_STRUCTURE_TYPE_SUBMIT_INFO};
         si.commandBufferCount = 1;
         si.pCommandBuffers = &cmd;
-        vkQueueSubmit(m_queue, 1, &si, VK_NULL_HANDLE);
+        SubmitGpuWork(1, &si, VK_NULL_HANDLE);
         vkQueueWaitIdle(m_queue);
         m_completed = m_submitted;
         vkFreeCommandBuffers(m_device, m_pool, 1, &cmd);

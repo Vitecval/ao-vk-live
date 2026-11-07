@@ -66,7 +66,7 @@ def main():
             shutil.copy2(file,dest/file.name);rel=(dest/file.name).relative_to(folder).as_posix()
             manifest['assets'][rel]=sha(dest/file.name);added+=file.stat().st_size
         manifest.update(version=VERSION,build='ao-vk-preview23-private-stabilization-candidate',sourceCommit=commit,
-            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=6,candidateRevision=13,livingIncluded=False,candidateStatus='serialized-frame-pacing-candidate-final-textures-and-release-validation-pending',
+            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=6,candidateRevision=14,livingIncluded=False,candidateStatus='cpu-recording-overlap-candidate-actual-game-and-final-texture-validation-pending',
             publicDistributionApproved=False,originalGameAssetsIncluded=False,
             iccArtwork=dict(status='private-generated-reference-derived-art-rights-review-pending',playfield=655,targets=['1010004:295610','1010006:21','1010006:22']))
         manifest['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}

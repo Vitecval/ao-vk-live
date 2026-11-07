@@ -76,6 +76,8 @@ typedef struct VkFrameInterpolationInfoFFX
     void* queuePresentContext;
     // AO-VK: keep future game submissions behind the actual WSI pair return.
     bool serializePresentation;
+    // AO-VK engine gates every subsequent GPU submission itself.
+    bool deferPresentationWait;
     // AO-VK: independent game CPU work, excluding its render-worker wait.
     double (*getCpuFrameMs)(void*);
     void* cpuFrameContext;
@@ -355,6 +357,7 @@ typedef VkResult (*PFN_vkCreateSwapchainFFX)(VkDevice device, const VkSwapchainC
 
 /// Function to get he number of presents. This is useful when using frame interpolation
 typedef uint64_t (*PFN_getLastPresentCountFFX)(VkSwapchainKHR);
+typedef VkResult (*PFN_waitForPresentationFFX)(VkSwapchainKHR);
 
 /// Structure holding the replacement function pointers for frame interpolation to work
 /// Not all extensions are supported for now
@@ -370,6 +373,7 @@ struct FfxSwapchainReplacementFunctions
     PFN_vkQueuePresentKHR       queuePresentKHR;
     PFN_vkSetHdrMetadataEXT     setHdrMetadataEXT;
     PFN_getLastPresentCountFFX  getLastPresentCountFFX;
+    PFN_waitForPresentationFFX waitForPresentationFFX;
 };
 FFX_API FfxErrorCode ffxGetSwapchainReplacementFunctionsVK(FfxDevice device, FfxSwapchainReplacementFunctions* functions);
 

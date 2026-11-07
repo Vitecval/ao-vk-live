@@ -1,4 +1,10 @@
-# AO-VK Live Preview 23 — candidate revision 13
+# AO-VK Live Preview 23 — candidate revision 14
+
+## Revision 14: prepare the next frame while retaining the GPU submission guard
+
+CPU command recording can now overlap the preceding frame-generation presentation. The actual WSI completion wait moves to every engine GPU submission, the SDK logical acquire (which also submits), and resource drains. Later GPU work still cannot enter while the previous pair is presenting. This preserves the freeze guard while removing unnecessary serialization of CPU preparation. Presentation counters are atomic, guard waits are profiled, and the HUD labels its scene-only GPU timing rather than displaying an incomplete GPU percentage during generation.
+
+A matched renderer-delay fixture improved from 23.28 to 32.87 rendered FPS (46.57 to 65.74 presentation requests/sec); native rendering remained approximately 61 FPS. Actual-game performance and smoothness still require verification. Driver-timing experiments were rejected and archived without installation. See [the performance audit](docs/fsr-performance-audit.md). Setup 6 and material pins are unchanged.
 
 ## Revision 13: efficient CPU pacing and one readiness fence per serialized pair
 

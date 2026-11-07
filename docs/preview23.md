@@ -1,8 +1,8 @@
-# Preview 23 revision 13 - frame-generation pacing / Setup 6
+# Preview 23 revision 14 - CPU recording overlap / Setup 6
 
 Setup 6 fixes the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-Revision 12 corrected pacing feedback in the serialized NVIDIA frame-generation path while retaining the presentation safeguards. The initial controlled gain did not produce acceptable actual-game smoothness. Revision 13 reduces CPU pacing cost and eliminates a redundant fence between serialized presentations; actual-game performance and smoothness still require verification. FSR upscaling can be used independently of frame generation. See [the performance audit](fsr-performance-audit.md). Final textures and verification of the exact release packages are still required before publication.
+Revision 14 allows CPU preparation of the next frame to overlap frame-generation presentation. Every later GPU submission still waits for the previous pair's actual WSI calls to return. The matched renderer-delay fixture improves throughput by 41%; actual-game performance and smoothness still require verification. The HUD identifies scene-only GPU timing during generation. FSR upscaling remains independent of frame generation. See [the performance audit](fsr-performance-audit.md). Final textures and verification of the exact release packages are still required before publication.
 
 Revision 10 fixed FSR initialization leaks, ignored pipeline/descriptor errors and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation remains experimental and off by default. The earlier [FSR audit](fsr-stability-audit.md) records the investigation; the latest user report above updates its then-pending local test status. Additional physical-GPU validation remains pending.
 

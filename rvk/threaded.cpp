@@ -378,6 +378,12 @@ void ThreadedDevice::Sync()
     CheckWorkerFailed();
 }
 
+VkResult ThreadedDevice::WaitForPresentation()
+{
+    Sync();
+    return m_device.FgWaitForPresentation();
+}
+
 // ---------------------------------------------------------------------------------------------------
 // Frames and synchronous calls
 

@@ -601,6 +601,11 @@ uint64_t getLastPresentCountFFX(VkSwapchainKHR swapchain)
     return pSwapChainVK->getLastPresentCount();
 }
 
+VkResult waitForPresentationFFX(VkSwapchainKHR swapchain)
+{
+    return reinterpret_cast<FrameInterpolationSwapChainVK*>(swapchain)->waitForPresentation();
+}
+
 //////////////////////////////////////////////
 /// FFX API overridden functions
 //////////////////////////////////////////////
@@ -625,6 +630,7 @@ FFX_API FfxErrorCode ffxGetSwapchainReplacementFunctionsVK(FfxDevice ffxDevice, 
 
     // additional functions only available for frame interpolation swapchain
     functions->getLastPresentCountFFX = getLastPresentCountFFX;
+    functions->waitForPresentationFFX = waitForPresentationFFX;
 
     return FFX_OK;
 }
@@ -766,6 +772,25 @@ struct PresentSwapchainLock {
     explicit PresentSwapchainLock(CRITICAL_SECTION& s) : section(s) { EnterCriticalSection(&section); }
     ~PresentSwapchainLock() { LeaveCriticalSection(&section); }
 };
+
+VkResult waitForPresentationCompletion(FrameinterpolationPresentInfo* presenter)
+{
+    if(!presenter->serializePresentation)return VK_SUCCESS;
+    const uint64_t target=presenter->pendingPresentation.load(std::memory_order_acquire);
+    if(!target)return VK_SUCCESS;
+    const DWORD began=GetTickCount();
+    for(;;){
+        uint64_t completed=presenter->completedPresentation.load(std::memory_order_acquire);
+        if(completed>=target)break;
+        const VkResult failure=presenter->lastPresentResult.load();
+        if(failure<0&&failure!=VK_ERROR_OUT_OF_DATE_KHR)return failure;
+        const DWORD elapsed=GetTickCount()-began;
+        if(elapsed>=5000){presenter->lastPresentResult.store(VK_ERROR_DEVICE_LOST);return VK_ERROR_DEVICE_LOST;}
+        WaitOnAddress(reinterpret_cast<volatile void*>(&presenter->completedPresentation),&completed,sizeof(completed),
+                      (std::min)(DWORD(100),DWORD(5000-elapsed)));
+    }
+    return presenter->lastPresentResult.load();
+}
 
 static VkResult waitForPresentReadyLocked(FrameinterpolationPresentInfo* pPresenter)
 {
@@ -1588,6 +1613,7 @@ VkResult FrameInterpolationSwapChainVK::init(const VkSwapchainCreateInfoKHR* pCr
     presentInfo.queuePresentCallback = pFrameInterpolationInfo->queuePresentCallback;
     presentInfo.queuePresentContext = pFrameInterpolationInfo->queuePresentContext;
     presentInfo.serializePresentation = pFrameInterpolationInfo->serializePresentation;
+    presentInfo.deferPresentationWait = pFrameInterpolationInfo->deferPresentationWait;
     presentInfo.getCpuFrameMs = pFrameInterpolationInfo->getCpuFrameMs;
     presentInfo.cpuFrameContext = pFrameInterpolationInfo->cpuFrameContext;
     imageAcquireQueue              = pFrameInterpolationInfo->imageAcquireQueue;
@@ -2804,29 +2830,18 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
 
     // update active backbuffer and block when no buffer is available
     replacementSwapBufferIndex = presentCount % gameBufferCount;
+    // Inline/passthrough calls have already returned from WSI. Only an async
+    // interpolated entry needs an actual-presentation gate on future submissions.
+    presentInfo.pendingPresentation.store(runInterpolation?framesSentForPresentation:0,std::memory_order_release);
 
     LeaveCriticalSection(&criticalSection);
 
-    if (presentInfo.serializePresentation && runInterpolation) {
+    if (presentInfo.serializePresentation && runInterpolation && !presentInfo.deferPresentationWait) {
         // A ready GPU fence is insufficient on driver paths that drain other
         // queues during WSI. Do not let the engine queue the next game's work
         // (which can wait for a future composition) until this pair has returned
         // from the real presentation calls. Own no SDK/queue mutex while waiting.
-        const DWORD began = GetTickCount();
-        for (;;) {
-            uint64_t completed = presentInfo.completedPresentation.load(std::memory_order_acquire);
-            if (completed >= framesSentForPresentation) break;
-            const VkResult failure = presentInfo.lastPresentResult.load();
-            if (failure < 0 && failure != VK_ERROR_OUT_OF_DATE_KHR) return failure;
-            const DWORD elapsed = GetTickCount() - began;
-            if (elapsed >= 5000) {
-                presentInfo.lastPresentResult.store(VK_ERROR_DEVICE_LOST);
-                return VK_ERROR_DEVICE_LOST;
-            }
-            WaitOnAddress(reinterpret_cast<volatile void*>(&presentInfo.completedPresentation),
-                          &completed, sizeof(completed), (std::min)(DWORD(100), DWORD(5000 - elapsed)));
-        }
-        res = presentInfo.lastPresentResult.load();
+        res = waitForPresentation();
         if (res < 0 && res != VK_ERROR_OUT_OF_DATE_KHR) return res;
     }
 
@@ -2834,6 +2849,11 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
         presentInfo.device, presentInfo.replacementBufferSemaphore, replacementSwapBuffers[replacementSwapBufferIndex].availabilitySemaphoreValue, UINT64_MAX, presentInfo.waitCallback);
     
     return res;
+}
+
+VkResult FrameInterpolationSwapChainVK::waitForPresentation()
+{
+    return waitForPresentationCompletion(&presentInfo);
 }
 
 bool FrameInterpolationSwapChainVK::spawnPresenterThread()

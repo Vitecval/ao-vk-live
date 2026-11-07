@@ -3261,6 +3261,8 @@ private:
     VkResult FgGetSwapchainImages(uint32_t* count, VkImage* images);
     VkResult FgAcquire(uint64_t timeout, VkSemaphore semaphore, uint32_t* index);
     VkResult FgPresent(const VkPresentInfoKHR* info);
+    VkResult FgWaitForPresentation();
+    VkResult SubmitGpuWork(uint32_t count, const VkSubmitInfo* submits, VkFence fence);
     void FgPrepare(VkCommandBuffer cmd, const float params[28]);
     void FgBeforePresent(VkCommandBuffer cmd);
     bool RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28]);   // false: not done (the TAA then)

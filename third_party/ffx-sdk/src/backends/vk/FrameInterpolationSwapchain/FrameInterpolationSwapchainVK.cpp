@@ -25,6 +25,7 @@
 #include "FrameInterpolationSwapchainVK.h"
 #include "FrameInterpolationSwapchainVK_UiComposition.h"
 #include "FrameInterpolationSwapchainVK_DebugPacing.h"
+#include "FrameInterpolationSwapchainVK_Pacing.h"
 
 #include <FidelityFX/host/ffx_assert.h>
 
@@ -992,6 +993,9 @@ void presentPreparedPair(FrameinterpolationPresentInfo* presenter, const Prepare
         if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR)
             break;
     }
+    LARGE_INTEGER completed;
+    QueryPerformanceCounter(&completed);
+    presenter->completedPairQpc.store(completed.QuadPart, std::memory_order_release);
 }
 
 DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
@@ -1304,15 +1308,19 @@ DWORD WINAPI interpolationThread(LPVOID param)
                     int64_t currentQpc = 0;
                     QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&currentQpc));
 
-                    const double deltaQpc = double(currentQpc - previousQpc) * (previousQpc > 0);
+                    const double elapsedQpc = double(currentQpc - previousQpc) * (previousQpc > 0);
+                    int64_t qpcFrequency;
+                    QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&qpcFrequency));
+                    const double cpuMs = presenter->getCpuFrameMs ? presenter->getCpuFrameMs(presenter->cpuFrameContext) : 0.0;
+                    const int64_t cpuQpc = cpuMs > 0.0 && cpuMs < 100.0 ? int64_t(cpuMs * qpcFrequency / 1000.0) : 0;
+                    const double deltaQpc = double(frameProductionInterval(previousQpc, currentQpc,
+                        presenter->completedPairQpc.load(std::memory_order_acquire), presenter->serializePresentation, cpuQpc));
                     previousQpc           = currentQpc;
 
                     // reset pacing averaging if delta > 10 fps,
-                    int64_t qpcFrequency;
-                    QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&qpcFrequency));
                     const float fTimeoutInSeconds       = 0.1f;
                     double      deltaQpcResetThreashold = double(qpcFrequency * fTimeoutInSeconds);
-                    if ((deltaQpc > deltaQpcResetThreashold) || presenter->resetTimer)
+                    if ((elapsedQpc > deltaQpcResetThreashold) || presenter->resetTimer)
                     {
                         frameTime.reset();
                     }
@@ -1560,6 +1568,8 @@ VkResult FrameInterpolationSwapChainVK::init(const VkSwapchainCreateInfoKHR* pCr
     presentInfo.queuePresentCallback = pFrameInterpolationInfo->queuePresentCallback;
     presentInfo.queuePresentContext = pFrameInterpolationInfo->queuePresentContext;
     presentInfo.serializePresentation = pFrameInterpolationInfo->serializePresentation;
+    presentInfo.getCpuFrameMs = pFrameInterpolationInfo->getCpuFrameMs;
+    presentInfo.cpuFrameContext = pFrameInterpolationInfo->cpuFrameContext;
     imageAcquireQueue              = pFrameInterpolationInfo->imageAcquireQueue;
 
     // check that the queues are separate

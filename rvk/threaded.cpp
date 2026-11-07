@@ -448,6 +448,7 @@ void ThreadedDevice::EndFrame()
         const double ms = std::chrono::duration<double, std::milli>(now - m_lastEndFrame).count();
         AddGameSection("game thread frame", ms);
         Device::LiveSmooth(m_liveFrameMs, ms);
+        m_device.m_fgCpuProductionMs.store(float(std::max(0.0, ms - m_previousFrameWaitMs)), std::memory_order_relaxed);
     }
     m_lastEndFrame = now;
     Enqueue([this](const uint8_t*) {
@@ -469,6 +470,7 @@ void ThreadedDevice::EndFrame()
     const double waitedUs = std::chrono::duration<double, std::micro>(std::chrono::steady_clock::now() - waitStart).count();
     m_device.m_profileGameWaitUs.fetch_add(uint64_t(waitedUs));
     Device::LiveSmooth(m_liveGameWaitMs, waitedUs * 1e-3);
+    m_previousFrameWaitMs = waitedUs * 1e-3;
 }
 
 ThreadedDevice::LiveTimes ThreadedDevice::Live() const

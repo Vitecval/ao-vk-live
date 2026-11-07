@@ -390,6 +390,7 @@ private:
     // This frame's draws by how their data crossed the hand-off (the profile's 'hand-off draws' line).
     struct DrawStats { uint64_t copied = 0, vertexBytes = 0, shared = 0, skinned = 0, indexBytes = 0, retained = 0, handles = 0; } m_drawStats;
     std::chrono::steady_clock::time_point m_lastEndFrame{};       // the game thread's frame (EndFrame to EndFrame)
+    double m_previousFrameWaitMs = 0.0;
     std::atomic<float> m_liveFrameMs{0.0f}, m_liveGameWaitMs{0.0f};   // (Live: smoothed, the game thread's)
     struct SentState {
         uint32_t rs[256];

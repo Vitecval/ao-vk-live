@@ -267,6 +267,8 @@ target_include_directories(preview23_settings_check PRIVATE proxy)
 
 
 add_executable(fsr_lifecycle_check tests/fsr_lifecycle_check.cpp proxy/native/stb_image.cpp)
+add_executable(framegen_pacing_check tests/framegen_pacing_check.cpp)
+target_include_directories(framegen_pacing_check PRIVATE "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
 target_include_directories(fsr_lifecycle_check PRIVATE third_party)
 target_link_libraries(fsr_lifecycle_check PRIVATE rvk user32)
 

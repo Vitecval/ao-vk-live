@@ -195,6 +195,9 @@ struct FrameinterpolationPresentInfo
     void* queuePresentContext = nullptr;
     bool serializePresentation = false;
     alignas(8) std::atomic<uint64_t> completedPresentation = 0;
+    alignas(8) std::atomic<int64_t> completedPairQpc = 0;
+    double (*getCpuFrameMs)(void*) = nullptr;
+    void* cpuFrameContext = nullptr;
 
     uint64_t    lastPresentSemaphoreValue = 0;
 

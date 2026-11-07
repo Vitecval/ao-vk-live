@@ -44,6 +44,7 @@ struct Device::FrameGenState {
     uint64_t frame = 0;                          // this frame's id (prepare and configure share it)
     bool prepared = false;                       // FgPrepare ran this frame: generate a frame before it
     double lastTime = 0.0;
+    double rateStarted = 0.0;
     uint32_t rendered = 0, generatedAsked = 0;   // (the log's)
     uint64_t shownBefore = 0;
 };
@@ -181,6 +182,10 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     s->info.queuePresentCallback = PresentOnWindowOwner;
     s->info.queuePresentContext = m_fgDispatchWindow;
     s->info.serializePresentation = m_props.vendorID == 0x10de;
+    s->info.getCpuFrameMs = [](void* context) -> double {
+        return static_cast<Device*>(context)->m_fgCpuProductionMs.load(std::memory_order_relaxed);
+    };
+    s->info.cpuFrameContext = this;
     s->format = ci.imageFormat;
     const VkResult r = s->fns.createSwapchainFFX(m_device, &ci, nullptr, &m_swapchain, &s->info);
     if (r != VK_SUCCESS) {
@@ -195,7 +200,7 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     Log("frame generation: complete generated/real GPU pair submitted before WSI (requested images %u)", ci.minImageCount);
     Log("frame generation: WSI presents run on window owner %lu through a private dispatcher", GetWindowThreadProcessId(m_window, nullptr));
     if (s->info.serializePresentation)
-        Log("frame generation: NVIDIA compatibility pacing waits for the full WSI pair before the next game GPU submission");
+        Log("frame generation: NVIDIA compatibility pacing waits for the full WSI pair before the next game GPU submission; timing excludes prior pair wait and retains game CPU work");
     return true;
 }
 
@@ -568,12 +573,17 @@ void Device::FgBeforePresent(VkCommandBuffer cmd)
     if (s.prepared) ++s.generatedAsked;
     s.prepared = false;
     m_liveShown.store(FgShownFrames(), std::memory_order_relaxed);   // (the readout's shown rate)
+    const double rateNow = SwayClock();
+    if (!s.rateStarted) s.rateStarted = rateNow;
     if (++s.rendered == 600) {                   // (the log: frames shown for frames rendered - about 2 when it works)
         const uint64_t shown = FgShownFrames();
-        Log("frame generation: %llu frames shown for %u rendered (%u with a generated one asked for)",
-            (unsigned long long)(shown - s.shownBefore), s.rendered, s.generatedAsked);
+        const double elapsed = std::max(1e-3, rateNow - s.rateStarted);
+        Log("frame generation: %llu frames shown for %u rendered (%u with a generated one asked for); %.1f rendered fps, %.1f presented fps",
+            (unsigned long long)(shown - s.shownBefore), s.rendered, s.generatedAsked,
+            s.rendered / elapsed, (shown - s.shownBefore) / elapsed);
         s.shownBefore = shown;
         s.rendered = s.generatedAsked = 0;
+        s.rateStarted = rateNow;
     }
 }
 

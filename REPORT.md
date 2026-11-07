@@ -1,4 +1,8 @@
-# AO-VK Live Preview 23 — candidate revision 11
+# AO-VK Live Preview 23 â€” candidate revision 11
+
+## Revision 12: frame-generation pacing
+
+The serialized NVIDIA pacer now excludes the previous presentation wait from its production estimate while retaining independent game CPU work. The GPU-ready, owner-thread, whole-pair and future-submission guards remain enabled. A controlled GPU-heavy test improved successful presents from 39.68 to 53.76 per second; actual-game performance and smoothness still need verification. See [the performance audit](docs/fsr-performance-audit.md). Setup 6 and material pins are retained.
 
 ## Revision 11 / Setup 6: installer fault and recovery audit
 
@@ -329,7 +333,7 @@ Earlier Preview 23 offline x86 320x240 initialization plus eight HDR frames:
 
 These are earlier fixture measurements, not new full-client revision 4 results.
 Cold peak process memory was about 697 MiB, warm about 381 MiB. Individual cold
-Vulkan driver calls took 16–27 seconds. CPU was i7-9700K, GPU RTX 2070 SUPER;
+Vulkan driver calls took 16â€“27 seconds. CPU was i7-9700K, GPU RTX 2070 SUPER;
 other desktop/game activity was uncontrolled. No actual driver cache purge or
 1080p/multiclient FPS/GPU-pass benchmark was performed. The player's original
 multi-minute launch was not measured as a successful Play-to-responsive interval.
@@ -402,7 +406,7 @@ normal/ORM maps. Original game reference images are not in the player ZIPs.
 The pack remains private pending live UV/appearance and redistribution review;
 no public rights claim is made. No wall target was approved.
 
-`RVK_ICCArtwork` defaults to AnarchyHD. `RVK_ICCGlossiness` is 0.0–1.0 in 0.1
+`RVK_ICCArtwork` defaults to AnarchyHD. `RVK_ICCGlossiness` is 0.0â€“1.0 in 0.1
 steps, default 1.0, independent of presets. All eleven values, four presets and
 restart persistence passed again with Living controls absent (359 settings,
 17 sections). Earlier real Vulkan fixtures covered the three IDs, two styles,

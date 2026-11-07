@@ -2,6 +2,7 @@
 #include "rvk.h"
 #include "threaded.h"
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <atomic>
@@ -15,6 +16,16 @@ PFN_vkGetDeviceProcAddr realGet;
 unsigned injectedCalls=0;
 PFN_vkQueuePresentKHR realPresent;
 std::atomic<unsigned> driverPresents{0};
+std::mutex benchmarkMutex;
+std::vector<int64_t> benchmarkPresents;
+VkResult VKAPI_PTR BenchmarkPresent(VkQueue queue,const VkPresentInfoKHR* info) {
+    const auto result=realPresent(queue,info);
+    if(result==VK_SUCCESS||result==VK_SUBOPTIMAL_KHR){
+        LARGE_INTEGER now;QueryPerformanceCounter(&now);
+        std::lock_guard<std::mutex> lock(benchmarkMutex);benchmarkPresents.push_back(now.QuadPart);
+    }
+    return result;
+}
 HWND messageWindow=nullptr;
 std::atomic<unsigned> sentMessages{0},sentTimeouts{0};
 std::atomic<int> messagePhase{-1};
@@ -185,6 +196,10 @@ PFN_vkVoidFunction VKAPI_PTR GetProc(VkDevice device,const char* name) {
 }
 }
 template<class RenderDevice> int Run(int argc,char**argv) {
+    const bool benchmark=argc>1&&std::string(argv[1]).starts_with("--benchmark");
+    const bool benchmarkFg=benchmark&&std::string(argv[1])=="--benchmark-on";
+    const unsigned benchmarkCpuMs=benchmark&&argc>2?std::min(50u,unsigned(std::strtoul(argv[2],nullptr,10))):8;
+    const unsigned benchmarkDraws=benchmark&&argc>3?std::clamp(unsigned(std::strtoul(argv[3],nullptr,10)),1u,2048u):1;
     const bool failFramegen=argc>1 && std::string(argv[1])=="--fail-framegen";
     const bool inject=failFramegen || (argc>1 && std::string(argv[1]).starts_with("--fail-init"));
     if(argc>1 && std::string(argv[1]).starts_with("--fail-init=")) rejectedApi=std::string(argv[1]).substr(12);
@@ -197,7 +212,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     const bool replaceWindow=argc>1 && std::string(argv[1])=="--window-replacement";
     const bool frameOverlap=argc>1 && std::string(argv[1])=="--frame-overlap";
     const bool owner=replaceWindow || (argc>1 && std::string(argv[1])=="--owner-wsi");
-    const bool native=frameOverlap || owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
+    const bool native=benchmark || frameOverlap || owner || handoff || timeouts || limited || pairs || messages || stress || (argc>1 && (std::string(argv[1])=="--native-framegen" || std::string(argv[1])=="--native-threaded"));
     const bool fg=failFramegen || native || (argc>1 && std::string(argv[1])=="--framegen");
     const unsigned width=native?1914:768,height=native?1051:512;
     using namespace rvk;using namespace rvk::d3d;
@@ -216,6 +231,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         realSubmit=vk::vkQueueSubmit;
         realAcquire=vk::vkAcquireNextImageKHR;realCaps=vk::vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
         realWaitSemaphores=vk::vkWaitSemaphores;
+        if(benchmark)vk::vkQueuePresentKHR=BenchmarkPresent;
         if(stress)vk::vkQueuePresentKHR=SlowPresent;
         if(messages)vk::vkQueuePresentKHR=MessagePresent;
         if(pairs){vk::vkQueuePresentKHR=PairPresent;vk::vkQueueSubmit=ObserveSubmit;}
@@ -226,16 +242,24 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(handoff){vk::vkWaitSemaphores=DelayHandoff;rvk::SetLogSink(HandoffLog);}
         if(inject)vk::vkGetDeviceProcAddr=GetProc;
         d.SetHdr(true);d.SetTaa(true,.4f);d.SetRenderScale(native?100:67);d.SetFrameGen(fg&&!native);
+        if(benchmark)d.SetFrameGen(benchmarkFg);
         Matrix identity{};for(int i=0;i<4;++i)identity.m[i][i]=1;
         Matrix projection{};projection.m[0][0]=projection.m[1][1]=1;projection.m[2][2]=100.f/99.9f;projection.m[2][3]=1;projection.m[3][2]=-.1f*100.f/99.9f;
         struct V{float x,y,z,nx,ny,nz;uint32_t color;float u,v;};
         const V vertices[]={{-1,-1,3,0,0,-1,0xffffffff,0,1},{1,-1,3,0,0,-1,0xffffffff,1,1},{0,1,3,0,0,-1,0xffffffff,.5f,0}};
         Material material{};material.diffuse=material.ambient={1,1,1,1};
-        for(int frame=0;frame<(stress?180:72);++frame){
+        int64_t benchmarkStart=0;LARGE_INTEGER frequency;QueryPerformanceFrequency(&frequency);
+        for(int frame=0;frame<(benchmark?360:stress?180:72);++frame){
+            if(benchmark&&frame==120){
+                if constexpr(requires{d.Sync();})d.Sync();
+                std::lock_guard<std::mutex> lock(benchmarkMutex);benchmarkPresents.clear();
+                LARGE_INTEGER now;QueryPerformanceCounter(&now);benchmarkStart=now.QuadPart;
+            }
+            if(benchmark&&benchmarkCpuMs)Sleep(benchmarkCpuMs);
             messagePhase=frame;
             if(!native&&frame%12==0)d.SetUpscaler(unsigned(frame/12)%3);
             if(!native&&(frame==24 || frame==48))d.SetRenderScale(frame==24?50:80);
-            if(native&&frame==12)d.SetFrameGen(true);
+            if(native&&!benchmark&&frame==12)d.SetFrameGen(true);
             if(messages&&frame==24)d.SetRenderScale(67);
             if(messages&&frame==30&&!d.Resize(640,480))return 3;
             if(messages&&frame==42&&!d.Resize(width,height))return 4;
@@ -253,17 +277,33 @@ template<class RenderDevice> int Run(int argc,char**argv) {
             }
             if(!native&&!inject && frame==30){SetWindowLongPtrW(window,GWL_STYLE,WS_POPUP);if(!d.Resize(640,480))return 3;}
             if(!native&&!inject && frame==42){SetWindowLongPtrW(window,GWL_STYLE,WS_OVERLAPPEDWINDOW);if(!d.Resize(768,512))return 4;}
-            if(!stress&&fg && frame==54)d.SetFrameGen(false);
-            if(!stress&&fg && frame==60)d.SetFrameGen(true);
+            if(!benchmark&&!stress&&fg && frame==54)d.SetFrameGen(false);
+            if(!benchmark&&!stress&&fg && frame==60)d.SetFrameGen(true);
             MSG msg;while(PeekMessageW(&msg,nullptr,0,0,PM_REMOVE)){TranslateMessage(&msg);DispatchMessageW(&msg);}
             d.BeginFrame();d.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xff17212b,1);
             d.SetTransform(World,identity);d.SetTransform(View,identity);d.SetTransform(Projection,projection);
             d.SetRenderState(RS_ZENABLE,1);d.SetRenderState(RS_ZWRITEENABLE,1);d.SetRenderState(RS_LIGHTING,1);d.SetRenderState(RS_AMBIENT,0xff808080);d.SetRenderState(RS_CULLMODE,CULL_NONE);
             d.SetMaterial(material);d.SetDrawVisual(uint32_t(VisualKind::Static),"controlled FSR lifecycle fixture");
-            d.DrawPrimitive(TriangleList,0x152,vertices,3);
+            if(benchmark&&benchmarkDraws>1){
+                const V fill[]={{-3,-3,3,0,0,-1,0xffffffff,0,1},{9,-3,3,0,0,-1,0xffffffff,1,1},{-3,9,3,0,0,-1,0xffffffff,.5f,0}};
+                d.SetRenderState(RS_ZFUNC,CMP_ALWAYS); // retain 3D classification and exercise full overdraw
+                for(unsigned i=0;i<benchmarkDraws;++i)d.DrawPrimitive(TriangleList,0x152,fill,3);
+            }else d.DrawPrimitive(TriangleList,0x152,vertices,3);
             if(native&&(!stress||frame>=24)){d.InterfaceBegin(true);d.InterfaceEnd();}
             d.EndFrame();
-            if(native){std::fprintf(stderr,"native toggle frame %d completed\n",frame);Sleep(stress?0:16);}
+            if(native&&!benchmark){std::fprintf(stderr,"native toggle frame %d completed\n",frame);Sleep(stress?0:16);}
+        }
+        if(benchmark){
+            if constexpr(requires{d.Sync();})d.Sync();
+            LARGE_INTEGER end;QueryPerformanceCounter(&end);
+            const double seconds=double(end.QuadPart-benchmarkStart)/frequency.QuadPart;
+            std::lock_guard<std::mutex> lock(benchmarkMutex);
+            std::vector<double> intervals;
+            for(size_t i=1;i<benchmarkPresents.size();++i)intervals.push_back(1000.*(benchmarkPresents[i]-benchmarkPresents[i-1])/frequency.QuadPart);
+            std::sort(intervals.begin(),intervals.end());
+            if(intervals.empty())return 17;
+            std::printf("BENCHMARK fg=%u cpu_ms=%u draws=%u seconds=%.4f rendered_fps=%.3f presents=%zu present_fps=%.3f interval_p05_ms=%.3f interval_p50_ms=%.3f interval_p95_ms=%.3f\n",unsigned(benchmarkFg),benchmarkCpuMs,benchmarkDraws,seconds,240/seconds,benchmarkPresents.size(),benchmarkPresents.size()/seconds,intervals[intervals.size()*5/100],intervals[intervals.size()/2],intervals[intervals.size()*95/100]);
+            if(benchmarkFg&&benchmarkPresents.size()<470)return 17;
         }
         messagePhase=72;
         if(inject){vk::vkGetDeviceProcAddr=realGet;if(!injectedCalls){std::puts("failure injection was not exercised");return 5;}std::printf("injected pipeline failures: %u; contexts must be logged once per mode\n",injectedCalls);}
@@ -290,6 +330,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
     return 0;
 }
 int main(int argc,char**argv) {
+    if(argc>1&&std::string(argv[1]).starts_with("--benchmark"))return Run<rvk::ThreadedDevice>(argc,argv);
     if(argc>1 && (std::string(argv[1])=="--native-threaded"||std::string(argv[1])=="--pacing-stress"||std::string(argv[1])=="--wsi-send"||std::string(argv[1])=="--paired-wsi"||std::string(argv[1])=="--acquire-timeout"||std::string(argv[1])=="--limited-images"||std::string(argv[1])=="--handoff-timeout"||std::string(argv[1])=="--owner-wsi"||std::string(argv[1])=="--window-replacement"||std::string(argv[1])=="--frame-overlap"))return Run<rvk::ThreadedDevice>(argc,argv);
     return Run<rvk::Device>(argc,argv);
 }

@@ -76,6 +76,9 @@ typedef struct VkFrameInterpolationInfoFFX
     void* queuePresentContext;
     // AO-VK: keep future game submissions behind the actual WSI pair return.
     bool serializePresentation;
+    // AO-VK: independent game CPU work, excluding its render-worker wait.
+    double (*getCpuFrameMs)(void*);
+    void* cpuFrameContext;
 } VkFrameInterpolationInfoFFX;
 
 /// Query how much memory is required for the Vulkan backend's scratch buffer.

@@ -3749,6 +3749,7 @@ public:
     // The live readout (RVK_PerfHud): the last frames' GPU time, the render thread's whole frame and its wait for the
     // GPU in it (ms, smoothed; written by the render thread, read by any).
     std::atomic<float> m_liveGpuMs{0.0f}, m_liveRenderMs{0.0f}, m_liveGpuWaitMs{0.0f};
+    std::atomic<float> m_fgCpuProductionMs{0.0f}; // game work, excluding render backpressure
     std::atomic<uint64_t> m_liveShown{0};        // frame generation's frames shown (framegen.cpp; 0 without it)
     static void LiveSmooth(std::atomic<float>& a, double ms)
     {

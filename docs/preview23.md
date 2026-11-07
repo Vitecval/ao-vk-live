@@ -1,8 +1,8 @@
-# Preview 23 revision 11 - Setup 6 installer audit
+# Preview 23 revision 12 - frame-generation pacing / Setup 6
 
 Setup 6 fixes the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-The renderer is unchanged from revision 10. FSR is user-reported working with lower frame rate; performance tuning remains pending. Final textures and verification of the exact release packages are still required before publication.
+Revision 12 corrects pacing feedback in the serialized NVIDIA frame-generation path while retaining the presentation safeguards. A controlled GPU-heavy test improved throughput by 35.5%; actual-game performance and smoothness still require verification. See [the performance audit](fsr-performance-audit.md). Final textures and verification of the exact release packages are still required before publication.
 
 Revision 10 fixed FSR initialization leaks, ignored pipeline/descriptor errors and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation remains experimental and off by default. The earlier [FSR audit](fsr-stability-audit.md) records the investigation; the latest user report above updates its then-pending local test status. Additional physical-GPU validation remains pending.
 
@@ -127,7 +127,7 @@ owner deliberately tests it again. Other preferences and HD materials remain.
 
 Only `1010004:295610`, `1010006:21` and `1010006:22` are eligible, guarded by
 playfield 655. `RVK_ICCArtwork`: AnarchyHD (default) / Enhanced Original.
-`RVK_ICCGlossiness`: 0.0–1.0, step 0.1, default 1.0; separate from presets.
+`RVK_ICCGlossiness`: 0.0â€“1.0, step 0.1, default 1.0; separate from presets.
 The original AnarchyHD files are unchanged. Enhanced Original is a private test
 selection pending live visual and redistribution review. Same-playfield shared
 uses elsewhere in Andromeda still need the recorded audit.

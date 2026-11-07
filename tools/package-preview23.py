@@ -51,7 +51,7 @@ def main():
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(build/name,folder/name)
         for name in ['setup-safety.ps1','install-live.ps1','setup-live.ps1','setup-progress.ps1','material-download.ps1','material-parts.ps1','large-address-aware.ps1','mesh-index.ps1','startup-report.ps1']:
             shutil.copy2(ROOT/'tools'/name,folder/name)
-        for name in ['preview23.md','settings.md','fsr-stability-audit.md','preview23-installer-audit.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
+        for name in ['preview23.md','settings.md','fsr-stability-audit.md','preview23-installer-audit.md','fsr-performance-audit.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
         shutil.copy2(ROOT/'REPORT.md',folder/'REPORT.md')
         text=(ROOT/'docs/preview23.md').read_text(encoding='utf-8')
         (folder/'README.md').write_text(text,encoding='utf-8')
@@ -66,7 +66,7 @@ def main():
             shutil.copy2(file,dest/file.name);rel=(dest/file.name).relative_to(folder).as_posix()
             manifest['assets'][rel]=sha(dest/file.name);added+=file.stat().st_size
         manifest.update(version=VERSION,build='ao-vk-preview23-private-stabilization-candidate',sourceCommit=commit,
-            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=6,candidateRevision=11,livingIncluded=False,candidateStatus='installer-recovery-audited-final-textures-and-release-validation-pending',
+            setupSourceCommit=commit,baselineCommit=BASE,setupRevision=6,candidateRevision=12,livingIncluded=False,candidateStatus='serialized-frame-pacing-candidate-final-textures-and-release-validation-pending',
             publicDistributionApproved=False,originalGameAssetsIncluded=False,
             iccArtwork=dict(status='private-generated-reference-derived-art-rights-review-pending',playfield=655,targets=['1010004:295610','1010006:21','1010006:22']))
         manifest['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}

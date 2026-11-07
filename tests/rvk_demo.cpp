@@ -8,6 +8,7 @@
 #include "threaded.h"
 #include "material_maps.h"
 #include "material_profiles.h"
+#include "terrain_materials.h"
 #include "grass_coverage.h"
 #include "mesh_id.h"
 #include <cstddef>
@@ -1731,6 +1732,8 @@ bool g_nativeFirstTransparent = false, g_nativeCoverageTest = false, g_nativeVoi
 bool g_groundDetailFixture=false,g_groundModeCycle=false,g_grassLifetimeTest=false;
 bool g_groundFarView=false;
 bool g_groundUntiled=false;
+std::string g_groundArtDir; // test-only: actual source-aligned terrain material fixture
+int g_groundArtMode=1;      // 0 original, 1 complete material, 2 albedo-only comparison
 extern bool g_profileWindow;
 template <typename D> void ConfigureGroundDetailFixture(D& dev);
 template <typename D> void GrassLifetimeStep(D& dev,int frame,std::shared_ptr<NativeGround>& ground);
@@ -1756,7 +1759,37 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
                 if ((hash(x, y + 97 * t) & 15u) == 0) c ^= 0x00101010u;   // (some grain)
                 px[size_t(y) * kTex + x] = c;
             }
-        tiles.push_back(dev.CreateTexture(kTex, kTex, px.data()));
+        if (g_groundArtDir.empty()) {
+            tiles.push_back(dev.CreateTexture(kTex, kTex, px.data()));
+        } else {
+            constexpr uint32_t ids[kTiles]={1u,5u,12u,17u};
+            const std::string stem="1010006_"+std::to_string(ids[t]);
+            maps::Image original;std::string error;
+            if (!maps::LoadImage(g_groundArtDir+"/originals/"+stem+".png",&original,&error)) {
+                std::fprintf(stderr,"terrain original: %s\n",error.c_str());std::exit(2);
+            }
+            maps::MipChain chain;maps::MakeAlbedoChain(original,&chain);
+            Texture* tile=maps::Upload(dev,chain);
+            if (!tile) {std::fprintf(stderr,"terrain original upload failed\n");std::exit(2);}
+            dev.SetTextureRdbId(tile,ids[t],1010006,0,false);
+            if (g_groundArtMode) {
+                maps::MaterialFiles files;files.maxSize=512;
+                const std::string path=g_groundArtDir+"/baked/"+stem;
+                files.albedo=path+"_d.png";
+                if (g_groundArtMode==1) {
+                    files.packed=path+"_orm.png";
+                    if (!materials::DeckGround(1010006,ids[t])) files.normal=path+"_n.png";
+                }
+                maps::Decoded decoded=maps::Decode(files);
+                if (decoded.decodeFailed || decoded.albedo.Empty() ||
+                    (g_groundArtMode==1 && decoded.orm.Empty())) {
+                    std::fprintf(stderr,"terrain material decode failed: %s\n",stem.c_str());std::exit(2);
+                }
+                maps::Attach(dev,tile,decoded);
+            }
+            tiles.push_back(tile);
+            std::printf("terrain artwork fixture: %s mode %d\n",stem.c_str(),g_groundArtMode);
+        }
         if (g_terrainMaps) {                 // (--terrain-maps: a normal map from its brightness: the mark sunk)
             std::vector<uint32_t> nm(kTex * kTex);
             auto lum = [&](int x, int y) {
@@ -1773,9 +1806,12 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
             dev.SetNormalMap(tiles.back(), dev.CreateTexture(kTex, kTex, nm.data()));
         }
     }
-    if (g_terrainMaps) {
+    if (g_terrainMaps || (!g_groundArtDir.empty() && g_groundArtMode==1)) {
         dev.SetPixelLighting(true);
         dev.SetNormalMaps(true, 1.0f);
+    } else if (!g_groundArtDir.empty()) {
+        dev.SetPixelLighting(false);
+        dev.SetNormalMaps(false, 0.0f);
     }
     auto height = [](float x, float z) {
         float t = std::clamp((z - 150.0f) / 12.0f, 0.0f, 1.0f);
@@ -2023,6 +2059,9 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetRenderState(RS_ALPHABLENDENABLE, 0);
         dev.EndFrame();
     }
+    // Flush the artwork fixture's terrain lifetime so its actual draw counters
+    // are logged before the headless demo exits (including the queued device).
+    if (!g_groundArtDir.empty()) dev.SetNativeGround(nullptr);
 }
 
 // A real playfield's ground (--native-ground-file F, from tools/ground-data.py --export): rvk's native ground drawn
@@ -5382,6 +5421,11 @@ int main(int argc, char** argv)
         else if (a == "--ground-untiled") g_groundUntiled=true;
         else if (a == "--ground-mode-cycle") g_groundModeCycle=true;
         else if (a == "--native-ground-test") g_nativeGroundTest = true;
+        else if (a == "--ground-art-dir" && i+1<argc) {g_groundArtDir=argv[++i];g_nativeGroundTest=true;}
+        else if (a == "--ground-art-mode" && i+1<argc) {
+            g_groundArtMode=std::atoi(argv[++i]);
+            if (g_groundArtMode<0 || g_groundArtMode>2) {std::fprintf(stderr,"invalid ground art mode\n");return 2;}
+        }
         else if (a == "--native-on") g_nativeOn = true;
         else if (a == "--native-unknown-pass") g_nativeUnknownPass = true;
         else if (a == "--native-coverage-test") g_nativeCoverageTest = true;

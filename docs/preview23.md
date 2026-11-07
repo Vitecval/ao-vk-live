@@ -2,7 +2,7 @@
 
 Setup 7 retains the Setup 6 fixes for the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-The Preview 23 Full HD edition integrates 13,103 unique HD diffuse replacement IDs and 40,397 runtime maps, including 4,476 IDs beyond the Preview 21 library. This includes 20 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 18 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
+The Preview 23 Full HD edition integrates 13,338 unique HD diffuse replacement IDs and 41,102 runtime maps, including 4,711 IDs beyond the Preview 21 library. This includes 255 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 23 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
 
 Frame generation retains the revision-14 freeze safeguards and remains experimental and off by default. Its NVIDIA compatibility path can reduce real rendering FPS substantially; the generated-frame counter is not the same as real rendering speed. FSR upscaling and render scale remain independent. See [the performance audit](fsr-performance-audit.md) for measured limits.
 

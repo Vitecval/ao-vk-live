@@ -319,6 +319,18 @@ void ScanBuildingFamilies()
     }
 }
 
+bool CompleteMaterialSet(const Folder& folder, uint32_t type, uint32_t id)
+{
+    return !FindIn(folder,type,id,"_d.png").empty() && !FindIn(folder,type,id,"_n.png").empty() &&
+        !FindIn(folder,type,id,"_orm.png").empty();
+}
+
+bool CompletedGroundSet(const Folder& folder, uint32_t type, uint32_t id)
+{
+    return folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(type,id) && CompleteMaterialSet(folder,type,id);
+}
+
 // Where a texture's maps come from (see the top of the file).
 const Folder& FolderFor(uint32_t type, uint32_t id)
 {
@@ -329,6 +341,10 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
         for (const Folder& pack:g_packs)
             if(pack.name=="ao-icc-enhanced-original" && !FindIn(pack,type,id,"_d.png").empty() &&
                 !FindIn(pack,type,id,"_n.png").empty() && !FindIn(pack,type,id,"_orm.png").empty()) return pack;
+    if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
+        if (rvk::materials::Preview23CompletedGround(type,id))
+            for (const Folder& pack:g_packs)
+                if (CompletedGroundSet(pack,type,id)) return pack;
     if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
         if (const auto* resource=rvk::buildings::ResourceOf(type,id)) {
             for (const Folder& pack:g_packs)
@@ -375,6 +391,10 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
 {
     rvk::maps::MaterialFiles f;
     const Folder& folder = FolderFor(type, id);
+    const bool completedGround=CompletedGroundSet(folder,type,id);
+    if (folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(type,id) &&
+        !FindIn(folder,type,id,"_d.png").empty() && !completedGround) return f;
     if (folder.modern == 2 && rvk::materials::Preview23CompletedWorld(type,id)) {
         // The exception is for a completed material, never a partial install.
         if (FindIn(folder,type,id,"_d.png").empty() || FindIn(folder,type,id,"_n.png").empty() ||
@@ -391,11 +411,11 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
         for (unsigned i=0;i<5;++i)
             if ((resource->maps&(1u<<i)) && FindIn(folder,type,id,required[i]).empty()) return f;
     }
-    // Partial per-tile repaints break road/biome transitions even with shared
-    // detail off. Original ground supplies those masks in both modes. Keep the
-    // reviewed manufactured deck/paving sets and all personal overrides.
+    // Only reviewed original-palette/edge-preserving restorations can extend
+    // the old manufactured-ground set. Unreviewed and partial per-tile
+    // repaints still retain the original road/biome transition painting.
     if (folder.modern && rvk::materials::IsGroundType(type) &&
-        !rvk::materials::AuthoredGround(type, id)) return f;
+        !rvk::materials::AuthoredGround(type, id) && !completedGround) return f;
     if (folder.modern) f.maxSize = 512; // bounded built-in artwork in the 2 GB retail process
     f.preserveAlbedoAlpha = (folder.modern==4 && FullQualityType(type)!=1010006) || folder.modern == 3 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
@@ -410,9 +430,10 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     f.leaves = FindMap(type, id, "_leaves.png");
     f.leavesNormal = FindMap(type, id, "_leaves_n.png");
     if (rvk::materials::DeckGround(type,id)) {
-        // This identified family always retains AO's painting and tread.
-        // Old packs, previews and quality aliases cannot restore noisy relief.
-        f.albedo.clear(); f.normal.clear(); f.height.clear(); f.emissive.clear();
+        // Completed restorations retain the source tread/edge layout in their
+        // albedo. Old packs and all height/normal relief stay suppressed.
+        if (!completedGround) f.albedo.clear();
+        f.normal.clear(); f.height.clear(); f.emissive.clear();
     }
     return f;
 }
@@ -546,8 +567,13 @@ void Upload(const Waiter& w, const rvk::maps::Decoded& d)
 {
     if (w.top->texture != w.texture || !g_rvk.device) return;
     const auto* resource=w.top->buildingFamily ? rvk::buildings::ResourceOf(w.top->rdbType,w.top->rdbId) : nullptr;
-    const uint32_t required=resource ? resource->maps : 0;
-    if (w.top->buildingFamily && (d.decodeFailed ||
+    const Folder& folder=FolderFor(w.top->rdbType,w.top->rdbId);
+    const bool completedWorld=folder.modern==2 && rvk::materials::Preview23CompletedWorld(w.top->rdbType,w.top->rdbId);
+    const bool completedGround=folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(w.top->rdbType,w.top->rdbId);
+    uint32_t required=resource ? resource->maps : completedWorld || completedGround ? 7u : 0u;
+    if (completedGround && rvk::materials::DeckGround(w.top->rdbType,w.top->rdbId)) required&=~2u;
+    if ((w.top->buildingFamily || completedWorld || completedGround) && (d.decodeFailed ||
         ((required&1u) && d.albedo.Empty()) || ((required&2u) && d.normal.Empty()) ||
         ((required&4u) && d.orm.Empty()) || ((required&8u) && d.emissive.Empty()) || ((required&16u) && !d.height))) {
         g_failed.insert(KeyOf(w.top->rdbType,w.top->rdbId));
@@ -842,7 +868,8 @@ void AttachMaterialMaps(RSurface* top)
     const Folder& folder=FolderFor(top->rdbType,top->rdbId);
     top->buildingFamily=folder.modern==2 ? rvk::buildings::FamilyOf(top->rdbType,top->rdbId) : 0;
     g_rvk.device->SetTextureRdbId(top->texture, top->rdbId, top->rdbType, top->buildingFamily,
-        folder.modern && rvk::materials::AuthoredGround(top->rdbType,top->rdbId));
+        folder.modern && rvk::materials::AuthoredGround(top->rdbType,top->rdbId) &&
+        !CompletedGroundSet(folder,top->rdbType,top->rdbId));
     uint64_t key = KeyOf(top->rdbType, top->rdbId);
     Waiter waiter{top, top->texture};
     // A warm hit only shares existing objects, never changes family visibility.

@@ -2,7 +2,7 @@
   "name": "ao-cyber-characters",
   "version": 3,
   "setting": "RVK_AutoMat=1; RVK_MatStrength>0; RVK_Enhance=1",
-  "new_art_surfaces": 3253,
+  "new_art_surfaces": 3342,
   "materials": [
     {
       "type": 1010004,
@@ -156,6 +156,25 @@
     },
     {
       "type": 1010004,
+      "id": 8713,
+      "name": "legs_solitusmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 8714,
       "name": "arms_solitusmale_default.png",
       "source": "preview23-integrated-artwork",
@@ -169,6 +188,25 @@
     },
     {
       "type": 1010004,
+      "id": 8729,
+      "name": "body_kevlar.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 8732,
       "name": "body_enhancedleather.png",
       "source": "preview23-integrated-artwork",
@@ -179,6 +217,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "c2fd71d508e2793b48065153540f7c65932fcd7e0202324ec27cd16bcd3e2a92"
+    },
+    {
+      "type": 1010004,
+      "id": 8735,
+      "name": "arms_omnicop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -218,6 +275,44 @@
         64
       ],
       "review": "atlas-reviewed; live model fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8742,
+      "name": "feet_omnicop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 8744,
+      "name": "hands_omnicop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -325,6 +420,25 @@
     },
     {
       "type": 1010004,
+      "id": 8887,
+      "name": "hands_opifexfemale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 8960,
       "name": "feet_opifexmale_default.png",
       "source": "preview23-integrated-artwork",
@@ -400,6 +514,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "d6f7c2ce2003fcaf10aa7c3abff35ec31746b4c3e97f2838bd6b19ccb8ac0a0a"
+    },
+    {
+      "type": 1010004,
+      "id": 8983,
+      "name": "feet_nanomagemale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -507,6 +640,25 @@
     },
     {
       "type": 1010004,
+      "id": 9231,
+      "name": "feet_athroxmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 9233,
       "name": "arms_athroxmale_default.png",
       "source": "preview23-integrated-artwork",
@@ -517,6 +669,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "19d97520fb050f9f22ceac34cf242c528b93ff9e43dfb234c524da62db4edbaf"
+    },
+    {
+      "type": 1010004,
+      "id": 9234,
+      "name": "legs_athroxmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -828,6 +999,82 @@
         128
       ],
       "review": "atlas-reviewed; live model fit pending"
+    },
+    {
+      "type": 1010004,
+      "id": 9418,
+      "name": "hands_kevlar.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 9419,
+      "name": "arms_kevlar.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 9420,
+      "name": "feet_kevlar.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 9421,
+      "name": "legs_kevlar.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -2595,6 +2842,25 @@
     },
     {
       "type": 1010004,
+      "id": 15810,
+      "name": "hands_nomad.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 15811,
       "name": "feet_nomad.png",
       "source": "preview21-worker1-1010004_15811",
@@ -2903,6 +3169,25 @@
         "e"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 16541,
+      "name": "head_athroxmale003.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -3285,6 +3570,44 @@
     },
     {
       "type": 1010004,
+      "id": 16612,
+      "name": "head_solitusfemale003b.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 16613,
+      "name": "head_solitusfemale003.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 16619,
       "name": "head_solitusmale002.png",
       "source": "preview20-worker4-1010004_16619",
@@ -3345,6 +3668,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "55840b1da254f01e54eb83414551aad89c3fa23e2bc752547e2cad746d7d0b42"
+    },
+    {
+      "type": 1010004,
+      "id": 16631,
+      "name": "head_solitusmale004.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -3445,6 +3787,25 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "0f98da95e53a6b1a27b2f3df1e107abb89fc426d347ffe41461f9ba38393828c"
+    },
+    {
+      "type": 1010004,
+      "id": 17077,
+      "name": "head_solitusfemale014.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -3671,6 +4032,25 @@
     },
     {
       "type": 1010004,
+      "id": 17185,
+      "name": "head_solitusmale011.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 17191,
       "name": "head_solitusmale014.png",
       "source": "preview20-worker4-1010004_17191",
@@ -3718,6 +4098,25 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "6500863d44c24602465714dd362c786f6ea03d7ec52961a822a386459f1b6de0"
+    },
+    {
+      "type": 1010004,
+      "id": 17197,
+      "name": "head_solitusmale010.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -4229,6 +4628,25 @@
     },
     {
       "type": 1010004,
+      "id": 17379,
+      "name": "head_nanomagemale005.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 17385,
       "name": "head_nanomagemale008.png",
       "source": "preview21-worker1-1010004_17385",
@@ -4477,6 +4895,25 @@
     },
     {
       "type": 1010004,
+      "id": 17463,
+      "name": "head_athroxmale012.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 17466,
       "name": "head_athroxmale013.png",
       "source": "preview20-worker4-1010004_17466",
@@ -4537,6 +4974,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "9ca0c8e02a13a8cd963d89edc1acb6e72f65464781d0680d8f6f228fc53877a7"
+    },
+    {
+      "type": 1010004,
+      "id": 17477,
+      "name": "head_athroxmale015.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -4624,6 +5080,25 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "0f9e396231ff61366578f76b81b64ed8c5a8fbebd90db2f5b3c3946c8f6ec4a5"
+    },
+    {
+      "type": 1010004,
+      "id": 17933,
+      "name": "head_athroxmale022.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -5336,6 +5811,25 @@
     },
     {
       "type": 1010004,
+      "id": 20125,
+      "name": "Head or tails.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 20287,
       "name": "shock_stripes.png",
       "source": "preview20-worker4-1010004_20287",
@@ -5713,6 +6207,25 @@
     },
     {
       "type": 1010004,
+      "id": 21821,
+      "name": "arms_robe_nano.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 21822,
       "name": "arms_trenchcoat.png",
       "source": "preview23-integrated-artwork",
@@ -5819,6 +6332,25 @@
     },
     {
       "type": 1010004,
+      "id": 21826,
+      "name": "body_robe_nano.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 21827,
       "name": "body_trenchcoat.png",
       "source": "preview23-integrated-artwork",
@@ -5922,6 +6454,25 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 21833,
+      "name": "legs_robe_nano.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -8036,6 +8587,44 @@
     },
     {
       "type": 1010004,
+      "id": 29715,
+      "name": "head_solitusmale_galwayb.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 29716,
+      "name": "head_solitusmale_galway.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 29722,
       "name": "head_athroxmale_tucker.png",
       "source": "preview23-integrated-artwork",
@@ -9953,6 +10542,25 @@
     },
     {
       "type": 1010004,
+      "id": 31839,
+      "name": "head_opifexfemale011.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 31841,
       "name": "head_opifexfemale011b.png",
       "source": "preview23-integrated-artwork",
@@ -10704,6 +11312,25 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 37259,
+      "name": "feet_santaclaus.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -11585,6 +12212,25 @@
         "e"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 40325,
+      "name": "head_solitusfemale025.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -12495,6 +13141,25 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 40903,
+      "name": "feet_blackleather.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -14564,6 +15229,44 @@
     },
     {
       "type": 1010004,
+      "id": 41485,
+      "name": "head__galwayb.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41490,
+      "name": "head__galway.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 41666,
       "name": "skeleton2.png",
       "source": "preview23-integrated-artwork",
@@ -14719,6 +15422,82 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "508b0bf30c4052bfc76670fe8648d412aedadeb262ce6277aa49f86d7845a22b"
+    },
+    {
+      "type": 1010004,
+      "id": 41970,
+      "name": "statue_body_athroxmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41975,
+      "name": "statue_hands_athroxmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41984,
+      "name": "statue_head_athroxmale000.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 41985,
+      "name": "statue_arms_athroxmale_default.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -15078,6 +15857,25 @@
     },
     {
       "type": 1010004,
+      "id": 42260,
+      "name": "feet_silver.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 42261,
       "name": "legs_silver.png",
       "source": "preview23-integrated-artwork",
@@ -15217,6 +16015,44 @@
     },
     {
       "type": 1010004,
+      "id": 43450,
+      "name": "package_legs_metaplast.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43454,
+      "name": "armour1_energized.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 43455,
       "name": "package_legs_energizedmetal2.png",
       "source": "preview23-recovered-artwork",
@@ -15253,6 +16089,44 @@
         "orm"
       ],
       "review": "Original/generated comparison reviewed; exact typed identity and complete maps verified. Prior broad hold superseded by owner-authorized full collection integration; retail mesh playtest separate."
+    },
+    {
+      "type": 1010004,
+      "id": 43459,
+      "name": "package_legs_lowtecharmour.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43460,
+      "name": "package_legs_enhancedleather2.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -15340,6 +16214,120 @@
         "orm"
       ],
       "review": "Original/generated comparison reviewed; exact typed identity and complete maps verified. Prior broad hold superseded by owner-authorized full collection integration; retail mesh playtest separate."
+    },
+    {
+      "type": 1010004,
+      "id": 43472,
+      "name": "armour1_omni_soldier.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43476,
+      "name": "armour1_ninja.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43478,
+      "name": "armour1_meta_whitie.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43481,
+      "name": "fancy_tynngronn_waterlilys.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43482,
+      "name": "fancy_tynngronn_greeen.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 43483,
+      "name": "fancy_camo_greeen.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -15831,6 +16819,44 @@
     },
     {
       "type": 1010004,
+      "id": 55977,
+      "name": "Lars_body_opifexmale_dead.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 55978,
+      "name": "Lars_head_opifexmaleDead.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 55994,
       "name": "arms_aquaans-trenchcoat.png",
       "source": "preview23-recovered-artwork",
@@ -15840,6 +16866,25 @@
         "orm"
       ],
       "review": "Original/generated comparison reviewed; exact typed identity and complete maps verified. Prior broad hold superseded by owner-authorized full collection integration; retail mesh playtest separate."
+    },
+    {
+      "type": 1010004,
+      "id": 55995,
+      "name": "body_aquaans-trenchcoat.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -16010,6 +17055,63 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "d1310200eda44eefd97fa2510bed7adb6886bbf23c457b01ce5925f3329f7243"
+    },
+    {
+      "type": 1010004,
+      "id": 73262,
+      "name": "bloody_arms_solitusmale_caucation_naked.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 73265,
+      "name": "bloody_hands_solitusmale_caucation_naked.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 75377,
+      "name": "dont_use_lars_body_solitusmale_caucation_naked.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -18898,6 +20000,44 @@
     },
     {
       "type": 1010004,
+      "id": 117654,
+      "name": "arms_solitusmale.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 117655,
+      "name": "body_solitusmale.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 117658,
       "name": "arms_plastic.png",
       "source": "preview21-worker1-1010004_117658",
@@ -19019,6 +20159,63 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 117663,
+      "name": "body_athrox.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 117666,
+      "name": "hands_solitusmale_asian_doll.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 117667,
+      "name": "hands_atrox_doll.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -21258,6 +22455,63 @@
     },
     {
       "type": 1010004,
+      "id": 155161,
+      "name": "body_dead_omnicop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155162,
+      "name": "head_dead_solitusmale009.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155164,
+      "name": "legs_dead_omnicop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 155943,
       "name": "legs_bureaucrat_all.png",
       "source": "preview23-integrated-artwork",
@@ -21450,6 +22704,101 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "5ea7d59f8c6ab1cb24bd9958d5a5717c2a60b6df9ccfc33872e8223354092f5f"
+    },
+    {
+      "type": 1010004,
+      "id": 155971,
+      "name": "legs_solitusmale_unfinished_nop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155972,
+      "name": "arms_solitusmale_unfinished_nop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155976,
+      "name": "head_solitusmale_unfinished_nop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155978,
+      "name": "hands_solitusmale_unfinished_nop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        256
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 155987,
+      "name": "feet_solitusmale_unfinished_nop.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -21914,6 +23263,25 @@
         "e"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 160557,
+      "name": "helmet_balaclava.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -33442,6 +34810,25 @@
       ],
       "priorState": "accepted_offline_replacement",
       "producerEvidenceSha256": "538d75bea25f3f61b1d8b163f876a42e4400940404e3badb509ac5381b886dcb"
+    },
+    {
+      "type": 1010004,
+      "id": 223842,
+      "name": "head_solitusfemale034.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -61244,6 +62631,272 @@
     },
     {
       "type": 1010004,
+      "id": 291546,
+      "name": "shop_gothicpads_GREEN.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291548,
+      "name": "shop_gothicpads_CAMO.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291549,
+      "name": "shop_gothicpads_ORANGE.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291550,
+      "name": "shop_gothicpads_PINK.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291551,
+      "name": "shop_gothicpads_PURPLE.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291552,
+      "name": "shop_gothicpads_RAINBOW.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291553,
+      "name": "shop_gothicpads_RED.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291555,
+      "name": "shop_gothicpads_YELLOW.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291556,
+      "name": "shop_gothicpads_BASE.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291557,
+      "name": "shop_gothicpads_BLACK.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291558,
+      "name": "shop_gothicpads_BLUE.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291585,
+      "name": "shop_bucket_top.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        512,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291646,
+      "name": "shop_bucket_helmet_01.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        512
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
+      "id": 291939,
+      "name": "shop_enviro_helmet_ORANGE.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
+    },
+    {
+      "type": 1010004,
       "id": 291998,
       "name": "arms_tshirt_qq_phylicity.png",
       "source": "preview23-integrated-artwork",
@@ -61410,6 +63063,25 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "855e17649c7322ad37423ba6367c3f73b0b082b80a71884eb6797394170bac8b"
+    },
+    {
+      "type": 1010004,
+      "id": 292078,
+      "name": "shop_enviro_helmet_DB.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -61789,6 +63461,25 @@
         "e"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 293390,
+      "name": "shop_enviro_helmet_SPECIAL.png",
+      "source": "preview23-final-overhaul",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "size": [
+        1024,
+        1024
+      ],
+      "preserve_original_alpha": true,
+      "profile": "character-equipment",
+      "workflow": "bounded generated fine material detail with original UV/color/alpha controls",
+      "review": "Native x86 Vulkan map upload verified; retail mesh appearance pending"
     },
     {
       "type": 1010004,
@@ -84722,7 +86413,274 @@
     "1010004_281616_orm.png": "622394a11e190ddf0977ba145fae31a7bbee5fdbbac618488488917d512a3248",
     "1010004_281617_d.png": "f772f7ab933d41c4c3baf0b0c1c96df8ab9b9863330c1bcc01788f5531c47f6b",
     "1010004_281617_n.png": "de9baf7f1b685cbb6c828ecae6b74a162dd20ddf255e5f3da2b55294d072b400",
-    "1010004_281617_orm.png": "9615b14e2f96934bf82542456003dcd4bd2e7e4a8c964a1cde296eaa52b1ac07"
+    "1010004_281617_orm.png": "9615b14e2f96934bf82542456003dcd4bd2e7e4a8c964a1cde296eaa52b1ac07",
+    "1010004_8713_d.png": "1f64e79f20e0fb33c8f5d912b85765dc67141fed7410b5e46be3f628efdc6f0e",
+    "1010004_8713_n.png": "b7968bd0554875a4299c1b7446e00c438534e47f66af4c9cf9a47aeca8f82b7a",
+    "1010004_8713_orm.png": "169446c9801f63f76abb69ed5afdc8c8285408c2077bc242f110ebf2ef757638",
+    "1010004_8729_d.png": "f4818d82d5ef24de67134a5fcbdbc6d4f18ad113c927d49186aa433d89aaae1a",
+    "1010004_8729_n.png": "3e67d87aa18bde7abdab45e010d1600760d4059aa8caf625a6a4b08e877d37cb",
+    "1010004_8729_orm.png": "65a24e1c368f891175b9fe4f1c7908dd45dcbb26b27890080971b61481cdcc7d",
+    "1010004_8735_d.png": "ed44541499477a60ec6487c1b3e07ba0d1f31cc4325c1bdac60ee86c7f93af62",
+    "1010004_8735_n.png": "767f4eb62462a532706c654cd717ef25567d5912ffc205cb237447bad574ce73",
+    "1010004_8735_orm.png": "1d312a39beb0d82902666f95a7c1b8af6264b2e5243f98c25925f43ad3afb745",
+    "1010004_8742_d.png": "84b882c520d897cdebf724779e2f30b418aba28c6b23981a14cfd864863dabdd",
+    "1010004_8742_n.png": "cf253a57e17a7a1e4ffa94633593f34f150c9ba0a3f6b3630cdc071ba8542608",
+    "1010004_8742_orm.png": "e25410693166ed1b3738695754b3dcb9d09a7c19b8ad2a75433bd453925ea920",
+    "1010004_8744_d.png": "690341d21a6432893472d10169b76e61ebf86f0e040633a08ea4a5c9fc64269e",
+    "1010004_8744_n.png": "c96dcc9544172012835501e11e2ecee0eb20df95828fbd768f499f14807d9c93",
+    "1010004_8744_orm.png": "fc10343d16089e1a6bff850a606f73f8090660503f9223b1487f4792c355abd7",
+    "1010004_8887_d.png": "af1df5608f292f2dd681bb298a77e244f54a34d5ca6f7ab02525cb7693e07028",
+    "1010004_8887_n.png": "60fd19f4cf76ad343cb149ce048b0696e921d371a1da2e52258eb9360401ea99",
+    "1010004_8887_orm.png": "8909aefbb7bcfb3e39a8e185de7a7118a0c63ec7b1d76e0f7f87b5f5bafab369",
+    "1010004_8983_d.png": "9767392ddb570c3c3aadb2c944ab1161bf5f8f107e294208d3403b91e21e82e4",
+    "1010004_8983_n.png": "709bb3c667415ff87f46c57fe5ac1bbe4d13f5fb093e898d934d7012bc1fbbce",
+    "1010004_8983_orm.png": "df99b68cbc0e966f9928b77ec6bfa59c835dd763cab125926086f07db468ffe9",
+    "1010004_9231_d.png": "39f5a55bfb6e99e3f031dac4c0f87dc82f5d387e29ac12f8cce8665ec586f5e6",
+    "1010004_9231_n.png": "6d6b300d1e6e1b6df3e232fc68f320faa491051f8a47a7691c1d2e53bba6a34c",
+    "1010004_9231_orm.png": "1ea54fddf8fd0a838204a3f57703a79e61ad566892797bc63cf48c429cfad8d3",
+    "1010004_9418_d.png": "4b506d9ad562a35e4de6dfb94bd31ade8b5df675e1aa738a05d25abb09958437",
+    "1010004_9418_n.png": "b598bf5ae798d500aba91411b9f80c2cb9a9f46092cea578977a0185c4e79161",
+    "1010004_9418_orm.png": "3bca4dbff216d30171c782347ed1f9fdc23cd612f3c04915c884dfd38167e98e",
+    "1010004_9419_d.png": "1d0a30dc1b3d6373b474d84ee5743c8f40c038a3bcdb58cd34aab6db2c71d1be",
+    "1010004_9419_n.png": "ad65f5397b44e540dbee4bdbb6ed7fb39b2323a1cbd01b9c83d8e1b88279dd7d",
+    "1010004_9419_orm.png": "ca575797fbc9b05928090e58b8c184903c0615c2c5a6cf77cfd58054b2ea3107",
+    "1010004_9420_d.png": "4352dd41764eaace057874d2dc690e7fcfa3b8876f7275485df2035bd25a467a",
+    "1010004_9420_n.png": "126244b8c7fdec760b74bd8f3acc700a5009d764986b9fe3e4c7cac43f8b97f6",
+    "1010004_9420_orm.png": "ddb1ba1bfce5d375a63b2fb134979b4174f20a2b5859210170ead39c8f887528",
+    "1010004_9421_d.png": "9c6e9eab507f2319349086b350e86674434dd4af319497f0853adc70bb61b502",
+    "1010004_9421_n.png": "844633885488cdce3ac2d9d4e35bbb1bec4e6dcc9857b98c2583394ebb436b6c",
+    "1010004_9421_orm.png": "a82ff3b0a5e0301ce23373282d85d22a7ff980ffdf620dccb1937191c1159943",
+    "1010004_9234_d.png": "a6197d3232fa8667eee3e311221df6f7570b10201c2800d4e1c3eca74eae290b",
+    "1010004_9234_n.png": "9778e546f6a8bcc21af7d6bf7d06b8d4349e3a283e8dda86616aa02e06749039",
+    "1010004_9234_orm.png": "da6db6218b4c97b0198d6654cae31a6f61a7cb890cdf608262932273a100a997",
+    "1010004_15810_d.png": "87c7177f5c655b92d5a94ae643d56e5f58040d3ed3cb0da1714c4b401c79ff5b",
+    "1010004_15810_n.png": "27218c41bb627a7ca937a10a6e01d9cdf22467c523e0b1cd98dec1b367b12d83",
+    "1010004_15810_orm.png": "5b3d890e99eb9580092ed7bfe63d5021afd836118418cec66c330c771274cff7",
+    "1010004_17077_d.png": "8f3e88ae706c07f4938f795eec90a730bf55643de760c1e579a734d308a059ee",
+    "1010004_17077_n.png": "da7907f3abed81ecf177ab679729ce7308603124326b4d826c0662d1ff19a37c",
+    "1010004_17077_orm.png": "e2541ec2aea9a419eefe29dfd2bc215fab0e19782400e42d1ee4763841e311d1",
+    "1010004_17185_d.png": "f7d1c19525262cf6a131787cc35bd515eb052667c9cf736a20b5e0d4fe549d23",
+    "1010004_17185_n.png": "a251dfe75255f99ffe5415534cbbb37ee1c740ca4c29596974aee3238385edd2",
+    "1010004_17185_orm.png": "8762e8d6b6fd0e1adf6d77fa0081659dadbc6d7486f03b67c93ddf58ef873d62",
+    "1010004_17933_d.png": "4313b603a4ea23fd557c0857bbee2ed473474770cea4602c302422bc5326b262",
+    "1010004_17933_n.png": "66c212851db02ffece7579bbf7ddce10fa7741bcd1ab4fa92a1ce32946dd6d02",
+    "1010004_17933_orm.png": "3537ad0e8a2e637feb8f23356e7d725235d8939d9b9a11ea008010fd078afcc9",
+    "1010004_21821_d.png": "ac34123a00b92b38783941d7887e7476194ebdfad51325bfb4cfd9042c23723e",
+    "1010004_21821_n.png": "3220cd74154717cf0d50a908d73d73c4468e9f9acaf0a2ca5b1632dd4fcf0110",
+    "1010004_21821_orm.png": "c1bb311874ca55ca468815aec8a2945d427fd119d430c432d583eb06854a71a9",
+    "1010004_21826_d.png": "27f4b1c8c119be4fb5ea48571cc45d6eff95a36d7006a19489b3ab23040294e3",
+    "1010004_21826_n.png": "fb785559793f88d094d54405b74f66c3b7477bf1628d76ca5bacccf01d8d4224",
+    "1010004_21826_orm.png": "17537beda4296bb799da896caf4eac6ef28abd35c91f9218b362ddf666c08a87",
+    "1010004_21833_d.png": "9072ff30cdc9020929fed1876ebf15d882f6f0970099b68fe09ab60e0253f2ff",
+    "1010004_21833_n.png": "184b18abba40b7755c7caa5f0445b80282594d853e5007af66e5d89b160ec1db",
+    "1010004_21833_orm.png": "17142d0f9d52e7febc26c180b5440bf53d8e8b8a0ca86e36d03ad6208a97761e",
+    "1010004_16541_d.png": "ae8e719079641ab5e854b91493516f53b1265020f573c30584629727f170d326",
+    "1010004_16541_n.png": "21fc32d269ac23661bbf62f8422fe3c2df1274078be6354117fc02215964f9ad",
+    "1010004_16541_orm.png": "a82654892d816bbff3eb3ab27fef585dbe3de6753eef57647cbb8f260a8d194a",
+    "1010004_16612_d.png": "000f44379665fefbec296b840f4d41958e345ae37f0145ee62fad97c50f5f062",
+    "1010004_16612_n.png": "ea799b33419db5e68d965f15ff013bca0f6dbce2fed80ad99698fa5cd759654c",
+    "1010004_16612_orm.png": "1c71826286f1fe6e2e6cbd72cf8ca6001a9974116de1f690e23b6a35177d163c",
+    "1010004_16613_d.png": "603d0677396fea81d7deab10b9527f9a05cf226673b3413999da5ae34068ecd2",
+    "1010004_16613_n.png": "5e0eeafc62169898aafb86cc6f1ae225e327f3b9aa1bbefc7f66d8c24f6bd6b1",
+    "1010004_16613_orm.png": "1e854065726dd198dbaee4eb55a13f828b29c0fa59b7f7063b72ce92a948c3c0",
+    "1010004_16631_d.png": "b7d60c0e342a11c7953e2f33706adabcf1f17bfb4c5c84ccdbf8bcea79f6f981",
+    "1010004_16631_n.png": "6afa20d93737d3578a26d826754c86f7978e92d6a9fdf8b55e4cd9bd7473a85a",
+    "1010004_16631_orm.png": "82a7532208959db83523ee7bf2ff6fd65bf71f1d37506e7b1c621d6f34733616",
+    "1010004_17197_d.png": "82005e43f6ae10691a72523d6c6272046f7425381a8277de7b32c56b8c426170",
+    "1010004_17197_n.png": "d3986fa97411334fe204bcea704b4d4f90d0a28f4b3a17740f30901582338a3a",
+    "1010004_17197_orm.png": "81f8454e9a8de1b934079b12b0534c17b9c27a260bba33bd67961fecf7ec8095",
+    "1010004_17379_d.png": "34691106e2d43dbaeefdc4c92fb9f63495c3413fa7acadf835899b196041dea7",
+    "1010004_17379_n.png": "cdeb57a806cb9aefbb8ef67f9e2cfbb2b438c7aac30ba9547970702bcb9f4bcf",
+    "1010004_17379_orm.png": "ca757ab26c3d72969f6a9a17ba987f65881cb4172a7758fa1221e1ffab314cac",
+    "1010004_17463_d.png": "e212877592622b8066aeb921c2b52bddd9dbf10673d8c1512fbc2edeaab0a35c",
+    "1010004_17463_n.png": "575d8b19b495f5fbcc410671ed70033afd17834dc59304b1308aaa0072006a61",
+    "1010004_17463_orm.png": "e59d1cad025d4d2562e6345b46b3c12cfe9373cc09f558426e57f7d38963ab72",
+    "1010004_17477_d.png": "27353b978c0b2d1e5b6ec15d755b9f51c8c0388400804e69b92e3a3e96d38279",
+    "1010004_17477_n.png": "034af0a2ec9e56ad3d092c1fad60f1e6dfe1ebc14ef1d95c6261d867fa6e654f",
+    "1010004_17477_orm.png": "4d91b1e30c6b88709405e00a3786f4df6b795717a52540ea99c33bbad2ed8ca0",
+    "1010004_41970_d.png": "106fc02b9fdbb60fda26c68f268c751356ed6f1e603a71254d7863ed8ecd4c90",
+    "1010004_41970_n.png": "1fc354d04ba859eb318e97514f2506cb5d451510328a5df0391f93b847ca354a",
+    "1010004_41970_orm.png": "219c99dac34420750befba5593e12c8f5a0e4b93dfe4a19596b1bae93d406d38",
+    "1010004_41975_d.png": "d4242dd2e6689c888f3b21467ab8e278c52df8a8cad3fb23cd8a4f0f1aa586fe",
+    "1010004_41975_n.png": "ec1e9baa2ccd26cd808f7f5ea9f1d14dfcf387f43b8a597ea01d738245068dde",
+    "1010004_41975_orm.png": "219c99dac34420750befba5593e12c8f5a0e4b93dfe4a19596b1bae93d406d38",
+    "1010004_37259_d.png": "0322a276771346c33514cedd4f924a51683529c186ea29325e1d3773c5b6e03d",
+    "1010004_37259_n.png": "a0fe40484f8a6499b15e0651157d628042b7e02ea2517f1276e7e894687e1695",
+    "1010004_37259_orm.png": "831d89042e4c735e38c552b779bc9a6b30913cb536ae5472f38c5b803c404993",
+    "1010004_40903_d.png": "97fcd7fba4d9fcefc43c99fd07c5929ae5f0645dfcf29783e8aae9e302ca4425",
+    "1010004_40903_n.png": "a01600c8f971979bf4589722d364103f51b7c3edf6b862d7c94584b91d60d136",
+    "1010004_40903_orm.png": "b8aef0751cc5d0b6d2457263069936b5cc76fb211db2d5366a4332534cdb4988",
+    "1010004_41984_d.png": "ffa549af86aab77041e2d0d11148d91d6d0881a6c4dd66315ecbd4765255f6cf",
+    "1010004_41984_n.png": "36f110046345571dae8bf5fceec0b7feec797ac1724e968a35a6eb35072454b3",
+    "1010004_41984_orm.png": "219c99dac34420750befba5593e12c8f5a0e4b93dfe4a19596b1bae93d406d38",
+    "1010004_41985_d.png": "b836c45f95e15f805ff70a967ffdb3123573721f26937f80e5b654d0589def65",
+    "1010004_41985_n.png": "6ee0525a33f7c1c40cee700a1475c02b0103453f7db6cde20596e2f241c965c4",
+    "1010004_41985_orm.png": "735a0d6bc071ef6642f2a00b7a8d8c66c87a148109b049acec2b4b8863edc691",
+    "1010004_43450_d.png": "af8df8d21e516f79f9872f4b014e452599271c2114f3756b90e1cded287e229f",
+    "1010004_43450_n.png": "bc07bea018ce638c997d7d8b345988f7beaf83d72ac58189bd996fbbfd05571a",
+    "1010004_43450_orm.png": "3782dda05badac41ebeef57b40249565d72fc70ceed7523440eea3c4800a65b2",
+    "1010004_43454_d.png": "318a24f0f5c81ab58fd44044b6dbac5258246099b021aa05bc0f3731ce0b6920",
+    "1010004_43454_n.png": "b54e6a5b491ce4d08e0822f2cc094e004ae62d6ffd599b62451fe2f7ab4b090a",
+    "1010004_43454_orm.png": "315cb9cc060f81a79aab6a20413bd8e079c5fcf7ed008c027f4ad2027919c934",
+    "1010004_43459_d.png": "83ac0fe2089a501b0c4e2c73cda5ba5975de37b6aa00aa02a6b2bd774a67af09",
+    "1010004_43459_n.png": "53c7097795e06d94fa57494b4c5edd70b4fadb0a1a3f6d67bdfa6524d8f89006",
+    "1010004_43459_orm.png": "e083769692b9e8bdea297d2f423364a4497935c1ec6f1ace7d00fe47f744279c",
+    "1010004_43460_d.png": "b6abdfebe881edbda69ee80b97585e3eeaab75e1c4f3384d22b90246b0089e1c",
+    "1010004_43460_n.png": "95aa6c85bc41092d3e7f9318dd2be20bde2ba59500ab5d805a49b30f6d062820",
+    "1010004_43460_orm.png": "c909478c3f1a6c6cfcd7bffeb620c60424194e286f6aaf203b8ae8bc0789b122",
+    "1010004_43472_d.png": "216c9631b2c34c3d16600ee4520496cc0b7d2402981e39f10d9c474bbd16d48c",
+    "1010004_43472_n.png": "3ab5a9e3de66faf33b7406f80e125b7be9538e3db21a0fbdd58077f8e5007f55",
+    "1010004_43472_orm.png": "ee4b1301ed24e5bcaf845bbc9449781c002a83603811e5ebe0ebcfcceb563a8d",
+    "1010004_43476_d.png": "3b7756ca826e2906c846360317de2794dbd9a82420bc6fb01dd63b028f48a005",
+    "1010004_43476_n.png": "7c273bb86ccf60970862351d4320ce43ba826e504c9e2867199b1b31b810141f",
+    "1010004_43476_orm.png": "2988fc82e8ee2e4c6832fad38d286e33c3948d594a3de660e9560589ef34be90",
+    "1010004_43478_d.png": "1fa6b9129ef29fee2866a1dc7be8b1c68e249c29e841367292fc8e61683f5639",
+    "1010004_43478_n.png": "a27346a0eaef9dd2b7dd9f8c0ea20938301bc60c0b07b00b2a630d3a0e7d18eb",
+    "1010004_43478_orm.png": "b52c4fe0549c70a4da2b80c5ddd3f72348c60166d1cfef16f30051ec0fe78311",
+    "1010004_43481_d.png": "cc6bea0312f56b321c26f4ced0f773eda991811ef1065e00e785de44be50ada3",
+    "1010004_43481_n.png": "75a5af937ce1fe37799da9360934f7538b19bc0f887b82cb6b75ac1bb1db2ded",
+    "1010004_43481_orm.png": "ab84652844e4e267a6fac58ea60db1d296f96190f2367c94b71940604f333875",
+    "1010004_43482_d.png": "73c5834ca8d2dd17a7ad50c07aa043651dde234f6e0ea177f6f90646babbfb1f",
+    "1010004_43482_n.png": "bd8f186c1a813c2de293c7256192066363aa8a87815b80fd47f77d1be6d2f693",
+    "1010004_43482_orm.png": "2bcf6abe0142b869e8d3b4343dd8085263572fee994b024be34507d41bc7d152",
+    "1010004_43483_d.png": "6f41ba57255570df74bd92e70b4a563dc2b110ec125dee6a629f0790d54135dc",
+    "1010004_43483_n.png": "e30f8dac111ea75bffc9480ce1404860eb5676e908c71409f0102b99fe13acd1",
+    "1010004_43483_orm.png": "8abff9858da954408f07664d049bced745a3c2c55855b44b9af8d5dbaee3c484",
+    "1010004_55977_d.png": "bafa4a766bb821954b3ec8fe0bd747c56eae2d7b673a705ee1f91f2d777d54d4",
+    "1010004_55977_n.png": "71885fafed65bb70984bffda954d92f2bda4a6306e70d4100d4cacee8768d438",
+    "1010004_55977_orm.png": "85f89acd4d5ee918c153e37ebadc843c1b312bc7a9817f96ec8d207be75adaf5",
+    "1010004_55978_d.png": "dc992611d203aa9ca5c8043eebde085e0caf8e4a250317bfa670c59b4bd0e6a4",
+    "1010004_55978_n.png": "b86192307983fa9eb3bcb35cbb6729ec5a1798c744ecbcdf2260629bb7d0d0f2",
+    "1010004_55978_orm.png": "bb1fa2d948e262d868712299fdc0553b2a59656f5de7795786fa20a457bbae60",
+    "1010004_29715_d.png": "db1ed33d9a656b00e6d0f6c7a26123b0564e41e05923111bb8571641f21993bc",
+    "1010004_29715_n.png": "e9e814865dfb92debb7c87b484b131ccfed06f30d79c08c0683aba8ea8c8ac60",
+    "1010004_29715_orm.png": "11fa4188e1d65662afcc7eb3dbdb18a1ce363ce1e182e41c464c9db84638740e",
+    "1010004_29716_d.png": "f40f3073949d76af21e9ec31aaeb51fb08a68a73d7ddc80b37b5bae7cd864f82",
+    "1010004_29716_n.png": "2c96bdf6cdc738d72969fe8d85f8f3940f9ad1686f29519a49994cc20a92f40b",
+    "1010004_29716_orm.png": "e2541ec2aea9a419eefe29dfd2bc215fab0e19782400e42d1ee4763841e311d1",
+    "1010004_31839_d.png": "531f3de440c2365044534b12cafdc69c5de59a3c528bb5de110d303c04b71d43",
+    "1010004_31839_n.png": "342e05bb38002472119a4da75a40f5b663c581eb0530d354a7f3355ea302c846",
+    "1010004_31839_orm.png": "8a79e7e9618e6371ab138bee9a10a0f15eef8e61f9098c2a22810d5d940ad221",
+    "1010004_40325_d.png": "e2f20c6d5a3c92325a1b24e2f8e3927db0cea04c0c04eebd080f7beb5417697a",
+    "1010004_40325_n.png": "ffaac75cbc431020ee02138e9b2b7c26277a0d0be976c21d2a83d3ef0340b7fe",
+    "1010004_40325_orm.png": "022fb71fd9186e516190df165a64d543fa2387414d13a932d8acc5fffbe6dceb",
+    "1010004_41485_d.png": "277d45eaab9612e4189130c2710777745c3da6841423bd4755da7db875b394c3",
+    "1010004_41485_n.png": "793aff936e520598305496d8a1bbee3719f71381e752a184a30d972c1e181826",
+    "1010004_41485_orm.png": "a58fba14314c04cf468ed2423c88ea812fcc0fb3ac45110d2b6496fb561e09c0",
+    "1010004_41490_d.png": "07e06da72599b3845845639427923e878e6f39fecd5ea5da47852ce62b06ce62",
+    "1010004_41490_n.png": "6bc35f51866f024d3cf0fbe1808da81d4a826c4ea00bb988176182c2a0535649",
+    "1010004_41490_orm.png": "e2541ec2aea9a419eefe29dfd2bc215fab0e19782400e42d1ee4763841e311d1",
+    "1010004_42260_d.png": "162cd312c4941403180e2de5ce0dfbf46809747961c81cd8f3a1d41458e708d9",
+    "1010004_42260_n.png": "465dfd9e7292a63e655049f9b204e24674d1af2df8f3a0d61c0f5177dc6aafa6",
+    "1010004_42260_orm.png": "10e89d5c736403d6461d2ad63d2662f2151f7fad115674dcae4aec4c2f4435a0",
+    "1010004_55995_d.png": "e0c9ce0cf26aea872110532efe09631b78d1b9891dfa1a43efd753cd377b0d11",
+    "1010004_55995_n.png": "1b8291e92faae26d9ad621eee904c4ea1a4796b9049c14523ca67bc8fdc8aee2",
+    "1010004_55995_orm.png": "f66ad8c28f50a9f2f128d850294e9d5653082bcc8de8358d47600d9752917970",
+    "1010004_117654_d.png": "3295399f2bfd3c0b64a0ab286ca4cf3cdc7da042c9037e0d7f7890979fbbfb59",
+    "1010004_117654_n.png": "e40ea86e9f8501b5e2284341abdd2c8a6f88aa8f2651e3dc0124dcacafa06d92",
+    "1010004_117654_orm.png": "8430b1e96f61d8feb619c60f32dc49047a61d1e2c1f88ba1c9f18cb4338e9e27",
+    "1010004_117655_d.png": "b535d5bbdc268681febbac9a99d59168fa087bbe1143e1726a9fa62b9fff6ce9",
+    "1010004_117655_n.png": "4d9beb73f3d397ea427d6653666f0d927856cb388aea8628c5568b147b636751",
+    "1010004_117655_orm.png": "f8e59c0be368b4edc098b4ecafcda7025be245f960b08ad48658c4bd3e9247db",
+    "1010004_117663_d.png": "c416e7a049f5d360337ed29f13034dad7cceae5ab7cca78ef73a8695b55cd8bc",
+    "1010004_117663_n.png": "c322e8aacb2aef91655a75391edc45c5c3d9f474c1512530f1816b4c5596cfb0",
+    "1010004_117663_orm.png": "b55b467dc340855e641c332d4cf355854b6a07a61a207bae992597f9c88567ae",
+    "1010004_117666_d.png": "0c98508e59dc3b58683cb662dd6df2d27c7610665a8d36f689bddf029b40823b",
+    "1010004_117666_n.png": "4088c71fca30f5b3f6ef7fb7cae791883483e8d137dae9709f3d1204f7c1e6d7",
+    "1010004_117666_orm.png": "decc590c292f06877cd4fc072231d9fb908c905da5fe7b6078c4ce5a9f7e8bd2",
+    "1010004_117667_d.png": "6ee0cb299c327462a53840c5df2204e5b57cfa6acb0ea30ad1ba165a2c8e985e",
+    "1010004_117667_n.png": "88b23fdb23171632c16b7983c454ad45491c5a26b9c4184e457a817384ec776f",
+    "1010004_117667_orm.png": "a0e1fd6804fcf86fa555ba45d87553a1fe19d13baf4c9426661c5bdc7bf5e21a",
+    "1010004_160557_d.png": "c6913dc546d430766f2f38b038565b8ab46eb8e11cd7d821747aa866cbbbd453",
+    "1010004_160557_n.png": "006a1ddd3ab60af98af42a50568ca6da82254bcfe893c73924892e114332c888",
+    "1010004_160557_orm.png": "934b6fbc76f7c292d907560286424366d9bf66ce3c8445c7f3fe1cc90af79356",
+    "1010004_223842_d.png": "72359d27685e30286bc1a6e4c43196a514a7736b9279bf3033c836bfa57869d6",
+    "1010004_223842_n.png": "6099610c91a3e6b0f365c7b5cd3c8937dabeee14111d6113ef162d879e5bf6c1",
+    "1010004_223842_orm.png": "1fe4a7faaf44329dceeff20e013838bf8bd803bf5eb65fcb795c512aad966019",
+    "1010004_291546_d.png": "e2d5781835b53daae32c97aff375346988900cafd10c6fe2b8118276883c2a50",
+    "1010004_291546_n.png": "f507d627b0871cfff42a6453b1c85406e2b59e4a95bcb2ad3268c1947f18b753",
+    "1010004_291546_orm.png": "c0627b3d5df24a407f13727e7ba5a32bdfc0464a616f1d679f818ab200661625",
+    "1010004_291548_d.png": "f0868ffc7577ce0fba887f9977c2ab944ab66bcbc709a1f16a0e98664829a98e",
+    "1010004_291548_n.png": "2f1f3f6375be04557a47f675aa0487968cb4b280c7c449dbb1a94017bc899c10",
+    "1010004_291548_orm.png": "27b746adf352e41b334c9f0b3aae27b4b7e2dc5020f07d0804476e11006e402c",
+    "1010004_291549_d.png": "bb3c4379b4100f4b3471a139cb5e57f7c12ea2c34936eba33c98723446b4daa6",
+    "1010004_291549_n.png": "96eeb22548aa64be47d55f02ff1e24c270109fba8d9574122139162b827884ce",
+    "1010004_291549_orm.png": "528bcbe204748d3f55b93db99180dd9c2827c4d44ac5b4f7457fabd131b2b493",
+    "1010004_291550_d.png": "ba41570d39c3a90c17c7142b9870071f4b0ca07d43ec38f7194a9927affa45f0",
+    "1010004_291550_n.png": "071912421b9799b71c2e17b37c1a30e1125e1946c45d908bdfd69da4844a7e2c",
+    "1010004_291550_orm.png": "3f1d3cd0f03ca408a60f5c6d3eda0360b1de6ada242790dcc743fcbd0f67888e",
+    "1010004_291551_d.png": "f1d9d7b88752827255aa7995a13aee9eb23ab411b636dfe833e2b1325793f6e3",
+    "1010004_291551_n.png": "883c72ca65fa71dc61fe456e908b69602838389f7e477dd2b2e2505d17646ae7",
+    "1010004_291551_orm.png": "5022b5e5c03c4060103af4e1cd012dcf9cf73cdfe0543217801119af83ee69ac",
+    "1010004_291552_d.png": "d23ebefb0f6d3e980c361118d5778b5dc1ad1f945803a15bc869be269961fedb",
+    "1010004_291552_n.png": "3771868f42dda31ebd05e2c656296c2fc27ee57892af3b5a0294d9a4bb842dc0",
+    "1010004_291552_orm.png": "8a10fb188eb5d4267dc8c4686f1055cb0d771604525e8c118441cd6e795b2494",
+    "1010004_291553_d.png": "69afb6058c858045eee824ae8bc3960597978d1028a01bfff60e8b8442f8ba4e",
+    "1010004_291553_n.png": "67b8abe5d87bc0661ee6776284215bd908e3521ff94a56b38ec47e0ea606f95a",
+    "1010004_291553_orm.png": "5101fec241a3fac538bcca577ad10eaf744ff8acc851d9d0f9f9f95ed118e0eb",
+    "1010004_291555_d.png": "15e28605a96d4e69828c25d0b06377e79583a487b65603fae8219e6ee7cfec25",
+    "1010004_291555_n.png": "8eec64f18b0dd5c1e419728bfce2192efccf6bb7ca5b864b48a4d3bf1bedaf16",
+    "1010004_291555_orm.png": "fcb6e0d07c84604321656345a50ba23a917ad8c36216b25705c220869288cf88",
+    "1010004_291556_d.png": "7be6843992e3056d4b4b4cd176a7ef95d00b3af8c5d694238f894a5b34f5aa60",
+    "1010004_291556_n.png": "3f138d76a715bf9b2f97b17f7e2f17bf48bbe98460427a9c79e61afcbf7ce7a7",
+    "1010004_291556_orm.png": "2bea0b0bd3affa1559a86d3d02d837832fe4ecac340e750a4467f06dad45dd1d",
+    "1010004_291557_d.png": "88e86eaeda526ffcddf85d2fb3e855746ae700b4ce9f7a68bde07fed09bbcbf2",
+    "1010004_291557_n.png": "634446157cf635da096d3525a8574315a8d778f7112973114f257f2e875e042c",
+    "1010004_291557_orm.png": "68ab58ed5a97e69810960ae6405deeed7338bf0edfe5c9a7dca578c53fa33714",
+    "1010004_291558_d.png": "ab48a9eac804b6499898d48a50c1b327f168a5f3ba2f11f5a5fba7cc285c87f3",
+    "1010004_291558_n.png": "53ee396e09ff3becd99cda4003eb34bc2b0e57dbaf2f58be1a96ea40c64ffb28",
+    "1010004_291558_orm.png": "63a054656f593f3bf2f72c9297930e94eec6af71b858e5a8ad8131440420ffad",
+    "1010004_291585_d.png": "dd663a6b33f03f6d1f5541b355ac1980655da462905afe6338850e7adcc17fd3",
+    "1010004_291585_n.png": "dcd4e47b4f36318e3cdc2e0200e4094d8b6d30065f3a6af63c97a599e923bd89",
+    "1010004_291585_orm.png": "8430b1e96f61d8feb619c60f32dc49047a61d1e2c1f88ba1c9f18cb4338e9e27",
+    "1010004_291646_d.png": "946d1ccfaca7ecf2f0bf91b41ede09ce6451e5c2ff6f0e986921671614ccef49",
+    "1010004_291646_n.png": "9c38e35ecb617b785bb1fc4a62136c51b4b41a3affeea20539a61f5ce9b98c72",
+    "1010004_291646_orm.png": "32ea338d892f65aefb13ed5c97ea6036091ea12d7aa79d2bd89c697bd4a8f99e",
+    "1010004_291939_d.png": "9095f09ad9be4ee8d3edf6cbe4988b84f68df86bcb41b71f5b7fdd4a2b9cb6c1",
+    "1010004_291939_n.png": "9e64f8eceffc089807bed7fad6b679cddd0e9df79c4b6451622802e565fe9b4e",
+    "1010004_291939_orm.png": "f4652366bb1a8fb9fa54b7946fd51b17ce759356991628bb613235e86f6fb799",
+    "1010004_292078_d.png": "93c311818974525f15d0b0ee65d9acebbe342d3c2b35594d2f69be229b9cfd08",
+    "1010004_292078_n.png": "fc70a81ed52b8026cc0f9f479319e5ba982394494ddb622ff07b736c510ad7e7",
+    "1010004_292078_orm.png": "d18c7c2802a5ac0e024fe7a35bf244ff60746d7c0168503d4b563462fd545641",
+    "1010004_293390_d.png": "2b0b244b259a6ac032e620863a226a8d7150dbea55e60813fedbebb97ea0745d",
+    "1010004_293390_n.png": "0052bdd2c87ddaa8844289e0ce85d491de1042e6a32c1c41c643f140629f49e4",
+    "1010004_293390_orm.png": "52a7986fb1a417e3faa92011c53a12ed40cde50c2918ecb52c92dc11e7f88956",
+    "1010004_155161_d.png": "a591f2d1b34d7793354f5c041cfce7cd71d5f7cdec1689c97fddcac9caa793a8",
+    "1010004_155161_n.png": "b9183ed0864ebe76ec00e61050a5ab976a2c132f41c986278cdd43d2e3a00801",
+    "1010004_155161_orm.png": "dc228ccec1d8e5901abbd5e8edb31a0692bd38234986d9fe495f8b108bec3491",
+    "1010004_155162_d.png": "6c71a9a8928748e390f3db46be16dd552b415ec906c9e79959b6b3f24f17a9af",
+    "1010004_155162_n.png": "612d69ae1cf34e125893c12b847a1c37ff2e3cd059c552a632af42f2594fa0f5",
+    "1010004_155162_orm.png": "d84eb10dc488a2501687cc145ea56917129e4a586d0113f83dcb11b16b163472",
+    "1010004_155164_d.png": "70687fbb292e66e7da779862874d8a3a9d18e379643c3ffc596edaf90124670f",
+    "1010004_155164_n.png": "65475967d82eccbd215e8d72d779ce7bf5ea169c8d04040e078fb6cc1f963dfa",
+    "1010004_155164_orm.png": "358ebe6447b9008cefaf819c23cb7f14b46ac1fa51d28d33754505529b42f413",
+    "1010004_155971_d.png": "5cb8fcdd737f79a2030c57ff97431b7ce77f52b04b83c9c6a1ef74b06a1f8e61",
+    "1010004_155971_n.png": "ad7343b45993d3cf56a8e1ad51d9658f29aaf3b4dd9255e4d028f1b0a030ee3b",
+    "1010004_155971_orm.png": "6d1399f460b37b57c34fb203ce81354f0430ae81479e19549156a3a3e01c1eea",
+    "1010004_155972_d.png": "50761bfdd9255667cde99a67f5504cc3fa8dee5512fbaca53f739564c4a246c1",
+    "1010004_155972_n.png": "806584d785d3bf9a5f3bccf03288999adc7e6af1426af34764549b29582821d7",
+    "1010004_155972_orm.png": "6d1399f460b37b57c34fb203ce81354f0430ae81479e19549156a3a3e01c1eea",
+    "1010004_155976_d.png": "c33cec5d469242b1fe1d16bc3a2a43e43f0740f881cbe949266a600ee7daa453",
+    "1010004_155976_n.png": "2b004c821165a191a4b5935cca6f37b3497f6e9e6c5482b007448c773d6e6c4e",
+    "1010004_155976_orm.png": "e2541ec2aea9a419eefe29dfd2bc215fab0e19782400e42d1ee4763841e311d1",
+    "1010004_155978_d.png": "621700f55e0d93dacee96390b61856bd347e1c6034be2a4703d144204d4608ee",
+    "1010004_155978_n.png": "bcf8e42b21e657a13d768427b3ac1fa98ebbb4625c6c347c00f8de4e5a77f911",
+    "1010004_155978_orm.png": "4baefa06f5b9818a03a61d6dd0283752a48754b12c44ab6de02d30f8a633ddea",
+    "1010004_20125_d.png": "6b7205109d0bf25c8bf9e165a18729abd5d1c2770092d45bddd382e4b2d47764",
+    "1010004_20125_n.png": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96",
+    "1010004_20125_orm.png": "8d54afa72170ec7563e6e63a500bc7c16b356c8c0f7fec6d618b3eb25fdeb178",
+    "1010004_73262_d.png": "47fea49ba3d94cb8d67760645352072d25755e6b9329fc60d8bbf26ee6461fe6",
+    "1010004_73262_n.png": "8604ca93054e98d0e97128c6addad640ea33ad91267d6e613ee4e74a7acc935e",
+    "1010004_73262_orm.png": "58a8f31ba06e881aff4eb36a6633c8dc551d709879b2b5bd49dded3879301b9b",
+    "1010004_73265_d.png": "2922c6e6bf8d886f8e75c7b73f19378250128cbc234f6abe3271a62ed1775804",
+    "1010004_73265_n.png": "91d9a3ecd91bab82447b004c0eca08fcf84a6693d006529fbd879fbe399cb5db",
+    "1010004_73265_orm.png": "905b3cc612226db75ecbee54c308d9a05a77d3acaf98cb1d58df0c39f57ad528",
+    "1010004_75377_d.png": "6f2ca7e43d6e625cd477d1a9ea3f80062f7a4467e591ea7ddb90c51e2d663ff0",
+    "1010004_75377_n.png": "3857d2a21192d124828e45dd77ef683b0fd99e0e4b96952eef55919b8695bfa4",
+    "1010004_75377_orm.png": "d1816ed52b402d658aba9f26680504bdbacf40c639eb0fc385d711f052863976",
+    "1010004_155987_d.png": "72d87f5f7de32109a32655473ee7ba026ff2dd6cb1ef0ac1b0a6181b29fadec3",
+    "1010004_155987_n.png": "01c119a6d1f4c371b0d66578d36c0e40e9e1a4e6d9d9ad126347769f9d030aaa",
+    "1010004_155987_orm.png": "ea1a7d19a50f06bc50794a423858fc8cd87cdb64280955cb92b2d0e910330536"
   },
   "preview23Integration": {
     "newTypedIds": 1682,

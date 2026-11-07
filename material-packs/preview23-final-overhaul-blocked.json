@@ -1,0 +1,199 @@
+{
+  "generationTool": "built-in image_gen",
+  "newBlockedRequests": [
+    {
+      "type": 1010004,
+      "id": 41974,
+      "name": "statue_feet_athroxmale_default.png",
+      "category": "retained_character_equipment_or_prop_atlas",
+      "reason": "Authored UV layout; character/equipment/static-prop compatibility requires validation.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41974.png",
+      "sourceExists": true,
+      "state": "generation-service-blocked",
+      "priorOriginal": "",
+      "databasePayloadSha256": "ffa7e93da6d19d5f8f9fb2e769c441b9eeefbcd000e33d024255290c8e6b9ead",
+      "databaseImageEncoding": "jpeg",
+      "sourceImageMode": "RGB",
+      "size": [
+        64,
+        64
+      ],
+      "sourceAlphaExtrema": [
+        255,
+        255
+      ],
+      "rgbMin": [
+        26,
+        27,
+        22
+      ],
+      "rgbMax": [
+        86,
+        89,
+        82
+      ],
+      "uniformRGB": false,
+      "canonicalImageSha256": "c63721b934e492c09601bf5b74c57c67f6e82282d7c92578183bd03a0dc2f8c8",
+      "originalRetailAlphaRetainedAtRuntime": true,
+      "error": "image generation failed: http 400 Bad Request: Some(\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Your request was rejected by the safety system. If you believe this is an error, contact us at help.openai.com and include the request ID e79fb2dc-3e2a-4717-b531-30cc22893500. safety_violations=[sexual].\\\",\\n    \\\"type\\\": \\\"image_generation_user_error\\\",\\n    \\\"param\\\": null,\\n    \\\"code\\\": \\\"moderation_blocked\\\",\\n    \\\"moderation_details\\\": {\\n      \\\"moderation_stage\\\": \\\"output\\\",\\n      \\\"categories\\\": [\\n        \\\"sexual\\\"\\n      ]\\n    }\\n  }\\n}\")",
+      "retry": false
+    },
+    {
+      "type": 1010004,
+      "id": 41977,
+      "name": "statue_legs_athroxmale_default.png",
+      "category": "retained_character_equipment_or_prop_atlas",
+      "reason": "Authored UV layout; character/equipment/static-prop compatibility requires validation.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41977.png",
+      "sourceExists": true,
+      "state": "generation-service-blocked",
+      "priorOriginal": "",
+      "databasePayloadSha256": "1df9355505896034603830cd8cb636106f24b3fbb32623dd5201042de7fe09d7",
+      "databaseImageEncoding": "jpeg",
+      "sourceImageMode": "RGB",
+      "size": [
+        64,
+        64
+      ],
+      "sourceAlphaExtrema": [
+        255,
+        255
+      ],
+      "rgbMin": [
+        28,
+        30,
+        24
+      ],
+      "rgbMax": [
+        98,
+        101,
+        94
+      ],
+      "uniformRGB": false,
+      "canonicalImageSha256": "388ade0c875748fa9f6bd7e1a63246fe71bd7a9f279b139ec8d50405bf091e96",
+      "originalRetailAlphaRetainedAtRuntime": true,
+      "error": "image generation failed: http 400 Bad Request: Some(\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Your request was rejected by the safety system. If you believe this is an error, contact us at help.openai.com and include the request ID 32777aa7-a921-4d6d-80af-c1c2db3fee29. safety_violations=[sexual].\\\",\\n    \\\"type\\\": \\\"image_generation_user_error\\\",\\n    \\\"param\\\": null,\\n    \\\"code\\\": \\\"moderation_blocked\\\",\\n    \\\"moderation_details\\\": {\\n      \\\"moderation_stage\\\": \\\"output\\\",\\n      \\\"categories\\\": [\\n        \\\"sexual\\\"\\n      ]\\n    }\\n  }\\n}\")",
+      "retry": false
+    },
+    {
+      "type": 1010004,
+      "id": 117664,
+      "name": "arms_atrox.png",
+      "category": "retained_character_equipment_or_prop_atlas",
+      "reason": "Authored UV layout; character/equipment/static-prop compatibility requires validation.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_117664.png",
+      "sourceExists": true,
+      "state": "generation-service-blocked",
+      "priorOriginal": "",
+      "databasePayloadSha256": "c2b2383f9c42ce58e19e0a5cde5257330f79d8d1063d11bdc494b50e43f996e5",
+      "databaseImageEncoding": "jpeg",
+      "sourceImageMode": "RGB",
+      "size": [
+        128,
+        128
+      ],
+      "sourceAlphaExtrema": [
+        255,
+        255
+      ],
+      "rgbMin": [
+        0,
+        0,
+        0
+      ],
+      "rgbMax": [
+        224,
+        178,
+        154
+      ],
+      "uniformRGB": false,
+      "canonicalImageSha256": "30978f84fb72564ae92889cb050e505ce206c672d5d6f88fe95e1e01e00d7e2d",
+      "originalRetailAlphaRetainedAtRuntime": true,
+      "surfaceClass": "skin",
+      "prompt": "Use case: precise-object-edit. Asset type: HD game character/clothing UV texture. The input is the exact ORIGINAL edit target. Restore fictional adult character upper-arm UV atlas with tan skin and existing black fabric strip along the top; retain anatomical placement and large skin-color shading. Keep full rectangular aspect, all normalized UV coordinates, source shapes, seams and coarse colors. Refine only existing skin pores, fine hair or appropriate cloth fibers. Neutral flat diffuse albedo, no scene, perspective, rendered model, additional limbs, new symbols, text, altered expression, directional lighting or watermark.",
+      "error": "image generation failed: http 400 Bad Request: Some(\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Your request was rejected by the safety system. If you believe this is an error, contact us at help.openai.com and include the request ID f41d1020-c855-4f93-b645-5dd19c353cca. safety_violations=[sexual].\\\",\\n    \\\"type\\\": \\\"image_generation_user_error\\\",\\n    \\\"param\\\": null,\\n    \\\"code\\\": \\\"moderation_blocked\\\",\\n    \\\"moderation_details\\\": {\\n      \\\"moderation_stage\\\": \\\"input\\\",\\n      \\\"categories\\\": [\\n        \\\"sexual\\\"\\n      ]\\n    }\\n  }\\n}\")",
+      "retry": false
+    },
+    {
+      "type": 1010004,
+      "id": 155968,
+      "name": "body_solitusmale_unfinished_nop.png",
+      "category": "retained_character_equipment_or_prop_atlas",
+      "reason": "Authored UV layout; character/equipment/static-prop compatibility requires validation.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_155968.png",
+      "sourceExists": true,
+      "state": "generation-service-blocked",
+      "priorOriginal": "",
+      "databasePayloadSha256": "708927f6d6122590968609aa7615a0eb2a206643b201fbbdf54ae353bdee5351",
+      "databaseImageEncoding": "jpeg",
+      "sourceImageMode": "RGB",
+      "size": [
+        256,
+        128
+      ],
+      "sourceAlphaExtrema": [
+        255,
+        255
+      ],
+      "rgbMin": [
+        0,
+        0,
+        0
+      ],
+      "rgbMax": [
+        255,
+        236,
+        231
+      ],
+      "uniformRGB": false,
+      "canonicalImageSha256": "7a0b8ec6a1f40590fe6a19ba9955138fa05be9413e4d3efc0a14c44b193d37db",
+      "originalRetailAlphaRetainedAtRuntime": true,
+      "surfaceClass": "skin",
+      "prompt": "Use case: precise-object-edit. Asset type: existing science-fiction video-game NPC texture restoration, flat UV diffuse atlas. Input image is the exact ORIGINAL edit target. Restore fictional adult science-fiction biomechanical NPC torso UV atlas, front/back views flattened in the original image with existing tan skin, pale rib/spine motifs and small silver cybernetic fittings. Keep the original full canvas aspect and normalized position of every anatomical, mechanical and clothing region. Preserve the existing design and coarse colors exactly, adding fine material/skin/metal texture clarity only. Do not invent or enlarge injury, damage, anatomy or implants. No real person, scene, pose, rendered 3D character, perspective, additional body parts, new symbols, text, dramatic lighting or watermark. Neutral flat albedo.",
+      "error": "image generation failed: http 400 Bad Request: Some(\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Your request was rejected by the safety system. If you believe this is an error, contact us at help.openai.com and include the request ID d1595cf8-6980-4c9f-a8a5-05b1a2716b9a. safety_violations=[violence].\\\",\\n    \\\"type\\\": \\\"image_generation_user_error\\\",\\n    \\\"param\\\": null,\\n    \\\"code\\\": \\\"moderation_blocked\\\",\\n    \\\"moderation_details\\\": {\\n      \\\"moderation_stage\\\": \\\"output\\\",\\n      \\\"categories\\\": [\\n        \\\"violence\\\"\\n      ]\\n    }\\n  }\\n}\")",
+      "retry": false
+    },
+    {
+      "type": 1010004,
+      "id": 72810,
+      "name": "body_bloody.png",
+      "category": "retained_character_equipment_or_prop_atlas",
+      "reason": "Authored UV layout; character/equipment/static-prop compatibility requires validation.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_72810.png",
+      "sourceExists": true,
+      "state": "generation-service-blocked",
+      "priorOriginal": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\overhaul-completion\\originals\\1010004_72810.png",
+      "databasePayloadSha256": "13ac46e32a2e8d7f50fe65a2d1585f7c85fc91e4f5a564af6b37c6c0bd50018e",
+      "databaseImageEncoding": "jpeg",
+      "sourceImageMode": "RGB",
+      "size": [
+        256,
+        128
+      ],
+      "sourceAlphaExtrema": [
+        255,
+        255
+      ],
+      "rgbMin": [
+        0,
+        0,
+        0
+      ],
+      "rgbMax": [
+        255,
+        192,
+        172
+      ],
+      "uniformRGB": false,
+      "canonicalImageSha256": "dd9ce697ad8b2d45562d7e0cabc939a524213f628198f218519af57e038123c5",
+      "originalRetailAlphaRetainedAtRuntime": true,
+      "surfaceClass": "skin",
+      "prompt": "Use case: precise-object-edit. Asset type: existing science-fiction game diffuse UV texture restoration. Input is exact ORIGINAL edit target. Restore existing fictional game NPC corpse torso UV atlas with the source's damaged red organic areas and visible rib/spine motifs, exact front/back placement and original skin palette; restore only source fidelity without additional injury or gore. Keep complete canvas aspect, normalized UV coordinates, original silhouette, boundaries, coarse colors, cutout/key regions and existing fine design. Add faithful high-resolution surface detail only. No enlarged or new injury, no new anatomy or symbols, no standalone 3D model, scene, perspective, pose, directional lighting or watermark. Flat neutral albedo.",
+      "error": "image generation failed: http 400 Bad Request: Some(\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Your request was rejected by the safety system. If you believe this is an error, contact us at help.openai.com and include the request ID ca2a24ef-1e2d-444a-8da1-4ef732974371. safety_violations=[sexual, violence].\\\",\\n    \\\"type\\\": \\\"image_generation_user_error\\\",\\n    \\\"param\\\": null,\\n    \\\"code\\\": \\\"moderation_blocked\\\",\\n    \\\"moderation_details\\\": {\\n      \\\"moderation_stage\\\": \\\"output\\\",\\n      \\\"categories\\\": [\\n        \\\"sexual\\\",\\n        \\\"violence\\\"\\n      ]\\n    }\\n  }\\n}\")",
+      "retry": false
+    }
+  ],
+  "priorBlockedRequests": 18,
+  "retainedOriginals": true,
+  "retryOrBypass": false
+}

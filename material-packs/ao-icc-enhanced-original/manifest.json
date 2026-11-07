@@ -1,6 +1,6 @@
 {
   "name": "Enhanced Original ICC",
-  "version": 1,
+  "version": 2,
   "playfield": 655,
   "status": "private-test-only-rights-and-live-fit-review-pending",
   "provider": "built-in imagegen; separate prompt and immutable generated PNG per identity",
@@ -90,5 +90,11 @@
     "1010006_22_d.png": "105fdfadc79314c35a6cfc4ac42f8d050f63aeda8f53443f37c02c04eb16ded7",
     "1010006_22_n.png": "1c331a10ac5d346fe856440d60328613f742b1e3bf7fee74a00c5bfdcf2c48fb",
     "1010006_22_orm.png": "8ad4e796e978383907c1dc492a49cf643db15fc0766ab435648bf7a7363af68a"
+  },
+  "new_art_surfaces": 3,
+  "preview23Integration": {
+    "newTypedIds": 0,
+    "originalPixelsIncluded": false,
+    "retailMeshFitCertified": false
   }
 }

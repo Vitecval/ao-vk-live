@@ -1,3 +1,12 @@
+## Preview 23 artwork integration
+
+- Integrate 4,476 additional original texture IDs, reaching 13,103 HD repaint IDs.
+- Complete twenty missing originals and recover fifty previously excluded artwork IDs.
+- Add per-ID retention reasons; preserve terrain blending, exact graphics and optical controls.
+- Load the complete new material sets through the legacy world-family lookup.
+- Pin the expanded Full HD companion archives to Preview 23; retain transactional Setup 6 protections in Setup 7.
+- Retain experimental frame generation and its current performance limitations unchanged.
+
 ## Preview 23 candidate revision 4
 
 - Correct pre-window DirectDraw normal-mode initialization.

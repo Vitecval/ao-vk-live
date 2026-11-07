@@ -14,7 +14,10 @@ BASE=f'https://github.com/Vitecval/ao-vk-live/releases/download/v{VERSION}/'
 def sha(b):return hashlib.sha256(b).hexdigest()
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT/'build/material-download-tests');args=parser.parse_args()
+    global VERSION,BASE
+    parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT/'build/material-download-tests')
+    parser.add_argument('--release-version',choices=['0.6.0-preview.21','0.6.0-preview.23'],default=VERSION)
+    args=parser.parse_args();VERSION=args.release_version;BASE=f'https://github.com/Vitecval/ao-vk-live/releases/download/v{VERSION}/'
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
     out=output/('run-'+uuid.uuid4().hex[:10]);out.mkdir()
     payload={};parts=[];assets={}
@@ -60,7 +63,7 @@ def main():
     results=[]
     spec=importlib.util.spec_from_file_location('material_archives',ROOT/'tools/material-archives.py')
     packager=importlib.util.module_from_spec(spec);spec.loader.exec_module(packager)
-    fixture=out/'packaging'/'ao-vk-live-0.6.0-preview.21-windows-x86-full';fixture.mkdir(parents=True)
+    fixture=out/'packaging'/f'ao-vk-live-{VERSION}-windows-x86-full';fixture.mkdir(parents=True)
     fixture_assets={}
     for name in assets:
         path=fixture/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(bytes(range(256))*8192);fixture_assets[name]=sha(path.read_bytes())
@@ -134,7 +137,7 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         run('automatic',reuse=True)
         results[-1]['case']='repair-corrupt-decoded-texture-from-verified-cache'
         run('offline',offline=True)
-        run('preview22-frozen-materials',offline=True,frozen=True)
+        run('preview22-frozen-materials',offline=True,frozen=True,expect=VERSION=='0.6.0-preview.21')
         run('preview23-frozen-materials',offline=True,frozen='0.6.0-preview.23')
         modes['interrupted']='interrupt';d,p=run('interrupted',expect=False)
         assert list((d/'.ao-vk-downloads').glob('*.partial')),'Interrupted bytes were not retained'

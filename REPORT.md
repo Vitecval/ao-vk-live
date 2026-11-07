@@ -1,3 +1,20 @@
+# Preview 23 expanded-artwork integration
+
+The release artwork library has 13,103 unique original texture IDs and 40,397
+runtime maps, including 4,476 IDs beyond Preview 21. Twenty new generation
+completions and fifty reviewed older artwork recoveries are included. Eighteen
+image-service-rejected requests keep their originals, and 1,632 originals retain
+their documented fidelity/control policies. See docs/preview23-artwork.md and its
+per-ID retention CSV. The narrow legacy material-lookup extension preserves the
+existing terrain and reviewed-family guards. Living is excluded. Setup 7 uses
+strictly pinned Preview 23 material companions and retains earlier setup fixes.
+
+The user accepted current revision-14 frame-generation behavior for this release;
+its real-FPS penalty remains documented. Frame generation is experimental and off
+by default. The artwork changes do not modify FSR scheduling or GPU safeguards.
+No publication or installation into the owner's F: client is claimed by assembly.
+Controlled checks do not replace retail-mesh, all-zone or prolonged playtests.
+
 # AO-VK Live Preview 23 — candidate revision 14
 
 ## Revision 14: prepare the next frame while retaining the GPU submission guard

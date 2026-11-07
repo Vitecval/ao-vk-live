@@ -58,6 +58,7 @@
 #include "material_maps.h"
 #include "terrain_materials.h"
 #include "building_families.h"
+#include "preview23_artwork.h"
 
 namespace rvkproxy {
 namespace { std::atomic<unsigned> g_iccArtwork{0}; std::atomic<bool> g_iccZone{false},g_iccChanged{false}; }
@@ -376,7 +377,8 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     const Folder& folder = FolderFor(type, id);
     // A statue/corpse can share a character texture. Architecture's retained
     // originals must not suppress the independently selected equipment pack.
-    if (folder.modern == 2 && rvk::buildings::Managed(type,id)) {
+    if (folder.modern == 2 && rvk::buildings::Managed(type,id) &&
+        !rvk::materials::Preview23CompletedWorld(type,id)) {
         const uint32_t family=rvk::buildings::FamilyOf(type,id);
         const auto* resource=rvk::buildings::ResourceOf(type,id);
         if (!family || !resource) return f;

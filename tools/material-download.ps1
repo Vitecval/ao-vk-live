@@ -7,7 +7,9 @@ function Write-AoMaterialProgress([string]$Message, [int]$Percent = -1, [scriptb
 function Assert-AoMaterialRelease($Manifest, $Part) {
     $sourceVersion = [string]$Manifest.version
     if ($Manifest.materialSourceVersion) {
-        if ($Manifest.version -cnotin @('0.6.0-preview.22','0.6.0-preview.23') -or $Manifest.materialSourceVersion -cne '0.6.0-preview.21') {
+        if ($Manifest.version -cnotin @('0.6.0-preview.22','0.6.0-preview.23') -or
+            $Manifest.materialSourceVersion -cnotin @('0.6.0-preview.21','0.6.0-preview.23') -or
+            ($Manifest.materialSourceVersion -ceq '0.6.0-preview.23' -and $Manifest.version -cne '0.6.0-preview.23')) {
             throw 'Invalid frozen material source release.'
         }
         $sourceVersion = [string]$Manifest.materialSourceVersion
@@ -19,10 +21,10 @@ function Assert-AoMaterialRelease($Manifest, $Part) {
     if (!$Manifest.materialDownload) { return }
     $version = $sourceVersion
     $expected = "https://github.com/Vitecval/ao-vk-live/releases/download/v$version/"
-    if ($version -cne '0.6.0-preview.21' -or $Manifest.materialDownload.repository -cne 'Vitecval/ao-vk-live' -or
+    if ($version -cnotin @('0.6.0-preview.21','0.6.0-preview.23') -or $Manifest.materialDownload.repository -cne 'Vitecval/ao-vk-live' -or
         $Manifest.materialDownload.tag -cne "v$version" -or $Manifest.materialDownload.baseUrl -cne $expected -or
         [long]$Part.bytes -le 0 -or [long]$Part.unpackedBytes -le 0) {
-        throw 'Invalid pinned Preview 21 download manifest. Extract a fresh copy of Full HD Setup.'
+        throw 'Invalid pinned material download manifest. Extract a fresh copy of Full HD Setup.'
     }
 }
 
@@ -141,7 +143,7 @@ function Receive-AoMaterialArchive([string]$Cache, $Manifest, $Part, [string]$La
             if ($webError -is [Net.WebException] -and $webError.Response) {
                 $status = [int]$webError.Response.StatusCode
                 $webError.Response.Dispose()
-                if ($status -eq 404) { throw 'Preview 21 material download is unavailable (HTTP 404). The release may not be published yet. Retry after publication or place all matching offline packs beside Install.cmd. Your installation is unchanged.' }
+                if ($status -eq 404) { throw 'The matching material download is unavailable (HTTP 404). The release may not be published yet. Retry after publication or place all matching offline packs beside Install.cmd. Your installation is unchanged.' }
                 if ($status -eq 416 -and (Test-Path -LiteralPath $partial)) { Remove-Item -LiteralPath $partial -Force }
             }
             Write-Host "Download attempt $attempt failed: $lastError"
@@ -152,5 +154,5 @@ function Receive-AoMaterialArchive([string]$Cache, $Manifest, $Part, [string]$La
             if ($response) { $response.Dispose() }
         }
     }
-    throw "Cannot complete the Preview 21 download. Check internet/proxy access and retry Install.cmd; valid packs and resumable data were saved. $lastError Your existing installation is unchanged."
+    throw "Cannot complete the material download. Check internet/proxy access and retry Install.cmd; valid packs and resumable data were saved. $lastError Your existing installation is unchanged."
 }

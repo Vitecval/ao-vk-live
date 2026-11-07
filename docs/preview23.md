@@ -1,14 +1,16 @@
-# Preview 23 revision 14 - CPU recording overlap / Setup 6
+# Preview 23 - expanded Full HD artwork / Setup 7
 
-Setup 6 fixes the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
+Setup 7 retains the Setup 6 fixes for the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-Revision 14 allows CPU preparation of the next frame to overlap frame-generation presentation. Every later GPU submission still waits for the previous pair's actual WSI calls to return. The matched renderer-delay fixture improves throughput by 41%; actual-game performance and smoothness still require verification. The HUD identifies scene-only GPU timing during generation. FSR upscaling remains independent of frame generation. See [the performance audit](fsr-performance-audit.md). Final textures and verification of the exact release packages are still required before publication.
+Preview 23 integrates 13,103 unique HD diffuse replacement IDs and 40,397 runtime maps, including 4,476 IDs beyond the Preview 21 library. This includes 20 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 18 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
+
+Frame generation retains the revision-14 freeze safeguards and remains experimental and off by default. Its NVIDIA compatibility path can reduce real rendering FPS substantially; the generated-frame counter is not the same as real rendering speed. FSR upscaling and render scale remain independent. See [the performance audit](fsr-performance-audit.md) for measured limits.
 
 Revision 10 fixed FSR initialization leaks, ignored pipeline/descriptor errors and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation remains experimental and off by default. The earlier [FSR audit](fsr-stability-audit.md) records the investigation; the latest user report above updates its then-pending local test status. Additional physical-GPU validation remains pending.
 
 The following release notes retain the prior rendering changes.
 
-This candidate contains the Preview 23 renderer, existing HD library, ICC artwork
+This candidate contains the Preview 23 renderer, expanded HD library, ICC artwork
 selector and gloss slider. Living is a separate add-on and is not included.
 No population, wardrobe, route, terrain-support or airspace preparation runs during
 installation. There are no Living controls in this build.
@@ -16,17 +18,17 @@ installation. There are no Living controls in this build.
 ## Install or update
 
 1. Close the clients and launcher belonging to the selected AO installation.
-2. Extract the latest test ZIP into a new folder. For the existing F: installation,
-   run **Update.cmd** and select `F:\AO_SInstall\Anarchy Online`.
+2. Extract the latest ZIP into a new folder. Open **Install.cmd** for a fresh
+   installation or **Update.cmd** for an existing AO-VK installation, then select
+   your classic AO installation folder.
 3. Setup verifies existing HD files once. Correct installed textures do not require
    a download, unpacking or replacement. Missing or changed artwork still uses the
-   same pinned material archives and verified hashes.
+   matching pinned Preview 23 material archives and verified hashes.
 4. The window shows the current operation, elapsed time and recent tasks. Work
    runs outside the UI thread, including file checks and GPU preparation.
 5. Start AO normally through `Anarchy.exe`, select Primary Display Driver, then
    use Ctrl+Shift+F12 for renderer settings. No game is started by setup.
 
-The three bulky license lines were removed from the installer window.
 Settings, personal packs, the original game DLLs and existing executable patches
 are preserved by the normal ownership checks. Keep `ao-vk-live.install.json`;
 Update uses it to recognize the installed renderer. Use Uninstall.cmd for

@@ -8,7 +8,7 @@ def digest(path):
 def build_full_setup(folder,version,essential=(),parts=None,part_limit=1450*2**20):
     folder=Path(folder);out=folder.parent
     manifest=json.loads((folder/'manifest.json').read_text(encoding='utf-8-sig'))
-    if version!='0.6.0-preview.21' or manifest['version']!=version:raise ValueError('Unsupported pinned setup release')
+    if version not in {'0.6.0-preview.21','0.6.0-preview.23'} or manifest['version']!=version:raise ValueError('Unsupported pinned setup release')
     license_path=folder/'LICENSE-TEXTURES.md'
     notices={'LICENSE-TEXTURES.md':digest(license_path)} if license_path.exists() else {}
     if notices:

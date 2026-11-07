@@ -50,6 +50,17 @@ GPU submission failure, the bounded/sticky guard timeout, and owner-message
 pumping. Physical validation remains limited to this RTX 2070 SUPER; actual AO
 smoothness and broader GPU/driver testing remain required.
 
+## Actual-game acceptance for the Preview 23 artwork release
+
+The user accepted revision-14 generation behavior for Preview 23 on 7 November
+2026. A stationary native-scale comparison measured 36.36 rendered FPS with
+generation off, 21.87 rendered / 43.74 successful presentation returns per second
+with generation on, and 36.47 rendered FPS after switching off again. Scene GPU
+time stayed about 27 ms. This remains a substantial performance penalty, not a
+successful performance correction. Generation is experimental and off by default;
+source changes for artwork integration leave the FSR/GPU ordering code unchanged.
+These short tests do not certify physical scanout cadence or cross-GPU stability.
+
 ## Earlier revision 12-13 results and limits
 
 Revision 12 did not resolve actual-game smoothness. In a subsequent stationary

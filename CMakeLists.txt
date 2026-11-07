@@ -222,6 +222,8 @@ target_include_directories(threaded_worker_check PRIVATE third_party)
 
 add_executable(material_catalog_check tests/material_catalog_check.cpp)
 target_include_directories(material_catalog_check PRIVATE rvk)
+add_executable(preview23_artwork_check tests/preview23_artwork_check.cpp)
+target_include_directories(preview23_artwork_check PRIVATE rvk)
 
 add_executable(shadow_cache_check tests/shadow_cache_check.cpp)
 target_include_directories(shadow_cache_check PRIVATE proxy)

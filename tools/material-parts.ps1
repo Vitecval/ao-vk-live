@@ -97,14 +97,17 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
                 if (!$target.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe companion archive path.' }
                 $found[$relative] = $true
                 if (!$neededSet.Contains($relative) -and !$part.notices.$relative) { continue }
-                New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
+                $null = [IO.Directory]::CreateDirectory((Split-Path -Parent $target))
                 [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $false)
                 if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $expectedHash) { throw 'Decoded material integrity check failed.' }
                 $found[$relative] = $true
             }
             if ($found.Count -ne $allowed.Count) { throw 'Incomplete companion material package.' }
             $zip.Dispose(); $zip = $null
+            $preparedFiles = 0
             foreach ($relative in $needed) {
+                $preparedFiles++
+                if ($preparedFiles % 64 -eq 1) { Write-AoMaterialProgress "Preparing verified HD textures: $preparedFiles / $($needed.Count)" ([Math]::Min(100,[int](100.0*$preparedFiles/$needed.Count))) $ProgressCallback }
                 $target = Join-Path $Package $relative
                 Assert-AoSetupPath $target
                 if (Test-Path -LiteralPath $target) {
@@ -112,7 +115,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
                         [IO.File]::Replace((Join-Path $stage $relative),$target,[System.Management.Automation.Language.NullString]::Value)
                     }
                 } else {
-                    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
+                    $null = [IO.Directory]::CreateDirectory((Split-Path -Parent $target))
                     Move-Item -LiteralPath (Join-Path $stage $relative) -Destination $target
                 }
             }

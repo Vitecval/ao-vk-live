@@ -1,4 +1,47 @@
-# Preview 23 revision 12: serialized frame-generation pacing
+# Preview 23 revision 13: pacing cost and actual-game findings
+
+Revision 12 did not resolve actual-game smoothness. In a subsequent stationary
+scene it produced 15.5–15.8 rendered FPS / about 31 presents per second, while
+generation off produced 31–32 real FPS. The user confirmed that generation off
+was smoother. The initial synthetic gain below is retained as history and must
+not be presented as an actual-game speedup.
+
+Revision 13 replaces the SDK's high-priority full-duration spin with a per-thread
+high-resolution waitable timer and at most a final 0.25 ms spin. If the timer is
+unavailable it yields with Sleep instead. No global timer resolution is changed.
+A 416 ms controlled wait consumed 421.875 ms of quantized thread CPU time in the
+baseline and 0 ms in the corrected sample. The timer-thread lifetime check left
+process handle count unchanged after 16 thread creations/destructions.
+
+The serialized path also waits for the whole prepared GPU pair once, before
+setting the first presentation timestamp. Both images' submissions are already
+queued, and no later game submission is permitted until both actual WSI calls
+return, so this one fence proves readiness for both. It avoids submitting an
+extra fence behind the first WSI call. Nonserialized paths retain per-present
+readiness. A delayed-GPU mock verifies one fence, no submission between the two
+WSI calls, and the requested 5 ms presentation spacing. All sticky fence-error,
+bounded wait and independent queue-progress checks remain enabled.
+
+A matched subsequent GPU fixture comparison measured 64.86 presents/sec for
+revision 12 and 63.51 for revision 13, with native rendering 59.87 and 59.43 FPS.
+This is similar throughput, not a further FPS gain. The separate FSR 3.1
+upscaler at 67% scale, generation off, produced 120.49 real FPS in the same
+synthetic fill-heavy scene. This demonstrates the distinction between reducing
+rendering cost and generating additional frames; it is not a prediction for AO.
+
+AMD recommends at least 60 pre-interpolation FPS for this FSR 3 generation
+algorithm. The F: scene is well below that baseline. See [AMD's guidance](https://gpuopen.com/fidelityfx-super-resolution-3/)
+and the [Windows timer API](https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-createwaitabletimerexw).
+The next actual-game check must assess real FPS, physical smoothness and input
+response, with upscaling independent of generation.
+
+Revision 13 passes 17 x86 regression programs/scenarios, including the wait CPU
+and timer-handle lifetime check, the extended pair-readiness/spacing test, and
+zero traced later-frame GPU submissions during an earlier presentation. Six
+isolated x64 core/synchronization validation scenarios pass with zero errors.
+All original sticky fence failures and owner-message handoff checks pass.
+
+## Revision 12 investigation and historical controlled results
 
 The working F: installation had frame generation enabled, upscaling disabled,
 render scale 100%, and TAA enabled. In the user's stationary 1914x1051 scene on
@@ -48,9 +91,10 @@ not an actual-game speedup claim. CPU-budget and freeze-regression evidence is
 stored under `build/preview23/checks/fsr-performance` in the owning workspace.
 
 The unchanged revision-10 timing fixture and corrected fixture also ran with
-fixed game-thread CPU budgets. Both used the same single-triangle scene:
+fixed game-thread delay budgets (Sleep simulates production cadence, not actual
+CPU computation). Both used the same single-triangle scene:
 
-| CPU work per frame | Stock generated presents/sec | Corrected presents/sec |
+| Game-thread delay | Stock generated presents/sec | Corrected presents/sec |
 | --- | ---: | ---: |
 | 8 ms | 151.49 | 186.59 |
 | 16 ms | 109.39 | 111.84 |

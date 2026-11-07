@@ -198,6 +198,7 @@ PFN_vkVoidFunction VKAPI_PTR GetProc(VkDevice device,const char* name) {
 template<class RenderDevice> int Run(int argc,char**argv) {
     const bool benchmark=argc>1&&std::string(argv[1]).starts_with("--benchmark");
     const bool benchmarkFg=benchmark&&std::string(argv[1])=="--benchmark-on";
+    const bool benchmarkUpscale=benchmark&&std::string(argv[1])=="--benchmark-upscale";
     const unsigned benchmarkCpuMs=benchmark&&argc>2?std::min(50u,unsigned(std::strtoul(argv[2],nullptr,10))):8;
     const unsigned benchmarkDraws=benchmark&&argc>3?std::clamp(unsigned(std::strtoul(argv[3],nullptr,10)),1u,2048u):1;
     const bool failFramegen=argc>1 && std::string(argv[1])=="--fail-framegen";
@@ -243,6 +244,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
         if(inject)vk::vkGetDeviceProcAddr=GetProc;
         d.SetHdr(true);d.SetTaa(true,.4f);d.SetRenderScale(native?100:67);d.SetFrameGen(fg&&!native);
         if(benchmark)d.SetFrameGen(benchmarkFg);
+        if(benchmarkUpscale){d.SetRenderScale(67);d.SetUpscaler(2);}
         Matrix identity{};for(int i=0;i<4;++i)identity.m[i][i]=1;
         Matrix projection{};projection.m[0][0]=projection.m[1][1]=1;projection.m[2][2]=100.f/99.9f;projection.m[2][3]=1;projection.m[3][2]=-.1f*100.f/99.9f;
         struct V{float x,y,z,nx,ny,nz;uint32_t color;float u,v;};
@@ -302,7 +304,7 @@ template<class RenderDevice> int Run(int argc,char**argv) {
             for(size_t i=1;i<benchmarkPresents.size();++i)intervals.push_back(1000.*(benchmarkPresents[i]-benchmarkPresents[i-1])/frequency.QuadPart);
             std::sort(intervals.begin(),intervals.end());
             if(intervals.empty())return 17;
-            std::printf("BENCHMARK fg=%u cpu_ms=%u draws=%u seconds=%.4f rendered_fps=%.3f presents=%zu present_fps=%.3f interval_p05_ms=%.3f interval_p50_ms=%.3f interval_p95_ms=%.3f\n",unsigned(benchmarkFg),benchmarkCpuMs,benchmarkDraws,seconds,240/seconds,benchmarkPresents.size(),benchmarkPresents.size()/seconds,intervals[intervals.size()*5/100],intervals[intervals.size()/2],intervals[intervals.size()*95/100]);
+            std::printf("BENCHMARK fg=%u upscaler=%u scale=%u cpu_ms=%u draws=%u seconds=%.4f rendered_fps=%.3f presents=%zu present_fps=%.3f interval_p05_ms=%.3f interval_p50_ms=%.3f interval_p95_ms=%.3f\n",unsigned(benchmarkFg),benchmarkUpscale?2u:0u,benchmarkUpscale?67u:100u,benchmarkCpuMs,benchmarkDraws,seconds,240/seconds,benchmarkPresents.size(),benchmarkPresents.size()/seconds,intervals[intervals.size()*5/100],intervals[intervals.size()/2],intervals[intervals.size()*95/100]);
             if(benchmarkFg&&benchmarkPresents.size()<470)return 17;
         }
         messagePhase=72;

@@ -761,7 +761,13 @@ FfxErrorCode ffxFrameInterpolationSwapchainGetGpuMemoryUsageVK(FfxSwapchain game
 //////////////////////////////////////////////
 /// Present
 //////////////////////////////////////////////
-VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex = 0)
+struct PresentSwapchainLock {
+    CRITICAL_SECTION& section;
+    explicit PresentSwapchainLock(CRITICAL_SECTION& s) : section(s) { EnterCriticalSection(&section); }
+    ~PresentSwapchainLock() { LeaveCriticalSection(&section); }
+};
+
+static VkResult waitForPresentReadyLocked(FrameinterpolationPresentInfo* pPresenter)
 {
     // AO-VK: some Windows presentation paths retain a driver-wide graphics lock
     // while waiting for the submitted image. The render worker can then block in
@@ -769,11 +775,6 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
     // Drain just this present queue to a fence before entering WSI. Crucially,
     // the CPU wait owns no queue mutex, so game/interpolation/acquire submissions
     // remain possible. Keep the image's binary semaphore in the actual present.
-    struct SwapchainLock {
-        CRITICAL_SECTION& section;
-        explicit SwapchainLock(CRITICAL_SECTION& s) : section(s) { EnterCriticalSection(&section); }
-        ~SwapchainLock() { LeaveCriticalSection(&section); }
-    } swapchainLock(pPresenter->swapchainCriticalSection);
     VkResult& readiness = pPresenter->presentReadyResult;
     if (readiness != VK_SUCCESS)
         return readiness;
@@ -791,8 +792,11 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
     // A timed-out fence may still be pending. Latch the failure and never reset
     // or submit it again; report a stopped device instead of another driver wait.
     if (readiness == VK_TIMEOUT) readiness = VK_ERROR_DEVICE_LOST;
-    if (readiness != VK_SUCCESS) return readiness;
+    return readiness;
+}
 
+static VkResult presentReadyToSwapChainLocked(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex)
+{
     VkPresentInfoKHR presentInfoKHR   = {};
     presentInfoKHR.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfoKHR.pNext              = nullptr;
@@ -816,6 +820,13 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
 
     ++(pPresenter->realPresentCount);
     return res;
+}
+
+VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex = 0)
+{
+    PresentSwapchainLock lock(pPresenter->swapchainCriticalSection);
+    const VkResult readiness = waitForPresentReadyLocked(pPresenter);
+    return readiness == VK_SUCCESS ? presentReadyToSwapChainLocked(pPresenter, imageIndex, semaphoreIndex) : readiness;
 }
 
 VkResult compositeSwapChainFrame(FrameinterpolationPresentInfo* pPresenter,
@@ -976,22 +987,31 @@ VkResult compositeSwapChainFrame(FrameinterpolationPresentInfo* pPresenter,
 // AO-VK: prepare the whole generated/real pair before the first WSI call. A
 // blocking Win32 present must not withhold composition/replacement signals that
 // a later game/acquire submission already waits for on another queue.
-struct PreparedPresent
-{
-    uint32_t imageIndex;
-    uint64_t pacingDelta;
-};
-
 void presentPreparedPair(FrameinterpolationPresentInfo* presenter, const PreparedPresent* prepared,
                          uint32_t count, int64_t& previousPresentQpc)
 {
-    for (uint32_t i = 0; i < count; ++i) {
-        waitForPerformanceCount(previousPresentQpc + prepared[i].pacingDelta);
-        QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
-        const VkResult result = presentToSwapChain(presenter, prepared[i].imageIndex, prepared[i].imageIndex);
-        presenter->lastPresentResult.store(result);
-        if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR)
-            break;
+    const auto present = [&](bool pairReady) {
+        for (uint32_t i = 0; i < count; ++i) {
+            waitForPerformanceCount(previousPresentQpc + prepared[i].pacingDelta);
+            QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
+            const VkResult result = pairReady
+                ? presentReadyToSwapChainLocked(presenter, prepared[i].imageIndex, prepared[i].imageIndex)
+                : presentToSwapChain(presenter, prepared[i].imageIndex, prepared[i].imageIndex);
+            presenter->lastPresentResult.store(result);
+            if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR) break;
+        }
+    };
+    if (count && presenter->serializePresentation) {
+        PresentSwapchainLock lock(presenter->swapchainCriticalSection);
+        // Every GPU submission for BOTH prepared images is already queued, and
+        // the caller cannot submit a later game frame until this pair returns.
+        // One fence therefore proves both images ready. Do not submit another
+        // fence behind the first WSI call or include GPU readiness in pacing.
+        const VkResult readiness = waitForPresentReadyLocked(presenter);
+        if (readiness == VK_SUCCESS) present(true);
+        else presenter->lastPresentResult.store(readiness);
+    } else {
+        present(false); // nonserialized vendors retain per-present readiness
     }
     LARGE_INTEGER completed;
     QueryPerformanceCounter(&completed);

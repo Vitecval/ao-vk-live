@@ -155,6 +155,12 @@ enum class FGSwapchainCompositionMode
     eComposeOnGameQueue      ///< legacy behavior
 };
 
+struct PreparedPresent
+{
+    uint32_t imageIndex;
+    uint64_t pacingDelta;
+};
+
 struct FrameinterpolationPresentInfo
 {
     VulkanCommandPool<3, 8> commandPool; // at most 3 families: game, asyncCompute, present

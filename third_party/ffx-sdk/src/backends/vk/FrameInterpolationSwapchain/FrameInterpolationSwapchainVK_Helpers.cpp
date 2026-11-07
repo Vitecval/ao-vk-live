@@ -29,10 +29,39 @@
 void waitForPerformanceCount(const int64_t targetCount)
 {
     int64_t currentCount = 0;
-    do
-    {
+    QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&currentCount));
+    if (currentCount >= targetCount) return;
+    int64_t frequency;
+    QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&frequency));
+    struct PacingTimer {
+        HANDLE handle;
+        PacingTimer() {
+            // Windows 10 1803+: high-resolution relative waits without changing
+            // the user's global timer resolution. Fall back on older systems.
+            handle = CreateWaitableTimerExW(nullptr, nullptr, 0x2 /* CREATE_WAITABLE_TIMER_HIGH_RESOLUTION */,
+                                            TIMER_MODIFY_STATE | SYNCHRONIZE);
+        }
+        ~PacingTimer() { if (handle) CloseHandle(handle); }
+    };
+    thread_local PacingTimer timer;
+    const int64_t spinMargin = frequency / 4000; // only the final 0.25 ms spins
+    while (currentCount < targetCount) {
+        const int64_t remaining = targetCount - currentCount;
+        if (remaining > spinMargin) {
+            // Bound each sleep; no queue/swapchain lock is held by the caller.
+            const int64_t sleepTicks = std::min(remaining - spinMargin, frequency / 20);
+            LARGE_INTEGER due;
+            due.QuadPart = -std::max<int64_t>(1, int64_t(double(sleepTicks) * 10000000.0 / frequency));
+            if (timer.handle && SetWaitableTimer(timer.handle, &due, 0, nullptr, nullptr, FALSE)) {
+                if (WaitForSingleObject(timer.handle, 100) != WAIT_OBJECT_0) Sleep(1);
+            } else {
+                Sleep(1); // timer unavailable: yield instead of spinning a whole frame
+            }
+        } else {
+            YieldProcessor();
+        }
         QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&currentCount));
-    } while (currentCount < targetCount);
+    }
 }
 
 std::mutex& ffxQueueMutex()

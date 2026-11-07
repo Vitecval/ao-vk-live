@@ -1,4 +1,8 @@
-# AO-VK Live Preview 23 â€” candidate revision 11
+# AO-VK Live Preview 23 — candidate revision 13
+
+## Revision 13: efficient CPU pacing and one readiness fence per serialized pair
+
+Revision 12 improved a controlled benchmark but the actual F: game remained stuttery: about 15.5 rendered / 31 presented FPS, versus 31-32 real FPS and smoother motion with generation off. Revision 13 removes the pacer's long high-priority CPU spin and redundant post-WSI fence submission. All paired GPU work is still completed before WSI and later game submissions still wait for actual pair return. The matched synthetic GPU test shows similar throughput rather than another speedup; CPU wait cost and delayed-GPU presentation spacing improve. FSR upscaling at 67% scale is tested separately from generation. Actual-game validation remains required. See [the audit](docs/fsr-performance-audit.md).
 
 ## Revision 12: frame-generation pacing
 
@@ -333,7 +337,7 @@ Earlier Preview 23 offline x86 320x240 initialization plus eight HDR frames:
 
 These are earlier fixture measurements, not new full-client revision 4 results.
 Cold peak process memory was about 697 MiB, warm about 381 MiB. Individual cold
-Vulkan driver calls took 16â€“27 seconds. CPU was i7-9700K, GPU RTX 2070 SUPER;
+Vulkan driver calls took 16–27 seconds. CPU was i7-9700K, GPU RTX 2070 SUPER;
 other desktop/game activity was uncontrolled. No actual driver cache purge or
 1080p/multiclient FPS/GPU-pass benchmark was performed. The player's original
 multi-minute launch was not measured as a successful Play-to-responsive interval.
@@ -406,7 +410,7 @@ normal/ORM maps. Original game reference images are not in the player ZIPs.
 The pack remains private pending live UV/appearance and redistribution review;
 no public rights claim is made. No wall target was approved.
 
-`RVK_ICCArtwork` defaults to AnarchyHD. `RVK_ICCGlossiness` is 0.0â€“1.0 in 0.1
+`RVK_ICCArtwork` defaults to AnarchyHD. `RVK_ICCGlossiness` is 0.0–1.0 in 0.1
 steps, default 1.0, independent of presets. All eleven values, four presets and
 restart persistence passed again with Living controls absent (359 settings,
 17 sections). Earlier real Vulkan fixtures covered the three IDs, two styles,

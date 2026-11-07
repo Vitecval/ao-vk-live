@@ -2,7 +2,7 @@
 
 Setup 7 retains the Setup 6 fixes for the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-Preview 23 integrates 13,103 unique HD diffuse replacement IDs and 40,397 runtime maps, including 4,476 IDs beyond the Preview 21 library. This includes 20 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 18 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
+The Preview 23 Full HD edition integrates 13,103 unique HD diffuse replacement IDs and 40,397 runtime maps, including 4,476 IDs beyond the Preview 21 library. This includes 20 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 18 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
 
 Frame generation retains the revision-14 freeze safeguards and remains experimental and off by default. Its NVIDIA compatibility path can reduce real rendering FPS substantially; the generated-frame counter is not the same as real rendering speed. FSR upscaling and render scale remain independent. See [the performance audit](fsr-performance-audit.md) for measured limits.
 
@@ -16,6 +16,10 @@ No population, wardrobe, route, terrain-support or airspace preparation runs dur
 installation. There are no Living controls in this build.
 
 ## Install or update
+
+Full HD Setup downloads the matching verified Preview 23 material companions,
+or reuses those ZIPs when placed beside Setup. Lite includes the renderer and
+essential resources; choose Full HD for the complete replacement library.
 
 1. Close the clients and launcher belonging to the selected AO installation.
 2. Extract the latest ZIP into a new folder. Open **Install.cmd** for a fresh

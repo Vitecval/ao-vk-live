@@ -24881,17 +24881,19 @@
       "maps": {
         "d": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_200347_d.png",
-          "sha256": "6a3ac7b45f6c24499bec3a8b80df46025a97ebc81e8044c08cf9c740f6fdf01a"
+          "sha256": "a385ceb061859b3373ab3835365eaeac44d42641334d5fa151446b7c31453203"
         },
         "n": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_200347_n.png",
-          "sha256": "e517dadd6aca357336c6bea9640a526106fc6b634320bb0cb461b1ed23ca3201"
+          "sha256": "e8abc26d9f6223bb9d7e271ba9330cdc31281c6f4da22678ee0ec45e610dce0c"
         },
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_200347_orm.png",
-          "sha256": "44a14107dc7cec8aaf3f5b8d1ead3e5375f2088211737c7cfb1a085da3ea8c0f"
+          "sha256": "afc00f0078800881bcf37ebcd4d1fbfbe9c08304b6b7a6294948b28db189944a"
         }
-      }
+      },
+      "artworkRevision": "pedestal-200347-v1",
+      "reference": "1010004:14941"
     },
     {
       "type": 1010004,

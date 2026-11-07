@@ -40,3 +40,12 @@ including world, equipment, ICC, wall, skin and quality-alias paths. Those check
 do not certify every retail mesh, zone or prolonged play session. No game database
 or unmodified source-image dump is part of the player package. Artwork remains
 reference-derived and carries the existing artwork license and attribution files.
+
+## Requested pedestal finish
+
+Texture `1010004:200347` has a newer owner-requested modern satin-metal finish,
+using `1010004:14941` as the material reference. Its roughness and metalness match
+that reference (82/255 and 158/255). The generated diffuse and matching normal/ORM
+maps preserve the original 1:2 aspect and alpha. This refines an already counted
+ID, so the coverage figures above do not increase. Native x86 Vulkan upload
+passed; the owner still needs to assess its appearance on the actual pedestal.

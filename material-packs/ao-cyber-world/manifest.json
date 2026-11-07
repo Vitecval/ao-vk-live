@@ -118574,14 +118574,24 @@
       "type": 1010004,
       "id": 200347,
       "name": "pedestal_bg.png",
-      "source": "preview23-integrated-artwork",
+      "source": "preview23-pedestal-200347-v1",
       "maps": [
         "d",
         "n",
         "orm"
       ],
       "priorState": "new_worker_provisional_replacement",
-      "producerEvidenceSha256": "5cd6bcac05d3327ce6598465cee0bd00f0ad4e85a9e0d26a049433a202cbc3c0"
+      "producerEvidenceSha256": "5cd6bcac05d3327ce6598465cee0bd00f0ad4e85a9e0d26a049433a202cbc3c0",
+      "size": [
+        512,
+        1024
+      ],
+      "profile": "architectural-metal",
+      "reference": "1010004:14941",
+      "roughness": 0.3215686274509804,
+      "metalness": 0.6196078431372549,
+      "preserve_original_alpha": true,
+      "review": "Owner-requested modern satin metal; native x86 upload verified, retail visual review pending"
     },
     {
       "type": 1010004,
@@ -251027,9 +251037,9 @@
     "1010004_200346_d.png": "d9f65401973f73f61b88b99ee054db9a2adff4fafcc1ddc43a86f75018a4e1f9",
     "1010004_200346_n.png": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96",
     "1010004_200346_orm.png": "877b8c021cfe70b3fd0ae784ac7817a0942587b519e7cf54919689a790f9d9bc",
-    "1010004_200347_d.png": "6a3ac7b45f6c24499bec3a8b80df46025a97ebc81e8044c08cf9c740f6fdf01a",
-    "1010004_200347_n.png": "e517dadd6aca357336c6bea9640a526106fc6b634320bb0cb461b1ed23ca3201",
-    "1010004_200347_orm.png": "44a14107dc7cec8aaf3f5b8d1ead3e5375f2088211737c7cfb1a085da3ea8c0f",
+    "1010004_200347_d.png": "a385ceb061859b3373ab3835365eaeac44d42641334d5fa151446b7c31453203",
+    "1010004_200347_n.png": "e8abc26d9f6223bb9d7e271ba9330cdc31281c6f4da22678ee0ec45e610dce0c",
+    "1010004_200347_orm.png": "afc00f0078800881bcf37ebcd4d1fbfbe9c08304b6b7a6294948b28db189944a",
     "1010004_200348_d.png": "3db99ade54dfff5b9e2d58b0cacb25b9da9b403449a1a522728427f3d956848f",
     "1010004_200348_n.png": "29b95d170bf58d21024b7475511595c6c12b43a96499e1ed58881cf7163164a6",
     "1010004_200348_orm.png": "e0ba9035f952745caa9e212b5aca3280234662f6da88c220cc7cf4313dfe1975",

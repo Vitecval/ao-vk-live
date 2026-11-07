@@ -375,6 +375,11 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
 {
     rvk::maps::MaterialFiles f;
     const Folder& folder = FolderFor(type, id);
+    if (folder.modern == 2 && rvk::materials::Preview23CompletedWorld(type,id)) {
+        // The exception is for a completed material, never a partial install.
+        if (FindIn(folder,type,id,"_d.png").empty() || FindIn(folder,type,id,"_n.png").empty() ||
+            FindIn(folder,type,id,"_orm.png").empty()) return f;
+    }
     // A statue/corpse can share a character texture. Architecture's retained
     // originals must not suppress the independently selected equipment pack.
     if (folder.modern == 2 && rvk::buildings::Managed(type,id) &&

@@ -1,5 +1,7 @@
 # The index contains hashes, numeric identities and a fixed renderer category, not game meshes.
 function Get-AoMeshIndexHash([string]$Path) {
+    $size=(Get-Item -LiteralPath $Path -Force).Length
+    if ($size -lt 21 -or $size -gt 33554432) { throw 'Invalid existing model-identification index size. Its contents were preserved.' }
     $bytes = [IO.File]::ReadAllBytes($Path)
     if ($bytes.Length -lt 21 -or $bytes.Length -gt 33554432 -or
         [Text.Encoding]::ASCII.GetString($bytes, 0, 8) -cne 'AOMESHID') { throw 'Invalid existing model-identification index. Its contents were preserved.' }

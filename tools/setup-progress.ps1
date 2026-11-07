@@ -7,6 +7,7 @@ function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [st
     $activityAt = 0.0
     $cpu = -1L
     $length = -1L
+    $previousErrorLength = -1L
     $message = $Label
     $reader = $null
     try {
@@ -35,6 +36,15 @@ function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [st
                 $newCpu = $Process.TotalProcessorTime.Ticks
                 if ($newCpu -ne $cpu) { $cpu = $newCpu; $activityAt = $timer.Elapsed.TotalSeconds }
             } catch { }
+            if ($ErrorLog -and (Test-Path -LiteralPath $ErrorLog)) {
+                $errorLength=(Get-Item -LiteralPath $ErrorLog).Length
+                if ($errorLength -ne $previousErrorLength) { $previousErrorLength=$errorLength; $activityAt=$timer.Elapsed.TotalSeconds }
+            }
+            $idle=$timer.Elapsed.TotalSeconds-$activityAt
+            if (!$finished -and $idle -ge 300) {
+                try { $Process.Kill(); $null=$Process.WaitForExit(2000) } catch { }
+                throw "$Label stopped responding: no CPU or log activity for five minutes. Setup has not changed your game files. See $OutputLog and $ErrorLog."
+            }
             $detail = @{ elapsedSeconds=$timer.Elapsed.TotalSeconds; idleSeconds=($timer.Elapsed.TotalSeconds-$activityAt); logPath=$OutputLog }
             if ($ProgressCallback) { & $ProgressCallback $message -1 $detail }
             else { Write-Progress -Activity $Label -Status ($message + (' ({0:m\:ss})' -f $timer.Elapsed)) -PercentComplete -1 }
@@ -43,7 +53,7 @@ function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [st
         }
         $Process.WaitForExit()
         if ($Process.ExitCode -ne 0) {
-            $errorText = if (Test-Path -LiteralPath $ErrorLog) { (Get-Content -LiteralPath $ErrorLog -Tail 12) -join "`n" } else { '' }
+            $errorText = if ($ErrorLog -and (Test-Path -LiteralPath $ErrorLog)) { (Get-Content -LiteralPath $ErrorLog -Tail 12) -join "`n" } else { '' }
             throw "$Label failed ($($Process.ExitCode)). $errorText See $OutputLog."
         }
     } finally {

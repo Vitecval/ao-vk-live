@@ -1,6 +1,10 @@
-# Preview 23 revision 10 — FSR stability audit
+# Preview 23 revision 11 - Setup 6 installer audit
 
-This update fixes confirmed FSR initialization leaks, ignored pipeline/descriptor errors, and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation is experimental and stays off by default. The older full-game presentation freeze is not yet proven fixed; live revision-10 and multi-GPU validation remain pending. See [the detailed audit](fsr-stability-audit.md).
+Setup 6 fixes the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
+
+The renderer is unchanged from revision 10. FSR is user-reported working with lower frame rate; performance tuning remains pending. Final textures and verification of the exact release packages are still required before publication.
+
+Revision 10 fixed FSR initialization leaks, ignored pipeline/descriptor errors and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation remains experimental and off by default. The earlier [FSR audit](fsr-stability-audit.md) records the investigation; the latest user report above updates its then-pending local test status. Additional physical-GPU validation remains pending.
 
 The following release notes retain the prior rendering changes.
 

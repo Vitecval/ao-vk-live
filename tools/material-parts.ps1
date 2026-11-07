@@ -1,8 +1,15 @@
-$env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
+$setupModules = Join-Path $PSHOME 'Modules'
+$env:PSModulePath = (@($setupModules) + @($env:PSModulePath -split ';' | Where-Object { $_ -and $_ -ine $setupModules })) -join ';'
 # Companion archives are complete material packages, each independently hashed.
 . (Join-Path $PSScriptRoot 'material-download.ps1')
+. (Join-Path $PSScriptRoot 'setup-safety.ps1')
+function Test-AoMaterialNeeded([string]$Relative,[string]$Package,$RequiredAssets,$PinnedHashes) {
+    if ($null -ne $RequiredAssets -and !$RequiredAssets.Contains($Relative)) { return $false }
+    return (Get-AoSetupHash (Join-Path $Package $Relative)) -ine $PinnedHashes[$Relative]
+}
 function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scriptblock]$ProgressCallback, $RequiredAssets = $null) {
     if (!$Manifest.materialParts) { return }
+    Assert-AoSetupPath $Package
     $pinnedHashes = @{}
     foreach ($entry in $Manifest.assets.PSObject.Properties) { $pinnedHashes[$entry.Name] = [string]$entry.Value }
     if ($Manifest.artworkLicense) {
@@ -36,12 +43,13 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             if ($checkedMembers % 256 -eq 1) { Write-AoMaterialProgress "Checking HD texture list: $checkedMembers files ($($part.name))" -1 $ProgressCallback }
             if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$members.Add([string]$relative) -or $pinnedHashes[$relative] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
         }
-        if (!@($part.files | Where-Object { ($null -eq $RequiredAssets -or $RequiredAssets.Contains([string]$_)) -and !(Test-Path -LiteralPath (Join-Path $Package $_)) }).Count) { continue }
+        if (!@($part.files | Where-Object { Test-AoMaterialNeeded ([string]$_) $Package $RequiredAssets $pinnedHashes }).Count) { continue }
         $pending += $part
         $unpackedBytes += [long]$part.unpackedBytes
         Write-AoMaterialProgress 'Checking saved Full HD packs...' -1 $ProgressCallback
-        foreach ($directory in @($Package, (Split-Path -Parent $Package), (Split-Path -Parent (Split-Path -Parent $Package)), $cache)) {
+        foreach ($directory in @(Get-AoMaterialSearchFolders $Package $cache)) {
             $candidate = Join-Path $directory $part.name
+            Assert-AoSetupPath $candidate
             if (Test-AoMaterialArchive $candidate $part) { $archives[$part.name] = $candidate; Write-Host "Reusing verified $($part.name)."; break }
             if (Test-Path -LiteralPath $candidate) { Write-Host "Checksum/size mismatch: ignoring $candidate and seeking the pinned release copy." }
         }
@@ -64,9 +72,11 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
         foreach ($relative in $part.files) {
             if ($relative -notmatch '^randy-vk/packs/ao-((modern|cyber)-icc|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$allowed.Add($relative)) { throw 'Invalid or duplicate material member.' }
         }
-        $needed = @($part.files | Where-Object { ($null -eq $RequiredAssets -or $RequiredAssets.Contains([string]$_)) -and !(Test-Path -LiteralPath (Join-Path $Package $_)) })
+        $needed = @($part.files | Where-Object { Test-AoMaterialNeeded ([string]$_) $Package $RequiredAssets $pinnedHashes })
         foreach ($notice in @($part.notices.PSObject.Properties)) { if ($notice) { $null = $allowed.Add($notice.Name) } }
         if (!$needed.Count) { continue } # Installer separately verifies every decoded asset hash.
+        $neededSet=New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+        foreach ($relative in $needed) { $null=$neededSet.Add($relative) }
         $archive = $archives[$part.name]
         Write-AoMaterialProgress "Preparing verified HD textures: $($part.name)" -1 $ProgressCallback
         $stage = Join-Path $Package ('.material-stage-' + [guid]::NewGuid().ToString('N'))
@@ -79,12 +89,14 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             $prepared = 0
             foreach ($entry in $zip.Entries) {
                 $prepared++
-                if ($prepared % 64 -eq 1) { Write-AoMaterialProgress "Preparing HD textures: $prepared / $($allowed.Count)" ([int](100.0*$prepared/$allowed.Count)) $ProgressCallback }
+                if ($prepared % 64 -eq 1) { Write-AoMaterialProgress "Preparing HD textures: $prepared / $($allowed.Count)" ([Math]::Min(100,[int](100.0*$prepared/$allowed.Count))) $ProgressCallback }
                 $relative = $entry.FullName.Replace('\','/')
                 $expectedHash = if ($part.notices.$relative) { [string]$part.notices.$relative } else { $pinnedHashes[$relative] }
                 if (!$allowed.Contains($relative) -or !$expectedHash -or $found.ContainsKey($relative)) { throw 'Unexpected or duplicate companion archive entry.' }
                 $target = [IO.Path]::GetFullPath((Join-Path $stage $relative))
                 if (!$target.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe companion archive path.' }
+                $found[$relative] = $true
+                if (!$neededSet.Contains($relative) -and !$part.notices.$relative) { continue }
                 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
                 [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $target, $false)
                 if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $expectedHash) { throw 'Decoded material integrity check failed.' }
@@ -92,10 +104,13 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             }
             if ($found.Count -ne $allowed.Count) { throw 'Incomplete companion material package.' }
             $zip.Dispose(); $zip = $null
-            foreach ($relative in $part.files) {
+            foreach ($relative in $needed) {
                 $target = Join-Path $Package $relative
+                Assert-AoSetupPath $target
                 if (Test-Path -LiteralPath $target) {
-                    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $Manifest.assets.$relative) { throw 'Existing extracted material differs; refusing overwrite.' }
+                    if ((Get-AoSetupHash $target) -ine $Manifest.assets.$relative) {
+                        [IO.File]::Replace((Join-Path $stage $relative),$target,[System.Management.Automation.Language.NullString]::Value)
+                    }
                 } else {
                     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
                     Move-Item -LiteralPath (Join-Path $stage $relative) -Destination $target
@@ -103,8 +118,8 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
             }
         } finally {
             if ($zip) { $zip.Dispose() }
-            if ([IO.Path]::GetFullPath($stage).StartsWith([IO.Path]::GetFullPath($Package) + '\', [StringComparison]::OrdinalIgnoreCase)) {
-                Remove-Item -LiteralPath $stage -Recurse -Force
+            if ([IO.Path]::GetFullPath($stage).StartsWith([IO.Path]::GetFullPath($Package).TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
+                try { Remove-Item -LiteralPath $stage -Recurse -Force } catch { Write-Warning "Could not clean temporary texture folder $stage : $_" }
             }
         }
     }

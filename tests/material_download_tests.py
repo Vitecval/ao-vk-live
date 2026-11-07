@@ -130,6 +130,9 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         d,_=run('automatic')
         for name in assets:(d/name).unlink()
         run('automatic',reuse=True)
+        (d/next(iter(assets))).write_bytes(b'corrupt decoded texture')
+        run('automatic',reuse=True)
+        results[-1]['case']='repair-corrupt-decoded-texture-from-verified-cache'
         run('offline',offline=True)
         run('preview22-frozen-materials',offline=True,frozen=True)
         run('preview23-frozen-materials',offline=True,frozen='0.6.0-preview.23')

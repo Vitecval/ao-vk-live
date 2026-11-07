@@ -1,4 +1,12 @@
-# AO-VK Live Preview 23 — candidate revision 10
+# AO-VK Live Preview 23 — candidate revision 11
+
+## Revision 11 / Setup 6: installer fault and recovery audit
+
+The installer now handles shallow/root extraction folders, empty Browse, Unicode paths, malformed/oversized metadata, path collisions and concurrent setup. File moves have an interruption recovery record and snapshot checks; failed cleanup is reported without undoing a successful install. Unresponsive GPU preparation is bounded, and cached HD files can be repaired without repeating valid work.
+
+The working revision-10 renderer is unchanged. The user reports that FSR now works with fewer frames; no performance change or broad GPU certification is claimed. See [the installer audit](docs/preview23-installer-audit.md) for corrected cases, regression evidence and the final-texture release handoff.
+
+Earlier revision details are retained below as history.
 
 ## Revision 10: FSR failure handling and hardware requirements
 

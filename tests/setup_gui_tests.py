@@ -33,7 +33,7 @@ def main():
     run.mkdir()
     source = (args.tools / 'setup-live.ps1').read_text(encoding='utf-8-sig')
     callback = re.search(r'\$arguments.ProgressCallback = (\{.*?\n            \})', source, re.S).group(1)
-    assert source.count('[Windows.Forms.MessageBox]::Show(') == 2
+    assert source.count('[Windows.Forms.MessageBox]::Show(') == 3
     head = source.split('$form.AcceptButton = $apply')[0]
     head = head.replace('[Windows.Forms.MessageBox]::Show(', '[AoSetupDialogProbe]::Show(')
     # Only the fixture worker's process inventory and a deliberate slow step are
@@ -105,11 +105,16 @@ def main():
             for member in assets:
                 (package / member).unlink()
         (package / 'manifest.json').write_text(json.dumps(manifest))
-        for name in ['install-live.ps1', 'setup-progress.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
+        for name in ['setup-safety.ps1','install-live.ps1', 'setup-progress.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
             shutil.copyfile(args.tools / name, package / name)
         prelude = '''Add-Type -TypeDefinition @'
 public static class AoSetupDialogProbe {
     public static string Error = "";
+    public static bool ThrowFolder = false;
+    public static object ChooseFolder() {
+        if (ThrowFolder) throw new System.InvalidOperationException("simulated folder picker failure");
+        return "Cancel";
+    }
     public static object Show(object owner, object message, object title, object buttons, object icon) {
         if (icon.ToString() == "Error") Error = message.ToString();
         return null;
@@ -120,6 +125,7 @@ public static class AoSetupDialogProbe {
         # Keep the original param block first, so parameter binding is unchanged.
         start = head.index("$ErrorActionPreference = 'Stop'")
         instrumented = head[:start] + prelude + head[start:]
+        instrumented=instrumented.replace('$dialog.ShowDialog($form)', '[AoSetupDialogProbe]::ChooseFolder()')
         tail = r'''
 $ProgressPreference = 'SilentlyContinue'
 function Assert($condition, $message) { if (!$condition) { throw $message } }
@@ -146,6 +152,12 @@ try {
         Assert ($queue.TryDequeue([ref]$queued)) 'Progress callback failed to queue a UI update'
         Assert ($queued.percent -is [int] -and $queued.percent -eq [int]$v) 'Progress values were not bound numerically'
     }
+    $savedFolder=$path.Text;$path.Text='';$browse.PerformClick();$path.Text=$savedFolder
+    Write-Output 'PASS EMPTY BROWSE: empty folder field'
+    [AoSetupDialogProbe]::ThrowFolder=$true;$browse.PerformClick();[AoSetupDialogProbe]::ThrowFolder=$false
+    Assert ([AoSetupDialogProbe]::Error -like '*Type your AO folder*Details:*') 'Folder picker exception was not handled and logged'
+    [AoSetupDialogProbe]::Error=''
+    Write-Output 'PASS FOLDER ERROR: manual entry remains usable'
     foreach ($actionName in @('Install', 'Update', 'Uninstall', 'Uninstall')) {
         if ($actionName -eq 'Update') {
             [IO.File]::WriteAllText((Join-Path $PackageDir 'ao-vk.dll'), 'addon two renderer')
@@ -193,6 +205,15 @@ try {
     $operation.SelectedItem='Uninstall';$apply.PerformClick()
     Assert (![AoSetupDialogProbe]::Error) [AoSetupDialogProbe]::Error
     Write-Output 'PASS MEMORY GUI: unchecked option preserves executables'
+    $manifestText=[IO.File]::ReadAllText((Join-Path $PackageDir 'manifest.json'))
+    try {
+        [IO.File]::WriteAllText((Join-Path $PackageDir 'manifest.json'),'{broken')
+        [AoSetupDialogProbe]::Error='';$operation.SelectedItem='Install';$apply.PerformClick()
+        Assert ([AoSetupDialogProbe]::Error -like '*Details:*') 'GUI failure did not provide a diagnostic log'
+        Assert ($status.Text -ne 'Finished.' -and $apply.Enabled -and !$script:setupBusy) 'GUI failure left controls stuck or reported success'
+        Write-Output 'PASS FAILED SETUP: malformed manifest logged and UI reusable'
+    } finally { [IO.File]::WriteAllText((Join-Path $PackageDir 'manifest.json'),$manifestText) }
+
 } finally { $pulseTimer.Stop();$pulseTimer.Dispose();$form.Dispose() }
 '''.replace('CALLBACK', callback)
         script = package / 'setup-gui-probe.ps1'

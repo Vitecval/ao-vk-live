@@ -9,7 +9,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 # Prefer this PowerShell host's built-in modules when launched from another host.
-$env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
+$setupModules = Join-Path $PSHOME 'Modules'
+$env:PSModulePath = (@($setupModules) + @($env:PSModulePath -split ';' | Where-Object { $_ -and $_ -ine $setupModules })) -join ';'
 
 # Match the 32-bit game: 64-bit Windows PowerShell can return only the WOW64
 # loader modules, hiding randy31.dll and falsely identifying another client.
@@ -18,19 +19,32 @@ if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
     if (!(Test-Path -LiteralPath $host32)) { throw 'Cannot find 32-bit Windows PowerShell for safe AO process inspection.' }
     $hostArgs = @('-NoLogo', '-NoProfile', '-STA', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath)
     foreach ($key in $PSBoundParameters.Keys) {
+        if ($key -eq 'ProgressCallback') { continue }
         $value = $PSBoundParameters[$key]
         if ($value -is [Management.Automation.SwitchParameter]) {
             if ($value.IsPresent) { $hostArgs += "-$key" }
         } else { $hostArgs += @("-$key", [string]$value) }
     }
+    if ($ProgressCallback) { & $ProgressCallback 'Running setup in the game-compatible PowerShell host...' -1 }
     & $host32 @hostArgs
     if ($LASTEXITCODE -ne 0) { throw "AO-VK installer failed in 32-bit PowerShell (exit $LASTEXITCODE)." }
     return
 }
-$client = (Resolve-Path -LiteralPath $ClientDir).Path
-$package = (Resolve-Path -LiteralPath $PackageDir).Path
+ . (Join-Path $PSScriptRoot 'setup-safety.ps1')
+$setupLocks = @()
+try {
+$client = Get-AoSetupDirectory $ClientDir 'AO installation folder'
+$package = Get-AoSetupDirectory $PackageDir 'Setup package folder'
+if ($client -ieq $package) { throw 'Extract Setup into its own folder, separate from the AO installation.' }
+$setupLocks += Enter-AoSetupLock $client
+if (Test-Path -LiteralPath (Join-Path $client '.ao-vk-setup-transaction.json')) {
+    if ($ProgressCallback) { & $ProgressCallback 'Recovering the interrupted setup safely...' -1 }
+    Recover-AoSetupTransaction $client $ProgressCallback
+}
+Assert-AoSetupPath (Join-Path $package 'manifest.json')
 if ($ProgressCallback) { & $ProgressCallback 'Reading setup manifest...' -1 }
-$manifest = Get-Content -LiteralPath (Join-Path $package 'manifest.json') -Raw | ConvertFrom-Json
+$manifest = Read-AoSetupJson (Join-Path $package 'manifest.json')
+Assert-AoSetupManifest $manifest
 if (!$Uninstall -and $manifest.assets) {
     foreach ($item in $manifest.assets.PSObject.Properties) {
         if ($item.Name -match '^randy-vk[\\/]living[\\/]') {
@@ -40,10 +54,12 @@ if (!$Uninstall -and $manifest.assets) {
 }
 if (!$Uninstall -and $manifest.livingAssets) { throw 'Living is a separate add-on and is not included in this renderer package.' }
 $receiptPath = Join-Path $client 'ao-vk-live.install.json'
+Assert-AoSetupPath $receiptPath
+$receiptObserved = Get-AoSetupHash $receiptPath
 $receipt = $null
 if (Test-Path -LiteralPath $receiptPath) {
     if ($ProgressCallback) { & $ProgressCallback 'Reading the existing installation record...' -1 }
-    $receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
+    $receipt = Read-AoSetupJson $receiptPath
     if ($receipt.product -ne 'AO-VK Live' -or $receipt.clientDirectory -ine $client) {
         throw 'The existing AO-VK install record does not belong to this folder.'
     }
@@ -61,12 +77,15 @@ $targets = New-Object 'Collections.Generic.List[string]'
 $targets.Add((Join-Path $client 'ao-vk.dll'))
 $targets.Add((Join-Path $client 'ddraw.dll'))
 if (!$LoaderDir -and !$receipt -and (Test-Path -LiteralPath (Join-Path $client 'MSWSOCK.dll'))) {
-    $candidate = Join-Path $env:APPDATA 'AOPP'
-    if (Test-Path -LiteralPath (Join-Path $candidate 'AnarchyOnline.exe')) { $LoaderDir = $candidate }
+    $appData = if ($env:APPDATA) { $env:APPDATA } else { [Environment]::GetFolderPath('ApplicationData') }
+    $candidate = if ($appData) { Join-Path $appData 'AOPP' } else { $null }
+    if ($candidate -and (Test-Path -LiteralPath (Join-Path $candidate 'AnarchyOnline.exe'))) { $LoaderDir = $candidate }
 }
 $loader = ''
 if ($LoaderDir) {
-    $loader = [IO.Path]::GetFullPath($LoaderDir)
+    $loader = if ($Uninstall -and !(Test-Path -LiteralPath $LoaderDir)) { [IO.Path]::GetFullPath($LoaderDir).TrimEnd('\') } else { Get-AoSetupDirectory $LoaderDir 'Shared loader folder' }
+    Assert-AoSetupPath $loader
+    if ($loader -ine $client) { $setupLocks += Enter-AoSetupLock $loader }
     if (!$Uninstall -and !(Test-Path -LiteralPath (Join-Path $loader 'AnarchyOnline.exe'))) { throw 'The extra loader folder must contain AnarchyOnline.exe.' }
     if ($loader -ine $client) { $targets.Add((Join-Path $loader 'ddraw.dll')) }
 }
@@ -130,7 +149,7 @@ foreach ($target in $targets) {
     $checkedTargets++
     if ($ProgressCallback -and $checkedTargets % 250 -eq 0) { & $ProgressCallback "Checking existing files: $checkedTargets / $($targets.Count)" -1 }
     $name = Split-Path -Leaf $target
-    $observed = if (Test-Path -LiteralPath $target) { (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash } else { $null }
+    $observed = Get-AoSetupHash $target
     $fileSpecs[$target].observedHash = $observed
     if (!$Uninstall -and $observed -and $observed -ieq $fileSpecs[$target].hash) {
         $fileSpecs[$target].unchanged = $true
@@ -147,7 +166,7 @@ foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness
         try {
             $processPath = $running.Path
             $modulePaths = @($running.Modules | ForEach-Object { $_.FileName })
-        } catch { throw 'Close the game, launcher and patcher first; a running client could not be inspected.' }
+        } catch { if ($running.HasExited) { continue }; throw 'Close the game, launcher and patcher first; a running client could not be inspected.' }
         $usesClient = !$processPath -or $processPath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase)
         $knownRenderer = $false
         foreach ($modulePath in $modulePaths) {
@@ -173,47 +192,30 @@ if ($Uninstall) {
             }
         }
     }
-    # Move all files out of the loader search path before deleting any, so a locked file can be rolled back.
-    $removed = @{}
     $restoreStages = @{}
-    $restored = @()
     try {
+        $entries = New-Object 'Collections.Generic.List[object]'
         foreach ($target in $targets) {
+            $stage=$null;$after=$null
             if ($fileSpecs[$target].restore) {
-                $temp = $target + '.restoring-' + [guid]::NewGuid().ToString('N')
-                $restoreStages[$target] = $temp
-                [IO.File]::WriteAllBytes($temp, $fileSpecs[$target].bytes)
-                if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Executable restoration staging failed.' }
+                $stage=$target+'.restoring-'+[guid]::NewGuid().ToString('N')
+                $restoreStages[$target]=$stage
+                [IO.File]::WriteAllBytes($stage,$fileSpecs[$target].bytes)
+                $after=Get-AoSetupHash $stage
+                if ($after -ine $fileSpecs[$target].hash) { throw 'Executable restoration staging failed.' }
+            }
+            if ($fileSpecs[$target].observedHash -or $stage) {
+                $entries.Add(@{target=$target;stage=$stage;before=$fileSpecs[$target].observedHash;after=$after})
             }
         }
-        foreach ($target in $targets) {
-            if ($fileSpecs[$target].executable -and !(Test-Path -LiteralPath $target)) { throw 'An executable disappeared during uninstall; retry after the game updater has finished.' }
-            if (Test-Path -LiteralPath $target) {
-                if ($fileSpecs[$target].special -and !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) { throw 'An executable or memory backup changed during uninstall; nothing was removed.' }
-                $temp = $target + '.uninstalling-' + [guid]::NewGuid().ToString('N')
-                Move-Item -LiteralPath $target -Destination $temp
-                $removed[$target] = $temp
-            }
-        }
-        if ($receipt) {
-            $temp = $receiptPath + '.uninstalling-' + [guid]::NewGuid().ToString('N')
-            Move-Item -LiteralPath $receiptPath -Destination $temp
-            $removed[$receiptPath] = $temp
-        }
-        foreach ($target in $restoreStages.Keys) {
-            Move-Item -LiteralPath $restoreStages[$target] -Destination $target
-            $restored += $target
-        }
-    } catch {
-        foreach ($target in $restored) {
-            if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $fileSpecs[$target].hash) { Remove-Item -LiteralPath $target }
-        }
-        foreach ($target in $removed.Keys) { Move-Item -LiteralPath $removed[$target] -Destination $target }
-        throw
+        if ($receiptObserved) { $entries.Add(@{target=$receiptPath;stage=$null;before=$receiptObserved;after=$null}) }
+        Assert-AoClientClosed
+        if ($entries.Count) { Invoke-AoSetupTransaction $client $loader ($entries.ToArray()) $ProgressCallback }
     } finally {
-        foreach ($temp in $restoreStages.Values) { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp } }
+        if (!(Test-Path -LiteralPath (Join-Path $client '.ao-vk-setup-transaction.json'))) {
+            foreach ($temp in $restoreStages.Values) { if (Test-Path -LiteralPath $temp) { try { Remove-Item -LiteralPath $temp } catch { Write-Warning "Temporary setup file retained: $temp" } } }
+        }
     }
-    foreach ($temp in $removed.Values) { Remove-Item -LiteralPath $temp }
     Write-Output 'AO-VK addon removed. The original renderer was never changed.'
     Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })
     return
@@ -227,8 +229,20 @@ foreach ($item in $manifest.client.PSObject.Properties) {
 if (!(Test-Path -LiteralPath (Join-Path $client 'AnarchyOnline.exe'))) { throw 'Select the client folder containing AnarchyOnline.exe.' }
 foreach ($name in @('ddraw.dll', 'ao-vk.dll')) {
     $source = Join-Path $package $name
-    if ((Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash -ine $manifest.addon.$name) {
+    if ((Get-AoSetupHash $source) -ine $manifest.addon.$name) {
         throw "Package integrity check failed for $name."
+    }
+}
+foreach ($target in $targets) {
+    if (Test-Path -LiteralPath $target) {
+        if (!$Upgrade -and !$fileSpecs[$target].special) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
+        $name = Split-Path -Leaf $target
+        $hash = $fileSpecs[$target].observedHash
+        $owned = Test-OwnedHash $target $hash
+        if (!$owned) {
+            if ($fileSpecs[$target].asset) { throw "Refusing to replace an unrecognized existing asset: $target. Its contents were preserved." }
+            throw "Refusing to replace unrecognized graphics wrapper $target."
+        }
     }
 }
 if ($manifest.materialParts) {
@@ -249,18 +263,6 @@ foreach ($target in $targets) {
         throw "Package integrity check failed for $($spec.relative)."
     }
 }
-foreach ($target in $targets) {
-    if (Test-Path -LiteralPath $target) {
-        if (!$Upgrade -and !$fileSpecs[$target].special) { throw "$target already exists. Use -Upgrade for a recognized earlier AO-VK package." }
-        $name = Split-Path -Leaf $target
-        $hash = $fileSpecs[$target].observedHash
-        $owned = Test-OwnedHash $target $hash
-        if (!$owned) {
-            if ($fileSpecs[$target].asset) { throw "Refusing to replace an unrecognized existing asset: $target. Its contents were preserved." }
-            throw "Refusing to replace unrecognized graphics wrapper $target."
-        }
-    }
-}
 # Leave byte-identical DLLs in place, including a shared loader used by an unrelated installation.
 foreach ($target in $unchangedTargets) {
     if ($fileSpecs[$target].asset) { continue } # No write is made to verified unchanged artwork.
@@ -276,15 +278,18 @@ if ($manifest.cacheWarmup) {
     $expectedCache = if ($manifest.version -eq '0.6.0-preview.23') { 'auto' } elseif ($manifest.version -eq '0.6.0-preview.22') { 'randy-vk-preview22-v9-living.cache' } else { 'randy-vk-preview21-v9-living.cache' }
     if ($warm.helper -ne 'ao-vk-cache-warm.exe' -or $warm.relativeCache -ne $expectedCache) { throw 'Invalid cache preparation descriptor.' }
     $helper = Join-Path $package $warm.helper
-    if ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash -ine $warm.sha256) { throw 'Cache preparation helper integrity failed.' }
+    if ((Get-AoSetupHash $helper) -ine $warm.sha256) { throw 'Cache preparation helper integrity failed.' }
     Write-Output 'Preparing this release on your graphics card. This may take one or two minutes; AO is not started.'
     if ($ProgressCallback) { & $ProgressCallback 'Preparing your graphics card (one or two minutes on first use)...' -1 }
     Assert-AoClientClosed
     $cacheArgument = if ($warm.relativeCache -eq 'auto') { 'auto' } else { Join-Path $client $warm.relativeCache }
     . (Join-Path $PSScriptRoot 'setup-progress.ps1')
     $warmToken=[guid]::NewGuid().ToString('N')
-    $warmLog=Join-Path $package ('.ao-vk-cache-'+$warmToken+'.log')
-    $warmError=Join-Path $package ('.ao-vk-cache-'+$warmToken+'.error.log')
+    $warmFolder=Join-Path ([IO.Path]::GetTempPath()) 'AO-VK-Setup-Logs'
+    Assert-AoSetupPath $warmFolder
+    New-Item -ItemType Directory -Path $warmFolder -Force | Out-Null
+    $warmLog=Join-Path $warmFolder ('gpu-'+$warmToken+'.log')
+    $warmError=Join-Path $warmFolder ('gpu-'+$warmToken+'.error.log')
     $warmArgs='--cache "'+($cacheArgument -replace '(\\+)$','$1$1')+'"'
     $warmProcess=Start-Process -FilePath $helper -ArgumentList $warmArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $warmLog -RedirectStandardError $warmError
     Wait-AoSetupHelper $warmProcess $warmLog $warmError 'Preparing graphics pipelines on this GPU' $ProgressCallback
@@ -292,10 +297,7 @@ if ($manifest.cacheWarmup) {
 Assert-AoClientClosed
 if ($ProgressCallback) { & $ProgressCallback 'Installing verified files safely...' -1 }
 $targets = @($changingTargets)
-$staged = @()
-$installed = @()
-$backups = @{}
-$succeeded = $false
+$staged = New-Object 'Collections.Generic.List[object]'
 $stageHashes = @{}
 $record = [ordered]@{
     product = 'AO-VK Live'
@@ -326,8 +328,8 @@ try {
             New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
         }
         $temp = Join-Path (Split-Path -Parent $target) ('.' + $name + '.installing-' + [guid]::NewGuid().ToString('N'))
-        if ($fileSpecs[$target].retire) { $staged += $null; continue }
-        $staged += $temp
+        if ($fileSpecs[$target].retire) { $staged.Add($null); continue }
+        $staged.Add($temp)
         if ($target -ieq $receiptPath) {
             [IO.File]::WriteAllText($temp, ($record | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
         } elseif ($fileSpecs[$target].special) {
@@ -340,38 +342,25 @@ try {
         $stageHashes[$target] = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
     }
     Assert-AoClientClosed
-    for ($i = 0; $i -lt $targets.Count; $i++) {
-        if ($ProgressCallback -and $i % 128 -eq 0) { & $ProgressCallback "Installing verified files: $i / $($targets.Count)" -1 }
-        $target = $targets[$i]
-        if ($fileSpecs[$target].executable -and !(Test-Path -LiteralPath $target)) { throw 'An executable disappeared during installation; retry after the game updater has finished.' }
-        if (Test-Path -LiteralPath $target) {
-            if ($target -ine $receiptPath -and !$fileSpecs[$target].special -and
-                !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) {
-                throw 'An installation file changed after preflight; the previous installation was preserved.'
-            }
-            if ($fileSpecs[$target].special -and !(Test-OwnedHash $target (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash)) { throw 'An executable or memory backup changed during installation.' }
-            $backup = $target + '.upgrade-' + [guid]::NewGuid().ToString('N')
-            Move-Item -LiteralPath $target -Destination $backup
-            $backups[$target] = $backup
-        }
-        if ($fileSpecs[$target].retire) { continue }
-        Move-Item -LiteralPath $staged[$i] -Destination $target
-        $installed += $target
+    $entries=New-Object 'Collections.Generic.List[object]'
+    for ($i=0;$i -lt $targets.Count;$i++) {
+        $target=$targets[$i]
+        $before=if ($target -ieq $receiptPath) { $receiptObserved } else { $fileSpecs[$target].observedHash }
+        $entries.Add(@{target=$target;stage=$staged[$i];before=$before;after=$stageHashes[$target]})
     }
-    $succeeded = $true
-} catch {
-    foreach ($target in $installed) {
-        if ((Test-Path -LiteralPath $target) -and (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ieq $stageHashes[$target]) {
-            Remove-Item -LiteralPath $target
-        }
-    }
-    foreach ($target in $backups.Keys) {
-        if (!(Test-Path -LiteralPath $target)) { Move-Item -LiteralPath $backups[$target] -Destination $target }
-    }
-    throw
+    Invoke-AoSetupTransaction $client $loader ($entries.ToArray()) $ProgressCallback
 } finally {
-    foreach ($temp in $staged) { if ($temp -and (Test-Path -LiteralPath $temp)) { Remove-Item -LiteralPath $temp } }
-    if ($succeeded) { foreach ($backup in $backups.Values) { Remove-Item -LiteralPath $backup } }
+    if (!(Test-Path -LiteralPath (Join-Path $client '.ao-vk-setup-transaction.json'))) {
+        foreach ($temp in $staged) { if ($temp -and (Test-Path -LiteralPath $temp)) { try { Remove-Item -LiteralPath $temp } catch { Write-Warning "Temporary setup file retained: $temp" } } }
+    }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
 Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })
+
+} catch {
+    $failureLog = Write-AoSetupFailure $_
+    if ($failureLog) { Write-Warning ("Setup details saved to " + $failureLog) }
+    throw
+} finally {
+    foreach ($setupLock in $setupLocks) { try { $setupLock.ReleaseMutex() } finally { $setupLock.Dispose() } }
+}

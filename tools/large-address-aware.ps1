@@ -1,3 +1,8 @@
+function Read-AoExecutableBytes([string]$Path) {
+    $length=(Get-Item -LiteralPath $Path -Force).Length
+    if ($length -lt 256 -or $length -gt 67108864) { throw 'Invalid game executable size for the 4 GB memory option. Disable this option to leave executables unchanged.' }
+    return ,([IO.File]::ReadAllBytes($Path))
+}
 # Local-only executable changes. No game executable or backup is distributed.
 function Get-AoByteHash([byte[]]$Bytes) {
     $sha = [Security.Cryptography.SHA256]::Create()
@@ -74,7 +79,7 @@ function Get-AoLaaPlan([string]$Client, [string]$Loader, $Config, $Receipt, [boo
     $pending = @()
     foreach ($candidate in $candidates) {
         $target = Get-AoLaaTarget $candidate.scope $candidate.name $Client $Loader
-        $bytes = [IO.File]::ReadAllBytes($target)
+        $bytes = Read-AoExecutableBytes $target
         $offset = Get-AoPeFlagsOffset $bytes
         if ($bytes[$offset] -band 32) { continue } # Preserve existing AOSharp/AOPP patches.
         if ((Get-AoByteHash $bytes) -cne [string]$Config.gameSha256) { throw 'Unrecognized game executable for the 4 GB memory option. Disable this option to install graphics without executable changes.' }
@@ -82,7 +87,7 @@ function Get-AoLaaPlan([string]$Client, [string]$Loader, $Config, $Receipt, [boo
         $pending += @{ scope=$candidate.scope; name=$candidate.name; original=$bytes; patched=$patched }
         if ($candidate.scope -eq 'client') {
             $launcher = Get-AoLaaTarget 'client' 'Anarchy.exe' $Client $Loader
-            $original = [IO.File]::ReadAllBytes($launcher); $hash = Get-AoByteHash $original
+            $original = Read-AoExecutableBytes $launcher; $hash = Get-AoByteHash $original
             if ($hash -ceq [string]$Config.launcherAfterSha256) { continue }
             if ($hash -cne [string]$Config.launcherBeforeSha256) { throw 'Unrecognized official launcher for the 4 GB memory option. Disable this option to preserve this launcher unchanged.' }
             $offset = [int]$Config.launcherOffset

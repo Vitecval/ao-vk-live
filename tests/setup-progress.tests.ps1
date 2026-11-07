@@ -48,3 +48,12 @@ try{Wait-AoSetupHelper $p $p.Output $errorLog 'Preparing GPU' $callback}catch{
 }
 Assert ($caught -and $p.disposed) 'Native helper failure was falsely reported as success'
 Write-Output 'PASS: active preparation beyond ten minutes, actual task messages, idle activity and native failure.'
+
+$p=Make-Process 0 $false
+$p|Add-Member NoteProperty killed $false
+$p|Add-Member ScriptMethod WaitForExit {param([int]$milliseconds=0);$this.calls++;return $false} -Force
+$p|Add-Member ScriptMethod Kill {$this.killed=$true} -Force
+$caught=$false
+try{Wait-AoSetupHelper $p $p.Output '' 'Blocked GPU' $callback}catch{$caught=$_.Exception.Message -like '*stopped responding*'}
+Assert ($caught -and $p.killed -and $p.disposed) 'A helper with no CPU/log activity waited indefinitely'
+Write-Output 'PASS: an idle GPU helper cannot block setup indefinitely; only its own process is stopped.'

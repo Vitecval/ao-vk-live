@@ -38,8 +38,21 @@ function Open-AoMaterialResponse([string]$Url, [long]$Offset) {
 }
 
 function Get-AoMaterialFreeBytes([string]$Path) {
-    $drive = New-Object IO.DriveInfo ([IO.Path]::GetPathRoot([IO.Path]::GetFullPath($Path)))
-    return [long]$drive.AvailableFreeSpace
+    if (!('AoSetupDiskSpace' -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+public static class AoSetupDiskSpace {
+    [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
+    public static extern bool GetDiskFreeSpaceEx(string path, out ulong available, out ulong total, out ulong free);
+}
+'@
+    }
+    [uint64]$available=0;[uint64]$total=0;[uint64]$free=0
+    if (![AoSetupDiskSpace]::GetDiskFreeSpaceEx(([IO.Path]::GetFullPath($Path).TrimEnd('\')+'\'),[ref]$available,[ref]$total,[ref]$free)) {
+        throw "Cannot check free space for $Path. Check that the drive or network share is available."
+    }
+    return [long][Math]::Min($available,[uint64][long]::MaxValue)
 }
 
 function Assert-AoMaterialSpace([string]$Package, [string]$Client, [long]$PackageBytes, [long]$ClientBytes) {

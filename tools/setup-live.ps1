@@ -7,7 +7,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 # Prefer this PowerShell host's built-in modules when launched from another host.
-$env:PSModulePath = (Join-Path $PSHOME 'Modules') + ';' + $env:PSModulePath
+$setupModules = Join-Path $PSHOME 'Modules'
+$env:PSModulePath = (@($setupModules) + @($env:PSModulePath -split ';' | Where-Object { $_ -and $_ -ine $setupModules })) -join ';'
 
 # Windows PowerShell's 64-bit Process.Modules can silently omit WOW64 modules.
 # Use the game's bitness before inspecting clients, including direct script use.
@@ -26,9 +27,13 @@ if ([IntPtr]::Size -eq 8 -and $PSVersionTable.PSEdition -ne 'Core') {
     return
 }
 
+. (Join-Path $PSScriptRoot 'setup-safety.ps1')
+
 function Find-AoFolders {
     $candidates = @($ClientDir)
     foreach ($drive in @(Get-PSDrive -PSProvider FileSystem)) {
+        if (!$drive.Root) { continue }
+        try { $info=New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($drive.Root)); if ($info.DriveType -eq 'Network' -or !$info.IsReady) { continue } } catch { continue }
         foreach ($relative in @('Funcom\Anarchy Online', 'Games\Anarchy Online', 'Anarchy Online',
                 'Program Files (x86)\Funcom\Anarchy Online', 'Program Files\Funcom\Anarchy Online',
                 'SteamLibrary\steamapps\common\Anarchy Online', 'Program Files (x86)\Steam\steamapps\common\Anarchy Online')) {
@@ -42,18 +47,33 @@ function Find-AoFolders {
             $_.DisplayName -like '*Anarchy Online*' -and $_.InstallLocation
         } | ForEach-Object { $candidates += $_.InstallLocation }
     }
-    $candidates | Where-Object { $_ -and (Test-Path -LiteralPath (Join-Path $_ 'AnarchyOnline.exe')) } |
-        ForEach-Object { (Resolve-Path -LiteralPath $_).Path } | Select-Object -Unique
+    $found=@()
+    foreach ($candidate in $candidates) {
+        if ([string]::IsNullOrWhiteSpace($candidate)) { continue }
+        if ($candidate.StartsWith('\\') -and $candidate -ine $ClientDir) { continue }
+        try {
+            if (Test-Path -LiteralPath (Join-Path $candidate 'AnarchyOnline.exe') -PathType Leaf) { $found += (Resolve-Path -LiteralPath $candidate).Path }
+        } catch { } # An obsolete registry entry or disconnected drive is not a setup failure.
+    }
+    $found | Select-Object -Unique
 }
 $folders = @(Find-AoFolders)
 if ($ListCandidates) { $folders; return }
 $fullHdSetup = $false
 $memoryOptionAvailable = $false
+$PackageDir = Get-AoSetupDirectory $PackageDir 'Setup package folder'
 $setupManifest = Join-Path $PackageDir 'manifest.json'
+$setupReadError=''
 if (Test-Path -LiteralPath $setupManifest) {
-    $setupInfo = Get-Content -LiteralPath $setupManifest -Raw | ConvertFrom-Json
-    $fullHdSetup = [bool]$setupInfo.materialDownload
-    $memoryOptionAvailable = [bool]$setupInfo.largeAddressAware -and [Environment]::Is64BitOperatingSystem
+    try {
+        $setupInfo = Read-AoSetupJson $setupManifest
+        $fullHdSetup = [bool]$setupInfo.materialDownload
+        $memoryOptionAvailable = [bool]$setupInfo.largeAddressAware -and [Environment]::Is64BitOperatingSystem
+    } catch {
+        $setupReadError='Setup files could not be read. Extract a fresh setup ZIP.'
+        $setupReadLog=Write-AoSetupFailure $_
+        if ($setupReadLog) { $setupReadError += " Details: $setupReadLog" }
+    }
 }
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -93,12 +113,19 @@ $browse.Text = 'Browse...'
 $browse.SetBounds(552, 124, 100, 32)
 $form.Controls.Add($browse)
 $browse.Add_Click({
-    $dialog = New-Object Windows.Forms.FolderBrowserDialog
-    $dialog.Description = 'Choose the classic Anarchy Online installation folder.'
-    $dialog.ShowNewFolderButton = $false
-    if (Test-Path -LiteralPath $path.Text) { $dialog.SelectedPath = $path.Text }
-    if ($dialog.ShowDialog($form) -eq 'OK') { $path.Text = $dialog.SelectedPath }
-    $dialog.Dispose()
+    $dialog=$null
+    try {
+        $dialog = New-Object Windows.Forms.FolderBrowserDialog
+        $dialog.Description = 'Choose the classic Anarchy Online installation folder.'
+        $dialog.ShowNewFolderButton = $false
+        if (![string]::IsNullOrWhiteSpace($path.Text) -and (Test-Path -LiteralPath $path.Text -PathType Container)) { $dialog.SelectedPath = $path.Text }
+        if ($dialog.ShowDialog($form) -eq 'OK') { $path.Text = $dialog.SelectedPath }
+    } catch {
+        $message='Windows could not open the folder picker. Type your AO folder into the field instead.'
+        $failureLog=Write-AoSetupFailure $_
+        if ($failureLog) { $message += "`r`n`r`nDetails: $failureLog" }
+        $null=[Windows.Forms.MessageBox]::Show($form,$message,'AO-VK Live setup','OK','Error')
+    } finally { if ($dialog) { $dialog.Dispose() } }
 })
 $null = Add-Text 'Operation' 26 176 110 25
 $operation = New-Object Windows.Forms.ComboBox
@@ -124,6 +151,7 @@ $details.SetBounds(26, (386 + $licenseSpace), 626, 62)
 $details.Multiline = $true
 $details.ReadOnly = $true
 $details.ScrollBars = 'Vertical'
+if ($setupReadError) { $status.Text='Setup files need to be extracted again.';$details.Text=$setupReadError }
 $form.Controls.Add($details)
 $downloadProgress = New-Object Windows.Forms.ProgressBar
 $downloadProgress.SetBounds(26, (366 + $licenseSpace), 626, 12)
@@ -217,12 +245,17 @@ $apply.Add_Click({
         }
         if ($setupResult.memoryStatus) { $message += "`r`n`r`n" + $setupResult.memoryStatus }
         if ($setupResult.memoryWarnings) { $message += "`r`n`r`n" + ($setupResult.memoryWarnings -join "`r`n") }
+        $setupWarnings=@($worker.Streams.Warning | ForEach-Object { $_.Message })
+        if ($setupWarnings.Count) { $message += "`r`n`r`n" + ($setupWarnings -join "`r`n") }
         $status.Text = 'Finished.'
         $activity.Text = 'Completed in ' + $elapsed.Elapsed.ToString('h\:mm\:ss')
         $null = [Windows.Forms.MessageBox]::Show($form, $message, 'AO-VK Live', 'OK', 'Information')
     } catch {
         $status.Text = 'Setup did not finish. See the error message.'
         $message = $_.Exception.Message
+        $failureLog = Write-AoSetupFailure $_
+        if ($worker) { foreach ($workerError in $worker.Streams.Error) { $workerLog = Write-AoSetupFailure $workerError; if ($workerLog) { $failureLog = $workerLog } } }
+        if ($failureLog) { $message += "`r`n`r`nDetails: $failureLog" }
         if ($_.Exception -is [UnauthorizedAccessException] -or $message -match 'denied|unauthorized') {
             $message += "`r`n`r`nWindows blocked access. Close this window, then right-click the setup .cmd file and choose Run as administrator."
         }

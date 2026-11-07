@@ -98,7 +98,7 @@ def main():
         source.mkdir()
     for name in ['ao-vk.dll', 'ddraw.dll']:
         shutil.copy2(build / name, common / name)
-    for name in ['install-live.ps1', 'setup-live.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
+    for name in ['setup-safety.ps1','install-live.ps1', 'setup-live.ps1', 'setup-progress.ps1', 'mesh-index.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
         shutil.copy2(ROOT / 'tools' / name, common / name)
     if args.version=='0.6.0-preview.21':
         shutil.copy2(build/'ao-vk-cache-warm.exe',common/'ao-vk-cache-warm.exe')

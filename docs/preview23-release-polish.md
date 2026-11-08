@@ -54,3 +54,19 @@ Shiny response, the ship-marking response, settings persistence/Ultra defaults,
 and flat/cliff terrain with conflicting authored maps present or absent.
 Retail terrain boundaries and ship-distance performance still require scene
 inspection. Frame-generation and presentation logic are unchanged.
+
+The first resolution repair batch contains 12 existing IDs: 15223, 18003,
+201230, 202773, 203102, 208051, 208695, 208696, 211087, 275744, 283647 and
+8741. Four recover existing sufficiently large approved renders; eight use
+new built-in image renders. The technical export preserves native layout and
+alpha and adds bounded fine detail from those renders. All twelve pass native
+x86/Vulkan map upload and the dimension/aspect gate. This corrects resolution,
+not inventory coverage: 551 undersized IDs remain pending in the initial
+563-ID queue, including one new image-service rejection. Seven exact aspect
+mismatches also remain under review. No blocked output is claimed repaired.
+
+The incremental packaging library for these corrections is
+`build/preview23/resolution-audit/runtime`; it contains complete updated pack
+manifests and only changed maps. Use the revision 17 full/lite folders as the
+seed for unchanged assets. The generated images, original-size audit, prompts,
+export hashes and native test receipt remain in the resolution-audit folder.

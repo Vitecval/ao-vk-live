@@ -21237,8 +21237,8 @@
       "name": "cutecreature.png",
       "source": "rubika-family-15223-v1",
       "size": [
-        256,
-        128
+        512,
+        256
       ],
       "profile": "dry-organic",
       "batch": "rubika-complete-families-2026-10-26",
@@ -21256,7 +21256,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -120755,8 +120756,8 @@
       "name": "ship03_transport.png",
       "source": "rubika-family-201230-v1",
       "size": [
-        256,
-        256
+        1024,
+        1024
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -120774,7 +120775,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -121625,8 +121627,8 @@
       "name": "sceneryvehicle_spaceship01.png",
       "source": "rubika-family-202773-v1",
       "size": [
-        256,
-        256
+        512,
+        512
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -121644,7 +121646,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -121665,8 +121668,8 @@
       "name": "scenery_vehicle03.png",
       "source": "rubika-family-203102-v1",
       "size": [
-        256,
-        256
+        512,
+        512
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -121684,7 +121687,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -125876,8 +125880,8 @@
       "name": "adonis_wall_ornament2.png",
       "source": "overnight-20261028-1010004_208051-v1",
       "size": [
-        128,
-        256
+        256,
+        512
       ],
       "profile": "mineral",
       "batch": "overnight-20261028-batch001",
@@ -125889,13 +125893,14 @@
       "atlas_source": "overnight-20261028-batch001-atlas-007-v1",
       "atlas_cell": 1,
       "atlas_guard_pixels": 1,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending",
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
       "maps": [
         "d",
         "n",
         "orm"
       ],
-      "preserve_original_alpha": true
+      "preserve_original_alpha": true,
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -126261,8 +126266,8 @@
       "name": "adonis_wall_metal_basic.png",
       "source": "overnight-20261028-1010004_208695-v1",
       "size": [
-        128,
-        256
+        256,
+        512
       ],
       "profile": "architectural-metal",
       "batch": "overnight-20261028-batch004",
@@ -126274,13 +126279,14 @@
       "atlas_source": "overnight-20261028-batch004-atlas-007-v1",
       "atlas_cell": 0,
       "atlas_guard_pixels": 1,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending",
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
       "maps": [
         "d",
         "n",
         "orm"
       ],
-      "preserve_original_alpha": true
+      "preserve_original_alpha": true,
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -126288,8 +126294,8 @@
       "name": "adonis_wall_ornament.png",
       "source": "overnight-20261028-1010004_208696-v1",
       "size": [
-        128,
-        256
+        256,
+        512
       ],
       "profile": "mineral",
       "batch": "overnight-20261028-batch001",
@@ -126301,13 +126307,14 @@
       "atlas_source": "overnight-20261028-batch001-atlas-007-v1",
       "atlas_cell": 2,
       "atlas_guard_pixels": 1,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending",
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
       "maps": [
         "d",
         "n",
         "orm"
       ],
-      "preserve_original_alpha": true
+      "preserve_original_alpha": true,
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -130580,8 +130587,8 @@
       "name": "Templewall_mid high_didrik_lars.png",
       "source": "overnight-20261028-1010004_211087-v1",
       "size": [
-        256,
-        256
+        512,
+        512
       ],
       "profile": "honed-stone",
       "batch": "overnight-20261028-batch005",
@@ -130593,13 +130600,14 @@
       "atlas_source": "overnight-20261028-batch005-atlas-000-v1",
       "atlas_cell": 4,
       "atlas_guard_pixels": 1,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending",
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
       "maps": [
         "d",
         "n",
         "orm"
       ],
-      "preserve_original_alpha": true
+      "preserve_original_alpha": true,
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -181589,8 +181597,8 @@
       "name": "rocky_tiletexture03.png",
       "source": "rock-275744-v2",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "mineral",
       "batch": "rubika-complete-families-2026-10-26",
@@ -181608,7 +181616,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -192460,8 +192469,8 @@
       "name": "cqo_wallfan01b.png",
       "source": "rubika-family-283647-v2",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -192479,7 +192488,8 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1"
     },
     {
       "type": 1010004,
@@ -232930,9 +232940,9 @@
     "1010004_151985_d.png": "f7091637bcf428428fb4307b49a11a491f6ccc059e7bd76b05f0e78a9e5d1421",
     "1010004_151985_n.png": "e4c99f59019824ef96e7c89df273685625655daba5f15c5d1fe2859e1434d001",
     "1010004_151985_orm.png": "a3bbc01cc14e112f9be88729308795f204980ec7d8ecb06d1282a0d883b16198",
-    "1010004_15223_d.png": "5b1aef92b6f6cbde58cf5a449e5cce6938876e269306561438a0e59e5235e688",
-    "1010004_15223_n.png": "ab0763022f2135b822e6570d9b69eef783f34d15bf22519ae33de0162a20146f",
-    "1010004_15223_orm.png": "726ca96cc832e3cb00771ef6a97e6b2e9c9c7dad1e80d1e70082d01cfeea0e17",
+    "1010004_15223_d.png": "998654cb2f72b1ccefa976ae3f73f0ec03caa5ff02d2c30ab9b3037990c4430c",
+    "1010004_15223_n.png": "c8cc5dc79d8446845e13b79c715fd840bc0b1aaac0388fc30383f7108382c251",
+    "1010004_15223_orm.png": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
     "1010004_15233_d.png": "7887306249d7413905f35bd97fee184dc38bb6e2a2c8c817337cd6a8c20067ec",
     "1010004_15233_n.png": "f023c8ecb71026f38d68c339c1757c5202873b565140dfd22409270c6ab3aa45",
     "1010004_15233_orm.png": "7b8bb40a611ca298f496511c429957418ed2f56137f8c42e673d73e60c5ae53a",
@@ -235090,9 +235100,9 @@
     "1010004_20122_d.png": "1cee41af5c930bda2911357af93b288861bb8cf1b7dd09121911eaa05786798e",
     "1010004_20122_n.png": "df41793cd4cb99a2cefaff9211d22f26b9c9d659d10b5ce2ca07a422062f7a5a",
     "1010004_20122_orm.png": "e540d8089a6754bee98fff2bed8532894b5031e46ed67368e0a69faea467a7a5",
-    "1010004_201230_d.png": "ba506ee0b949f5b6e2df83678fe692639dbe7b684c2717107f44eab0da41c1fc",
-    "1010004_201230_n.png": "442a7512a7cb48b6183e9874984101e6a2e3583f81b329d8ea0530af9ce371b9",
-    "1010004_201230_orm.png": "f4803b98264973b7f049adf75b2eebeb1e308eaeab42b52679b457b4714af96d",
+    "1010004_201230_d.png": "1dc77406540466079496f4ea920106099680e0872135dec12565964ee550d740",
+    "1010004_201230_n.png": "fc4af8455564f577c498e003eddef7bafef27af3ac664c0fd558834915caa6e5",
+    "1010004_201230_orm.png": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
     "1010004_20123_d.png": "2d32110bd5d14726ace30bd23bf9226b68c5f5114d32d138f008d3e70c3382d6",
     "1010004_20123_n.png": "f475717c2237cacf174a84bed588d5e92c9817d75b8c14ceafb074e4cd68a6b2",
     "1010004_20123_orm.png": "bbd986f57da7f438dfcd7cf1dc56ddd8e2d602863199965768c720d5f374a9cf",
@@ -235259,18 +235269,18 @@
     "1010004_202755_d.png": "a2f2e9d4be8d48b5555b1db6fb8600c1bfe1a6c129b0507722c6eefa732613cc",
     "1010004_202755_n.png": "81d9683fb8a002f2033e22bd2e0e5ae16da56c97107f2e37162216874c784401",
     "1010004_202755_orm.png": "041d9986bbcab42f177985bd0e0dc476741bad3d7f76c928f8e9775fc517e9b1",
-    "1010004_202773_d.png": "45395e2dd69dbf643274c47338224264a735a8e493281a87c14f32306efcfd24",
-    "1010004_202773_n.png": "c007c9e76238b713a8f96818b4f8eacaff80fabed3ddb3c375e6ad63cad8adba",
-    "1010004_202773_orm.png": "04b46a48df82a9ff08b263f6a5268a0c4de64f09041c7e71ed4a170acf806618",
+    "1010004_202773_d.png": "71f87cdd8dfee3c492c66c5f0e87be0812aa9f46dc75f07ab153346f31817bbd",
+    "1010004_202773_n.png": "63be994117b482f16d1930561041f43b5e1a920b943d71c026e5af544a989de0",
+    "1010004_202773_orm.png": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
     "1010004_20286_d.png": "fabcd65839469bec54b5e16d6fa81e28a6f2c15de58d09b4655fe2cbd0edb7b7",
     "1010004_20286_n.png": "8c2f41b8ce09c2144ed9dfe1923ba49146a104f09c9e4dc62f0364742694fe0c",
     "1010004_20286_orm.png": "d54c368de5841881f2947d1b09793d61aaaf3d57658aaebbebc58a8bf4b1896e",
     "1010004_20308_d.png": "6c0944822b681d986f0a23ef55b8ee678b063158d8e4419650d5f83a834d33a7",
     "1010004_20308_n.png": "c2521e5c2cb5352dd2bd7d28d017eed0e9a8f388a57d96c735934ac83064ef11",
     "1010004_20308_orm.png": "a961e608fd56c5637496a7f53517735c5ab2a6f05989c752928fc350fca1e4eb",
-    "1010004_203102_d.png": "e1c2908bdfbbe9322c481d3953951e1703dd5b685b12cf952f22bc7c71c768db",
-    "1010004_203102_n.png": "7f0081423ae756f8bebe7b42fc9a2175242070bffa6099c770d8114d4b5afe07",
-    "1010004_203102_orm.png": "dfe6b6fe4b0a2b82516967ad5e088a2fbf8cb640a6e8b1acae49a79bdf39a442",
+    "1010004_203102_d.png": "b182e71de33671f8bc898394acd28690547293b491cb4df25feacf1f7788a63e",
+    "1010004_203102_n.png": "2c18bd6f6b37477bff63df194f86f42198fac5d5f4d7d47b2673defdcd9bae03",
+    "1010004_203102_orm.png": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
     "1010004_203103_d.png": "8dae4b819b93ba6f1b59deac58a744904869bf11de9c501de943cf90f089ec59",
     "1010004_203103_n.png": "99604394dc4f731248d35c2f06f93a86aa685933e28da45bf170721aaf6f36f5",
     "1010004_203103_orm.png": "8c4432e8115975f731c71ebd0fb4730f1bf556ca7311a98976c330780b7c8f47",
@@ -235797,9 +235807,9 @@
     "1010004_20803_d.png": "f71e7f3502102b930bbfeeba1198e8bd5a18c89f74ed53be94dee0e8f1d56aaf",
     "1010004_20803_n.png": "c4087403201304d1e0e5bcd3a735aa2692fe02ba12ef94428bee2985193ca265",
     "1010004_20803_orm.png": "2fd458c6a04e764e5b932729db35c3acf3419f634516dda60785cb0cbc64c461",
-    "1010004_208051_d.png": "f2e3144a752bd114f6aa826e7df74c3fe760191835055da34619ccf77cf33852",
-    "1010004_208051_n.png": "c0ad4bc4c84dd04652364fbb51b7a129518c0b90ad91be001c850910375358ff",
-    "1010004_208051_orm.png": "653620726916c6fff30ceb6da003c634ace948f561f1c6ef3c5ad504203fd130",
+    "1010004_208051_d.png": "2a75088a0af745a902df3f0bfc8d8fae42a9f889b678e3a97557e163a067ce48",
+    "1010004_208051_n.png": "bef85a712eda046b9506a90df2e95e7176bb8a8785c26591a476a391004dbfe4",
+    "1010004_208051_orm.png": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
     "1010004_208052_d.png": "c2dad2b74bb093daa06537477659a9ac9e07e6dc199a4a9c11d83d537d5713eb",
     "1010004_208052_n.png": "8733741acf89f63166cf26635c0fbacd035e157b41706fb5d482df1313035996",
     "1010004_208052_orm.png": "341378725fd34e2636b337854ebe824103f166838f3863916a10af454df7e20e",
@@ -235884,12 +235894,12 @@
     "1010004_20867_d.png": "49d604960d92ee47606fb8cb35f0b32e6b8a793581c4ef82356969598a40ee0d",
     "1010004_20867_n.png": "fc26c30394b6b76632e3eaa7e60fd700dd20bfc862244a7e992a58a6d3023187",
     "1010004_20867_orm.png": "a3d200184370291ab41c48733899466dd83158aee97c214e54b291e04b7c9849",
-    "1010004_208695_d.png": "3de69a04e59a7991dedcb412324eb3395ceeed8460b07d0f3750e40d5280e57c",
-    "1010004_208695_n.png": "2627989d088f49f9c163ce846fec29a6f1c8dd56f79fd8e10b3918b614a9e38a",
-    "1010004_208695_orm.png": "badacd8b70b836e37b53f2ec25d5962293d8f870e410bcaf4635c1cbb4dade8f",
-    "1010004_208696_d.png": "ab71d156461372120697c3fe43e0759425e448082f098d4b4666c032b4331902",
-    "1010004_208696_n.png": "303e153b3dec690a30ef63fda05f64bf8283653fb644275d9e0bbfb75198b40f",
-    "1010004_208696_orm.png": "5ee44a881465d27efa33a541aceb894636c4488bb489bda85b78e3eb14db1bd8",
+    "1010004_208695_d.png": "7959efdb0646fb8ac8c3da2f6be9132bf7129e6e52b3ab2e28317cff101ecb8d",
+    "1010004_208695_n.png": "cfe9191a835a1a523963dd07597a9c5591429c27efaaf028a6983f5128788686",
+    "1010004_208695_orm.png": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
+    "1010004_208696_d.png": "d70035f999bc025695d3007d9feda095cd2bc0e402b74d5a5d58891416d58779",
+    "1010004_208696_n.png": "4253090470f7d36421fd3230a2faecbec06370fedb31c779449c77331a82df12",
+    "1010004_208696_orm.png": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
     "1010004_20869_d.png": "7ec1f4cbc7ba19253df09edb8b1cb9f7ee1617f502cc8bda9e895bfc6e8a54f9",
     "1010004_20869_n.png": "9296e721960280012c8b947a17e8a0238e30d847373860219120829f06a348c4",
     "1010004_20869_orm.png": "07e96960273dfcb4edf305ebf687f07e4531651dad1e15f5143076bb1b1dabbb",
@@ -236545,9 +236555,9 @@
     "1010004_211082_d.png": "8244331e79b0714601e8f173932e806039b392b0c05aab00858cb2cff7f00ea8",
     "1010004_211082_n.png": "ca3004f8aa3fb7426a7f8c3469d8d44f791a3c8153f87542cbe815379973f07d",
     "1010004_211082_orm.png": "a5529b040c18e6b02f158c8a74e665277c942d1c343518b9cca9b34f34c3db20",
-    "1010004_211087_d.png": "b6290cd13a9f00d08ce0a0801657f0f65a42fa99e728f349d2b9888ca927950f",
-    "1010004_211087_n.png": "1af9f02e8dc5f902ce0df5f4f542bd2c864d806bd3ffd0873236d4e39dc4ad8d",
-    "1010004_211087_orm.png": "5f54ebc8addeb706b920f348cc742643ae459e272f9c1dc70415232ba17a09bb",
+    "1010004_211087_d.png": "642cdb3e1f18742fcc951f6644e374d1fdcb236611ca808ec843ad8f7a726b52",
+    "1010004_211087_n.png": "bd7cbd441e8040ae16c518f5b67bdedd3183e450e25ecfda1f4fbe0b6f77addc",
+    "1010004_211087_orm.png": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
     "1010004_211088_d.png": "ea62cb1c2b90b19f26db8f03adec3d624d500ddbb8736b32ed3200fe7bbc0754",
     "1010004_211088_n.png": "90e28a428d56d4b67c7540b0387ff5deb15012df9babeeebf0f625d0c8d8eea1",
     "1010004_211088_orm.png": "d9325e68ac2942b584d13b71eb9303b89b7813ccbaaba16444f313f7ccedb475",
@@ -242103,9 +242113,9 @@
     "1010004_275724_d.png": "8a16e51ff2d4e3d12c34e521f40987e6df7103bbda0fe6132637ffc347708ff1",
     "1010004_275724_n.png": "5ed8f828d067919532059b331b5af5f2182dce880483b582ce2e6665a3fae421",
     "1010004_275724_orm.png": "ad7490931d9a14f506c1f9bd4b84f42b20617a7196d91ebd35033db704bd760b",
-    "1010004_275744_d.png": "867f46c7374a15f5124295fced16c8eba5a949c7709239ee7262a124420fa161",
-    "1010004_275744_n.png": "48c959a6e6c3ad0622d0f2b8337fcf8da4c6d078bc01ebfd059e8da56d5fcc62",
-    "1010004_275744_orm.png": "7b1824090a27bcd94f6c18711076e7fe093102ace34e138be1146c7e37dfc3ba",
+    "1010004_275744_d.png": "ca663896c0548d3d212cd858e48c69172f65582807ace4418f9f7b4b84602b76",
+    "1010004_275744_n.png": "f142f75ffa5da6f293b78c5ef092a9adee47d537db59c8f0e9b4a26d49509f2d",
+    "1010004_275744_orm.png": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
     "1010004_275757_d.png": "7d5b9ebebe16379ba340ae4e96e90abe1abdbf10275468e768c09bf806bd11ae",
     "1010004_275757_n.png": "a0b38eee3aa97c9ba0aed08a3361da5579eeb2cae648de603bd8e8e77cb245ef",
     "1010004_275757_orm.png": "2c7a49f3fd9b2da293bd6bef38c31af6d9f1d29096ef2fdc8c7e868097218778",
@@ -243298,9 +243308,9 @@
     "1010004_283646_d.png": "365a03d368b40fbeb3f01d4385e1f941b85c9a169103759e5ea64374ffdc1d54",
     "1010004_283646_n.png": "81dc743db293a9910813828d3ed71cff4e53bdbf3dd8b5f3f5ff31c0c7347458",
     "1010004_283646_orm.png": "fe15cee52e4733c36ca314cd589875611ffb9e5f5aed7cf076ef12f6bd5aacaf",
-    "1010004_283647_d.png": "768a7556a8cf9b071b61fc81fb802d69c921e686956089a07601e7758f12005a",
-    "1010004_283647_n.png": "1b39643ecff13d995c0fc9115b86c525f13b12df245fac18156501cb3dd79c12",
-    "1010004_283647_orm.png": "ba636f35bfa67163f4e8f83457ca900c516c8afdbd60f142d999cb9bc6bb104e",
+    "1010004_283647_d.png": "76489793e07f359bdc7e06da5b8529c26b71a9a784cbb52eb95b449421c2f200",
+    "1010004_283647_n.png": "f921cfcb4398f24bfe615fec9e8b6e745e95a6847eb93fa68fd968b17498a15c",
+    "1010004_283647_orm.png": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
     "1010004_283649_d.png": "31d0c9b32349423411b6d09d6cdb73eff63b1a1b649e4e18574facb6478ed8c2",
     "1010004_283649_n.png": "a2f7f8c7eeae5b1af5f39ffe06ec1b50580254106fc2cac32d8f907506ccfe5e",
     "1010004_283649_orm.png": "bbeb5d4b48465bdac45d2ebb180220ce0a54f3fdb1b9ebd065316a654eb97243",

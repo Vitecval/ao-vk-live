@@ -1,0 +1,726 @@
+{
+  "schema": 1,
+  "correctedExistingIds": 12,
+  "coverageIdsAdded": 0,
+  "allResolutionRepairsComplete": false,
+  "initialUndersizedIds": 563,
+  "remainingUndersizedRepairs": 551,
+  "packagingLibrary": "build/preview23/resolution-audit/runtime",
+  "artwork": [
+    {
+      "type": 1010004,
+      "id": 18003,
+      "pack": "ao-cyber-characters",
+      "sourceOriginalSize": [
+        512,
+        256
+      ],
+      "generatedSize": [
+        1774,
+        887
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_18003_d.png",
+          "sha256": "1c977cf58c0f4f7536b50b391791155982d5e73818cdbb628503a2ea0001c3d9",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_18003_n.png",
+          "sha256": "05c5de3ac7eaad5ba46d28f3d0c3e2c13a00e80a747291054809d170057eb4cf",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_18003_orm.png",
+          "sha256": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
+          "size": [
+            512,
+            256
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        128
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_18003.png",
+      "rawRenderedSha256": "53049f41a057ba3314d0a9d35c1b582d102834a8e1d6efd299cb30f25d5fe826",
+      "generation": {
+        "type": 1010004,
+        "id": 18003,
+        "state": "recovered-existing-approved-full-resolution-art",
+        "requiredSize": [
+          512,
+          256
+        ],
+        "generated": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\generated\\1010004_18003.png",
+        "existingSource": "C:\\AOSharp\\AO-VK\\ao-vk-main\\material-packs\\ao-cyber-characters\\source-art\\scans-18003-v1.png",
+        "method": "Recovery of existing high-resolution generated source; no new image-service request"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 8741,
+      "pack": "ao-cyber-characters",
+      "sourceOriginalSize": [
+        512,
+        256
+      ],
+      "generatedSize": [
+        1774,
+        887
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_8741_d.png",
+          "sha256": "3a359dbd324523e6d7b2ae50602757fc9905fa446ac7430541d7e6497dbcb24e",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_8741_n.png",
+          "sha256": "aa9d0f254af3f0daa6e008e0ce07dc3beab93f731e8a7fee733bd8073fe4b8ec",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_8741_orm.png",
+          "sha256": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
+          "size": [
+            512,
+            256
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        128
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_8741.png",
+      "rawRenderedSha256": "642f2d017ca4a86f450959c19cde4b05c0d9c90039c9a9b2aeadd8a8a08107eb",
+      "generation": {
+        "type": 1010004,
+        "id": 8741,
+        "state": "recovered-existing-approved-full-resolution-art",
+        "requiredSize": [
+          512,
+          256
+        ],
+        "generated": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\generated\\1010004_8741.png",
+        "existingSource": "C:\\AOSharp\\AO-VK\\ao-vk-main\\material-packs\\ao-cyber-characters\\source-art\\scans-8741-v1.png",
+        "method": "Recovery of existing high-resolution generated source; no new image-service request"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 15223,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        512,
+        256
+      ],
+      "generatedSize": [
+        1774,
+        887
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_15223_d.png",
+          "sha256": "998654cb2f72b1ccefa976ae3f73f0ec03caa5ff02d2c30ab9b3037990c4430c",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_15223_n.png",
+          "sha256": "c8cc5dc79d8446845e13b79c715fd840bc0b1aaac0388fc30383f7108382c251",
+          "size": [
+            512,
+            256
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_15223_orm.png",
+          "sha256": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
+          "size": [
+            512,
+            256
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        128
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_15223.png",
+      "rawRenderedSha256": "fafabc1617a9cf44c940731075776e9ba7472b182bf4b565cf5749d671aaa796",
+      "generation": {
+        "type": 1010004,
+        "id": 15223,
+        "requiredSize": [
+          512,
+          256
+        ],
+        "generated": "C:/Users/valer/.codex/generated_images/01a1ae83-af6a-7420-aeec-93356e062ea1/exec-16730484-c536-46b6-933d-2895cf6b5fae.png",
+        "method": "built-in imagegen with original UV atlas reference; bounded detail bake keeps native structure",
+        "state": "rendered-awaiting-export",
+        "prompt": "Use case: precise-object-edit. Production game diffuse UV texture, ID 1010004:15223. Reference is a 512x256 original brown stylized small lizard creature texture. Re-render this atlas with crisp natural fine scales and warm brown skin detail, maintaining exactly the same body outline, large glossy round eye position, tail curve, leg and claw islands, black background and every UV island position. Flat diffuse material illumination and restrained highlights. No scene, no extra creatures, no added body parts, no text, no labels, no border, no watermark. Output landscape 1024x512 or larger with the exact 2:1 aspect ratio, for technical export at 512x256. Preserve the original shapes and brown palette; improve genuine detail instead of blurring."
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 201230,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        1024,
+        1024
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_201230_d.png",
+          "sha256": "1dc77406540466079496f4ea920106099680e0872135dec12565964ee550d740",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_201230_n.png",
+          "sha256": "fc4af8455564f577c498e003eddef7bafef27af3ac664c0fd558834915caa6e5",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_201230_orm.png",
+          "sha256": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
+          "size": [
+            1024,
+            1024
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_201230.png",
+      "rawRenderedSha256": "04540b68619f9165eba93e782893f5bc20a1c8367f2c186469aaf78e2bf71e23",
+      "generation": {
+        "type": 1010004,
+        "id": 201230,
+        "state": "generated",
+        "original": "build/preview23/resolution-audit/originals/1010004_201230.png",
+        "requiredSize": [
+          1024,
+          1024
+        ],
+        "generated": "C:/Users/valer/.codex/generated_images/01a1ae83-af6a-7420-aeec-93356e062ea1/exec-5a003cb5-8317-4bd2-b408-5320aa599ec7.png",
+        "prompt": "Use case: precise-object-edit. Production diffuse UV atlas for an existing fictional science-fiction cargo transport, texture 1010004:201230. The input is the exact 1024x1024 original texture layout. Re-render as a crisp 1024x1024 or 2048x2048 texture while keeping all islands, seams, panel outlines, vents, dark cockpit glass, cream hazard stripes, small red/white lights, painted stripes and tiny existing labels in exactly their original positions and proportions. Preserve the tan/beige and charcoal palette. Enhance finely detailed painted metal, screws, sharp panel borders, restrained satin reflections and subtle grime. Flat material illumination; retain the original markings, including '47-30', '3470', 'NO STEP', 'LOAD CAPACITY' and 'STAY CLEAR' where present. No new markings, objects, background scene, perspective, added border or watermark. This is an atlas, not an illustration of a vehicle. Do not rearrange or blur.",
+        "method": "built-in imagegen"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 202773,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        512,
+        512
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_202773_d.png",
+          "sha256": "71f87cdd8dfee3c492c66c5f0e87be0812aa9f46dc75f07ab153346f31817bbd",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_202773_n.png",
+          "sha256": "63be994117b482f16d1930561041f43b5e1a920b943d71c026e5af544a989de0",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_202773_orm.png",
+          "sha256": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
+          "size": [
+            512,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_202773.png",
+      "rawRenderedSha256": "b4ffbf125e008a3fd9ea382c67f0966c7a752ac91e3fec7b370c4dd79b4918f8",
+      "generation": {
+        "type": 1010004,
+        "id": 202773,
+        "state": "generated",
+        "requiredSize": [
+          512,
+          512
+        ],
+        "prompt": "Use case: precise-object-edit. Production diffuse UV texture atlas 1010004:202773 for a distant science-fiction passenger spacecraft. Re-render the referenced 512x512 atlas at crisp 1024x1024 resolution, maintaining the exact positions, sizes and shapes of every UV island, panel strip, dark gap, small blue window/light dots, circular inset, silver cylinder and cyan light panel. Preserve the muted silver/taupe metal and blue/cyan light palette. Add fine clean brushed-metal texture and sharp panel edging with restrained satin highlights. Preserve the black unused areas and the original flat material illumination. Do not create a scene, change the layout, add new parts, add labels, add a border or watermark. The output is one square texture atlas with the same composition, with genuinely finer material detail.",
+        "generated": "C:/Users/valer/.codex/generated_images/01a1ae83-af6a-7420-aeec-93356e062ea1/exec-38a37427-fbf7-4a53-a0f1-2f8409e5cc21.png",
+        "method": "built-in imagegen",
+        "layoutNote": "Raw render changes island interiors; export only bounded material frequencies onto exact original layout."
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 203102,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        512,
+        512
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_203102_d.png",
+          "sha256": "b182e71de33671f8bc898394acd28690547293b491cb4df25feacf1f7788a63e",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_203102_n.png",
+          "sha256": "2c18bd6f6b37477bff63df194f86f42198fac5d5f4d7d47b2673defdcd9bae03",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_203102_orm.png",
+          "sha256": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
+          "size": [
+            512,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_203102.png",
+      "rawRenderedSha256": "f3a98db389284d215710f9c072784d1d9f64ce68e9075c25796bdf79b36b5832",
+      "generation": {
+        "type": 1010004,
+        "id": 203102,
+        "state": "generated",
+        "requiredSize": [
+          512,
+          512
+        ],
+        "prompt": "Use case: precise-object-edit. Production diffuse UV atlas 1010004:203102 for a fictional white science-fiction passenger craft. The reference is the exact 512x512 original atlas. Produce a crisp 1024x1024 atlas with all original UV islands, panel strips, cockpit black areas, blue/cyan windows, tiny lights and subtle markings in the exact same positions, shapes and proportions. Preserve the clean off-white hull and graphite machinery palette; refine fine matte painted-metal grain and crisp panel seams, with restrained highlights. Keep the cyan light panels precisely aligned. No added parts, no vehicles rendered in perspective, no background scene, no added labels, no border or watermark. The output must remain a usable flat texture with the same original layout, with genuine fine material detail.",
+        "generated": "C:/Users/valer/.codex/generated_images/01a1ae83-af6a-7420-aeec-93356e062ea1/exec-ba49102e-fbc9-48c7-907c-8d298dfaa580.png",
+        "method": "built-in imagegen",
+        "layoutNote": "Use bounded generated material frequencies on native original layout; do not promote raw changed islands."
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 208051,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        256,
+        512
+      ],
+      "generatedSize": [
+        887,
+        1774
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208051_d.png",
+          "sha256": "2a75088a0af745a902df3f0bfc8d8fae42a9f889b678e3a97557e163a067ce48",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208051_n.png",
+          "sha256": "bef85a712eda046b9506a90df2e95e7176bb8a8785c26591a476a391004dbfe4",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208051_orm.png",
+          "sha256": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
+          "size": [
+            256,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        128,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_208051.png",
+      "rawRenderedSha256": "17d2936e8463cd4059de2071a76d962121b7ae86b269222ed1711ed132bf4860",
+      "generation": {
+        "type": 1010004,
+        "id": 208051,
+        "prompt": "Use case: precise-object-edit. Asset type: game architecture texture atlas, 1010004:208051. Input image is the edit target, not a scene reference. Enhance this narrow vertical ancient stone-and-oxidized-metal wall ornament into a crisp high-detail texture. Preserve the exact central recessed tall fork-shaped decoration, every panel edge, existing dark green and bronze palette, and the 1:2 aspect ratio. Flat diffuse material, restrained age and fine stone grain, no strong baked gloss, no new lighting or objects. Keep positions and silhouette fixed so the texture fits the existing model. Output at least 512x1024; show only the flat texture filling the frame.",
+        "method": "built-in imagegen with original UV atlas reference; bounded detail bake keeps native structure",
+        "state": "rendered-awaiting-export"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 208695,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        256,
+        512
+      ],
+      "generatedSize": [
+        887,
+        1774
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208695_d.png",
+          "sha256": "7959efdb0646fb8ac8c3da2f6be9132bf7129e6e52b3ab2e28317cff101ecb8d",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208695_n.png",
+          "sha256": "cfe9191a835a1a523963dd07597a9c5591429c27efaaf028a6983f5128788686",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208695_orm.png",
+          "sha256": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
+          "size": [
+            256,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        128,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_208695.png",
+      "rawRenderedSha256": "15077d4c6caf93c0089ffe879c33a73d3d2fefec0e9abd735a0427471bc4ecae",
+      "generation": {
+        "type": 1010004,
+        "id": 208695,
+        "prompt": "Use case: precise-object-edit. Asset: AO game architecture texture 1010004:208695. Edit the attached vertical flat wall texture into a crisp detailed material. Preserve the exact 1:2 layout, narrow dark vertical edge trims, broad mottled green-grey oxidized metal center and small bronze wear flecks. Add restrained high-resolution physical surface detail, fine pitting and brushed stone-metal patina, with softer highlights. No additional ornaments, seams, objects, directional lighting or shine; this must remain a matching plain wall between the original ornamented panels. Output at least 512x1024. Texture fills the whole frame, no border outside it.",
+        "method": "built-in imagegen with original UV atlas reference; bounded detail bake preserves native structure",
+        "state": "rendered-awaiting-export"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 208696,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        256,
+        512
+      ],
+      "generatedSize": [
+        887,
+        1774
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208696_d.png",
+          "sha256": "d70035f999bc025695d3007d9feda095cd2bc0e402b74d5a5d58891416d58779",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208696_n.png",
+          "sha256": "4253090470f7d36421fd3230a2faecbec06370fedb31c779449c77331a82df12",
+          "size": [
+            256,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_208696_orm.png",
+          "sha256": "eff89c58b8d0b67e1fc2563cf76bc264c7aae6a97d7c0f46635b9a06f8b4b3f6",
+          "size": [
+            256,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        128,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_208696.png",
+      "rawRenderedSha256": "72842f593117f1b7c7ede3c55abfdb2293c577aacb6a7d005832dd23af23c83d",
+      "generation": {
+        "type": 1010004,
+        "id": 208696,
+        "prompt": "Use case: precise-object-edit. Asset: game wall ornament texture 1010004:208696. The attached image is the edit target. Restore crisp high-resolution surface detail to this vertical ancient metal-and-stone panel, preserving its exact flat texture layout: tall narrow fork-shaped recessed center, circular top outline, broad dark green-grey stone panels, tiny bronze patina flecks and narrow vertical edge trims. Preserve the different lower cutouts and the straight center channels of THIS reference. Restrained satin finish, fine physical grain, softened highlights. No additional motif, no perspective, no new lights or objects. Texture only, edge to edge, 1:2 aspect, at least 512x1024.",
+        "method": "built-in imagegen with native UV atlas reference; bounded detail bake preserves native structure",
+        "state": "rendered-awaiting-export"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 211087,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        512,
+        512
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_211087_d.png",
+          "sha256": "642cdb3e1f18742fcc951f6644e374d1fdcb236611ca808ec843ad8f7a726b52",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_211087_n.png",
+          "sha256": "bd7cbd441e8040ae16c518f5b67bdedd3183e450e25ecfda1f4fbe0b6f77addc",
+          "size": [
+            512,
+            512
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_211087_orm.png",
+          "sha256": "cd085d4d19b10cc8290c949e3c56483b7f221551bce661a9755280bfd56cf3b5",
+          "size": [
+            512,
+            512
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        256,
+        256
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_211087.png",
+      "rawRenderedSha256": "51194726a5960d75a53e754d171a4ca7c3a816ee2de895362ec37f2e77042323",
+      "generation": {
+        "type": 1010004,
+        "id": 211087,
+        "prompt": "Use case: precise-object-edit. Asset: flat AO temple wall texture atlas 1010004:211087. Input image is the exact edit target. Enhance native material detail, keep the square layout and every feature location unchanged: three tall vertical dark recessed forms with forked lower ends, small square recesses, small dark oval niches and the partial circular architectural feature at the bottom center. Maintain the pale weathered blue-green stone-metal surface and aged bronze trim. Add precise fine grain, surface pitting and defined edges, restrained satin highlights. No new symbols, geometry, lights, perspective, objects, or scene. Keep black control areas and all seams at the same coordinates. At least 1024x1024, flat diffuse texture only filling the frame.",
+        "method": "built-in imagegen with native UV atlas reference; bounded detail bake preserves native structure",
+        "state": "rendered-awaiting-export"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 275744,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        1024,
+        1024
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_275744_d.png",
+          "sha256": "ca663896c0548d3d212cd858e48c69172f65582807ace4418f9f7b4b84602b76",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_275744_n.png",
+          "sha256": "f142f75ffa5da6f293b78c5ef092a9adee47d537db59c8f0e9b4a26d49509f2d",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_275744_orm.png",
+          "sha256": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
+          "size": [
+            1024,
+            1024
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        512,
+        512
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_275744.png",
+      "rawRenderedSha256": "ff1efb345cce93181dd9f0104268a2e6422b8ba01b604c765a21087b8be66182",
+      "generation": {
+        "type": 1010004,
+        "id": 275744,
+        "state": "recovered-existing-approved-full-resolution-art",
+        "requiredSize": [
+          1024,
+          1024
+        ],
+        "generated": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\generated\\1010004_275744.png",
+        "existingSource": "C:\\AOSharp\\AO-VK\\ao-vk-main\\material-packs\\ao-cyber-world\\source-art\\rock-275744-v2.png",
+        "method": "Recovery of existing high-resolution generated source; no new image-service request"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    },
+    {
+      "type": 1010004,
+      "id": 283647,
+      "pack": "ao-cyber-world",
+      "sourceOriginalSize": [
+        1024,
+        1024
+      ],
+      "generatedSize": [
+        1254,
+        1254
+      ],
+      "maps": {
+        "d": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_283647_d.png",
+          "sha256": "76489793e07f359bdc7e06da5b8529c26b71a9a784cbb52eb95b449421c2f200",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "n": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_283647_n.png",
+          "sha256": "f921cfcb4398f24bfe615fec9e8b6e745e95a6847eb93fa68fd968b17498a15c",
+          "size": [
+            1024,
+            1024
+          ]
+        },
+        "orm": {
+          "path": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\baked\\1010004_283647_orm.png",
+          "sha256": "926cfe149dcceba3010c94cae7faf30a548b7e64fcba9331bebe3cadf938aaa1",
+          "size": [
+            1024,
+            1024
+          ]
+        }
+      },
+      "layoutAndAlpha": "native original preserved",
+      "state": "baked-awaiting-native-validation",
+      "priorExportSize": [
+        512,
+        512
+      ],
+      "rawRenderedImage": "build/preview23/resolution-audit/generated/1010004_283647.png",
+      "rawRenderedSha256": "10ea2486476a37c390e406f3605df5393ede62ecead0fc19ce2963dd4ef4eda2",
+      "generation": {
+        "type": 1010004,
+        "id": 283647,
+        "state": "recovered-existing-approved-full-resolution-art",
+        "requiredSize": [
+          1024,
+          1024
+        ],
+        "generated": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\resolution-audit\\generated\\1010004_283647.png",
+        "existingSource": "C:\\AOSharp\\AO-VK\\ao-vk-main\\material-packs\\ao-cyber-world\\source-art\\rubika-family-283647-v2.png",
+        "method": "Recovery of existing high-resolution generated source; no new image-service request"
+      },
+      "exportMethod": "Native original RGB layout and alpha; bounded high-frequency rendered detail, matching normal and softened ORM. Not an enlargement of the old small diffuse.",
+      "retailMeshFitCertified": false
+    }
+  ]
+}

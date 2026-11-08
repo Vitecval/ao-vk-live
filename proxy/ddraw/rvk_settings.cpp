@@ -52,7 +52,7 @@ Setting g_settings[] = {
     {"RVK_AlienMap", "AI missions' PF map: rooms shown black on green (the game's is black on black)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_DetailRange", "How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws)", "General", Float, 1, 4, 0.25f, 2, nullptr, 0},
     {"RVK_ViewRange",   "How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws)", "General", Float, 1, 3, 0.25f, 1.5f, nullptr, 0},
-    {"RVK_ImmersiveShips", "Immersive Ships: existing sky ships, brighter navigation markings and clearer distant hulls; large scenery reaches 15% farther", "General", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_ImmersiveShips", "Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas", "General", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
     {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
@@ -819,7 +819,11 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
-        if(is("RVK_ImmersiveShips")) rnative::camera::SetSceneryRange(V(n)>.5f ? 1.15f:1.f);
+        if(is("RVK_ImmersiveShips")) {
+            const float scenery=V(n)>.5f ? 1.15f:1.f;
+            rnative::camera::SetSceneryRange(scenery);
+            rnative::rings::SetSceneryScale(scenery);
+        }
         if (is("RVK_DayCycle"))
             for (const char* dependent : {"RVK_Hdr","RVK_PixelLight","RVK_TimeOfDay"})
                 if (const Setting* other=Find(dependent)) ApplyOne(*other,d);

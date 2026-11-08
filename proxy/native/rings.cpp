@@ -8,12 +8,14 @@
 // as the camera crosses it - while the renderer's statel shadows (RVK_StaticShad) still cast them (user dumps, 2026-10-18).
 //
 // The ring function is wrapped: while it runs the two inner factors - the rings the small things go at - are scaled,
-// then put back, so N3's own code picks the ring. The outer rings (trees, buildings) stay the game's, only moved out
-// as far as the inner ones now reach: scaling all five drew about four times the land's objects and cost a lot of
-// frame rate (user, 2026-10-18). Each is kept within the zones N3 keeps loaded at all (the view distance x the grid's
+// then put back, so N3's own code picks the ring. ImmersiveShips separately expands
+// the outer rings (trees, buildings) by at most 15%, matching the camera's reach.
+// Small-object detail is unchanged: scaling all five by DetailRange once drew
+// about four times the land's objects (user, 2026-10-18). Each stays within N3's loaded zones (the view distance x the grid's
 // +0x28, FUN_10028cf4: the rings' radii take half the view distance, so a factor up to twice +0x28) - past that there
 // is nothing to show.
 #include "native/rings.h"
+#include "native/ring_ranges.h"
 
 #include "native/native.h"
 #include "native/client_build.h"
@@ -21,6 +23,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cstring>
+#include <cmath>
 
 namespace rnative::rings {
 
@@ -29,6 +32,7 @@ namespace {
 using RingFn = int(__fastcall*)(void* grid, void* edx, int zone, const void* camera);
 RingFn g_ring;
 std::atomic<float> g_scale{1.0f};
+std::atomic<float> g_sceneryScale{1.0f};
 bool g_logged;
 
 constexpr uint32_t kRingRva = 0x28AB7;              // FUN_10028ab7 in N3.dll (image base 0x10000000)
@@ -38,23 +42,22 @@ constexpr uint32_t kKept = 0x28, kFactors = 0x2C;   // the grid: zones kept to t
 int __fastcall RingHook(uint8_t* grid, void* edx, int zone, const void* camera)
 {
     const float scale = g_scale.load(std::memory_order_relaxed);
-    if (scale == 1.0f)
+    const float scenery = g_sceneryScale.load(std::memory_order_relaxed);
+    if (scale == 1.0f && scenery == 1.0f)
         return g_ring(grid, edx, zone, camera);
     float* factors = reinterpret_cast<float*>(grid + kFactors);
     float kept;
     std::memcpy(&kept, grid + kKept, 4);
-    const float limit = kept * 2.0f;
     float saved[5];
     std::memcpy(saved, factors, sizeof(saved));
-    for (int i = 0; i < 5; ++i) {
-        const float wanted = i < 2 ? saved[i] * scale : std::max(saved[i], factors[i - 1]);   // (the rings in order)
-        factors[i] = limit > 0.0f ? std::max(saved[i], std::min(wanted, limit)) : wanted;
-    }
+    float expanded[5];
+    ScaledFactors(saved,kept,scale,scenery,expanded);
+    std::memcpy(factors,expanded,sizeof(expanded));
     if (!g_logged) {
         g_logged = true;
         Log("statel rings: x%.2f - factors %.3f %.3f %.3f %.3f %.3f (the game's %.3f %.3f %.3f %.3f %.3f), zones kept to "
-            "%.3f of the view distance", scale, factors[0], factors[1], factors[2], factors[3], factors[4], saved[0],
-            saved[1], saved[2], saved[3], saved[4], kept);
+            "%.3f of the view distance; large scenery x%.2f", scale, factors[0], factors[1], factors[2], factors[3], factors[4], saved[0],
+            saved[1], saved[2], saved[3], saved[4], kept, scenery);
     }
     const int ring = g_ring(grid, edx, zone, camera);
     std::memcpy(factors, saved, sizeof(saved));
@@ -67,6 +70,12 @@ void SetScale(float scale)
 {
     g_scale.store(scale, std::memory_order_relaxed);
     g_logged = false;
+}
+
+void SetSceneryScale(float scale)
+{
+    g_sceneryScale.store(std::isfinite(scale) ? std::clamp(scale,1.f,1.15f):1.f,std::memory_order_relaxed);
+    g_logged=false;
 }
 
 void Install()

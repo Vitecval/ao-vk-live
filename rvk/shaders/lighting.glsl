@@ -146,6 +146,16 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
             if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
         }
         ambient+=skyColour*(daylight*missing);
+        // Retail ICC supplies ambient 0x7e, above the floor above: that floor
+        // supplied no sky light at all to its vertical facades. Add a bounded
+        // hemisphere/bounce lobe to sides, not more exposure on sunlit floors.
+        // Both still multiply the material and its occlusion; black paint stays
+        // black. Undersides get only the small, warm reflected-ground term.
+        float side=1.0-clamp(up*up,0.0,1.0);
+        vec3 bounce=skyColour*(.10*side)+vec3(.95,.89,.78)*(.035*(1.0-up)*.5);
+        // Reflected energy follows the zone's ambient, rather than imposing a
+        // second lighting floor on deliberately dim/near-black materials.
+        ambient+=bounce*(daylight*clamp(2.0*ambientLuma,0.0,1.0)*(1.0-.85*FL.rainNear.y));
     }
     for (uint i = 0u; i < C.lightInfo.x; ++i)
         AccumulateLight(C.lights[i], posW, normalW, toEye, sunScale, localScale, ambient, diff, spec);

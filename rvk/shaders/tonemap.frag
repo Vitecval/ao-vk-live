@@ -318,7 +318,7 @@ void main()
         float gl = dot(glow, vec3(0.3, 0.59, 0.11));
         glow = max(mix(vec3(gl), glow, 1.0 + 0.35 * FL.neon.x), vec3(0.0));
     }
-    vec3 c = Reflected(s.rgb * AmbientFactor() + Indirect());
+    vec3 c = Reflected(s.rgb * AmbientFactor(FL.windowLife.z) + Indirect());
     float far = 1.0;
     // The rain (rvk rain.cpp's rain layer: not in the scene - its reflected light, premultiplied, and cover): laid
     // over the finished picture below, after the haze, the storm's fog and the dust - a few units off, it is veiled by

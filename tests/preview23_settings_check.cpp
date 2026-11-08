@@ -1,13 +1,32 @@
 // Runs next to an isolated addon copy. Never bootstraps or launches a game.
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include "ddraw/rvk_settings.h"
+#include "native/ring_ranges.h"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
 #include <cstdlib>
 
 int main(int argc,char**) {
+    // Exercise the actual N3 ring policy: scenery must never expand the small
+    // object rings or reach zones that N3 has not loaded. Off is the old policy.
+    const float original[5]={.10f,.15f,.30f,.40f,.55f};
+    for(float detail:{1.f,2.f,4.f})for(float kept:{.20f,.4f,1.f}) {
+        float off[5],on[5],previous=0;
+        rnative::rings::ScaledFactors(original,kept,detail,1.f,off);
+        rnative::rings::ScaledFactors(original,kept,detail,1.15f,on);
+        for(int i=0;i<5;++i) {
+            const float wanted=i<2 ? original[i]*detail:std::max(original[i],previous);
+            const float old=std::max(original[i],std::min(wanted,kept*2));
+            if(std::fabs(off[i]-old)>1e-6f || on[i]<off[i] ||
+               on[i]>std::max(original[i],kept*2)+1e-6f ||
+               (i<2 && on[i]!=off[i]) || (i>0 && on[i]<on[i-1]))return 9;
+            previous=off[i];
+        }
+    }
+    std::puts("scenery rings bounded; small-object budget and disabled policy preserved");
     HMODULE lib=LoadLibraryA("ao-vk.dll");
     if(!lib) {std::printf("load failed %lu\n",GetLastError());return 1;}
     auto set=reinterpret_cast<int(__cdecl*)(const char*,float)>(GetProcAddress(lib,"RvkSettings_Set"));

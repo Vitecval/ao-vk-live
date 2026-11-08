@@ -2,10 +2,12 @@
 // Depth of field (hdr.cpp), first: the HDR scene with its ambient occlusion, indirect light, reflections and volumetric
 // light applied, so the blur takes them along (the tone mapping then leaves them out).
 #include "occlusion.glsl"
+#define FL_BINDING 15
+#include "frame_lights.glsl"
 layout(location = 0) out vec4 outColor;
 
 void main()
 {
     vec4 s = texelFetch(scene, ivec2(gl_FragCoord.xy), 0);
-    outColor = vec4(Reflected(s.rgb * AmbientFactor() + Indirect()) + Volumetric(), s.a);
+    outColor = vec4(Reflected(s.rgb * AmbientFactor(FL.windowLife.z) + Indirect()) + Volumetric(), s.a);
 }

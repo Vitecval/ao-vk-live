@@ -1029,13 +1029,17 @@ void AddCube(std::vector<VtxMesh>&, std::vector<uint16_t>&, float, float, float,
 template <typename D>
 void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
 {
-    const bool night = g_visualCase == 8;
+    // The owner's ICC capture: ambient 0x7e, grey .55 sun, AO strength 2.
+    // The older low-ambient fixture did not exercise this common retail case.
+    const bool icc = g_visualCase == 13 || g_visualCase == 14;
+    const bool night = g_visualCase == 8 || g_visualCase == 14;
     const bool skyOnly = g_visualCase == 9;
     dev.SetSkyPlayfield(655);
-    dev.SetKnob(Knob::DayCycle,g_visualToggle ? 2.f:0.f);
+    dev.SetKnob(Knob::DayCycle,(g_visualToggle&1) ? 2.f:0.f);
     dev.SetKnob(Knob::DayLook,0);
     dev.SetHdr(true);dev.SetTonemap(1,1);dev.SetBloom(0,1);dev.SetDarkness(0,0);
     dev.SetPixelLighting(true);dev.SetLightOverride(false);
+    if(icc)dev.SetAo((g_visualToggle&2) ? 0.f:2.f,1.f);
     dev.SetProcSky(true,.25f,1.f);
     dev.SetKnob(Knob::MoonLight,0);
     NightSky nightSky;nightSky.stars=false;nightSky.galaxy=nightSky.meteors=nightSky.aurora=0;
@@ -1072,10 +1076,11 @@ void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
         dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
         dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
         dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
-        dev.SetRenderState(RS_AMBIENT,night ? 0xFF101218:0xFF282828);
+        dev.SetRenderState(RS_AMBIENT,night ? 0xFF101218:icc ? 0xFF7E7E7E:0xFF282828);
         dev.SetRenderState(RS_FOGCOLOR,0xFF879F75);dev.SetRenderState(RS_FOGENABLE,0);
         Light sun{};sun.type=LIGHT_DIRECTIONAL;
         sun.direction={-.55f,night ? .7f:-.7f,.45f};sun.diffuse={.50f,.47f,.39f,1};
+        if(icc && !night){sun.direction={.70f,-.71f,.04f};sun.diffuse={.55f,.55f,.55f,1};}
         dev.SetLight(0,sun);dev.LightEnable(0,true);
         // Establish outdoor context once, then look up for many frames. The
         // profile must not disappear merely because no terrain is in view.
@@ -1107,7 +1112,7 @@ void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
 template <typename D>
 void RunVisualCorrection(D& dev, int frames, const std::string& shot)
 {
-    if(g_visualCase>=7 && g_visualCase<=9){RunSunnyDayScene(dev,frames,shot);return;}
+    if((g_visualCase>=7 && g_visualCase<=9) || g_visualCase==13 || g_visualCase==14){RunSunnyDayScene(dev,frames,shot);return;}
     // Actual renderer exercise: a zero-ambient creation studio, an exterior
     // daylight reference, or an intentionally mismatched HD/original pattern.
     auto original=Checker(128,4,0xFF807060u,0xFF304860u);

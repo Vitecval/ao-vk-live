@@ -112,3 +112,37 @@ The controlled footprint test changes 9,723 falsely projected floor pixels
 to zero, in both SharedGround+ and GroundOn. The steep-face diagnostic remains
 fully projected. Terrain geometry, collision, lighting, and draw ownership are
 unchanged by this correction. The owner confirmed the cliff sides are fixed.
+
+## Outdoor light balance and loaded scenery (revision 25)
+
+The owner confirmed revision 24's `timeofday` priority correction. The clock
+remains independent of Enhanced Daylights: server time by default, explicit
+manual hours when requested. The newer comparison uses 13.5 in both clients.
+
+The ICC capture (`rvk-frame-153015.txt`) supplies global ambient 0x7e and
+neutral .55 sunlight. The earlier daylight sky-irradiance floor was .16 on a
+vertical face, so it contributed nothing at that ambient level. A bounded
+side-facing sky lobe and small warm ground-bounce term now illuminate the
+material, including its rough environment reflection. The bounce follows the
+zone's ambient energy, surface orientation and storm attenuation; it does not
+change exposure, gamma, grading, sky brightness or texture colors. Upward-facing
+ground receives no additional lobe. Existing material occlusion remains, and
+near-black materials retain their dark response. This is an analytic outdoor
+approximation, not a claim of Unity-style geometry-aware global illumination.
+
+In Enhanced daylight, screen-space ambient occlusion now removes the ambient
+share instead of also darkening the known direct-sun share. The latter was
+already recorded for contact shadows. Actual contact/cascade shadows remain
+separate and active. The same composition is used before depth-of-field blur.
+The profile's existing outdoor/daytime gating still excludes login studios,
+interiors, night, and other day-cycle modes. No frame-generation code changed.
+
+Immersive Ships previously extended the native camera's reach for large
+scenery, but N3's earlier statel rings could still hide it. Its existing 15%
+extension now also reaches the outer building/tree rings, capped inside the
+zones N3 already keeps loaded. Inner rock/shrub detail rings, actors, occlusion
+culling, and the amount of loaded world remain unchanged. Turning it off restores
+the former ring policy. An increase in distant geometry may cost frame time;
+the controlled checks do not establish live retail performance or an exact
+Lost Eden scene match. Visibility changes take effect on the game's next ring
+refresh when the camera moves onto another tile.

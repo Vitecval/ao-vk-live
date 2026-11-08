@@ -39,8 +39,12 @@ def main():
                 catalog=read(manifest);pack=manifest.parent.name;dest=folder/'randy-vk/packs'/pack;dest.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(manifest,dest/'manifest.json');m['assets'][(dest/'manifest.json').relative_to(folder).as_posix()]=sha(dest/'manifest.json')
                 for name,expected in catalog['files'].items():
-                    src=manifest.parent/name;assert sha(src)==expected,(pack,name)
                     target=dest/name
+                    src=manifest.parent/name
+                    # A verified incremental library carries new maps plus the
+                    # complete catalogue. Unchanged maps stay in the seed.
+                    if not src.is_file():src=target
+                    assert src.is_file() and sha(src)==expected,(pack,name,'no verified source or seed map')
                     if target.exists():
                         if sha(target)!=expected:
                             # Replace the new folder's link, never modify a

@@ -294,6 +294,8 @@ struct DeviceInfo {
     X(WearDebug, m_wearDebug, C)                        /* 0 off, 1 counters, 2 pixel coverage */ \
     X(WindowDepth, m_windowDepth, C)                    /* Exterior windows: 0 off, 1 subtle, 2 strong */ \
     X(ICCGlossiness, m_iccGlossiness, C)               /* verified ICC targets only, 0..1 */ \
+    X(GlobalShiny, m_globalShiny, C|L)                /* material gloss/specular response, 0..1 */ \
+    X(ImmersiveShips, m_immersiveShips, C)            /* enhance existing named sky ships */ \
     X(ICCArtwork, m_enhancedOriginal, C)              /* original world patterns plus authored fine detail */ \
     X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
@@ -2351,7 +2353,8 @@ private:
     void ResetWeatherStats();
     void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
     void ReportWeatherStats(FILE* file=nullptr);
-    float m_iccGlossiness = 1.0f;
+    float m_iccGlossiness = .5f, m_globalShiny = .5f;
+    float m_immersiveShips = 0.f;
     float m_enhancedOriginal = 0.0f;
     float m_buildWear = 0.0f;
     float m_windowDepth = 0.0f;

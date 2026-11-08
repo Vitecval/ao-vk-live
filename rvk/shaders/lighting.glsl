@@ -26,7 +26,7 @@ vec3 PbrSpecular(vec3 n, vec3 L, vec3 V)
     float vis = 0.5 / (nl * sqrt(nv * nv * (1.0 - a2) + a2) + nv * sqrt(nl * nl * (1.0 - a2) + a2) + 1e-5);
     float f = pow(1.0 - vh, 5.0);
     vec3 F = gPbrF0 + (1.0 - gPbrF0) * f;
-    return F * (ndf * vis * nl * kPbrPi);
+    return F * (ndf * vis * nl * kPbrPi) * FL.windowLife.w;
 }
 
 // The split-sum environment term without its lookup table (Karis, "Physically Based Shading on Mobile").
@@ -117,7 +117,7 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
             spec += a * l.diffuse.rgb * direct * PbrSpecular(normalize(normalW), L, toEye);
     } else if ((C.flags.x & F_SPECULAR) != 0u && nl > 0.0) {
         float nh = max(dot(normalW, normalize(L + toEye)), 0.0);
-        spec += att * pow(nh, C.misc.x) * l.specular.rgb * direct;
+        spec += att * pow(nh, C.misc.x) * l.specular.rgb * direct * FL.windowLife.w;
     }
 }
 

@@ -52,6 +52,7 @@ Setting g_settings[] = {
     {"RVK_AlienMap", "AI missions' PF map: rooms shown black on green (the game's is black on black)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_DetailRange", "How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws)", "General", Float, 1, 4, 0.25f, 2, nullptr, 0},
     {"RVK_ViewRange",   "How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws)", "General", Float, 1, 3, 0.25f, 1.5f, nullptr, 0},
+    {"RVK_ImmersiveShips", "Immersive Ships: existing sky ships, brighter navigation markings and clearer distant hulls; large scenery reaches 15% farther", "General", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
     {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
@@ -87,8 +88,9 @@ Setting g_settings[] = {
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
     {"RVK_ModernTex", "World texture style: Original / AnarchyHD", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 2"},
-    {"RVK_ICCArtwork", "World surface artwork: AnarchyHD / Enhanced Original", "Materials", Choice, 0, 1, 1, 1, nullptr, 0, "RVK_ModernTex", "0 1"},
-    {"RVK_ICCGlossiness", "ICC Glossiness", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_ModernTex"},
+    {"RVK_ICCArtwork", "World surface artwork: AnarchyHD / Enhanced Original", "Materials", Choice, 0, 1, 1, 0, nullptr, 0, "RVK_ModernTex", "0 1"},
+    {"RVK_ICCGlossiness", "ICC Glossiness", "Materials", Float, 0, 1, 0.1f, .5f, nullptr, 0, "RVK_ModernTex"},
+    {"RVK_GlobalShiny", "Global Shiny", "Materials", Float, 0, 1, .05f, .5f, nullptr, 0},
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
@@ -251,7 +253,7 @@ Setting g_settings[] = {
     {"RVK_SmokeOpaque", "Smoke: how opaque it is drawn",                           "Smoke",     Float, 0.05f, 8, 0.05f, 3, nullptr, 0, "RVK_SmokeOn"},
     {"RVK_SmokeBudget","Smoke: the simulation's GPU time a frame, about (ms; over it the smoke steps less often; 0: no cap)", "Smoke", Float, 0, 8, 0.25f, 1.5f, nullptr, 0, "RVK_SmokeOn"},
     {"RVK_SmokeHalf",  "Smoke: drawn at half resolution (much cheaper)",          "Smoke",     Bool,  0, 1, 1, 1, nullptr, 0, "RVK_SmokeOn"},
-    {"RVK_CloudsOn", "Volumetric clouds", "Sky", Bool,  0, 1, 1, 1, nullptr, 0},
+    {"RVK_CloudsOn", "Volumetric clouds", "Sky", Bool,  0, 1, 1, 0, nullptr, 0},
     {"RVK_CloudThick", "Clouds: how thick",                                        "Sky",     Float, 0.1f, 4, 0.1f, 1, nullptr, 0, "RVK_CloudsOn"},
     {"RVK_CloudBright", "Clouds: how light",                                       "Sky",     Float, 0.25f, 3, 0.05f, 0.5f, nullptr, 0, "RVK_CloudsOn"},
     {"RVK_CloudNight",  "Clouds: how light at night (x the above)",                 "Sky",     Float, 0.25f, 2, 0.05f, 0.4f, nullptr, 0, "RVK_CloudsOn"},
@@ -461,6 +463,7 @@ const Vanilla kVanilla[] = {
     {"RVK_TerraBlend", 0},
     {"RVK_DayLook", 0},
     {"RVK_DayCycle", 0}, {"RVK_ImprovedTiles", 1},
+    {"RVK_GlobalShiny",1}, {"RVK_ImmersiveShips",0},
     {"RVK_BuildingHD", 0},
     {"RVK_FarHaze", 0},
     {"RVK_ModernTex", 0},
@@ -579,6 +582,10 @@ float V(const char* name)
     if (!s) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
+    if (Stored("RVK_Enhance")!=0 && Stored("RVK_DayCycle")==2 &&
+        std::strcmp(name,"RVK_TimeOfDay")==0) return -1.f;
+    if (Stored("RVK_Enhance")!=0 && Stored("RVK_DayCycle")==2 &&
+        std::strcmp(name,"RVK_TimeSpeed")==0) return 1.f;
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
     // Shared Ground+ keeps the retail surface boundaries; geometric rounding
@@ -814,8 +821,9 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
+        if(is("RVK_ImmersiveShips")) rnative::camera::SetSceneryRange(V(n)>.5f ? 1.15f:1.f);
         if (is("RVK_DayCycle"))
-            for (const char* dependent : {"RVK_Hdr","RVK_PixelLight"})
+            for (const char* dependent : {"RVK_Hdr","RVK_PixelLight","RVK_TimeOfDay"})
                 if (const Setting* other=Find(dependent)) ApplyOne(*other,d);
         if (is("RVK_TerraBlend")) {
             SetSharedTerrainSetting(V(n) > 0.0f);
@@ -1428,6 +1436,9 @@ const PresetValue kClassicPlus[] = {
     {"RVK_CloudsOn", 0}, {"RVK_WeatherOn", 0}, {"RVK_SmokeOn", 0}, {"RVK_WaterOn", 0},   // (the new features off)
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
+    {"RVK_ModernTex",2}, {"RVK_Albedo",1}, {"RVK_ICCArtwork",0}, {"RVK_ICCGlossiness",.5f},
+    {"RVK_GlobalShiny",.5f}, {"RVK_BuildWear",1}, {"RVK_DayCycle",2}, {"RVK_CloudsOn",0},
+    {"RVK_ImmersiveShips",1},
     {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
@@ -1438,8 +1449,11 @@ const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's 
 const char* const kPresetNames[] = {"Original", "Classic+", "Modern", "Ultra"};
 constexpr uint32_t kPresetCount = 4;
 
-bool InPresets(const Setting& s)
+bool InPresets(const Setting& s, uint32_t preset)
 {
+    if(preset==3 && (std::strcmp(s.name,"RVK_ModernTex")==0 || std::strcmp(s.name,"RVK_ICCArtwork")==0 ||
+        std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
+        std::strcmp(s.name,"RVK_ImmersiveShips")==0)) return true;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
@@ -1479,7 +1493,7 @@ int PresetCurrent()
         PresetValues(i, v);
         bool same = true;
         for (size_t k = 0; k < kCount && same; ++k)
-            if (InPresets(g_settings[k]) && std::fabs(v[k] - g_settings[k].value) > 1e-4f) same = false;
+            if (InPresets(g_settings[k],i) && std::fabs(v[k] - g_settings[k].value) > 1e-4f) same = false;
         if (same) return int(i);
     }
     return -1;
@@ -1496,7 +1510,8 @@ bool PresetApply(uint32_t i)
     if (i >= kPresetCount) return false;
     PresetValues(i, v);
     for (size_t k = 0; k < kCount; ++k)
-        if (InPresets(g_settings[k])) Set(g_settings[k].name, v[k]);
+        if (InPresets(g_settings[k],i)) Set(g_settings[k].name, v[k]);
+    if(i==3) {Set("RVK_TimeOfDay",-1.f);Set("RVK_TimeSpeed",1.f);}
     RvkLog("preset %s applied", kPresetNames[i]);
     return true;
 }

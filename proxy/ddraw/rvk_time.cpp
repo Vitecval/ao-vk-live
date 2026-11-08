@@ -69,8 +69,9 @@ void TimeFrame()
 {
     if (g_gaveUp)
         return;
-    const float hour = rvk_settings::Get("RVK_TimeOfDay");
-    const float speed = rvk_settings::Get("RVK_TimeSpeed");
+    const bool serverDaylight=rvk_settings::GetEffective("RVK_DayCycle")==2.f;
+    const float hour = serverDaylight ? -1.f : rvk_settings::Get("RVK_TimeOfDay");
+    const float speed = serverDaylight ? 1.f : rvk_settings::Get("RVK_TimeSpeed");
     const bool testing = hour >= 0.0f || std::fabs(speed - 1.0f) > 1e-4f;
     const bool longerRequested = rvk_settings::GetEffective("RVK_DayCycle") == 1.0f;
     bool own = testing || longerRequested;

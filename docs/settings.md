@@ -17,14 +17,14 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-361 settings, 190 of them in the settings window.
+363 settings, 192 of them in the settings window.
 
 ## Sections
 
-- [General](#general) (9)
+- [General](#general) (10)
 - [Lighting](#lighting) (17)
 - [Day/Night Cycle](#day/night-cycle) (1)
-- [Materials](#materials) (25)
+- [Materials](#materials) (26)
 - [Debug](#debug) (8)
 - [Terrain](#terrain) (25)
 - [Plants](#plants) (39)
@@ -53,6 +53,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_AlienMap` | AI missions' PF map: rooms shown black on green (the game's is black on black) | on / off | on | window; knob |
 | `RVK_DetailRange` | How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws) | 1 .. 4 | 2 | window |
 | `RVK_ViewRange` | How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws) | 1 .. 3 | 1.5 | window; game value 1 |
+| `RVK_ImmersiveShips` | Immersive Ships: existing sky ships, brighter navigation markings and clearer distant hulls; large scenery reaches 15% farther | on / off | off | window; game value off; knob |
 
 ## Lighting
 
@@ -100,8 +101,9 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
-| `RVK_ICCArtwork` | World surface artwork: AnarchyHD / Enhanced Original | 0 / 1 | 1 | window; switch `RVK_ModernTex`; knob |
-| `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 1 | window; switch `RVK_ModernTex`; knob |
+| `RVK_ICCArtwork` | World surface artwork: AnarchyHD / Enhanced Original | 0 / 1 | 0 | window; switch `RVK_ModernTex`; knob |
+| `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 0.5 | window; switch `RVK_ModernTex`; knob |
+| `RVK_GlobalShiny` | Global Shiny | 0 .. 1 | 0.5 | window; game value 1; knob |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
 | `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |
@@ -301,7 +303,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `RVK_CloudsOn` | Volumetric clouds | on / off | on | window; game value off |
+| `RVK_CloudsOn` | Volumetric clouds | on / off | off | window; game value off |
 | `RVK_CloudThick` | Clouds: how thick | 0.1 .. 4 | 1 | ini only; switch `RVK_CloudsOn` |
 | `RVK_CloudBright` | Clouds: how light | 0.25 .. 3 | 0.5 | ini only; switch `RVK_CloudsOn` |
 | `RVK_CloudNight` | Clouds: how light at night (x the above) | 0.25 .. 2 | 0.4 | ini only; switch `RVK_CloudsOn` |

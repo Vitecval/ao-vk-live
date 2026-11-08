@@ -626,7 +626,7 @@ vec3 PbrAmbientSpecular(vec3 nu, vec3 V, vec3 ambientLight)
 #undef ENVATLAS
         env = mix(env, p.rgb, clamp(p.a, 0.0, 1.0) * strength);
     }
-    env *= gIccReflection;
+    env *= gIccReflection * FL.windowLife.w;
     gPbrEnv = env;
     float so = clamp(pow(nv + gPbrAo, exp2(-16.0 * gPbrRough - 1.0)) - 1.0 + gPbrAo, 0.0, 1.0);
     return EnvBrdfApprox(gPbrF0, gPbrRough, nv) * env * so;
@@ -1059,6 +1059,7 @@ void main()
                 gPbrRough = clamp(gPbrRough + WeatherMask() * .38, .03, 1.0);
                 gPbrMetal *= 1.0 - WeatherMask() * .65;
             }
+            gPbrRough=max(gPbrRough,mix(.92,.04,FL.windowLife.w));
             float a2 = gPbrRough * gPbrRough * gPbrRough * gPbrRough;
             a2 = clamp(a2 + min(0.5 * (dot(dnx, dnx) + dot(dny, dny)), 0.18), 1e-6, 1.0);
             gPbrAlpha = sqrt(a2);
@@ -1304,6 +1305,14 @@ void main()
     // beyond white with HDR, for the bloom.
     const bool selfLit = (C.flags.x & F_EMISSIVE) != 0u, hasMap = (D.mat.z & MAT_EMISSIVE) != 0u;
     vec3 emitted = vec3(0.0), map = vec3(0.0);
+    if((D.mat.z & MAT_IMMERSIVE_SHIP)!=0u) {
+        // Emissive treatment of existing coloured navigation/engine markings;
+        // no spawned ships, added geometry or dynamic-light/shadow allocation.
+        float warm=smoothstep(.12,.40,t0.r-t0.b)*smoothstep(.40,.75,t0.r);
+        float cool=smoothstep(.12,.40,t0.b-t0.r)*smoothstep(.40,.75,t0.b);
+        vec3 navigation=t0.rgb*(warm+cool)*.65;
+        current.rgb+=navigation;emitted+=navigation;
+    }
     if (hasMap && (selfLit ? FL.effects.y > 0.0 : FL.pbr2.z > 0.0))
         map = (gParallax ? textureGrad(EMISSIVETEX, gUv0, gUv0Dx, gUv0Dy) : texture(EMISSIVETEX, vTex0.xy)).rgb;
     if (selfLit && FL.effects.y > 0.0) {
@@ -1386,7 +1395,7 @@ void main()
     // PBR: smooth surfaces reflect the scene (metals most); rough ones only their ambient environment.
     if (gPbrOn)
         reflectivity = max(reflectivity, FL.pbr.z * (1.0 - smoothstep(0.1, 0.55, gPbrRough)) * mix(0.12, 0.9, gPbrMetal));
-    reflectivity *= gIccReflection; // Also calibrate the independent wet-weather/legacy SSR contribution.
+    reflectivity *= gIccReflection * FL.windowLife.w;
     // ... and their albedo for indirect light is the diffuse part: none on metal, less in occluded creases.
     if (gPbrOn && !gPbrBase)
         albedo *= (1.0 - gPbrMetal) * gPbrAo;

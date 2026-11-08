@@ -268,9 +268,10 @@ bool Device::ImprovedTile(const Texture* tile) const
 {
     // Off means original tile input to the continuous terrain renderer. It
     // never removes terrain geometry or leaves an untextured patch behind.
-    return !(SharedGroundPlus() && m_skyPlayfield == icc::Playfield &&
-        m_improvedTiles <= 0.5f && tile && materials::IsGroundType(tile->m_rdbType) &&
-        icc::Target(tile->m_rdbType, tile->m_rdbId));
+    if ((m_sharedTerrain>0.f || m_native.on) && tile && materials::IsGroundType(tile->m_rdbType))
+        return m_skyPlayfield==icc::Playfield && m_improvedTiles>.5f &&
+               icc::Target(tile->m_rdbType,tile->m_rdbId);
+    return true;
 }
 
 // The sand's prevailing wind (its ripples' crests lie across it: terrain.glsl), a bearing in radians: fixed for a
@@ -336,7 +337,7 @@ void Device::MakeNativeCodes()
         const uint32_t img = image.empty() ? 0u : image[t];
         uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
                                     (t < authored.size() && authored[t] ? 0xBFu : 0xFFu);
-        if (m_skyPlayfield==icc::Playfield && t<g.tiles.size() && g.tiles[t] && g.tiles[t]->m_albedoMap &&
+        if (m_skyPlayfield==icc::Playfield && t<g.tiles.size() && g.tiles[t] && ImprovedTile(g.tiles[t]) && g.tiles[t]->m_albedoMap &&
             icc::Target(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId)) attributes &= ~32u;
         codes[k] = attributes << 24 | (img & 0xFFu) << 16 |
                    ((img >> 8) & 0xFFu) << 8 | turn;
@@ -724,7 +725,7 @@ void Device::DrawNativeGround(bool lightPass)
             d2 += d * d;
         }
         m_native.tessPatch = d2 < kNativeTessDistance * kNativeTessDistance;
-        const auto& indices = SharedGroundPlus() ? p.retailIndices : p.indices;
+        const auto& indices = p.retailIndices; // both terrain modes meet retail overlays and collision geometry
         DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, indices, uint32_t(indices->size() / 2));
         ++drawn;
     }

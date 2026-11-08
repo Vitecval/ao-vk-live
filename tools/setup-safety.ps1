@@ -83,7 +83,7 @@ function Assert-AoTransaction($Journal, [string]$Client, [scriptblock]$ProgressC
         $prefix=$Client.TrimEnd('\')+'\'
         if ($target.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)) {
             $relative=$target.Substring($prefix.Length).Replace('\','/')
-            $valid=$relative -cin @('ao-vk.dll','ddraw.dll','ao-vk-live.install.json','AnarchyOnline.exe','Anarchy.exe') -or
+            $valid=$relative -cin @('ao-vk.dll','ddraw.dll','ao-vk-live.install.json','randy-vk.ini','AnarchyOnline.exe','Anarchy.exe') -or
                 (Test-AoSetupAssetPath $relative) -or $relative -cmatch '^\.ao-vk-laa/(client|loader)-Anarchy(Online)?\.exe\.[a-f0-9]{64}\.bak$'
         } else {
             $valid=$Journal.loader -and ([IO.Path]::GetDirectoryName($target) -ieq [string]$Journal.loader) -and

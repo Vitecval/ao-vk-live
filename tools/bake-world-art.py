@@ -7,6 +7,7 @@ alpha from the original texture and leaves the existing ground mesh intact.
 import hashlib
 import json
 import argparse
+import importlib.util
 from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -41,6 +42,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--only-new', action='store_true', help='Verify and retain existing baked materials; bake new identities only.')
     args = parser.parse_args()
+    spec = importlib.util.spec_from_file_location('resolution_gate', Path(__file__).with_name('check-material-resolution.py'))
+    gate = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gate)
+    ledger = json.loads(gate.DEFAULT_LEDGER.read_text())['sizes']
     output = ROOT/'maps'
     output.mkdir(exist_ok=True)
     files, materials = {},[]
@@ -82,6 +87,13 @@ def main():
             raise RuntimeError(f'Imported worker material {stem} requires its verified baked maps; use --only-new to retain them')
         art = Image.open(ROOT/'source-art'/(item['source']+'.png')).convert('RGB')
         w,h = item['size']
+        # Do not repeat the old family importer's fixed 256-pixel export cap.
+        identity = f"{gate.canonical(item['type'])}:{item['id']}"
+        if identity not in ledger:
+            raise RuntimeError(f'Missing full-quality source dimensions for {identity}; audit before baking')
+        gate.require_size(identity, (w,h), ledger[identity])
+        if art.width < w or art.height < h:
+            raise RuntimeError(f'{identity}: source art {art.size} cannot supply export {(w,h)}; render it at the required size')
         art = art.resize((w,h),Image.Resampling.LANCZOS)
         art.save(output/(stem+'_d.png'),optimize=True)
         rgb = np.asarray(art,dtype=np.float32)/255

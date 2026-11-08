@@ -27,6 +27,7 @@ namespace {
 HMODULE g_orig;
 void* const* g_randy;
 std::atomic<float> g_viewRange{1.0f};           // RVK_ViewRange (SetViewRange); 1: the game's own, its flat back plane
+std::atomic<float> g_sceneryRange{1.0f};        // bounded extension for large distant scenery only
 
 template <typename T>
 T& Field(void* object, uint32_t offset) { return *reinterpret_cast<T*>(static_cast<uint8_t*>(object) + offset); }
@@ -212,7 +213,8 @@ void __fastcall GetTransformationMatrix(Frame* c, void*, float* out)
     const float w = Field<float>(c, kRight) - Field<float>(c, kLeft);
     const float h = Field<float>(c, kTop) - Field<float>(c, kBottom);
     // (RVK_ViewRange: the far plane out with the view range, else what the cull keeps the GPU would clip.)
-    const float back = Field<float>(c, kBack) * g_viewRange.load(std::memory_order_relaxed), front = Field<float>(c, kFront);
+    const float back = Field<float>(c, kBack) * g_viewRange.load(std::memory_order_relaxed) *
+                       g_sceneryRange.load(std::memory_order_relaxed), front = Field<float>(c, kFront);
     const float q = back / (back - front);
     xm::M4 p = xm::Identity();
     p.m[0] = float(2.0 / double(w));
@@ -255,9 +257,10 @@ void __fastcall SetupFrustum(Frame* c, void*, void* viewport)
     const float h = Field<float>(c, kTop) - Field<float>(c, kBottom);
     const float w = Field<float>(c, kRight) - Field<float>(c, kLeft);
     const float halfH = float(double(h) * 0.5);
-    const float nearH = front * halfH, farH = back * halfH;
-    const float mid = float(0.5 * double(back - front)) + front;
-    const float farCorner[3] = {(farH * w) / h, farH, back};
+    const float sceneryBack=back*g_sceneryRange.load(std::memory_order_relaxed);
+    const float nearH = front * halfH, farH = sceneryBack * halfH;
+    const float mid = float(0.5 * double(sceneryBack - front)) + front;
+    const float farCorner[3] = {(farH * w) / h, farH, sceneryBack};
     const float middle[3] = {0.0f, 0.0f, mid};
     float d[3];
     Sub(middle, farCorner, d);
@@ -367,13 +370,14 @@ bool InsidePlanes(Frame* c, const float* center, float radius)
     if (inside) {
         // (Beyond the back plane: the game's, along the camera's forward - or by true distance with RVK_ViewRange, the
         // same all round: else what is just too far straight ahead is drawn off to the side, popping as one turns.)
+        const float scenery=radius>=16.f ? g_sceneryRange.load(std::memory_order_relaxed):1.f;
         if (g_viewRange.load(std::memory_order_relaxed) != 1.0f) {
-            const double reach = double(Field<float>(c, kBackInUse) + radius);
+            const double reach = double(Field<float>(c, kBackInUse)*scenery + radius);
             if (!(reach * reach < double(xm::LengthSquared(d)))) return true;
         } else {
             const float* n = &Field<float>(c, kBackPlane);
             const float distance = n[2] * d[2] + n[0] * d[0] + n[1] * d[1];
-            if (!(Field<float>(c, kBackInUse) + radius < distance)) return true;
+            if (!(Field<float>(c, kBackInUse)*scenery + radius < distance)) return true;
         }
     }
     if (DebugCull()) DebugMark(c, center, 1.0f, 0.5f, 0.5f);
@@ -660,6 +664,10 @@ void Install(HMODULE orig)
 void SetViewRange(float range)
 {
     g_viewRange.store(range > 0.0f ? range : 1.0f, std::memory_order_relaxed);
+}
+void SetSceneryRange(float range)
+{
+    g_sceneryRange.store(std::isfinite(range) ? std::fmin(std::fmax(range,1.f),1.25f):1.f,std::memory_order_relaxed);
 }
 
 }  // namespace rnative::camera

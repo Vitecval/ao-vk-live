@@ -220,7 +220,8 @@ vec3 NativeEdgeColour(uvec2 n, vec2 f, sampler smp)
 // their colours there, each averaged over about a quarter of the tile in from it. 0 the same.
 float NativeEdgeOff(uvec2 a, uvec2 b, bool alongZ, sampler smp)
 {
-    if (a == b) return 0.0;
+    // A repeated image can itself have mismatched opposite borders. Compare
+    // the borders even when its identity/turn match the neighbouring cell.
     const vec3 ca = NativeEdgeColour(a, alongZ ? vec2(0.5, 1.0) : vec2(1.0, 0.5), smp);
     const vec3 cb = NativeEdgeColour(b, alongZ ? vec2(0.5, 0.0) : vec2(0.0, 0.5), smp);
     return smoothstep(0.05, 0.15, length(ca - cb));
@@ -231,6 +232,7 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
     const uvec2 c = NativeCell(cell);
     const vec4 own = textureGrad(sampler2D(texImages[nonuniformEXT(c.x)], smp), NativeTurn(fract(cell), c.y),
                                  NativeTurnStep(dx, c.y), NativeTurnStep(dy, c.y));
+    if (NativeCellIcc(cell)) return own; // explicit manufactured ICC artwork keeps its designed tile joints
     const float blend = 0.3 * clamp(FL.terrain3.x, 0.0, 1.0);
     if (blend <= 0.0) return own;
     // The 2 x 2 cells about the nearest corner: t 0.5 on the edge between base and base + 1, wandered by noise (at most
@@ -255,7 +257,7 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
         const ivec2 o = ivec2(k & 1, k >> 1);
         w[k] = (o.x == 1 ? w1.x : w0.x) * (o.y == 1 ? w1.y : w0.y);
         col[k] = own;
-        if (o == mine || w[k] <= 0.002 || n[k] == c) continue;
+        if (o == mine || w[k] <= 0.002) continue;
         const vec2 f = 1.0 - abs(1.0 - abs(cell - base - vec2(o)));   // (mirrored into the cell about its edge)
         col[k] = textureGrad(sampler2D(texImages[nonuniformEXT(n[k].x)], smp), NativeTurn(f, n[k].y),
                              NativeTurnStep(dx, n[k].y), NativeTurnStep(dy, n[k].y));
@@ -461,7 +463,7 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     vec4 original=TerrainBaseRaw(image,smp,m);
     float amount=FL.sharedGroundConfig.x*m.w.x;
     if (amount<=0.0 || m.clutter || (D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
-        (ClassicNativeLighting() && NativeCellAuthored(m.uv[0]))) return original;
+        (TerrainNative() && NativeCellAuthored(m.uv[0]))) return original;
     vec2 uv=m.uv[0],dx=m.dx[0],dy=m.dy[0];
     uint source=image;
     if (TerrainNative()) {
@@ -589,7 +591,7 @@ vec3 TerrainPatchesAt(int k, vec3 posW)
 vec3 TerrainVariation(vec3 c, vec3 posW, TerrainMap m)
 {
     if ((D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
-        (ClassicNativeLighting() && !m.clutter && NativeCellAuthored(m.uv[0]))) return c;
+        (TerrainNative() && !m.clutter && NativeCellAuthored(m.uv[0]))) return c;
     // World-anchored formations, not magnified close grit. Derivative filtering
     // removes each band before it becomes subpixel; no time or screen noise.
     float distant=FL.terrainFar.x*smoothstep(65.0,260.0,length(posW-C.eyePos.xyz));

@@ -490,9 +490,9 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
     fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
     fl->windowLife[2]=EnhancedDaylight();
-    fl->windowLife[3]=0.0f;
+    fl->windowLife[3]=std::clamp(m_globalShiny,0.f,1.f);
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
-    fl->terrain3[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
+    fl->terrain3[0] = (SharedGroundPlus() || m_native.on) ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
     fl->terrain3[2] = std::clamp(m_terrainSettings.parallaxSteps, 0.25f, 4.0f);
     fl->terrain3[3] = m_native.anyHeight && fl->terrain3[1] > 0.0f ? 1.0f : 0.0f;
@@ -3417,7 +3417,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                              : 0.0f;
     }
     if (skyScenery)                              // (the far sky's haze: exponential below)
-        c.fogParams[2] = 1.0f / kSkySceneryHaze;
+        c.fogParams[2] = (m_immersiveShips>.5f ? .72f:1.f) / kSkySceneryHaze;
     ArgbToFloat(m_rs[d3d::RS_TEXTUREFACTOR], c.tfactor);
     c.misc[0] = m_material.power;
     c.misc[1] = float(m_rs[d3d::RS_ALPHAREF] & 0xFF);
@@ -3893,6 +3893,12 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         // Manufactured ground keeps AO's exact colour and markings. The authored
         // normal/ORM maps still supply the upgraded relief and polished finish.
         if (t->m_preserveGroundColour) return t;
+        // Never trade a detailed game atlas for a smaller replacement. This
+        // also covers transient low-resolution material decodes under memory
+        // pressure; original full-quality colour is already resident.
+        if (t->m_rdbId && (t->m_rdbType==1010004 || t->m_rdbType==1010016 || t->m_rdbType==1010017 ||
+            t->m_rdbType==1010009 || t->m_rdbType==1010011 || t->m_rdbType==1010019 || t->m_rdbType==1010020) &&
+            t->m_albedoMap && (t->m_albedoMap->Width()<t->Width() || t->m_albedoMap->Height()<t->Height())) return t;
         return t->m_albedoMap && m_pbr.albedoMaps && ImprovedTile(t) ? t->m_albedoMap : t;
     };
     Texture* texStage0 = drawn(m_textures[0]);
@@ -4130,8 +4136,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (combinedTerrain) dt.mat[2] |= kMatCombined;
     const Texture* groundSurface = terrain ? (m_drawBumpBase ? m_drawBumpBase : m_textures[0]) : nullptr;
     if (groundSurface && m_skyPlayfield) {
-        if ((groundSurface->m_albedoMap && m_pbr.albedoMaps) ||
-            materials::DeckGround(groundSurface->m_rdbType,groundSurface->m_rdbId))
+        if (ImprovedTile(groundSurface) && ((groundSurface->m_albedoMap && m_pbr.albedoMaps) ||
+            materials::DeckGround(groundSurface->m_rdbType,groundSurface->m_rdbId)))
             dt.mat[2] |= kMatAuthoredGround;
         else if (materials::AsphaltGround(groundSurface->m_rdbType, groundSurface->m_rdbId) &&
                  m_terrainHD > 0.0f)
@@ -4163,6 +4169,13 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[2] |= kMatHeight;
     if (VisualKind(m_drawVisualKind) == VisualKind::Sky || (m_drawMesh && m_drawMesh->skyScenery))
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
+    if(m_immersiveShips>.5f) {
+        const Texture* hull=m_textures[0];
+        bool knownHull=false;
+        if(hull && (hull->m_rdbType==1010004 || hull->m_rdbType==1010016 || hull->m_rdbType==1010017))
+            for(uint32_t id : {99841u,201230u,202773u,203102u,203531u,203532u}) knownHull |= hull->m_rdbId==id;
+        if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) dt.mat[2] |= kMatImmersiveShip;
+    }
     if (m_drawIsCloudPuff && CloudSheetsOn())
         dt.mat[2] |= kMatCloudSheet;             // (the game's cloud sheets, lit as the cloud layer: ffp_main.glsl)
     if (m_drawEmissive && dt.icc[3]<0.5f) {       // alternate HD glow patterns do not belong to Enhanced Original

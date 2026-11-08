@@ -38,6 +38,7 @@ const uint MAT_PBR = 1u, MAT_BASE = 2u, MAT_ALBEDO = 4u, MAT_EMISSIVE = 8u, MAT_
 const uint MAT_WORLD = 4096u, MAT_TERRAIN_HD = 8192u;
 const uint MAT_MINERAL = 16384u, MAT_HONED_STONE = 32768u;
 const uint MAT_AUTHORED_GROUND = 65536u, MAT_ASPHALT = 131072u;
+const uint MAT_IMMERSIVE_SHIP = 262144u;
                                 // ORM map; it is the ground base texture's; stage 0 draws an albedo map; it has an
                                 // emissive map; its texture was picked (Ctrl+Shift+I: flashes yellow)
 

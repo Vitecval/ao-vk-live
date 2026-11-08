@@ -1207,6 +1207,19 @@ void main()
     }
 #endif
     const vec3 terrainLightSample = t0.rgb;
+    // AO's terrain sun is baked into this map, not a directional light in
+    // AccumulateLights. Rebalance that sun share too, retaining baked shade,
+    // the live caster/terrain shadows below, and all base texture patterns.
+    if (FL.windowLife.z > 0.0 && ((C.flags.x & F_NOALBEDO) != 0u ||
+        (terrainMapped && D.terrainAt.w > 1.5))) {
+        vec3 n = dot(vNormalW.xyz,vNormalW.xyz)>1e-8 ? normalize(vNormalW.xyz) : vec3(0,1,0);
+        float facing = max(dot(n,FL.sunTrue.xyz),0.0);
+        float bakedEnergy = dot(t0.rgb,vec3(.3,.59,.11));
+        float baked = smoothstep(.015,.12,bakedEnergy);
+        float sunny = FL.windowLife.z * (1.0-FL.rainNear.y);
+        float missingSun = max(.70*facing-bakedEnergy,0.0);
+        t0.rgb += vec3(1.025,1.0,.96)*(missingSun*baked*sunny);
+    }
     t0.rgb *= texShade * gLightmapRelief;
     if (terrainMapped && D.terrainAt.w > 1.5) t0.rgb *= NativeSky(vPosW);   // (the native ground's lightmap: less sky, darker)
     vec4 current = Cascade(t0, t1, 1.0);

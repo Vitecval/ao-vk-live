@@ -1,5 +1,8 @@
 # Preview23 lighting correction
 
+This records revision 18. The subsequent sunny-day profile is described in
+[preview23-sunny-day.md](preview23-sunny-day.md).
+
 Revision 17's daylight mode drove a display gamma lift that raised dark and
 middle values across the image. Its creation-screen fallback also used full
 local-light intensity for every intro draw, overriding the selected 25% scale.

@@ -1341,10 +1341,11 @@ private:
     void FillTerrainRockLights(float rock[4], float rock2[4]);
     bool SharedGroundPlus() const { return !m_native.on && m_sharedTerrain>1.0f && m_skyPlayfield!=0; }
     bool ImprovedTile(const Texture* tile) const;
+    // Outdoor proof survives camera culling; reset on playfield/indoor entry.
     uint64_t m_daylightWorldSeen = ~0ull;
     float EnhancedDaylight() const { return m_dayCycle > 1.5f && m_skyPlayfield && !m_indoors && SunKnown() &&
-        m_daylightWorldSeen != ~0ull && m_daylightWorldSeen + 2 >= m_frameNumber
-        ? std::clamp((SunUp() + 0.04f) / 0.30f, 0.0f, 1.0f) : 0.0f; }
+        m_daylightWorldSeen != ~0ull
+        ? std::clamp((SunUp() - 0.02f) / 0.28f, 0.0f, 1.0f) : 0.0f; }
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
     bool TerrainTexturingOn() const
     {

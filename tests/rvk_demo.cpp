@@ -1024,9 +1024,90 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
 }
 
 int g_visualCase=-1, g_visualToggle=0;
+float g_dayCycle=0.f;
+void AddCube(std::vector<VtxMesh>&, std::vector<uint16_t>&, float, float, float, float);
+template <typename D>
+void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
+{
+    const bool night = g_visualCase == 8;
+    const bool skyOnly = g_visualCase == 9;
+    dev.SetSkyPlayfield(655);
+    dev.SetKnob(Knob::DayCycle,g_visualToggle ? 2.f:0.f);
+    dev.SetKnob(Knob::DayLook,0);
+    dev.SetHdr(true);dev.SetTonemap(1,1);dev.SetBloom(0,1);dev.SetDarkness(0,0);
+    dev.SetPixelLighting(true);dev.SetLightOverride(false);
+    dev.SetProcSky(true,.25f,1.f);
+    dev.SetKnob(Knob::MoonLight,0);
+    NightSky nightSky;nightSky.stars=false;nightSky.galaxy=nightSky.meteors=nightSky.aurora=0;
+    dev.SetNightSky(nightSky);
+    SkyColours keys;keys.keys[kSkyDayTop]=0x2E6E78;keys.keys[kSkyDayLow]=0x8CC8C0;
+    dev.SetSkyColours(keys);
+    auto pixels=Checker(128,16,0xFF989289,0xFF8F8980);
+    Texture* ground=dev.CreateTexture(128,128,pixels.data());
+    std::vector<VtxMesh> dome,boxes;std::vector<uint16_t> di,bi;
+    for(int i=0;i<=8;++i)for(int j=0;j<=16;++j) {
+        float el=(float(i)/8-.5f)*kPi,az=float(j)/16*2*kPi;
+        float x=std::cos(el)*std::cos(az),y=std::sin(el),z=std::cos(el)*std::sin(az);
+        dome.push_back({x*500,y*500,z*500,-x,-y,-z,0xFFFFFFFF,0,0});
+    }
+    for(int i=0;i<8;++i)for(int j=0;j<16;++j) {
+        uint16_t a=uint16_t(i*17+j),b=uint16_t(a+17);
+        di.insert(di.end(),{a,b,uint16_t(a+1),uint16_t(a+1),b,uint16_t(b+1)});
+    }
+    AddCube(boxes,bi,-3,2,5,2);AddCube(boxes,bi,3,3,10,3);
+    const VtxMesh floor[]={
+        {-50,0,-20,0,1,0,0xFFFFFFFF,0,0},{-50,0,100,0,1,0,0xFFFFFFFF,0,20},
+        {50,0,-20,0,1,0,0xFFFFFFFF,20,0},{50,0,100,0,1,0,0xFFFFFFFF,20,20}};
+    const Vector eye={0,3,-9};
+    Material mat{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
+    for(int frame=0;frame<frames;++frame) {
+        if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
+        dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
+        dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+        dev.SetTransform(World,Identity());
+        dev.SetTransform(View,LookAtLH(eye,skyOnly ? Vector{0,12,8}:Vector{0,2,8},{0,1,0}));
+        dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,1000));
+        dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
+        dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
+        dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENT,night ? 0xFF101218:0xFF282828);
+        dev.SetRenderState(RS_FOGCOLOR,0xFF879F75);dev.SetRenderState(RS_FOGENABLE,0);
+        Light sun{};sun.type=LIGHT_DIRECTIONAL;
+        sun.direction={-.55f,night ? .7f:-.7f,.45f};sun.diffuse={.50f,.47f,.39f,1};
+        dev.SetLight(0,sun);dev.LightEnable(0,true);
+        // Establish outdoor context once, then look up for many frames. The
+        // profile must not disappear merely because no terrain is in view.
+        if(frame==0)dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"outdoor-context");
+        dev.SetDrawVisual(uint32_t(VisualKind::Sky),"GenericMeshObject_t");
+        dev.SetTransform(World,Translate(eye.x,eye.y,eye.z));dev.SetMaterial(mat);
+        dev.SetRenderState(RS_ZWRITEENABLE,0);dev.SetTexture(0,nullptr);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+        dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+        dev.SetTextureStageState(0,TSS_ALPHAOP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_ALPHAARG1,TA_DIFFUSE);
+        dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+        dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,dome.data(),uint32_t(dome.size()),di.data(),uint32_t(di.size()));
+        dev.SetTransform(World,Identity());dev.SetRenderState(RS_ZWRITEENABLE,1);
+        if(!skyOnly) {
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"sunny-ground");
+            dev.SetTexture(0,ground);dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
+            dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,floor,4);
+            mat.diffuse=mat.ambient={.65f,.66f,.67f,1};dev.SetMaterial(mat);
+            dev.SetTexture(0,nullptr);dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"sunny-facades");
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,boxes.data(),uint32_t(boxes.size()),bi.data(),uint32_t(bi.size()));
+            mat.diffuse=mat.ambient={1,1,1,1};
+        }
+        dev.SetDrawVisual(0,nullptr);dev.EndFrame();
+    }
+    dev.DestroyTexture(ground);
+}
 template <typename D>
 void RunVisualCorrection(D& dev, int frames, const std::string& shot)
 {
+    if(g_visualCase>=7){RunSunnyDayScene(dev,frames,shot);return;}
     // Actual renderer exercise: a zero-ambient creation studio, an exterior
     // daylight reference, or an intentionally mismatched HD/original pattern.
     auto original=Checker(128,4,0xFF807060u,0xFF304860u);
@@ -5743,6 +5824,7 @@ int main(int argc, char** argv)
         else if (a == "--pbr-test") pbrTest = true;
         else if (a == "--visual-case" && i+1<argc) {g_visualCase=std::atoi(argv[++i]);pbrTest=true;}
         else if (a == "--visual-toggle" && i+1<argc) g_visualToggle=std::atoi(argv[++i]);
+        else if (a == "--day-cycle" && i+1<argc) g_dayCycle=float(std::atof(argv[++i]));
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
         else if (a == "--shared-maps-test") { g_sharedMapsTest=g_sharedMapsDump=pbrTest=true; hdr=true; }
@@ -6018,6 +6100,7 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::NeonSat, neonSat);
     dev.SetKnob(rvk::Knob::SoftHi, softHi);
     dev.SetKnob(rvk::Knob::DayLook, dayLook);
+    dev.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     dev.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
     if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
     dev.SetKnob(rvk::Knob::BloomWide, bloomWide);
@@ -6090,6 +6173,7 @@ int main(int argc, char** argv)
     queued.SetKnob(rvk::Knob::NeonSat, neonSat);
     queued.SetKnob(rvk::Knob::SoftHi, softHi);
     queued.SetKnob(rvk::Knob::DayLook, dayLook);
+    queued.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     queued.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
     if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
     queued.SetKnob(rvk::Knob::BloomWide, bloomWide);

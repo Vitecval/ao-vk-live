@@ -47,6 +47,18 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
     if (type == 3u) {
         L = -normalize(l.direction.xyz);
         att = sunScale;                          // shadowed sunlight (1 = unshadowed)
+        // Only the actual outdoor sun: stronger warm-neutral daylight, still
+        // Lambert-shaped by the surface and shadowed by the existing maps.
+        // Effect directionals, studio lights and the sky dome are untouched.
+        float sunny = FL.windowLife.z * (1.0 - FL.rainNear.y);
+        if (sunny > 0.0 && (D.mat.z & MAT_SKY) == 0u &&
+            dot(L, FL.sunTrue.xyz) > .99) {
+            float energy = dot(l.diffuse.rgb, vec3(.3,.59,.11));
+            vec3 daylight = vec3(1.025,1.0,.94) * min(max(energy,.95),energy*2.25);
+            vec3 original = l.diffuse.rgb;
+            l.diffuse.rgb = mix(original, daylight, sunny);
+            l.specular.rgb *= mix(vec3(1.0), daylight / max(original,vec3(.04)), sunny);
+        }
     } else {
         vec3 d = l.position.xyz - posW;
         float dist = length(d);
@@ -118,23 +130,22 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
                       inout vec3 spec, inout vec3 diffLocal, inout vec3 specLocal)
 {
     vec3 toEye = (C.flags.x & F_LOCALVIEWER) != 0u || gPbr ? normalize(C.eyePos.xyz - posW) : -C.eyeDir.xyz;
-    // A little cool hemispherical sky bounce reaches dark exterior surfaces.
-    // It is multiplied by the material/albedo like real light: black stays
-    // black, sunlight and white points keep their exposure. No display gamma
-    // lift or uniform grey veil, and never in the intro or indoor scenes.
+    // Outdoor sky irradiance: a blue hemisphere above, less on vertical faces
+    // and undersides. Supply only what the game's ambient does not already
+    // contain. It is material light, never a screen-space exposure/gamma lift.
     float daylight=clamp(FL.windowLife.z,0.0,1.0);
     if(daylight>0.0 && (D.mat.z & MAT_SKY)==0u) {
         float up=dot(normalW,normalW)>1e-8 ? normalize(normalW).y : 0.0;
-        float hemisphere=.25+.75*max(up,0.0);
         float ambientLuma=dot(C.ambient.rgb,vec3(.3,.59,.11));
-        float need=1.0-smoothstep(.16,.38,ambientLuma);
+        float irradiance=(.16+.14*max(up,0.0))*(1.0-.85*FL.rainNear.y);
+        float missing=max(irradiance-ambientLuma,0.0);
         vec3 skyColour=vec3(.72,.86,1.0);
         if(FL.skyUp.w>.5) {
             vec3 sky=max(FL.skyUp.rgb,vec3(0.0));
             float luma=dot(sky,vec3(.3,.59,.11));
             if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
         }
-        ambient+=skyColour*(.065*daylight*hemisphere*need);
+        ambient+=skyColour*(daylight*missing);
     }
     for (uint i = 0u; i < C.lightInfo.x; ++i)
         AccumulateLight(C.lights[i], posW, normalW, toEye, sunScale, localScale, ambient, diff, spec);

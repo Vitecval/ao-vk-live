@@ -7,6 +7,7 @@ The renderer samples original coverage/glow alpha from the player's live texture
 import hashlib
 import json
 import argparse
+import importlib.util
 from pathlib import Path
 
 import numpy as np
@@ -27,6 +28,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--only-new',action='store_true',help='Verify and retain existing baked materials; bake new identities only.')
     args=parser.parse_args()
+    spec=importlib.util.spec_from_file_location('resolution_gate',Path(__file__).with_name('check-material-resolution.py'))
+    gate=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gate)
+    ledger=json.loads(gate.DEFAULT_LEDGER.read_text())['sizes']
     output = ROOT / 'maps'
     output.mkdir(exist_ok=True)
     catalog = json.loads((ROOT / 'catalog.json').read_text())
@@ -56,6 +61,12 @@ def main():
         if item.get('worker'):
             raise RuntimeError(f'Imported worker material {stem} requires its verified baked maps; use --only-new to retain them')
         art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB')
+        identity=f"{gate.canonical(item['type'])}:{item['id']}"
+        if identity not in ledger:
+            raise RuntimeError(f'Missing full-quality source dimensions for {identity}; audit before baking')
+        gate.require_size(identity,tuple(item['size']),ledger[identity])
+        if art.width<item['size'][0] or art.height<item['size'][1]:
+            raise RuntimeError(f'{identity}: source art is smaller than the requested export; recover or render full-quality source')
         art = art.resize(tuple(item['size']), Image.Resampling.LANCZOS)
         art.save(output / (stem + '_d.png'), optimize=True)
         rgb = np.asarray(art, dtype=np.float32) / 255

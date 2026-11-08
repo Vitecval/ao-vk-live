@@ -55,15 +55,36 @@ and flat/cliff terrain with conflicting authored maps present or absent.
 Retail terrain boundaries and ship-distance performance still require scene
 inspection. Frame-generation and presentation logic are unchanged.
 
-The first resolution repair batch contains 12 existing IDs: 15223, 18003,
-201230, 202773, 203102, 208051, 208695, 208696, 211087, 275744, 283647 and
-8741. Four recover existing sufficiently large approved renders; eight use
-new built-in image renders. The technical export preserves native layout and
-alpha and adds bounded fine detail from those renders. All twelve pass native
-x86/Vulkan map upload and the dimension/aspect gate. This corrects resolution,
-not inventory coverage: 551 undersized IDs remain pending in the initial
-563-ID queue, including one new image-service rejection. Seven exact aspect
-mismatches also remain under review. No blocked output is claimed repaired.
+The full smaller-than-native audit now has 563 corrected exports: 561 world
+and two character textures. All 563 pass the size/aspect gate and native
+x86/Vulkan map-loading checks with the revision 22 renderer. This is a
+technical restoration to native resolution, not 563 independent generative
+repaints. Twenty-four sets use individual or recovered rendered detail;
+536 use shared rendered material microdetail. Full-quality originals provide
+the exact native patterns, image structure, colors and alpha. Grain is bounded
+to seven byte values, fades at borders/high-contrast artwork edges, and does
+not replace native image detail. Approved normal/height and ORM masks are
+retained instead of assigning generic metalness to every material.
+
+Two glass materials (217923 and 296246) receive no added grain. The new
+297003 image-service request remains blocked; its unchanged full-quality
+1024-square original is retained in place of the old 256-square replacement.
+No fresh painting is claimed for these three. There are zero remaining
+undersized exports in the audited set. The seven exact aspect mismatches
+outside this smaller-than-native set remain flagged for separate review;
+image aspect alone does not establish incorrect normalized UV placement.
+This pass does not complete the separate original-only artwork backlog or
+certify all retail uses of the textures.
+
+Both world and character source bakers now reject new undersized exports and
+undersized source art. Corrected catalog entries are marked as verified imports
+and retained by `--only-new`; they cannot be accidentally rebuilt from their
+old small crops. `tools/bake-native-resolution-repairs.py --audit-dir <audit>
+--seed-packs <verified-seed-packs>` reproduces the technical export using
+Pillow/NumPy and the preserved local audit inputs/generated material masters.
+Runtime auxiliary-map, staging and address-space budgets remain bounded.
+The largest original atlases can retain their resident original color when
+budgeted replacement mips would otherwise reduce detail.
 
 The incremental packaging library for these corrections is
 `build/preview23/resolution-audit/runtime`; it contains complete updated pack

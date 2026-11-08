@@ -5632,8 +5632,8 @@
     "name": "omni_buildingtop_Meadish_browne_tower.png",
     "source": "omni-family-43501-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "matched-building-families-2026-10-25",
@@ -5644,7 +5644,8 @@
     ],
     "atlas_source": "omni-family-atlas-12-v1",
     "atlas_cell": 2,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -6697,8 +6698,8 @@
     "name": "wh_miscsheet02_d.png",
     "source": "restored-family-295607-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -6709,7 +6710,8 @@
     ],
     "atlas_source": "restored-family-atlas-1-v1",
     "atlas_cell": 2,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -6717,8 +6719,8 @@
     "name": "wh_miscsheet01_d.png",
     "source": "restored-family-295608-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -6729,7 +6731,8 @@
     ],
     "atlas_source": "restored-family-atlas-1-v1",
     "atlas_cell": 3,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -6837,8 +6840,8 @@
     "name": "wh_lasertrim01_d.png",
     "source": "restored-family-295903-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -6849,7 +6852,8 @@
     ],
     "atlas_source": "restored-family-atlas-1-v1",
     "atlas_cell": 9,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -6857,8 +6861,8 @@
     "name": "wh_miscsheet02b_d.png",
     "source": "restored-family-295904-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -6869,7 +6873,8 @@
     ],
     "atlas_source": "restored-family-atlas-1-v1",
     "atlas_cell": 10,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -6977,8 +6982,8 @@
     "name": "icc_tent_01.png",
     "source": "restored-family-295939-v1",
     "size": [
-      256,
-      256
+      1024,
+      1024
     ],
     "profile": "fabric",
     "batch": "restored-complete-families-2026-10-25",
@@ -6989,7 +6994,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 0,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7017,8 +7023,8 @@
     "name": "icc_barracks_d.png",
     "source": "restored-family-295945-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7029,7 +7035,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 2,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7057,8 +7064,8 @@
     "name": "lobbysheet02_d.png",
     "source": "restored-family-296213-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7069,7 +7076,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 4,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7077,8 +7085,8 @@
     "name": "wh_windows02b_d.png",
     "source": "restored-family-296246-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "glass",
     "batch": "restored-complete-families-2026-10-25",
@@ -7089,7 +7097,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 5,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7137,8 +7146,8 @@
     "name": "icc_shuttle_lifesupport.png",
     "source": "restored-family-296966-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7149,7 +7158,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 8,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7177,8 +7187,8 @@
     "name": "icc_purifiertower_d.png",
     "source": "restored-family-297003-v1",
     "size": [
-      256,
-      256
+      1024,
+      1024
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7189,7 +7199,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 10,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7286,8 +7297,8 @@
     "name": "icc_panelwall03_d.png",
     "source": "restored-family-297332-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7298,7 +7309,8 @@
     ],
     "atlas_source": "restored-family-atlas-2-v1",
     "atlas_cell": 15,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7334,8 +7346,8 @@
     "name": "npe_trims01_d.png",
     "source": "restored-family-297409-v1",
     "size": [
-      256,
-      128
+      1024,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7346,7 +7358,8 @@
     ],
     "atlas_source": "restored-family-atlas-3-v1",
     "atlas_cell": 1,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7354,8 +7367,8 @@
     "name": "npe_landing_platform_d.png",
     "source": "restored-family-297410-v1",
     "size": [
-      256,
-      128
+      1024,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7366,7 +7379,8 @@
     ],
     "atlas_source": "restored-family-atlas-3-v1",
     "atlas_cell": 2,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7394,8 +7408,8 @@
     "name": "npe_lp_pad01_d.png",
     "source": "restored-family-297412-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7406,7 +7420,8 @@
     ],
     "atlas_source": "restored-family-atlas-3-v1",
     "atlas_cell": 4,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -7434,8 +7449,8 @@
     "name": "factory_bigpillar_front_d.png",
     "source": "restored-family-297645-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -7446,7 +7461,8 @@
     ],
     "atlas_source": "restored-family-atlas-3-v1",
     "atlas_cell": 6,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -8600,8 +8616,8 @@
     "name": "blue_wall.png",
     "source": "restored-family-249150-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -8621,7 +8637,8 @@
         0.97,
         0.94
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -8658,8 +8675,8 @@
     "name": "ai_building_neutral_grey_moistbottom3.png",
     "source": "restored-family-250476-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -8670,7 +8687,8 @@
     ],
     "atlas_source": "restored-family-atlas-9-v1",
     "atlas_cell": 7,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -8907,8 +8925,8 @@
     "name": "ai_building_neutral_guildhouse_wall_light.png",
     "source": "restored-family-253361-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -8919,7 +8937,8 @@
     ],
     "atlas_source": "restored-family-atlas-10-v1",
     "atlas_cell": 3,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -8947,8 +8966,8 @@
     "name": "ai_loungechair.png",
     "source": "restored-family-253397-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "fabric",
     "batch": "restored-complete-families-2026-10-25",
@@ -8959,7 +8978,8 @@
     ],
     "atlas_source": "restored-family-atlas-10-v1",
     "atlas_cell": 5,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9107,8 +9127,8 @@
     "name": "ai_guildhouse_top_dome.png",
     "source": "restored-family-253595-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9119,7 +9139,8 @@
     ],
     "atlas_source": "restored-family-atlas-10-v1",
     "atlas_cell": 13,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9367,8 +9388,8 @@
     "name": "guard_l_4.png",
     "source": "restored-family-254068-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9379,7 +9400,8 @@
     ],
     "atlas_source": "restored-family-atlas-11-v1",
     "atlas_cell": 10,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9547,8 +9569,8 @@
     "name": "mining_l_9.png",
     "source": "restored-family-254078-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9559,7 +9581,8 @@
     ],
     "atlas_source": "restored-family-atlas-12-v1",
     "atlas_cell": 3,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9667,8 +9690,8 @@
     "name": "ai_building_neutral_guildhouse_wall_light_blue2.png",
     "source": "restored-family-255757-v1",
     "size": [
-      128,
-      256
+      512,
+      1024
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9679,7 +9702,8 @@
     ],
     "atlas_source": "restored-family-atlas-12-v1",
     "atlas_cell": 9,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9727,8 +9751,8 @@
     "name": "mining_terminal.png",
     "source": "restored-family-256063-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9739,7 +9763,8 @@
     ],
     "atlas_source": "restored-family-atlas-12-v1",
     "atlas_cell": 12,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9807,8 +9832,8 @@
     "name": "ai_building_neutral_guildhouse_ornament2.png",
     "source": "restored-family-256370-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9819,7 +9844,8 @@
     ],
     "atlas_source": "restored-family-atlas-13-v1",
     "atlas_cell": 0,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -9827,8 +9853,8 @@
     "name": "ai_building_neutral_guildhouse_wall_light_blue.png",
     "source": "restored-family-256371-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "restored-complete-families-2026-10-25",
@@ -9839,7 +9865,8 @@
     ],
     "atlas_source": "restored-family-atlas-13-v1",
     "atlas_cell": 1,
-    "atlas_guard_pixels": 1
+    "atlas_guard_pixels": 1,
+    "worker": true
   },
   {
     "type": 1010004,

@@ -271,11 +271,12 @@
       ],
       "preserve_original_alpha": true,
       "material_map_size": [
-        128,
-        64
+        512,
+        256
       ],
-      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
-      "resolutionRepair": "preview23-native-resolution-v1"
+      "review": "Original layout/alpha and approved material masks preserved; rendered material grain and native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1",
+      "worker": true
     },
     {
       "type": 1010004,
@@ -5567,11 +5568,12 @@
       ],
       "preserve_original_alpha": true,
       "material_map_size": [
-        128,
-        64
+        512,
+        256
       ],
-      "review": "Original layout and alpha preserved; native x86 Vulkan upload verified; retail mesh appearance pending",
-      "resolutionRepair": "preview23-native-resolution-v1"
+      "review": "Original layout/alpha and approved material masks preserved; rendered material grain and native x86 Vulkan upload verified; retail mesh appearance pending",
+      "resolutionRepair": "preview23-native-resolution-v1",
+      "worker": true
     },
     {
       "type": 1010004,
@@ -76764,10 +76766,10 @@
     "1010004_18000_e.png": "30e57dd91c3cb764ba939402af0c8adba6bba53cee9678477a5b1563d8784e76",
     "1010004_18000_n.png": "ba3fb0f3ca02e6f02f0e338a3e2cf12c2b1f7ae9bc4b11988cc533b93a0fa437",
     "1010004_18000_orm.png": "32847cb161903182be1c2294558e92804af8c4500783cf193f183982d2f8797f",
-    "1010004_18003_d.png": "1c977cf58c0f4f7536b50b391791155982d5e73818cdbb628503a2ea0001c3d9",
+    "1010004_18003_d.png": "a542a02a85f38afa42defea0730aefd20f463dd65f362c2de533c55a42519b14",
     "1010004_18003_e.png": "30e57dd91c3cb764ba939402af0c8adba6bba53cee9678477a5b1563d8784e76",
-    "1010004_18003_n.png": "05c5de3ac7eaad5ba46d28f3d0c3e2c13a00e80a747291054809d170057eb4cf",
-    "1010004_18003_orm.png": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
+    "1010004_18003_n.png": "9701d5643800d272627411d54dda4bee2513e34853fd2569fe413744bd62d416",
+    "1010004_18003_orm.png": "f447de64c6aa39f4586b54beb7fd1b3fa6fce987afd07ae296fc4fe398950b0d",
     "1010004_18051_d.png": "a6f68d2f3bfd831fa241ed785fdb936c8fb91dcf65444d28aa38dda39b01fb51",
     "1010004_18051_e.png": "4a4468dabe37f35a46cf5187a27858feff8d66ab6681cf1e18d5a276c50fda9e",
     "1010004_18051_n.png": "3be57598da35754c91884effc8dce4598df86f72a07afe2ab43b791288860940",
@@ -81092,10 +81094,10 @@
     "1010004_82115_d.png": "6f8c04fb67b3034b88acc21379bc87a9af1ce2bb0150347f26c7ef5e8934b35c",
     "1010004_82115_n.png": "b8e41cc93bda78cb4e3346ee331e758e1360c6349c623cafb87d1726f266cf88",
     "1010004_82115_orm.png": "0a61d1d545a04b120fa0178de097e2466a604871b5fbc07f3cd1b3bcfd501437",
-    "1010004_8741_d.png": "3a359dbd324523e6d7b2ae50602757fc9905fa446ac7430541d7e6497dbcb24e",
+    "1010004_8741_d.png": "a65bae5b131a1421c9511979b4926859dc3cafe0fc968322626d15301e2e772a",
     "1010004_8741_e.png": "30e57dd91c3cb764ba939402af0c8adba6bba53cee9678477a5b1563d8784e76",
-    "1010004_8741_n.png": "aa9d0f254af3f0daa6e008e0ce07dc3beab93f731e8a7fee733bd8073fe4b8ec",
-    "1010004_8741_orm.png": "2ef0951263c9bd54ef71d4b844325eca343fc230e0fafefd2fd2cb2de5e776e9",
+    "1010004_8741_n.png": "b75600bdb555189ed6e4c9c97d59d4c0a6da6f12e731d8f098a8d560d753d5fe",
+    "1010004_8741_orm.png": "c2f8af14c85cc610b31dd65ead3b758ae65c8daf29bb8498d16d4dc925e40c90",
     "1010004_9400_d.png": "bf35b8b5e696e13ef4f2815adde7f1b47e4f48c2c0011c44425f496301fca807",
     "1010004_9400_e.png": "7659100791b0b0d9d5707576f6d04cdae4e769ae4ba3034169540fe3990efae5",
     "1010004_9400_n.png": "fca652ecfbe43ab5882904810ff0dc966e3239f4793417150d4042720432b1c4",

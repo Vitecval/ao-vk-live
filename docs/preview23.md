@@ -12,9 +12,11 @@ The current visual correction adds **Day/Night Cycle** to the graphics menu and
 its own settings section. **Rely on Server Sided day/night** retains the normal
 clock. **Longer Day / Shorter Night** remaps the local Rubi-Ka sky clock smoothly
 without changing the length of its 27-hour cycle; other worlds keep their own
-clock. **Enhanced Daylights (happier)** keeps the server cycle and uses brighter
-sky fill, lighter directional shadows, a clearer blue daylight sky and gentler
-colour grading. It preserves night and weather rather than forcing permanent noon.
+clock. **Enhanced Daylights (happier)** keeps the server cycle and adds restrained
+cool sky bounce to dark outdoor surfaces, with slightly gentler directional
+shadows and a clearer daylight sky. It preserves sunlit exposure, material
+contrast, black levels, night and weather. It does not drive a whole-image
+brightness or gamma lift, and it is excluded from intro and indoor scenes.
 
 **Enhanced Original** now preserves original AO world patterns and palette,
 using bounded fine HD detail and softer, less metallic highlights. It is the
@@ -28,8 +30,9 @@ Source colour is retained instead of replacing it with a blurred classification
 sample. Large world colour maps may retain 1024 pixels when address space permits;
 normal/material maps and the decoded cache keep their existing memory limits.
 
-Creation/login scenes without a world playfield retain their own local studio
-lights at original intensity. Separate Vulkan fixtures cover that light path,
+Creation characters without a world playfield retain their current draw's local
+studio lights at the selected light intensity. The room keeps the normal world
+light path; there is no blanket full-strength light override. Separate Vulkan fixtures cover that light path,
 pattern preservation, readable daylight, ICC tile fall-through and cliff coverage.
 Retail creation-screen, city/terrain visual approval and other-GPU tests remain
 separate checks; these fixtures do not certify every zone or graphics card.

@@ -93,6 +93,7 @@ void Device::SetSkyPlayfield(uint32_t playfield)
         return;
     if(m_living || m_livingAttempt) DestroyLiving();
     m_skyPlayfield = playfield;
+    m_daylightWorldSeen = ~0ull;
     m_skyZoneLean = 0.0f;
     for (const ZoneSky& z : kZoneSkies)
         if (z.playfield == playfield)

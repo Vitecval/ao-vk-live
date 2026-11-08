@@ -1030,6 +1030,10 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
     // Actual renderer exercise: a zero-ambient creation studio, an exterior
     // daylight reference, or an intentionally mismatched HD/original pattern.
     auto original=Checker(128,4,0xFF807060u,0xFF304860u);
+    if(g_visualCase>=3) {
+        const uint32_t colours[]={0xFFE8E8E8,0xFF808080,0xFF202020,0xFFB02020,0xFF20A050,0xFF2050B0,0xFFB09020,0xFF0D0D0D};
+        for(unsigned y=0;y<128;++y)for(unsigned x=0;x<128;++x) original[y*128+x]=colours[x/16];
+    }
     auto art=Checker(512,16,0xFFCC2010u,0xFF1070CCu);
     for(unsigned y=0;y<512;++y)for(unsigned x=0;x<512;++x)
         if((x+y)%7==0) art[y*512+x]^=0x00060606u;
@@ -1038,13 +1042,15 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
     if(g_visualCase==2 && g_visualToggle>0)
         dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&orm),dev.CreateTexture(512,512,art.data()),true);
     Device::PbrSettings pbr;pbr.enabled=true;dev.SetPbr(pbr);
-    dev.SetPixelLighting(true);dev.SetLightOverride(g_visualCase==0 && g_visualToggle!=0);
-    dev.SetSkyPlayfield(g_visualCase==0 ? 0:655);
+    const bool studio=g_visualCase==0 || g_visualCase==3 || g_visualCase==4;
+    dev.SetPixelLighting(true);dev.SetLightOverride((g_visualCase==0 && g_visualToggle!=0) || g_visualCase==3 || g_visualCase==4);
+    dev.SetSkyPlayfield(studio ? 0:655);
     dev.SetPointLightIntensity(.25f,.25f);
     dev.SetKnob(Knob::ICCArtwork,g_visualCase==2 && g_visualToggle==2 ? 1.f:0.f);
-    dev.SetKnob(Knob::DayCycle,g_visualCase==1 && g_visualToggle ? 2.f:0.f);
+    dev.SetKnob(Knob::DayCycle,(g_visualCase==1 || g_visualCase>=3) && g_visualToggle ? 2.f:0.f);
     dev.SetKnob(Knob::DayLook,0);
     dev.SetHdr(g_visualCase!=2);dev.SetTonemap(1,1);dev.SetBloom(0,1);
+    dev.SetDarkness(0,0); // measure lighting, without automatic exposure compensating for it
     const Material material{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
     const VtxMesh plane[]={
         {-2,-1.5f,0,0,0,-1,0xFFFFFFFF,0,1},{-2,1.5f,0,0,0,-1,0xFFFFFFFF,0,0},
@@ -1055,10 +1061,14 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
         dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
         dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+        if(g_visualCase==3 || g_visualCase==4) {
+            Matrix w=Identity();w.m[3][0]=-22;w.m[3][1]=1;w.m[3][2]=-42;dev.SetTransform(World,w);
+            dev.SetTransform(View,LookAtLH({-22,1,-37},{-22,1,-42},{0,1,0}));
+        }
         dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
         dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
         dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
-        dev.SetRenderState(RS_AMBIENT,g_visualCase==0 ? 0:g_visualCase==1 ? 0xFF282828:0xFFFFFFFF);
+        dev.SetRenderState(RS_AMBIENT,studio ? 0:g_visualCase==1 || g_visualCase>=5 ? 0xFF282828:0xFFFFFFFF);
         dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
         dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
         dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_FOGENABLE,0);
@@ -1070,13 +1080,31 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
             light.type=LIGHT_DIRECTIONAL;light.diffuse={1,.95f,.85f,1};light.direction={0,-.8f,.6f};
         }
         dev.SetLight(0,light);dev.LightEnable(0,true);
+        if(g_visualCase==3 || g_visualCase==4) {
+            // The three lights from the retail creation/login scan.
+            const float x[]={-30.32f,9.44f,158.11f};
+            const Color colour[]={{0,0,0,1},{.71f,.91f,.87f,1},{1,.97f,.91f,1}};
+            for(unsigned i=0;i<3;++i) {
+                Light l{};l.type=LIGHT_POINT;l.position={x[i],0,0};l.diffuse=colour[i];l.range=200;l.attenuation1=.005f;
+                dev.SetLight(i,l);dev.LightEnable(i,true);
+            }
+        }
         dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
         dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
         dev.SetTextureStageState(0,TSS_ALPHAOP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_ALPHAARG1,TA_TEXTURE);
         dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
         dev.SetTexture(0,tex);dev.SetMaterial(material);
-        dev.SetDrawVisual(uint32_t(g_visualCase==0 ? VisualKind::Character:VisualKind::Static),g_visualCase==0 ? "RCATMesh_t":"RTriMesh_t");
-        dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);dev.SetDrawVisual(0,nullptr);
+        if(g_visualCase==1 || g_visualCase==5)dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"daylight-outdoor-context");
+        const bool character=g_visualCase==0 || g_visualCase==4;
+        dev.SetDrawVisual(uint32_t(character ? VisualKind::Character:VisualKind::Static),character ? "RCATMesh_t":"RTriMesh_t");
+        VtxMesh card[4];std::copy_n(plane,4,card);
+        if(g_visualCase==3 || g_visualCase==4)for(auto& v:card)v.nz=1;
+        if(g_visualCase==5) {
+            for(auto& v:card)v.x=v.x*.48f-1.f;
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
+            std::copy_n(plane,4,card);for(auto& v:card){v.x=v.x*.48f+1.f;v.nz=1;}
+        }
+        dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);dev.SetDrawVisual(0,nullptr);
         dev.EndFrame();
     }
     dev.DestroyTexture(tex);

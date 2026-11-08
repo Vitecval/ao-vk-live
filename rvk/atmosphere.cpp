@@ -163,7 +163,7 @@ void Device::SkyKeyRatios(float out[4][3]) const
     // Happier daylight leans toward the atmosphere's blue clear-sky colour
     // rather than multiplying the custom green/teal keys into it. Weather,
     // sunset and night still keep their own palettes.
-    const float clearDay=EnhancedDaylight()*(1.0f-StormSky())*.85f;
+    const float clearDay=EnhancedDaylight()*(1.0f-StormSky())*.30f;
     for(int row=0;row<4;++row)
         for(int c=0;c<3;++c) out[row][c]+=(1.0f-out[row][c])*clearDay;
 }

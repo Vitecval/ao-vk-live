@@ -118,6 +118,24 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
                       inout vec3 spec, inout vec3 diffLocal, inout vec3 specLocal)
 {
     vec3 toEye = (C.flags.x & F_LOCALVIEWER) != 0u || gPbr ? normalize(C.eyePos.xyz - posW) : -C.eyeDir.xyz;
+    // A little cool hemispherical sky bounce reaches dark exterior surfaces.
+    // It is multiplied by the material/albedo like real light: black stays
+    // black, sunlight and white points keep their exposure. No display gamma
+    // lift or uniform grey veil, and never in the intro or indoor scenes.
+    float daylight=clamp(FL.windowLife.z,0.0,1.0);
+    if(daylight>0.0 && (D.mat.z & MAT_SKY)==0u) {
+        float up=dot(normalW,normalW)>1e-8 ? normalize(normalW).y : 0.0;
+        float hemisphere=.25+.75*max(up,0.0);
+        float ambientLuma=dot(C.ambient.rgb,vec3(.3,.59,.11));
+        float need=1.0-smoothstep(.16,.38,ambientLuma);
+        vec3 skyColour=vec3(.72,.86,1.0);
+        if(FL.skyUp.w>.5) {
+            vec3 sky=max(FL.skyUp.rgb,vec3(0.0));
+            float luma=dot(sky,vec3(.3,.59,.11));
+            if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
+        }
+        ambient+=skyColour*(.065*daylight*hemisphere*need);
+    }
     for (uint i = 0u; i < C.lightInfo.x; ++i)
         AccumulateLight(C.lights[i], posW, normalW, toEye, sunScale, localScale, ambient, diff, spec);
     // Only the frame lights whose range reaches the draw's bounding box (the CPU's mask): most draws have none or a

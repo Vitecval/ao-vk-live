@@ -438,7 +438,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->shadowParams[3] = PointShadowStrength();
     // Keep directional shadows readable under a bright sky rather than
     // multiplying the whole shaded surface into a dark silhouette.
-    fl->shadowParams[1] *= 1.0f - 0.28f * EnhancedDaylight();
+    fl->shadowParams[1] *= 1.0f - 0.10f * EnhancedDaylight();
     // The sun the shadow map was drawn with (shadows lag a frame), or without shadows this frame's.
     const float* sunDir = m_shadowValid ? m_shadowSunDir : m_frameSunDir;
     fl->sunDir[0] = sunDir[0]; fl->sunDir[1] = sunDir[1]; fl->sunDir[2] = sunDir[2];
@@ -467,7 +467,8 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->cond[0] = m_cond.cloudNight;             // (cloud_light.glsl Night())
     fl->cond[1] = !m_indoors && m_skyPlayfield && m_aoProjValid ? std::clamp(m_farHaze,0.0f,1.0f) : 0.0f;
     fl->cond[2] = m_hdr && m_skyPlayfield && m_aoProjValid ? std::clamp(m_softHi,0.0f,1.0f) : 0.0f;
-    fl->cond[3] = m_hdr && m_skyPlayfield ? std::max(std::clamp(m_dayLook,0.0f,1.0f),EnhancedDaylight()) : 0.0f;
+    // The daylight lighting mode never drives the legacy whole-image grade.
+    fl->cond[3] = m_hdr && m_skyPlayfield ? std::clamp(m_dayLook,0.0f,1.0f) : 0.0f;
     FillSharedTerrainLights(fl);
     fl->screen[0] = SceneScaleX();
     fl->screen[1] = SceneScaleY();
@@ -488,7 +489,8 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
     fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
     fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
-    fl->windowLife[2]=fl->windowLife[3]=0.0f;
+    fl->windowLife[2]=EnhancedDaylight();
+    fl->windowLife[3]=0.0f;
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
     fl->terrain3[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
@@ -1764,7 +1766,7 @@ uint32_t Device::CarriedLight(uint32_t fvf, const void* vertices, uint32_t verte
 void Device::SetDrawVisual(uint32_t kind, const char* className, uint32_t owner, uint32_t visual)
 {
     m_drawVisualKind = kind;
-    if (VisualKind(kind) == VisualKind::Terrain) ++m_frameTerrainVisuals;
+    if (VisualKind(kind) == VisualKind::Terrain) {++m_frameTerrainVisuals;m_daylightWorldSeen=m_frameNumber;}
     else if (VisualKind(kind) == VisualKind::Room) ++m_frameRoomVisuals;
     m_drawVisualName = className ? className : "";
     // (A sky visual is named by its class chain, "VisualSingleCloud_t<...".)
@@ -3379,11 +3381,6 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         const bool groundLight = IsTerrain(fvf) && IsMultiplyPass();
         const float sky = groundLight || sky_ ? StormSkyLight() : 1.0f - 0.75f * StormOvercast();
         for (int i = 0; i < 3; ++i) c.ambient[i] *= sky * (sky_ || groundLight ? 1.0f : m_dawnTint[1][i]);
-        if (!sky_ && m_rs[d3d::RS_LIGHTING]) {
-            const float fill = EnhancedDaylight() * (1.0f - 0.6f * StormOvercast());
-            const float skyFill[3] = {0.30f, 0.33f, 0.36f};
-            for (int i = 0; i < 3; ++i) c.ambient[i] += std::max(0.0f,skyFill[i]-c.ambient[i]) * fill;
-        }
     }
     ArgbToFloat(m_rs[d3d::RS_FOGCOLOR], c.fogColor);
     // (A thunderstorm's: its air dark yellow-green, dimmed. Not the ground's light pass's white fog: multiplying the
@@ -3473,8 +3470,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // Login/creation scenes use a separate camera and local studio lights.
     // Their own D3D lights must not be replaced by the previous world frame's
     // culled/shadowed light list (there may be no world playfield at all).
-    const bool studio = m_skyPlayfield == 0;
-    bool override = (flags & F_PERPIXEL) && m_lightOverride && !studio && !SurfaceSheen(fvf);
+    const bool studioCharacter = m_skyPlayfield == 0 && m_drawIsCharacter;
+    bool override = (flags & F_PERPIXEL) && m_lightOverride && !studioCharacter && !SurfaceSheen(fvf);
     if (override) flags |= F_LIGHTOVERRIDE;
     bool hdrTarget = m_target->m_format == Format::RGBA16F;
     if (hdrTarget) flags |= F_HDR;
@@ -3631,7 +3628,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             const bool night = override && slot.light.type == d3d::LIGHT_DIRECTIONAL &&
                                VisualKind(m_drawVisualKind) != VisualKind::Sky && MoonScaledGameLight(slot.light, &scaled);
             FillGpuLight(night ? scaled : slot.light, slot.cosHalfTheta, slot.cosHalfPhi, c.lights[lightCount++],
-                         studio ? 1.0f : LightScale(slot.light));
+                         LightScale(slot.light));
             // The sun's light low in the sky warm (sky.cpp RVK_DawnLight): the game's directional light along the
             // sun's way - not other directional lights (effects' coloured ones), not the sky's own.
             if (!night && slot.light.type == d3d::LIGHT_DIRECTIONAL && m_dawnTint[0][3] > 0.0f &&

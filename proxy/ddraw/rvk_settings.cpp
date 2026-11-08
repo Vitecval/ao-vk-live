@@ -54,6 +54,7 @@ Setting g_settings[] = {
     {"RVK_ViewRange",   "How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws)", "General", Float, 1, 3, 0.25f, 1.5f, nullptr, 0},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
+    {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_DarkFloor",  "Darkness: the floor under the land's brightness, x (the exposure raised in the darkest places, as eyes adapt; 0 none)", "Lighting", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_Hdr"},
     {"RVK_PixelLight", "Per-pixel lighting",                                       "Lighting",         Bool,  0, 1, 1, 1, "RANDYVK_PIXEL_LIGHTING", 0},
     {"RVK_LightOver",  "All nearby lights (light override)",   "Lighting",         Bool,  0, 1, 1, 1, "RANDYVK_LIGHT_OVERRIDE", 0},
@@ -86,7 +87,7 @@ Setting g_settings[] = {
     {"RVK_PbrGlow", "Emissive map brightness", "Materials", Float, 0, 8, 0.25f, 1, nullptr, 0, "RVK_Pbr"},
     {"RVK_PbrDebug",   "Debug view (Ctrl+Shift+K)", "Debug", Choice, 0, 11, 1, 0, nullptr, 0, "RVK_Pbr", "0 1 2 3 4 5 6 7 8 9 10 11"},
     {"RVK_ModernTex", "World texture style: Original / AnarchyHD", "Materials", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 2"},
-    {"RVK_ICCArtwork", "ICC Surface Artwork: AnarchyHD / Enhanced Original", "Materials", Choice, 0, 1, 1, 0, nullptr, 0, "RVK_ModernTex", "0 1"},
+    {"RVK_ICCArtwork", "World surface artwork: AnarchyHD / Enhanced Original", "Materials", Choice, 0, 1, 1, 1, nullptr, 0, "RVK_ModernTex", "0 1"},
     {"RVK_ICCGlossiness", "ICC Glossiness", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_ModernTex"},
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
@@ -106,6 +107,7 @@ Setting g_settings[] = {
 #else
     {"RVK_GroundOn", "Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter", "Terrain", Bool, 0, 1, 1, 1, nullptr, 0},
 #endif
+    {"RVK_ImprovedTiles", "Improved Tiles (ICC artwork; off uses Shared Ground+ terrain)", "Terrain", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_GroundOne",  "Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower)", "Terrain", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_GroundOn"},
     {"RVK_GroundAo",   "Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none)", "Terrain", Float, 0, 1, 0.05f, 0.6f, nullptr, 0, "RVK_GroundOn"},
     {"RVK_GroundSun",  "Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made)", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_GroundOn"},
@@ -458,6 +460,7 @@ const Vanilla kVanilla[] = {
     {"RVK_TerrainFar", 0},
     {"RVK_TerraBlend", 0},
     {"RVK_DayLook", 0},
+    {"RVK_DayCycle", 0}, {"RVK_ImprovedTiles", 1},
     {"RVK_BuildingHD", 0},
     {"RVK_FarHaze", 0},
     {"RVK_ModernTex", 0},
@@ -578,22 +581,24 @@ float V(const char* name)
     const bool plus=SharedGroundPlus();
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
-    // Geometry and lighting are independent. Plus inherits the native mesh,
-    // cliff displacement and clutter, without enabling GroundOn's extra light.
+    // Shared Ground+ keeps the retail surface boundaries; geometric rounding
+    // and cliff displacement can detach it from overlapping AO terrain decals.
     if (plus && std::strcmp(name,"RVK_Pebbles")==0) return 1.0f;
     if (plus && (std::strcmp(name,"RVK_GroundAo")==0 || std::strcmp(name,"RVK_GroundSun")==0 ||
                  std::strcmp(name,"RVK_DuneLight")==0 || std::strcmp(name,"RVK_GroundBlend")==0 ||
                  std::strcmp(name,"RVK_SandRipple")==0 || std::strcmp(name,"RVK_RippleDepth")==0 ||
                  std::strcmp(name,"RVK_SandGlint")==0 || std::strcmp(name,"RVK_SandPrints")==0 ||
+                 std::strcmp(name,"RVK_GroundTess")==0 || std::strcmp(name,"RVK_CliffDepth")==0 ||
                  std::strcmp(name,"RVK_WaterRipple")==0)) return 0.0f;
-    if (plus && (std::strcmp(name,"RVK_GroundRocks")==0 || std::strcmp(name,"RVK_GroundTess")==0 ||
-                 std::strcmp(name,"RVK_CliffDepth")==0 || std::strcmp(name,"RVK_GroundOne")==0 ||
+    if (plus && (std::strcmp(name,"RVK_GroundRocks")==0 || std::strcmp(name,"RVK_GroundOne")==0 ||
                  std::strcmp(name,"RVK_GroundGrain")==0)) return s->value;
     const bool characterMaterials = Stored("RVK_AutoMat") != 0.0f && Stored("RVK_MatStrength") > 0.0f &&
                                     Stored("RVK_Enhance") != 0.0f;
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
     auto minimum = [&](const char* n) {
         float value = cyber ? CyberMinimum(n) : -1e30f;
+        if (Stored("RVK_DayCycle")==2.0f && Stored("RVK_Enhance")!=0.0f &&
+            (std::strcmp(n,"RVK_Hdr")==0 || std::strcmp(n,"RVK_PixelLight")==0)) value=std::max(value,1.0f);
         if (characterMaterials || worldMaterials) {
             for (const char* required : {"RVK_PixelLight", "RVK_Pbr", "RVK_Hdr", "RVK_PbrProbe", "RVK_Albedo", "RVK_NormalMaps"})
                 if (std::strcmp(n, required) == 0) value = std::max(value, 1.0f);
@@ -801,10 +806,17 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     auto is = [n](const char* a) { return std::strcmp(n, a) == 0; };
     // Static meshes the game culls cast anyway within the shadows' reach (native mesh.cpp; as the renderer's memory of
     // casters: 1.4 x the shadow distance), meshes under a unit across left out.
-    if (std::strcmp(n,"RVK_ICCArtwork")==0) { SetIccArtwork(unsigned(V("RVK_ICCArtwork"))); return; }
+    if (std::strcmp(n,"RVK_ICCArtwork")==0) {
+        SetIccArtwork(unsigned(V(n)));
+        d->SetKnob(rvk::Knob::ICCArtwork,V("RVK_ModernTex")==2 ? V(n) : 0.0f);
+        return;
+    }
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
+        if (is("RVK_DayCycle"))
+            for (const char* dependent : {"RVK_Hdr","RVK_PixelLight"})
+                if (const Setting* other=Find(dependent)) ApplyOne(*other,d);
         if (is("RVK_TerraBlend")) {
             SetSharedTerrainSetting(V(n) > 0.0f);
             SetSharedGroundDetailSetting(V(n) > 1.0f);
@@ -1428,6 +1440,7 @@ constexpr uint32_t kPresetCount = 4;
 
 bool InPresets(const Setting& s)
 {
+    if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
     if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||

@@ -1,21 +1,21 @@
 # Preview 23 artwork and retained originals
 
-The expanded library contains **13,338 unique original texture IDs** with HD
-diffuse replacements and **41,102 runtime map files**. It includes **4,711 IDs**
+The expanded library contains **13,393 unique original texture IDs** with HD
+diffuse replacements and **41,267 runtime map files**. It includes **4,766 IDs**
 beyond the Preview 21 library: the current offline production, 50 reviewed older
-artwork IDs recovered from broad retention holds, and 255 new generation
+artwork IDs recovered from broad retention holds, and 310 new generation
 completions. Existing ICC style alternatives remain available and do not inflate
 the unique-ID count. Normal, ORM and emission maps are not additional texture IDs.
 
-Of 14,753 identified game-surface IDs (including walls), 90.41% have replacement
-artwork. The older website scope is **12,732 / 14,145 (90.01%)**.
+Of 14,753 identified game-surface IDs (including walls), 90.78% have replacement
+artwork. The older website scope is **12,787 / 14,145 (90.40%)**.
 The remaining 23 generation requests were rejected by the image service. Their
 originals remain in use; none is represented as completed HD artwork.
 
 ## Why originals remain
 
-There are **1,392 retained original IDs**, separate from those 23 unfinished
-requests. **739 are original-only terrain IDs** awaiting individual review.
+There are **1,337 retained original IDs**, separate from those 23 unfinished
+requests. **716 are original-only terrain IDs** awaiting individual review.
 Many are actual painted ground and remain unfinished artwork. Source colors and
 transition edges must be preserved during restoration; the old blanket retention
 label does not make all of them functional controls. Four painted ground tiles
@@ -60,8 +60,8 @@ The owner requested a full visible-artwork overhaul. Original-only IDs now remai
 under active review; an older retention label does not exempt visible artwork
 from completion. Completion percentages do not silently exclude these unfinished
 surfaces. Exact palette, opacity and terrain-transition inputs still need their
-functional values preserved. The continuation has completed 235 additional
-IDs and refined 10 already-authored ground sets with native map-upload
+functional values preserved. The continuation has completed 290 additional
+IDs and refined 19 already-authored ground sets with native map-upload
 checks. This is not a claim that every visible surface or shared retail use
-has been finished. 233 independent generated outputs supply this pass;
+has been finished. 295 independent generated outputs supply this pass;
 byte-identical retail-source aliases share the same authored artwork.

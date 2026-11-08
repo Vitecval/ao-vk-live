@@ -17,15 +17,16 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-359 settings, 188 of them in the settings window.
+361 settings, 190 of them in the settings window.
 
 ## Sections
 
 - [General](#general) (9)
 - [Lighting](#lighting) (17)
+- [Day/Night Cycle](#day/night-cycle) (1)
 - [Materials](#materials) (25)
 - [Debug](#debug) (8)
-- [Terrain](#terrain) (24)
+- [Terrain](#terrain) (25)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
 - [Weather](#weather) (49)
@@ -75,6 +76,12 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Aniso` | Texture filtering (anisotropic; 1 = off) | 1 / 2 / 4 / 8 / 16 | 16 | window; game value 1; was env `RANDYVK_ANISOTROPY` |
 | `RVK_HillShade` | The terrain's shade from a low sun (valleys under mountains) | on / off | on | ini only; knob |
 
+## Day/Night Cycle
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_DayCycle` | Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+
 ## Materials
 
 | Setting | What it does | Values | Default | Notes |
@@ -93,7 +100,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
-| `RVK_ICCArtwork` | ICC Surface Artwork: AnarchyHD / Enhanced Original | 0 / 1 | 0 | window; switch `RVK_ModernTex` |
+| `RVK_ICCArtwork` | World surface artwork: AnarchyHD / Enhanced Original | 0 / 1 | 1 | window; switch `RVK_ModernTex`; knob |
 | `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 1 | window; switch `RVK_ModernTex`; knob |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
@@ -125,6 +132,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_TerrainFar` | Distant terrain: broad rock/soil variation and slope definition | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_GroundOn` | Enhanced ground renderer (overrides Shared Ground and Shared Ground+) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
+| `RVK_ImprovedTiles` | Improved Tiles (ICC artwork; off uses Shared Ground+ terrain) | on / off | on | window; game value on; knob |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |
 | `RVK_GroundAo` | Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none) | 0 .. 1 | 0.6 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_GroundSun` | Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |

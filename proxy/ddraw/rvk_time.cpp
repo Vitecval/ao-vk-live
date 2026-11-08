@@ -7,6 +7,7 @@
 #include "rvk_backend.h"
 #include "rvk_settings.h"
 #include "native/client_build.h"
+#include "day_cycle.h"
 
 #include <windows.h>
 
@@ -33,6 +34,9 @@ std::chrono::steady_clock::time_point g_heldSince;
 double g_base = 0.0;                            // our clock: its time (seconds into the day) at g_baseSince
 std::chrono::steady_clock::time_point g_baseSince;
 float g_baseSpeed = 1.0f, g_lastHour = -1.0f;   // ... its speed (RVK_TimeSpeed), the hour last set
+const void* g_clockInstance = nullptr;
+double g_lastApplied = -1.0;
+std::chrono::steady_clock::time_point g_lastAppliedSince;
 
 bool Resolve()
 {
@@ -67,7 +71,9 @@ void TimeFrame()
         return;
     const float hour = rvk_settings::Get("RVK_TimeOfDay");
     const float speed = rvk_settings::Get("RVK_TimeSpeed");
-    const bool own = hour >= 0.0f || std::fabs(speed - 1.0f) > 1e-4f;   // (the defaults: the game's own clock)
+    const bool testing = hour >= 0.0f || std::fabs(speed - 1.0f) > 1e-4f;
+    const bool longerRequested = rvk_settings::GetEffective("RVK_DayCycle") == 1.0f;
+    bool own = testing || longerRequested;
     if (!own && !g_held)
         return;
     if (!Resolve())
@@ -75,6 +81,11 @@ void TimeFrame()
     const uint8_t* self = static_cast<const uint8_t*>(*g_instance);
     if (!self)
         return;                                 // (not made yet: before the game is entered)
+    if (self != g_clockInstance) {
+        g_clockInstance = self;
+        g_held = false; // never restore the clock from a previous client scene
+        g_lastApplied = -1.0;
+    }
     const int hoursPerDay = *reinterpret_cast<const int*>(self + 0x80);
     const int secondsPerHour = *reinterpret_cast<const int*>(self + 0x8c);
     if (hoursPerDay < 1 || hoursPerDay > 100 || secondsPerHour < 1 || secondsPerHour > 100000) {
@@ -87,11 +98,28 @@ void TimeFrame()
     const double day = double(hoursPerDay) * double(secondsPerHour);
     const auto now = std::chrono::steady_clock::now();
     const double rate = double(g_speed(self, edx));   // (the game's seconds a second)
+    // This presentation mode is for Rubi-Ka's 27-hour clock. Other worlds keep
+    // their own cycles; explicit diagnostic hour/speed controls still work.
+    const bool longer = longerRequested && !testing && hoursPerDay == 27;
+    own = testing || longer;
+    if (!own && !g_held) return;
+    if (longer && g_held && g_lastApplied>=0.0) {
+        const double elapsed=std::chrono::duration<double>(now-g_lastAppliedSince).count();
+        const double observed=g_getRealTime(self,edx);
+        const double expected=std::fmod(g_lastApplied+elapsed*rate,day);
+        const double delta=std::remainder(observed-expected,day);
+        if (std::isfinite(observed) && std::abs(delta)>std::max(2.0,rate*2.0)) {
+            // An incoming server correction supersedes our unwarped baseline.
+            g_heldAt=float(observed);g_heldSince=now;
+            g_base=observed;g_baseSince=now;
+        }
+    }
     if (!own) {                                 // let go: on from where the game's clock would be by now
         const double gone = std::chrono::duration<double>(now - g_heldSince).count();
         const float at = float(std::fmod(double(g_heldAt) + gone * rate, day));
         g_setRealTime(const_cast<uint8_t*>(self), edx, at);
         g_held = false;
+        g_lastApplied = -1.0;
         RvkLog("time: the game's own time of day again (%.2f h)", double(at / float(secondsPerHour)));
         return;
     }
@@ -122,7 +150,10 @@ void TimeFrame()
         g_baseSince = now;
         g_baseSpeed = speed;
     }
-    g_setRealTime(const_cast<uint8_t*>(self), edx, float(current()));
+    const double local = current();
+    g_lastApplied=longer ? rvk::daycycle::LongerDay(local,day) : local;
+    g_lastAppliedSince=now;
+    g_setRealTime(const_cast<uint8_t*>(self), edx, float(g_lastApplied));
     // (Every ~2 s: the hour, for the dusk log's lines between - rvk sky.cpp UpdateSunClock.)
     static uint32_t frames = 0;
     if (++frames % 120 == 0)

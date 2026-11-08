@@ -1023,9 +1023,69 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
                 d.errors.c_str());
 }
 
+int g_visualCase=-1, g_visualToggle=0;
+template <typename D>
+void RunVisualCorrection(D& dev, int frames, const std::string& shot)
+{
+    // Actual renderer exercise: a zero-ambient creation studio, an exterior
+    // daylight reference, or an intentionally mismatched HD/original pattern.
+    auto original=Checker(128,4,0xFF807060u,0xFF304860u);
+    auto art=Checker(512,16,0xFFCC2010u,0xFF1070CCu);
+    for(unsigned y=0;y<512;++y)for(unsigned x=0;x<512;++x)
+        if((x+y)%7==0) art[y*512+x]^=0x00060606u;
+    Texture* tex=dev.CreateTexture(128,128,original.data());
+    const uint32_t orm=0xFFFF19FFu;
+    if(g_visualCase==2 && g_visualToggle>0)
+        dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&orm),dev.CreateTexture(512,512,art.data()),true);
+    Device::PbrSettings pbr;pbr.enabled=true;dev.SetPbr(pbr);
+    dev.SetPixelLighting(true);dev.SetLightOverride(g_visualCase==0 && g_visualToggle!=0);
+    dev.SetSkyPlayfield(g_visualCase==0 ? 0:655);
+    dev.SetPointLightIntensity(.25f,.25f);
+    dev.SetKnob(Knob::ICCArtwork,g_visualCase==2 && g_visualToggle==2 ? 1.f:0.f);
+    dev.SetKnob(Knob::DayCycle,g_visualCase==1 && g_visualToggle ? 2.f:0.f);
+    dev.SetKnob(Knob::DayLook,0);
+    dev.SetHdr(g_visualCase!=2);dev.SetTonemap(1,1);dev.SetBloom(0,1);
+    const Material material{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
+    const VtxMesh plane[]={
+        {-2,-1.5f,0,0,0,-1,0xFFFFFFFF,0,1},{-2,1.5f,0,0,0,-1,0xFFFFFFFF,0,0},
+        {2,-1.5f,0,0,0,-1,0xFFFFFFFF,1,1},{2,1.5f,0,0,0,-1,0xFFFFFFFF,1,0}};
+    for(int frame=0;frame<frames;++frame) {
+        if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
+        dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
+        dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+        dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+        dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+        dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
+        dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
+        dev.SetRenderState(RS_AMBIENT,g_visualCase==0 ? 0:g_visualCase==1 ? 0xFF282828:0xFFFFFFFF);
+        dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_FOGENABLE,0);
+        Light light{};
+        if(g_visualCase==0) {
+            light.type=LIGHT_POINT;light.diffuse={.8f,.9f,1,1};light.position={-2,2,-4};
+            light.range=200;light.attenuation0=1;light.attenuation1=.005f;
+        } else {
+            light.type=LIGHT_DIRECTIONAL;light.diffuse={1,.95f,.85f,1};light.direction={0,-.8f,.6f};
+        }
+        dev.SetLight(0,light);dev.LightEnable(0,true);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
+        dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+        dev.SetTextureStageState(0,TSS_ALPHAOP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_ALPHAARG1,TA_TEXTURE);
+        dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+        dev.SetTexture(0,tex);dev.SetMaterial(material);
+        dev.SetDrawVisual(uint32_t(g_visualCase==0 ? VisualKind::Character:VisualKind::Static),g_visualCase==0 ? "RCATMesh_t":"RTriMesh_t");
+        dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);dev.SetDrawVisual(0,nullptr);
+        dev.EndFrame();
+    }
+    dev.DestroyTexture(tex);
+}
+
 template <typename D>
 void RunPbrTest(D& dev, int frames, const std::string& shot)
 {
+    if(g_visualCase>=0){RunVisualCorrection(dev,frames,shot);return;}
     const int kSeg = 32, kRing = 24;
     std::vector<VtxMesh> sphere;
     std::vector<uint16_t> sphereIdx;
@@ -2375,10 +2435,13 @@ std::string g_sharedTerrainSource;
 bool g_sharedTerrainAuthored=false, g_sharedTerrainRoadMask=false, g_groundPaletteControl=false, g_groundPersonal=false;
 bool g_terrainLightingFixture=false, g_terrainRockyRoad=false, g_terrainLightingNight=false;
 bool g_terrainLightingOccluder=false;
+bool g_improvedTiles=true, g_terrainCliffFixture=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
     dev.SetNativeGroundOn(false);
-    auto terrainHeight=[](float x,float z) {return g_terrainRockyRoad ? .45f*std::sin(x*.3f)*std::cos(z*.25f):0.0f;};
+    dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
+    auto terrainHeight=[](float x,float z) {return g_terrainCliffFixture ? std::clamp((x+z-14.f)*2.f,0.f,12.f)
+        : g_terrainRockyRoad ? .45f*std::sin(x*.3f)*std::cos(z*.25f):0.0f;};
     const float lightmapShade=g_terrainLightingNight ? .82f:.20f;
     auto lightLevel=[](int x,int z){return uint8_t(x<2 ? 5+(z&1):14+(z&1));};
     constexpr int S=128;
@@ -2429,6 +2492,7 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         if(g_terrainLightingFixture) {
             for(int z=0;z<5;++z)for(int x=0;x<5;++x)ground->heights[z*5+x]=terrainHeight(float(x*4),float(z*4));
             Device::TerrainSettings terrain;terrain.round=0;dev.SetTerrain(terrain); // identical sampling geometry for A/B
+            if(g_terrainOff){terrain.cliff=0;terrain.rock=false;dev.SetTerrain(terrain);}
         }
         dev.SetNativeGroundOn(false);
         std::FILE* table=std::fopen("pebble-test.tsv","w");
@@ -5407,6 +5471,8 @@ int main(int argc, char** argv)
         else if (a == "--terrain-source" && i+1<argc) g_sharedTerrainSource=argv[++i];
         else if (a == "--terrain-lighting-fixture") g_terrainLightingFixture=true;
         else if (a == "--terrain-rocky-road") g_terrainRockyRoad=g_terrainLightingFixture=true;
+        else if (a == "--terrain-cliff-fixture") g_terrainCliffFixture=g_terrainLightingFixture=true;
+        else if (a == "--improved-tiles" && i+1<argc) g_improvedTiles=std::atoi(argv[++i])!=0;
         else if (a == "--terrain-lighting-night") g_terrainLightingNight=g_terrainLightingFixture=true;
         else if (a == "--terrain-lighting-occluder") g_terrainLightingOccluder=g_terrainLightingFixture=true;
         else if (a == "--terrain-type" && i+1<argc) g_sharedTerrainType=uint32_t(std::strtoul(argv[++i],nullptr,10));
@@ -5647,6 +5713,8 @@ int main(int argc, char** argv)
         else if (a == "--normal-map-test") normalMapTest = true;
         else if (a=="--icc-floor-test") {g_iccFloorTest=true;pbrTest=true;}
         else if (a == "--pbr-test") pbrTest = true;
+        else if (a == "--visual-case" && i+1<argc) {g_visualCase=std::atoi(argv[++i]);pbrTest=true;}
+        else if (a == "--visual-toggle" && i+1<argc) g_visualToggle=std::atoi(argv[++i]);
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
         else if (a == "--shared-maps-test") { g_sharedMapsTest=g_sharedMapsDump=pbrTest=true; hdr=true; }

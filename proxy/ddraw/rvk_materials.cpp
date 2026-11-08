@@ -417,7 +417,12 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     if (folder.modern && rvk::materials::IsGroundType(type) &&
         !rvk::materials::AuthoredGround(type, id) && !completedGround) return f;
     if (folder.modern) f.maxSize = 512; // bounded built-in artwork in the 2 GB retail process
-    f.preserveAlbedoAlpha = (folder.modern==4 && FullQualityType(type)!=1010006) || folder.modern == 3 ||
+    // Large world atlases lost lettering and edge detail when their colour
+    // map was capped with the normal/ORM maps. Keep one extra colour mip when
+    // address space permits; staging, cache and auxiliary-map budgets stay bounded.
+    if ((folder.modern==2 || folder.modern==4) && !rvk::materials::IsGroundType(type) &&
+        FreeMaterialAddressSpace() > (768ull<<20)) f.maxAlbedoSize = 1024;
+    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
     f.height = FindMap(type, id, "_h.png");

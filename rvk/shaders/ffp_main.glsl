@@ -141,10 +141,21 @@ vec4 Sample(uint stage)
     // Character alpha can carry self-illumination rather than coverage. Keep it from
     // the live original texture; no original game pixels are bundled with the artwork.
     uint originalAlpha = stage == 0u ? MAT_ORIGINAL_ALPHA : MAT_ORIGINAL_ALPHA1;
-    if ((D.mat.z & originalAlpha) != 0u)
-        result.a = stage == 0u && gParallax ? textureGrad(BUMPTEX, gUv0, gUv0Dx, gUv0Dy).a
-                                           : stage == 0u ? texture(BUMPTEX, tc.xy).a
-                                                         : texture(sampler2D(texImages[D.texIdx.z], bindlessSamplers[D.sampIdx.y]), tc.xy).a;
+    if ((D.mat.z & originalAlpha) != 0u) {
+        vec4 retail = stage == 0u && gParallax ? textureGrad(BUMPTEX, gUv0, gUv0Dx, gUv0Dy)
+                                             : stage == 0u ? texture(BUMPTEX, tc.xy)
+                                                           : texture(sampler2D(texImages[D.texIdx.z], bindlessSamplers[D.sampIdx.y]), tc.xy);
+        result.a = retail.a;
+        if (D.icc.w > 0.5) {
+            // Restore AO's pattern and palette. Only bounded fine frequencies
+            // come from HD artwork; no alternate panels, lettering or motifs.
+            vec2 uv = stage == 0u && gParallax ? gUv0 : tc.xy;
+            float lod = stage == 0u ? textureQueryLod(TEX0,uv).x : textureQueryLod(TEX1,uv).x;
+            vec3 coarse = stage == 0u ? textureLod(TEX0,uv,max(0.0,lod)+2.0).rgb
+                                      : textureLod(TEX1,uv,max(0.0,lod)+2.0).rgb;
+            result.rgb = clamp(retail.rgb + clamp(result.rgb-coarse,vec3(-.06),vec3(.06)),0.0,1.0);
+        }
+    }
     // A native draw covers many retail chunks. The first chunk's texture can
     // be an entirely transparent far patch; its alpha is not the coverage of
     // every patch in the playfield. Both cutout prepass and colour pass must
@@ -644,6 +655,11 @@ vec3 WetReflection(vec3 R, int level)
 vec3 NormalMapNormalGrad(vec3 n, vec3 posW, vec2 uv, vec2 uvx, vec2 uvy)
 {
     vec3 t = textureGrad(NORMALTEX, uv, uvx, uvy).xyz * 2.0 - 1.0;
+    if (D.icc.w>.5 && (D.mat.z & MAT_ORIGINAL_ALPHA)!=0u) {
+        float lod=max(textureQueryLod(NORMALTEX,uv).x,0.0);
+        vec3 broad=textureLod(NORMALTEX,uv,lod+2.0).xyz*2.0-1.0;
+        t=vec3(clamp((t.xy-broad.xy)*.5,vec2(-.12),vec2(.12)),1.0);
+    }
     t.z = max(t.z, 0.05);
     vec2 slope = vec2(-t.x, t.y) / t.z * C.misc.w;     // height per world unit along u, v
     vec3 px = dFdx(posW), py = dFdy(posW);
@@ -1028,6 +1044,11 @@ void main()
                 gPbrMetal = mix(gPbrMetal,0.0,glass);
             }
             gPbrAlbedo = GlobalSurfaceColour(gPbrAlbedo);
+            if (D.icc.w > .5) {
+                gPbrRough = max(gPbrRough, terrainMapped ? .82 : .58);
+                gPbrMetal = min(gPbrMetal, terrainMapped ? 0.0 : .45);
+                gIccReflection = min(gIccReflection,.40);
+            }
             gPbrNormal = len2 > 0.0 ? normalize(n) : vec3(0.0, 1.0, 0.0);
             // Specular anti-aliasing: how much the normal turns across the pixel widens the highlight (Kaplanyan /
             // Tokuyoshi), so small bright highlights don't sparkle on curved or bumpy surfaces in the distance.

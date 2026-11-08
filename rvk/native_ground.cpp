@@ -199,20 +199,29 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
             // game's split: split the other way, a hillside's cells lay up to a few units below where the game puts
             // characters, and they floated.
             auto indices = std::make_shared<std::vector<uint8_t>>(size_t(P) * P * 6 * 2);
+            auto retail = std::make_shared<std::vector<uint8_t>>(indices->size());
             uint16_t* ix = reinterpret_cast<uint16_t*>(indices->data());
+            uint16_t* retailIx = reinterpret_cast<uint16_t*>(retail->data());
+            bool different = false;
             for (uint32_t j = 0; j < P; ++j)
                 for (uint32_t i = 0; i < P; ++i) {
                     if (!g.CellVisible(px * P + i, pz * P + j)) continue;
                     const uint16_t a = uint16_t(j * (P + 1) + i), b = uint16_t(a + 1), c = uint16_t(a + P + 1),
                                    d = uint16_t(c + 1);
                     const bool across = NativeCellAcross(v[a].y, v[b].y, v[c].y, v[d].y, std::min(g.cellX, g.cellZ));
+                    const uint16_t original[6] = {a,c,b,b,c,d};
+                    std::memcpy(retailIx,original,sizeof(original));
+                    retailIx += 6;
+                    different = different || across;
                     // (The game's winding: culling is off for the ground anyway.)
                     const uint16_t q[6] = {a, c, across ? d : b, across ? a : b, across ? d : c, across ? b : d};
                     std::memcpy(ix, q, sizeof(q));
                     ix += 6;
                 }
             indices->resize(size_t(reinterpret_cast<uint8_t*>(ix) - indices->data()));
+            retail->resize(indices->size());
             p.indices = indices;
+            p.retailIndices = different ? retail : indices;
             m_native.patches.push_back(std::move(p));
         }
     m_native.ground = ground;
@@ -250,7 +259,18 @@ uint64_t Device::NativeMapsSignature() const
         h = (h ^ uint64_t(t && t->m_image)) * 1099511628211ull;
     }
     h ^= m_skyPlayfield==icc::Playfield ? 0x494343u : 0u;
+    h ^= uint64_t(m_improvedTiles > 0.5f) << 29;
+    h ^= uint64_t(SharedGroundPlus()) << 30;
     return (h ^ uint64_t(reinterpret_cast<uintptr_t>(m_native.pebbleTable.get()))) * 1099511628211ull;   // (the sand)
+}
+
+bool Device::ImprovedTile(const Texture* tile) const
+{
+    // Off means original tile input to the continuous terrain renderer. It
+    // never removes terrain geometry or leaves an untextured patch behind.
+    return !(SharedGroundPlus() && m_skyPlayfield == icc::Playfield &&
+        m_improvedTiles <= 0.5f && tile && materials::IsGroundType(tile->m_rdbType) &&
+        icc::Target(tile->m_rdbType, tile->m_rdbId));
 }
 
 // The sand's prevailing wind (its ripples' crests lie across it: terrain.glsl), a bearing in radians: fixed for a
@@ -279,6 +299,10 @@ void Device::MakeNativeCodes()
     for (size_t t = 0; t < g.tiles.size(); ++t) {
         Texture* tex = g.tiles[t];
         if (!tex || !tex->m_image) continue;
+        if (!ImprovedTile(tex)) {
+            image[t] = BindlessImage(tex);
+            continue;
+        }
         Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;
         authored[t] = (tex->m_albedoMap && m_pbr.albedoMaps) || materials::DeckGround(tex->m_rdbType, tex->m_rdbId);
         image[t] = BindlessImage(drawn);
@@ -699,7 +723,8 @@ void Device::DrawNativeGround(bool lightPass)
             d2 += d * d;
         }
         m_native.tessPatch = d2 < kNativeTessDistance * kNativeTessDistance;
-        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, p.indices, uint32_t(p.indices->size() / 2));
+        const auto& indices = SharedGroundPlus() ? p.retailIndices : p.indices;
+        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, indices, uint32_t(indices->size() / 2));
         ++drawn;
     }
     if (!m_native.pebblesOnly) DrawNativeClutter(vp);

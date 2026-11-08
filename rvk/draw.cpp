@@ -436,6 +436,9 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     // (Unfaded: as the light nears the horizon they fade out by distance from the eye - frame_lights.glsl ShadowStrength.)
     fl->shadowParams[2] = m_shadowValid ? float(m_cascadeCount) : 0.0f;   // (none: no map - the terrain's shade alone)
     fl->shadowParams[3] = PointShadowStrength();
+    // Keep directional shadows readable under a bright sky rather than
+    // multiplying the whole shaded surface into a dark silhouette.
+    fl->shadowParams[1] *= 1.0f - 0.28f * EnhancedDaylight();
     // The sun the shadow map was drawn with (shadows lag a frame), or without shadows this frame's.
     const float* sunDir = m_shadowValid ? m_shadowSunDir : m_frameSunDir;
     fl->sunDir[0] = sunDir[0]; fl->sunDir[1] = sunDir[1]; fl->sunDir[2] = sunDir[2];
@@ -464,7 +467,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->cond[0] = m_cond.cloudNight;             // (cloud_light.glsl Night())
     fl->cond[1] = !m_indoors && m_skyPlayfield && m_aoProjValid ? std::clamp(m_farHaze,0.0f,1.0f) : 0.0f;
     fl->cond[2] = m_hdr && m_skyPlayfield && m_aoProjValid ? std::clamp(m_softHi,0.0f,1.0f) : 0.0f;
-    fl->cond[3] = m_hdr && m_skyPlayfield ? std::clamp(m_dayLook,0.0f,1.0f) : 0.0f;
+    fl->cond[3] = m_hdr && m_skyPlayfield ? std::max(std::clamp(m_dayLook,0.0f,1.0f),EnhancedDaylight()) : 0.0f;
     FillSharedTerrainLights(fl);
     fl->screen[0] = SceneScaleX();
     fl->screen[1] = SceneScaleY();
@@ -3376,6 +3379,11 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         const bool groundLight = IsTerrain(fvf) && IsMultiplyPass();
         const float sky = groundLight || sky_ ? StormSkyLight() : 1.0f - 0.75f * StormOvercast();
         for (int i = 0; i < 3; ++i) c.ambient[i] *= sky * (sky_ || groundLight ? 1.0f : m_dawnTint[1][i]);
+        if (!sky_ && m_rs[d3d::RS_LIGHTING]) {
+            const float fill = EnhancedDaylight() * (1.0f - 0.6f * StormOvercast());
+            const float skyFill[3] = {0.30f, 0.33f, 0.36f};
+            for (int i = 0; i < 3; ++i) c.ambient[i] += std::max(0.0f,skyFill[i]-c.ambient[i]) * fill;
+        }
     }
     ArgbToFloat(m_rs[d3d::RS_FOGCOLOR], c.fogColor);
     // (A thunderstorm's: its air dark yellow-green, dimmed. Not the ground's light pass's white fog: multiplying the
@@ -3462,7 +3470,11 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (m_rs[d3d::RS_LIGHTING] && (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW) flags |= F_LIGHTING;
     if ((flags & F_LIGHTING) && m_pixelLighting) flags |= F_PERPIXEL;
     if (m_lightingDebug) flags |= F_DEBUGLIGHT;
-    bool override = (flags & F_PERPIXEL) && m_lightOverride && !SurfaceSheen(fvf);
+    // Login/creation scenes use a separate camera and local studio lights.
+    // Their own D3D lights must not be replaced by the previous world frame's
+    // culled/shadowed light list (there may be no world playfield at all).
+    const bool studio = m_skyPlayfield == 0;
+    bool override = (flags & F_PERPIXEL) && m_lightOverride && !studio && !SurfaceSheen(fvf);
     if (override) flags |= F_LIGHTOVERRIDE;
     bool hdrTarget = m_target->m_format == Format::RGBA16F;
     if (hdrTarget) flags |= F_HDR;
@@ -3619,7 +3631,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             const bool night = override && slot.light.type == d3d::LIGHT_DIRECTIONAL &&
                                VisualKind(m_drawVisualKind) != VisualKind::Sky && MoonScaledGameLight(slot.light, &scaled);
             FillGpuLight(night ? scaled : slot.light, slot.cosHalfTheta, slot.cosHalfPhi, c.lights[lightCount++],
-                         LightScale(slot.light));
+                         studio ? 1.0f : LightScale(slot.light));
             // The sun's light low in the sky warm (sky.cpp RVK_DawnLight): the game's directional light along the
             // sun's way - not other directional lights (effects' coloured ones), not the sky's own.
             if (!night && slot.light.type == d3d::LIGHT_DIRECTIONAL && m_dawnTint[0][3] > 0.0f &&
@@ -3770,7 +3782,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.tess[1] = m_tessShape;
         dt.tess[2] = float(vbOffset / layout.stride);
         m_drawTess = true;
-    } else if (m_native.drawing && !m_native.clutter && m_native.tessPatch && m_tessSupported && primitive == d3d::TriangleList &&
+    } else if (m_native.drawing && !SharedGroundPlus() && !m_native.clutter && m_native.tessPatch && m_tessSupported && primitive == d3d::TriangleList &&
                (m_terrainSettings.round > 0.0f || (m_terrainSettings.depth > 0.0f && TerrainRockOn()))) {
         // The native ground (ffp.tesc): each edge split by its length and distance, the vertex normals its shape, the
         // rock pushed out of the cliffs - the same in both passes, so the lighting pass's equal depth test still meets
@@ -3884,7 +3896,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         // Manufactured ground keeps AO's exact colour and markings. The authored
         // normal/ORM maps still supply the upgraded relief and polished finish.
         if (t->m_preserveGroundColour) return t;
-        return t->m_albedoMap && m_pbr.albedoMaps ? t->m_albedoMap : t;
+        return t->m_albedoMap && m_pbr.albedoMaps && ImprovedTile(t) ? t->m_albedoMap : t;
     };
     Texture* texStage0 = drawn(m_textures[0]);
     Texture* texStage1 = drawn(m_textures[1]);
@@ -3911,6 +3923,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     dt.icc[0]=std::clamp(m_iccGlossiness,0.f,1.f);
     dt.icc[1]=m_skyPlayfield==icc::Playfield ? 1.f : 0.f;
     dt.icc[2]=iccBase && iccBase->m_albedoMap && icc::Target(iccBase->m_rdbType,iccBase->m_rdbId) ? 1.f : 0.f;
+    dt.icc[3]=m_enhancedOriginal > 0.5f && !m_drawIsCharacter && !m_drawFoliage &&
+        !(m_rs[d3d::RS_ALPHABLENDENABLE] && m_rs[d3d::RS_DESTBLEND]==d3d::BLEND_ONE) ? 1.f : 0.f;
     // The PBR material (the shader uses it only where the draw is lit per pixel and isn't far foliage).
     if (m_drawOrm) {
         dt.mat[0] = BindlessImage(m_drawOrm);
@@ -4148,13 +4162,13 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[2] |= kMatPicked;                 // (texture picking: flashes)
     // A height in its normal map's alpha (_h.png): drawn with parallax, where the normal map is the surface's own.
     if (normalMap && normalMap->m_alphaHeight && m_textures[0] && normalMap == m_textures[0]->m_normalMap &&
-        m_terrainSettings.parallax > 0.0f)
+        m_terrainSettings.parallax > 0.0f && dt.icc[3]<0.5f)
         dt.mat[2] |= kMatHeight;
     if (VisualKind(m_drawVisualKind) == VisualKind::Sky || (m_drawMesh && m_drawMesh->skyScenery))
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
     if (m_drawIsCloudPuff && CloudSheetsOn())
         dt.mat[2] |= kMatCloudSheet;             // (the game's cloud sheets, lit as the cloud layer: ffp_main.glsl)
-    if (m_drawEmissive) {                        // (sampled with the ORM map's sampler, set either way)
+    if (m_drawEmissive && dt.icc[3]<0.5f) {       // alternate HD glow patterns do not belong to Enhanced Original
         dt.mat[3] = BindlessImage(m_drawEmissive);
         dt.mat[2] |= kMatEmissive;
     } else {

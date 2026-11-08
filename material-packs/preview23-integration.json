@@ -2,21 +2,21 @@
   "version": "0.6.0-preview.23",
   "coverage": {
     "originalSurfaceIds": 14753,
-    "repaintIds": 13338,
-    "retainedOriginalIds": 1392,
+    "repaintIds": 13393,
+    "retainedOriginalIds": 1337,
     "unfinishedGenerationIds": 23,
-    "surfaceCoveragePercent": 90.40873042770961,
-    "plannedArtworkCompletionPercent": 90.40873042770961,
-    "originalOnlyIds": 1415,
+    "surfaceCoveragePercent": 90.78153595878804,
+    "plannedArtworkCompletionPercent": 90.78153595878804,
+    "originalOnlyIds": 1360,
     "priorWebsiteScopeIds": 14145,
-    "priorWebsiteScopeRepaintIds": 12732,
-    "additionalIdsSincePreview21": 4711,
-    "runtimeMapFiles": 41102,
-    "newlyGeneratedIds": 255,
+    "priorWebsiteScopeRepaintIds": 12787,
+    "additionalIdsSincePreview21": 4766,
+    "runtimeMapFiles": 41267,
+    "newlyGeneratedIds": 310,
     "previouslyExcludedArtRecovered": 50,
-    "independentlyGeneratedOutputsThisPass": 233,
-    "existingGroundSetsRefined": 10,
-    "priorWebsiteScopeCoveragePercent": 90.01060445387063
+    "independentlyGeneratedOutputsThisPass": 295,
+    "existingGroundSetsRefined": 19,
+    "priorWebsiteScopeCoveragePercent": 90.3994344291269
   },
   "materials": [
     {
@@ -79,6 +79,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_6031_orm.png",
           "sha256": "c9da1a926a95b6213b961003c6c0cdc9f51751c96343d9e32014113d5611ccf6"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 6058,
+      "name": "singleplateomnibehaveslogan.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_6058_d.png",
+          "sha256": "ebf5136603c03783dd0c453ecece9a109c4b041da4f548d87cf8ced6e5f7ed58"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_6058_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_6058_orm.png",
+          "sha256": "cfdb74ecdc085dd07784d6612be5791b1aaa7cfd5878139f01d8c933ca6ae706"
         }
       }
     },
@@ -2620,6 +2641,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_10774_orm.png",
           "sha256": "df91f2c135d2c7b4f3134b7c0b0e0113f98d39939df740862d8c4e807e01db00"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 10815,
+      "name": "pickupbox_icon_misc.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_10815_d.png",
+          "sha256": "eec0b1116542324aeba77324b6647b0fc73842ea0ef5c1934317b8801c717f48"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_10815_n.png",
+          "sha256": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_10815_orm.png",
+          "sha256": "dc096940b4e6ad610f8254c6d92cfc798c44474b49e0d0e500d141459dea193d"
         }
       }
     },
@@ -6223,6 +6265,27 @@
     },
     {
       "type": 1010004,
+      "id": 20419,
+      "name": "pickuppyramid.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_20419_d.png",
+          "sha256": "59558e99c417a945ca5c16220416b890dd0fc61138898238afcbe1741616c345"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_20419_n.png",
+          "sha256": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_20419_orm.png",
+          "sha256": "28c11cea12956d760d9995344ad5167f5cc5bf66dddd37dd4ee387e9d681868f"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 20722,
       "name": "sleeklaser.png",
       "pack": "ao-cyber-world",
@@ -6327,6 +6390,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-characters/1010004_20958_orm.png",
           "sha256": "e85cebfacc0da921add8a84cebdc560475274d8eb2eb0cce5e41f0f01d13510d"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 21004,
+      "name": "garbage-whitw-bag.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_21004_d.png",
+          "sha256": "d8ac42cfa9f993a57f08edd3ac192f4dd8b8913de80edde928695d1fd97dc517"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_21004_n.png",
+          "sha256": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_21004_orm.png",
+          "sha256": "9e90347c4a7f1fe4acc3c781a054ae6ad34e3145633081bdd1b1d9a551433e46"
         }
       }
     },
@@ -8557,6 +8641,48 @@
     },
     {
       "type": 1010004,
+      "id": 29430,
+      "name": "ruin_singleplate_opac.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29430_d.png",
+          "sha256": "178dbf55525e655dfe97d93fa953971e0cab3c5c02715c02189b0a861320fcf5"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29430_n.png",
+          "sha256": "088bd49566c592beceed551afe27bebf971b603b7cef574ecf3651d117f38e1d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29430_orm.png",
+          "sha256": "75ddf2d5e636b608b2d5bcaf5a0d0d5f4cfab6d0e29fbdec22eeca5be031b1ed"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 29439,
+      "name": "villageruin_topbroken_opac.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29439_d.png",
+          "sha256": "f9f44b73953f6c2109b4bb2ce338a66064f82d57e980a924380f7cc176cafa01"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29439_n.png",
+          "sha256": "b80c7f755ffead0098128208dcd83547e7d095d00054d9f33a3803e1da0aa020"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29439_orm.png",
+          "sha256": "749ce5dc6f275a484a3c2675dbb7663e4bbebda73951a22e9fc4f2e9de5c9789"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 29532,
       "name": "newbie_breed_heada_metal.png",
       "pack": "ao-cyber-world",
@@ -8657,6 +8783,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_29576_orm.png",
           "sha256": "ec9e80ed1ef4df85ab90da5765421d30447aa399e20f61ae224f94d1770054c9"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 29593,
+      "name": "tlr_lookout_opacrings.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29593_d.png",
+          "sha256": "28971922ce0c89f30bf20136967474d9169a00d783dd7879377b8b46d6e0f5c3"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29593_n.png",
+          "sha256": "2f1a35801023c59512e3d96e659341668666e1bc1be3de59ad592db2e12e1715"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_29593_orm.png",
+          "sha256": "68c3a1d4a8bb9387f19219e9a6d88ad4da36f4ff51cdac97664247247603d997"
         }
       }
     },
@@ -9451,6 +9598,27 @@
     },
     {
       "type": 1010004,
+      "id": 30968,
+      "name": "wrecked_opacity.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_30968_d.png",
+          "sha256": "de80f644f0d52db372df332a564c103590c6d0af6a22218eef147bc502a3006b"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_30968_n.png",
+          "sha256": "3b0cf45f905c79eb2b9d143233c8f167099752ec96cc647ed00934dc8b8f2cd0"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_30968_orm.png",
+          "sha256": "c3ea81f0d090077fd338d92e31c50f9c7d2e5fb083bd7a037527a50b6bd7eab0"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 31103,
       "name": "rhinoman_female2.png",
       "pack": "ao-cyber-characters",
@@ -9979,6 +10147,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-characters/1010004_31855_orm.png",
           "sha256": "d4fdadae38dad99505035e454915cd7b30f3519e2846382c53e73da1c038b969"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 31929,
+      "name": "palmeblad.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_31929_d.png",
+          "sha256": "e9019147e597e1b3dcd5a63b970ca70eda00f9d1563e9dcbe61aa8a6feb9e0fd"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_31929_n.png",
+          "sha256": "91d142b8fc29a9aca7cd5f571c8cba205a6a9a2f320f0245dc63a74d0749ccdd"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_31929_orm.png",
+          "sha256": "60cc49c821e71d7d5cd34de44ce54148c08b3e1fcd1f1a0e1a4fdeb2c86e3221"
         }
       }
     },
@@ -12119,6 +12308,48 @@
     },
     {
       "type": 1010004,
+      "id": 36315,
+      "name": "athen_hangingbush_noopac.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36315_d.png",
+          "sha256": "d8b01d058a06c7cf9ac4fcdd92c09c9c1dd5110e4cba2669170ed28da1170aca"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36315_n.png",
+          "sha256": "5fe3de174d1f2c41858ce81c85d43ba747cb94192ccd78d16e0af69e321072d7"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36315_orm.png",
+          "sha256": "47e2c96f108d6f618a9bd0d94a95cbf130944c07f298b4e3393d037dd7b3d6c8"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 36327,
+      "name": "athens_wire1_opac.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36327_d.png",
+          "sha256": "abf34c780af733660f7333cb097af24a9e05825c2ebabd8dd2b1db7ad6c44d29"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36327_n.png",
+          "sha256": "01d16301d4bb317f97f5eb5fc8c09f6fe4b22a98f06488a07637b232f7da0e5a"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_36327_orm.png",
+          "sha256": "34b72da0af48b0efedfa1b0af2cb7929e6d35e7255e1bd4c4b9b9a6e8889e03e"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 36335,
       "name": "biogun1.png",
       "pack": "ao-cyber-characters",
@@ -12790,6 +13021,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_38675_orm.png",
           "sha256": "e0ba9035f952745caa9e212b5aca3280234662f6da88c220cc7cf4313dfe1975"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 38676,
+      "name": "brontoburger_advertising.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_38676_d.png",
+          "sha256": "61cd45a5b27c394d0dff7ca3379d1307ceb8b9e822d936fecbf47a02e026fadb"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_38676_n.png",
+          "sha256": "c920be0ed15b4d57a21dd06e579d1f2e001dc24c0c02374c78f2a814f2913a13"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_38676_orm.png",
+          "sha256": "f211dab3330e403cce08635a87a39cea7a0d4cb2343922a8e05888f798c82100"
         }
       }
     },
@@ -17592,6 +17844,27 @@
     },
     {
       "type": 1010004,
+      "id": 43296,
+      "name": "goods_hahahahhh.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43296_d.png",
+          "sha256": "d0b70387c1e174ae3e47d3e92b41b85bf6905812ddc45175a6b366a4580d093b"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43296_n.png",
+          "sha256": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43296_orm.png",
+          "sha256": "ca48a86f1c9ede6b82c462a54c8b8d9b430df619c8a9a367f0184e81d3c115a4"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 43308,
       "name": "teleportersigns_omni_4holes.png",
       "pack": "ao-cyber-world",
@@ -17734,6 +18007,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_43403_orm.png",
           "sha256": "fbe5d288a4c89f4a66256d18951dd4eaa35b365a2b577368c41a88556243a63a"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 43428,
+      "name": "glass01.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43428_d.png",
+          "sha256": "08a418f9e17dcef1da954fb98b9c904f880bbe23729c9ba55a020e34be4ea83a"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43428_n.png",
+          "sha256": "c26d639f1f9cf09d587f6a7009c3385d6aa681946d699208809c489bf97a6b2a"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43428_orm.png",
+          "sha256": "297c4f59166a2bc4603036397b8422e4cc9d7e2a9bbd8f003779d171aab097d7"
         }
       }
     },
@@ -18330,6 +18624,48 @@
     },
     {
       "type": 1010004,
+      "id": 43616,
+      "name": "clanchest_copper_silver_side.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43616_d.png",
+          "sha256": "fc1a0fbe0d24fb3b0e99377e87b968ccddbb41c4685b06af958fc356ae7270fc"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43616_n.png",
+          "sha256": "279616768b478e101c25e5e19681115cb3d4eb4281868df6496c5c0500a09ba0"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43616_orm.png",
+          "sha256": "f076f29681281dc9abe10a4ce03bdf3156c71d1042e6b7bdfa3f6a57d9dff0b5"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 43639,
+      "name": "tablet_behind_throne.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43639_d.png",
+          "sha256": "d4d60edc588da091f60b5f69ffd3e1eb3c57088c021fcf700393be849890bfec"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43639_n.png",
+          "sha256": "4eae342b845a04ef36473dc788f95e9accc7f8b3352337968fa3e44df074f8f4"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_43639_orm.png",
+          "sha256": "8d141a82cc5352c3f608de23956e8ae63c92ebe1ceda95f50b4bdb2177902ea9"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 44034,
       "name": "pitdragon_hirez_head-mouth.png",
       "pack": "ao-cyber-world",
@@ -18388,6 +18724,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_44036_orm.png",
           "sha256": "9f2d8ee1fc2cf22008727cd4bdaec7d24dd28b05e6780f5a4c71fca97cb0f1e0"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 44048,
+      "name": "newbiezone_glass_wall_blue_new.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_44048_d.png",
+          "sha256": "5b3210e01e7822f317f640edeba7c212cefe629402dda3e66bc6043d97f0c28b"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_44048_n.png",
+          "sha256": "282346cb2739c9ae2f8c7c1098eb4dd4e3406cd3ba9d12f99faefe91fdd0e36f"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_44048_orm.png",
+          "sha256": "8c1758d2571677c440cddb95b0ae01521c4289c43411882496b58bedb621e5d4"
         }
       }
     },
@@ -18897,6 +19254,27 @@
     },
     {
       "type": 1010004,
+      "id": 51296,
+      "name": "Omni_mine_deco2.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_51296_d.png",
+          "sha256": "db7b4d15017ef118b2b7e9e2a691cca43230b49a15d08beda79c17c6a2fe0491"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_51296_n.png",
+          "sha256": "252082ae0e37c636a3d2cfd16f9d671b71065d87b11d75c8ab2bea1a5463fc94"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_51296_orm.png",
+          "sha256": "ed73d4518fc6f86daf07bbc159dabf8740abfd2e3b344cb79575a913680f6423"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 55611,
       "name": "feet_giant_alienpod.png",
       "pack": "ao-cyber-characters",
@@ -19081,6 +19459,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_55729_orm.png",
           "sha256": "cca39bfd166f485185881439dc1ab340daed7d2baa441a419f9e7cd70b7aa212"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 55889,
+      "name": "hq_otbanner_red.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_55889_d.png",
+          "sha256": "00f0fffaac27bab60fdda8ff3aec55390ec7446b2049da09bf37789160a449ca"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_55889_n.png",
+          "sha256": "19c5d445936ab8df1be698626360be0e1be8687b4f05ce48758b8369110a50e0"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_55889_orm.png",
+          "sha256": "7b3d38218f9158d7fac741bedddf3c880ea01901402ead1097368c22ab2206e9"
         }
       }
     },
@@ -19464,6 +19863,27 @@
     },
     {
       "type": 1010004,
+      "id": 56237,
+      "name": "hq_otbanner_green.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_56237_d.png",
+          "sha256": "e75a0a51a59199929abb0f4917da7a0029826069fa7b6acdf61712fe4dece0a5"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_56237_n.png",
+          "sha256": "f50cc04266c7d927d644b6331654f9298ca152dfc564e625a8a29326a1b7edd9"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_56237_orm.png",
+          "sha256": "c049648753c8a6714d22285fec0ba721864792358af691b5b510fd77da7e7e3c"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 70482,
       "name": "torch_holder_metall_stang.png",
       "pack": "ao-cyber-world",
@@ -19501,6 +19921,48 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_70483_orm.png",
           "sha256": "0c1015592147ae54fd6092f1b428bd0028e7abc1cd7a06681552d3497af46217"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 70640,
+      "name": "metal_shiny_but_worn.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70640_d.png",
+          "sha256": "e39463c22ab59a88369544cadedc2b118a2515a2ea47d4fd2dabe217341d3810"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70640_n.png",
+          "sha256": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70640_orm.png",
+          "sha256": "f978b38f8695a2eae38e281f67b0bf6485427abeb66201a4e48c04202f093492"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 70656,
+      "name": "tickets_sign_subway.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70656_d.png",
+          "sha256": "49dd182bfd1966c55b7cf34fcb28e9b30637882a02a785ff962504e0a3838b88"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70656_n.png",
+          "sha256": "67157c38493b21243865bbfbf9e22f4a91bb6496bf1f947ba66cecb0568a41c9"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_70656_orm.png",
+          "sha256": "0c5f67756e3516c40d1bf25ee2743a0a0374392b3c31430c892eb356d8ae382a"
         }
       }
     },
@@ -19737,6 +20199,48 @@
     },
     {
       "type": 1010004,
+      "id": 81734,
+      "name": "codebreaker_panel copy.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81734_d.png",
+          "sha256": "b0251ed37528cc0d64e310016769087cc7e59ce4c3e7880e7ab128621bbbfcfd"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81734_n.png",
+          "sha256": "279616768b478e101c25e5e19681115cb3d4eb4281868df6496c5c0500a09ba0"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81734_orm.png",
+          "sha256": "6ec6622dd769665d76332f61faac5da7b04268736f79895e9845f828a8fc6906"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 81736,
+      "name": "codebreaker_main.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81736_d.png",
+          "sha256": "76a4b0134255a4632bc5d45aa3fae984aaa51aef49493ea74b3b5b810d00fdbc"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81736_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_81736_orm.png",
+          "sha256": "4ce2c936454000b4d783a9978efb90462d4765cee740fa800c40851eb34919d8"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 81905,
       "name": "rome_signtorome.png",
       "pack": "ao-cyber-world",
@@ -19921,6 +20425,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_82136_orm.png",
           "sha256": "028582cb98edd599f8ce99e8cca3c0edbda742d18e93387499b368b20244c239"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 82883,
+      "name": "transport_access_terminal.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_82883_d.png",
+          "sha256": "c5c5bd3faa9c5dcae758681cfb2d81dbda0e36ffdb898dfa58e96423dd2d1b13"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_82883_n.png",
+          "sha256": "279616768b478e101c25e5e19681115cb3d4eb4281868df6496c5c0500a09ba0"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_82883_orm.png",
+          "sha256": "f076f29681281dc9abe10a4ce03bdf3156c71d1042e6b7bdfa3f6a57d9dff0b5"
         }
       }
     },
@@ -29988,6 +30513,27 @@
     },
     {
       "type": 1010004,
+      "id": 204628,
+      "name": "shadow_bark.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_204628_d.png",
+          "sha256": "9d71568e3ba530ff3d10483661ec1e5d12d2e34ba19708683c92b01554563bfd"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_204628_n.png",
+          "sha256": "81f0af30090e838ceff2b9b43c4f176ba312e7780079872ffe402e34b7df3d9d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_204628_orm.png",
+          "sha256": "fd11f5bfea15bd331cec5ab866d473d24a61990c2eb7d6554640aa6a3a00c6f3"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 204629,
       "name": "shadow_branch.png",
       "pack": "ao-cyber-world",
@@ -30235,6 +30781,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-characters/1010004_204831_orm.png",
           "sha256": "4d5700e3161b9fc542d81b4b01515d455aeaded90440bdf7a9aebe7f19dc9f5a"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 205140,
+      "name": "fightclub_chain.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_205140_d.png",
+          "sha256": "a5fab02057e9e2f7211c2dc71dd84528d2808023794fecaa1f2741cf62481b36"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_205140_n.png",
+          "sha256": "e4f50b7f9de29cd0b32fc255e710b4fc2340f03c06a2c17c044a2b1e612105fe"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_205140_orm.png",
+          "sha256": "af9affeb4efec984e88bd301e7cea988aa38898b6be3dddb331e6f8f9a184730"
         }
       }
     },
@@ -42888,6 +43455,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_242961_orm.png",
           "sha256": "dc0e5a1d94c349fac4de25ed52d138a7588a486832e91f4e479c539aa0024b5e"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 242968,
+      "name": "railing_01.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_242968_d.png",
+          "sha256": "6499273cb1f4ccf11fc6e12271ee0088f59e9a74205b2376ae7d3a2a1eae1a0b"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_242968_n.png",
+          "sha256": "d9888dd8afe8aca2f68ebf03a1391f8caef6a16788380db378c973ea50bc95c7"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_242968_orm.png",
+          "sha256": "3822254c2fc63091163205f69ea76e874eb3b701bf6fd58801efd855f6594fff"
         }
       }
     },
@@ -62224,6 +62812,27 @@
     },
     {
       "type": 1010004,
+      "id": 281945,
+      "name": "dr_podglass.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_281945_d.png",
+          "sha256": "bf7cc7997ce2f38a8c8756f7fc6924befd66770e1ad08352dba8851d8b6d5192"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_281945_n.png",
+          "sha256": "fbaf2cf0e7933ae4492033e1e2a5c25c099c6c2f1eac1c3451a3d1f7c67aa37f"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_281945_orm.png",
+          "sha256": "fa14156c5d4ea40ae8c6d52cbed0bd49da4663ccfbeaf65cbb6dc7e3d854053c"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 282035,
       "name": "bobhair.png",
       "pack": "ao-cyber-world",
@@ -66356,6 +66965,27 @@
     },
     {
       "type": 1010004,
+      "id": 288080,
+      "name": "s7_cable.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_288080_d.png",
+          "sha256": "e19509c5f9cc0b529c81990f7a4d233d39b16b742ef5a77ecbda292feced9800"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_288080_n.png",
+          "sha256": "51ae20a1a389fbd31867ec53362552d40692727979359689ae7a9c973e430b22"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_288080_orm.png",
+          "sha256": "47e2c96f108d6f618a9bd0d94a95cbf130944c07f298b4e3393d037dd7b3d6c8"
+        }
+      }
+    },
+    {
+      "type": 1010004,
       "id": 288279,
       "name": "xb_alien_plant02b.png",
       "pack": "ao-cyber-world",
@@ -69614,6 +70244,48 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010004_292552_orm.png",
           "sha256": "883861a1092458a837e1f97eed7a11deec6ef3cd2c2131fa87c11a131a6f87a3"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 292553,
+      "name": "hotdog_ketchup.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292553_d.png",
+          "sha256": "a3ea30e6f844881eb25bc12de39c0cb9046913cb965a9dea3b020b48bbcc3dcb"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292553_n.png",
+          "sha256": "5879d5748b254f7dbd0d9ed8293450222c975c54f8235325d81356d695702e07"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292553_orm.png",
+          "sha256": "47e2c96f108d6f618a9bd0d94a95cbf130944c07f298b4e3393d037dd7b3d6c8"
+        }
+      }
+    },
+    {
+      "type": 1010004,
+      "id": 292554,
+      "name": "hotdog_mustard.png",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292554_d.png",
+          "sha256": "7cc8e8c2efd0e4a4b05d906d05b8ac27b4444d21cd8db4ca4637e0c1baf45178"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292554_n.png",
+          "sha256": "6ccfbf1e9d728365ccb93b4836849e017950e9a46d61f86061f7d1cda0663d3a"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010004_292554_orm.png",
+          "sha256": "47e2c96f108d6f618a9bd0d94a95cbf130944c07f298b4e3393d037dd7b3d6c8"
         }
       }
     },
@@ -81251,6 +81923,48 @@
     },
     {
       "type": 1010006,
+      "id": 8,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_8_d.png",
+          "sha256": "a8f2f087d9431ec539bd505fe6c224cd957a7cb1ae0d09ecbee5fb73ab75b177"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_8_n.png",
+          "sha256": "3614ccae9430f898864d0f320a4a22a1b389ad734f35886116a1367c6660f924"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_8_orm.png",
+          "sha256": "bac351abc541386180f4b6fedc17e80aa3be2f7a05ee921296706e79dd677fa2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 9,
+      "name": "original-pixel-alias-8",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_9_d.png",
+          "sha256": "a8f2f087d9431ec539bd505fe6c224cd957a7cb1ae0d09ecbee5fb73ab75b177"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_9_n.png",
+          "sha256": "3614ccae9430f898864d0f320a4a22a1b389ad734f35886116a1367c6660f924"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_9_orm.png",
+          "sha256": "bac351abc541386180f4b6fedc17e80aa3be2f7a05ee921296706e79dd677fa2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
       "id": 10,
       "name": "",
       "pack": "ao-cyber-world",
@@ -81440,6 +82154,111 @@
     },
     {
       "type": 1010006,
+      "id": 20,
+      "name": "Rubi-Ka manufactured paving 20",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_20_d.png",
+          "sha256": "71987e9b18ee71ab98a68c8fb8df4490c7f4e9d7ed81f3ecfcab9e13971cce3a"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_20_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_20_orm.png",
+          "sha256": "cc9139fc2b6b978d24b654fd87815ab5c8d8d8f1c5a7fdf4d6a7cbfc32703bf2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 23,
+      "name": "Rubi-Ka manufactured paving 23",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_23_d.png",
+          "sha256": "0315e2401ce4ca337bd7fed9f0f4b0cf8663967576eee619df690fb7726d332d"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_23_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_23_orm.png",
+          "sha256": "cc9139fc2b6b978d24b654fd87815ab5c8d8d8f1c5a7fdf4d6a7cbfc32703bf2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 24,
+      "name": "Rubi-Ka manufactured paving 24",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_24_d.png",
+          "sha256": "24c1f93e8d3fdd717b4f85777621ddb5017d8c569adc645cfce814c6f2204dc5"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_24_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_24_orm.png",
+          "sha256": "cc9139fc2b6b978d24b654fd87815ab5c8d8d8f1c5a7fdf4d6a7cbfc32703bf2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 25,
+      "name": "Rubi-Ka manufactured paving 25",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_25_d.png",
+          "sha256": "91a3a73e7bbe3d72aa2af0ac20378f82cab1b2f875c0533d1935a63f31732c3e"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_25_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_25_orm.png",
+          "sha256": "b1aecebabb671db7668cffb690787e03ac0dc465667b52b8b00fbf078ba56be5"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 26,
+      "name": "Rubi-Ka manufactured paving 26",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_26_d.png",
+          "sha256": "d53c507d0f7a9f5bb24358469fe5abf1414011870ea350e07299fd09290df731"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_26_n.png",
+          "sha256": "71d432413a10aab25e5dee0aa377a1ca29dddef8eb2e30584135268d218c9d96"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_26_orm.png",
+          "sha256": "cc9139fc2b6b978d24b654fd87815ab5c8d8d8f1c5a7fdf4d6a7cbfc32703bf2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
       "id": 28,
       "name": "",
       "pack": "ao-cyber-world",
@@ -81456,6 +82275,27 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010006_28_orm.png",
           "sha256": "a817eed15ec7780639bf0584145f6b4530d91f8ca0a68c0d26aa24ee20d3defb"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 29,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_29_d.png",
+          "sha256": "06b8ebc0cdde1335104bde649a0ee239f2baf2bfbdee8a479a120d87951d5bf2"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_29_n.png",
+          "sha256": "c3b754669eca37e6f9c22b6a6ddf0f5c39d10deccddc08f8f566c829dd64721d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_29_orm.png",
+          "sha256": "b5d797bc4f0112457f314db67b9f19c8a9be76bd3c08ad24085d3b4f803f9bfa"
         }
       }
     },
@@ -81482,6 +82322,27 @@
     },
     {
       "type": 1010006,
+      "id": 31,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "existing-ground-refinement",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_31_d.png",
+          "sha256": "021d9378a4c3ff5f594a6135dcc2d38b31be18d8819a23651acbff1234f5c430"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_31_n.png",
+          "sha256": "c799c48fff07742dba2ee39746d5357c78f9e2a7a9776bb02e01205c9435b298"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_31_orm.png",
+          "sha256": "e7e25b57d5f7a4e8dae0988fbcb7e5c055b580ffcd266e28f6f49a5c5ee81b54"
+        }
+      }
+    },
+    {
+      "type": 1010006,
       "id": 32,
       "name": "",
       "pack": "ao-cyber-world",
@@ -81498,6 +82359,489 @@
         "orm": {
           "file": "randy-vk/packs/ao-cyber-world/1010006_32_orm.png",
           "sha256": "8f7d666695098a1fb67af85e432ad17c9c46b21d3ccc9aa3c06000cec936d497"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 33,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_33_d.png",
+          "sha256": "1292eccd98f4457cabb6b7b177c6831b5a161c2b1c8602d24be4f25554595739"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_33_n.png",
+          "sha256": "26fcd150b0dc061258be473f752a8e871aa180a6b7b02090bd2a63838c363afb"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_33_orm.png",
+          "sha256": "b5d797bc4f0112457f314db67b9f19c8a9be76bd3c08ad24085d3b4f803f9bfa"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 34,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_34_d.png",
+          "sha256": "1292eccd98f4457cabb6b7b177c6831b5a161c2b1c8602d24be4f25554595739"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_34_n.png",
+          "sha256": "26fcd150b0dc061258be473f752a8e871aa180a6b7b02090bd2a63838c363afb"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_34_orm.png",
+          "sha256": "b5d797bc4f0112457f314db67b9f19c8a9be76bd3c08ad24085d3b4f803f9bfa"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 35,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_35_d.png",
+          "sha256": "88ac6fbbf621f96b773a291be07ee8a9fef48eee9abd6ddc295569dd99e2f93d"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_35_n.png",
+          "sha256": "3d81c4a448e23c6f77cc15cedfefd1003b649b927a53a12812892d41db429739"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_35_orm.png",
+          "sha256": "25aa1df5867c59cdcddb5b5c3258d1f5131d41807fa4b501906427fbe92380d8"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 36,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_36_d.png",
+          "sha256": "d96cceabea01b0c1df8070135fd43a544539997baafadaed16109e3c7f50ff63"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_36_n.png",
+          "sha256": "8ca9f33a713fd7272ae37eb64b5058eac656896cb20a97b2acb6cafefddf4d3d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_36_orm.png",
+          "sha256": "e7e25b57d5f7a4e8dae0988fbcb7e5c055b580ffcd266e28f6f49a5c5ee81b54"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 37,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_37_d.png",
+          "sha256": "923ee4efa20f419365b27795ddba6fd5f0f50df8df6de1cc6960430fa7fc1e5d"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_37_n.png",
+          "sha256": "9f02f39826cd868920777640b726e9408a99ecd0e281192173ed8e5be03bb2c1"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_37_orm.png",
+          "sha256": "8f7d666695098a1fb67af85e432ad17c9c46b21d3ccc9aa3c06000cec936d497"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 38,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_38_d.png",
+          "sha256": "b52f42da656af382d22c2904035fb80f5a3d6a6ed81125b62c98954f43f4c52a"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_38_n.png",
+          "sha256": "f909e63b194d408b95a93d1d4dc001deb5e5045a47b0411f5333d317280dab5b"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_38_orm.png",
+          "sha256": "70ae866b1ef104a829e75d6fdb79279e74c67c1cf254a753c29e398be75315b4"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 39,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_39_d.png",
+          "sha256": "a655547831cf0c33458f76b10b18b005fb2ad0873dd3afd8fc6780dead333a1e"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_39_n.png",
+          "sha256": "12267209b6bb5efb6fb4976721e7fb9f0592a6877dc9a701dcdc8f8a10243ca4"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_39_orm.png",
+          "sha256": "2a8b55f387174d8d87b50d1422f2e28fe03bee4b496ee1c18070827d07db8cf8"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 40,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_40_d.png",
+          "sha256": "d01641eefc348b7b093821280331d929aa670b82547c20e3bbf5fd9b97b8f35e"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_40_n.png",
+          "sha256": "a478e3cf6eaeb1a89928a75545d5603570c909a4a3017a168a8d3233154e6b9c"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_40_orm.png",
+          "sha256": "359f7cc5477beb92c1050e2529b6e7bbf18f3fff7da8f0e085d7083f6fe1252a"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 41,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_41_d.png",
+          "sha256": "1f1a99a4854d4f062bbc1555a2f2839cba523aad4bdbfd089f4d8dec2fcb563c"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_41_n.png",
+          "sha256": "030e46ee6bbc6f81afea9280dabceb662a9738be2d84bb7242257ec692633e72"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_41_orm.png",
+          "sha256": "400f8c47d6de44984e9a800907bc863f5eb20f799e097ca73d291c141a7833c2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 42,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_42_d.png",
+          "sha256": "1c7b46facdb5d0a608ddfe333d85b20637558d4c9f03690cc276ac7b37fe05ff"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_42_n.png",
+          "sha256": "8c2ea297456df2f7eeab7fd6a42dc10a26d5c2da89c535cad23955480bc41172"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_42_orm.png",
+          "sha256": "2b230cd522183610473052ca5944049d1655ae8570218670e75ac0c52295dda8"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 43,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_43_d.png",
+          "sha256": "35766535ce7cf8ba80f97d41725529f9b1087c486e41d6f437651c84c73d5459"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_43_n.png",
+          "sha256": "376c4a5d4d04d10a1eeeaf9be323c645dcbfa50e8946e825563f2dce5ea67579"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_43_orm.png",
+          "sha256": "56f5c91a2c162a6b68ac06fef6d6af9922bc3fa7f356ce5148f7cf71a1f53b52"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 44,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_44_d.png",
+          "sha256": "e6901abae2c6aab3e9ec9e14e1afd8a96b272febbbcf3895ef013ca5d0efd896"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_44_n.png",
+          "sha256": "9e8b32763e137f2a39752006608467184e98e21e4b4a7c6abef111c60a41f5eb"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_44_orm.png",
+          "sha256": "b5d797bc4f0112457f314db67b9f19c8a9be76bd3c08ad24085d3b4f803f9bfa"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 45,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_45_d.png",
+          "sha256": "e09a78dff0fbf49668567a72e6e0b962ab98c8740edee9e5e862c6ae4dd9f6a2"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_45_n.png",
+          "sha256": "f8f4906c888dd8e354cafb758fcb4a504a8096486813b386e85822151ab23ebf"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_45_orm.png",
+          "sha256": "d8b48122ec88a8df1815f0f75125c576cebc519a5541a94203d591a9fc0f676a"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 46,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_46_d.png",
+          "sha256": "68d41816bebb6ba673475f25e81752324606f766b633b1c841711d183f7b05ef"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_46_n.png",
+          "sha256": "0b46ae26d4287a69d6f776f07fdf1353d291f053c92373b374b37eef4e8ece70"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_46_orm.png",
+          "sha256": "e7e25b57d5f7a4e8dae0988fbcb7e5c055b580ffcd266e28f6f49a5c5ee81b54"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 47,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_47_d.png",
+          "sha256": "2dfdf8b9a8fad8bf75918696dc710f4220d34ad5e63e7aa465decd7b5e50407e"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_47_n.png",
+          "sha256": "7a97661b1a32e16e38417ec5b95d0a6917736965edf577e250dc944a59d0fdc7"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_47_orm.png",
+          "sha256": "9e6fb9f4782b7d6f4cc812fc89bc241ad1168fe021439385bc83c6dbdebfdb3d"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 48,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_48_d.png",
+          "sha256": "b8d817641d17d58a6603fc7ed72f3889521d8e9687d94b23ca81b170dee19b84"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_48_n.png",
+          "sha256": "6b5d5c53c2dc63c44422ae74964f8d36eba1881cd38b2339525b48b042b3ccd7"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_48_orm.png",
+          "sha256": "037ba8d605be52820c64e0d53bafc148935debe102cc62d90881f5890952f500"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 49,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_49_d.png",
+          "sha256": "d8c4d8d5120448ce5c451ff124c7e2e6fca54bf65735dff2588ff99b39df7d49"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_49_n.png",
+          "sha256": "4404fd203ad1c034e3cdd31212f86b8b179f7b7bfebf82325f8b948161a680f4"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_49_orm.png",
+          "sha256": "5ae0a4dd4e65d059722272fb04a34ec324f9d75349a08baa4c884fe1edc6631d"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 50,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_50_d.png",
+          "sha256": "a5197a895a56a04d910e2dd25449289bb53ef5ec252150c4932507be87e5f12b"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_50_n.png",
+          "sha256": "15a0585267fe4b3bcf0c234384c533c824ba27fa8d11a5ec50df39624bfda81d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_50_orm.png",
+          "sha256": "c9b3bf1133299cd911b6ad15421d09fc7525e5455f8a11373bfde8999d75d741"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 51,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_51_d.png",
+          "sha256": "e08a93d2ea97fd6679296edcaf32b8395d4636468e170b9b646bd312159813bf"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_51_n.png",
+          "sha256": "5eef94da96f177a8e12386d447f522f3dbe3ec0b384f92d3dc4e9780f8c0eca7"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_51_orm.png",
+          "sha256": "7dda1766be042cc97dab583ac96446793ef133e6aa9d7490aa866a4c0a1f7562"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 52,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_52_d.png",
+          "sha256": "139d9f474d38b6894b59acb6ede9d0483412db24e420b833f53cf30b6951c83c"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_52_n.png",
+          "sha256": "fd80ed20d29819010f36ba48bc9e22fe7bdfe991e8cec7361f16ee586f12a57d"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_52_orm.png",
+          "sha256": "e6156bc299153353ce7ad7535e52ebab13f0769b12a7b646932e732dfb3f44f9"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 53,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_53_d.png",
+          "sha256": "840a2d98d47a820277ba1879d6bb38965ba1fbcc4677a2747fa12a8812ebc990"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_53_n.png",
+          "sha256": "1d43b485dab2d5009c478ac46289040c68497cba5f7792951462bed7484bb8e3"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_53_orm.png",
+          "sha256": "bac351abc541386180f4b6fedc17e80aa3be2f7a05ee921296706e79dd677fa2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 54,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_54_d.png",
+          "sha256": "282d52a61ee55ca0123f22e429f956976d859dd7a50cf0f5ea38ac54b5e81a92"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_54_n.png",
+          "sha256": "3a1f25619eaa267cb9d52cf8252fb11ed5a60cd9a8ddbffc5ee50673980aa77f"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_54_orm.png",
+          "sha256": "bac351abc541386180f4b6fedc17e80aa3be2f7a05ee921296706e79dd677fa2"
+        }
+      }
+    },
+    {
+      "type": 1010006,
+      "id": 55,
+      "name": "",
+      "pack": "ao-cyber-world",
+      "priorState": "new-final-overhaul-completion",
+      "maps": {
+        "d": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_55_d.png",
+          "sha256": "de6b7e6b0ddfa97f8c3f1937075807354eedc7fe59877306c6388f41fc271a50"
+        },
+        "n": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_55_n.png",
+          "sha256": "c7abd64c6484f36b12d2a74faf6ff82d0832b528d7ffd41038c3359dd39d0125"
+        },
+        "orm": {
+          "file": "randy-vk/packs/ao-cyber-world/1010006_55_orm.png",
+          "sha256": "bac351abc541386180f4b6fedc17e80aa3be2f7a05ee921296706e79dd677fa2"
         }
       }
     },

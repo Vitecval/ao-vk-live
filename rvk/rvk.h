@@ -283,6 +283,8 @@ struct DeviceInfo {
     X(NeonSat, m_neonSat, L)                          /* coloured light keeps its colour (0: to white) */ \
     X(SoftHi, m_softHi, L)                            /* gentler bright world surfaces */ \
     X(DayLook, m_dayLook, L)                          /* brighter, neutral daylight presentation */ \
+    X(DayCycle, m_dayCycle, C|L)                      /* server cycle, longer days, enhanced daylight */ \
+    X(ImprovedTiles, m_improvedTiles, C|L)            /* ICC tile artwork in Shared Ground+ */ \
     X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
@@ -292,6 +294,7 @@ struct DeviceInfo {
     X(WearDebug, m_wearDebug, C)                        /* 0 off, 1 counters, 2 pixel coverage */ \
     X(WindowDepth, m_windowDepth, C)                    /* Exterior windows: 0 off, 1 subtle, 2 strong */ \
     X(ICCGlossiness, m_iccGlossiness, C)               /* verified ICC targets only, 0..1 */ \
+    X(ICCArtwork, m_enhancedOriginal, C)              /* original world patterns plus authored fine detail */ \
     X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
     X(GrassBright, m_grassBright, 0)                  /* the grass against its ground (1 as bright) */ \
@@ -1207,6 +1210,7 @@ private:
     };
     struct NativePatch {
         std::shared_ptr<const std::vector<uint8_t>> vertices, indices;   // (each cell's diagonal its own)
+        std::shared_ptr<const std::vector<uint8_t>> retailIndices;      // Shared Ground+: AO's overlap/collision surface
         float lo[3], hi[3];
         std::vector<NativeClutter> clutter;      // its rocks, made when the eye is near
         bool clutterMade = false;
@@ -1336,6 +1340,9 @@ private:
     void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);
     bool SharedGroundPlus() const { return !m_native.on && m_sharedTerrain>1.0f && m_skyPlayfield!=0; }
+    bool ImprovedTile(const Texture* tile) const;
+    float EnhancedDaylight() const { return m_dayCycle > 1.5f && m_skyPlayfield && !m_indoors && SunKnown()
+        ? std::clamp((SunUp() + 0.04f) / 0.30f, 0.0f, 1.0f) : 0.0f; }
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
     bool TerrainTexturingOn() const
     {
@@ -2342,6 +2349,7 @@ private:
     void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
     void ReportWeatherStats(FILE* file=nullptr);
     float m_iccGlossiness = 1.0f;
+    float m_enhancedOriginal = 0.0f;
     float m_buildWear = 0.0f;
     float m_windowDepth = 0.0f;
     bool m_windowActivity = true;
@@ -3283,6 +3291,7 @@ private:
     float m_neonSat = 0.0f, m_bloomWide = 0.0f;  // RVK_NeonSat, RVK_BloomWide (SetNeonSat, SetBloomWide)
     float m_softHi = 0.75f;
     float m_dayLook = 0.0f, m_sharedTerrain = 0.0f;
+    float m_dayCycle = 0.0f, m_improvedTiles = 1.0f;
     float m_bloomWeightSum = 1.0f;               // the bloom levels' weights summed this frame (RenderBloom)
     bool m_bloomDepth = false;                   // this frame's bloom carries its light's depth
     std::vector<Texture*> m_bloomLevels;         // half resolution and down, float

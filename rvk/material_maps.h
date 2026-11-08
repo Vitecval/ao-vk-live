@@ -358,6 +358,7 @@ struct MaterialFiles {
     std::string leaves, leavesNormal;          // a tree canopy's own leaf art (_leaves.png, _leaves_n.png)
     bool preserveAlbedoAlpha = false;
     uint32_t maxSize = 2048; // runtime cap; decoded mip chains retain filtering/normal variance
+    uint32_t maxAlbedoSize = 0; // 0 follows maxSize; colour art can keep more detail than auxiliary maps
     bool Any() const
     {
         return !normal.empty() || !height.empty() || !packed.empty() || HasParts() || !albedo.empty() ||
@@ -423,7 +424,7 @@ inline Decoded Decode(const MaterialFiles& f)
         d.errors += error + "; ";
     d.decodeFailed = !d.errors.empty();
     for (MipChain* c : {&d.normal, &d.orm, &d.albedo, &d.emissive, &d.leaves, &d.leavesNormal})
-        CapChain(*c, &d.errors, f.maxSize);
+        CapChain(*c, &d.errors, c == &d.albedo && f.maxAlbedoSize ? f.maxAlbedoSize : f.maxSize);
     return d;
 }
 

@@ -269,7 +269,7 @@ GroundRelief GroundReliefAt(TerrainMap m, vec3 posW, vec3 n)
     // (Not on the rocks and pebbles lying on it: their base pass has the cells' sand too.)
     r.sand = m.clutter ? 0.0 : SharedSand(m) * clamp(FL.sand.x, 0.0, 1.0) * smoothstep(0.82, 0.87, ny) * m.w.x;
     r.fade = vec2(0.0);
-    r.tiles = FL.terrain3.y > 0.0 && FL.terrain3.w > 0.5 && TerrainNativeMaps();
+    r.tiles = FL.sharedGroundConfig.w < .5 && FL.terrain3.y > 0.0 && FL.terrain3.w > 0.5 && TerrainNativeMaps();
     r.cell = m.uv[0];
     r.tileCell = floor(m.uv[0]);
     r.tileImg = r.tiles ? NativeNormalImage(m.uv[0]) : 0xFFFFu;

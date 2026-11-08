@@ -1842,6 +1842,7 @@ int main(int argc, char** argv)
             set("RVK_Enhance",1);set("RVK_ModernTex",2);set("RVK_RenderBg",1);
             set("RVK_GroundAo",.6f);set("RVK_GroundSun",1);set("RVK_DuneLight",1);
             set("RVK_GroundBlend",1);
+            set("RVK_GroundTess",1);set("RVK_CliffDepth",.4f);
             set("RVK_Pebbles",2);set("RVK_GroundRocks",1);set("RVK_CliffTex",1);set("RVK_CliffRock",1);
             for(const auto& mode:std::vector<std::pair<float,float>>{{0,1},{1,0},{1,1},{2,0},{2,1}}) {
                 set("RVK_GroundOn",mode.second);set("RVK_TerraBlend",mode.first);
@@ -1852,6 +1853,7 @@ int main(int argc, char** argv)
                 check("RVK_GroundAo",on && !plus ? .6f:0);check("RVK_GroundSun",on && !plus ? 1:0);
                 check("RVK_DuneLight",on && !plus ? 1:0);
                 check("RVK_GroundBlend",on && !plus ? 1:0);
+                check("RVK_GroundTess",on ? 1:0);check("RVK_CliffDepth",on ? .4f:0);
                 if(plus) {check("RVK_SandRipple",0);check("RVK_RippleDepth",0);check("RVK_WaterRipple",0);}
                 std::printf("terrain settings mode %.0f raw GroundOn %.0f: native %d; pebbles %.0f; AO %.1f; sun %.0f passed\n",
                             mode.first,mode.second,int(on),effective("RVK_Pebbles"),effective("RVK_GroundAo"),effective("RVK_GroundSun"));
@@ -1872,6 +1874,16 @@ int main(int argc, char** argv)
             if(saved("RVK_ModernTex")!=2) return 3;
             check("RVK_ModernTex",2);check("RVK_GroundOn",0);check("RVK_Pebbles",1);
             std::puts("AnarchyHD legacy style upgrade and selector compatibility passed");
+            set("RVK_ImprovedTiles",0);check("RVK_ImprovedTiles",0);
+            set("RVK_DayCycle",2);set("RVK_ModernTex",0);set("RVK_AutoMat",0);
+            set("RVK_TerrainHD",0);set("RVK_BuildingHD",0);set("RVK_Hdr",0);set("RVK_PixelLight",0);
+            check("RVK_DayCycle",2);check("RVK_Hdr",1);check("RVK_PixelLight",1);
+            set("RVK_Enhance",0);check("RVK_DayCycle",0);check("RVK_Hdr",0);check("RVK_PixelLight",0);
+            set("RVK_Enhance",1);check("RVK_DayCycle",2);
+            if(!preset(3) || saved("RVK_DayCycle")!=2 || saved("RVK_ImprovedTiles")!=0) return 3;
+            set("RVK_DayCycle",1);check("RVK_DayCycle",1);
+            set("RVK_DayCycle",0);check("RVK_DayCycle",0);
+            std::puts("Day/night options, quality-preset independence, enhancement-off server clock and Improved Tiles passed");
             std::puts("terrain settings Ultra, immediate switching, effective parents and saved preferences passed");
         }
     }

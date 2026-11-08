@@ -515,7 +515,9 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     // Strong original markings/joints keep their shape; noisy old texels are
     // softened before the new filtered detail. Alpha is always AO's original.
     float marking=smoothstep(.07,.22,length(original.rgb-mask));
-    vec3 base=mix(mask,original.rgb,marking);
+    // Shared Ground+ preserves AO's overlap painting at full source precision;
+    // the blurred colour sample classifies materials but never replaces it.
+    vec3 base=FL.sharedGroundConfig.w>.5 ? original.rgb : mix(mask,original.rgb,marking);
     original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65),amount);
     return original;
 }

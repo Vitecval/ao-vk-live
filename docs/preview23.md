@@ -2,11 +2,37 @@
 
 Setup 7 retains the Setup 6 fixes for the empty-path archive search, supports Unicode installation records, and recovers interrupted file changes. Failed preparation or file checks preserve the previous installation. Setup shows current activity and saves detailed error logs. See [the installer audit](preview23-installer-audit.md).
 
-The Preview 23 Full HD edition integrates 13,338 unique HD diffuse replacement IDs and 41,102 runtime maps, including 4,711 IDs beyond the Preview 21 library. This includes 255 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 23 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
+The Preview 23 Full HD edition integrates 13,393 unique HD diffuse replacement IDs and 41,267 runtime maps, including 4,766 IDs beyond the Preview 21 library. This includes 310 newly completed originals and 50 reviewed older artwork IDs recovered from broad retention holds. The remaining 23 image-service-rejected requests keep their originals. See [artwork coverage and retained originals](preview23-artwork.md).
 
 Frame generation retains the revision-14 freeze safeguards and remains experimental and off by default. Its NVIDIA compatibility path can reduce real rendering FPS substantially; the generated-frame counter is not the same as real rendering speed. FSR upscaling and render scale remain independent. See [the performance audit](fsr-performance-audit.md) for measured limits.
 
 Revision 10 fixed FSR initialization leaks, ignored pipeline/descriptor errors and missing hardware checks. Unsupported features fall back with a logged reason. Frame generation remains experimental and off by default. The earlier [FSR audit](fsr-stability-audit.md) records the investigation; the latest user report above updates its then-pending local test status. Additional physical-GPU validation remains pending.
+
+The current visual correction adds **Day/Night Cycle** to the graphics menu and
+its own settings section. **Rely on Server Sided day/night** retains the normal
+clock. **Longer Day / Shorter Night** remaps the local Rubi-Ka sky clock smoothly
+without changing the length of its 27-hour cycle; other worlds keep their own
+clock. **Enhanced Daylights (happier)** keeps the server cycle and uses brighter
+sky fill, lighter directional shadows, a clearer blue daylight sky and gentler
+colour grading. It preserves night and weather rather than forcing permanent noon.
+
+**Enhanced Original** now preserves original AO world patterns and palette,
+using bounded fine HD detail and softer, less metallic highlights. It is the
+default for new preferences; existing artwork choices remain selectable.
+Character artwork keeps its separate selection. **Improved Tiles**, beside the
+enhanced ground renderer under Terrain mode, controls the custom ICC tiles in
+Shared Ground+. Off feeds the original tiles into the continuous shared terrain
+renderer. Shared Ground+ retains AO's triangle diagonals and disables geometric
+rounding, displacement and tile parallax so terrain overlays remain aligned.
+Source colour is retained instead of replacing it with a blurred classification
+sample. Large world colour maps may retain 1024 pixels when address space permits;
+normal/material maps and the decoded cache keep their existing memory limits.
+
+Creation/login scenes without a world playfield retain their own local studio
+lights at original intensity. Separate Vulkan fixtures cover that light path,
+pattern preservation, readable daylight, ICC tile fall-through and cliff coverage.
+Retail creation-screen, city/terrain visual approval and other-GPU tests remain
+separate checks; these fixtures do not certify every zone or graphics card.
 
 The following release notes retain the prior rendering changes.
 

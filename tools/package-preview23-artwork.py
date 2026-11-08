@@ -11,12 +11,19 @@ def archive(folder,target):
         for p in sorted(folder.rglob('*')):
             if p.is_file():z.write(p,p.relative_to(folder.parent).as_posix())
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--seed',type=Path,required=True);p.add_argument('--library',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True);args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--seed',type=Path,required=True);p.add_argument('--library',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--revision',type=int,default=15);p.add_argument('--stage-only',action='store_true',help='Prepare complete local installer folders for private testing; no distributable archives')
+    args=p.parse_args()
     assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT),'Commit package source first'
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     out=args.output.resolve();out.mkdir(exist_ok=False,parents=True);editions={};coverage=read(ROOT/'material-packs/preview23-integration.json')['coverage']
     for edition in ['lite','full']:
-        folder=out/f'ao-vk-live-{VERSION}-windows-x86-{edition}';shutil.copytree(args.seed.resolve()/folder.name,folder)
+        folder=out/f'ao-vk-live-{VERSION}-windows-x86-{edition}'
+        def copy_file(src,dst):
+            if Path(src).suffix.lower()=='.png':os.link(src,dst)
+            else:shutil.copy2(src,dst)
+            return dst
+        shutil.copytree(args.seed.resolve()/folder.name,folder,copy_function=copy_file)
         m=read(folder/'manifest.json');previous=m['addon'].copy()
         if previous not in m['previousAddons']:m['previousAddons'].insert(0,previous)
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(args.build.resolve()/name,folder/name)
@@ -34,12 +41,16 @@ def main():
                 for name,expected in catalog['files'].items():
                     src=manifest.parent/name;assert sha(src)==expected,(pack,name)
                     target=dest/name
-                    if target.exists():assert sha(target)==expected,(pack,name,'seed conflict')
+                    if target.exists():
+                        if sha(target)!=expected:
+                            # Replace the new folder's link, never modify a
+                            # shared file in the immutable seed release.
+                            temp=target.with_suffix('.staged.png');os.link(src,temp);os.replace(temp,target)
                     else:os.link(src,target)
                     m['assets'][target.relative_to(folder).as_posix()]=expected
             m.pop('materialParts',None);m.pop('materialDownload',None);m['materialSourceVersion']=VERSION
             m['artworkCoverage']=coverage
-        m.update(version=VERSION,build='ao-vk-preview23-expanded-artwork',candidateRevision=15,setupRevision=7,
+        m.update(version=VERSION,build='ao-vk-preview23-expanded-artwork',candidateRevision=args.revision,setupRevision=7,
                  sourceCommit=commit,setupSourceCommit=commit,livingIncluded=False,
                  candidateStatus='expanded-artwork-integrated-release-validation',publicDistributionApproved=False)
         m['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}
@@ -49,6 +60,11 @@ def main():
         # Nested pack manifests are assets; only the root manifest is unpinned.
         for rel,h in m['assets'].items():assert (folder/rel).is_file() and sha(folder/rel)==h,rel
         write(folder/'manifest.json',m);editions[edition]=folder
+    if args.stage_only:
+        write(out/'STAGED-INSTALLERS.json',dict(result='passed',candidateRevision=args.revision,sourceCommit=commit,
+             distributableArchives=False,publicDistributionApproved=False,folders={k:str(v) for k,v in editions.items()},coverage=coverage))
+        print('Complete local installer folders prepared; distributable archives not built',flush=True)
+        return
     lite=editions['lite'];litezip=out/(lite.name+'.zip');archive(lite,litezip)
     spec=importlib.util.spec_from_file_location('parts',ROOT/'tools/material-archives.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     print('Building immutable Preview23 material companions',flush=True)
@@ -58,7 +74,7 @@ def main():
         print('VERIFY',file.name,flush=True)
         with zipfile.ZipFile(file) as z:assert z.testzip() is None,file.name
         records.append(dict(name=file.name,path=str(file),bytes=file.stat().st_size,sha256=sha(file)))
-    report=dict(result='passed',version=VERSION,candidateRevision=15,setupRevision=7,sourceCommit=commit,
+    report=dict(result='passed',version=VERSION,candidateRevision=args.revision,setupRevision=7,sourceCommit=commit,
                 rendererSha256=sha(args.build/'ao-vk.dll'),coverage=coverage,products=records,livingIncluded=False,published=False,
                 scope='Archive integrity, complete pinned material membership and hashes. Retail all-zone model-fit playtests remain separate.')
     write(out/'PACKAGE-AUDIT.json',report)

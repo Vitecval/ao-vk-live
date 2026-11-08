@@ -12,5 +12,7 @@ void Install();
 void SetScale(float scale);
 // Large scenery's outer rings only, at most 15% farther, inside loaded zones.
 void SetSceneryScale(float scale);
+// Optional far scenery: up to 3x outer rings and 2x small-object rings.
+void SetFarScale(float scale);
 
 }  // namespace rnative::rings

@@ -1563,6 +1563,41 @@ void DrawCharacterScene(CharacterScene& scene, void* viewport, float time, bool 
     if (g_shadow) DrawShadow(scene, viewport);
 }
 
+// Real native camera after settings have been applied to a live device.
+void TestFarSceneryCamera(void* viewport)
+{
+    auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+    void* root=Export<FrameCtorFn>("??0RRefFrame_t@@QAE@PAV0@PAVRAnimation_t@@@Z")(
+        ::operator new(0xA4),nullptr,nullptr,nullptr);
+    void* camera=Export<CameraCtorFn>("??0RCamera_t@@QAE@MMMMPAVRRefFrame_t@@PAVRAnimation_t@@@Z")(
+        ::operator new(0x200),nullptr,.6f,640.f/480.f,.1f,200.f,root,nullptr);
+    const Vector3 eye{0,0,0},target{0,0,1};
+    Export<SetPosFn>("?SetRelativePosition@RRefFrame_t@@QAEXABVVector3_t@@PBV1@@Z")(camera,nullptr,&eye,nullptr);
+    Export<SetTargetFn>("?SetWorldTarget@RRefFrame_t@@QAEXABVVector3_t@@@Z")(camera,nullptr,&target);
+    auto* original=reinterpret_cast<uint8_t*>(OriginalRenderer());
+    auto sees=reinterpret_cast<bool(__fastcall*)(void*,void*,const float*,float)>(original+0x2B3E4);
+    auto seesVolume=reinterpret_cast<bool(__fastcall*)(void*,void*,void*,const float*,float)>(original+0x2B4A6);
+    auto projection=Export<void(__fastcall*)(void*,void*,float*)>("?GetTransformationMatrix@RCamera_t@@QBEXPAVTMatrix4_t@@@Z");
+    set("RVK_Enhance",1);set("RVK_ViewRange",3);set("RVK_ImmersiveShips",1);set("RVK_SceneryDist",3);
+    float identity[16]={};identity[0]=identity[5]=identity[10]=identity[15]=1;
+    alignas(float) uint8_t volume[0x38]={};
+    const float distant[3]={0,0,1000},low[3]={-10,-10,990},high[3]={10,10,1010};
+    std::memcpy(volume+8,distant,12);*reinterpret_cast<float*>(volume+0x14)=20;
+    std::memcpy(volume+0x18,low,12);std::memcpy(volume+0x24,high,12);
+    for(int enabled:{0,1,0}) {
+        set("RVK_FarScenery",float(enabled));
+        Export<PtrArgFn>("?SetCamera@RViewPort_t@@QAEXPAVRCamera_t@@@Z")(viewport,nullptr,camera);
+        Export<PtrArgFn>("?Process@RViewPort_t@@QAEXPAVRRefFrame_t@@@Z")(viewport,nullptr,root);
+        float matrix[16];projection(camera,nullptr,matrix);
+        const bool inClip=(1000*matrix[10]+matrix[14])/1000<=1.f;
+        const bool large=sees(camera,nullptr,distant,20.f),tinySphere=sees(camera,nullptr,distant,1.f);
+        const bool mesh=seesVolume(camera,nullptr,volume,identity,1.f);
+        std::printf("far scenery native camera: on %d sphere %d mesh %d clip %d small %d\n",enabled,large,mesh,inClip,tinySphere);
+        if(large!=(enabled!=0) || mesh!=(enabled!=0) || inClip!=(enabled!=0) || tinySphere)std::exit(3);
+    }
+    std::puts("far scenery native camera passed: off/on/off restores culling and projection");
+}
+
 // A crash ends the harness with a line on its output instead of Wine's crash dialog on the desktop.
 LONG WINAPI Crashed(EXCEPTION_POINTERS* e)
 {
@@ -1605,6 +1640,7 @@ int main(int argc, char** argv)
     bool worldMaterialsTest = false;
     bool propsPackTest = false;
     std::vector<unsigned> customArtIds;             // --art-ids: isolated loader fixture for new batches
+    bool farSceneryTest=false;
     unsigned customArtType = 1010004;
     bool customEquipment = false;                  // same supplied IDs, with character-pack toggles
     bool still = false;                              // the animation time doesn't advance (static vertex buffers)
@@ -1648,6 +1684,7 @@ int main(int argc, char** argv)
         else if (a == "--surface-memory-test") surfaceMemoryTest = true;
         else if (a == "--world-materials-test") worldMaterialsTest = true;
         else if (a == "--props-pack-test") propsPackTest = worldMaterialsTest = true;
+        else if (a == "--far-scenery-test") farSceneryTest=true;
         else if (a == "--art-type" && i+1<argc) customArtType=unsigned(std::strtoul(argv[++i],nullptr,10));
         else if ((a == "--art-ids" || a == "--equipment-ids") && i+1<argc) {
             customEquipment = a == "--equipment-ids";
@@ -2190,6 +2227,7 @@ int main(int argc, char** argv)
         open(viewport, nullptr, &restored);
         unsigned clearColor = 0xFF203040;
         clear(viewport, nullptr, &clearColor, true, true, 0);
+        if(farSceneryTest && frame==0)TestFarSceneryCamera(viewport);
         if (!scene.characters.empty()) {
             if (g_lightmap) ApplyLightmap(scene, frame);
             QueryPerformanceCounter(&frameStart);

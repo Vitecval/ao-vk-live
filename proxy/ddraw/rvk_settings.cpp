@@ -52,6 +52,8 @@ Setting g_settings[] = {
     {"RVK_AlienMap", "AI missions' PF map: rooms shown black on green (the game's is black on black)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_DetailRange", "How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws)", "General", Float, 1, 4, 0.25f, 2, nullptr, 0},
     {"RVK_ViewRange",   "How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws)", "General", Float, 1, 3, 0.25f, 1.5f, nullptr, 0},
+    {"RVK_FarScenery", "Far Scenery: show buildings, trees and rocks farther away (more draws; move to refresh)", "General", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_SceneryDist", "Scenery distance: up to 3x for buildings/trees, 2x for rocks/shrubs, within loaded areas", "General", Float, 1, 3, .25f, 2.5f, nullptr, 0, "RVK_FarScenery"},
     {"RVK_ImmersiveShips", "Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas", "General", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
@@ -463,7 +465,7 @@ const Vanilla kVanilla[] = {
     {"RVK_TerraBlend", 0},
     {"RVK_DayLook", 0},
     {"RVK_DayCycle", 0}, {"RVK_ImprovedTiles", 1},
-    {"RVK_GlobalShiny",1}, {"RVK_ImmersiveShips",0},
+    {"RVK_GlobalShiny",1}, {"RVK_ImmersiveShips",0}, {"RVK_FarScenery",0}, {"RVK_SceneryDist",1},
     {"RVK_BuildingHD", 0},
     {"RVK_FarHaze", 0},
     {"RVK_ModernTex", 0},
@@ -602,6 +604,10 @@ float V(const char* name)
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
     auto minimum = [&](const char* n) {
         float value = cyber ? CyberMinimum(n) : -1e30f;
+        // Far props must not be clipped/fogged at the old shorter view range.
+        // Keep the saved ordinary view preference so switching off restores it.
+        if(Stored("RVK_Enhance")!=0 && Stored("RVK_FarScenery")!=0 &&
+           std::strcmp(n,"RVK_ViewRange")==0)value=std::max(value,3.f);
         if (Stored("RVK_DayCycle")==2.0f && Stored("RVK_Enhance")!=0.0f &&
             (std::strcmp(n,"RVK_Hdr")==0 || std::strcmp(n,"RVK_PixelLight")==0)) value=std::max(value,1.0f);
         if (characterMaterials || worldMaterials) {
@@ -784,6 +790,17 @@ void Save(const Setting& s)
 
 void ApplyOne(const Setting& s, rvk::ThreadedDevice* d);
 
+void ApplyScenery(rvk::ThreadedDevice* d)
+{
+    const float ships=V("RVK_ImmersiveShips")>.5f ? 1.15f:1.f;
+    const float farScale=V("RVK_FarScenery")>.5f ? V("RVK_SceneryDist"):1.f;
+    rnative::rings::SetSceneryScale(ships);
+    rnative::rings::SetFarScale(farScale);
+    rnative::camera::SetSceneryRange(std::max(ships,farScale));
+    rnative::camera::SetViewRange(V("RVK_ViewRange"));
+    d->SetViewRange(V("RVK_ViewRange"));
+}
+
 // Our sky's colours (docs/sky-plan.md §1): the nine RRGGBB keys.
 rvk::SkyColours SkyColoursNow()
 {
@@ -820,9 +837,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
         if(is("RVK_ImmersiveShips")) {
-            const float scenery=V(n)>.5f ? 1.15f:1.f;
-            rnative::camera::SetSceneryRange(scenery);
-            rnative::rings::SetSceneryScale(scenery);
+            ApplyScenery(d);
         }
         if (is("RVK_DayCycle"))
             for (const char* dependent : {"RVK_Hdr","RVK_PixelLight","RVK_TimeOfDay"})
@@ -946,6 +961,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     else if (is("RVK_FogBanks")) d->SetFogBanks(V(n));
     else if (is("RVK_StarFade")) d->SetStarFade(V(n) > 0.5f);
     else if (is("RVK_HeapCheck")) d->SetHeapCheck(int(V(n) + 0.5f));
+    else if (is("RVK_FarScenery") || is("RVK_SceneryDist")) ApplyScenery(d);
     else if (is("RVK_ViewRange")) {
         d->SetViewRange(V(n));
         rnative::camera::SetViewRange(V(n));

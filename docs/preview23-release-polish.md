@@ -146,3 +146,23 @@ the former ring policy. An increase in distant geometry may cost frame time;
 the controlled checks do not establish live retail performance or an exact
 Lost Eden scene match. Visibility changes take effect on the game's next ring
 refresh when the camera moves onto another tile.
+
+## Optional Far Scenery (revision 26)
+
+Far Scenery is an independent toggle in Main and General, with a child distance
+slider from 1 to 3 (default 2.5). It defaults off and presets preserve the user's
+selection. Buildings and trees use up to three times the native statel-ring
+distances, with rocks/shrubs limited to twice their existing detail range. All
+rings remain capped inside N3's already-loaded zones; the loaded playfield and
+server actor range are not expanded. The ring change appears on the next camera
+tile refresh. It draws the existing meshes: no simplified-model or batching
+system is claimed, and the additional objects can cost CPU/GPU time and memory.
+
+The effective ordinary camera/fog range rises to 3 while enabled so it does not
+hide the extended small props. The large-scenery camera reach also follows the
+selected multiplier. The saved ordinary view preference is preserved and
+restored when disabled. Immersive Ships keeps its independent 15% extension.
+Switching all enhancements off disables Far Scenery without losing preferences.
+Terrain full-quality radius, tessellation, shadow distances, density, artwork,
+daylight and frame-generation behavior are unchanged. The owner's F: test setup
+selects Far Scenery on at 3; release defaults remain opt-in.

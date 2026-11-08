@@ -27,6 +27,19 @@ int main(int argc,char**) {
         }
     }
     std::puts("scenery rings bounded; small-object budget and disabled policy preserved");
+    for(float detail:{1.f,2.f,4.f})for(float kept:{.2f,.75f,1.f})for(float farScale:{1.f,1.5f,2.f,2.5f,3.f}) {
+        float base[5],expanded[5];
+        rnative::rings::ScaledFactors(original,kept,detail,1.15f,base);
+        rnative::rings::ScaledFactors(original,kept,detail,1.15f,expanded,farScale);
+        for(int i=0;i<5;++i)
+            if(expanded[i]<base[i] || expanded[i]>std::max(original[i],kept*2)+1e-6f ||
+               (i>0 && expanded[i]<expanded[i-1]) || (farScale==1 && expanded[i]!=base[i]))return 10;
+    }
+    float horizon[5];
+    rnative::rings::ScaledFactors(original,.75f,2.f,1.15f,horizon,3.f);
+    const float expected[5]={.4f,.6f,.9f,1.2f,1.5f};
+    for(int i=0;i<5;++i)if(std::fabs(horizon[i]-expected[i])>1e-6f)return 11;
+    std::puts("Far Scenery covers distant rock/building zones and stays inside the loaded world");
     HMODULE lib=LoadLibraryA("ao-vk.dll");
     if(!lib) {std::printf("load failed %lu\n",GetLastError());return 1;}
     auto set=reinterpret_cast<int(__cdecl*)(const char*,float)>(GetProcAddress(lib,"RvkSettings_Set"));
@@ -37,7 +50,19 @@ int main(int argc,char**) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
-    if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");std::puts("saved selections and manual time survived process restart");return 0;}
+    if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");check(effective("RVK_FarScenery")==1 && effective("RVK_SceneryDist")==3 && effective("RVK_ViewRange")==3,"restart far scenery");check(info("RVK_ViewRange").value==1.5f,"restart stored ordinary view range");std::puts("saved selections, Far Scenery and manual time survived process restart");return 0;}
+    check(info("RVK_FarScenery").defaultValue==0,"far scenery opt-in default");
+    check(info("RVK_SceneryDist").min==1 && info("RVK_SceneryDist").max==3 &&
+          std::strcmp(info("RVK_SceneryDist").parent,"RVK_FarScenery")==0,"far distance schema");
+    set("RVK_Enhance",1);set("RVK_ViewRange",1.5f);set("RVK_FarScenery",1);
+    for(int i=0;i<=8;++i){const float v=1+i*.25f;set("RVK_SceneryDist",v);check(effective("RVK_SceneryDist")==v,"far distance steps");}
+    check(effective("RVK_ViewRange")==3 && info("RVK_ViewRange").value==1.5f,"far scenery effective camera/fog range");
+    set("RVK_FarScenery",0);
+    check(effective("RVK_SceneryDist")==1 && effective("RVK_ViewRange")==1.5f,"far scenery off restores ordinary reach");
+    set("RVK_FarScenery",1);set("RVK_Enhance",0);
+    check(effective("RVK_FarScenery")==0 && effective("RVK_ViewRange")==1,"original mode disables far scenery");
+    set("RVK_Enhance",1);
+    check(effective("RVK_FarScenery")==1,"restore far scenery preference");
     const char* cosmetics[]={"RVK_LivePeople","RVK_NPCVariety","RVK_ArmoredCivilians","RVK_LiveDrones","RVK_AirTraffic","RVK_PhasefrontTraffic","RVK_OrbitalCraft","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"};
     for(const char* name:cosmetics)check(set(name,1)==0,"Living control should be absent");
     for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s))check(std::strcmp(s.section,"Living Rubi-Ka")!=0,"Living section should be absent");}
@@ -51,6 +76,7 @@ int main(int argc,char**) {
     check(info("RVK_ModernTex").value==2 && info("RVK_Albedo").value==1,"Ultra HD on");
     check(info("RVK_DayCycle").value==2 && effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Ultra server daylight");
     check(info("RVK_BuildWear").value==1 && info("RVK_GlobalShiny").value==.5f,"Ultra material defaults");
+    check(info("RVK_FarScenery").value==1 && info("RVK_SceneryDist").value==3,"presets preserve optional far scenery");
     set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);
     check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"manual clock must override Enhanced Daylights");
     check(info("RVK_DayCycle").value==2 && effective("RVK_Hdr")==1 && effective("RVK_PixelLight")==1,"manual clock must retain daylight lighting");

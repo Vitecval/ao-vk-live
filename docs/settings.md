@@ -53,6 +53,8 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_AlienMap` | AI missions' PF map: rooms shown black on green (the game's is black on black) | on / off | on | window; knob |
 | `RVK_DetailRange` | How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws) | 1 .. 4 | 2 | window |
 | `RVK_ViewRange` | How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws) | 1 .. 3 | 1.5 | window; game value 1 |
+| `RVK_FarScenery` | Far Scenery: extend loaded buildings, trees, rocks and shrubs; move to refresh the game's scenery rings | on / off | off | Main/General; opt-in, preserved by presets |
+| `RVK_SceneryDist` | Far Scenery distance multiplier; buildings/trees up to 3x, rocks/shrubs up to 2x, capped within loaded areas | 1 .. 3 | 2.5 | child of Far Scenery |
 | `RVK_ImmersiveShips` | Immersive Ships: brighter navigation markings and clearer distant hulls; loaded buildings/trees reach up to 15% farther (camera and N3 rings, small-object detail unchanged) | on / off | off | window; game value off; knob |
 
 ## Lighting

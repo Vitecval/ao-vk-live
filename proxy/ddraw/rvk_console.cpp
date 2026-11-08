@@ -1236,7 +1236,7 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_Enhance", "RVK_DayCycle", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend",
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
          "RVK_BuildWear", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
          "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},

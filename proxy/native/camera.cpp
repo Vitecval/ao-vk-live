@@ -667,7 +667,7 @@ void SetViewRange(float range)
 }
 void SetSceneryRange(float range)
 {
-    g_sceneryRange.store(std::isfinite(range) ? std::fmin(std::fmax(range,1.f),1.25f):1.f,std::memory_order_relaxed);
+    g_sceneryRange.store(std::isfinite(range) ? std::fmin(std::fmax(range,1.f),3.f):1.f,std::memory_order_relaxed);
 }
 
 }  // namespace rnative::camera

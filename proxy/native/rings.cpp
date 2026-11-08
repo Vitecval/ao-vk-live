@@ -14,6 +14,8 @@
 // about four times the land's objects (user, 2026-10-18). Each stays within N3's loaded zones (the view distance x the grid's
 // +0x28, FUN_10028cf4: the rings' radii take half the view distance, so a factor up to twice +0x28) - past that there
 // is nothing to show.
+// Far Scenery optionally extends the outer rings up to 3x and the inner ones
+// up to 2x, within that same loading boundary. It does not expand world loading.
 #include "native/rings.h"
 #include "native/ring_ranges.h"
 
@@ -33,6 +35,7 @@ using RingFn = int(__fastcall*)(void* grid, void* edx, int zone, const void* cam
 RingFn g_ring;
 std::atomic<float> g_scale{1.0f};
 std::atomic<float> g_sceneryScale{1.0f};
+std::atomic<float> g_farScale{1.0f};
 bool g_logged;
 
 constexpr uint32_t kRingRva = 0x28AB7;              // FUN_10028ab7 in N3.dll (image base 0x10000000)
@@ -43,7 +46,8 @@ int __fastcall RingHook(uint8_t* grid, void* edx, int zone, const void* camera)
 {
     const float scale = g_scale.load(std::memory_order_relaxed);
     const float scenery = g_sceneryScale.load(std::memory_order_relaxed);
-    if (scale == 1.0f && scenery == 1.0f)
+    const float farScale = g_farScale.load(std::memory_order_relaxed);
+    if (scale == 1.0f && scenery == 1.0f && farScale == 1.0f)
         return g_ring(grid, edx, zone, camera);
     float* factors = reinterpret_cast<float*>(grid + kFactors);
     float kept;
@@ -51,13 +55,13 @@ int __fastcall RingHook(uint8_t* grid, void* edx, int zone, const void* camera)
     float saved[5];
     std::memcpy(saved, factors, sizeof(saved));
     float expanded[5];
-    ScaledFactors(saved,kept,scale,scenery,expanded);
+    ScaledFactors(saved,kept,scale,scenery,expanded,farScale);
     std::memcpy(factors,expanded,sizeof(expanded));
     if (!g_logged) {
         g_logged = true;
         Log("statel rings: x%.2f - factors %.3f %.3f %.3f %.3f %.3f (the game's %.3f %.3f %.3f %.3f %.3f), zones kept to "
-            "%.3f of the view distance; large scenery x%.2f", scale, factors[0], factors[1], factors[2], factors[3], factors[4], saved[0],
-            saved[1], saved[2], saved[3], saved[4], kept, scenery);
+            "%.3f of the view distance; large scenery x%.2f; Far Scenery x%.2f", scale, factors[0], factors[1], factors[2], factors[3], factors[4], saved[0],
+            saved[1], saved[2], saved[3], saved[4], kept, scenery, farScale);
     }
     const int ring = g_ring(grid, edx, zone, camera);
     std::memcpy(factors, saved, sizeof(saved));
@@ -75,6 +79,12 @@ void SetScale(float scale)
 void SetSceneryScale(float scale)
 {
     g_sceneryScale.store(std::isfinite(scale) ? std::clamp(scale,1.f,1.15f):1.f,std::memory_order_relaxed);
+    g_logged=false;
+}
+
+void SetFarScale(float scale)
+{
+    g_farScale.store(std::isfinite(scale) ? std::clamp(scale,1.f,3.f):1.f,std::memory_order_relaxed);
     g_logged=false;
 }
 

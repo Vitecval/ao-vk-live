@@ -705,12 +705,13 @@ float NativeRockLight(vec3 n, float lit, float vis)
     // The AO lightmap already contains its hour's sun and ambient response.
     // Retain modest face definition without applying native directional light
     // to that baked lighting a second time.
-    if (ClassicNativeLighting()) return sky;
+    if (ClassicNativeLighting() && FL.windowLife.z <= 0.0) return sky;
     const vec3 S = dot(FL.sunDir.xyz, FL.sunDir.xyz) > 0.0 ? -normalize(FL.sunDir.xyz) : vec3(0.0);
     if (S.y <= 0.02) return sky;
     const float sun = clamp(max(dot(n, S), 0.0) / max(S.y, 0.3), 0.0, 2.0) * vis;
     const float k = kRockSun * NativeSunShare(n, true, lit);
-    return (1.0 - k) * sky + k * sun;
+    float shaped = (1.0 - k) * sky + k * sun;
+    return ClassicNativeLighting() ? mix(sky, shaped, FL.windowLife.z) : shaped;
 }
 
 // The native ground's loose sand (NativeSand) lit by the sun now on its dunes' own slopes (FL.sand.y, RVK_DuneLight):

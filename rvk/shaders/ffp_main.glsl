@@ -423,10 +423,11 @@ bool ClassicNativeLighting();
 // horizon (by then the hour's light has no sun in it), and by the moon's light.
 float GroundAway(vec3 n)
 {
-    if (ClassicNativeLighting()) return 1.0;
+    if (ClassicNativeLighting() && FL.windowLife.z <= 0.0) return 1.0;
     if (floatBitsToUint(D.terrain.y) == 0u || FL.moon.w > 0.5 || dot(n, n) <= 0.0) return 1.0;
     const vec3 L = -normalize(FL.sunDir.xyz + vec3(0.0, -1e-6, 0.0));
-    return mix(1.0, smoothstep(-0.06, 0.06, dot(normalize(n), L)), smoothstep(-0.08, -0.02, L.y));
+    float away = mix(1.0, smoothstep(-0.06, 0.06, dot(normalize(n), L)), smoothstep(-0.08, -0.02, L.y));
+    return ClassicNativeLighting() ? mix(1.0, away, FL.windowLife.z) : away;
 }
 
 float SunVisibility(vec3 posW, vec3 n)

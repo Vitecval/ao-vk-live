@@ -951,6 +951,11 @@ bool Device::ShadowReceiver(uint32_t fvf) const
     if (m_drawIsLabel || !WorldCamera() || !m_shadows || !ShadingOn() || m_target != m_main || (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ ||
         !m_rs[d3d::RS_ZENABLE] || VisualKind(m_drawVisualKind) == VisualKind::Sky)   // the sky: no shadows on it
         return false;
+    // SharedGround+'s opaque combined pass has its sun in the lightmap,
+    // not in C.lights. In sunny mode route shadows to that lightmap; treating
+    // it as a normally lit receiver shadows a directional light it never has.
+    if (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsTerrain(fvf) && IsCombinedTerrainPass())
+        return false;
     if (!m_rs[d3d::RS_ALPHABLENDENABLE])
         // The ground's base pass, where a lightmap + lights pass follows (it did last frame): that pass takes the
         // shadow instead (ShadowInLightmap), so local lights can fill shadows in.
@@ -987,7 +992,8 @@ bool Device::IsCombinedTerrainPass() const
 bool Device::ShadowInLightmap(uint32_t fvf) const
 {
     return !m_drawIsLabel && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main && m_rs[d3d::RS_ZENABLE] &&
-           IsTerrain(fvf) && IsMultiplyPass();
+           IsTerrain(fvf) && (IsMultiplyPass() ||
+               (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsCombinedTerrainPass()));
 }
 
 // Anarchy Online's round blob shadow under characters (GfxVisualSimpleShadow_c): a black, alpha-blended disc of

@@ -484,11 +484,12 @@ void Device::FillNativeLights(detail::FrameLights* fl)
     for (int k = 0; k < 3; ++k) fl->terrainLight[k] = fl->terrainLight2[k] = f[k + 1];
     fl->terrainLight[3] = f[0];
     const float sx = -fl->sunDir[0], sz = -fl->sunDir[2], s = std::sqrt(sx * sx + sz * sz);
-    if (SharedGroundPlus() || m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
+    if ((SharedGroundPlus() && EnhancedDaylight() <= 0.0f) || m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
     const float b = std::sqrt(f[1] * f[1] + f[3] * f[3]);
     fl->terrainLight[0] = b * sx / s;
     fl->terrainLight[2] = b * sz / s;
-    fl->terrainLight2[3] = std::clamp(m_native.sun, 0.0f, 1.0f);
+    fl->terrainLight2[3] = std::clamp(m_native.sun, 0.0f, 1.0f) *
+                           (SharedGroundPlus() ? EnhancedDaylight() : 1.0f);
 }
 
 bool Device::NativeGroundRgb(float u, float v, uint8_t rgb[3]) const

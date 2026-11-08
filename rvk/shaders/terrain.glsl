@@ -99,20 +99,25 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
     vec3 nu = len > 1e-12 ? face / len : vec3(0.0, 1.0, 0.0);
     // Steeper than ~32 degrees starts the faces (the texture from above already a fifth longer down the slope); past
     // ~57 they have it all.
-    m.side = smoothstep(0.85, 0.55, abs(nu.y)) * clamp(FL.terrain.x, 0.0, 1.0);
+    const float faceSide = 1.0 - smoothstep(0.55, 0.85, abs(nu.y));
+    m.side = faceSide * clamp(FL.terrain.x, 0.0, 1.0);
     // Which way it faces (the lay along x or along z): the interpolated normal, smooth from one triangle to the next -
     // each triangle's own made the lays change at its edges, seams across a wall at an angle. (Its own where the
     // interpolated one has no length.)
     vec3 nf = dot(n, n) > 0.0 ? normalize(n) : nu;
-    // The native ground: how steep from the interpolated normal too - each triangle's own switched to the rock at its
-    // edges, a row of straight-edged teeth along a cliff's rim. Its normals come from the heights over two cells, a
-    // one-cell cliff's corners read less steep than its face: the rock starts a little earlier (~23 degrees, all of it
-    // by ~45), and the line where it starts wanders with noise (a metre or two across) rather than following the grid.
+    // Smooth normals soften the transition on an actual slope. They also lean
+    // across a whole cell of flat floor next to a cliff. Never project a face
+    // onto that floor: its vertical UV derivative collapses into long streaks.
+    // Geometric support begins only on slopes above ~28 degrees. Conversely,
+    // a truly steep face must not retain stretched top UVs merely because its
+    // corner normals were averaged with the horizontal ground on either side.
     if ((floatBitsToUint(D.terrain.y) != 0u && D.terrainAt.y < 1.5) ||
         (floatBitsToUint(D.terrain.y) == 0u && FL.sharedGroundConfig.x > 0.0)) {
         const float wander = 0.09 * (TerrainNoise(posW.xz * 0.35 + vec2(4.3, 1.9)) - 0.5)
                            + 0.05 * (TerrainNoise(posW.xz * 1.3 + vec2(8.7, 2.6)) - 0.5);
-        m.side = smoothstep(0.92, 0.7, abs(nf.y) + wander) * clamp(FL.terrain.x, 0.0, 1.0);
+        const float smoothSide = 1.0 - smoothstep(0.7, 0.92, abs(nf.y) + wander);
+        const float support = 1.0 - smoothstep(0.70, 0.88, abs(nu.y));
+        m.side = max(faceSide, smoothSide * support) * clamp(FL.terrain.x, 0.0, 1.0);
     }
     vec2 across = pow(abs(nf.zx) + 1e-4, vec2(4.0));
     across /= across.x + across.y;

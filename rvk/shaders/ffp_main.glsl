@@ -1457,7 +1457,7 @@ void main()
     // or, where it hasn't seen, the analytic sky), at their roughness. 10: two-pass foliage's soft edges (magenta) and
     // cores (green). 11: the frame lights tested and reaching per pixel.
     uint pbrDebug = uint(FL.pbr2.x + 0.5);
-    if (pbrDebug >= 12u && pbrDebug <= 21u && terrainMapped) {
+    if (pbrDebug >= 12u && pbrDebug <= 22u && terrainMapped) {
         // 12 raw material sample, 13 material/vertex diffuse, 14 ambient,
         // 15 directional/local diffuse, 16 shadow attenuation, 17 raw lightmap,
         // 18 final linear RGB, 19 lightmap modulation / 2, 20 lit diffuse.
@@ -1473,6 +1473,7 @@ void main()
         else if (pbrDebug == 19u) current.rgb = vec3(gLightmapRelief * 0.5);
         else if (pbrDebug == 20u) current.rgb = gDiffuse.rgb;
         else if (pbrDebug == 21u) current.rgb = vec3(gSunVisibilityValid ? gSunVisibility : 1.0);
+        else if (pbrDebug == 22u) current.rgb = vec3(terrain.side); // cliff projection footprint
     } else if (pbrDebug == 7u && (C.vtx.x & 0xEu) != 4u) {
         vec3 tint = gPbrOn ? vec3(0.1, 1.0, 0.2) : (C.flags.x & F_NORMALMAP) != 0u ? vec3(0.15, 0.4, 1.0)
                   : (D.mat.z & MAT_ALBEDO) != 0u ? vec3(1.0, 0.15, 0.9) : vec3(-1.0);

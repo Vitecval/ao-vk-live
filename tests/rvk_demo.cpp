@@ -2559,12 +2559,14 @@ std::string g_sharedTerrainSource;
 bool g_sharedTerrainAuthored=false, g_sharedTerrainRoadMask=false, g_groundPaletteControl=false, g_groundPersonal=false;
 bool g_terrainLightingFixture=false, g_terrainRockyRoad=false, g_terrainLightingNight=false;
 bool g_terrainLightingOccluder=false;
-bool g_improvedTiles=true, g_terrainCliffFixture=false;
+bool g_improvedTiles=true, g_terrainCliffFixture=false, g_terrainCliffToeFixture=false;
+bool g_terrainNativeFixture=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
-    dev.SetNativeGroundOn(false);
+    dev.SetNativeGroundOn(g_terrainNativeFixture);
     dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
-    auto terrainHeight=[](float x,float z) {return g_terrainCliffFixture ? std::clamp((x+z-14.f)*2.f,0.f,12.f)
+    auto terrainHeight=[](float x,float z) {return g_terrainCliffToeFixture ? std::clamp((x-8.f)*2.f,0.f,8.f)
+        : g_terrainCliffFixture ? std::clamp((x+z-14.f)*2.f,0.f,12.f)
         : g_terrainRockyRoad ? .45f*std::sin(x*.3f)*std::cos(z*.25f):0.0f;};
     const float lightmapShade=g_terrainLightingNight ? .82f:.20f;
     auto lightLevel=[](int x,int z){return uint8_t(x<2 ? 5+(z&1):14+(z&1));};
@@ -2618,7 +2620,7 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
             Device::TerrainSettings terrain;terrain.round=0;dev.SetTerrain(terrain); // identical sampling geometry for A/B
             if(g_terrainOff){terrain.cliff=0;terrain.rock=false;dev.SetTerrain(terrain);}
         }
-        dev.SetNativeGroundOn(false);
+        dev.SetNativeGroundOn(g_terrainNativeFixture);
         std::FILE* table=std::fopen("pebble-test.tsv","w");
         if(table){std::fputs("* 0 1 1 0\n",table);std::fclose(table);}
         dev.SetPebbleTablePath("pebble-test.tsv");dev.SetNativeGroundPebbles(1);
@@ -5596,6 +5598,8 @@ int main(int argc, char** argv)
         else if (a == "--terrain-lighting-fixture") g_terrainLightingFixture=true;
         else if (a == "--terrain-rocky-road") g_terrainRockyRoad=g_terrainLightingFixture=true;
         else if (a == "--terrain-cliff-fixture") g_terrainCliffFixture=g_terrainLightingFixture=true;
+        else if (a == "--terrain-cliff-toe-fixture") g_terrainCliffToeFixture=g_terrainLightingFixture=true;
+        else if (a == "--terrain-native-fixture") g_terrainNativeFixture=true;
         else if (a == "--improved-tiles" && i+1<argc) g_improvedTiles=std::atoi(argv[++i])!=0;
         else if (a == "--terrain-lighting-night") g_terrainLightingNight=g_terrainLightingFixture=true;
         else if (a == "--terrain-lighting-occluder") g_terrainLightingOccluder=g_terrainLightingFixture=true;

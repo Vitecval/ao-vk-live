@@ -70,3 +70,20 @@ The incremental packaging library for these corrections is
 manifests and only changed maps. Use the revision 17 full/lite folders as the
 seed for unchanged assets. The generated images, original-size audit, prompts,
 export hashes and native test receipt remain in the resolution-audit folder.
+
+## Cliff toe correction (revision 22)
+
+The owner confirmed the sand patchwork blends after revision 21, but the cliff
+texture still stretched onto the flat floor before the slope. A native render
+fixture reproduces this: central-difference vertex normals lean across the
+neighboring flat cell, and the old material selector used only that smooth
+normal. Projecting a vertical texture onto a horizontal plane collapses its
+vertical derivative into streaks.
+
+Cliff projection now requires geometric slope support. Flat floor receives
+zero face projection, while genuinely steep faces retain full side mapping
+even when their corner normals have been averaged with horizontal neighbors.
+The controlled footprint test changes 9,723 falsely projected floor pixels
+to zero, in both SharedGround+ and GroundOn. The steep-face diagnostic remains
+fully projected. Terrain geometry, collision, lighting, and draw ownership are
+unchanged by this correction. A retail screenshot still needs owner review.

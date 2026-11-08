@@ -262,7 +262,7 @@ Setting g_settings[] = {
     {"RVK_ShadowView",  "Debug: show the sun shadow map's light (white lit, dark shadowed; tint = cascade)", "Debug", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_SceneProf",   "Debug: the scene's GPU time and overdraw by kind of draw in the gpu ms log (costs a little; console sceneprof 1)", "Debug", Bool, 0, 1, 1, 0, "RANDYVK_SCENE_PROFILE", 0},
     {"RVK_Occlusion",   "The game's culling of what hills hide (off: all in view drawn - whole shadows, more draws)", "Debug", Bool, 0, 1, 1, 1, nullptr, 0},
-    {"RVK_TimeOfDay",   "Testing: the game's time of day set to this hour (-1: the game's own; a day is 27 h)", "Debug", Float, -1, 27, 0.25f, -1, nullptr, 0},
+    {"RVK_TimeOfDay",   "Manual time override (-1: server/cycle clock; a day is 27 h)", "Debug", Float, -1, 27, 0.25f, -1, nullptr, 0},
     {"RVK_TimeSpeed",   "Testing: how fast the time of day runs, x the game's (0 still; 1 and the hour -1: the game's own)", "Debug", Float, 0, 500, 0.5f, 1, nullptr, 0},
     {"RVK_HeapCheck",   "Testing: the heap checked for corruption at points, the first broken one logged (0 off, 1 round the grass and each frame, 2 also round every object's grass cover - slow)", "Debug", Float, 0, 2, 1, 0, nullptr, 0},
     {"RVK_SkyVary",     "Clouds: the sky changes, clear to overcast (0: always some cloud)", "Sky", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_CloudsOn"},
@@ -582,10 +582,8 @@ float V(const char* name)
     if (!s) return 0.0f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
-    if (Stored("RVK_Enhance")!=0 && Stored("RVK_DayCycle")==2 &&
-        std::strcmp(name,"RVK_TimeOfDay")==0) return -1.f;
-    if (Stored("RVK_Enhance")!=0 && Stored("RVK_DayCycle")==2 &&
-        std::strcmp(name,"RVK_TimeSpeed")==0) return 1.f;
+    // DayCycle selects the automatic cycle and lighting profile. Explicit
+    // console/INI clock controls remain independent and take priority.
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
     // Shared Ground+ keeps the retail surface boundaries; geometric rounding

@@ -69,9 +69,10 @@ void TimeFrame()
 {
     if (g_gaveUp)
         return;
-    const bool serverDaylight=rvk_settings::GetEffective("RVK_DayCycle")==2.f;
-    const float hour = serverDaylight ? -1.f : rvk_settings::Get("RVK_TimeOfDay");
-    const float speed = serverDaylight ? 1.f : rvk_settings::Get("RVK_TimeSpeed");
+    // Manual time controls override the automatic cycle without disabling its
+    // lighting. The defaults (-1, 1) leave Enhanced Daylights on server time.
+    const float hour = rvk_settings::GetEffective("RVK_TimeOfDay");
+    const float speed = rvk_settings::GetEffective("RVK_TimeSpeed");
     const bool testing = hour >= 0.0f || std::fabs(speed - 1.0f) > 1e-4f;
     const bool longerRequested = rvk_settings::GetEffective("RVK_DayCycle") == 1.0f;
     bool own = testing || longerRequested;

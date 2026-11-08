@@ -18,7 +18,7 @@ int main(int argc,char**) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
-    if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");std::puts("saved selections survived process restart");return 0;}
+    if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");std::puts("saved selections and manual time survived process restart");return 0;}
     const char* cosmetics[]={"RVK_LivePeople","RVK_NPCVariety","RVK_ArmoredCivilians","RVK_LiveDrones","RVK_AirTraffic","RVK_PhasefrontTraffic","RVK_OrbitalCraft","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"};
     for(const char* name:cosmetics)check(set(name,1)==0,"Living control should be absent");
     for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s))check(std::strcmp(s.section,"Living Rubi-Ka")!=0,"Living section should be absent");}
@@ -33,8 +33,15 @@ int main(int argc,char**) {
     check(info("RVK_DayCycle").value==2 && effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Ultra server daylight");
     check(info("RVK_BuildWear").value==1 && info("RVK_GlobalShiny").value==.5f,"Ultra material defaults");
     set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);
-    check(effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Enhanced Daylights must retain server clock");
+    check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"manual clock must override Enhanced Daylights");
+    check(info("RVK_DayCycle").value==2 && effective("RVK_Hdr")==1 && effective("RVK_PixelLight")==1,"manual clock must retain daylight lighting");
+    set("RVK_TimeSpeed",1);set("RVK_TimeOfDay",14);
+    set("RVK_DayCycle",0);set("RVK_DayCycle",2);
+    check(effective("RVK_TimeOfDay")==14,"lighting selection must retain manual hour");
+    set("RVK_TimeOfDay",-1);
+    check(effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"manual reset must restore automatic clock");
+    set("RVK_TimeOfDay",14);
     for(int v=0;v<=20;++v){set("RVK_GlobalShiny",v/20.f);check(std::fabs(info("RVK_GlobalShiny").value-v/20.f)<.0001,"global shiny slider");}
     set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
-    std::puts("settings passed: Ultra defaults, all presets clouds off, server clock, gloss sliders and no Living controls");
+    std::puts("settings passed: Ultra defaults, server clock default, manual override/reset/restart, gloss sliders and no Living controls");
 }

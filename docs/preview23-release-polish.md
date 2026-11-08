@@ -3,8 +3,12 @@
 Ultra selects ICC Glossiness 0.5, AnarchyHD world artwork with HD replacement
 colour enabled, low Building Weathering, Enhanced Daylights, and Global Shiny
 0.5. Clouds default off in every quality preset. Other quality presets retain
-the independent world-artwork choices. Enhanced Daylights follows server time,
-including when stale debug hour/speed values were saved earlier.
+the independent world-artwork choices. Enhanced Daylights follows server time
+by default. An explicit console/INI hour or speed overrides the automatic
+clock while retaining its lighting. `timeofday 14` selects hour 14;
+`timeofday -1` with `timespeed 1` restores the server/cycle clock. Manual
+settings persist like other console settings. Applying Ultra resets the clock
+to its automatic defaults.
 
 Global Shiny scales material highlights/environment/scene reflections and
 raises the roughness floor as it is reduced. It reuses an existing frame-block
@@ -107,4 +111,4 @@ even when their corner normals have been averaged with horizontal neighbors.
 The controlled footprint test changes 9,723 falsely projected floor pixels
 to zero, in both SharedGround+ and GroundOn. The steep-face diagnostic remains
 fully projected. Terrain geometry, collision, lighting, and draw ownership are
-unchanged by this correction. A retail screenshot still needs owner review.
+unchanged by this correction. The owner confirmed the cliff sides are fixed.

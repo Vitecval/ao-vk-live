@@ -16,7 +16,7 @@ selected scale, while room geometry retains the normal light path.
 Real Vulkan checks use the three light positions/colors/attenuation settings
 from the retail intro scan, bright/gray/black/color cards, sunlit and shaded
 normals, and indoor-context controls. Intro and indoor mode toggles are pixel
-identical. The controlled outdoor fixture changes mean brightness by about 1.9%,
-raises shaded cards by about 8.8%, and changes sunlit channels by at most 4/255,
+identical. The controlled outdoor fixture changes mean brightness by about 2.2%,
+raises shaded cards by about 10.1%, and changes sunlit channels by at most 6/255,
 with no additional clipping or loss of sunlit saturation. These checks do not
 replace retail scene inspection or validation on additional GPU families.

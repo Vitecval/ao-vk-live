@@ -41,8 +41,13 @@ def main():
         if edition=='full':
             # Replace the deferred old library inventory with exactly the staged
             # complete catalogues; preserve non-map metadata shipped by the seed.
-            m['assets']={k:v for k,v in m['assets'].items() if not(k.startswith('randy-vk/packs/') and (k.endswith('.png') or k.endswith('/manifest.json')))}
-            for manifest in sorted(args.library.resolve().glob('randy-vk/packs/*/manifest.json')):
+            catalogues=sorted(args.library.resolve().glob('randy-vk/packs/*/manifest.json'))
+            replacedPacks={x.parent.name for x in catalogues}
+            seedAssets=read(args.seed.resolve()/folder.name/'manifest.json')['assets']
+            m['assets']={k:v for k,v in seedAssets.items() if not(len(Path(k).parts)>3 and
+                Path(k).parts[:2]==('randy-vk','packs') and Path(k).parts[2] in replacedPacks and
+                (k.endswith('.png') or k.endswith('/manifest.json')))}
+            for manifest in catalogues:
                 catalog=read(manifest);pack=manifest.parent.name;dest=folder/'randy-vk/packs'/pack;dest.mkdir(parents=True,exist_ok=True)
                 shutil.copy2(manifest,dest/'manifest.json');m['assets'][(dest/'manifest.json').relative_to(folder).as_posix()]=sha(dest/'manifest.json')
                 for name,expected in catalog['files'].items():

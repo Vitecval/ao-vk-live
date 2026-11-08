@@ -4,8 +4,12 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]; VERSION='0.6.0-preview.23'
 def read(p):return json.loads(Path(p).read_text(encoding='utf-8-sig'))
 def write(p,v):Path(p).write_text(json.dumps(v,indent=2)+'\n',encoding='utf8')
+_hashes={}
 def sha(p):
-    with Path(p).open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+    p=Path(p);s=p.stat();key=(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns)
+    if key not in _hashes:
+        with p.open('rb') as f:_hashes[key]=hashlib.file_digest(f,'sha256').hexdigest()
+    return _hashes[key]
 def archive(folder,target):
     with zipfile.ZipFile(target,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
         for p in sorted(folder.rglob('*')):
@@ -13,17 +17,20 @@ def archive(folder,target):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--seed',type=Path,required=True);p.add_argument('--library',type=Path,required=True);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--revision',type=int,default=15);p.add_argument('--stage-only',action='store_true',help='Prepare complete local installer folders for private testing; no distributable archives')
+    p.add_argument('--resume',action='store_true',help='Resume an interrupted staging folder; completed candidates are immutable')
     args=p.parse_args()
     assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT),'Commit package source first'
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
-    out=args.output.resolve();out.mkdir(exist_ok=False,parents=True);editions={};coverage=read(ROOT/'material-packs/preview23-integration.json')['coverage']
+    out=args.output.resolve()
+    assert not (out/'STAGED-INSTALLERS.json').exists() and not (out/'PACKAGE-AUDIT.json').exists(),'Completed candidates are immutable'
+    out.mkdir(exist_ok=args.resume,parents=True);editions={};coverage=read(ROOT/'material-packs/preview23-integration.json')['coverage']
     for edition in ['lite','full']:
         folder=out/f'ao-vk-live-{VERSION}-windows-x86-{edition}'
         def copy_file(src,dst):
             if Path(src).suffix.lower()=='.png':os.link(src,dst)
             else:shutil.copy2(src,dst)
             return dst
-        shutil.copytree(args.seed.resolve()/folder.name,folder,copy_function=copy_file)
+        if not (args.resume and folder.is_dir()):shutil.copytree(args.seed.resolve()/folder.name,folder,copy_function=copy_file)
         m=read(folder/'manifest.json');previous=m['addon'].copy()
         if previous not in m['previousAddons']:m['previousAddons'].insert(0,previous)
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(args.build.resolve()/name,folder/name)
@@ -49,7 +56,19 @@ def main():
                         if sha(target)!=expected:
                             # Replace the new folder's link, never modify a
                             # shared file in the immutable seed release.
-                            temp=target.with_suffix('.staged.png');os.link(src,temp);os.replace(temp,target)
+                            temp=target.with_suffix('.staged.png')
+                            if temp.exists():assert sha(temp)==expected,(pack,name,'interrupted stage differs')
+                            else:os.link(src,temp)
+                            old=out/'replaced-seed-links'/edition/target.relative_to(folder)
+                            old.parent.mkdir(parents=True,exist_ok=True)
+                            assert not old.exists(),('staging recovery conflict',old)
+                            # Retain the previous link outside the payload. No
+                            # shared seed inode is opened for writing or removed.
+                            os.replace(target,old)
+                            try:os.replace(temp,target)
+                            except BaseException:
+                                os.replace(old,target)
+                                raise
                     else:os.link(src,target)
                     m['assets'][target.relative_to(folder).as_posix()]=expected
             m.pop('materialParts',None);m.pop('materialDownload',None);m['materialSourceVersion']=VERSION

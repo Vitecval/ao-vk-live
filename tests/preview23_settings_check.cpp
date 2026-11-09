@@ -4,6 +4,7 @@
 #include <windows.h>
 #include "ddraw/rvk_settings.h"
 #include "native/ring_ranges.h"
+#include "native/view_ranges.h"
 #include <cstdio>
 #include <cstring>
 #include <cmath>
@@ -44,12 +45,16 @@ int main(int argc,char**) {
     float full[5];rnative::rings::ScaledFactors(original,.75f,2.f,1.15f,full,3.f,1.f);
     if(full[0]!=.4f || full[1]!=.6f || full[2]!=1.5f || full[3]!=1.5f || full[4]!=1.5f)return 12;
     HMODULE lib=LoadLibraryA("ao-vk.dll");
+    for(float view:{1.f,1.5f,3.f})for(float scenery:{1.f,1.15f,3.f})
+        if(rnative::camera::EffectiveRange(view,scenery)!=std::max(view,scenery) ||
+           std::fabs(view*rnative::camera::SceneryExtension(view,scenery)-std::max(view,scenery))>1e-6f)return 13;
     if(!lib) {std::printf("load failed %lu\n",GetLastError());return 1;}
     auto set=reinterpret_cast<int(__cdecl*)(const char*,float)>(GetProcAddress(lib,"RvkSettings_Set"));
     auto get=reinterpret_cast<int(__cdecl*)(uint32_t,RvkSettingInfo*)>(GetProcAddress(lib,"RvkSettings_Get"));
     auto count=reinterpret_cast<uint32_t(__cdecl*)()>(GetProcAddress(lib,"RvkSettings_Count"));
     auto preset=reinterpret_cast<int(__cdecl*)(uint32_t)>(GetProcAddress(lib,"RvkPresets_Apply"));
     auto effective=reinterpret_cast<float(__cdecl*)(const char*)>(GetProcAddress(lib,"RvkSettings_Effective"));
+    auto current=reinterpret_cast<int(__cdecl*)()>(GetProcAddress(lib,"RvkPresets_Current"));
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
@@ -81,13 +86,19 @@ int main(int argc,char**) {
     set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
     set("RVK_FarScenery",0);set("RVK_SceneryDist",1.5f);
     for(unsigned p=0;p<4;++p){preset(p);if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
-    check(info("RVK_ICCArtwork").value==0 && info("RVK_ICCGlossiness").value==.5f,"Ultra artwork/gloss");
+    check(info("RVK_ICCArtwork").value==0 && info("RVK_ICCGlossiness").value==.7f && info("RVK_ImprovedTiles").value==1,"Ultra artwork/gloss/tiles");
+    check(current && current()==3,"Ultra reports Ultra before customization");
+    set("RVK_ICCGlossiness",.6f);check(current()==-1,"customizing Ultra reports Custom");set("RVK_ICCGlossiness",.7f);
     check(info("RVK_ModernTex").value==2 && info("RVK_Albedo").value==1,"Ultra HD on");
     check(info("RVK_DayCycle").value==2 && effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Ultra server daylight");
     check(info("RVK_BuildWear").value==1 && info("RVK_GlobalShiny").value==.5f,"Ultra material defaults");
     check(info("RVK_FarScenery").value==1 && info("RVK_SceneryDist").value==3,"Ultra enables extended range at 3x");
     check(std::fabs(info("RVK_TerraRough").value-.6f)<.001,"Ultra surface roughness 0.6");
-    check(effective("RVK_LightGlow")==0 && effective("RVK_AmbientMotes")==0,"new atmosphere effects optional by default");
+    check(effective("RVK_LightGlow")>.5f && effective("RVK_AmbientMotes")>0 && info("RVK_AmbientMode").value==1 &&
+          effective("RVK_AreaLight")>.5f && info("RVK_SkyStyle").value==1,"Ultra enables requested sky/glow/automatic/area defaults");
+    check(effective("RVK_ShipLights")==1 && effective("RVK_ShipLightPower")>.5f,"Ultra ship beacons and nearby illumination");
+    check(std::fabs(info("RVK_AmbientMotes").value-1.33f)<.0001f && std::fabs(info("RVK_AmbientMotes").defaultValue-1.33f)<.0001f,"ambient default increased by one third");
+    set("RVK_AmbientOn",0);set("RVK_LightGlowOn",0);
     set("RVK_LightGlowOn",1);set("RVK_LightGlow",.6f);
     check(std::fabs(effective("RVK_LightGlow")-.6f)<.001,"light source halo independent strength");
     set("RVK_LightGlowOn",0);
@@ -99,7 +110,7 @@ int main(int argc,char**) {
     set("RVK_AmbientMode",4);check(info("RVK_AmbientMode").value==4 && effective("RVK_AmbientStyle")==3,"spores mode retains existing style mapping");
     set("RVK_AmbientMode",0);check(effective("RVK_AmbientMotes")==0 && effective("RVK_AmbientBright")==0,"named off really disables particles");
     check(rvk::areas::Ambient(386)==3 && rvk::areas::Ambient(4605)==6 && rvk::areas::Ambient(4320)==5 && rvk::areas::Ambient(4880)==4,"automatic cavern Inferno Penumbra and Scheol profiles");
-    check(rvk::areas::Ambient(4692)==0,"Inferno garden keeps vegetation ambience instead of embers");
+    check(rvk::areas::Ambient(4692)==8 && rvk::areas::Ambient(4540)==8,"SL gardens and forests use pollen/fireflies instead of embers");
     set("RVK_AreaLightOn",1);check(effective("RVK_AreaLight")>.5f,"area lighting optional strength");set("RVK_AreaLightOn",0);
     set("RVK_SkyStyle",1);check(effective("RVK_Stars")==1 && effective("RVK_StarBright")==1.45f && effective("RVK_Galaxy")==.5f,"starry sky style selects bounded procedural stars");set("RVK_SkyStyle",0);
     set("RVK_FullScenery",1);check(effective("RVK_FarDetail")==1 && effective("RVK_SceneryFill")>.5f,"fuller scenery and distant shading control");set("RVK_FarScenery",0);check(effective("RVK_FarDetail")==0,"distant shading disabled with far scenery");set("RVK_FarScenery",1);set("RVK_FullScenery",0);

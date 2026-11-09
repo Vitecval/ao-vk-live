@@ -507,6 +507,7 @@ void Device::EndScene()
     m_view=smokeView;m_proj=smokeProj;m_viewport=smokeViewport;m_rs[d3d::RS_AMBIENT]=smokeAmbient;
     RenderDebris(cmd);                           // RVK_StormDebris: a storm's blown leaves, straw and twigs
     RenderAmbientMotes(cmd);                     // optional local pollen, dust and night fireflies
+    RenderShipBeacons(cmd);
     RenderRain(cmd);                             // RVK_WeatherOn: the rain, over all of it
     double cpu = ProfileCpu();
     Transition(cmd, m_scene, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

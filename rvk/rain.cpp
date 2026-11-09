@@ -366,7 +366,7 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     const bool indoorAllowed=requested>=3 || areas::For(m_skyPlayfield)==areas::Biome::Alien;
     if(m_ambientMotes<=0.f || m_ambientBright<=0.f || !m_ambientPipeline || !m_scene || !m_hdr ||
        !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !indoorAllowed))return;
-    if(!spores && !m_grassOn)UpdateGrassTiles();
+    if((!spores || style==8) && !m_grassOn)UpdateGrassTiles();
     const float* eye=m_frameEye;
     const float spacing=spores ? 4.f:6.f;
     const int32_t cell[2]={int32_t(std::floor(eye[0]/spacing)),int32_t(std::floor(eye[2]/spacing))};
@@ -381,8 +381,24 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
             const float px=float(cell[0]+x)*spacing+spacing*(.15f+StrikeHash(seed,1)*.7f);
             const float pz=float(cell[1]+z)*spacing+spacing*(.15f+StrikeHash(seed,2)*.7f);
             if(spores) {
+                float origin=std::floor(eye[1]/4.f)*4.f-2.f+(StrikeHash(seed,3)-.5f)*6.f;
+                if(style==8) {
+                    uint32_t colour=0;bool found=GroundAt(px,pz,&origin,&colour,nullptr);
+                    if(!found && m_native.ground) {
+                        const auto& g=*m_native.ground;
+                        const int c=int(std::floor(px/g.cellX)),r=int(std::floor(pz/g.cellZ));
+                        if(c>=0 && r>=0 && c<int(g.cellsX) && r<int(g.cellsZ) &&
+                           (g.hiddenCells.empty() || !g.hiddenCells[size_t(r)*g.cellsX+c])) {
+                            size_t at=size_t(r)*(g.cellsX+1)+c;
+                            float x=px/g.cellX-c,z=pz/g.cellZ-r;
+                            origin=(1-z)*(g.heights[at]*(1-x)+g.heights[at+1]*x)+z*(g.heights[at+g.cellsX+1]*(1-x)+g.heights[at+g.cellsX+2]*x);
+                            found=true;
+                        }
+                    }
+                    if(!found || std::fabs(origin-eye[1])>15.f || CoveredAt(px,pz,origin))continue;
+                }
                 float* point=m_ambientOrigins[m_ambientOriginCount++];
-                point[0]=px;point[1]=std::floor(eye[1]/4.f)*4.f-2.f+(StrikeHash(seed,3)-.5f)*6.f;
+                point[0]=px;point[1]=origin;
                 point[2]=pz;point[3]=style==3 ? 2.f:float(style+1);continue;
             }
             float ground;uint32_t colour;
@@ -396,17 +412,20 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
             point[0]=px;point[1]=ground;point[2]=pz;point[3]=style==1 ? 4.f:style==2 ? 0.f:vegetation ? 1.f:0.f;
         }
     }
-    if(!m_ambientOriginCount)return;
+    if(!m_ambientOriginCount){if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient suppression: no matching uncovered terrain near the camera (zone %u, profile %d)\n",m_skyPlayfield,style);return;}
     RainFrame rf{};
     rf.viewProj=MulMatrix(m_view,m_proj);
     rf.prevViewProj=m_prevViewProjValid ? MulMatrix(m_prevView,m_prevProj):rf.viewProj;
     rf.view=m_view;std::memcpy(rf.camera,eye,3*sizeof(float));rf.camera[3]=TaaActive()?1.f:0.f;
     rf.time[0]=float(m_frameClock);rf.time[1]=float(m_frameClock-std::clamp(m_frameClock-m_ambientDrawClock,0.0,.1));
     m_ambientDrawClock=m_frameClock;
-    const uint32_t perAnchor=style==3 ? 16u:spores ? 8u:2u;
+      const uint32_t perAnchor=style==3 ? 16u:spores ? 12u:8u;
     rf.time[2]=std::clamp(NightAmount(),0.f,1.f);rf.time[3]=float(m_ambientOriginCount*perAnchor);
     rf.fall[3]=float(perAnchor);
-    rf.curtains[0]=std::clamp(m_ambientMotes*.5f,0.f,1.f);
+    const bool shadowlands=m_skyPlayfield>=4000 && m_skyPlayfield<5000;
+    const float frequency=requested==0 && shadowlands ? .65f+.25f*rf.time[2]:
+        requested==0 && style<3 ? .18f+.57f*rf.time[2]:.5f+.25f*rf.time[2];
+    rf.curtains[0]=std::clamp(m_ambientMotes*frequency,0.f,1.f);
     rf.colour[3]=std::clamp(m_ambientBright,0.f,2.f)*(1.f-std::clamp(m_rain+m_storm,0.f,1.f)*.85f);
     if(m_terrainAmbient[3]>.5f)std::memcpy(rf.ambient,m_terrainAmbient,16);
     else ArgbTo4(m_rs[d3d::RS_AMBIENT],rf.ambient);
@@ -414,10 +433,17 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     rf.viewport[0]=float(m_scene->m_width);rf.viewport[1]=float(m_scene->m_height);
     rf.viewport[2]=1.f/rf.viewport[0];rf.viewport[3]=1.f/rf.viewport[1];
     rf.proj[0]=m_proj.m[2][2];rf.proj[1]=m_proj.m[3][2];rf.proj[2]=m_proj.m[0][0];rf.proj[3]=m_proj.m[1][1];
+    RenderAmbientBatch(cmd,&rf,m_ambientOrigins,"ambient life");
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f, automatic %u, profile %d, frequency %.2f, particles %u\n",m_ambientOriginCount,m_ambientMotes,rf.time[2],unsigned(requested==0),style,rf.curtains[0],unsigned(rf.time[3]));
+}
+
+void Device::RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const float (*points)[4],const char* profile)
+{
+    const RainFrame& rf=*static_cast<const RainFrame*>(frame);
     EnsureRingSpace(sizeof(RainFrame)+sizeof(m_ambientOrigins)+sizeof(FrameLights)+1024);
     if(m_frameLightsDirty || m_frameLightsGeneration!=m_ringGeneration)WriteFrameLights();
     void* cpu=nullptr;const VkDeviceSize offset=Allocate(sizeof(rf),256,&cpu);std::memcpy(cpu,&rf,sizeof(rf));
-    const VkDeviceSize origins=Allocate(sizeof(m_ambientOrigins),256,&cpu);std::memcpy(cpu,m_ambientOrigins,sizeof(m_ambientOrigins));
+    const VkDeviceSize origins=Allocate(sizeof(m_ambientOrigins),256,&cpu);std::memcpy(cpu,points,sizeof(m_ambientOrigins));
     Frame& f=m_frames[m_frameIndex];BeginRenderingOn(m_scene);
     const float sw=float(m_scene->m_width),sh=float(m_scene->m_height);
     VkViewport viewport{.5f,sh+.5f,sw,-sh,0.f,1.f};VkRect2D scissor{{0,0},{m_scene->m_width,m_scene->m_height}};
@@ -428,8 +454,70 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     for(unsigned i=0;i<3;++i){writes[i].sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;writes[i].dstBinding=bindings[i];
         writes[i].descriptorCount=1;writes[i].descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;writes[i].pBufferInfo=&info[i];}
     vkCmdPushDescriptorSetKHR(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,m_rainLayout,0,3,writes);
-    vkCmdDraw(cmd,m_ambientOriginCount*perAnchor*6u,1,0,0);EndRendering();ProfileMark("ambient life");
-    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f, automatic %u, profile %d\n",m_ambientOriginCount,m_ambientMotes,rf.time[2],unsigned(requested==0),style);
+    vkCmdDraw(cmd,uint32_t(rf.time[3])*6u,1,0,0);EndRendering();ProfileMark(profile);
+}
+
+void Device::CaptureShipBeacons(const float lo[3],const float hi[3],uint64_t key)
+{
+    if(m_immersiveShips<=.5f || m_shipLights<=.5f || !m_skyPlayfield || m_indoors)return;
+    const float width=std::max(hi[0]-lo[0],hi[2]-lo[2]);
+    if(!std::isfinite(width) || width<2.f || width>4096.f)return;
+    ShipBeaconSet* set=nullptr;
+    for(auto& s:m_shipBeacons)if(s.key==key && s.seen!=~0ull){set=&s;break;}
+    if(!set)for(auto& s:m_shipBeacons)if(s.seen==~0ull || s.seen+1<m_frameNumber){set=&s;break;}
+    if(!set)return;
+    bool continuous=set->seen!=~0ull && set->seen+1>=m_frameNumber;
+    if(set->seen!=~0ull && set->seen+1==m_frameNumber)std::memcpy(set->previous,set->points,sizeof(set->points));
+    set->key=key;set->seen=m_frameNumber;
+    const float x=hi[0]-lo[0],z=hi[2]-lo[2];
+    const int side=std::min(x,z)<.5f ? (x>=z ? 0:2):(x<z ? 0:2);
+    for(int i=0;i<3;++i) {
+        float p[3]={(lo[0]+hi[0])*.5f,hi[1]+.12f,(lo[2]+hi[2])*.5f};
+        if(i<2)p[side]=(i==0 ? lo[side]:hi[side]);
+        for(int k=0;k<3;++k)set->points[i][k]=p[0]*m_world.m[0][k]+p[1]*m_world.m[1][k]+p[2]*m_world.m[2][k]+m_world.m[3][k];
+        for(int k=0;k<3;++k)if(!std::isfinite(set->points[i][k])){set->seen=~0ull;return;}
+        set->points[i][3]=float(10+i);
+    }
+    if(!continuous)std::memcpy(set->previous,set->points,sizeof(set->points));
+}
+
+void Device::FillShipLights(FrameLights* fl)
+{
+    std::memset(fl->shipLightPos,0,sizeof(fl->shipLightPos));
+    std::memset(fl->shipLightColour,0,sizeof(fl->shipLightColour));
+    std::memset(fl->shipLightConfig,0,sizeof(fl->shipLightConfig));
+    if(m_immersiveShips<=.5f || m_shipLights<=.5f || m_shipLightPower<=0.f || !m_skyPlayfield || m_indoors)return;
+    struct Candidate{float distance;const float* point;};Candidate candidates[48];unsigned count=0;
+    for(const auto& set:m_shipBeacons)if(set.seen!=~0ull && set.seen+1>=m_frameNumber)
+        for(const auto& p:set.points){float d=0;for(int k=0;k<3;++k)d+=(p[k]-m_frameEye[k])*(p[k]-m_frameEye[k]);
+            if(d<40000.f)candidates[count++]={d,p};}
+    std::sort(candidates,candidates+count,[](const auto& a,const auto& b){return a.distance<b.distance;});
+    count=std::min(count,8u);fl->shipLightConfig[0]=float(count);
+    for(unsigned i=0;i<count;++i) {
+        const float* p=candidates[i].point;std::memcpy(fl->shipLightPos[i],p,12);fl->shipLightPos[i][3]=8.f;
+        const unsigned colour=unsigned(p[3]+.5f)-10;
+        const float rgb[3][3]={{2.4f,.035f,.012f},{.025f,1.8f,.08f},{2.f,2.f,1.8f}};
+        const float phase=float(std::fmod(m_frameClock,1.6));
+        const float pulse=colour==2 ? (phase<.09f || (phase>.19f && phase<.28f) ? 1.f:.06f):1.f;
+        for(unsigned c=0;c<3;++c)fl->shipLightColour[i][c]=rgb[std::min(colour,2u)][c]*pulse*std::clamp(m_shipLightPower,0.f,1.f);
+    }
+}
+
+void Device::RenderShipBeacons(VkCommandBuffer cmd)
+{
+    if(m_immersiveShips<=.5f || m_shipLights<=.5f || !m_skyPlayfield || m_indoors || !m_ambientPipeline || !m_scene || !m_hdr || !m_frameEyeValid)return;
+    float points[128][4]={};unsigned count=0;
+    for(const auto& set:m_shipBeacons)if(set.seen==m_frameNumber)
+        for(unsigned i=0;i<3;++i){std::memcpy(points[count],set.points[i],16);std::memcpy(points[64+count],set.previous[i],16);++count;}
+    if(!count)return;
+    RainFrame rf{};rf.viewProj=MulMatrix(m_view,m_proj);rf.prevViewProj=m_prevViewProjValid ? MulMatrix(m_prevView,m_prevProj):rf.viewProj;rf.view=m_view;
+    std::memcpy(rf.camera,m_frameEye,12);rf.camera[3]=TaaActive()?1.f:0.f;
+    rf.time[0]=rf.time[1]=float(m_frameClock);rf.time[3]=float(count);rf.fall[3]=1.f;
+    rf.curtains[0]=1.f;rf.colour[3]=1.f;
+    rf.viewport[0]=float(m_scene->m_width);rf.viewport[1]=float(m_scene->m_height);
+    rf.viewport[2]=1.f/rf.viewport[0];rf.viewport[3]=1.f/rf.viewport[1];
+    RenderAmbientBatch(cmd,&rf,points,"ship navigation lights");
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ship navigation: %u depth-tested beacons; at most 8 nearby unshadowed lights\n",count);
 }
 
 // The rain, over the finished scene (EndScene: its rendering just closed).

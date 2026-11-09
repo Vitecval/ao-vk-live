@@ -359,6 +359,7 @@ struct MaterialFiles {
     bool preserveAlbedoAlpha = false;
     uint32_t maxSize = 2048; // runtime cap; decoded mip chains retain filtering/normal variance
     uint32_t maxAlbedoSize = 0; // 0 follows maxSize; colour art can keep more detail than auxiliary maps
+    uint32_t maxAlbedoPixels = 0; // bounded area, without needlessly shrinking a narrow atlas
     bool Any() const
     {
         return !normal.empty() || !height.empty() || !packed.empty() || HasParts() || !albedo.empty() ||
@@ -428,6 +429,15 @@ inline Decoded Decode(const MaterialFiles& f)
     for(unsigned i=0;i<6;++i) {
         std::string note;
         CapChain(*chains[i],&note,i==2 && f.maxAlbedoSize ? f.maxAlbedoSize:f.maxSize);
+        if(i==2 && f.maxAlbedoPixels) {
+            bool reduced=false;
+            while(uint64_t(d.albedo.w)*d.albedo.h>f.maxAlbedoPixels && d.albedo.levels.size()>1) {
+                d.albedo.levels.erase(d.albedo.levels.begin());
+                d.albedo.w=std::max(d.albedo.w/2,1u);d.albedo.h=std::max(d.albedo.h/2,1u);
+                reduced=true;
+            }
+            if(reduced)note+="pixel budget uses "+std::to_string(d.albedo.w)+"x"+std::to_string(d.albedo.h)+"; ";
+        }
         if(!note.empty())d.errors+=std::string(roles[i])+": "+note;
     }
     return d;

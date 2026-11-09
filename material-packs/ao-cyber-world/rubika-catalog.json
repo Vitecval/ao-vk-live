@@ -10239,10 +10239,10 @@
     "type": 1010004,
     "id": 19924,
     "name": "ent_pillar_support_side.png",
-    "source": "rubika-family-19924-v1",
+    "source": "preview23-selected-19924-r30",
     "size": [
-      128,
-      512
+      512,
+      2048
     ],
     "profile": "architectural-metal",
     "batch": "rubika-complete-families-2026-10-26",
@@ -10254,7 +10254,10 @@
     "atlas_source": "rubika-family-atlas-035-v1",
     "atlas_cell": 7,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "detailRestoration": "preview23-selected-r30",
+    "independentRender": true,
+    "review": "Fresh individual HD restoration; original UV layout and runtime alpha retained. Controlled upload validated; retail appearance pending."
   },
   {
     "type": 1010004,
@@ -10281,10 +10284,10 @@
     "type": 1010004,
     "id": 19926,
     "name": "ent_pillarpipes1.png",
-    "source": "rubika-family-19926-v1",
+    "source": "preview23-selected-19926-r30",
     "size": [
-      128,
-      512
+      512,
+      2048
     ],
     "profile": "architectural-metal",
     "batch": "rubika-complete-families-2026-10-26",
@@ -10296,7 +10299,10 @@
     "atlas_source": "rubika-family-atlas-035-v1",
     "atlas_cell": 9,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "detailRestoration": "preview23-selected-r30",
+    "independentRender": true,
+    "review": "Fresh individual HD restoration; original UV layout and runtime alpha retained. Controlled upload validated; retail appearance pending."
   },
   {
     "type": 1010004,
@@ -10722,10 +10728,10 @@
     "type": 1010004,
     "id": 20144,
     "name": "cyanplateloweredge.png",
-    "source": "rubika-family-20144-v1",
+    "source": "preview23-selected-20144-r30",
     "size": [
-      512,
-      128
+      2048,
+      512
     ],
     "profile": "architectural-metal",
     "batch": "rubika-complete-families-2026-10-26",
@@ -10737,7 +10743,10 @@
     "atlas_source": "rubika-family-atlas-036-v1",
     "atlas_cell": 14,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "detailRestoration": "preview23-selected-r30",
+    "independentRender": true,
+    "review": "Fresh individual HD restoration; original UV layout and runtime alpha retained. Controlled upload validated; retail appearance pending."
   },
   {
     "type": 1010004,

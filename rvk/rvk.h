@@ -294,6 +294,7 @@ struct DeviceInfo {
     X(AreaLight, m_areaLight, C|L)                   /* bounded area-specific daylight irradiance */ \
     X(FarDetail, m_farDetail, C|L)                   /* distant static shading detail saving */ \
     X(HDGround, m_hdGroundMode, C|L)                 /* continuous full-HD terrain albedo */ \
+    X(CliffJoin, m_cliffJoin, C|L)                   /* slope-only crest/toe material transition */ \
     X(SkyStyle, m_skyStyle, C|L)                     /* optional soft sky / richer night stars */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
@@ -305,6 +306,8 @@ struct DeviceInfo {
     X(ICCGlossiness, m_iccGlossiness, C)               /* verified ICC targets only, 0..1 */ \
     X(GlobalShiny, m_globalShiny, C|L)                /* material gloss/specular response, 0..1 */ \
     X(ImmersiveShips, m_immersiveShips, C)            /* enhance existing named sky ships */ \
+    X(ShipLights, m_shipLights, C|L)                 /* depth-tested navigation beacons */ \
+    X(ShipLightPower, m_shipLightPower, C|L)          /* bounded nearby ship illumination */ \
     X(ICCArtwork, m_enhancedOriginal, C)              /* original world patterns plus authored fine detail */ \
     X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
@@ -1245,6 +1248,7 @@ private:
         std::vector<NativePatch> patches;
         uint32_t vertices = 0, indexCount = 0;   // a patch's
         Texture* codes = nullptr;
+        Texture* heights = nullptr;             // exact retail heights for slope-only crest/toe blending
         Texture* maps = nullptr;                 // each cell's tile's normal map and material map (their bindless images
                                                  // in R, G and B, A; 0xFFFF none)
         Texture* anyOrm = nullptr;               // a tile's material map (the lighting pass's stand-in: PBR on)
@@ -1349,6 +1353,7 @@ private:
         unsigned uploaded=0;
     } m_sharedGround,m_hdGroundState;
     float m_hdGroundMode=0.f;
+    float m_cliffJoin=1.f;
     float m_areaLight=0.f,m_farDetail=0.f;
     float m_skyStyle=0.f;
     static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain(bool hd=false);
@@ -2371,6 +2376,7 @@ private:
     float m_iccGlossiness = .5f, m_globalShiny = .5f;
     float m_terrainRoughness = .6f;
     float m_immersiveShips = 0.f;
+    float m_shipLights=1.f,m_shipLightPower=.6f;
     float m_enhancedOriginal = 0.0f;
     float m_buildWear = 0.0f;
     float m_windowDepth = 0.0f;
@@ -2854,6 +2860,12 @@ private:
     double m_ambientRefresh = -1.0;
     double m_ambientDrawClock = 0.0;
     void RenderAmbientMotes(VkCommandBuffer cmd);
+    void RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const float (*points)[4],const char* profile);
+    struct ShipBeaconSet { uint64_t key=0,seen=~0ull; float points[3][4]={},previous[3][4]={}; };
+    ShipBeaconSet m_shipBeacons[16];
+    void CaptureShipBeacons(const float lo[3],const float hi[3],uint64_t key);
+    void FillShipLights(detail::FrameLights* frame);
+    void RenderShipBeacons(VkCommandBuffer cmd);
     void RenderDebris(VkCommandBuffer cmd);
     double m_debrisDrift[3] = {0, 0, 0}, m_debrisClock = -1.0, m_debrisClockAll = 0.0;
     float m_stormDebris = 1.0f;                  // RVK_StormDebris: blown leaves, straw and twigs, x

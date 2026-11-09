@@ -118,6 +118,8 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 windowLife;            // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
     vec4 areaSky,areaGround,areaSun;
     vec4 hdGround[5],hdGroundConfig;
+    vec4 nativeHeight;
+    vec4 shipLightPos[8],shipLightColour[8],shipLightConfig;
     Light lights[64];
 } FL;
 

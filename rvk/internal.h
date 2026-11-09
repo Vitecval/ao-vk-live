@@ -220,6 +220,8 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
     float windowLife[4];           // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
     float areaSky[4],areaGround[4],areaSun[4]; // area-specific irradiance, strength / side fill / biome
     float hdGround[5][4],hdGroundConfig[4]; // optional modern albedo layers, original masks unchanged
+    float nativeHeight[4];          // height image bits+1, inverse cell X/Z, valid
+    float shipLightPos[8][4],shipLightColour[8][4],shipLightConfig[4];
     GpuLight lights[kFrameLights];
 };
 

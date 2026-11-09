@@ -421,7 +421,11 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     // map was capped with the normal/ORM maps. Keep one extra colour mip when
     // address space permits; staging, cache and auxiliary-map budgets stay bounded.
     if ((folder.modern==2 || folder.modern==4) && !rvk::materials::IsGroundType(type) &&
-        FreeMaterialAddressSpace() > (768ull<<20)) f.maxAlbedoSize = 1024;
+        FreeMaterialAddressSpace() > (768ull<<20)) {
+        // A 2048x512 strip costs exactly the old 1024x1024 square budget.
+        // A longest-edge-only cap discarded its narrow dimension's detail.
+        f.maxAlbedoSize=2048;f.maxAlbedoPixels=1024u*1024u;
+    }
     f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
@@ -474,8 +478,11 @@ void WorkerLoop(Worker* w)
         DecodedPtr decoded;
         try {
             if (FreeMaterialAddressSpace() >= (192u << 20)) {
-                if (FreeMaterialAddressSpace() < (384u << 20))
+                if (FreeMaterialAddressSpace() < (384u << 20)) {
                     job.files.maxSize = std::min(job.files.maxSize,256u);
+                    job.files.maxAlbedoSize=std::min(job.files.maxAlbedoSize ? job.files.maxAlbedoSize:256u,256u);
+                    job.files.maxAlbedoPixels=256u*256u;
+                }
                 decoded = std::make_shared<rvk::maps::Decoded>(rvk::maps::Decode(job.files));
             }
             else

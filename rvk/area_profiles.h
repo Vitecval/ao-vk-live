@@ -52,6 +52,8 @@ inline int Ambient(uint32_t id)
     case Biome::Snow:return 5;
     case Biome::Volcanic:return 6;
     case Biome::Ash:return 7;
+    case Biome::City:case Biome::Forest:case Biome::Coast:
+        return id>=4000 && id<5000 ? 8:0; // SL pollen by day, glowing life at night.
     default:return 0; // Actual local vegetation/dry-ground classification.
     }
 }

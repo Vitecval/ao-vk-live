@@ -348,6 +348,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     // under other views (sky, 3D interface elements).
     UpdateFrameEye();
     const float* eye = m_frameEye;
+    FillShipLights(fl);
     struct Candidate { float key; uint32_t index; };
     Candidate candidates[512];
     uint32_t count = 0;
@@ -499,9 +500,10 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     for(unsigned i=0;i<3;++i){fl->areaSky[i]=palette.sky[i];fl->areaGround[i]=palette.ground[i];fl->areaSun[i]=palette.sun[i];}
     fl->areaSky[3]=areaWeight;fl->areaGround[3]=palette.sideFill*areaWeight;
     fl->areaSun[3]=float(areas::For(m_skyPlayfield));
+    if(dump && m_dumpFile)std::fprintf(m_dumpFile,"# Area lighting: zone %u, strength %.2f, daylight %.2f, active %.2f; soft sky %u, night %.2f\n",m_skyPlayfield,m_areaLight,EnhancedDaylight(),areaWeight,unsigned(m_skyStyle>.5f),NightAmount());
     fl->windowLife[3]=std::clamp(m_globalShiny,0.f,1.f);
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
-    fl->terrain3[0] = (SharedGroundPlus() || m_native.on) ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
+    fl->terrain3[0] = SharedGroundPlus() ? 0.0f : m_native.on ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
     fl->terrain3[2] = std::clamp(m_terrainSettings.parallaxSteps, 0.25f, 4.0f);
     fl->terrain3[3] = m_native.anyHeight && fl->terrain3[1] > 0.0f ? 1.0f : 0.0f;
@@ -4183,7 +4185,11 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         bool knownHull=false;
         if(hull && (hull->m_rdbType==1010004 || hull->m_rdbType==1010016 || hull->m_rdbType==1010017))
             for(uint32_t id : {99841u,201230u,202773u,203102u,203531u,203532u}) knownHull |= hull->m_rdbId==id;
-        if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) dt.mat[2] |= kMatImmersiveShip;
+        if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) {
+            dt.mat[2] |= kMatImmersiveShip;
+            if(m_drawMesh)CaptureShipBeacons(m_drawMesh->boundsMin,m_drawMesh->boundsMax,
+                m_drawVisual ? uint64_t(m_drawVisual):m_drawMeshKey);
+        }
     }
     if (m_drawIsCloudPuff && CloudSheetsOn())
         dt.mat[2] |= kMatCloudSheet;             // (the game's cloud sheets, lit as the cloud layer: ffp_main.glsl)

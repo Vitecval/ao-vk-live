@@ -93,6 +93,7 @@ void Device::SetSkyPlayfield(uint32_t playfield)
         return;
     if(m_living || m_livingAttempt) DestroyLiving();
     m_skyPlayfield = playfield;
+    for(auto& beacons:m_shipBeacons)beacons=ShipBeaconSet{};
     m_ambientOriginCount=0;m_ambientRefresh=-1.0;m_ambientPlayfield=~0u;
     m_grassGroundReset=true;
     m_daylightWorldSeen = ~0ull;

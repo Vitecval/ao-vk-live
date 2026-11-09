@@ -1217,7 +1217,7 @@ void OpenOptions()
     g_options = true;
     InputBlock(kInputConsole, true, true);
     const int preset = rvk_settings::PresetCurrent();
-    g_optionPreset = std::max(0, preset);
+    g_optionPreset = preset;
     g.dirty = true;
 }
 
@@ -1248,7 +1248,7 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery", "RVK_ImmersiveShips",
          "RVK_BuildWear", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
          "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},
@@ -1300,8 +1300,9 @@ void OptionKey(const Event& e)
         const int direction = e.code == VK_LEFT ? -1 : 1;
         if (extra && g_optionRow == 0) {
             const int presets = int(rvk_settings::PresetCount());
-            if (e.code == VK_RETURN) rvk_settings::PresetApply(uint32_t(g_optionPreset));
-            else if (e.code != VK_BACK) g_optionPreset = (g_optionPreset + direction + presets) % presets;
+            if (e.code == VK_RETURN && g_optionPreset>=0) rvk_settings::PresetApply(uint32_t(g_optionPreset));
+            else if (e.code != VK_BACK && e.code != VK_RETURN)
+                g_optionPreset = g_optionPreset<0 ? (direction>0 ? 0:presets-1) : (g_optionPreset + direction + presets) % presets;
             return;
         }
         const auto& s = settings[size_t(g_optionRow - extra)].info;
@@ -1324,6 +1325,7 @@ void OptionKey(const Event& e)
             }
         } else if (s.type != 4) value += direction * std::max(s.step, 0.01f) * (e.shift ? 10.0f : 1.0f);
         rvk_settings::Set(s.name, value);
+        g_optionPreset=rvk_settings::PresetCurrent();
     }
 }
 
@@ -1425,13 +1427,14 @@ void DrawOptions(uint32_t w, uint32_t h)
         std::string label, value;
         if (extra && row == 0) {
             label = "Graphics preset (Enter to apply)";
-            value = rvk_settings::PresetName(uint32_t(g_optionPreset));
+            value = g_optionPreset<0 ? "Custom" : rvk_settings::PresetName(uint32_t(g_optionPreset));
         } else {
             const auto& r = settings[size_t(row - extra)];
             label = g_optionSection<3 ? r.info.label : std::string(r.shortName) + "  " + r.info.label;
             if (g_optionSection<3) {
                 const std::pair<const char*,const char*> labels[]={
                     {"RVK_Enhance","Graphics enhancements"},{"RVK_ModernTex","Texture library"},
+                    {"RVK_ImmersiveShips","Immersive ships"},
                     {"RVK_WindowDepth","Window interiors"},{"RVK_BuildWear","Building weathering"},
                     {"RVK_RenderScale","Render scale"},{"RVK_Taa","Temporal anti-aliasing"},
                     {"RVK_TerrainHD","Terrain materials"},{"RVK_BuildingHD","Building materials"},

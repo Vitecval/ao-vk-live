@@ -15,6 +15,7 @@
 #include "native/serialize.h"
 #include "native/vc10.h"
 #include "native/xmath.h"
+#include "native/view_ranges.h"
 
 #include <atomic>
 #include <cmath>
@@ -213,8 +214,8 @@ void __fastcall GetTransformationMatrix(Frame* c, void*, float* out)
     const float w = Field<float>(c, kRight) - Field<float>(c, kLeft);
     const float h = Field<float>(c, kTop) - Field<float>(c, kBottom);
     // (RVK_ViewRange: the far plane out with the view range, else what the cull keeps the GPU would clip.)
-    const float back = Field<float>(c, kBack) * g_viewRange.load(std::memory_order_relaxed) *
-                       g_sceneryRange.load(std::memory_order_relaxed), front = Field<float>(c, kFront);
+    const float back = Field<float>(c, kBack) * EffectiveRange(g_viewRange.load(std::memory_order_relaxed),
+                       g_sceneryRange.load(std::memory_order_relaxed)), front = Field<float>(c, kFront);
     const float q = back / (back - front);
     xm::M4 p = xm::Identity();
     p.m[0] = float(2.0 / double(w));
@@ -257,7 +258,7 @@ void __fastcall SetupFrustum(Frame* c, void*, void* viewport)
     const float h = Field<float>(c, kTop) - Field<float>(c, kBottom);
     const float w = Field<float>(c, kRight) - Field<float>(c, kLeft);
     const float halfH = float(double(h) * 0.5);
-    const float sceneryBack=back*g_sceneryRange.load(std::memory_order_relaxed);
+    const float sceneryBack=back*SceneryExtension(range,g_sceneryRange.load(std::memory_order_relaxed));
     const float nearH = front * halfH, farH = sceneryBack * halfH;
     const float mid = float(0.5 * double(sceneryBack - front)) + front;
     const float farCorner[3] = {(farH * w) / h, farH, sceneryBack};
@@ -370,7 +371,7 @@ bool InsidePlanes(Frame* c, const float* center, float radius)
     if (inside) {
         // (Beyond the back plane: the game's, along the camera's forward - or by true distance with RVK_ViewRange, the
         // same all round: else what is just too far straight ahead is drawn off to the side, popping as one turns.)
-        const float scenery=radius>=16.f ? g_sceneryRange.load(std::memory_order_relaxed):1.f;
+        const float scenery=radius>=16.f ? SceneryExtension(g_viewRange.load(std::memory_order_relaxed),g_sceneryRange.load(std::memory_order_relaxed)):1.f;
         if (g_viewRange.load(std::memory_order_relaxed) != 1.0f) {
             const double reach = double(Field<float>(c, kBackInUse)*scenery + radius);
             if (!(reach * reach < double(xm::LengthSquared(d)))) return true;

@@ -67,6 +67,13 @@ void TerrainHexGrid(vec2 st, uint seed, float down, out vec3 w, out vec2 off0, o
     off2 = vec2(float(h2 & 0xFFFFu), float(h2 >> 16)) * scale;
 }
 
+float RetailHeight(ivec2 p) {
+    uint slot=floatBitsToUint(FL.nativeHeight.x)-1u;
+    ivec2 size=textureSize(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),0);
+    uvec4 b=uvec4(texelFetch(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),clamp(p,ivec2(0),size-1),0)*255.+.5);
+    return uintBitsToFloat((b.a<<24)|(b.r<<16)|(b.g<<8)|b.b);
+}
+
 // Where and how the ground's texture lies at this pixel. uv: the game's coordinates; n: the interpolated normal.
 TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 {
@@ -122,6 +129,28 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
     vec2 across = pow(abs(nf.zx) + 1e-4, vec2(4.0));
     across /= across.x + across.y;
     m.w = vec3(1.0 - m.side, m.side * across);
+    if(FL.nativeHeight.w>.001 && floatBitsToUint(D.terrain.y)!=0u && D.terrainAt.y<1.5 && m.side>.001) {
+        // Blend inside the slope, never out onto the horizontal floor. Smooth
+        // vertex normals alone cannot identify the crest of a one-cell cliff.
+        ivec2 cell=ivec2(floor(posW.xz*FL.nativeHeight.yz));
+        vec4 h=vec4(RetailHeight(cell),RetailHeight(cell+ivec2(1,0)),RetailHeight(cell+ivec2(0,1)),RetailHeight(cell+ivec2(1,1)));
+        float low=min(min(h.x,h.y),min(h.z,h.w)),high=max(max(h.x,h.y),max(h.z,h.w));
+        if(high-low>.5) {
+            float at=clamp((posW.y-low)/(high-low),0.,1.);
+            float gx=(h.y+h.w)-(h.x+h.z),gz=(h.z+h.w)-(h.x+h.y);
+            bool alongX=abs(gx)>=abs(gz),positive=alongX ? gx>0.:gz>0.;
+            ivec2 axis=alongX ? ivec2(1,0):ivec2(0,1),crossAxis=alongX ? ivec2(0,1):ivec2(1,0);
+            float a=alongX ? (h.x+h.z)*.5:(h.x+h.y)*.5;
+            float b=alongX ? (h.y+h.w)*.5:(h.z+h.w)*.5;
+            float before=(RetailHeight(cell-axis)+RetailHeight(cell-axis+crossAxis))*.5;
+            float after=(RetailHeight(cell+axis*2)+RetailHeight(cell+axis*2+crossAxis))*.5;
+            bool lowFlat=abs(positive ? before-a:after-b)<(high-low)*.25;
+            bool highFlat=abs(positive ? after-b:before-a)<(high-low)*.25;
+            // A continuous long slope has neither boundary: no per-cell bands.
+            float edge=(lowFlat ? smoothstep(0.,.16,at):1.)*(highFlat ? 1.-smoothstep(.84,1.,at):1.);
+            m.side*=mix(1.,edge,FL.nativeHeight.w);m.w=vec3(1.-m.side,m.side*across);
+        }
+    }
     m.hex = clamp(FL.terrain.y, 0.0, 1.0);
     // The native ground's rocks (rvk ground_clutter.cpp; D.terrainAt.y 2): the rock from every side, from above too
     // (at its own size: top), by the interpolated normal (they are shaded smooth: by each face's own, the lays changed
@@ -237,6 +266,9 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
     const uvec2 c = NativeCell(cell);
     const vec4 own = textureGrad(sampler2D(texImages[nonuniformEXT(c.x)], smp), NativeTurn(fract(cell), c.y),
                                  NativeTurnStep(dx, c.y), NativeTurnStep(dy, c.y));
+    // Shared Ground+ preserves AO's authored tile joints and transition tiles.
+    // Neighbour synthesis belongs only to GroundOn, regardless of material ID.
+    if (FL.sharedGroundConfig.w > 0.5) return own;
     if (NativeCellIcc(cell)) return own; // explicit manufactured ICC artwork keeps its designed tile joints
     const float blend = 0.3 * clamp(FL.terrain3.x, 0.0, 1.0);
     if (blend <= 0.0) return own;

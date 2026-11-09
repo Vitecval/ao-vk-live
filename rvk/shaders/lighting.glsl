@@ -131,6 +131,12 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
                       inout vec3 spec, inout vec3 diffLocal, inout vec3 specLocal)
 {
     vec3 toEye = (C.flags.x & F_LOCALVIEWER) != 0u || gPbr ? normalize(C.eyePos.xyz - posW) : -C.eyeDir.xyz;
+    for(int i=0;i<int(FL.shipLightConfig.x);++i) {
+        vec3 delta=FL.shipLightPos[i].xyz-posW;float distanceToLight=length(delta);
+        float falloff=max(0.,1.-distanceToLight/FL.shipLightPos[i].w);
+        float facing=max(0.,dot(normalW,delta/max(distanceToLight,.001)));
+        diffLocal+=FL.shipLightColour[i].rgb*(falloff*falloff*facing*localScale);
+    }
     // Outdoor sky irradiance: a blue hemisphere above, less on vertical faces
     // and undersides. Supply only what the game's ambient does not already
     // contain. It is material light, never a screen-space exposure/gamma lift.

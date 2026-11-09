@@ -59,6 +59,8 @@ Setting g_settings[] = {
     {"RVK_SceneryFill", "Fullness: retain more distant building and tree groups", "General",Float,0,1,.05f,.6f,nullptr,0,"RVK_FullScenery"},
     {"RVK_FarDetail", "Distant detail saving (0 full, 1 balanced shading)", "General",Float,0,1,.1f,1,nullptr,0,"RVK_FullScenery"},
     {"RVK_ImmersiveShips", "Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas", "General", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_ShipLights","Ship navigation lights","General",Bool,0,1,1,1,nullptr,0,"RVK_ImmersiveShips"},
+    {"RVK_ShipLightPower","Nearby ship light strength","General",Float,0,1,.1f,.6f,nullptr,0,"RVK_ShipLights"},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
     {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
@@ -103,6 +105,7 @@ Setting g_settings[] = {
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
     {"RVK_TerraRough", "Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail)", "Materials", Float, 0, 1, .05f, .6f, nullptr, 0},
     {"RVK_HDGround", "HD Ground Textures", "Materials",Bool,0,1,1,0,nullptr,0},
+    {"RVK_CliffJoin","Cliff edge softness","Materials",Float,0,1,.1f,1,nullptr,0,"RVK_TerraBlend"},
     {"RVK_WearDebug", "Building weathering diagnostics: Off / Counters / Pixel coverage", "Debug", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowDepth", "Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows)", "Materials", Choice, 0, 2, 1, 1, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
@@ -339,13 +342,13 @@ Setting g_settings[] = {
     {"RVK_Knee", "Tone mapping knee (1 = only clip)", "Tone mapping",  Float, 0.5f, 1, 0.05f, 0.85f, "RANDYVK_TONEMAP_KNEE", 0, "RVK_Hdr"},
     {"RVK_HdrRoom", "Local light headroom", "Tone mapping",  Float, 1, 4, 0.25f, 1.5f, "RANDYVK_HDR_HEADROOM", 0, "RVK_Hdr"},
     {"RVK_LightGlowOn", "Light source glow", "Lighting", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_AreaLightOn", "Area lighting (Enhanced Daylight)", "Lighting",Bool,0,1,1,0,nullptr,0},
+    {"RVK_AreaLightOn", "Area lighting: daylight colour and ground bounce", "Lighting",Bool,0,1,1,0,nullptr,0},
     {"RVK_AreaLight", "Area lighting strength", "Lighting",Float,0,1,.05f,.6f,nullptr,0,"RVK_AreaLightOn"},
     {"RVK_SkyStyle", "Sky style", "Sky",Choice,0,1,1,0,nullptr,0,nullptr,"0 1"},
     {"RVK_LightGlow", "Halo strength", "Lighting", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_LightGlowOn"},
     {"RVK_AmbientMode", "Ambient life", "Effects", Choice, 0, 8, 1, 0, nullptr, 0,nullptr,"0 1 2 3 4 5 6 7 8"},
     {"RVK_AmbientOn", "Ambient life enabled (compatibility)", "Effects", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_AmbientMode"},
+    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1.33f, nullptr, 0, "RVK_AmbientMode"},
     {"RVK_AmbientBright", "Brightness", "Effects", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_AmbientMode"},
     {"RVK_AmbientStyle", "Ambient style (compatibility)", "Effects", Choice, 0, 7, 1, 0, "0 1 2 3 4 5 6 7", 0, "RVK_AmbientOn"},
     {"RVK_BloomOn", "Bloom", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
@@ -473,6 +476,8 @@ Setting* Find(const char* name)
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
     {"RVK_AreaLight",0},{"RVK_HDGround",0},{"RVK_SceneryFill",0},{"RVK_FarDetail",0},{"RVK_SkyStyle",0},
+    {"RVK_ShipLights",0},{"RVK_ShipLightPower",0},
+    {"RVK_CliffJoin",0},
     {"RVK_LightGlow",0}, {"RVK_AmbientMotes",0}, {"RVK_AmbientBright",0},
     {"RVK_WindowDepth", 0},
     {"RVK_WindowActivity", 1},
@@ -630,6 +635,7 @@ float V(const char* name)
         if(std::strcmp(name,"RVK_Galaxy")==0)return .5f;
     }
     if(std::strcmp(name,"RVK_HDGround")==0)return plus ? s->value:0.f;
+    if(std::strcmp(name,"RVK_CliffJoin")==0)return plus ? s->value:0.f;
     if(std::strcmp(name,"RVK_FarDetail")==0 && Stored("RVK_FarScenery")==0)return 0.f;
     // DayCycle selects the automatic cycle and lighting profile. Explicit
     // console/INI clock controls remain independent and take priority.
@@ -1527,9 +1533,12 @@ const PresetValue kClassicPlus[] = {
     {"RVK_CloudsOn", 0}, {"RVK_WeatherOn", 0}, {"RVK_SmokeOn", 0}, {"RVK_WaterOn", 0},   // (the new features off)
 };
 const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's look with its quality up)
-    {"RVK_ModernTex",2}, {"RVK_Albedo",1}, {"RVK_ICCArtwork",0}, {"RVK_ICCGlossiness",.5f},
+    {"RVK_ModernTex",2}, {"RVK_Albedo",1}, {"RVK_ICCArtwork",0}, {"RVK_ICCGlossiness",.7f}, {"RVK_ImprovedTiles",1},
     {"RVK_GlobalShiny",.5f}, {"RVK_BuildWear",1}, {"RVK_DayCycle",2}, {"RVK_CloudsOn",0},
-    {"RVK_ImmersiveShips",1},
+    {"RVK_ImmersiveShips",1}, {"RVK_ShipLights",1}, {"RVK_ShipLightPower",.6f},
+    {"RVK_SkyStyle",1}, {"RVK_LightGlowOn",1}, {"RVK_LightGlow",.6f},
+    {"RVK_AmbientOn",1}, {"RVK_AmbientStyle",0}, {"RVK_AreaLightOn",1}, {"RVK_AreaLight",.6f},
+    {"RVK_FullScenery",1}, {"RVK_SceneryFill",.6f}, {"RVK_FarDetail",1},
     {"RVK_FarScenery",1}, {"RVK_SceneryDist",3}, {"RVK_TerraRough",.6f},
     {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
@@ -1546,7 +1555,10 @@ bool InPresets(const Setting& s, uint32_t preset)
     if(preset==3 && (std::strcmp(s.name,"RVK_ModernTex")==0 || std::strcmp(s.name,"RVK_ICCArtwork")==0 ||
         std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
         std::strcmp(s.name,"RVK_ImmersiveShips")==0 || std::strcmp(s.name,"RVK_FarScenery")==0 ||
-        std::strcmp(s.name,"RVK_SceneryDist")==0 || std::strcmp(s.name,"RVK_TerraRough")==0)) return true;
+        std::strcmp(s.name,"RVK_SceneryDist")==0 || std::strcmp(s.name,"RVK_TerraRough")==0 ||
+        std::strcmp(s.name,"RVK_ImprovedTiles")==0 || std::strcmp(s.name,"RVK_ShipLights")==0 ||
+        std::strcmp(s.name,"RVK_ShipLightPower")==0 || std::strcmp(s.name,"RVK_FullScenery")==0 ||
+        std::strcmp(s.name,"RVK_SceneryFill")==0 || std::strcmp(s.name,"RVK_FarDetail")==0)) return true;
     if(std::strcmp(s.name,"RVK_InstantTime")==0 || std::strcmp(s.name,"RVK_AmbientMode")==0)return false;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
         std::strcmp(s.name,"RVK_TerraRough")==0) return false;

@@ -110,7 +110,7 @@ void Device::DestroyNativeGround()
     DropNativePebbles(true);
     // (The lightmap stays: it is the hour's, handed over when it changes - perhaps before this playfield's ground.)
     // (Nor does the fade from the last hour's: across playfields, it would be another place's light.)
-    for (Texture** t : {&m_native.codes, &m_native.maps, &m_native.means, &m_native.sky, &m_native.lightmapPrev})
+    for (Texture** t : {&m_native.codes, &m_native.maps, &m_native.means, &m_native.sky, &m_native.lightmapPrev, &m_native.heights})
         if (*t) { DestroyTexture(*t); *t = nullptr; }
     m_native.lightFit[0] = 0.0f;
     m_native.anyOrm = nullptr;
@@ -225,6 +225,9 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
             m_native.patches.push_back(std::move(p));
         }
     m_native.ground = ground;
+    // Packed IEEE float bits, read with texelFetch (never filtered as colour).
+    // No new mesh or displacement: these are AO's existing collision heights.
+    m_native.heights=CreateTexture(g.cellsX+1,g.cellsZ+1,g.heights.data());
     MakeNativeCodes();
     FitNativeLight();
     if (!SharedGroundPlus() && m_native.ao>0) m_native.skyPending = std::async(std::launch::async, SkyVisibility, ground);
@@ -302,6 +305,9 @@ void Device::MakeNativeCodes()
         if (!tex || !tex->m_image) continue;
         if (!ImprovedTile(tex)) {
             image[t] = BindlessImage(tex);
+            // Original manufactured paving is still authored artwork. Turning
+            // custom ICC tiles off must not turn its joints into natural soil.
+            authored[t]=materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId);
             continue;
         }
         Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;

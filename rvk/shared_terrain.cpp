@@ -83,6 +83,13 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     std::memset(fl->sharedGroundConfig,0,sizeof(fl->sharedGroundConfig));
     std::memset(fl->hdGround,0,sizeof(fl->hdGround));
     std::memset(fl->hdGroundConfig,0,sizeof(fl->hdGroundConfig));
+    std::memset(fl->nativeHeight,0,sizeof(fl->nativeHeight));
+    if(SharedGroundPlus() && m_native.heights && m_native.ground) {
+        uint32_t slot=BindlessImage(m_native.heights)+1;
+        std::memcpy(&fl->nativeHeight[0],&slot,4);
+        fl->nativeHeight[1]=1.f/m_native.ground->cellX;
+        fl->nativeHeight[2]=1.f/m_native.ground->cellZ;fl->nativeHeight[3]=std::clamp(m_cliffJoin,0.f,1.f);
+    }
     // Independent of master-texture upload readiness: no temporary native
     // sun/AO darkening while the five shared maps are still decoding.
     fl->sharedGroundConfig[3]=SharedGroundPlus() ? 1.0f : 0.0f;

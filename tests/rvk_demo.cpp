@@ -1030,8 +1030,10 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
 int g_visualCase=-1, g_visualToggle=0;
 float g_dayCycle=0.f, g_globalShiny=.5f, g_terrainRoughness=.6f;
 float g_areaLight=0.f,g_farDetail=0.f,g_hdGround=0.f;
+float g_cliffJoin=1.f;
 uint32_t g_areaZone=655;
 bool g_softSky=false;
+bool g_terrainSideView=false;
 extern bool g_profileWindow;
 float g_ambientDensity=0.f;
 int g_ambientStyle=0;
@@ -1199,6 +1201,12 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
         dev.SetKnob(Knob::GlobalShiny,g_visualToggle ? 1.f:0.f);
     }
     const uint32_t orm=0xFFFF19FFu;
+    if(g_visualCase==20) {
+        dev.SetTextureRdbId(tex,99841,1010004,0);
+        dev.SetKnob(Knob::ImmersiveShips,1.f);
+        dev.SetKnob(Knob::ShipLights,g_visualToggle ? 1.f:0.f);
+        dev.SetKnob(Knob::ShipLightPower,g_visualToggle>=2 ? .6f:0.f);
+    }
     if(g_visualCase==2 && g_visualToggle>0)
         dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&orm),dev.CreateTexture(512,512,art.data()),true);
     Device::PbrSettings pbr;pbr.enabled=true;if(g_visualCase==19)pbr.debug=g_pbrDebug;dev.SetPbr(pbr);
@@ -1275,6 +1283,13 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
             for(auto& v:card)v.x=v.x*.48f-1.f;
             dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
             std::copy_n(plane,4,card);for(auto& v:card){v.x=v.x*.48f+1.f;v.nz=1;}
+        }
+        if(g_visualCase==20) {
+            const VtxMesh floor[]={{-8,-1.7f,-5,0,1,0,0xFFFFFFFF,0,0},{-8,-1.7f,8,0,1,0,0xFFFFFFFF,0,1},
+                {8,-1.7f,-5,0,1,0,0xFFFFFFFF,1,0},{8,-1.7f,8,0,1,0,0xFFFFFFFF,1,1}};
+            dev.SetTexture(0,nullptr);dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,floor,4);
+            dev.SetTexture(0,tex);dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
         }
         dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);dev.SetDrawVisual(0,nullptr);
         dev.EndFrame();
@@ -2751,6 +2766,7 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
         dev.SetTransform(World,Identity());
         dev.SetTransform(View,LookAtLH({8,g_terrainCloseup ? 2.f:15.f,7.99f},{8,0,8},{0,0,1}));
+        if(g_terrainSideView)dev.SetTransform(View,LookAtLH({-6,10,-4},{10,4,8},{0,1,0}));
         if(g_ambientFixture)dev.SetTransform(View,LookAtLH({8,3,-2},{8,2,8},{0,1,0}));
         dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
         dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
@@ -5937,6 +5953,8 @@ int main(int argc, char** argv)
         else if (a == "--area-zone" && i+1<argc) g_areaZone=uint32_t(std::atoi(argv[++i]));
         else if (a == "--far-detail" && i+1<argc) g_farDetail=float(std::atof(argv[++i]));
         else if (a == "--hd-ground" && i+1<argc) g_hdGround=float(std::atof(argv[++i]));
+        else if (a == "--cliff-join" && i+1<argc) g_cliffJoin=float(std::atof(argv[++i]));
+        else if (a == "--terrain-side-view") g_terrainSideView=true;
         else if (a == "--soft-sky") g_softSky=true;
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--check-material-list" && i+1<argc) g_materialList=argv[++i];
@@ -6077,11 +6095,12 @@ int main(int argc, char** argv)
                 dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
                 dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
             }
-            maps::MaterialFiles files;files.albedo=prefix+"_d.png";files.maxSize=512;files.maxAlbedoSize=1024;
+            maps::MaterialFiles files;files.albedo=prefix+"_d.png";files.maxSize=512;files.maxAlbedoSize=2048;files.maxAlbedoPixels=1024u*1024u;
             if(std::filesystem::exists(prefix+"_n.png"))files.normal=prefix+"_n.png";
             if(std::filesystem::exists(prefix+"_orm.png"))files.packed=prefix+"_orm.png";
             if(std::filesystem::exists(prefix+"_e.png"))files.emissive=prefix+"_e.png";
             const auto decoded=maps::Decode(files);
+            if(checked<12)std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
             const uint32_t pixel=0xFF808080;
             Texture* base=dev.CreateTexture(1,1,&pixel);
             unsigned kind=0,id=0;std::sscanf(std::filesystem::path(prefix).filename().string().c_str(),"%u_%u",&kind,&id);
@@ -6258,6 +6277,7 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     dev.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
     dev.SetKnob(rvk::Knob::AreaLight,g_areaLight);dev.SetKnob(rvk::Knob::FarDetail,g_farDetail);dev.SetKnob(rvk::Knob::HDGround,g_hdGround);
+    dev.SetKnob(rvk::Knob::CliffJoin,g_cliffJoin);
     dev.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
     dev.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
     if(g_ambientFixture)dev.SetKnob(rvk::Knob::AmbientBright,2.f);
@@ -6337,6 +6357,7 @@ int main(int argc, char** argv)
     queued.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     queued.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
     queued.SetKnob(rvk::Knob::AreaLight,g_areaLight);queued.SetKnob(rvk::Knob::FarDetail,g_farDetail);queued.SetKnob(rvk::Knob::HDGround,g_hdGround);
+    queued.SetKnob(rvk::Knob::CliffJoin,g_cliffJoin);
     queued.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
     queued.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
     queued.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);

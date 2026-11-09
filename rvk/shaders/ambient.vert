@@ -19,10 +19,20 @@ void main() {
     float seed=RainRand(random)*6.2831853;
     vec3 p=Position(anchor.xyz,R.time.x,seed),before=Position(anchor.xyz,R.time.y,seed);
     bool spores=anchor.w>1.5 && anchor.w<2.5;
+    bool spirit=anchor.w>4.5 && anchor.w<5.5;
+    bool snow=anchor.w>5.5 && anchor.w<6.5;
+    bool embers=anchor.w>6.5 && anchor.w<7.5;
+    bool ash=anchor.w>7.5;
+    if(snow || ash) {
+        // A slow settling flutter, bounded and world anchored.
+        p.y-=.35*sin(R.time.x*.35+seed);
+        before.y-=.35*sin(R.time.y*.35+seed);
+    }
+    if(embers){p.y+=.6*sin(R.time.x*.7+seed);before.y+=.6*sin(R.time.y*.7+seed);}
     bool fleck=spores && (id%2u)==1u;
     float vegetation=clamp(anchor.w,0.,1.);
     float night=R.time.z;
-    vGlow=fleck ? 0.:spores || anchor.w>3.5 ? 1.:vegetation*night;
+    vGlow=fleck || snow || ash ? 0.:spores || spirit || embers || anchor.w>3.5 ? 1.:vegetation*night;
     float pulse=.35+.65*pow(.5+.5*sin(R.time.x*(1.3+seed*.1)+seed),2.);
     float distanceToEye=distance(p,R.camera.xyz);
     float opacity=(1.-smoothstep(18.,25.,distanceToEye))*smoothstep(.7,2.,distanceToEye);
@@ -31,12 +41,18 @@ void main() {
     opacity*=mix(.32,pulse, vGlow)*R.colour.w;
     vec3 tint=mix(vec3(.56,.43,.27),vec3(.72,.78,.52),vegetation);
     if(fleck)tint=vec3(.1,.16,.08);
+    if(snow)tint=vec3(.83,.91,1.);
+    if(ash)tint=vec3(.42,.43,.47);
     vec3 lit=tint*max(R.ambient.rgb,vec3(.08));
     vColour=mix(lit,(spores ? vec3(.7,1.,.75)*1.35:vec3(.65,.95,.28)*1.7),vGlow);
+    if(spirit)vColour=vec3(.32,.65,1.)*1.35;
+    if(embers)vColour=vec3(1.,.24,.035)*1.7;
     vAlpha=clamp(opacity,0.,.75);
     const vec2 corners[6]=vec2[](vec2(-1,-1),vec2(1,-1),vec2(1,1),vec2(-1,-1),vec2(1,1),vec2(-1,1));
     vCorner=corners[vertex];
     float radius=spores ? (fleck ? .018:.011):mix(.016,.028,vGlow);
+    if(snow || ash)radius=.018;
+    if(spirit || embers)radius=.012;
     // A small subpixel mote fades rather than turning into a large distant star.
     radius=max(radius,distanceToEye*R.viewport.w*.65);
     vec3 right=vec3(R.view[0][0],R.view[1][0],R.view[2][0]);

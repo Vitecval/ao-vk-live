@@ -606,6 +606,7 @@ void Device::DrawSkyGlow()
         push.star[2][3] = std::clamp(m_nightSky.twinkle, 0.0f, 1.0f);
         push.night[0] = std::max(m_nightSky.galaxy, 0.0f);
         push.night[1] = float(std::fmod(m_frameClock, 3600.0));
+        push.night[2] = m_skyStyle>.5f ? 1.f+std::clamp(NightAmount(),0.f,1.f):0.f;
         push.night[3] = m_auroraNow;
         std::memcpy(push.meteor, m_meteor, sizeof(push.meteor));
         // (The twilight model's slots - unused under our own sky: sky_glow.frag reads them only over the game's - hold

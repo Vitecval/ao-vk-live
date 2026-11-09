@@ -1,5 +1,6 @@
 // The renderer's settings table, randy-vk.ini persistence and the exported C interface (rvk_settings.h).
 #include "rvk_settings.h"
+#include "../../rvk/sky_styles.h"
 
 #include "rvk_backend.h"
 #include "native/mesh.h"
@@ -54,6 +55,9 @@ Setting g_settings[] = {
     {"RVK_ViewRange",   "How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws)", "General", Float, 1, 3, 0.25f, 1.5f, nullptr, 0},
     {"RVK_FarScenery", "Far Scenery: show buildings, trees and rocks farther away (more draws; move to refresh)", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_SceneryDist", "Scenery distance: up to 3x for buildings/trees, 2x for rocks/shrubs, within loaded areas", "General", Float, 1, 3, .25f, 2.5f, nullptr, 0, "RVK_FarScenery"},
+    {"RVK_FullScenery", "Fuller distant scenery (loaded areas)", "General", Bool,0,1,1,0,nullptr,0,"RVK_FarScenery"},
+    {"RVK_SceneryFill", "Fullness: retain more distant building and tree groups", "General",Float,0,1,.05f,.6f,nullptr,0,"RVK_FullScenery"},
+    {"RVK_FarDetail", "Distant detail saving (0 full, 1 balanced shading)", "General",Float,0,1,.1f,1,nullptr,0,"RVK_FullScenery"},
     {"RVK_ImmersiveShips", "Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas", "General", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
@@ -98,6 +102,7 @@ Setting g_settings[] = {
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
     {"RVK_TerraRough", "Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail)", "Materials", Float, 0, 1, .05f, .6f, nullptr, 0},
+    {"RVK_HDGround", "HD Ground Textures", "Materials",Bool,0,1,1,0,nullptr,0},
     {"RVK_WearDebug", "Building weathering diagnostics: Off / Counters / Pixel coverage", "Debug", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowDepth", "Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows)", "Materials", Choice, 0, 2, 1, 1, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
@@ -334,11 +339,15 @@ Setting g_settings[] = {
     {"RVK_Knee", "Tone mapping knee (1 = only clip)", "Tone mapping",  Float, 0.5f, 1, 0.05f, 0.85f, "RANDYVK_TONEMAP_KNEE", 0, "RVK_Hdr"},
     {"RVK_HdrRoom", "Local light headroom", "Tone mapping",  Float, 1, 4, 0.25f, 1.5f, "RANDYVK_HDR_HEADROOM", 0, "RVK_Hdr"},
     {"RVK_LightGlowOn", "Light source glow", "Lighting", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_AreaLightOn", "Area lighting (Enhanced Daylight)", "Lighting",Bool,0,1,1,0,nullptr,0},
+    {"RVK_AreaLight", "Area lighting strength", "Lighting",Float,0,1,.05f,.6f,nullptr,0,"RVK_AreaLightOn"},
+    {"RVK_SkyStyle", "Sky style", "Sky",Choice,0,1,1,0,nullptr,0,nullptr,"0 1"},
     {"RVK_LightGlow", "Halo strength", "Lighting", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_LightGlowOn"},
-    {"RVK_AmbientOn", "Ambient life (fireflies, pollen and dust)", "Effects", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_AmbientOn"},
-    {"RVK_AmbientBright", "Brightness", "Effects", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_AmbientOn"},
-    {"RVK_AmbientStyle", "Style: Auto / Fireflies / Dust / Spores", "Effects", Choice, 0, 3, 1, 0, "0 1 2 3", 0, "RVK_AmbientOn"},
+    {"RVK_AmbientMode", "Ambient life", "Effects", Choice, 0, 8, 1, 0, nullptr, 0,nullptr,"0 1 2 3 4 5 6 7 8"},
+    {"RVK_AmbientOn", "Ambient life enabled (compatibility)", "Effects", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_AmbientMode"},
+    {"RVK_AmbientBright", "Brightness", "Effects", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_AmbientMode"},
+    {"RVK_AmbientStyle", "Ambient style (compatibility)", "Effects", Choice, 0, 7, 1, 0, "0 1 2 3 4 5 6 7", 0, "RVK_AmbientOn"},
     {"RVK_BloomOn", "Bloom", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
     {"RVK_Bloom", "Strength", "Effects",  Float, 0.25f, 5, 0.25f, 1, "RANDYVK_BLOOM", 0, "RVK_BloomOn"},
     {"RVK_BloomThr", "Threshold (1 = above white)", "Effects",  Float, 0.5f, 2, 0.05f, 0.5f, "RANDYVK_BLOOM_THRESHOLD", 0, "RVK_BloomOn"},
@@ -463,6 +472,7 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_AreaLight",0},{"RVK_HDGround",0},{"RVK_SceneryFill",0},{"RVK_FarDetail",0},{"RVK_SkyStyle",0},
     {"RVK_LightGlow",0}, {"RVK_AmbientMotes",0}, {"RVK_AmbientBright",0},
     {"RVK_WindowDepth", 0},
     {"RVK_WindowActivity", 1},
@@ -546,6 +556,7 @@ bool AlwaysOn(const char* name)
 
 bool Hidden(const Setting& s)
 {
+    if(std::strcmp(s.name,"RVK_AmbientOn")==0 || std::strcmp(s.name,"RVK_AmbientStyle")==0)return true;
     if (std::strcmp(s.section, "Debug") == 0 || AlwaysOn(s.name)) return true;
     for (const char* h : kHidden)
         if (std::strcmp(h, s.name) == 0) return true;
@@ -553,12 +564,19 @@ bool Hidden(const Setting& s)
     return parent && Hidden(*parent);
 }
 
-float Stored(const char* name) { Setting* s = Find(name); return s ? s->value : 0.0f; }
+float Stored(const char* name) {
+    if(std::strcmp(name,"RVK_AmbientMode")==0) {
+        const Setting* on=Find("RVK_AmbientOn");const Setting* style=Find("RVK_AmbientStyle");
+        return on && style && on->value!=0.f ? style->value+1.f:0.f;
+    }
+    Setting* s=Find(name);return s ? s->value:0.f;
+}
 
 // A shortcut for the canonical clock controls, never a second clock override.
 // Reading/starting the settings panel cannot reset a saved manual console hour.
 float SettingValue(const Setting& s)
 {
+    if(std::strcmp(s.name,"RVK_AmbientMode")==0)return Stored("RVK_AmbientMode");
     if(std::strcmp(s.name,"RVK_InstantTime")!=0)return s.value;
     if(std::fabs(Stored("RVK_TimeSpeed")-1.f)>1e-4f)return 0;
     const float hour=Stored("RVK_TimeOfDay");
@@ -602,9 +620,17 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
-    if(std::strcmp(name,"RVK_InstantTime")==0)return SettingValue(*s);
+    if(std::strcmp(name,"RVK_InstantTime")==0 || std::strcmp(name,"RVK_AmbientMode")==0)return SettingValue(*s);
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
+    if(Stored("RVK_Enhance")!=0 && Stored("RVK_SkyStyle")>.5f) {
+        if(std::strcmp(name,"RVK_ProcSky")==0 || std::strcmp(name,"RVK_Stars")==0)return 1.f;
+        if(std::strcmp(name,"RVK_StarBright")==0)return 1.45f;
+        if(std::strcmp(name,"RVK_Twinkle")==0)return .18f;
+        if(std::strcmp(name,"RVK_Galaxy")==0)return .5f;
+    }
+    if(std::strcmp(name,"RVK_HDGround")==0)return plus ? s->value:0.f;
+    if(std::strcmp(name,"RVK_FarDetail")==0 && Stored("RVK_FarScenery")==0)return 0.f;
     // DayCycle selects the automatic cycle and lighting profile. Explicit
     // console/INI clock controls remain independent and take priority.
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
@@ -801,6 +827,7 @@ void ResolveIniPath()
 
 void Save(const Setting& s)
 {
+    if(std::strcmp(s.name,"RVK_AmbientMode")==0 || std::strcmp(s.name,"RVK_InstantTime")==0)return;
     char buf[32];
     if (s.type == Float) std::snprintf(buf, sizeof(buf), "%g", s.value);
     else if (s.type == Colour) std::snprintf(buf, sizeof(buf), "%06X", unsigned(s.value) & 0xFFFFFFu);
@@ -817,6 +844,8 @@ void ApplyScenery(rvk::ThreadedDevice* d)
     const float farScale=V("RVK_FarScenery")>.5f ? V("RVK_SceneryDist"):1.f;
     rnative::rings::SetSceneryScale(ships);
     rnative::rings::SetFarScale(farScale);
+    rnative::rings::SetFullness(farScale>1.f ? V("RVK_SceneryFill"):0.f);
+    d->SetKnob(rvk::Knob::FarDetail,farScale>1.f ? V("RVK_FarDetail"):0.f);
     rnative::camera::SetSceneryRange(std::max(ships,farScale));
     rnative::camera::SetViewRange(V("RVK_ViewRange"));
     d->SetViewRange(V("RVK_ViewRange"));
@@ -829,6 +858,7 @@ rvk::SkyColours SkyColoursNow()
         "RVK_SkyDayTop", "RVK_SkyDayLow", "RVK_SkyDuskSun", "RVK_SkyDuskAway", "RVK_SkyDuskTop", "RVK_SkyBlueTop",
         "RVK_SkyBlueLow", "RVK_SkyNightTop", "RVK_SkyNightLow"};
     rvk::SkyColours c;
+    if(V("RVK_SkyStyle")>.5f){for(unsigned i=0;i<rvk::kSkyKeyCount;++i)c.keys[i]=rvk::kSoftSky[i];return c;}
     for (uint32_t i = 0; i < rvk::kSkyKeyCount; ++i) c.keys[i] = uint32_t(V(kKeys[i])) & 0xFFFFFFu;
     return c;
 }
@@ -839,6 +869,9 @@ void Apply(const Setting& s, rvk::ThreadedDevice* d)
     ApplyOne(s, d);
     for (const Setting& child : g_settings)
         if (child.parent && std::strcmp(child.parent, s.name) == 0) ApplyOne(child, d);
+    if(std::strcmp(s.name,"RVK_AmbientOn")==0 || std::strcmp(s.name,"RVK_AmbientStyle")==0)
+        for(const char* name:{"RVK_AmbientMotes","RVK_AmbientBright","RVK_AmbientStyle"})
+            if(const Setting* child=Find(name))ApplyOne(*child,d);
 }
 
 // Puts one setting into effect: each device call takes the setting and its partners.
@@ -847,6 +880,12 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     if (!d) return;
     const char* n = s.name;
     auto is = [n](const char* a) { return std::strcmp(n, a) == 0; };
+    if(is("RVK_SkyStyle")) {
+        d->SetKnob(rvk::Knob::SkyStyle,V(n));
+        d->SetSkyColours(SkyColoursNow());
+        for(const char* name:{"RVK_ProcSky","RVK_Stars"})if(const Setting* other=Find(name))ApplyOne(*other,d);
+        return;
+    }
     // Static meshes the game culls cast anyway within the shadows' reach (native mesh.cpp; as the renderer's memory of
     // casters: 1.4 x the shadow distance), meshes under a unit across left out.
     if (std::strcmp(n,"RVK_ICCArtwork")==0) {
@@ -982,7 +1021,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     else if (is("RVK_FogBanks")) d->SetFogBanks(V(n));
     else if (is("RVK_StarFade")) d->SetStarFade(V(n) > 0.5f);
     else if (is("RVK_HeapCheck")) d->SetHeapCheck(int(V(n) + 0.5f));
-    else if (is("RVK_FarScenery") || is("RVK_SceneryDist")) ApplyScenery(d);
+    else if (is("RVK_FarScenery") || is("RVK_SceneryDist") || is("RVK_FullScenery") || is("RVK_SceneryFill")) ApplyScenery(d);
     else if (is("RVK_ViewRange")) {
         d->SetViewRange(V(n));
         rnative::camera::SetViewRange(V(n));
@@ -1291,6 +1330,12 @@ void Set(const char* name, float value)
     Load();
     Setting* s = Find(name);
     if (!s || !std::isfinite(value)) return;    // (a broken slider sent NaN every frame - user, 2026-10-14)
+    if(std::strcmp(name,"RVK_AmbientMode")==0) {
+        const int mode=int(Clamp(*s,value));
+        Set("RVK_AmbientStyle",float(std::max(mode-1,0)));
+        Set("RVK_AmbientOn",mode ? 1.f:0.f);
+        return;
+    }
     if(std::strcmp(name,"RVK_InstantTime")==0) {
         const int choice=int(Clamp(*s,value));
         Set("RVK_TimeSpeed",1.f);
@@ -1502,7 +1547,7 @@ bool InPresets(const Setting& s, uint32_t preset)
         std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
         std::strcmp(s.name,"RVK_ImmersiveShips")==0 || std::strcmp(s.name,"RVK_FarScenery")==0 ||
         std::strcmp(s.name,"RVK_SceneryDist")==0 || std::strcmp(s.name,"RVK_TerraRough")==0)) return true;
-    if(std::strcmp(s.name,"RVK_InstantTime")==0)return false;
+    if(std::strcmp(s.name,"RVK_InstantTime")==0 || std::strcmp(s.name,"RVK_AmbientMode")==0)return false;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
         std::strcmp(s.name,"RVK_TerraRough")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
@@ -1591,6 +1636,7 @@ bool SkyPresetApply(uint32_t i)
 {
     Load();
     if (i >= kSkyPresetCount) return false;
+    Set("RVK_SkyStyle",0.f);
     for (uint32_t k = 0; k < rvk::kSkyKeyCount; ++k) Set(kSkyKeyNames[k], float(kSkyPresets[i].keys[k]));
     RvkLog("sky preset %s applied", kSkyPresets[i].name);
     return true;

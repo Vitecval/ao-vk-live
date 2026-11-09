@@ -124,7 +124,9 @@ endforeach()
 set(RVK_ASSET_INCS)
 foreach(entry "cliff_side_diff_1k.jpg|kRockAlbedo" "cliff_side_nor_gl_1k.jpg|kRockNormal" "cliff_side_arm_1k.jpg|kRockOrm"
               "shared-grass.png|kSharedGrass" "shared-dirt.png|kSharedDirt" "shared-gravel.png|kSharedGravel"
-              "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock")
+              "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock"
+              "shared-hd-grass.png|kHdGrass" "shared-hd-dirt.png|kHdDirt" "shared-hd-gravel.png|kHdGravel"
+              "shared-hd-sand.png|kHdSand" "shared-hd-rock.png|kHdRock")
     string(REPLACE "|" ";" asset "${entry}")
     list(GET asset 0 file)
     list(GET asset 1 name)

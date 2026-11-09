@@ -220,6 +220,18 @@ void main()
     vec3 dir = normalize(b.xyz / b.w - a.xyz / a.w);
     if (P.view.z > 0.5) {
         vec3 sky = textureLod(skyView, SkyViewUv(dir), 0.0).rgb;
+        if(P.night.z>.5) {
+            // Optional sky-only colour design over the physical atmosphere.
+            // Preserve daytime luminance and the scattering around the suns;
+            // no exposure/gamma lift of world surfaces or the interface.
+            float up=pow(clamp(dir.y,0.,1.),.45);
+            vec3 hue=mix(vec3(.68,.79,.91),vec3(.30,.51,.78),up);
+            hue/=max(dot(hue,vec3(.3,.59,.11)),.01);
+            float energy=dot(sky,vec3(.3,.59,.11));
+            sky=mix(sky,hue*energy,.30);
+            vec3 nightSky=mix(vec3(.025,.045,.08),vec3(.007,.014,.034),up);
+            sky=mix(sky,max(sky*.65,nightSky),clamp(P.night.z-1.,0.,1.));
+        }
         // Our night sky over it: the stars, the galaxy, a shooting star, an aurora - dimmed through the air near the
         // horizon (its air mass) and lost in a bright sky (the moon's glow, the blue hour), as by eye.
         float shown = P.star0.w;

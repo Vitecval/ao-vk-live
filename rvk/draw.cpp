@@ -4,6 +4,7 @@
 #include "window_materials.h"
 #include "weather_options.h"
 #include "terrain_materials.h"
+#include "area_profiles.h"
 
 #include <algorithm>
 #include <bit>
@@ -489,9 +490,15 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
     fl->terrainFar[1] = SharedGroundPlus() ? std::clamp(m_terrainRoughness,0.f,1.f):1.f;
     fl->terrainFar[2] = m_hdr ? std::clamp(m_lightGlow,0.f,2.f):0.f;
+    fl->terrainFar[3] = std::clamp(m_farDetail,0.f,1.f);
     fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
     fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
     fl->windowLife[2]=EnhancedDaylight();
+    const auto palette=areas::Lighting(m_skyPlayfield);
+    const float areaWeight=std::clamp(m_areaLight,0.f,1.f)*EnhancedDaylight();
+    for(unsigned i=0;i<3;++i){fl->areaSky[i]=palette.sky[i];fl->areaGround[i]=palette.ground[i];fl->areaSun[i]=palette.sun[i];}
+    fl->areaSky[3]=areaWeight;fl->areaGround[3]=palette.sideFill*areaWeight;
+    fl->areaSun[3]=float(areas::For(m_skyPlayfield));
     fl->windowLife[3]=std::clamp(m_globalShiny,0.f,1.f);
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
     fl->terrain3[0] = (SharedGroundPlus() || m_native.on) ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
@@ -4199,6 +4206,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // an older light behind them; ordinary walls only occlude.
     const bool sourceGlow = m_lightGlow>0.f && !m_drawIsCharacter &&
         ((dt.mat[2]&(kMatEmissive|kMatImmersiveShip))!=0u || std::max({m_material.emissive.r,m_material.emissive.g,m_material.emissive.b})>.05f);
+    if(m_farDetail>0.f && !terrain && !m_drawIsCharacter && !m_drawIsLabel &&
+       (VisualKind(m_drawVisualKind)==VisualKind::Static || (m_drawMesh && m_drawMesh->skyScenery)))dt.mat[2]|=kMatDistantScenery;
     const bool windowGlow = (dt.windows[0] > 0.f || sourceGlow) && m_target->m_format == Format::RGBA16F;
     // This state depends on a per-draw record, not shared constants. Split at
     // transitions, while retaining ordinary and same-mode window batching.

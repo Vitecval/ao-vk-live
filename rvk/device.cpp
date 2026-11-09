@@ -246,6 +246,8 @@ Device::~Device()
     if (m_rock.pending.valid()) m_rock.pending.wait();   // (the cliffs' rock: a decode still running finishes first)
     if (m_sharedGround.pending.valid()) m_sharedGround.pending.wait();
     for (Texture* t:m_sharedGround.images) DestroyTexture(t);
+    if(m_hdGroundState.pending.valid())m_hdGroundState.pending.wait();
+    for(Texture* t:m_hdGroundState.images)DestroyTexture(t);
     for (Texture* t : {m_rock.albedo, m_rock.normal, m_rock.orm, m_native.codes, m_native.maps, m_native.means, m_native.lightmap, m_native.lightmapGrey, m_native.lightmapPrev, m_native.sky})
         if (t) DestroyTextureNow(t);
     for (auto& [key, sampler] : m_samplers) vkDestroySampler(m_device, sampler, nullptr);

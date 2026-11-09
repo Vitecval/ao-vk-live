@@ -495,6 +495,27 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     }
     vec2 world=m.posW.xz*FL.sharedGroundConfig.y;
     vec2 wx=m.px.xz*FL.sharedGroundConfig.y,wy=m.py.xz*FL.sharedGroundConfig.y;
+    if(FL.hdGroundConfig.x>.5 && (D.mat.z&MAT_ASPHALT)==0u) {
+        // Full material albedo replaces the old texel grain. Native low-frequency
+        // colour remains the blend mask/palette only; alpha, overlap ownership,
+        // validated cliff footprint and original geometry are unchanged.
+        vec3 modern=vec3(0.),mean=vec3(0.);float total=0.;
+        vec2 mirrored=1.-abs(fract(world*.5)*2.-1.);
+        vec2 mirrorDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(world*.5)));
+        for(int i=0;i<5;++i) {
+            if(weights[i]<.001)continue;
+            uint slot=floatBitsToUint(FL.hdGround[i].x)-1u;
+            modern+=weights[i]*textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),mirrored,wx*mirrorDirection,wy*mirrorDirection).rgb;
+            mean+=weights[i]*FL.hdGround[i].yzw;total+=weights[i];
+        }
+        if(total>.01) {
+            modern/=total;mean/=total;
+            vec3 palette=clamp(mask/max(mean,vec3(.04)),vec3(.65),vec3(1.5));
+            modern*=mix(vec3(1.),palette,.65);
+            original.rgb=mix(original.rgb,modern,amount);
+        }
+        return original;
+    }
     vec3 detail=vec3(1.0);
     for (int i=0;i<5;++i) {
         if (weights[i]<.01) continue;

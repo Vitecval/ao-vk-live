@@ -9,6 +9,7 @@
 // weather's own 0..1 (clamped).
 #include "internal.h"
 #include "weather_options.h"
+#include "area_profiles.h"
 
 #include <algorithm>
 #include <cmath>
@@ -357,12 +358,14 @@ void Device::RenderDebris(VkCommandBuffer cmd)
 // No dynamic lights, simulation buffers, or extra shadow casters are allocated.
 void Device::RenderAmbientMotes(VkCommandBuffer cmd)
 {
-    const int style=int(std::clamp(m_ambientStyle,0.f,3.f)+.5f);
+    const int requested=int(std::clamp(m_ambientStyle,0.f,7.f)+.5f);
+    const int style=requested ? requested:areas::Ambient(m_skyPlayfield);
     // A local cavern spore profile, plus an explicit style override for other
     // unusual biomes. No particles in the separate login/creation playfield.
-    const bool spores=style==3 || (style==0 && m_skyPlayfield==386);
+    const bool spores=style>=3;
+    const bool indoorAllowed=requested>=3 || areas::For(m_skyPlayfield)==areas::Biome::Alien;
     if(m_ambientMotes<=0.f || m_ambientBright<=0.f || !m_ambientPipeline || !m_scene || !m_hdr ||
-       !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !spores))return;
+       !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !indoorAllowed))return;
     if(!spores && !m_grassOn)UpdateGrassTiles();
     const float* eye=m_frameEye;
     const float spacing=spores ? 4.f:6.f;
@@ -380,7 +383,7 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
             if(spores) {
                 float* point=m_ambientOrigins[m_ambientOriginCount++];
                 point[0]=px;point[1]=std::floor(eye[1]/4.f)*4.f-2.f+(StrikeHash(seed,3)-.5f)*6.f;
-                point[2]=pz;point[3]=2.f;continue;
+                point[2]=pz;point[3]=style==3 ? 2.f:float(style+1);continue;
             }
             float ground;uint32_t colour;
             if(!GroundAt(px,pz,&ground,&colour,nullptr) || CoveredAt(px,pz,ground) ||
@@ -400,7 +403,7 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     rf.view=m_view;std::memcpy(rf.camera,eye,3*sizeof(float));rf.camera[3]=TaaActive()?1.f:0.f;
     rf.time[0]=float(m_frameClock);rf.time[1]=float(m_frameClock-std::clamp(m_frameClock-m_ambientDrawClock,0.0,.1));
     m_ambientDrawClock=m_frameClock;
-    const uint32_t perAnchor=spores ? 16u:2u;
+    const uint32_t perAnchor=style==3 ? 16u:spores ? 8u:2u;
     rf.time[2]=std::clamp(NightAmount(),0.f,1.f);rf.time[3]=float(m_ambientOriginCount*perAnchor);
     rf.fall[3]=float(perAnchor);
     rf.curtains[0]=std::clamp(m_ambientMotes*.5f,0.f,1.f);
@@ -426,7 +429,7 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
         writes[i].descriptorCount=1;writes[i].descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;writes[i].pBufferInfo=&info[i];}
     vkCmdPushDescriptorSetKHR(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,m_rainLayout,0,3,writes);
     vkCmdDraw(cmd,m_ambientOriginCount*perAnchor*6u,1,0,0);EndRendering();ProfileMark("ambient life");
-    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f\n",m_ambientOriginCount,m_ambientMotes,rf.time[2]);
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f, automatic %u, profile %d\n",m_ambientOriginCount,m_ambientMotes,rf.time[2],unsigned(requested==0),style);
 }
 
 // The rain, over the finished scene (EndScene: its rendering just closed).

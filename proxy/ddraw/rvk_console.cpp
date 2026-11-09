@@ -381,6 +381,11 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
          std::strcmp(s.name,"RVK_WaterRipple")==0) &&
         rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0) return v>0 ? "Enhanced Original" : "AnarchyHD";
+    if(std::strcmp(s.name,"RVK_AmbientMode")==0) {
+        const char* names[]={"Off","Automatic (area and time)","Fireflies","Dust","Spores","Spirit motes","Snow crystals","Embers","Ash"};
+        return names[std::clamp(int(std::lround(v)),0,8)];
+    }
+    if(std::strcmp(s.name,"RVK_SkyStyle")==0)return v>.5f ? "Soft skies and starry nights":"Current / custom sky";
     if (std::strcmp(s.name,"RVK_DayCycle")==0) {
         const char* names[]={"Rely on Server Sided day/night", "Longer Day / Shorter Night", "Enhanced Daylights (happier)"};
         return names[std::clamp(int(std::lround(v)),0,2)];
@@ -1225,7 +1230,7 @@ const char* OptionParent(const RvkSettingInfo& info)
         {"RVK_LiveDrones","RVK_LivePeople"},{"RVK_AirTraffic","RVK_LivePeople"},{"RVK_LiveWild","RVK_LivePeople"},
         {"RVK_LiveMachine","RVK_LivePeople"},{"RVK_LiveAtmos","RVK_LivePeople"},
         {"RVK_GroundOn","RVK_TerraBlend"}, {"RVK_ImprovedTiles","RVK_TerraBlend"},
-        {"RVK_TerraRough","RVK_TerraBlend"}
+        {"RVK_TerraRough","RVK_TerraBlend"}, {"RVK_HDGround","RVK_TerraBlend"}
     };
     for(const auto& group:groups)if(std::strcmp(info.name,group.first)==0)return group.second;
     return info.parent;
@@ -1243,7 +1248,7 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_LightGlowOn", "RVK_AmbientOn", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
          "RVK_BuildWear", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
          "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},

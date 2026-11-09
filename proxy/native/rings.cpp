@@ -36,6 +36,7 @@ RingFn g_ring;
 std::atomic<float> g_scale{1.0f};
 std::atomic<float> g_sceneryScale{1.0f};
 std::atomic<float> g_farScale{1.0f};
+std::atomic<float> g_fullness{0.0f};
 bool g_logged;
 
 constexpr uint32_t kRingRva = 0x28AB7;              // FUN_10028ab7 in N3.dll (image base 0x10000000)
@@ -55,7 +56,7 @@ int __fastcall RingHook(uint8_t* grid, void* edx, int zone, const void* camera)
     float saved[5];
     std::memcpy(saved, factors, sizeof(saved));
     float expanded[5];
-    ScaledFactors(saved,kept,scale,scenery,expanded,farScale);
+    ScaledFactors(saved,kept,scale,scenery,expanded,farScale,g_fullness.load(std::memory_order_relaxed));
     std::memcpy(factors,expanded,sizeof(expanded));
     if (!g_logged) {
         g_logged = true;
@@ -85,6 +86,11 @@ void SetSceneryScale(float scale)
 void SetFarScale(float scale)
 {
     g_farScale.store(std::isfinite(scale) ? std::clamp(scale,1.f,3.f):1.f,std::memory_order_relaxed);
+    g_logged=false;
+}
+void SetFullness(float amount)
+{
+    g_fullness.store(std::isfinite(amount) ? std::clamp(amount,0.f,1.f):0.f,std::memory_order_relaxed);
     g_logged=false;
 }
 

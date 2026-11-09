@@ -846,13 +846,16 @@ void main()
     // the hexagons' weights its maps are read with).
     // A mesh's side-loaded height (MAT_HEIGHT: its normal map's alpha): stage 0's coordinates, its normal and material
     // maps' read where the eye's ray meets it (parallax.glsl).
-    if ((D.mat.z & MAT_HEIGHT) != 0u && (C.flags.x & (F_NORMALMAP | F_PERPIXEL)) == (F_NORMALMAP | F_PERPIXEL) &&
+    float sceneryDetail=(D.mat.z&MAT_DISTANT_SCENERY)!=0u ?
+        1.-FL.terrainFar.w*smoothstep(160.,320.,length(vPosW-C.eyePos.xyz)):1.;
+    if (sceneryDetail>0.001 && (D.mat.z & MAT_HEIGHT) != 0u && (C.flags.x & (F_NORMALMAP | F_PERPIXEL)) == (F_NORMALMAP | F_PERPIXEL) &&
         (C.flags.x & F_BUMPBASE) == 0u) {
         gUv0Dx = dFdx(vTex0.xy);
         gUv0Dy = dFdy(vTex0.xy);
         gUv0 = ParallaxUv(texImages[D.texIdx.w], bindlessSamplers[D.sampIdx.w], vTex0.xy, gUv0Dx, gUv0Dy, vPosW,
                           dFdx(vPosW), dFdy(vPosW), vNormalW.xyz, gParallaxSun);
         gParallax = true;
+        if(sceneryDetail<1.)gUv0=mix(vTex0.xy,gUv0,sceneryDetail);
     }
     TerrainMap terrain;
     GroundRelief ground;
@@ -942,7 +945,7 @@ void main()
         const bool terrainRelief = terrainMapped && D.terrainAt.w > 1.5 && !terrain.pebble &&
                                    ((C.flags.x & F_NORMALMAP) != 0u || terrain.rock || TerrainNativeMaps() ||
                                     ground.sand > 0.0);
-        if (((C.flags.x & (F_NORMALMAP | F_BUMP)) != 0u || terrainRelief) && len2 > 0.0) {
+        if (sceneryDetail>0.001 && ((C.flags.x & (F_NORMALMAP | F_BUMP)) != 0u || terrainRelief) && len2 > 0.0) {
             vec3 unbumped = n;
             bool base = (C.flags.x & F_BUMPBASE) != 0u || terrainRelief;
             if (terrainRelief) {
@@ -968,6 +971,7 @@ void main()
                 vec3 softened=mix(unbumped,n,FL.terrainFar.y);
                 n=dot(softened,softened)>1e-8 ? normalize(softened)*length(unbumped):unbumped;
             }
+            if(sceneryDetail<1.)n=normalize(mix(unbumped,n,sceneryDetail))*length(unbumped);
             // The ground's sunlight is baked into its lightmap (the live sun is kept off it): the relief scales the
             // lightmap by how much more or less the bumped surface faces the sun than the flat one.
             if (base && dot(FL.sunDir.xyz, FL.sunDir.xyz) > 0.0) {
@@ -1231,7 +1235,7 @@ void main()
         float baked = smoothstep(.015,.12,bakedEnergy);
         float sunny = FL.windowLife.z * (1.0-FL.rainNear.y);
         float missingSun = max(.70*facing-bakedEnergy,0.0);
-        t0.rgb += vec3(1.025,1.0,.96)*(missingSun*baked*sunny);
+        t0.rgb += mix(vec3(1.025,1.0,.96),FL.areaSun.rgb,FL.areaSky.w)*(missingSun*baked*sunny);
     }
     t0.rgb *= texShade * gLightmapRelief;
     if (terrainMapped && D.terrainAt.w > 1.5) t0.rgb *= NativeSky(vPosW);   // (the native ground's lightmap: less sky, darker)

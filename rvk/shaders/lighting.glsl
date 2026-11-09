@@ -55,6 +55,7 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
             dot(L, FL.sunTrue.xyz) > .99) {
             float energy = dot(l.diffuse.rgb, vec3(.3,.59,.11));
             vec3 daylight = vec3(1.025,1.0,.94) * min(max(energy,.95),energy*2.25);
+            daylight=mix(daylight,FL.areaSun.rgb*min(max(energy,.95),energy*2.25),FL.areaSky.w);
             vec3 original = l.diffuse.rgb;
             l.diffuse.rgb = mix(original, daylight, sunny);
             l.specular.rgb *= mix(vec3(1.0), daylight / max(original,vec3(.04)), sunny);
@@ -146,13 +147,16 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
             if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
         }
         ambient+=skyColour*(daylight*missing);
+        skyColour=mix(skyColour,skyColour*FL.areaSky.rgb,FL.areaSky.w);
         // Retail ICC supplies ambient 0x7e, above the floor above: that floor
         // supplied no sky light at all to its vertical facades. Add a bounded
         // hemisphere/bounce lobe to sides, not more exposure on sunlit floors.
         // Both still multiply the material and its occlusion; black paint stays
         // black. Undersides get only the small, warm reflected-ground term.
         float side=1.0-clamp(up*up,0.0,1.0);
-        vec3 bounce=skyColour*(.10*side)+vec3(.95,.89,.78)*(.035*(1.0-up)*.5);
+        vec3 groundColour=mix(vec3(.95,.89,.78),FL.areaGround.rgb,FL.areaSky.w);
+        vec3 bounce=skyColour*(.10*side)+groundColour*(.035*(1.0-up)*.5);
+        bounce+=skyColour*FL.areaGround.w*side;
         // Reflected energy follows the zone's ambient, rather than imposing a
         // second lighting floor on deliberately dim/near-black materials.
         ambient+=bounce*(daylight*clamp(2.0*ambientLuma,0.0,1.0)*(1.0-.85*FL.rainNear.y));

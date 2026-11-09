@@ -291,6 +291,10 @@ struct DeviceInfo {
     X(AmbientMotes, m_ambientMotes, 0)               /* local biome-aware ambient motes */ \
     X(AmbientBright, m_ambientBright, 0)             /* ambient mote brightness */ \
     X(AmbientStyle, m_ambientStyle, 0)               /* auto / fireflies / dust / spores */ \
+    X(AreaLight, m_areaLight, C|L)                   /* bounded area-specific daylight irradiance */ \
+    X(FarDetail, m_farDetail, C|L)                   /* distant static shading detail saving */ \
+    X(HDGround, m_hdGroundMode, C|L)                 /* continuous full-HD terrain albedo */ \
+    X(SkyStyle, m_skyStyle, C|L)                     /* optional soft sky / richer night stars */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
@@ -1341,8 +1345,13 @@ private:
         float means[5][3]{};
         bool started = false;
         std::future<std::shared_ptr<SharedTerrainMaps>> pending;
-    } m_sharedGround;
-    static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain();
+        std::shared_ptr<SharedTerrainMaps> decoded;
+        unsigned uploaded=0;
+    } m_sharedGround,m_hdGroundState;
+    float m_hdGroundMode=0.f;
+    float m_areaLight=0.f,m_farDetail=0.f;
+    float m_skyStyle=0.f;
+    static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain(bool hd=false);
     void PollSharedTerrain();
     void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);

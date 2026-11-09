@@ -11,6 +11,7 @@
 #include "terrain_materials.h"
 #include "grass_coverage.h"
 #include "mesh_id.h"
+#include "sky_styles.h"
 #include <cstddef>
 
 #include <chrono>
@@ -1028,6 +1029,10 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
 
 int g_visualCase=-1, g_visualToggle=0;
 float g_dayCycle=0.f, g_globalShiny=.5f, g_terrainRoughness=.6f;
+float g_areaLight=0.f,g_farDetail=0.f,g_hdGround=0.f;
+uint32_t g_areaZone=655;
+bool g_softSky=false;
+extern bool g_profileWindow;
 float g_ambientDensity=0.f;
 int g_ambientStyle=0;
 int g_ambientFixture=0;
@@ -1040,17 +1045,20 @@ void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
     const bool icc = g_visualCase == 13 || g_visualCase == 14;
     const bool night = g_visualCase == 8 || g_visualCase == 14;
     const bool skyOnly = g_visualCase == 9;
-    dev.SetSkyPlayfield(655);
+    dev.SetSkyPlayfield(g_areaZone);
     dev.SetKnob(Knob::DayCycle,(g_visualToggle&1) ? 2.f:0.f);
     dev.SetKnob(Knob::DayLook,0);
     dev.SetHdr(true);dev.SetTonemap(1,1);dev.SetBloom(0,1);dev.SetDarkness(0,0);
     dev.SetPixelLighting(true);dev.SetLightOverride(false);
     if(icc)dev.SetAo((g_visualToggle&2) ? 0.f:2.f,1.f);
     dev.SetProcSky(true,.25f,1.f);
+    dev.SetKnob(Knob::SkyStyle,g_softSky ? 1.f:0.f);
     dev.SetKnob(Knob::MoonLight,0);
     NightSky nightSky;nightSky.stars=false;nightSky.galaxy=nightSky.meteors=nightSky.aurora=0;
+    if(g_softSky){nightSky.stars=true;nightSky.bright=1.45f;nightSky.twinkle=.18f;nightSky.galaxy=.5f;}
     dev.SetNightSky(nightSky);
     SkyColours keys;keys.keys[kSkyDayTop]=0x2E6E78;keys.keys[kSkyDayLow]=0x8CC8C0;
+    if(g_softSky)for(unsigned i=0;i<kSkyKeyCount;++i)keys.keys[i]=kSoftSky[i];
     dev.SetSkyColours(keys);
     auto pixels=Checker(128,16,0xFF989289,0xFF8F8980);
     Texture* ground=dev.CreateTexture(128,128,pixels.data());
@@ -1071,6 +1079,8 @@ void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
     const Vector eye={0,3,-9};
     Material mat{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
     for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
         if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
         dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
@@ -1171,6 +1181,14 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
         dev.SetKnob(Knob::ImmersiveShips,1.f);
         dev.SetKnob(Knob::LightGlow,g_visualToggle ? 1.f:0.f);
     }
+    if(g_visualCase==19) {
+        auto normals=Checker(16,8,0xFF80C0E0,0xFF8040E0);
+        dev.SetNormalMap(tex,dev.CreateTexture(16,16,normals.data()));
+        dev.SetNormalMaps(true,1.f);
+        const uint32_t material=0xFF809900;
+        dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&material),nullptr,true);
+        dev.SetKnob(Knob::FarDetail,(g_visualToggle&1) ? 1.f:0.f);
+    }
     if(g_visualCase==10) {
         dev.SetTextureRdbId(tex,297003,1010004,0);
         if(g_visualToggle)dev.SetMaterialMaps(tex,nullptr,dev.CreateTexture(256,256,art.data()),true);
@@ -1183,7 +1201,7 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
     const uint32_t orm=0xFFFF19FFu;
     if(g_visualCase==2 && g_visualToggle>0)
         dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&orm),dev.CreateTexture(512,512,art.data()),true);
-    Device::PbrSettings pbr;pbr.enabled=true;dev.SetPbr(pbr);
+    Device::PbrSettings pbr;pbr.enabled=true;if(g_visualCase==19)pbr.debug=g_pbrDebug;dev.SetPbr(pbr);
     const bool studio=g_visualCase==0 || g_visualCase==3 || g_visualCase==4;
     dev.SetPixelLighting(true);dev.SetLightOverride((g_visualCase==0 && g_visualToggle!=0) || g_visualCase==3 || g_visualCase==4);
     dev.SetSkyPlayfield(studio ? 0:655);
@@ -1198,11 +1216,17 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
         {-2,-1.5f,0,0,0,-1,0xFFFFFFFF,0,1},{-2,1.5f,0,0,0,-1,0xFFFFFFFF,0,0},
         {2,-1.5f,0,0,0,-1,0xFFFFFFFF,1,1},{2,1.5f,0,0,0,-1,0xFFFFFFFF,1,0}};
     for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
         if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
         dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
         dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
         dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+        if(g_visualCase==19 && (g_visualToggle&2)) {
+            Matrix w=Identity();w.m[0][0]=w.m[1][1]=w.m[2][2]=80.f;w.m[3][2]=395.f;dev.SetTransform(World,w);
+            dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,1000));
+        }
         if(g_visualCase==3 || g_visualCase==4) {
             Matrix w=Identity();w.m[3][0]=-22;w.m[3][1]=1;w.m[3][2]=-42;dev.SetTransform(World,w);
             dev.SetTransform(View,LookAtLH({-22,1,-37},{-22,1,-42},{0,1,0}));
@@ -2616,7 +2640,8 @@ bool g_terrainNativeFixture=false;
 bool g_terrainCloseup=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
-    if(g_ambientFixture)dev.SetSkyPlayfield(g_ambientFixture==4 ? 0:g_ambientFixture==5 ? 386:655);
+    if(g_pbrDebug){Device::PbrSettings pbr;pbr.enabled=true;pbr.debug=g_pbrDebug;dev.SetPbr(pbr);}
+    if(g_ambientFixture)dev.SetSkyPlayfield(g_ambientFixture==4 ? 0:g_ambientFixture==5 ? 386:g_areaZone);
     dev.SetNativeGroundOn(g_terrainNativeFixture);
     dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
     auto terrainHeight=[](float x,float z) {return g_terrainCliffToeFixture ? std::clamp((x-8.f)*2.f,0.f,8.f)
@@ -2719,6 +2744,8 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
     if(g_terrainLightingOccluder) AddCube(occluder,occluderIndices,4.0f,2.0f,4.0f,1.5f);
     const Material material{{0,0,0,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
     for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
         if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("terrain-frame.txt");}
         dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
@@ -5906,6 +5933,11 @@ int main(int argc, char** argv)
         else if (a == "--ambient-life" && i+1<argc) g_ambientDensity=float(std::atof(argv[++i]));
         else if (a == "--ambient-life-fixture" && i+1<argc) g_ambientFixture=std::atoi(argv[++i]);
         else if (a == "--ambient-style" && i+1<argc) g_ambientStyle=std::atoi(argv[++i]);
+        else if (a == "--area-lighting" && i+1<argc) g_areaLight=float(std::atof(argv[++i]));
+        else if (a == "--area-zone" && i+1<argc) g_areaZone=uint32_t(std::atoi(argv[++i]));
+        else if (a == "--far-detail" && i+1<argc) g_farDetail=float(std::atof(argv[++i]));
+        else if (a == "--hd-ground" && i+1<argc) g_hdGround=float(std::atof(argv[++i]));
+        else if (a == "--soft-sky") g_softSky=true;
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--check-material-list" && i+1<argc) g_materialList=argv[++i];
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
@@ -6225,6 +6257,7 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::DayLook, dayLook);
     dev.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     dev.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
+    dev.SetKnob(rvk::Knob::AreaLight,g_areaLight);dev.SetKnob(rvk::Knob::FarDetail,g_farDetail);dev.SetKnob(rvk::Knob::HDGround,g_hdGround);
     dev.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
     dev.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
     if(g_ambientFixture)dev.SetKnob(rvk::Knob::AmbientBright,2.f);
@@ -6303,6 +6336,7 @@ int main(int argc, char** argv)
     queued.SetKnob(rvk::Knob::DayLook, dayLook);
     queued.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
     queued.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
+    queued.SetKnob(rvk::Knob::AreaLight,g_areaLight);queued.SetKnob(rvk::Knob::FarDetail,g_farDetail);queued.SetKnob(rvk::Knob::HDGround,g_hdGround);
     queued.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
     queued.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
     queued.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);

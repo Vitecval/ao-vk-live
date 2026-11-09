@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include "../rvk/area_profiles.h"
 #include <cstdlib>
 
 int main(int argc,char**) {
@@ -40,6 +41,8 @@ int main(int argc,char**) {
     const float expected[5]={.4f,.6f,.9f,1.2f,1.5f};
     for(int i=0;i<5;++i)if(std::fabs(horizon[i]-expected[i])>1e-6f)return 11;
     std::puts("Far Scenery covers distant rock/building zones and stays inside the loaded world");
+    float full[5];rnative::rings::ScaledFactors(original,.75f,2.f,1.15f,full,3.f,1.f);
+    if(full[0]!=.4f || full[1]!=.6f || full[2]!=1.5f || full[3]!=1.5f || full[4]!=1.5f)return 12;
     HMODULE lib=LoadLibraryA("ao-vk.dll");
     if(!lib) {std::printf("load failed %lu\n",GetLastError());return 1;}
     auto set=reinterpret_cast<int(__cdecl*)(const char*,float)>(GetProcAddress(lib,"RvkSettings_Set"));
@@ -91,7 +94,15 @@ int main(int argc,char**) {
     set("RVK_AmbientOn",1);set("RVK_AmbientMotes",1.2f);
     check(std::fabs(effective("RVK_AmbientMotes")-1.2f)<.001,"ambient life density independent of combat effects");
     set("RVK_AmbientOn",0);
-    check(info("RVK_AmbientStyle").defaultValue==0 && info("RVK_AmbientStyle").max==3,"automatic ambient biome default and style overrides");
+    check(info("RVK_AmbientMode").max==8 && info("RVK_AmbientMode").value==0,"named ambient modes and explicit off");
+    set("RVK_AmbientMode",1);check(info("RVK_AmbientMode").value==1 && effective("RVK_AmbientMotes")>0 && effective("RVK_AmbientStyle")==0,"automatic mode enables biome selection");
+    set("RVK_AmbientMode",4);check(info("RVK_AmbientMode").value==4 && effective("RVK_AmbientStyle")==3,"spores mode retains existing style mapping");
+    set("RVK_AmbientMode",0);check(effective("RVK_AmbientMotes")==0 && effective("RVK_AmbientBright")==0,"named off really disables particles");
+    check(rvk::areas::Ambient(386)==3 && rvk::areas::Ambient(4605)==6 && rvk::areas::Ambient(4320)==5 && rvk::areas::Ambient(4880)==4,"automatic cavern Inferno Penumbra and Scheol profiles");
+    check(rvk::areas::Ambient(4692)==0,"Inferno garden keeps vegetation ambience instead of embers");
+    set("RVK_AreaLightOn",1);check(effective("RVK_AreaLight")>.5f,"area lighting optional strength");set("RVK_AreaLightOn",0);
+    set("RVK_SkyStyle",1);check(effective("RVK_Stars")==1 && effective("RVK_StarBright")==1.45f && effective("RVK_Galaxy")==.5f,"starry sky style selects bounded procedural stars");set("RVK_SkyStyle",0);
+    set("RVK_FullScenery",1);check(effective("RVK_FarDetail")==1 && effective("RVK_SceneryFill")>.5f,"fuller scenery and distant shading control");set("RVK_FarScenery",0);check(effective("RVK_FarDetail")==0,"distant shading disabled with far scenery");set("RVK_FarScenery",1);set("RVK_FullScenery",0);
     set("RVK_InstantTime",1);
     check(effective("RVK_TimeOfDay")==13.5f && effective("RVK_TimeSpeed")==1 && info("RVK_InstantTime").value==1,"instant day 13.5");
     set("RVK_InstantTime",2);

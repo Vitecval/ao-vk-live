@@ -1,4 +1,4 @@
-# Preview 23 revision 28: local detail and atmosphere test
+# Preview 23 revision 29: integrated terrain and atmosphere test
 
 This revision is prepared for retail visual testing, not release publication.
 
@@ -47,17 +47,56 @@ In Ctrl+Shift+F12 → Main:
   and ImmersiveShips navigation markings. This feeds depth-aware bloom without
   changing scene exposure or making ordinary white paint emit light. Existing
   general bloom and effect-glow controls remain available.
-- **Ambient life:** adjustable density and brightness. Auto uses vegetation for
-  daylight pollen/night fireflies, warm dry ground for dust, and the known 386
-  cavern profile for glowing spores with darker drifting flecks. Style overrides
-  offer Fireflies, Dust and Spores for unusual areas, including Shadowlands.
+- **Ambient life:** named Off, Automatic (area and time), Fireflies, Dust,
+  Spores, Spirit motes, Snow crystals, Embers and Ash choices, with adjustable
+  density and brightness. Automatic uses local vegetation for daylight pollen
+  and night fireflies, and warm dry ground for dust. Verified area identities
+  select layered spores in the alien cavern and swamp, spirit motes in Scheol,
+  snow in Penumbra, embers in Inferno and ash in Pandemonium. Gardens retain
+  the gentler vegetation treatment. Unknown areas use local ground classification.
+- **Area lighting (Enhanced Daylight):** restrained biome-specific sun, sky and
+  ground irradiance. ICC has its own cool skylight and warm ground bounce.
+  This changes surface illumination, not global image exposure. It follows
+  Enhanced Daylight's day amount and excludes login, indoors and night.
+- **Sky style:** Current/custom or Soft skies and starry nights. The latter
+  uses our procedural atmosphere and richer stars/galaxy with gentler twinkle.
+  Daytime sky colour preserves luminance; world exposure is unchanged. Existing
+  sun/moon positions, weather and authoritative server/manual time remain intact.
+- Expand **Far Scenery** for **Fuller distant scenery (loaded areas)** and its
+  fullness/detail-saving controls. It keeps more large scenery groups within
+  regions the engine already loaded. Balanced distant shading fades fine normal
+  and parallax work from 160 to 320 metres; near detail stays intact. This is
+  shading LOD, not mesh LOD, and does not load additional regions.
 
 Ambient life is local and world anchored. The population is bounded to 81 emitter
 anchors, with two particles per outdoor anchor or sixteen for the layered spore
 field (at most 1,296 particles). It uses scene depth, fades at range, and adds
 no dynamic lights or shadow casters. Paved surfaces receive no Auto population.
 The login/creation playfield is excluded. Indoor areas are excluded unless the
-spore profile applies. The effect is optional and off by default.
+known alien cavern or an explicit volume-style override applies. The effect is
+optional and off by default. Other volume styles use at most 648 particles.
+
+## HD ground materials
+
+Terrain Mode -> Shared Ground+ -> **HD Ground Textures** selects five new original
+1024 x 1024 grass, dirt, gravel, sand and rock albedo masters. This replaces the
+fine native colour grain with modern material colour rather than adding only a
+detail filter. The original low-frequency palette, overlap alpha and automatic
+blend ownership remain authoritative. World-space mirrored sampling removes
+dependence on native tile rotation. The corrected cliff footprint and geometry
+are untouched. Manufactured ICC artwork and asphalt retain their existing path.
+
+The five maps are embedded in the renderer, including complete mip chains; no
+new loose client files or downloads are required. Background decode keeps native
+ground visible until all maps are ready. Upload is limited to one master per
+frame, and toggling reuses the resident maps. Their mip chains add about 26.67 MiB
+of GPU texture storage once enabled. Generation prompts, source hashes and runtime
+hashes are recorded in rvk/assets/terrain/shared-hd-materials.json. The prior
+masters and original artwork remain available for rollback.
+
+The new area/sky/ground/fullness features remain opt-in defaults pending retail
+review. The integrated F: test configuration enables them and Automatic ambient
+life while preserving the player's clock, glow strength and other preferences.
 
 Ultra explicitly selects surface roughness 0.6 and Far Scenery on at 3×.
 The already accepted daylight profile, server clock behavior, cliff blending and
@@ -81,3 +120,9 @@ ship-marking halos, terrain classification, login exclusion and existing lightin
 shadows, material sliders and settings persistence. Retail appearance across all
 areas, Shadowlands biomes and multiple physical GPUs still needs testing.
 File size and successful upload do not certify every texture's artistic quality.
+The owner reported improved texture sharpness and liked the revision 28 ambience.
+Revision 29 adds 54 controlled integration cases, existing lighting/shadow/mip
+regressions, settings/restart checks and three repetitions of 13 performance
+fixtures. Local reports are under build/preview23/lost-eden-r29. Synthetic timing
+does not establish retail FPS; other AO clients were intentionally left running.
+Publication remains on hold for the owner's combined visual test.

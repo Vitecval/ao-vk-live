@@ -14,5 +14,7 @@ void SetScale(float scale);
 void SetSceneryScale(float scale);
 // Optional far scenery: up to 3x outer rings and 2x small-object rings.
 void SetFarScale(float scale);
+// Fill more of the already loaded outer object groups; never expand loading.
+void SetFullness(float amount);
 
 }  // namespace rnative::rings

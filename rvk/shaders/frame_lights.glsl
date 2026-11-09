@@ -116,6 +116,8 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 sharedGroundConfig;
     vec4 terrainFar;             // x macro composition, y Shared Ground+ grit, z light source halo strength
     vec4 windowLife;            // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
+    vec4 areaSky,areaGround,areaSun;
+    vec4 hdGround[5],hdGroundConfig;
     Light lights[64];
 } FL;
 

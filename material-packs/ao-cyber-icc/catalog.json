@@ -223,9 +223,10 @@
     "profile": "painted_metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -331,10 +332,11 @@
     "profile": "glass",
     "source": "overnight-20261028-1010004_297811-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -344,10 +346,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6017-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -369,10 +372,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6026-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -394,10 +398,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6041-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -407,10 +412,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_8632-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -432,10 +438,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_8634-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -445,10 +452,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_8635-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -458,10 +466,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_8636-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -471,10 +480,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_8637-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -520,10 +530,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_21546-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -557,10 +568,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_21743-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch002"
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -570,10 +582,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_30287-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch003"
+    "batch": "overnight-20261028-batch003",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -595,10 +608,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_78405-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch004"
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -608,10 +622,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_78408-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch004"
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -621,10 +636,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_78410-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
-    "batch": "overnight-20261028-batch004"
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -670,9 +686,10 @@
     "profile": "metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -790,9 +807,10 @@
     "profile": "metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -862,9 +880,10 @@
     "profile": "stone",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -886,10 +905,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6660-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -899,10 +919,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6658-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -912,10 +933,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6661-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -925,10 +947,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6656-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -938,10 +961,11 @@
     "profile": "metal",
     "source": "overnight-20261028-1010004_6659-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
-    "batch": "overnight-20261028-batch001"
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,

@@ -65,8 +65,8 @@
     "name": "bank_light.png",
     "source": "prop-55872-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "diffuser",
     "batch": "shared-props-2026-10-24",
@@ -79,7 +79,8 @@
         1,
         1
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -116,8 +117,8 @@
     "name": "terminal_keyboard.png",
     "source": "prop-9896-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
@@ -146,7 +147,8 @@
         0.9,
         0.9
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -183,12 +185,13 @@
     "name": "comp_terminalbottom.png",
     "source": "prop-9897-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -196,12 +199,13 @@
     "name": "trashcaninside.png",
     "source": "prop-18326-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "organic",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -248,12 +252,13 @@
     "name": "hitech_benchplateuppershadesmalldetail.png",
     "source": "prop-10604-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -261,12 +266,13 @@
     "name": "hitech_benchplateuppershade.png",
     "source": "prop-10605-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -274,8 +280,8 @@
     "name": "hitech_benchplateuppershadedetal.png",
     "source": "prop-10606-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
@@ -288,7 +294,8 @@
         0.6,
         0.9
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -350,12 +357,13 @@
     "name": "omni_chair_metalline.png",
     "source": "prop-6072-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -363,12 +371,13 @@
     "name": "omni_chair_metal.png",
     "source": "prop-6099-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -376,12 +385,13 @@
     "name": "omni_chair_pillow.png",
     "source": "prop-6100-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "fabric",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -493,12 +503,13 @@
     "name": "hitechlamp_round1.png",
     "source": "prop-6117-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -506,8 +517,8 @@
     "name": "lamp.png",
     "source": "prop-6154-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "diffuser",
     "batch": "shared-props-2026-10-24",
@@ -520,7 +531,8 @@
         1,
         1
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -528,8 +540,8 @@
     "name": "bigfloorlampmetal.png",
     "source": "prop-13636-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "shared-props-2026-10-24",
@@ -542,7 +554,8 @@
         1,
         0.3
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -576,12 +589,13 @@
     "name": "shinypipepart.png",
     "source": "prop-12535-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -589,12 +603,13 @@
     "name": "newclan_tech_pipe.png",
     "source": "prop-21537-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -602,12 +617,13 @@
     "name": "ent_pipe_redshiny.png",
     "source": "prop-19934-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -620,7 +636,8 @@
     ],
     "profile": "painted-metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -688,12 +705,13 @@
     "name": "barrel_top.png",
     "source": "prop-8260-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -714,12 +732,13 @@
     "name": "barrel_toxic_waste_top.png",
     "source": "prop-156875-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -806,8 +825,8 @@
     "name": "hitech_computercontrolpanel.png",
     "source": "prop-8673-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "shared-props-2026-10-24",
@@ -848,7 +867,8 @@
         0.86,
         0.79
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -895,12 +915,13 @@
     "name": "antenna_sender_thingy.png",
     "source": "prop-81735-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -908,8 +929,8 @@
     "name": "monitor_screen1.png",
     "source": "prop-43421-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "diffuser",
     "batch": "shared-props-2026-10-24",
@@ -938,7 +959,8 @@
         0.58,
         0.86
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -946,12 +968,13 @@
     "name": "table_brushedmetal_lines.png",
     "source": "prop-6493-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-props-2026-10-24",
-    "discovery": "local-resource-name-inventory"
+    "discovery": "local-resource-name-inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -993,8 +1016,8 @@
     "name": "techbar_chair.png",
     "source": "prop-8750-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "shared-props-2026-10-24",
@@ -1006,7 +1029,8 @@
         0.175,
         0.22
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,

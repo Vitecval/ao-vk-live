@@ -39,6 +39,23 @@ def require_size(identity, exported, native):
         raise ValueError(f'{identity}: {exported} distorts native atlas aspect {native}')
 
 
+def require_detail_size(identity, exported, exception=None):
+    """Native-sized is not synonymous with HD. Exceptions are reviewed inputs."""
+    if max(exported)<512 and not (isinstance(exception,dict) and exception.get('reason')):
+        raise ValueError(f'{identity}: {exported} is a small colour export; recover source detail or record a functional-input exception')
+
+
+def merge_family(catalog, incoming):
+    """A later family catalogue cannot silently downgrade an individual export."""
+    combined={(x['type'],x['id']):x for x in catalog}
+    for item in incoming:
+        key=item['type'],item['id'];old=combined.get(key)
+        if old and any(a<b for a,b in zip(item['size'],old['size'])) and not item.get('resolution_override_review'):
+            raise ValueError(f'{key}: family {item["size"]} would replace larger {old["size"]}; explicit source/layout review required')
+        combined[key]=item
+    return list(combined.values())
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('packs', type=Path)

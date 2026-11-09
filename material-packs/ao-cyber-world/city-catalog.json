@@ -70,12 +70,13 @@
     "name": "glowplate.png",
     "source": "city-6085-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "diffuser",
     "batch": "city-captures-2026-10-24",
-    "emission": "cyan"
+    "emission": "cyan",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -163,12 +164,13 @@
     "name": "bright_light_2sq.png",
     "source": "city-6186-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "diffuser",
     "batch": "city-captures-2026-10-24",
-    "emission": "white"
+    "emission": "white",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -304,7 +306,8 @@
       512
     ],
     "profile": "painted-metal",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -316,7 +319,8 @@
       512
     ],
     "profile": "painted-metal",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -328,7 +332,8 @@
       512
     ],
     "profile": "concrete",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -340,7 +345,8 @@
       512
     ],
     "profile": "concrete",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -352,7 +358,8 @@
       256
     ],
     "profile": "concrete",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -364,7 +371,8 @@
       512
     ],
     "profile": "concrete",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -372,12 +380,13 @@
     "name": "squarerimmedglowwhite.png",
     "source": "city-6112-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "diffuser",
     "batch": "city-captures-2026-10-24",
-    "emission": "white"
+    "emission": "white",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -486,11 +495,12 @@
     "name": "fruit_cratestuff.png",
     "source": "city-42554-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "organic",
-    "batch": "city-captures-2026-10-24"
+    "batch": "city-captures-2026-10-24",
+    "worker": true
   },
   {
     "type": 1010004,

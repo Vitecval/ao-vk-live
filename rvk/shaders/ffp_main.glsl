@@ -1324,7 +1324,7 @@ void main()
         vec3 navigation=t0.rgb*(warm+cool)*.65;
         current.rgb+=navigation;emitted+=navigation;
     }
-    if (hasMap && (selfLit ? FL.effects.y > 0.0 : FL.pbr2.z > 0.0))
+    if (hasMap && ((selfLit ? FL.effects.y > 0.0 : FL.pbr2.z > 0.0) || FL.terrainFar.z>0.0))
         map = (gParallax ? textureGrad(EMISSIVETEX, gUv0, gUv0Dx, gUv0Dy) : texture(EMISSIVETEX, vTex0.xy)).rgb;
     if (selfLit && FL.effects.y > 0.0) {
         float glow = (hasMap ? max(map.r, max(map.g, map.b)) : smoothstep(0.55, 0.9, max(t0.r, max(t0.g, t0.b)))) *
@@ -1535,6 +1535,15 @@ void main()
     if (D.windows.x > 0.0) {
         vec3 windowLight = gWindowGlow * fogF;
         outGlow = vec4(windowLight,dot(windowLight,vec3(.3,.59,.11))*gl_FragCoord.w);
+    }
+    // An explicit emission mask/material, never bright diffuse paint or the
+    // sky. Feed the depth-aware halo without raising the scene's exposure.
+    if(FL.terrainFar.z>0.0 && (C.flags.x&F_CHARACTER)==0u &&
+       (hasMap || (D.mat.z&MAT_IMMERSIVE_SHIP)!=0u || (selfLit && max(vMatEmissive.r,max(vMatEmissive.g,vMatEmissive.b))>.05))) {
+        vec3 source = (D.mat.z&MAT_IMMERSIVE_SHIP)!=0u ? emitted : hasMap ? (selfLit ? t0.rgb*max(map.r,max(map.g,map.b)) : emitted) :
+            (selfLit ? t0.rgb*vMatEmissive : vec3(0.0));
+        source=max(source,vec3(0.0))*FL.terrainFar.z*fogF;
+        outGlow=vec4(source,dot(source,vec3(.3,.59,.11))*gl_FragCoord.w);
     }
     // Blended with this fragment's alpha like the colour (attachment 2's blend state follows the colour's).
     outLocal = vec4(gLocalFraction, clamp(reflectivity, 0.0, 1.0), gSunShare, current.a);

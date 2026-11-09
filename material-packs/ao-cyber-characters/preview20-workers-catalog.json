@@ -7371,7 +7371,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 275367,
     "name": "body_coffee_tshirt.png",
@@ -7384,8 +7384,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "04abbb966f30265418ce6465c8a8ce24a7732ecccb88704978a71dbd6932d98a",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7434,7 +7434,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 275368,
     "name": "arms_coffee_tshirt.png",
@@ -7447,8 +7447,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "6fc4df6cd2747208e9336f6746ef6888a416796123f95bc3307cb6a9babbffd2",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -7497,7 +7497,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 273215,
     "name": "body_epeen_tshirt.png",
@@ -7510,8 +7510,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "1df76881ad01deef6da5bacdc73e2125356ee9af34fc462794571a1f941df837",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7560,7 +7560,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 273216,
     "name": "arms_epeen_tshirt.png",
@@ -7573,8 +7573,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "0bbf74ae07c055bca76ce1576f6177597f0f9dc5e370e6f383dd9a14180eb0c3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -7623,7 +7623,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 275219,
     "name": "arms_tattoo_anchor.png",
@@ -7636,8 +7636,8 @@
     "source_sha256": "e6bbc8428ba35ec980727ac767bf8f011a81391d62bfb9e02ed920a4ee80315d",
     "original_sha256": "cb7cdb16e1c6b53235f8f8b052d5caa656541283003ad2e56c0539fbb33d1de1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -7686,7 +7686,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 31691,
     "name": "head_solitusfemale_eleena.png",
@@ -7699,8 +7699,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "8d2b3488670c5b04faab500e91a8c57e79c9a2b6ecbace8033dbd48dd8e8c6f2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7749,7 +7749,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 31695,
     "name": "head_solitusfemale_rita.png",
@@ -7762,8 +7762,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "0d2b6c383a67b65df83e22c937b1e4719088542aab5de114d4f6381474dab717",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7812,7 +7812,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 31699,
     "name": "head_solitusmale_alitstair.png",
@@ -7825,8 +7825,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "492fe3f03e004a22b6dd0f66dcb18a4892001e5c837d095e033d5be627ae769b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7875,7 +7875,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 31703,
     "name": "head_solitusmale_joshua_kahn.png",
@@ -7888,8 +7888,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "4a9002b244e26ab502e1df4a6c6bd5b4455ff57cb270f4af90509a60a6d9d239",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -7938,7 +7938,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 31707,
     "name": "head_solitusmale_philip_ross.png",
@@ -7951,8 +7951,8 @@
     "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
     "original_sha256": "1adb22d9ec7cb66b4009305c186c835755a809582f13da5e78e6f047bda8082f",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8001,7 +8001,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276283,
     "name": "ai_c4_paramedic_legs.png",
@@ -8014,8 +8014,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "c75ebc3594d10db584b6c0dec2234b6b103fe7f6910ad1174a527d5006d279da",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8064,7 +8064,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276284,
     "name": "ai_c4_paramedic_body.png",
@@ -8077,8 +8077,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "723776e6a05b1a937eb637b4ccd9e037dfec7e1a2419b961ac5fba346ecd11bd",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8127,7 +8127,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276286,
     "name": "ai_c4_paramedic_arms.png",
@@ -8140,8 +8140,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "b9c2ef31fbc6582c1677da171f7d4e56f432389d59236656fa1c01781cbeeb99",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8190,7 +8190,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276287,
     "name": "ai_c4_paramedic_feet.png",
@@ -8203,8 +8203,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "2e6b8540547c52ce157fc0d45cd1343454557ba6646e5d052ef566e31cf49d63",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8253,7 +8253,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276288,
     "name": "ai_c4_paramedic_helmet.png",
@@ -8266,8 +8266,8 @@
     "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
     "original_sha256": "5e0e58faeacaccfd011b20ad164b0b76b39ad7bb6e5ba8a567a3d0111152b7db",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8316,7 +8316,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276319,
     "name": "ai_c6_paramedic_arms.png",
@@ -8329,8 +8329,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "562f7b528efad59aefbab6ecf56e9c8918bc81c52b9ef99da9339b845c3e3383",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8379,7 +8379,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276321,
     "name": "ai_c6_paramedic_feet.png",
@@ -8392,8 +8392,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "db56fb74bd32a5de5d762b5cefc36a63d5eae4e3ec9a114aabea5667581abf39",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8442,7 +8442,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276322,
     "name": "ai_c6_paramedic_body.png",
@@ -8455,8 +8455,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "65a8d611b59bab63fad8de48675b8188db8069f61d9cbebb8fad0ad4fea06a27",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8505,7 +8505,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276323,
     "name": "ai_c6_paramedic_legs.png",
@@ -8518,8 +8518,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "e7a3437bdae579b66499207bcdd22faa4ccc568dae0e8636ef44b198b499c410",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8568,7 +8568,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276324,
     "name": "ai_c6_paramedic_helmet.png",
@@ -8581,8 +8581,8 @@
     "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
     "original_sha256": "3d7c7af9240b64f1bfe0a030e2d75207d13e9165a9d72332c27938e7d4fdd643",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8631,7 +8631,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276542,
     "name": "ai_c4_paramedic_hands.png",
@@ -8644,8 +8644,8 @@
     "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
     "original_sha256": "827cd91eec7ecf25f04b56b31fb343e04cae0a6d51f1a181c6d004450fd9695b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8694,7 +8694,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 276822,
     "name": "ai_c6_paramedic_hands.png",
@@ -8707,8 +8707,8 @@
     "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
     "original_sha256": "c75a0372effb431683f579d4832e878f501c3f04c229fc4ab2deb157a108684b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8757,7 +8757,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 277259,
     "name": "body_alium_shirt.png",
@@ -8770,8 +8770,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "b7575a00aa3e0bb33839c642c0935d7b27859a2c189486acfd0a91aac5057570",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -8820,7 +8820,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 277260,
     "name": "arms_alium_shirt.png",
@@ -8833,8 +8833,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "3f870280a3f60de9ff43da5d0860c20a9e959fd774bb7cb18a7662c74378b8e5",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -8883,7 +8883,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 35555,
     "name": "broadsword.png",
@@ -8896,8 +8896,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "e220389b10431193c652f4244c7bd85b859338d7d1f09a44feee009bda936d49",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -8946,7 +8946,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 96331,
     "name": "taichi_sword.png",
@@ -8959,8 +8959,8 @@
     "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
     "original_sha256": "ca1b05cf22d79ae4ed42b7c968172c849a5905c57cd65bf549e654c443ae530e",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9009,7 +9009,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 254903,
     "name": "AI_weapon_crossbow.png",
@@ -9022,8 +9022,8 @@
     "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
     "original_sha256": "9a74958b9c161259560b33fa39b2122478d1862217a2dd090691f82aaf2d8ec2",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9072,7 +9072,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 244927,
     "name": "rapier_devil_straight.png",
@@ -9085,8 +9085,8 @@
     "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
     "original_sha256": "0660a79379a6d3a1ab7d78534e6730b4273d236ba43db13bff359058c0a576b3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9135,7 +9135,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 301939,
     "name": "sledgehammer_heart_breaker.png",
@@ -9148,8 +9148,8 @@
     "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
     "original_sha256": "632389ded2abf597565fa0c25350becb2a38f9f453c4ac2dcac8411428f51ed9",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -9198,7 +9198,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 244923,
     "name": "pandemonium_bluntweapon.png",
@@ -9211,8 +9211,8 @@
     "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
     "original_sha256": "eabb43fbcd7162749a46aafe3d019fbd46275d106b772bd366e25eca99118075",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9261,7 +9261,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 120531,
     "name": "greenomniarmor.png",
@@ -9274,8 +9274,8 @@
     "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
     "original_sha256": "ddbaa5a38aedaf6b9ab059e86ccbbebd2b744d2aff09b733f49dae3f9749e390",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9324,7 +9324,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 120532,
     "name": "blueomniarmor.png",
@@ -9337,8 +9337,8 @@
     "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
     "original_sha256": "245a085390cb8b68c9dc508bafcb2e09170727c4cfc441f6ea57d01266ad38b3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9387,7 +9387,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 120533,
     "name": "omni_armor_sign.png",
@@ -9400,8 +9400,8 @@
     "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
     "original_sha256": "a1f40c609b90857135b5d90e0a8675302ee09695c7a121f8f0bfc66b22bc51e9",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9450,7 +9450,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163335,
     "name": "arms_enriched_metaplast.png",
@@ -9463,8 +9463,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "35db286699715660355601e26c3b0fc72ada7e632b1ef5ebadf278644e16e6f3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9513,7 +9513,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163336,
     "name": "body_enriched_metaplast.png",
@@ -9526,8 +9526,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "8b7868d19e9f23e9d20d98080b2a8ae9b64cceca3f4f779b3fec843afa22af2d",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9576,7 +9576,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163337,
     "name": "feet_enriched_metaplast.png",
@@ -9589,8 +9589,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "443af76bdcdcd1d0c0cdb726a6a53bc1fd2d16c74a8fe6bb5a6173a47839a89c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9639,7 +9639,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163338,
     "name": "hands_enriched_metaplast.png",
@@ -9652,8 +9652,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "1119682b4ee36bb1314c3a4171898c36d018b1a367f58da7e4b0b90503465a76",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9702,7 +9702,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163339,
     "name": "helmet_enriched_metaplast.png",
@@ -9715,8 +9715,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "986e51d6ae1b2a20b8830b55005f3fd39dac2b81f975e28ad73995d33ade3b24",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9765,7 +9765,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 163340,
     "name": "legs_enriched_metaplast.png",
@@ -9778,8 +9778,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "ba84028b4d627c34f793687d146ddd767e98a5193385b0cb11cb6df24a82f184",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -9828,7 +9828,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 10771,
     "name": "backpack_nano.png",
@@ -9841,8 +9841,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "2dbcf8e0aa9f49107cdaefcbed71955ae286795cca2c2b8b71eb00cfd0fd9163",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9891,7 +9891,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 10775,
     "name": "backpack_big-lifesupport.png",
@@ -9904,8 +9904,8 @@
     "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
     "original_sha256": "8d28e173c8dffb32f4920d454b82de5502d053fb61a9f37f773d19c51adb9585",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -9954,7 +9954,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 205179,
     "name": "boots_cr.png",
@@ -9967,8 +9967,8 @@
     "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
     "original_sha256": "6284073a821a27e75833b2edeaad66955dcea663ba8126eabf3911a69713a32d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10017,7 +10017,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 205180,
     "name": "arms_cr.png",
@@ -10030,8 +10030,8 @@
     "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
     "original_sha256": "4f2d2c2deae3869b279750a37d33d775d85a93c1171b16d34290511f215da002",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10080,7 +10080,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 205181,
     "name": "chest_cr.png",
@@ -10093,8 +10093,8 @@
     "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
     "original_sha256": "498110b5790f06aa77b4c3bb750f2a68cc44b93bc8818ea576e307a192292ca6",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -10143,7 +10143,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 205182,
     "name": "legs_cr.png",
@@ -10156,8 +10156,8 @@
     "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
     "original_sha256": "51bef9aeb79c4df2733515095c7fd8db1a57360edfd0d416fccfcae25925357c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10206,7 +10206,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 244651,
     "name": "addonarmor_scorpio_tank_clan.png",
@@ -10219,8 +10219,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "51894dfa0caf6ef11111ff2879fdd4a673b24e9012b28bedf447e34bfff430f4",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10269,7 +10269,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 244652,
     "name": "addonarmor_scorpio_tank_neut.png",
@@ -10282,8 +10282,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "19a6dd8390a58e728e0fc750b15cf1102e82a4395020065cd294ae0f0f436f18",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10332,7 +10332,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 244653,
     "name": "addonarmor_scorpio_tank_omni.png",
@@ -10345,8 +10345,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "3566e7f846969be52c38cd82377fe02bc45fc0ccbe1c69275cc62c9c5651bb63",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10395,7 +10395,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 32183,
     "name": "addonarmour_shoulderpads_knights.png",
@@ -10408,8 +10408,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "8e2932526dc6c22d2b3e5e79366d22b9a8a001fc8241167644f8d5528b9c528b",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10458,7 +10458,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 229622,
     "name": "addonarmour_shoulderpads_knights_redeemed.png",
@@ -10471,8 +10471,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "eb8b42210aca02626b2f02eb7295b92bebd83cc29f21758917bbb8dfbb9988d3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10521,7 +10521,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 229624,
     "name": "addonarmour_shoulderpads_knights_unredeemed.png",
@@ -10534,8 +10534,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "dc3836713cd060e212a27198a558b7436f205a7d10c82e332b16724894f26d6c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10584,7 +10584,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 21183,
     "name": "bladestaff2.png",
@@ -10597,8 +10597,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "8e9ca63df73cb22205d51ab1b03ad049f0cae83212ab49d14d2b7c106da7d079",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -10647,7 +10647,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 21187,
     "name": "bladestaff3.png",
@@ -10660,8 +10660,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "92f9b7395d123cc2b42da5b4a6d10942ca03d8f8664706efec6b22a418ac567d",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -10710,7 +10710,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 21189,
     "name": "bladestaff1.png",
@@ -10723,8 +10723,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "1a1ce8b484ede48c9179c04b0486b3ef35bc326b7e9c3346e2a5073e7410b76b",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -10773,7 +10773,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 21123,
     "name": "subgun1.png",
@@ -10786,8 +10786,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "db66d5cae1e68d48fde51b0a2e03de0a251a8ac5695e96de51f3294179f4a34f",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -10836,7 +10836,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 254939,
     "name": "helmet_Ep02_ski_mask.png",
@@ -10849,8 +10849,8 @@
     "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
     "original_sha256": "800f43f1a48f7787987829eaf8ef68c44256f810355c0ccfd896b8ee3f6577de",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -10899,7 +10899,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 9615,
     "name": "feet_blackboots.png",
@@ -10912,8 +10912,8 @@
     "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
     "original_sha256": "23fb39d8aa1e19639c50763bf93d4812f2b223e3b9df68f1469da5116bd8e436",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -10962,7 +10962,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 75387,
     "name": "minidrone1.png",
@@ -10975,8 +10975,8 @@
     "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
     "original_sha256": "49c4f93f7dac68ccf81b8f1ba1e5affe982f63d295a75a8fcbf55fb2eb2f91e5",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11025,7 +11025,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 75388,
     "name": "minidrone2.png",
@@ -11038,8 +11038,8 @@
     "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
     "original_sha256": "447c6aebb267678ced31d1c8975b5a3ad4a8160d361e25298e6d7fe52d55993f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11088,7 +11088,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 297282,
     "name": "minidrone1_rusty.png",
@@ -11101,8 +11101,8 @@
     "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
     "original_sha256": "8d4d199c9da248fa7e663394a0dced588ebb30cd7a552a5a5d10bfa75479c2a4",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11151,7 +11151,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 297283,
     "name": "minidrone2_rusty.png",
@@ -11164,8 +11164,8 @@
     "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
     "original_sha256": "1e71845f2463e2e1749e9b014b6b9b68bdb6ae99b4f8b62cdada7671a6b3ebbb",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11214,7 +11214,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 42263,
     "name": "arms_silver-short.png",
@@ -11227,8 +11227,8 @@
     "source_sha256": "7ebae9b788ca873fd1d665d1a993aa9f3eb6b280153ccf06e821a953b5e59df0",
     "original_sha256": "eb1d6bef673d957c9f45879331cfa24dfad3198afb5e23ba74c5c0f1c040aa5a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11277,7 +11277,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 245455,
     "name": "back_pack_float.png",
@@ -11290,8 +11290,8 @@
     "source_sha256": "7ebae9b788ca873fd1d665d1a993aa9f3eb6b280153ccf06e821a953b5e59df0",
     "original_sha256": "e81a59db1781f3786898559f522f71d6cee129bec2b464bdbc1a315719b61596",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -11340,7 +11340,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 22627,
     "name": "legs_minileatherskirt_female.png",
@@ -11353,8 +11353,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "441465aca06f25b82d860f5b928429cc6d72766b8698dec2161070b5c81aa268",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11403,7 +11403,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 22628,
     "name": "legs_minileatherskirt2_female.png",
@@ -11416,8 +11416,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "c9abb5a40554809530d1ded4d292df45a4d13924544aaec814876c9efc472a3d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11466,7 +11466,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 22629,
     "name": "legs_minileatherskirt3_female.png",
@@ -11479,8 +11479,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "4786a50e7a6a47931eac419f0380282efdc7598c1b2eca0b07029833271fbe2f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11529,7 +11529,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 22630,
     "name": "legs_minileatherskirt4_female.png",
@@ -11542,8 +11542,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "5908d2df582d707a32f192ff9c5ff7e4aa31f512a23efcf7ff5e4ec311e290d5",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11592,7 +11592,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 40895,
     "name": "arms_black-bands.png",
@@ -11605,8 +11605,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "5624e9e7f70ab1840542d77b198076d3dc64c32decbf3494b2c260217623425c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11655,7 +11655,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 40897,
     "name": "body_black-bands.png",
@@ -11668,8 +11668,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "40371398c55ab0a367a12d5cb86dba251ae30030bbe3ba4028e7187d2bddb6d8",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -11718,7 +11718,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 40906,
     "name": "legs_black-bands.png",
@@ -11731,8 +11731,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "84026a554bc09c4c92faede4949d53d1891f205b210eb4bfaf3c747a21897aa8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11781,7 +11781,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 246315,
     "name": "arms_blacker_armbands.png",
@@ -11794,8 +11794,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "4bfba42abbc72375a78358f59c6b03272be3db4d5d519dc7fbf89beae53ef1b0",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11844,7 +11844,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 265347,
     "name": "body_halloween_nightmare.png",
@@ -11857,8 +11857,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "343808c8d5d9f582def4aa837857a4cfe33fd67faa86c44684c6eb8f4cb92c26",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -11907,7 +11907,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 265348,
     "name": "arms_halloween_nightmare.png",
@@ -11920,8 +11920,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "265c03aac8cc8928273dc17c7bcecaec079f2e639aad0b25a7d18246b0fcc240",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -11970,7 +11970,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 245663,
     "name": "arms_crackerjack.png",
@@ -11983,8 +11983,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "1c7c00ce3f2542b901dac9f52c127f14bc2a07ef51d3d039849e96dd3b28a50c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12033,7 +12033,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 206659,
     "name": "arms_tcloak.png",
@@ -12046,8 +12046,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "cdf8dac85129586496a358ded63429da03dab1b3b6a0269661d8a2009b908293",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12096,7 +12096,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 225919,
     "name": "arms_silver_band.png",
@@ -12109,8 +12109,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "f60b36594df04b49894bca5fa81fe1b0a1c4e112c8925394cb181974c6e189e7",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12159,7 +12159,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 247999,
     "name": "feet_slippers.png",
@@ -12172,8 +12172,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "4a07e07692d539dbb2aa270bc4eb9b763b909afdaa7b9396f7748b272143a84e",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12222,7 +12222,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 30879,
     "name": "legs_glowingbluepants.png",
@@ -12235,8 +12235,8 @@
     "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
     "original_sha256": "9692e4617e2c3e2b287eaa87ac2461d01c30e8912a38c7bbd5ace3179b1d41bc",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12285,7 +12285,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 42243,
     "name": "body_sweater-greenish.png",
@@ -12298,8 +12298,8 @@
     "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
     "original_sha256": "e0f3c05d90147023322ff3ec2516a44861f2ab76cf05afff8823d1db8fcd80b8",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -12348,7 +12348,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303291,
     "name": "bunny_ears_white.png",
@@ -12361,8 +12361,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "31d860cd0dbc79a267e0db4498d77d027dbb627d7591654a60f5058d86c70f16",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12411,7 +12411,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303292,
     "name": "bunny_ears_black.png",
@@ -12424,8 +12424,8 @@
     "source_sha256": "1225e0edb5142618c5bfeac5f0497ffa94e730b204c0f25227d27d3f9c0ca9ec",
     "original_sha256": "b303fcb3d6c6db643ed67d777a7cf717763c3add872e2e39e0bf3ef43163821d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12474,7 +12474,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303293,
     "name": "bunny_ears_blue.png",
@@ -12487,8 +12487,8 @@
     "source_sha256": "063d33ee9156f108aef43760c8b83eb768eccb4fa3a76a5cdb93ea03a29152b9",
     "original_sha256": "3385b809d41433441b31ffd1b20e67d33fd4221dc66aaba02060aa5340b6f20d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12537,7 +12537,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303294,
     "name": "bunny_ears_brown.png",
@@ -12550,8 +12550,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "b4ba817c71e19d98e4586f6a202fc5bf46e22a60e78590520979abc5afac4927",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12600,7 +12600,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303295,
     "name": "bunny_ears_pink.png",
@@ -12613,8 +12613,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "0bf3abfd2b1f9bbf96f0980d8ace95162e4bc6c33b18ad54b40ac176a460a300",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12663,7 +12663,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 303296,
     "name": "bunny_ears_rainbow.png",
@@ -12676,8 +12676,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "79f94dd6497d43ff459c787d3bd6be7468ad6981392309b5c5c197a73f907c83",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12726,7 +12726,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 17235,
     "name": "mace.png",
@@ -12739,8 +12739,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "c0704cf1d9b77d202dc48e3a9ceae9d1ae28e9555bccff86fc55f4a4070540cd",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -12789,7 +12789,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 280795,
     "name": "xan_bow.png",
@@ -12802,8 +12802,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "62f653853a8eca46131bddd6405c2490438900681bcdd0cdef607d194b4e89b1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12852,7 +12852,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 280851,
     "name": "xan_grenade.png",
@@ -12865,8 +12865,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "593258b9a2d5d54f45c9e9b540b3b8cb7628c455a9f6c316b1d3366504eea863",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -12915,7 +12915,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 289559,
     "name": "mittens_2010.png",
@@ -12928,8 +12928,8 @@
     "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
     "original_sha256": "709f6a6209e4ba037efc7a4201acb076f4c1ccd2aaf5b1617ff1e111cf52bfb2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -12978,7 +12978,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 42244,
     "name": "body_sweater-blue.png",
@@ -12991,8 +12991,8 @@
     "source_sha256": "063d33ee9156f108aef43760c8b83eb768eccb4fa3a76a5cdb93ea03a29152b9",
     "original_sha256": "48bb17f0af5d84649ac472729830a1cd5bc2dd2edf82ffb7047f911c73cd05e8",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13041,7 +13041,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 17227,
     "name": "minethrower.png",
@@ -13054,8 +13054,8 @@
     "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
     "original_sha256": "a8647a05db86434557c3f92e74b3aab76b6c130fa76a75601f822ddfe3a20e51",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -13104,7 +13104,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 281807,
     "name": "angelwings.png",
@@ -13117,8 +13117,8 @@
     "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
     "original_sha256": "cdbb908f6c93e34b7666203eca3365e6bf5709f451d1bfce1a89f800debaa01e",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -13167,7 +13167,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 293095,
     "name": "tw_trafficcone.png",
@@ -13180,8 +13180,8 @@
     "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
     "original_sha256": "24318428df2c4f75b4b9133c764c09be96a37a4743ecfb73f9fa77b02cf68cd9",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -13230,7 +13230,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 16539,
     "name": "head_athroxmale001.png",
@@ -13243,8 +13243,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "7e9d13347a430fdbb721265ca7b182574f8a289a4ddb157f9b19f720541425e2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13293,7 +13293,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 17466,
     "name": "head_athroxmale013.png",
@@ -13306,8 +13306,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "2bc02faa258f02806c91ec001d86dee779f8b08387a616a3c7bc8932f727f7bc",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13356,7 +13356,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 99686,
     "name": "hair_athroxmale006b.png",
@@ -13369,8 +13369,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "8848855cb6146206004d579d90f0d4fb82ef8bdff5f157322d0a516102253f74",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13419,7 +13419,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41242,
     "name": "sing_sides_greymetal.png",
@@ -13432,8 +13432,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "c4f34e12d163b1e1aba2ab6dc3be08b9a3d1e2dd872a6d1987cecd28b55ec915",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "maps": {
       "d": {
@@ -13482,7 +13482,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41243,
     "name": "4holes_fashion.png",
@@ -13495,8 +13495,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "f49e92a2b5572c6779f033892ad2082cb5a87e405209059d1cadc7548d8e6a1b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13545,7 +13545,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41247,
     "name": "7_24.png",
@@ -13558,8 +13558,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "99ccc90f42bc82e4b5835478736ca48be6261f5ee8a58293a35d2c7da16c4ae0",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -13608,7 +13608,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41250,
     "name": "bet_on_bucks2.png",
@@ -13621,8 +13621,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "cadae480904c289f76796568a0f3aac25f858d733a4be5480865654ae6cd9d37",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -13671,7 +13671,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41254,
     "name": "read_the_book.png",
@@ -13684,8 +13684,8 @@
     "source_sha256": "308559be6363bac0b492792fbd72e463f68bb51f8743dc5c646913c3252cf9cf",
     "original_sha256": "d45092a5f6c33ad5fb4e703e99ded0c42c089a755617ef6194d9d4a77632b673",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -13734,7 +13734,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41257,
     "name": "computers_inc.png",
@@ -13747,8 +13747,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "107f126bcec47266119c05e033d6d64f7a39a6b36dbf607d26f55b39e8ca35a8",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "maps": {
       "d": {
@@ -13797,7 +13797,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41261,
     "name": "general_store_tall.png",
@@ -13810,8 +13810,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "579c545266cb30a310d4e04f76525e9bd0f63ae8dd76e4db8c2dfba91e2591e6",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "maps": {
       "d": {
@@ -13860,7 +13860,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41266,
     "name": "hard_ware_shop.png",
@@ -13873,8 +13873,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "b415474ca0340210e1b3d0da4bd2715aec4962f25a567c86260fb229beb92d86",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -13923,7 +13923,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41270,
     "name": "rocking_shoes.png",
@@ -13936,8 +13936,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "ee2ba92feb7c93cda7e6ae2957e49980494ce73a9a7d77cc9bd60a9463f5937e",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -13986,7 +13986,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41274,
     "name": "rubika_1st_national.png",
@@ -13999,8 +13999,8 @@
     "source_sha256": "308559be6363bac0b492792fbd72e463f68bb51f8743dc5c646913c3252cf9cf",
     "original_sha256": "0914e6a77333ab2637c99c9602f11992cff28bf34918997f8f03dbac48e7b335",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -14049,7 +14049,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41279,
     "name": "tools_n_stuff.png",
@@ -14062,8 +14062,8 @@
     "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
     "original_sha256": "d57b3656693e885a223cba7b2f534f190f1595516e484843ffc2da52c63ccc45",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14112,7 +14112,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 292859,
     "name": "ilosebutton.png",
@@ -14125,8 +14125,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "e35c6a40df866ebf440876d4161b455426b6688105896873234402877489f171",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14175,7 +14175,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 233075,
     "name": "elevator_buttons_arrow.png",
@@ -14188,8 +14188,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "ad2d1a6926119699ff60a1d002ffc671e608e135e41679b49d1a4e04feafd758",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14238,7 +14238,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 233078,
     "name": "elevator_buttons_bossroom.png",
@@ -14251,8 +14251,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "a95b536f1e1a821ec9175af4df00d2d885126797fc3f07759b19202d70dcfecd",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14301,7 +14301,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 269791,
     "name": "xan_grid.png",
@@ -14314,8 +14314,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "c4b0d8a51168cf9e693ef5092021f900e6a796dac1b8a5643d335f8b4ca4a17a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14364,7 +14364,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 116707,
     "name": "head_shopkeeper2.png",
@@ -14377,8 +14377,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "df158cdf8806819e21a0fdd7e53cfb7ae14498dc9cfdf852f8184af671806556",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -14427,7 +14427,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 245431,
     "name": "arms_adventurer_soul_dredge.png",
@@ -14440,8 +14440,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "3907180dcc5adf81c6dd059951cb00198371cc8c04dd5a3f769137153015e32a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14490,7 +14490,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 6327,
     "name": "planet.png",
@@ -14503,8 +14503,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "d1bdeaead8a08f785126d80f460bba9c38b0d3cf42d18f03b2a80e39e065eb72",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14613,7 +14613,11 @@
     ],
     "worker_visual_evidence": "Inspected actual native 16-cell sheet, all four restored-aspect comparison rows, shopkeeper UV guides and exact-alpha planet/plant previews. Faithful colors, symbols and layout; preserve original alpha including unusual inverse planet alpha. All v1 cells accepted; no RGB green key restoration.",
     "live_model_fit_verified": false,
-    "pack": "ao-cyber-characters"
+    "pack": "ao-cyber-characters",
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "3fbc66a9070a5e27d0150af8e093acf58d98a41586a1409674a2100c9e089349"
+    }
   },
   {
     "worker": 4,
@@ -14676,10 +14680,14 @@
     ],
     "worker_visual_evidence": "Inspected actual native 16-cell sheet, all four restored-aspect comparison rows, shopkeeper UV guides and exact-alpha planet/plant previews. Faithful colors, symbols and layout; preserve original alpha including unusual inverse planet alpha. All v1 cells accepted; no RGB green key restoration.",
     "live_model_fit_verified": false,
-    "pack": "ao-cyber-characters"
+    "pack": "ao-cyber-characters",
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "22e117e6c061ef17a9e5d64a0da942b2382c06bfaa9a97326f24fecb5830f4a3"
+    }
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 120611,
     "name": "hopeless.png",
@@ -14692,8 +14700,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "1c21c7a82c550031a82bea80d242f6b3474e1449a7fdd55fdd9e67196b020664",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -14742,7 +14750,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 6331,
     "name": "dustcloud.png",
@@ -14755,8 +14763,8 @@
     "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
     "original_sha256": "8fe90892d8cc9d525fd371e2976e30c1759be88b77999cda5ca323db6318ab4f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14805,7 +14813,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 253299,
     "name": "arms_grey-leaves.png",
@@ -14818,8 +14826,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "f6ac0d600f9238db92eba7b152b0d1a552f109bf617fbe48e2cfabaf2584e4a0",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14868,7 +14876,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 253325,
     "name": "feet_grey-leaves.png",
@@ -14881,8 +14889,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "134540fc606ad6a19379cf6f32be889a3557abb484a973d57dff45dcb8ecb16f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14931,7 +14939,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 201699,
     "name": "tower_shrapnel.png",
@@ -14944,8 +14952,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "df875410ac17f851e1112b4c35cdb9a11496b8f08575f5242e966c9008dde007",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -14994,7 +15002,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 201707,
     "name": "tower_lightningeffect.png",
@@ -15007,8 +15015,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "64e198973177ec5612c114ff6af18ea175811dd3902230798b7319bc2675e9c9",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -15057,7 +15065,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 20287,
     "name": "shock_stripes.png",
@@ -15070,8 +15078,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "041e0d31e33ef1b2c194714bfca7e7eef4ac90376ea5e43e394f07b15cc5bc0c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15120,7 +15128,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 26046,
     "name": "shock_stripes2.png",
@@ -15133,8 +15141,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "afac900319fe147ad6ddd4ff9d2a26b00a3b5ddd3a3170b362338925e8849a99",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15183,7 +15191,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 263823,
     "name": "twirl.png",
@@ -15196,8 +15204,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "db84dda4d69589f241edcb9512992ef440f2c33c50d0d3aecece8f9617d5b3a8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15246,7 +15254,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 265343,
     "name": "EMP.png",
@@ -15259,8 +15267,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "8deeea8770e49d8092ea9dc46c1edf0896573850cf1e49d357f0dc4209f0211f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15309,7 +15317,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 264031,
     "name": "alien_sprite_01.png",
@@ -15322,8 +15330,8 @@
     "source_sha256": "caf7d32231422c28a73f5cca535dd04a2c0a9d0e553d38f4537c35754dc31dde",
     "original_sha256": "18998e1d300dfa9443d873691b4ab51ddbb17ce20543140ba10c99a0f8deff40",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15372,7 +15380,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 264139,
     "name": "alien_sprite_02.png",
@@ -15385,8 +15393,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "1c37609185d5dfb21632bc9a6193e76ca7654ced100471283627f237a41756a6",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -15495,10 +15503,14 @@
     ],
     "worker_visual_evidence": "Actual native sources and all restored-aspect comparisons inspected; exact-alpha lightning, shock materials and EMP reviewed. Preserve original colors, footprints, symbols and text; subdued green sprite uses v2, others v1. Grey Leaves arms/feet staged under complete original four-ID closure, body/legs held for unresolved glyph fidelity; family not complete and integration blocked.",
     "live_model_fit_verified": false,
-    "pack": "ao-cyber-characters"
+    "pack": "ao-cyber-characters",
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "7592b25714b769294ef6caff61c44973b6cde9a34b8ec12eb059ada50411923c"
+    }
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 297335,
     "name": "icc_entrance_screen01_d.png",
@@ -15511,8 +15523,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "2f601822e7afffe96c1e59592a236224998c1ebe9511359866a150913beb7f39",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -15561,7 +15573,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 300767,
     "name": "sign_the_ring.png",
@@ -15574,8 +15586,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "833912bf0af80cca4a40c401353f49f51e2771435324ddad962ab9710a3a29f4",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -15624,7 +15636,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 207015,
     "name": "valentine card.png",
@@ -15637,8 +15649,8 @@
     "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
     "original_sha256": "e44326c26f1742df0fdeda843f5038ab02c35825e91e3e229d261d4b41bc80e1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15687,7 +15699,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 213259,
     "name": "caustics_16_frames_64x64.png",
@@ -15700,8 +15712,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "c9dbe71bcff817e3529368448f5bbd9b0969d129795000325f4197eca221e8f1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15750,7 +15762,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226088,
     "name": "caustic_effect00.png",
@@ -15763,8 +15775,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "faeb9f061718074fddf6cabeff4b9917b4075d26e8e87d5682a2e46c358a544c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15813,7 +15825,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226089,
     "name": "caustic_effect01.png",
@@ -15826,8 +15838,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "41a06017fe0d775aff875901b296249f360a80d186f962ab0e91ad29c21cc5c9",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15876,7 +15888,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226090,
     "name": "caustic_effect02.png",
@@ -15889,8 +15901,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "5ecfa300cb273559cd13d714429d5a9a0c7d862aaa6d0ceedc65eb98e8491bd8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -15939,7 +15951,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226091,
     "name": "caustic_effect03.png",
@@ -15952,8 +15964,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "111550981341cc836c97d718d2ea8ccd8a8fbbf622b71dd6abbc610a1e34fcef",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16002,7 +16014,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226092,
     "name": "caustic_effect04.png",
@@ -16015,8 +16027,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "050732508cfcdca2ad42a740c8bc9412a229d982fa83d6df0ff70906907e6b3c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16065,7 +16077,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226093,
     "name": "caustic_effect05.png",
@@ -16078,8 +16090,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "63ddb6b8177cf3192d1410c578b4699b43f27093a8fa3c4977be04b2257a8d33",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16128,7 +16140,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226094,
     "name": "caustic_effect06.png",
@@ -16141,8 +16153,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "8c68694c09aedfb0fb1bdc06748d970a06ceca44d79da5d005647a414de8f5e2",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16191,7 +16203,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226095,
     "name": "caustic_effect07.png",
@@ -16204,8 +16216,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "c195a61976a324f43b915b4361d69aab81cfa0b17bcfd760689c36c1a99ac936",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16254,7 +16266,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226096,
     "name": "caustic_effect08.png",
@@ -16267,8 +16279,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "d3bbf489b20e63a3cb6c407b456bf53b83467adb508d60a3e9942b9b13e1ffed",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16317,7 +16329,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226097,
     "name": "caustic_effect09.png",
@@ -16330,8 +16342,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "6d058fe5b61189ff00f153f2d8247e7b8913f13615e132e731cff246e90dbd44",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16380,7 +16392,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226098,
     "name": "caustic_effect10.png",
@@ -16393,8 +16405,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "46b9340f6341817ab50c4ebff6bddc444c95543c4019bfadc465bbc84f8cdff8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16443,7 +16455,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226099,
     "name": "caustic_effect11.png",
@@ -16456,8 +16468,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "cd999b3d692bcbde7d70089b1ab8663ffb72c27800835b61b97f9bb99ff73d3a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16506,7 +16518,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226100,
     "name": "caustic_effect12.png",
@@ -16519,8 +16531,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "33a2231cbbb0fb10f88b4c81f173c43edaeb41a87c4e06d2e61938c38173d4f8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16569,7 +16581,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226101,
     "name": "caustic_effect13.png",
@@ -16582,8 +16594,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "68b01d99ac43819d1b7b9f8181dccc0f6fc0843ec19a49f85f9fdf2e8c10b68e",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16632,7 +16644,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226102,
     "name": "caustic_effect14.png",
@@ -16645,8 +16657,8 @@
     "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
     "original_sha256": "4f3b02366e47bf9fb1f4a34c932f6d41b7016d233f7bbbe036c260df7b3b36b4",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16695,7 +16707,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 226103,
     "name": "caustic_effect15.png",
@@ -16708,8 +16720,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "412637b94083022e98a3a0d69e5264e8010dbbc4b2319f481d1894e39e8d53b8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16758,7 +16770,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 17099,
     "name": "sandworm_tpage.png",
@@ -16771,8 +16783,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "c65f2607d9f543d9988ec4140e9af9cd22de3c1fc8ebd453bf4885504746c97d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16821,7 +16833,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95953,
     "name": "sandworm_tpage_jungle.png",
@@ -16834,8 +16846,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "e9bf724c75c9eec6339c8b2c92d77d740a84614ddaa66c87099a7b6a2dd74465",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16884,7 +16896,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95954,
     "name": "sandworm_tpage_special.png",
@@ -16897,8 +16909,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "02476230e7ff0426078d50501ee022c39b8ac874a6c3d154e76a060570a5b2e9",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -16947,7 +16959,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95955,
     "name": "sandworm_tpage_water.png",
@@ -16960,8 +16972,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "a34d3ca476f16c18c09b89b65319775a4761a55458bd86e1fabc10283488ef7f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17010,7 +17022,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 15975,
     "name": "s_flame.png",
@@ -17023,8 +17035,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "ce6f5b24357bed7783c9c0588a88306972ff14a3eb6218960f03fe89c2f40984",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17073,7 +17085,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 15979,
     "name": "s_muzzleflash.png",
@@ -17086,8 +17098,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "c3e87b0212a2d6dd76265a0ded5fa76234670fe4c6696af30267336c0be0e106",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17136,7 +17148,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 16111,
     "name": "s_exp1noise.png",
@@ -17149,8 +17161,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "21334641762e4233a0d3f7791b8f4b86967a0cedff9c6a4677788724af3babb2",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17199,7 +17211,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 18399,
     "name": "s_bulletfront.png",
@@ -17212,8 +17224,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "8b7ed5b02e0775ab0a917ed15b9eae0807eb045894d357676a93a8eec694bd76",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17262,7 +17274,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 17763,
     "name": "circle.png",
@@ -17275,8 +17287,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "716728d3975b18d979b12ce7bc9145265de0b89bd9499763bc0239ca0d69f788",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17325,7 +17337,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 11435,
     "name": "grid.png",
@@ -17338,8 +17350,8 @@
     "source_sha256": "589d08a41a217ba22c8bb6428828b67e94c2b97efa565104f1976a6f2d55f80c",
     "original_sha256": "3c351f9a71dbc80d6b1976b802f91106fbda7c6aa0aa79a9387a969a3e83bf44",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17448,10 +17460,14 @@
     ],
     "worker_visual_evidence": "Actual second16-cell sources and all restored-aspect comparisons inspected. Original character repaint/UV identities, weapon atlas, words andsimplefields preserved. Exact-alpha previews andall224 internal animation-region checks passed. Grid/Avalonv2, starv3correctedfullcell8x2phasegrowth, othersecondcells v1. Full17-membercausticfamily nowcomplete;first64runtime hashes preserved.",
     "live_model_fit_verified": false,
-    "pack": "ao-cyber-characters"
+    "pack": "ao-cyber-characters",
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "e6ed80fe0116c99aca677cd95717852766122188729a019ee4666fa880c0ae2d"
+    }
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 18051,
     "name": "hq_behave.png",
@@ -17464,8 +17480,8 @@
     "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
     "original_sha256": "9aab4e8f2d7e9a78eac705232dc3fd4968a42227548b0e0826b5ec17f8341ee7",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -17514,7 +17530,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 32543,
     "name": "avalon_forcefieldplaintex.png",
@@ -17527,8 +17543,8 @@
     "source_sha256": "589d08a41a217ba22c8bb6428828b67e94c2b97efa565104f1976a6f2d55f80c",
     "original_sha256": "c9d2e02b7cab06841a0a561b10376b7fb9008640cc795d76c815367eff09b073",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17577,7 +17593,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 38203,
     "name": "drill_tentacle_head.png",
@@ -17590,8 +17606,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "069bfc983d1a3f35ea0e1adba3d26e97bd9ba5639879f7ef129630dec55b8fd4",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17640,7 +17656,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 38204,
     "name": "drill_tentacle_body2.png",
@@ -17653,8 +17669,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "8eb023d756032f9db05f47f9fcc118204b717f3ef1aa624f4187d9b712c9e5f3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17703,7 +17719,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95331,
     "name": "puko_tail.png",
@@ -17716,8 +17732,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "f7a391cb183cf18e1f024efc37e8f2edf345d1137beee6e891deec2d34d670a8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17766,7 +17782,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95332,
     "name": "puko_head.png",
@@ -17779,8 +17795,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "c9c5fbd4fb33037369bf956839fbd37fa8ab141fa243f23e8362a33fdb4069fe",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17829,7 +17845,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95333,
     "name": "puko_bodyfront.png",
@@ -17842,8 +17858,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "a7cf3aec87c227e2d43462276a732f945e4508c782bb7b91280a5c31e04f0594",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17892,7 +17908,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95334,
     "name": "puko_bodyback.png",
@@ -17905,8 +17921,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "94ac52e8865b2c694e5545af73834381e53c7af5ce15b62e61affffb696a091e",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -17955,7 +17971,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 95791,
     "name": "gen_gauntlet.png",
@@ -17968,8 +17984,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "7fdcd0d972dc44582c57a5551ce441dbbec54ac91b9108233d1a1f44309c5d1b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -18018,7 +18034,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 15719,
     "name": "mine_explosion02_01_v01.png",
@@ -18031,8 +18047,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "0d575c1b127b080bd0ab91e10e0c8881ce28163d2642a51cc09cf09ff688316a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18081,7 +18097,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 225520,
     "name": "mine_explosion02_bw_01_v01.png",
@@ -18094,8 +18110,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "736def87f1248b624bb1581226da931d8e836b11ae2c6727e40b34eab3d366f2",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18144,7 +18160,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 120675,
     "name": "harrys.png",
@@ -18157,8 +18173,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "a194592680f15c07443f3c6bf855dcb49335edade74f257187d6a08b186cd626",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18207,7 +18223,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 41127,
     "name": "avalon_holdedgrass.png",
@@ -18220,8 +18236,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "cc8ad319f600dabddbafc685689b7e5cfe6236aacd35bfc647f226dc3d7ccf5f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18270,7 +18286,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 42431,
     "name": "rumpatak.png",
@@ -18283,8 +18299,8 @@
     "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
     "original_sha256": "49a38815df64fa2e331b262db707d65e2508115a1e7a0c3b6c1ffca94463e5fb",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18333,7 +18349,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 99475,
     "name": "default_floor.png",
@@ -18346,8 +18362,8 @@
     "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
     "original_sha256": "d20288e7d3bb1cedcc48cd86ce6485336a7f4552679224106d6434ffb55e0552",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -18396,7 +18412,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 28723,
     "name": "small_northharbour.png",
@@ -18409,8 +18425,8 @@
     "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
     "original_sha256": "5ea46809a87ffb51757ae1267c546c7977911b542a1615bbd688ea26e9e63651",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -18459,7 +18475,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 28724,
     "name": "pilrass.png",
@@ -18472,8 +18488,8 @@
     "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
     "original_sha256": "21cb76b19a0b093fabbffc362d252977568ddc304a4bf4f76b81b7ef82e84b57",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -18522,7 +18538,7 @@
     "pack": "ao-cyber-characters"
   },
   {
-    "worker": 4,
+    "worker": true,
     "type": 1010004,
     "id": 28731,
     "name": "small_southharbour.png",
@@ -18535,8 +18551,8 @@
     "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
     "original_sha256": "40900c5c0d18c4fabf573397fb8e9f864244d864585689c7834d41bde0efb306",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {

@@ -525,12 +525,13 @@
     "name": "hq_quadblock_simpleroofthinedge.png",
     "source": "scans-1010004-43506-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -538,12 +539,13 @@
     "name": "ent_plainblock_insidedoor.png",
     "source": "scans-1010004-25476-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -551,12 +553,13 @@
     "name": "rustypillarsonmetalplate.png",
     "source": "scans-1010004-6097-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -564,8 +567,8 @@
     "name": "hq_teleportpillar_simplestrip2e.png",
     "source": "scans-1010004-46180-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
@@ -578,7 +581,8 @@
         0.88,
         0.86
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -586,12 +590,13 @@
     "name": "hq_mainbuildingplate_roughdark.png",
     "source": "scans-1010004-42681-v1",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -651,12 +656,13 @@
     "name": "overdoor.png",
     "source": "scans-1010004-6054-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -707,12 +713,13 @@
     "name": "metaldoor.png",
     "source": "scans-1010004-5996-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -746,12 +753,13 @@
     "name": "gatewall_roof.png",
     "source": "scans-1010004-27699-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -777,7 +785,8 @@
     ],
     "profile": "mineral",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -889,12 +898,13 @@
     "name": "factory_metal_pipes.png",
     "source": "scans-1010004-21595-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -902,13 +912,14 @@
     "name": "bank_undersign1.png",
     "source": "scans-1010004-55870-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
     "discovery": "frequency-ranked saved scans and selected material families",
-    "emission": "cyan"
+    "emission": "cyan",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -929,12 +940,13 @@
     "name": "save_generalplateinsidetest4.png",
     "source": "scans-1010004-56166-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -942,12 +954,13 @@
     "name": "save_generalplateliteedge.png",
     "source": "scans-1010004-56167-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -955,12 +968,13 @@
     "name": "cleanplate.png",
     "source": "scans-1010004-5956-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -968,12 +982,13 @@
     "name": "bank_antenna1.png",
     "source": "scans-1010004-55875-v1",
     "size": [
-      16,
-      256
+      32,
+      512
     ],
     "profile": "metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -981,12 +996,13 @@
     "name": "smallrustyplate.png",
     "source": "scans-1010004-5969-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -994,8 +1010,8 @@
     "name": "respawnplatformtop.png",
     "source": "scans-1010004-95551-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
@@ -1008,7 +1024,8 @@
         0.25,
         0.25
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1016,12 +1033,13 @@
     "name": "standalone_globeplate_lite1.png",
     "source": "scans-1010004-26958-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1029,12 +1047,13 @@
     "name": "save_generalplatedarkedge.png",
     "source": "scans-1010004-56164-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1042,12 +1061,13 @@
     "name": "save_generalplateinsidetest3.png",
     "source": "scans-1010004-56168-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1055,13 +1075,14 @@
     "name": "save_sideplategroove.png",
     "source": "scans-1010004-55880-v1",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
     "discovery": "frequency-ranked saved scans and selected material families",
-    "emission": "cyan"
+    "emission": "cyan",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1069,13 +1090,14 @@
     "name": "save_sideplate2.png",
     "source": "scans-1010004-55883-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
     "discovery": "frequency-ranked saved scans and selected material families",
-    "emission": "cyan"
+    "emission": "cyan",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1083,12 +1105,13 @@
     "name": "respawnplatformside1.png",
     "source": "scans-1010004-95550-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1096,12 +1119,13 @@
     "name": "saveterm_wing1.png",
     "source": "scans-1010004-55878-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "scan-families-2026-10-25",
-    "discovery": "frequency-ranked saved scans and selected material families"
+    "discovery": "frequency-ranked saved scans and selected material families",
+    "worker": true
   },
   {
     "type": 1010006,

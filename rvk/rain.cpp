@@ -21,6 +21,12 @@ using namespace vk;
 using namespace detail;
 
 namespace {
+const uint32_t kAmbientVertSpirv[] = {
+#include "ambient.vert.inc"
+};
+const uint32_t kAmbientFragSpirv[] = {
+#include "ambient.frag.inc"
+};
 
 const uint32_t kRainVertSpirv[] = {
 #include "rain.vert.inc"
@@ -231,6 +237,10 @@ bool Device::CreateRainResources(std::string* error)
     if (frag) vkDestroyShaderModule(m_device, frag, nullptr);
     return ok;
     };
+    if(!make(kAmbientVertSpirv, sizeof(kAmbientVertSpirv), kAmbientFragSpirv, sizeof(kAmbientFragSpirv), true, &m_ambientPipeline)) {
+        Log("ambient life unavailable: optional pipeline creation failed");
+        if(error)error->clear();
+    }
     return make(kRainVertSpirv, sizeof(kRainVertSpirv), kRainFragSpirv, sizeof(kRainFragSpirv), true, &m_rainPipeline) &&
            make(kRainVertSpirv, sizeof(kRainVertSpirv), kRainNearFragSpirv, sizeof(kRainNearFragSpirv), true, &m_rainNearPipeline, 1) &&
            make(kBoltVertSpirv, sizeof(kBoltVertSpirv), kBoltFragSpirv, sizeof(kBoltFragSpirv), true, &m_boltPipeline, 1) &&
@@ -241,6 +251,7 @@ bool Device::CreateRainResources(std::string* error)
 
 void Device::DestroyRainResources()
 {
+    if (m_ambientPipeline) { vkDestroyPipeline(m_device,m_ambientPipeline,nullptr); m_ambientPipeline=VK_NULL_HANDLE; }
     if (m_rainPipeline) { vkDestroyPipeline(m_device, m_rainPipeline, nullptr); m_rainPipeline = VK_NULL_HANDLE; }
     if (m_splashPipeline) { vkDestroyPipeline(m_device, m_splashPipeline, nullptr); m_splashPipeline = VK_NULL_HANDLE; }
     if (m_rainNearPipeline) { vkDestroyPipeline(m_device, m_rainNearPipeline, nullptr); m_rainNearPipeline = VK_NULL_HANDLE; }
@@ -339,6 +350,83 @@ void Device::RenderDebris(VkCommandBuffer cmd)
     vkCmdDraw(cmd, bits * 6, 1, 0, 0);
     EndRendering();
     ProfileMark("storm debris");
+}
+
+// A bounded, optional population local to known outdoor terrain. Ground
+// classification is shared with grass but it works with grass rendering off.
+// No dynamic lights, simulation buffers, or extra shadow casters are allocated.
+void Device::RenderAmbientMotes(VkCommandBuffer cmd)
+{
+    const int style=int(std::clamp(m_ambientStyle,0.f,3.f)+.5f);
+    // A local cavern spore profile, plus an explicit style override for other
+    // unusual biomes. No particles in the separate login/creation playfield.
+    const bool spores=style==3 || (style==0 && m_skyPlayfield==386);
+    if(m_ambientMotes<=0.f || m_ambientBright<=0.f || !m_ambientPipeline || !m_scene || !m_hdr ||
+       !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !spores))return;
+    if(!spores && !m_grassOn)UpdateGrassTiles();
+    const float* eye=m_frameEye;
+    const float spacing=spores ? 4.f:6.f;
+    const int32_t cell[2]={int32_t(std::floor(eye[0]/spacing)),int32_t(std::floor(eye[2]/spacing))};
+    const bool changed=m_ambientPlayfield!=m_skyPlayfield || style!=m_ambientStyleCached || cell[0]!=m_ambientCell[0] || cell[1]!=m_ambientCell[1];
+    if(changed || m_frameClock-m_ambientRefresh>1.0) {
+        m_ambientOriginCount=0;m_ambientRefresh=m_frameClock;m_ambientPlayfield=m_skyPlayfield;
+        m_ambientStyleCached=style;
+        m_ambientCell[0]=cell[0];m_ambientCell[1]=cell[1];
+        for(int z=-5;z<=5;++z)for(int x=-5;x<=5;++x) {
+            if(x*x+z*z>25)continue;
+            const uint32_t seed=uint32_t(cell[0]+x)*73856093u^uint32_t(cell[1]+z)*19349663u;
+            const float px=float(cell[0]+x)*spacing+spacing*(.15f+StrikeHash(seed,1)*.7f);
+            const float pz=float(cell[1]+z)*spacing+spacing*(.15f+StrikeHash(seed,2)*.7f);
+            if(spores) {
+                float* point=m_ambientOrigins[m_ambientOriginCount++];
+                point[0]=px;point[1]=std::floor(eye[1]/4.f)*4.f-2.f+(StrikeHash(seed,3)-.5f)*6.f;
+                point[2]=pz;point[3]=2.f;continue;
+            }
+            float ground;uint32_t colour;
+            if(!GroundAt(px,pz,&ground,&colour,nullptr) || CoveredAt(px,pz,ground) ||
+               std::fabs(ground-eye[1])>15.f)continue;
+            const float r=float(colour>>16&255),g=float(colour>>8&255),b=float(colour&255);
+            const bool vegetation=(colour&(1u<<24)) && g>r*1.02f && g>b*1.08f;
+            const bool dry=!vegetation && r>b*1.20f && r>g*1.04f && r>45.f;
+            if(!vegetation && !dry && style==0)continue;
+            float* point=m_ambientOrigins[m_ambientOriginCount++];
+            point[0]=px;point[1]=ground;point[2]=pz;point[3]=style==1 ? 4.f:style==2 ? 0.f:vegetation ? 1.f:0.f;
+        }
+    }
+    if(!m_ambientOriginCount)return;
+    RainFrame rf{};
+    rf.viewProj=MulMatrix(m_view,m_proj);
+    rf.prevViewProj=m_prevViewProjValid ? MulMatrix(m_prevView,m_prevProj):rf.viewProj;
+    rf.view=m_view;std::memcpy(rf.camera,eye,3*sizeof(float));rf.camera[3]=TaaActive()?1.f:0.f;
+    rf.time[0]=float(m_frameClock);rf.time[1]=float(m_frameClock-std::clamp(m_frameClock-m_ambientDrawClock,0.0,.1));
+    m_ambientDrawClock=m_frameClock;
+    const uint32_t perAnchor=spores ? 16u:2u;
+    rf.time[2]=std::clamp(NightAmount(),0.f,1.f);rf.time[3]=float(m_ambientOriginCount*perAnchor);
+    rf.fall[3]=float(perAnchor);
+    rf.curtains[0]=std::clamp(m_ambientMotes*.5f,0.f,1.f);
+    rf.colour[3]=std::clamp(m_ambientBright,0.f,2.f)*(1.f-std::clamp(m_rain+m_storm,0.f,1.f)*.85f);
+    if(m_terrainAmbient[3]>.5f)std::memcpy(rf.ambient,m_terrainAmbient,16);
+    else ArgbTo4(m_rs[d3d::RS_AMBIENT],rf.ambient);
+    SceneFog(rf.fogColour,rf.fogParams);OurSkyFog(rf.fogColour);
+    rf.viewport[0]=float(m_scene->m_width);rf.viewport[1]=float(m_scene->m_height);
+    rf.viewport[2]=1.f/rf.viewport[0];rf.viewport[3]=1.f/rf.viewport[1];
+    rf.proj[0]=m_proj.m[2][2];rf.proj[1]=m_proj.m[3][2];rf.proj[2]=m_proj.m[0][0];rf.proj[3]=m_proj.m[1][1];
+    EnsureRingSpace(sizeof(RainFrame)+sizeof(m_ambientOrigins)+sizeof(FrameLights)+1024);
+    if(m_frameLightsDirty || m_frameLightsGeneration!=m_ringGeneration)WriteFrameLights();
+    void* cpu=nullptr;const VkDeviceSize offset=Allocate(sizeof(rf),256,&cpu);std::memcpy(cpu,&rf,sizeof(rf));
+    const VkDeviceSize origins=Allocate(sizeof(m_ambientOrigins),256,&cpu);std::memcpy(cpu,m_ambientOrigins,sizeof(m_ambientOrigins));
+    Frame& f=m_frames[m_frameIndex];BeginRenderingOn(m_scene);
+    const float sw=float(m_scene->m_width),sh=float(m_scene->m_height);
+    VkViewport viewport{.5f,sh+.5f,sw,-sh,0.f,1.f};VkRect2D scissor{{0,0},{m_scene->m_width,m_scene->m_height}};
+    vkCmdSetViewport(cmd,0,1,&viewport);vkCmdSetScissor(cmd,0,1,&scissor);
+    vkCmdBindPipeline(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,m_ambientPipeline);
+    VkDescriptorBufferInfo info[3]={{f.ring,offset,sizeof(rf)},{f.ring,m_frameLightsOffset,sizeof(FrameLights)},{f.ring,origins,sizeof(m_ambientOrigins)}};
+    VkWriteDescriptorSet writes[3]={};const uint32_t bindings[3]={0,4,3};
+    for(unsigned i=0;i<3;++i){writes[i].sType=VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;writes[i].dstBinding=bindings[i];
+        writes[i].descriptorCount=1;writes[i].descriptorType=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;writes[i].pBufferInfo=&info[i];}
+    vkCmdPushDescriptorSetKHR(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,m_rainLayout,0,3,writes);
+    vkCmdDraw(cmd,m_ambientOriginCount*perAnchor*6u,1,0,0);EndRendering();ProfileMark("ambient life");
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f\n",m_ambientOriginCount,m_ambientMotes,rf.time[2]);
 }
 
 // The rain, over the finished scene (EndScene: its rendering just closed).

@@ -542,6 +542,9 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
                          (long long)(m_frameNumber - t->m_uploadFrame),
                          t->m_level0NonZero == ~0u ? -1 : int(t->m_level0NonZero), t->m_image ? "" : " NO-IMAGE",
                          t->m_view ? "" : " NO-VIEW", t->m_albedoMap ? " albedo" : "", uint32_t(t->m_format));
+            if(t->m_albedoMap)
+                std::fprintf(f," resident-albedo:%ux%u/%u-levels native-min-mip:%u",t->m_albedoMap->Width(),
+                    t->m_albedoMap->Height(),t->m_albedoMap->Levels(),m_tss[s][d3d::TSS_MAXMIPLEVEL]);
             if (!t->m_alphaMask.empty())         // (its alpha: hard edges, soft share - two-pass foliage, its dither)
                 std::fprintf(f, " alpha edges %.3f soft %.2f", double(t->m_alphaHardEdges), double(t->m_alphaSoftShare));
         }

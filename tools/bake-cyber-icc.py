@@ -7,12 +7,25 @@ from albedo replacement, so coverage and new-art coverage can be audited indepen
 import hashlib
 import json
 import argparse
+import importlib.util
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1] / 'material-packs/ao-cyber-icc'
+_spec=importlib.util.spec_from_file_location('resolution_gate',Path(__file__).with_name('check-material-resolution.py'))
+gate=importlib.util.module_from_spec(_spec);_spec.loader.exec_module(gate)
+
+def source_art(item):
+    if item.get('worker'):
+        raise RuntimeError('Imported validated artwork must be retained from its verified map library, not rebaked from an older source')
+    identity=f"{item['type']}:{item['id']}"
+    gate.require_detail_size(identity,tuple(item['size']),item.get('detail_exception'))
+    art=Image.open(ROOT/'source-art'/(item['source']+'.png')).convert('RGB')
+    if art.width<item['size'][0] or art.height<item['size'][1]:
+        raise RuntimeError(f'{identity}: source art cannot supply the requested export; recover or render full-quality artwork')
+    return art.resize(tuple(item['size']),Image.Resampling.LANCZOS)
 # Roughness / metallic. Natural surfaces are deliberately non-metallic.
 PROFILES = {'metal': (.18, .9), 'panel': (.24, .72), 'painted_metal': (.30, .35),
     'grille': (.28, .75), 'bronze': (.23, .9), 'stone': (.48, 0), 'glass': (.14, 0),
@@ -71,8 +84,7 @@ def main():
             orm[:,:,1]=.94+(.82-.94)*mask
             orm[:,:,2]=.70*mask
         if item['source']:
-            art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB')
-            art = art.resize(tuple(item['size']), Image.Resampling.LANCZOS)
+            art = source_art(item)
             art.save(output / (stem + '_d.png'), optimize=True)
             rgb = np.asarray(art, dtype=np.float32) / 255
             grey = art.convert('L')
@@ -149,7 +161,7 @@ def add_art(identities):
         if item['profile'] != previous['profile']:
             raise RuntimeError(f'ICC material response must remain unchanged: {identity}')
         stem = f'1010004_{identity}'
-        art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB').resize(tuple(item['size']), Image.Resampling.LANCZOS)
+        art = source_art(item)
         art.save(ROOT / 'maps' / (stem + '_d.png'), optimize=True)
         grey = art.convert('L')
         lum = np.asarray(grey, dtype=np.float32) / 255

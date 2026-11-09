@@ -287,6 +287,10 @@ struct DeviceInfo {
     X(ImprovedTiles, m_improvedTiles, C|L)            /* ICC tile artwork in Shared Ground+ */ \
     X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
     X(TerraRough, m_terrainRoughness, C|L)            /* Shared Ground+ surface bumps/grit, not gloss */ \
+    X(LightGlow, m_lightGlow, C|L)                   /* authored light-source halos */ \
+    X(AmbientMotes, m_ambientMotes, 0)               /* local biome-aware ambient motes */ \
+    X(AmbientBright, m_ambientBright, 0)             /* ambient mote brightness */ \
+    X(AmbientStyle, m_ambientStyle, 0)               /* auto / fireflies / dust / spores */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
@@ -1156,7 +1160,7 @@ private:
     // Makes sure `bytes` (plus alignment slack) fit in this frame's ring; if not, submits and waits for the
     // work recorded so far and restarts the ring. Call before a group of allocations that belong together.
     void EnsureRingSpace(VkDeviceSize bytes);
-    VkSampler SamplerFor(uint32_t stage);
+    VkSampler SamplerFor(uint32_t stage, bool material = false);
     void Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32_t vertexCount,
               const uint16_t* indices, uint32_t indexCount);
     void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride, bool windowGlow = false);
@@ -2028,6 +2032,7 @@ private:
     VkPipeline m_tonemapPipeline = VK_NULL_HANDLE;
     VkSampler m_pointSampler = VK_NULL_HANDLE, m_linearSampler = VK_NULL_HANDLE;
     float m_bloomStrength = 1.5f, m_bloomThreshold = 1.0f;
+    float m_lightGlow = 0.0f;
     float m_sunSoftness = 1.0f, m_leafLight = 1.0f, m_nightGlow = 1.5f, m_contact = 0.6f;
     bool m_drawMayDiscard = true;                // the current draw can cut out (alpha test / F_CUTOUT): pick the variant
     bool m_drawPrepassCutout = false;            // pre-passed with the cut-out pre-pass (prepass_cutout.frag)
@@ -2830,6 +2835,16 @@ private:
     VkPipeline m_rainNearPipeline = VK_NULL_HANDLE;   // the streaks again, into m_rainNear alone
     VkPipeline m_boltPipeline = VK_NULL_HANDLE;  // our lightning bolts, into m_rainNear (bolt.vert/frag)
     VkPipeline m_debrisPipeline = VK_NULL_HANDLE;   // a storm's blown debris (debris.vert/frag)
+    VkPipeline m_ambientPipeline = VK_NULL_HANDLE;
+    float m_ambientMotes = 0.f, m_ambientBright = 0.6f;
+    float m_ambientStyle = 0.f;
+    int m_ambientStyleCached = -1;
+    float m_ambientOrigins[128][4] = {};
+    uint32_t m_ambientOriginCount = 0, m_ambientPlayfield = ~0u;
+    int32_t m_ambientCell[2] = {INT32_MIN,INT32_MIN};
+    double m_ambientRefresh = -1.0;
+    double m_ambientDrawClock = 0.0;
+    void RenderAmbientMotes(VkCommandBuffer cmd);
     void RenderDebris(VkCommandBuffer cmd);
     double m_debrisDrift[3] = {0, 0, 0}, m_debrisClock = -1.0, m_debrisClockAll = 0.0;
     float m_stormDebris = 1.0f;                  // RVK_StormDebris: blown leaves, straw and twigs, x
@@ -3830,8 +3845,8 @@ private:
     uint32_t BindlessSampler(VkSampler s);       // its slot, registering it on first use
     // A draw's sampler slots without the two map lookups (SamplerFor, then the slot) per sampler: each stage's last
     // sampler state and slot, and the last slot of each fixed sampler (bump, normal map) by handle.
-    uint64_t SamplerKey(uint32_t stage) const;
-    uint32_t StageSamplerSlot(uint32_t stage);
+    uint64_t SamplerKey(uint32_t stage, bool material = false) const;
+    uint32_t StageSamplerSlot(uint32_t stage, bool material = false);
     uint32_t FixedSamplerSlot(uint32_t which, VkSampler s);
     uint64_t m_stageSamplerKey[2] = {~0ull, ~0ull};
     uint32_t m_stageSamplerSlot[2] = {};

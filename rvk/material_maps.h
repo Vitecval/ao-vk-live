@@ -423,8 +423,13 @@ inline Decoded Decode(const MaterialFiles& f)
     if (!f.leavesNormal.empty() && !DecodeNormalMap(f.leavesNormal, &d.leavesNormal, &leafSpread, &error))
         d.errors += error + "; ";
     d.decodeFailed = !d.errors.empty();
-    for (MipChain* c : {&d.normal, &d.orm, &d.albedo, &d.emissive, &d.leaves, &d.leavesNormal})
-        CapChain(*c, &d.errors, c == &d.albedo && f.maxAlbedoSize ? f.maxAlbedoSize : f.maxSize);
+    MipChain* chains[]={&d.normal,&d.orm,&d.albedo,&d.emissive,&d.leaves,&d.leavesNormal};
+    const char* roles[]={"normal","ORM","albedo","emissive","canopy","canopy normal"};
+    for(unsigned i=0;i<6;++i) {
+        std::string note;
+        CapChain(*chains[i],&note,i==2 && f.maxAlbedoSize ? f.maxAlbedoSize:f.maxSize);
+        if(!note.empty())d.errors+=std::string(roles[i])+": "+note;
+    }
     return d;
 }
 

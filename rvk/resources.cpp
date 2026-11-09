@@ -1007,7 +1007,7 @@ uint32_t Device::RegisterBindlessSampler(VkSampler s)
     return index;
 }
 
-uint64_t Device::SamplerKey(uint32_t stage) const
+uint64_t Device::SamplerKey(uint32_t stage, bool material) const
 {
     const auto& t = m_tss[stage];
     return uint64_t(t[d3d::TSS_MAGFILTER] & 7) | uint64_t(t[d3d::TSS_MINFILTER] & 7) << 3 |
@@ -1015,7 +1015,8 @@ uint64_t Device::SamplerKey(uint32_t stage) const
            uint64_t(t[d3d::TSS_ADDRESSV] & 7) << 12 | uint64_t(t[d3d::TSS_MAXMIPLEVEL] & 15) << 15 |
            uint64_t(t[d3d::TSS_BORDERCOLOR] >> 24 ? 1 : 0) << 19 |
            uint64_t(m_anisotropy) << 20 |      // samplers made at another level stay valid for work in flight
-           uint64_t(SceneMipBias() ? 100 - m_renderScale : 0) << 26;
+           uint64_t(SceneMipBias() ? 100 - m_renderScale : 0) << 26 |
+           uint64_t(material) << 40;
 }
 
 // RVK_RenderScale: the scene's textures sample a finer mip level by log2(scale), as sharp as at the output's size
@@ -1024,14 +1025,14 @@ bool Device::SceneMipBias() const { return m_target == m_scene && SceneScaled();
 
 // Samplers are never destroyed while the device lives (SamplerFor's map owns them), so a stage whose sampler state
 // is unchanged keeps its slot. Only a successful registration is remembered.
-uint32_t Device::StageSamplerSlot(uint32_t stage)
+uint32_t Device::StageSamplerSlot(uint32_t stage, bool material)
 {
     if (!m_bindless)
         return 0;
-    uint64_t key = SamplerKey(stage);
+    uint64_t key = SamplerKey(stage, material);
     if (key == m_stageSamplerKey[stage])
         return m_stageSamplerSlot[stage];
-    uint32_t index = RegisterBindlessSampler(SamplerFor(stage));
+    uint32_t index = RegisterBindlessSampler(SamplerFor(stage, material));
     if (index == ~0u)
         return 0;
     m_stageSamplerKey[stage] = key;
@@ -1053,11 +1054,11 @@ uint32_t Device::FixedSamplerSlot(uint32_t which, VkSampler s)
     return index;
 }
 
-VkSampler Device::SamplerFor(uint32_t stage)
+VkSampler Device::SamplerFor(uint32_t stage, bool material)
 {
     const auto& t = m_tss[stage];
     uint32_t addrU = t[d3d::TSS_ADDRESSU], addrV = t[d3d::TSS_ADDRESSV];
-    uint64_t key = SamplerKey(stage);
+    uint64_t key = SamplerKey(stage, material);
     auto it = m_samplers.find(key);
     if (it != m_samplers.end())
         return it->second;
@@ -1067,6 +1068,16 @@ VkSampler Device::SamplerFor(uint32_t stage)
     ci.mipmapMode = t[d3d::TSS_MIPFILTER] == d3d::TFP_LINEAR ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
     ci.minLod = float(t[d3d::TSS_MAXMIPLEVEL]);           // D3D MAXMIPLEVEL = most detailed level used
     ci.maxLod = t[d3d::TSS_MIPFILTER] == d3d::TFP_NONE ? ci.minLod : VK_LOD_CLAMP_NONE;
+    // A legacy texture-quality clamp refers to the game's small original,
+    // not a side-loaded HD colour map. Preserve original/data samplers, but
+    // let replacements use their full resident detail and proper mip filtering.
+    if(material) {
+        ci.minLod=0.f;
+        if(ci.minFilter==VK_FILTER_LINEAR && ci.magFilter==VK_FILTER_LINEAR) {
+            ci.mipmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            ci.maxLod=VK_LOD_CLAMP_NONE;
+        } else ci.maxLod=0.f;
+    }
     ci.addressModeU = AddressMode(addrU);
     ci.addressModeV = AddressMode(addrV);
     ci.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -1074,7 +1085,7 @@ VkSampler Device::SamplerFor(uint32_t stage)
                                                      : VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     // Enhancement: anisotropic filtering for textures the game filters linearly (point-filtered ones stay crisp), as
     // DXVK's forced anisotropy does.
-    if (SceneMipBias() && t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE)
+    if (SceneMipBias() && (material || t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE))
         ci.mipLodBias = std::log2(float(m_renderScale) / 100.0f);
     if (m_anisotropy > 1 && ci.minFilter == VK_FILTER_LINEAR && ci.magFilter == VK_FILTER_LINEAR) {
         ci.anisotropyEnable = VK_TRUE;

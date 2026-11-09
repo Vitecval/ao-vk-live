@@ -236,7 +236,7 @@ Device::GrassTile* Device::GrassTileAt(int32_t tx, int32_t tz) const
 void Device::CaptureTerrain(uint32_t primitive, const FvfLayout& layout, const void* vertices, uint32_t vertexCount,
                             const uint16_t* indices, uint32_t indexCount, bool asBase, int combinedStage)
 {
-    if (!m_grassOn || !vertices || layout.offset[0] < 0)
+    if ((!m_grassOn && m_ambientMotes<=0.f) || !vertices || layout.offset[0] < 0)
         return;
     if (primitive < d3d::TriangleList || primitive > d3d::TriangleFan)
         return;

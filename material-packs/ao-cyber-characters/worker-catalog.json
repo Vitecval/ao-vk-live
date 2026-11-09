@@ -13410,12 +13410,12 @@
     "name": "body_coffee_tshirt.png",
     "source": "preview20-worker4-1010004_275367",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 275367,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13440,12 +13440,12 @@
     "name": "arms_coffee_tshirt.png",
     "source": "preview20-worker4-1010004_275368",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 275367,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13470,12 +13470,12 @@
     "name": "body_epeen_tshirt.png",
     "source": "preview20-worker4-1010004_273215",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 273215,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13500,12 +13500,12 @@
     "name": "arms_epeen_tshirt.png",
     "source": "preview20-worker4-1010004_273216",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 273215,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13530,12 +13530,12 @@
     "name": "arms_tattoo_anchor.png",
     "source": "preview20-worker4-1010004_275219",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 275219,
     "provenance": {
       "source_sha256": "e6bbc8428ba35ec980727ac767bf8f011a81391d62bfb9e02ed920a4ee80315d",
@@ -13560,12 +13560,12 @@
     "name": "head_solitusfemale_eleena.png",
     "source": "preview20-worker4-1010004_31691",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 31691,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13590,12 +13590,12 @@
     "name": "head_solitusfemale_rita.png",
     "source": "preview20-worker4-1010004_31695",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 31695,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13620,12 +13620,12 @@
     "name": "head_solitusmale_alitstair.png",
     "source": "preview20-worker4-1010004_31699",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 31699,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13650,12 +13650,12 @@
     "name": "head_solitusmale_joshua_kahn.png",
     "source": "preview20-worker4-1010004_31703",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 31703,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13680,12 +13680,12 @@
     "name": "head_solitusmale_philip_ross.png",
     "source": "preview20-worker4-1010004_31707",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 31707,
     "provenance": {
       "source_sha256": "05bf4d5573a9f820343872fd43f5ccbbc77f03852c569a7c6ff4a8e7924b830e",
@@ -13710,12 +13710,12 @@
     "name": "ai_c4_paramedic_legs.png",
     "source": "preview20-worker4-1010004_276283",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13740,12 +13740,12 @@
     "name": "ai_c4_paramedic_body.png",
     "source": "preview20-worker4-1010004_276284",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13770,12 +13770,12 @@
     "name": "ai_c4_paramedic_arms.png",
     "source": "preview20-worker4-1010004_276286",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13800,12 +13800,12 @@
     "name": "ai_c4_paramedic_feet.png",
     "source": "preview20-worker4-1010004_276287",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13830,12 +13830,12 @@
     "name": "ai_c4_paramedic_helmet.png",
     "source": "preview20-worker4-1010004_276288",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
@@ -13860,12 +13860,12 @@
     "name": "ai_c6_paramedic_arms.png",
     "source": "preview20-worker4-1010004_276319",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13890,12 +13890,12 @@
     "name": "ai_c6_paramedic_feet.png",
     "source": "preview20-worker4-1010004_276321",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13920,12 +13920,12 @@
     "name": "ai_c6_paramedic_body.png",
     "source": "preview20-worker4-1010004_276322",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13950,12 +13950,12 @@
     "name": "ai_c6_paramedic_legs.png",
     "source": "preview20-worker4-1010004_276323",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -13980,12 +13980,12 @@
     "name": "ai_c6_paramedic_helmet.png",
     "source": "preview20-worker4-1010004_276324",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
@@ -14010,12 +14010,12 @@
     "name": "ai_c4_paramedic_hands.png",
     "source": "preview20-worker4-1010004_276542",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
@@ -14040,12 +14040,12 @@
     "name": "ai_c6_paramedic_hands.png",
     "source": "preview20-worker4-1010004_276822",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 276283,
     "provenance": {
       "source_sha256": "0d158db58e02a8350a4e34ee6d3cc4484efe0436cbfacc11396cce18c32bd505",
@@ -14070,12 +14070,12 @@
     "name": "body_alium_shirt.png",
     "source": "preview20-worker4-1010004_277259",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 277259,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -14100,12 +14100,12 @@
     "name": "arms_alium_shirt.png",
     "source": "preview20-worker4-1010004_277260",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 277259,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -14130,12 +14130,12 @@
     "name": "broadsword.png",
     "source": "preview20-worker4-1010004_35555",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 35555,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -14160,12 +14160,12 @@
     "name": "taichi_sword.png",
     "source": "preview20-worker4-1010004_96331",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 96331,
     "provenance": {
       "source_sha256": "6079d3e5be498ee2e389fc4ba0e3a0bc364e0d0d75878741c2010777197b3453",
@@ -14190,12 +14190,12 @@
     "name": "AI_weapon_crossbow.png",
     "source": "preview20-worker4-1010004_254903",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 254903,
     "provenance": {
       "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
@@ -14220,12 +14220,12 @@
     "name": "rapier_devil_straight.png",
     "source": "preview20-worker4-1010004_244927",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 244927,
     "provenance": {
       "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
@@ -14250,12 +14250,12 @@
     "name": "sledgehammer_heart_breaker.png",
     "source": "preview20-worker4-1010004_301939",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 301939,
     "provenance": {
       "source_sha256": "2e1966db9983ef8d01d00468c551490fcc5192479e5b97d308917f9de1837aa8",
@@ -14280,12 +14280,12 @@
     "name": "pandemonium_bluntweapon.png",
     "source": "preview20-worker4-1010004_244923",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 244923,
     "provenance": {
       "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
@@ -14310,12 +14310,12 @@
     "name": "greenomniarmor.png",
     "source": "preview20-worker4-1010004_120531",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 120531,
     "provenance": {
       "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
@@ -14340,12 +14340,12 @@
     "name": "blueomniarmor.png",
     "source": "preview20-worker4-1010004_120532",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 120531,
     "provenance": {
       "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
@@ -14370,12 +14370,12 @@
     "name": "omni_armor_sign.png",
     "source": "preview20-worker4-1010004_120533",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 120531,
     "provenance": {
       "source_sha256": "3436c1e7f55c459a9c9bf7c330773a213c0c224a20ab312f051282fb8ff03215",
@@ -14400,12 +14400,12 @@
     "name": "arms_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163335",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14430,12 +14430,12 @@
     "name": "body_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163336",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14460,12 +14460,12 @@
     "name": "feet_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163337",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14490,12 +14490,12 @@
     "name": "hands_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163338",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14520,12 +14520,12 @@
     "name": "helmet_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163339",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14550,12 +14550,12 @@
     "name": "legs_enriched_metaplast.png",
     "source": "preview20-worker4-1010004_163340",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 163335,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14580,12 +14580,12 @@
     "name": "backpack_nano.png",
     "source": "preview20-worker4-1010004_10771",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 10771,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14610,12 +14610,12 @@
     "name": "backpack_big-lifesupport.png",
     "source": "preview20-worker4-1010004_10775",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 10775,
     "provenance": {
       "source_sha256": "c3fe0699d0f19033a1322da42167886c6447d726841d6309cd065fa7e2e407dd",
@@ -14640,12 +14640,12 @@
     "name": "boots_cr.png",
     "source": "preview20-worker4-1010004_205179",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 205179,
     "provenance": {
       "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
@@ -14670,12 +14670,12 @@
     "name": "arms_cr.png",
     "source": "preview20-worker4-1010004_205180",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 205179,
     "provenance": {
       "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
@@ -14700,12 +14700,12 @@
     "name": "chest_cr.png",
     "source": "preview20-worker4-1010004_205181",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 205179,
     "provenance": {
       "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
@@ -14730,12 +14730,12 @@
     "name": "legs_cr.png",
     "source": "preview20-worker4-1010004_205182",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 205179,
     "provenance": {
       "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
@@ -14760,12 +14760,12 @@
     "name": "addonarmor_scorpio_tank_clan.png",
     "source": "preview20-worker4-1010004_244651",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 244651,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14790,12 +14790,12 @@
     "name": "addonarmor_scorpio_tank_neut.png",
     "source": "preview20-worker4-1010004_244652",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 244651,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14820,12 +14820,12 @@
     "name": "addonarmor_scorpio_tank_omni.png",
     "source": "preview20-worker4-1010004_244653",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 244651,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14850,12 +14850,12 @@
     "name": "addonarmour_shoulderpads_knights.png",
     "source": "preview20-worker4-1010004_32183",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14880,12 +14880,12 @@
     "name": "addonarmour_shoulderpads_knights_redeemed.png",
     "source": "preview20-worker4-1010004_229622",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14910,12 +14910,12 @@
     "name": "addonarmour_shoulderpads_knights_unredeemed.png",
     "source": "preview20-worker4-1010004_229624",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14940,12 +14940,12 @@
     "name": "bladestaff2.png",
     "source": "preview20-worker4-1010004_21183",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 21183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -14970,12 +14970,12 @@
     "name": "bladestaff3.png",
     "source": "preview20-worker4-1010004_21187",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 21183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -15000,12 +15000,12 @@
     "name": "bladestaff1.png",
     "source": "preview20-worker4-1010004_21189",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 21183,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -15030,12 +15030,12 @@
     "name": "subgun1.png",
     "source": "preview20-worker4-1010004_21123",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 21123,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -15060,12 +15060,12 @@
     "name": "helmet_Ep02_ski_mask.png",
     "source": "preview20-worker4-1010004_254939",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 254939,
     "provenance": {
       "source_sha256": "f2f1e6960aa12b380e3b9b76f7cb65ab0ead6fb05f14269eaaa4f0fb55c4fadd",
@@ -15090,12 +15090,12 @@
     "name": "feet_blackboots.png",
     "source": "preview20-worker4-1010004_9615",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 9615,
     "provenance": {
       "source_sha256": "b74bf0c738b039965b9aaf9e3e9ff75dac017c229dd2d0d9295f9373c17d125a",
@@ -15120,12 +15120,12 @@
     "name": "minidrone1.png",
     "source": "preview20-worker4-1010004_75387",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 75387,
     "provenance": {
       "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
@@ -15150,12 +15150,12 @@
     "name": "minidrone2.png",
     "source": "preview20-worker4-1010004_75388",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 75387,
     "provenance": {
       "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
@@ -15180,12 +15180,12 @@
     "name": "minidrone1_rusty.png",
     "source": "preview20-worker4-1010004_297282",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 75387,
     "provenance": {
       "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
@@ -15210,12 +15210,12 @@
     "name": "minidrone2_rusty.png",
     "source": "preview20-worker4-1010004_297283",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 75387,
     "provenance": {
       "source_sha256": "e20c6f46c239c96af5729bd87cb6e0adde61daac84c8f83e99d32a4ab11366ae",
@@ -15240,12 +15240,12 @@
     "name": "arms_silver-short.png",
     "source": "preview20-worker4-1010004_42263",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 42263,
     "provenance": {
       "source_sha256": "7ebae9b788ca873fd1d665d1a993aa9f3eb6b280153ccf06e821a953b5e59df0",
@@ -15270,12 +15270,12 @@
     "name": "back_pack_float.png",
     "source": "preview20-worker4-1010004_245455",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 10775,
     "provenance": {
       "source_sha256": "7ebae9b788ca873fd1d665d1a993aa9f3eb6b280153ccf06e821a953b5e59df0",
@@ -15300,12 +15300,12 @@
     "name": "legs_minileatherskirt_female.png",
     "source": "preview20-worker4-1010004_22627",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 22627,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15330,12 +15330,12 @@
     "name": "legs_minileatherskirt2_female.png",
     "source": "preview20-worker4-1010004_22628",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 22627,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15360,12 +15360,12 @@
     "name": "legs_minileatherskirt3_female.png",
     "source": "preview20-worker4-1010004_22629",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 22627,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15390,12 +15390,12 @@
     "name": "legs_minileatherskirt4_female.png",
     "source": "preview20-worker4-1010004_22630",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 22627,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15420,12 +15420,12 @@
     "name": "arms_black-bands.png",
     "source": "preview20-worker4-1010004_40895",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 40895,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15450,12 +15450,12 @@
     "name": "body_black-bands.png",
     "source": "preview20-worker4-1010004_40897",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 40895,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15480,12 +15480,12 @@
     "name": "legs_black-bands.png",
     "source": "preview20-worker4-1010004_40906",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 40895,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15510,12 +15510,12 @@
     "name": "arms_blacker_armbands.png",
     "source": "preview20-worker4-1010004_246315",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 40895,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15540,12 +15540,12 @@
     "name": "body_halloween_nightmare.png",
     "source": "preview20-worker4-1010004_265347",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 265347,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15570,12 +15570,12 @@
     "name": "arms_halloween_nightmare.png",
     "source": "preview20-worker4-1010004_265348",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 265347,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15600,12 +15600,12 @@
     "name": "arms_crackerjack.png",
     "source": "preview20-worker4-1010004_245663",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 245663,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15630,12 +15630,12 @@
     "name": "arms_tcloak.png",
     "source": "preview20-worker4-1010004_206659",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 206659,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15660,12 +15660,12 @@
     "name": "arms_silver_band.png",
     "source": "preview20-worker4-1010004_225919",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 225919,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15690,12 +15690,12 @@
     "name": "feet_slippers.png",
     "source": "preview20-worker4-1010004_247999",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 247999,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15720,12 +15720,12 @@
     "name": "legs_glowingbluepants.png",
     "source": "preview20-worker4-1010004_30879",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 30879,
     "provenance": {
       "source_sha256": "31fee484b97367c5a76489fa107ad855cb6b498d478620d26531a2547ac0a41e",
@@ -15750,12 +15750,12 @@
     "name": "body_sweater-greenish.png",
     "source": "preview20-worker4-1010004_42243",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 42243,
     "provenance": {
       "source_sha256": "61c9e96ebb2cb12177fd6ae4660ea65e40eb7f8b23039d4deb2b40cbad5e5dc0",
@@ -15780,12 +15780,12 @@
     "name": "bunny_ears_white.png",
     "source": "preview20-worker4-1010004_303291",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -15810,12 +15810,12 @@
     "name": "bunny_ears_black.png",
     "source": "preview20-worker4-1010004_303292",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "1225e0edb5142618c5bfeac5f0497ffa94e730b204c0f25227d27d3f9c0ca9ec",
@@ -15840,12 +15840,12 @@
     "name": "bunny_ears_blue.png",
     "source": "preview20-worker4-1010004_303293",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "063d33ee9156f108aef43760c8b83eb768eccb4fa3a76a5cdb93ea03a29152b9",
@@ -15870,12 +15870,12 @@
     "name": "bunny_ears_brown.png",
     "source": "preview20-worker4-1010004_303294",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -15900,12 +15900,12 @@
     "name": "bunny_ears_pink.png",
     "source": "preview20-worker4-1010004_303295",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -15930,12 +15930,12 @@
     "name": "bunny_ears_rainbow.png",
     "source": "preview20-worker4-1010004_303296",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 303291,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -15960,12 +15960,12 @@
     "name": "mace.png",
     "source": "preview20-worker4-1010004_17235",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17235,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -15990,12 +15990,12 @@
     "name": "xan_bow.png",
     "source": "preview20-worker4-1010004_280795",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 280795,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -16020,12 +16020,12 @@
     "name": "xan_grenade.png",
     "source": "preview20-worker4-1010004_280851",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 280851,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -16050,12 +16050,12 @@
     "name": "mittens_2010.png",
     "source": "preview20-worker4-1010004_289559",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 289559,
     "provenance": {
       "source_sha256": "7b46bcf1d2d63393a8ba1c367036b1e15cd3d64a7ef7023bb22e43b0bf7e2255",
@@ -16080,12 +16080,12 @@
     "name": "body_sweater-blue.png",
     "source": "preview20-worker4-1010004_42244",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 42243,
     "provenance": {
       "source_sha256": "063d33ee9156f108aef43760c8b83eb768eccb4fa3a76a5cdb93ea03a29152b9",
@@ -16110,12 +16110,12 @@
     "name": "minethrower.png",
     "source": "preview20-worker4-1010004_17227",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17227,
     "provenance": {
       "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
@@ -16140,12 +16140,12 @@
     "name": "angelwings.png",
     "source": "preview20-worker4-1010004_281807",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 281807,
     "provenance": {
       "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
@@ -16170,12 +16170,12 @@
     "name": "tw_trafficcone.png",
     "source": "preview20-worker4-1010004_293095",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 293095,
     "provenance": {
       "source_sha256": "3f9306584f6ec303ad0be676b86df3306317b2028191effd82790fb1a2a67859",
@@ -16200,12 +16200,12 @@
     "name": "head_athroxmale001.png",
     "source": "preview20-worker4-1010004_16539",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 16539,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16230,12 +16230,12 @@
     "name": "head_athroxmale013.png",
     "source": "preview20-worker4-1010004_17466",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 16539,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16260,12 +16260,12 @@
     "name": "hair_athroxmale006b.png",
     "source": "preview20-worker4-1010004_99686",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 16539,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16290,12 +16290,12 @@
     "name": "sing_sides_greymetal.png",
     "source": "preview20-worker4-1010004_41242",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16320,12 +16320,12 @@
     "name": "4holes_fashion.png",
     "source": "preview20-worker4-1010004_41243",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16350,12 +16350,12 @@
     "name": "7_24.png",
     "source": "preview20-worker4-1010004_41247",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16380,12 +16380,12 @@
     "name": "bet_on_bucks2.png",
     "source": "preview20-worker4-1010004_41250",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16410,12 +16410,12 @@
     "name": "read_the_book.png",
     "source": "preview20-worker4-1010004_41254",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "308559be6363bac0b492792fbd72e463f68bb51f8743dc5c646913c3252cf9cf",
@@ -16440,12 +16440,12 @@
     "name": "computers_inc.png",
     "source": "preview20-worker4-1010004_41257",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16470,12 +16470,12 @@
     "name": "general_store_tall.png",
     "source": "preview20-worker4-1010004_41261",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16500,12 +16500,12 @@
     "name": "hard_ware_shop.png",
     "source": "preview20-worker4-1010004_41266",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16530,12 +16530,12 @@
     "name": "rocking_shoes.png",
     "source": "preview20-worker4-1010004_41270",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16560,12 +16560,12 @@
     "name": "rubika_1st_national.png",
     "source": "preview20-worker4-1010004_41274",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "308559be6363bac0b492792fbd72e463f68bb51f8743dc5c646913c3252cf9cf",
@@ -16590,12 +16590,12 @@
     "name": "tools_n_stuff.png",
     "source": "preview20-worker4-1010004_41279",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32011,
     "provenance": {
       "source_sha256": "d31c4316d36bf53d25f13fa9048826face604f015df2a39512bae10ee780e046",
@@ -16620,12 +16620,12 @@
     "name": "ilosebutton.png",
     "source": "preview20-worker4-1010004_292859",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 292859,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16650,12 +16650,12 @@
     "name": "elevator_buttons_arrow.png",
     "source": "preview20-worker4-1010004_233075",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 233075,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16680,12 +16680,12 @@
     "name": "elevator_buttons_bossroom.png",
     "source": "preview20-worker4-1010004_233078",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 233075,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16710,12 +16710,12 @@
     "name": "xan_grid.png",
     "source": "preview20-worker4-1010004_269791",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 269791,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16740,12 +16740,12 @@
     "name": "head_shopkeeper2.png",
     "source": "preview20-worker4-1010004_116707",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 116707,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16770,12 +16770,12 @@
     "name": "arms_adventurer_soul_dredge.png",
     "source": "preview20-worker4-1010004_245431",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 245431,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16800,12 +16800,12 @@
     "name": "planet.png",
     "source": "preview20-worker4-1010004_6327",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 6327,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16852,7 +16852,11 @@
     "material_map_size": [
       128,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "3fbc66a9070a5e27d0150af8e093acf58d98a41586a1409674a2100c9e089349"
+    }
   },
   {
     "type": 1010004,
@@ -16882,7 +16886,11 @@
     "material_map_size": [
       128,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "22e117e6c061ef17a9e5d64a0da942b2382c06bfaa9a97326f24fecb5830f4a3"
+    }
   },
   {
     "type": 1010004,
@@ -16890,12 +16898,12 @@
     "name": "hopeless.png",
     "source": "preview20-worker4-1010004_120611",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 120611,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16920,12 +16928,12 @@
     "name": "dustcloud.png",
     "source": "preview20-worker4-1010004_6331",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 6331,
     "provenance": {
       "source_sha256": "57a627722c81fe4baacf5b7e4b358aaccc49b19c784472710e3fc83ffc04e188",
@@ -16950,12 +16958,12 @@
     "name": "arms_grey-leaves.png",
     "source": "preview20-worker4-1010004_253299",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 253299,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -16980,12 +16988,12 @@
     "name": "feet_grey-leaves.png",
     "source": "preview20-worker4-1010004_253325",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 253299,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17010,12 +17018,12 @@
     "name": "tower_shrapnel.png",
     "source": "preview20-worker4-1010004_201699",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 201699,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17040,12 +17048,12 @@
     "name": "tower_lightningeffect.png",
     "source": "preview20-worker4-1010004_201707",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 201707,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17070,12 +17078,12 @@
     "name": "shock_stripes.png",
     "source": "preview20-worker4-1010004_20287",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 20287,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17100,12 +17108,12 @@
     "name": "shock_stripes2.png",
     "source": "preview20-worker4-1010004_26046",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 20287,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17130,12 +17138,12 @@
     "name": "twirl.png",
     "source": "preview20-worker4-1010004_263823",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 263823,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17160,12 +17168,12 @@
     "name": "EMP.png",
     "source": "preview20-worker4-1010004_265343",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 265343,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17190,12 +17198,12 @@
     "name": "alien_sprite_01.png",
     "source": "preview20-worker4-1010004_264031",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 264031,
     "provenance": {
       "source_sha256": "caf7d32231422c28a73f5cca535dd04a2c0a9d0e553d38f4537c35754dc31dde",
@@ -17220,12 +17228,12 @@
     "name": "alien_sprite_02.png",
     "source": "preview20-worker4-1010004_264139",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 264031,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17272,7 +17280,11 @@
     "material_map_size": [
       128,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "7592b25714b769294ef6caff61c44973b6cde9a34b8ec12eb059ada50411923c"
+    }
   },
   {
     "type": 1010004,
@@ -17280,12 +17292,12 @@
     "name": "icc_entrance_screen01_d.png",
     "source": "preview20-worker4-1010004_297335",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 297335,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17310,12 +17322,12 @@
     "name": "sign_the_ring.png",
     "source": "preview20-worker4-1010004_300767",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 300767,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17340,12 +17352,12 @@
     "name": "valentine card.png",
     "source": "preview20-worker4-1010004_207015",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 207015,
     "provenance": {
       "source_sha256": "f83dda876f4d3ac7d6716f9ef894b8d86fb1370a3a614c665a3c783e0c91b28f",
@@ -17370,12 +17382,12 @@
     "name": "caustics_16_frames_64x64.png",
     "source": "preview20-worker4-1010004_213259",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17400,12 +17412,12 @@
     "name": "caustic_effect00.png",
     "source": "preview20-worker4-1010004_226088",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17430,12 +17442,12 @@
     "name": "caustic_effect01.png",
     "source": "preview20-worker4-1010004_226089",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17460,12 +17472,12 @@
     "name": "caustic_effect02.png",
     "source": "preview20-worker4-1010004_226090",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17490,12 +17502,12 @@
     "name": "caustic_effect03.png",
     "source": "preview20-worker4-1010004_226091",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17520,12 +17532,12 @@
     "name": "caustic_effect04.png",
     "source": "preview20-worker4-1010004_226092",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17550,12 +17562,12 @@
     "name": "caustic_effect05.png",
     "source": "preview20-worker4-1010004_226093",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17580,12 +17592,12 @@
     "name": "caustic_effect06.png",
     "source": "preview20-worker4-1010004_226094",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17610,12 +17622,12 @@
     "name": "caustic_effect07.png",
     "source": "preview20-worker4-1010004_226095",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17640,12 +17652,12 @@
     "name": "caustic_effect08.png",
     "source": "preview20-worker4-1010004_226096",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17670,12 +17682,12 @@
     "name": "caustic_effect09.png",
     "source": "preview20-worker4-1010004_226097",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17700,12 +17712,12 @@
     "name": "caustic_effect10.png",
     "source": "preview20-worker4-1010004_226098",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17730,12 +17742,12 @@
     "name": "caustic_effect11.png",
     "source": "preview20-worker4-1010004_226099",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17760,12 +17772,12 @@
     "name": "caustic_effect12.png",
     "source": "preview20-worker4-1010004_226100",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17790,12 +17802,12 @@
     "name": "caustic_effect13.png",
     "source": "preview20-worker4-1010004_226101",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17820,12 +17832,12 @@
     "name": "caustic_effect14.png",
     "source": "preview20-worker4-1010004_226102",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "2bcf9c8d2d29a58dd828c7fa10f0d11f26c8b169243ebb79af7fbb3085f10065",
@@ -17850,12 +17862,12 @@
     "name": "caustic_effect15.png",
     "source": "preview20-worker4-1010004_226103",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 213259,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -17880,12 +17892,12 @@
     "name": "sandworm_tpage.png",
     "source": "preview20-worker4-1010004_17099",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17099,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -17910,12 +17922,12 @@
     "name": "sandworm_tpage_jungle.png",
     "source": "preview20-worker4-1010004_95953",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17099,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -17940,12 +17952,12 @@
     "name": "sandworm_tpage_special.png",
     "source": "preview20-worker4-1010004_95954",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17099,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -17970,12 +17982,12 @@
     "name": "sandworm_tpage_water.png",
     "source": "preview20-worker4-1010004_95955",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17099,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18000,12 +18012,12 @@
     "name": "s_flame.png",
     "source": "preview20-worker4-1010004_15975",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 15975,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18030,12 +18042,12 @@
     "name": "s_muzzleflash.png",
     "source": "preview20-worker4-1010004_15979",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 15979,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18060,12 +18072,12 @@
     "name": "s_exp1noise.png",
     "source": "preview20-worker4-1010004_16111",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 16111,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18090,12 +18102,12 @@
     "name": "s_bulletfront.png",
     "source": "preview20-worker4-1010004_18399",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 18399,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18120,12 +18132,12 @@
     "name": "circle.png",
     "source": "preview20-worker4-1010004_17763",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 17763,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18150,12 +18162,12 @@
     "name": "grid.png",
     "source": "preview20-worker4-1010004_11435",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 11435,
     "provenance": {
       "source_sha256": "589d08a41a217ba22c8bb6428828b67e94c2b97efa565104f1976a6f2d55f80c",
@@ -18202,7 +18214,11 @@
     "material_map_size": [
       128,
       32
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "e6ed80fe0116c99aca677cd95717852766122188729a019ee4666fa880c0ae2d"
+    }
   },
   {
     "type": 1010004,
@@ -18210,12 +18226,12 @@
     "name": "hq_behave.png",
     "source": "preview20-worker4-1010004_18051",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 18051,
     "provenance": {
       "source_sha256": "dc9e87a07ba223b7ec9ff1d343248f1ca32f3edc4cfb0ecc1ca0783caae00547",
@@ -18240,12 +18256,12 @@
     "name": "avalon_forcefieldplaintex.png",
     "source": "preview20-worker4-1010004_32543",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 32543,
     "provenance": {
       "source_sha256": "589d08a41a217ba22c8bb6428828b67e94c2b97efa565104f1976a6f2d55f80c",
@@ -18270,12 +18286,12 @@
     "name": "drill_tentacle_head.png",
     "source": "preview20-worker4-1010004_38203",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 38203,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18300,12 +18316,12 @@
     "name": "drill_tentacle_body2.png",
     "source": "preview20-worker4-1010004_38204",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 38203,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18330,12 +18346,12 @@
     "name": "puko_tail.png",
     "source": "preview20-worker4-1010004_95331",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 95331,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18360,12 +18376,12 @@
     "name": "puko_head.png",
     "source": "preview20-worker4-1010004_95332",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 95331,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18390,12 +18406,12 @@
     "name": "puko_bodyfront.png",
     "source": "preview20-worker4-1010004_95333",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 95331,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18420,12 +18436,12 @@
     "name": "puko_bodyback.png",
     "source": "preview20-worker4-1010004_95334",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 95331,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18450,12 +18466,12 @@
     "name": "gen_gauntlet.png",
     "source": "preview20-worker4-1010004_95791",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 95791,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18480,12 +18496,12 @@
     "name": "mine_explosion02_01_v01.png",
     "source": "preview20-worker4-1010004_15719",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 15719,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18510,12 +18526,12 @@
     "name": "mine_explosion02_bw_01_v01.png",
     "source": "preview20-worker4-1010004_225520",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 15719,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18540,12 +18556,12 @@
     "name": "harrys.png",
     "source": "preview20-worker4-1010004_120675",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 120675,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18570,12 +18586,12 @@
     "name": "avalon_holdedgrass.png",
     "source": "preview20-worker4-1010004_41127",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 41127,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18600,12 +18616,12 @@
     "name": "rumpatak.png",
     "source": "preview20-worker4-1010004_42431",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 42431,
     "provenance": {
       "source_sha256": "76a2e00796e09367127dcd6b50a64144e6af98a2ba80634c3fa3740312f24d55",
@@ -18630,12 +18646,12 @@
     "name": "default_floor.png",
     "source": "preview20-worker4-1010004_99475",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 99475,
     "provenance": {
       "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
@@ -18660,12 +18676,12 @@
     "name": "small_northharbour.png",
     "source": "preview20-worker4-1010004_28723",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 28723,
     "provenance": {
       "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
@@ -18690,12 +18706,12 @@
     "name": "pilrass.png",
     "source": "preview20-worker4-1010004_28724",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 28723,
     "provenance": {
       "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",
@@ -18720,12 +18736,12 @@
     "name": "small_southharbour.png",
     "source": "preview20-worker4-1010004_28731",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-4",
-    "worker": 4,
+    "worker": true,
     "family_key": 28723,
     "provenance": {
       "source_sha256": "634e8931ff9a720aa3dcdac58ff07cf6a6d9cf2be667bee950eb65abb425809a",

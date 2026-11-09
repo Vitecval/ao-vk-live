@@ -114,7 +114,7 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 userFogEye;            // world eye and animation time
     vec4 sharedGround[5];
     vec4 sharedGroundConfig;
-    vec4 terrainFar;             // x filtered macro composition, y Shared Ground+ bumps/grit (1 elsewhere)
+    vec4 terrainFar;             // x macro composition, y Shared Ground+ grit, z light source halo strength
     vec4 windowLife;            // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
     Light lights[64];
 } FL;

@@ -67,9 +67,7 @@ def main():
     for name in ['family-catalog.json','rubika-catalog.json','rubika-ground-catalog.json']:
         family=ROOT/name
         if family.exists():
-            combined={(x['type'],x['id']):x for x in catalog}
-            for item in json.loads(family.read_text()): combined[item['type'],item['id']]=item
-            catalog=list(combined.values())
+            catalog=gate.merge_family(catalog,json.loads(family.read_text()))
     for item in catalog:
         stem = f"{item['type']}_{item['id']}"
         previous = prior_materials.get((item['type'],item['id']))
@@ -92,6 +90,7 @@ def main():
         if identity not in ledger:
             raise RuntimeError(f'Missing full-quality source dimensions for {identity}; audit before baking')
         gate.require_size(identity, (w,h), ledger[identity])
+        gate.require_detail_size(identity,(w,h),item.get('detail_exception'))
         if art.width < w or art.height < h:
             raise RuntimeError(f'{identity}: source art {art.size} cannot supply export {(w,h)}; render it at the required size')
         art = art.resize((w,h),Image.Resampling.LANCZOS)

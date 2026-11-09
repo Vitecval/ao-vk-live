@@ -506,10 +506,11 @@ void Device::EndScene()
     RenderSmoke(cmd);                            // RVK_SmokeOn: the smoke's simulation, and it over the scene
     m_view=smokeView;m_proj=smokeProj;m_viewport=smokeViewport;m_rs[d3d::RS_AMBIENT]=smokeAmbient;
     RenderDebris(cmd);                           // RVK_StormDebris: a storm's blown leaves, straw and twigs
+    RenderAmbientMotes(cmd);                     // optional local pollen, dust and night fireflies
     RenderRain(cmd);                             // RVK_WeatherOn: the rain, over all of it
     double cpu = ProfileCpu();
     Transition(cmd, m_scene, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    bool bloom = m_bloomStrength > 0.0f;
+    bool bloom = m_bloomStrength > 0.0f || m_lightGlow>0.f;
     if (bloom)
         RenderBloom(cmd);
     ProfileMark("bloom");
@@ -535,7 +536,7 @@ void Device::EndScene()
     // params[8..15]: colour grading (identity lookup tables until the proxy loads others).
     for (Texture*& lut : m_lut)
         if (!lut) lut = CreateLut(16, nullptr);
-    float params[16] = {m_tonemapKnee, m_exposure * m_darkGain, bloom ? m_bloomStrength / m_bloomWeightSum : 0.0f,
+    float params[16] = {m_tonemapKnee, m_exposure * m_darkGain, bloom ? (m_bloomStrength>0.f ? m_bloomStrength:1.f) / m_bloomWeightSum : 0.0f,
                         m_bloomDepth ? m_bloomOverNearer : -1.0f, m_aoProj.m[2][2], m_aoProj.m[3][2],
                         gi ? m_giStrength : 0.0f,
                         float((volume ? 1 : 0) | (ssr ? 2 : 0) | (ao ? 4 : 0) | (contact ? 8 : 0))};
@@ -1660,7 +1661,7 @@ void Device::RenderBloom(VkCommandBuffer cmd)
         // (By night - as dark as RVK_Darkness makes it - the threshold lower: lamps and windows glow out of the dark.)
         const float nightGlow = NightAmount() * std::min(m_dark.tone, 1.0f);
         float params[8] = {1.0f / float(src->m_width), 1.0f / float(src->m_height),
-                           m_bloomThreshold * (1.0f - 0.25f * nightGlow), i == 0 ? 1.0f : 0.0f,
+                           m_bloomStrength>0.f ? m_bloomThreshold * (1.0f - 0.25f * nightGlow):1e10f, i == 0 ? 1.0f : 0.0f,
                            m_aoProj.m[2][2], m_aoProj.m[3][2], m_bloomDepth ? 1.0f : 0.0f, 0.0f};
         // The first pass adds the glow (additive effects) to the scene's light above the threshold.
         Texture* src2 = i == 0 ? m_glow : src;

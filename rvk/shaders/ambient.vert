@@ -1,0 +1,49 @@
+#version 450
+// World-anchored, terrain-classified emitters. No camera-space snow overlay.
+#include "rain_common.glsl"
+layout(set=0,binding=3) uniform AmbientOrigins { vec4 points[128]; } A;
+layout(location=0) out vec2 vCorner;
+layout(location=1) out vec3 vColour;
+layout(location=2) out float vAlpha;
+layout(location=3) out vec4 vClip;
+layout(location=4) out vec4 vPrevClip;
+layout(location=5) out float vGlow;
+vec3 Position(vec3 origin,float t,float seed) {
+    return origin+vec3(sin(t*.43+seed)*1.4,.4+1.1*(1.+sin(t*.21+seed*2.)),cos(t*.31+seed)*1.4);
+}
+void main() {
+    uint id=uint(gl_VertexIndex)/6u, vertex=uint(gl_VertexIndex)%6u;
+    uint perAnchor=max(uint(R.fall.w+.5),1u);
+    vec4 anchor=A.points[id/perAnchor];
+    uint random=RainHash((id%perAnchor)*7919u+floatBitsToUint(anchor.x)+floatBitsToUint(anchor.z));
+    float seed=RainRand(random)*6.2831853;
+    vec3 p=Position(anchor.xyz,R.time.x,seed),before=Position(anchor.xyz,R.time.y,seed);
+    bool spores=anchor.w>1.5 && anchor.w<2.5;
+    bool fleck=spores && (id%2u)==1u;
+    float vegetation=clamp(anchor.w,0.,1.);
+    float night=R.time.z;
+    vGlow=fleck ? 0.:spores || anchor.w>3.5 ? 1.:vegetation*night;
+    float pulse=.35+.65*pow(.5+.5*sin(R.time.x*(1.3+seed*.1)+seed),2.);
+    float distanceToEye=distance(p,R.camera.xyz);
+    float opacity=(1.-smoothstep(18.,25.,distanceToEye))*smoothstep(.7,2.,distanceToEye);
+    float density=R.curtains.x;
+    opacity*=1.-smoothstep(density-.02,density+.02,RainRand(random));
+    opacity*=mix(.32,pulse, vGlow)*R.colour.w;
+    vec3 tint=mix(vec3(.56,.43,.27),vec3(.72,.78,.52),vegetation);
+    if(fleck)tint=vec3(.1,.16,.08);
+    vec3 lit=tint*max(R.ambient.rgb,vec3(.08));
+    vColour=mix(lit,(spores ? vec3(.7,1.,.75)*1.35:vec3(.65,.95,.28)*1.7),vGlow);
+    vAlpha=clamp(opacity,0.,.75);
+    const vec2 corners[6]=vec2[](vec2(-1,-1),vec2(1,-1),vec2(1,1),vec2(-1,-1),vec2(1,1),vec2(-1,1));
+    vCorner=corners[vertex];
+    float radius=spores ? (fleck ? .018:.011):mix(.016,.028,vGlow);
+    // A small subpixel mote fades rather than turning into a large distant star.
+    radius=max(radius,distanceToEye*R.viewport.w*.65);
+    vec3 right=vec3(R.view[0][0],R.view[1][0],R.view[2][0]);
+    vec3 up=vec3(R.view[0][1],R.view[1][1],R.view[2][1]);
+    vec3 offset=(right*vCorner.x+up*vCorner.y)*radius;
+    vClip=R.viewProj*vec4(p+offset,1.);
+    vPrevClip=R.prevViewProj*vec4(before+offset,1.);
+    gl_Position=vClip;
+    if(R.camera.w>.5)gl_Position.xy+=FL.taa.xy*gl_Position.w;
+}

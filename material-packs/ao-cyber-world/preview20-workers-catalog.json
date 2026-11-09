@@ -21457,7 +21457,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17234,
     "name": "scythaxe.png",
@@ -21470,8 +21470,8 @@
     "source_sha256": "85830a73b181f0df8be680a97c3f28b425b1385157d6c1ea9f439d8a044f5698",
     "original_sha256": "11f4ed0f1a0af011138b139655dd50f96463e0023f3708aedff04d3a4c887e8a",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -21511,7 +21511,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17242,
     "name": "smallknife.png",
@@ -21524,8 +21524,8 @@
     "source_sha256": "68f42b603a987453669f889cfc1007176e057e40ddc2bbd11d2dfef9d7301977",
     "original_sha256": "1c6102d474a843f12eb456251328d2693fd351d67c1417c8b5626cc06f17f87b",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -21565,7 +21565,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 27726,
     "name": "big_bow_1.png",
@@ -21578,8 +21578,8 @@
     "source_sha256": "ef8c0ee94349650881a0e6ff826ee6a0e21b8e27494690b08ab584f6e93ccc75",
     "original_sha256": "34c2429bc166754b76038b73d7245f21102d3ffd047c01bfd7cc20f12205ea1a",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -21619,7 +21619,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 268513,
     "name": "hands_enhancedleather3.png",
@@ -21632,8 +21632,8 @@
     "source_sha256": "a09072d21d4748c14f72717b399478a8d8132dd234da76b29304eeaa0671b277",
     "original_sha256": "871f8c121a0d94c015979de51f931d06433d38cf9fe35ff6cfb94481319b3f1e",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -21673,7 +21673,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 154306,
     "name": "meta-serpent_staff_1h.png",
@@ -21686,8 +21686,8 @@
     "source_sha256": "f9e8bb3af0832169fc916dce1cbd0dfe764e5fd8a43e1cf9a7bbbec9216f6159",
     "original_sha256": "dbee4d568ce44ae03e5cbbf56d8e6f3507470819f51f12dab16b465472be6787",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -21727,7 +21727,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 160650,
     "name": "Shield_large.png",
@@ -21740,8 +21740,8 @@
     "source_sha256": "808ae912a4c7d2a092f4744f6515bd5b277eec64fe7669c45f7efc53c17e0d5b",
     "original_sha256": "53da1226f40a13da1efb1c2e334c5ff7f7d3337e68ef709bf6905270330361f2",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -21781,7 +21781,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 209538,
     "name": "weapon_bow_laser.png",
@@ -21794,8 +21794,8 @@
     "source_sha256": "81084275a14e6b723acc8be5d2c82616f5355a149d59f4f759103c6f79dab035",
     "original_sha256": "5548e3c10b1ab98f0fabc556c8db54a420a1c39e2394cf414fdd44895bb53155",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -21844,7 +21844,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 244966,
     "name": "sir_gaheris_sword.png",
@@ -21857,8 +21857,8 @@
     "source_sha256": "6baba9caa773b4845c90da946bc00e218aa6fe8329396daa31a32746bac40daf",
     "original_sha256": "1155e252eacce03517e86a22d1eb6bc46d01052ef29df048edae29f9c9cd0374",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -21907,7 +21907,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 259018,
     "name": "veteran_bongo_drums.png",
@@ -21920,8 +21920,8 @@
     "source_sha256": "cc3719dc2d7ddf63160aa72ecf177a9d45f59f785023c174c4f963ade7b4dc4f",
     "original_sha256": "6a42caea65d732068cd235b7f8dc5bed97ffece2fe6b6246cb6ce340937d7db3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -21961,7 +21961,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 262610,
     "name": "1_handed_blunt_02_tex.png",
@@ -21974,8 +21974,8 @@
     "source_sha256": "78d440d55bb2b61a6cb0edd3822a8a44581eab8e76df53e457321457cf8185fc",
     "original_sha256": "a5b16987f8d47cfee8897962dc07b11df7020660437079b740966b83909222de",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22015,7 +22015,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 262825,
     "name": "1_handed_blunt_01.png",
@@ -22028,8 +22028,8 @@
     "source_sha256": "90c739efed9f5af6c42db50ccd862ee621b600f3255ffd2030da07b909add4ea",
     "original_sha256": "ae12f9ed4c0dc0de1c5807e0a3d3e3293ee430a7b792155595716c915dff37a8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22069,7 +22069,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 264690,
     "name": "ep03_piercing_03.png",
@@ -22082,8 +22082,8 @@
     "source_sha256": "33dd532a45ce26a0ceea499477b9bc7ed424ba042553fca6f632e066bcc0f830",
     "original_sha256": "45e38c6efbbb33122688892c3a7f3800df7175efa7094562792f18004f1e7b11",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22123,7 +22123,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 268514,
     "name": "legs_enhancedleather3.png",
@@ -22136,8 +22136,8 @@
     "source_sha256": "4848639c67ee77f3ee964ebafcb52af1d5a201bb7618efc48f3a5655d6dfea35",
     "original_sha256": "cef338e176069808d868545b4f27204a0073d9e21dc215e9297a18c6e9e71ed5",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22177,7 +22177,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 264754,
     "name": "ep03_2_handed_edged_02.png",
@@ -22190,8 +22190,8 @@
     "source_sha256": "09135a7e9beef0d7825aeaa2c8e5679636e3218c8b41efaa7b370504c2a5ebff",
     "original_sha256": "a73c4fa1402da0317770eecceeeb28bb842d98c5690bd810b3b20602816ba476",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22231,7 +22231,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 265386,
     "name": "ep03_1_handed_edged_02.png",
@@ -22244,8 +22244,8 @@
     "source_sha256": "8bcf51d7d8a30a7f30587190c05eb33a002f4630f791e570d9999e25d7611f57",
     "original_sha256": "23042a13c90d9bbd106bc32a83f1ef6b2c24d2383de1354155a12ac7a873c8ac",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22285,7 +22285,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 294712,
     "name": "cupid_bow_01_uvws.png",
@@ -22298,8 +22298,8 @@
     "source_sha256": "1d4659ca9f88ab37de76f43a88c5e081b480a17d333254df3fea3aa28767c6e7",
     "original_sha256": "733a4e45688a754fd358b45c0a08a28d2563c2cbaf08461498b4c884c76d02db",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22339,7 +22339,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 210086,
     "name": "adonis_underwater_thumb_basic_top.png",
@@ -22352,8 +22352,8 @@
     "source_sha256": "90919f4e6129cc2128db8c633f99c3ede9585de1f323d2bbbb8aae362cc55845",
     "original_sha256": "816a6375fa6c8b36185e1399393806f19f3a0be17e3f67dcd48081c6232c3ecb",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22393,7 +22393,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 214422,
     "name": "jobe_appartement_hall_carpet01.png",
@@ -22406,8 +22406,8 @@
     "source_sha256": "213afe82df3a1d24c4454f0cca4bab5c0d6f92bc79f81daf7eee01e08a6d8058",
     "original_sha256": "83ab400b83420dc63dec67808a1e780890155b681b0530f8029915900688f38a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22447,7 +22447,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 215141,
     "name": "Middle_texture_low-detail_plain.png",
@@ -22460,8 +22460,8 @@
     "source_sha256": "fb368795d63a34ede4b2aded9c108f92aa94320a246cd93c24f287ced8b84669",
     "original_sha256": "c691eef36efdacf4fcbd36f8117bb611c2f0521612c6083225eb966eb847347f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22501,7 +22501,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222711,
     "name": "jobe_appartement_bathroom_carpet.png",
@@ -22514,8 +22514,8 @@
     "source_sha256": "f8c134a606a899306937df45071d2ae767682ea52e40cddf5ba8d04d86760b7c",
     "original_sha256": "1886df012d4550c6918188a55aaca652fe7b404d020b10e3d64f5f9de1f8b090",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22555,7 +22555,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222714,
     "name": "jobe_appartement_bedroomcarpet01.png",
@@ -22568,8 +22568,8 @@
     "source_sha256": "e437f5c5f06456f42a3bbe46245a2b0ee5ffd691c9475b63de64013cb7fed5d1",
     "original_sha256": "ba53d0dc4db1b5a1dd005805655a787c209a1cbc9782f11b3e22c364ad670a3e",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22609,7 +22609,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222723,
     "name": "jobe_appartement_kitchencarpet02.png",
@@ -22622,8 +22622,8 @@
     "source_sha256": "fcf34c1e5c38ef03bbb914bc4840a754d5fd277b0ffc0ccdffe8001763733235",
     "original_sha256": "7692a7b065cc70240b2e60b88e2221786fb9b1540afc74e580a88094189406fc",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22663,7 +22663,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222726,
     "name": "jobe_appartement_bedspread.png",
@@ -22676,8 +22676,8 @@
     "source_sha256": "d1818516ba8cfd753745d6e41661b97356fd3509773321ced3c5579928003051",
     "original_sha256": "61fbbc43c13459813dd1f9674eb1d707c0f9ccde98070b3131da5712269f05e9",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22717,7 +22717,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222737,
     "name": "jobe_appartement_kitchencarpet01.png",
@@ -22730,8 +22730,8 @@
     "source_sha256": "7438a7573dcd3e77597a16bd0c9acdde4241f4c17ca377c6405b2e2bb31e8b77",
     "original_sha256": "2569125e7d1ba6538751c827b510cda4fe3564674951c4ab4c63e48e9712fa3b",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22771,7 +22771,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222740,
     "name": "jobe_appartement_bamboo01.png",
@@ -22784,8 +22784,8 @@
     "source_sha256": "d5baf838466f2681f67e1c577195328aab14047c7bef9164ab87dc0588f5777a",
     "original_sha256": "1a48b458ecacb7cce17ed6bc931c7ea50fc5173ee4677b17e56e7d284beb8b78",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -22825,7 +22825,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 222962,
     "name": "jobe_appartement_window.png",
@@ -22838,8 +22838,8 @@
     "source_sha256": "d957930028062f6525d52ae1c444c53e31fdf63e113cb116532ddab2b34e7b1e",
     "original_sha256": "931f484e6eeccf500e04761e646a3cc5c0ef05d148a4c6a8d798da5af89f80aa",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22879,7 +22879,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224264,
     "name": "library_unredeemed_none.png",
@@ -22892,8 +22892,8 @@
     "source_sha256": "774ea5a8db853754ca8c74ec72071c8132c63d880d83a66615f5958232ae3b7c",
     "original_sha256": "a62cead5cb203200ce809c0d754a206658b14844cfa18b95535199616536bdd8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -22933,7 +22933,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224267,
     "name": "rekkverk_unredeemed_ins.png",
@@ -22946,8 +22946,8 @@
     "source_sha256": "fe8fc6b9087ba1a5c06bc5d7a6eced165b417e2a1e2fed5b2fce0d191516a3ea",
     "original_sha256": "5a05909adc7fe54fb0b2d348abf03d8c6c755dfe78a8cdd93a83672731b29ab9",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -22987,7 +22987,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224282,
     "name": "library_unredeemed_none_beveled.png",
@@ -23000,8 +23000,8 @@
     "source_sha256": "7d51f93599cd54ab2d620f608cceed7e1e77b2a40812034020cdaf2ec70395b0",
     "original_sha256": "c919fea982c60a9677bd429e657c43d9da05af762aecaed125528e02ce047bf1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -23041,7 +23041,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224296,
     "name": "veggkant_unredeemed.png",
@@ -23054,8 +23054,8 @@
     "source_sha256": "a7dbb943922b2dc5e8450f6bab326e41319a8ceef071732c03792fac0c91e3f5",
     "original_sha256": "f0a62bb926db6f6ffba4e340facd1e60f0ad6ac92e82097be007f9f7be2b219b",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "maps": {
       "d": {
@@ -23095,7 +23095,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224297,
     "name": "bakkekant_unredeemed.png",
@@ -23108,8 +23108,8 @@
     "source_sha256": "ee4b60e3c816331bb4add90eec3c73f97c935846beb663fb53da7eebde2791c9",
     "original_sha256": "288a6040879dbade176789f5703b6cf24ddcec16f3f11d296ed0b894f966847f",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -23149,7 +23149,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 244995,
     "name": "bakkekant_unredeemed_pandemonium.png",
@@ -23162,8 +23162,8 @@
     "source_sha256": "db2842ab0ba942065786ebb07775a1291ebcaf7ab668d579b22f0c4099b7a4d3",
     "original_sha256": "1fb1833b52db44a6f325d204e1edaf9ce4d2ba46bec8a5a8a1c2d8a2df5b26fc",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -24616,7 +24616,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 233832,
     "name": "jobe_small_appartement_bedspread.png",
@@ -24629,8 +24629,8 @@
     "source_sha256": "65efba98825767e4d5d50f412b755843b40c270ed4595607fb95e20730d04fe3",
     "original_sha256": "d1c96e5bb0b47ed141553887e35811cd656901f044fec566130884e39c7cb7ae",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -24670,7 +24670,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 245053,
     "name": "rekkverk_unredeemed_ins_pand.png",
@@ -24683,8 +24683,8 @@
     "source_sha256": "5e5b542b57eb1925164826e75e920b004f80152764ac1ce56242d6b4fa28f095",
     "original_sha256": "9bb99892378a1af141de66b416e30ea193a94fe740aeb901773b1cb596161fc2",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -24724,7 +24724,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 244589,
     "name": "redeemed_pattern_rim-diddyfiedlarsified.png",
@@ -24737,8 +24737,8 @@
     "source_sha256": "d3c0118dff2c9b9bdbe709aae6a2253a04d0b1786f00c10bb134270a15c5596b",
     "original_sha256": "e1b8acd8e61ec1ca3ae0c7aa5a18888835f0cb02544256a9ed9aef986bfd595f",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -24778,7 +24778,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 244997,
     "name": "seethrough_ornaments_pandemonium.png",
@@ -24791,8 +24791,8 @@
     "source_sha256": "eaafca1d1f1365a88dd350c80b7088fb920bc7cd687d6a91da94994becafda0c",
     "original_sha256": "097e2f39f8f4ee76aead09160870fd364c3bd350d94fd822e4a7134c73798cab",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -24832,7 +24832,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 278801,
     "name": "hood_dustbrigade_suit_whi.png",
@@ -24845,8 +24845,8 @@
     "source_sha256": "e8bb61c2d2dc8dd6605fa98f0068f874d6a24b09eaf1e5e162d33e5c35c3707d",
     "original_sha256": "331ea1b0df3155421fb2beeaf1b33ce6d198212ade41b2eae3e53b2a27da2256",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -24895,7 +24895,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 247050,
     "name": "AI_weapon_light_saber.png",
@@ -24908,8 +24908,8 @@
     "source_sha256": "5bca309e563671bb8fb0d7e9d2246e2a96f73d95155f12271d6b186bba09a3da",
     "original_sha256": "b776af8076ad154854c5a39334ea252c03664c8d0ac11edb904df766382bf699",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -24949,7 +24949,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42019,
     "name": "stret_roadsignmetalplateplain.png",
@@ -24962,8 +24962,8 @@
     "source_sha256": "a1a13e6cf5200e8b43ad3b4a3ef5d6ba716e3bf8ab0f536b314e01c7a9654e5b",
     "original_sha256": "03eb3b72b1560c9940c160d23814d8748a90517bd162787a9dcbba51ecdf0165",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25003,7 +25003,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 31957,
     "name": "clan_roadsign_rusty_empty.png",
@@ -25016,8 +25016,8 @@
     "source_sha256": "88553909b6e673c247e6cf9fee42ac1b24ed4a906ce776b50a1db81c560b9059",
     "original_sha256": "6cf5418e250cacc7b177e94f41c6a6aef376c5da4602d717436cf78ccfeed240",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -25057,7 +25057,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 226342,
     "name": "seethrough_ornaments.png",
@@ -25070,8 +25070,8 @@
     "source_sha256": "7a6a703210ee01201bfe92482db509cf67268c78fdc45fdc4d842ceee8d89b05",
     "original_sha256": "7c5f9b49c4417c01e43bc06e3f97adc7a6b1e567555dd3218a18e996053e85ad",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -25111,7 +25111,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 278598,
     "name": "hood_dustbrigade_hr.png",
@@ -25124,8 +25124,8 @@
     "source_sha256": "0016b159f1f4898fe60d942cfcab8462fa6ff5f1ceb97e71a98da25e08fc7376",
     "original_sha256": "68a2b76a29efce95e9b6c3c8b38fed98846ace9510ec0856907b4feea8b0822d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25174,7 +25174,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 37258,
     "name": "hands_santaclaus.png",
@@ -25187,8 +25187,8 @@
     "source_sha256": "114b20a967de5cf55cadbc457a7c0e6e391bc629f4792bd169226c28731a6a4e",
     "original_sha256": "9bc83acc634f929a495178bb2e5924586379ce5340d2d51f4e905690e060ab03",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -25228,7 +25228,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 37264,
     "name": "legs_santaclaus.png",
@@ -25241,8 +25241,8 @@
     "source_sha256": "d0151e98339d74101bbcaffad4eeb1d751faa29aac82636ddc6771f1f5ef8950",
     "original_sha256": "7a63e018b102e43e00fb57af009c2848195d9d61e6d44bdccf5dcdc9bda67609",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25282,7 +25282,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 75436,
     "name": "blood_legs_ninja.png",
@@ -25295,8 +25295,8 @@
     "source_sha256": "2016ba008a055dfbeae5b0a30d261b698b1fb95284c200f3a530d490ceda0799",
     "original_sha256": "cf2a56cf8e7f01726676ff29bc98bac84e23bc93f59b889cfc9ffec906b23cf0",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25336,7 +25336,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 75437,
     "name": "blood_hands_ninja.png",
@@ -25349,8 +25349,8 @@
     "source_sha256": "19915860d93be224300ffbac3154c4427d8a7d557a516116808e71acfa7c94d0",
     "original_sha256": "2c9c5bee312e59cdb77153ea3c5490b8955b873257f2a6c873123413043392f3",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -25390,7 +25390,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 205031,
     "name": "hat_monoglassesblue_01.png",
@@ -25403,8 +25403,8 @@
     "source_sha256": "8ea2c5a5a5021e1e3a8bcd54886edd84d73c83e4efa7b9ed65d91a195ca6f668",
     "original_sha256": "22d2d31893ae0caadf0d0ba42fa7fb57b1914ea1110111f43af789df66c1d536",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25453,7 +25453,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 205028,
     "name": "hat_high1.png",
@@ -25466,8 +25466,8 @@
     "source_sha256": "64f701dcaf5718d04db55ea2e480dcafab1bf9334375f25bee21f893f73815e7",
     "original_sha256": "ee877013ee75de37fe938827fd90a7871fdcc215d717aff760e17cfe58cc24f7",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25516,7 +25516,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 205038,
     "name": "hat_capehat_02.png",
@@ -25529,8 +25529,8 @@
     "source_sha256": "573a0da3bccd2bbb285ae3ed3048b1a9246b49cadcd5368b851f6e1cfee1a500",
     "original_sha256": "5439b960e1c3f9cc4afd8fd31952688c2cf8eb8b84c2b75adefc4401946f604d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25579,7 +25579,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 205040,
     "name": "hat_capehat_01.png",
@@ -25592,8 +25592,8 @@
     "source_sha256": "f8b48f0e8f3b89b80492ac4b17fb8f3271e02bc1794bcfc03c8bcc26c3ea6a4d",
     "original_sha256": "f159210ded26eebc23309ebd7fe6d63f7b8e5c31cd9cced647ff54972291daeb",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25633,7 +25633,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 21038,
     "name": "kunter_mkII.png",
@@ -25646,8 +25646,8 @@
     "source_sha256": "4b71b9a2e594e57b1587a2e0d9de7b6c9e2f6f39e7fa0194dc03e4edd4a0b24f",
     "original_sha256": "2e856914b63815f43b0fdd7dfe5eec22a93f5178b9831114977acc516c11a839",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -25687,7 +25687,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 26678,
     "name": "arraw.png",
@@ -25700,8 +25700,8 @@
     "source_sha256": "838e3c632fc6c24cd632072cf7b2b720ab6f52e2b8fc83ac7bb6ae18ee770cf8",
     "original_sha256": "e2a5af3f1e7e312bbbcb757ae08a14afd98ce51edc821ed2bc7ca37c64a78186",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -25741,7 +25741,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 292125,
     "name": "hottub_wickerseat.png",
@@ -25754,8 +25754,8 @@
     "source_sha256": "cb4fd34a6e2f2ef154977950564e53923d5510c701fa849bc5a7d4b64fe38e12",
     "original_sha256": "79f0d92896566f8d43ac365b56c7fadd394b8ee4a1ac148ebc5fb4149fa12091",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -25795,7 +25795,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 273710,
     "name": "polka.png",
@@ -25808,8 +25808,8 @@
     "source_sha256": "137808d65fc6820581961b73ae52423b93ed67f7785b5d342698ee81b4ecaf16",
     "original_sha256": "4a8b9199dd49a397415df8ddde732624a79d4ac80fcf84ef4f5dfdd1df13542c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -26776,7 +26776,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42174,
     "name": "living_healthy_medistim_sign.png",
@@ -26789,8 +26789,8 @@
     "source_sha256": "87e493d2ba9d3f1648c46aa2c80b13da47c3ad8994a9e04086642766862b109c",
     "original_sha256": "43233e66d27ac47e2831c089c542c0e79c003c81d9954ab55913822a45998eb5",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -26839,7 +26839,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42189,
     "name": "tir arena_sign_stone.png",
@@ -26852,8 +26852,8 @@
     "source_sha256": "18b095c2be5d30676ed8b1184a8a2fd25e7da88bdad2b0aacb45acb9b36d0835",
     "original_sha256": "f4c27a4cc541a92c395c7bf82f259f599abaa6aa6332c3b158e1dde1d1dd8cef",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -26893,7 +26893,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42191,
     "name": "clan_registration_office_sign.png",
@@ -26906,8 +26906,8 @@
     "source_sha256": "41153be81b1ee3cd891e6f5279f1f6daa62836179da40b3de8247a52f6a7360e",
     "original_sha256": "7668dbec8105dd05bd3bf77a304311f22da2f61703f82c4c756b299499f144f3",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -26947,7 +26947,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42195,
     "name": "east_gate_directionsign.png",
@@ -26960,8 +26960,8 @@
     "source_sha256": "7bb40cce56dbf34a09c9cce2799f68c83a1c2e5351bfda17e731e9cc848315d5",
     "original_sha256": "6d6ac259f0326ecdb5055f253de4852e79873a016157f29a885a8239e0e7dcee",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27001,7 +27001,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42197,
     "name": "east_gate_sign.png",
@@ -27014,8 +27014,8 @@
     "source_sha256": "d9a9bf3def447ee8d4534fcdf0bb01bbf9c7084911710ce2179de72b03e91395",
     "original_sha256": "25f9af282ff11b2c8534efdf0d596165901cbd2d855db18121c7de1ca3725fc9",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27055,7 +27055,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42202,
     "name": "south_gate_directionsign.png",
@@ -27068,8 +27068,8 @@
     "source_sha256": "676365969efb60bf33b8e02810bdb566a6302eaae59b72108900d4ddc218f0c8",
     "original_sha256": "d4bd220c4db64de5029e30ba2071179603cf9f5e9ac0c68d144e25bbe9242c04",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27109,7 +27109,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42204,
     "name": "south_gate_sign.png",
@@ -27122,8 +27122,8 @@
     "source_sha256": "d72f31272c6c316f0af5ee840aa53f379bcf95813c0dcc2a932ad1ea5f2b1fc5",
     "original_sha256": "bf5747498c9f3cff5728dd3cb2879306e419f55104563548d98ee25211280811",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27163,7 +27163,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42209,
     "name": "you_or_them_sign.png",
@@ -27176,8 +27176,8 @@
     "source_sha256": "87386d98cfe9cc64cea058ace8ed774b6bc477c3e7c4163cdd13e7b342535d46",
     "original_sha256": "fc981a1a2ad6d1c56abbfee8f65664757af5871cb8521cc5546c8b95e1d7db64",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27217,7 +27217,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42214,
     "name": "thecup_outdoorsign.png",
@@ -27230,8 +27230,8 @@
     "source_sha256": "742891138a8412dc1b66b97bde585bf56c64b9c073267c7bdc31b92e2a544762",
     "original_sha256": "d1707b507885398fe32b2c44f9010bf717429914cd289b8322a25bf1ef0e2202",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -27271,7 +27271,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 43069,
     "name": "ent_sign_board.png",
@@ -27284,8 +27284,8 @@
     "source_sha256": "8146f6078804971b6fc574e00321541fa3907c93668ba9fd4380044a842fbf37",
     "original_sha256": "c87813f0cd2716bb374fba3ac8a132f170aded6879d7f33e3c28a3b5d1d9c300",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -27325,7 +27325,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 38374,
     "name": "factory_sign.png",
@@ -27338,8 +27338,8 @@
     "source_sha256": "da45fdec182d0f79f008aefafbfb1f5a4bad31d86b5168811cb95715ed70190d",
     "original_sha256": "1fd9d424fbafc321632ad9668faa35a998212b6911ef82b2c937f5f62354ce5c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -27379,7 +27379,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 38377,
     "name": "galway_castlesign_256x64.png",
@@ -27392,8 +27392,8 @@
     "source_sha256": "9598e247ddf13faf97ff64b8d3388e04d2bc83ceb0063dc86ea6812ed6bf61c9",
     "original_sha256": "0fa5bbbd6d453de218475aa59c86b843fddb94e0cdb8fbc15653d3e696ada0bd",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27433,7 +27433,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42020,
     "name": "stret_roadsignblock1.png",
@@ -27446,8 +27446,8 @@
     "source_sha256": "d6bc4e6c7e9f38f8c6e527bbc8aaaf520ea045a4c1afcdd9dac3387b813856b9",
     "original_sha256": "4717d0b70d8fab72ca070d086e1f14139e8fd9d07fac0ebf7e8e02524eae8e5d",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -27487,7 +27487,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42211,
     "name": "knifecutout_sign.png",
@@ -27500,8 +27500,8 @@
     "source_sha256": "19ddaa52124e75ec19c34c457f67c682f069634a65c613f3bc767a99e0141259",
     "original_sha256": "746b190df2a50caf9a46bcc62437d3a51e6f6fe5b9796ea817941cacdb4f1635",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27541,7 +27541,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42193,
     "name": "danger_sign_metall.png",
@@ -27554,8 +27554,8 @@
     "source_sha256": "a96c915eaaae69d86da192a92eaea4f222d19bbac0ec4d9f6156402ae7bc9785",
     "original_sha256": "419f9e97aa6b41a0cbd1a4bd865b2dc2926f97effb2bd882bee63c24e635ba1b",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -27595,7 +27595,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42181,
     "name": "still_alive_sign_small_metall.png",
@@ -27608,8 +27608,8 @@
     "source_sha256": "e722e7f41c454ffac38c53149a06c87e27ecb5fa7518eaa2d5106ea59afa6d2b",
     "original_sha256": "203180452a4aa51490e811577863c6e4914cbff6299e7307d2974cefb130e507",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -27658,7 +27658,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 31958,
     "name": "clan_roadsign_rusty_arrow.png",
@@ -27671,8 +27671,8 @@
     "source_sha256": "350da458907b020164fab025a81dea1ed7c7daafa6542cfc2d75becb80b73b9d",
     "original_sha256": "59b25ac2305430c3cb40e6482dd7bd10f0859e6a1d769d0309979bbe6f966c02",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -27712,7 +27712,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 31964,
     "name": "clan_skull_betong_flat.png",
@@ -27725,8 +27725,8 @@
     "source_sha256": "094024f9ee2ae934a7ada2e20341813254b6e7c61d306bf9d19418ef4cbd6da8",
     "original_sha256": "36bc188e72796bc1cdd1592f82209a4909cfe895a31db1e3fe485e8514cf01fc",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -27766,7 +27766,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42018,
     "name": "stret_arrowroadsign.png",
@@ -27779,8 +27779,8 @@
     "source_sha256": "d86fab9c7b6e4e7bc216ab55b7d28950539a0c4aa729b7c26a4e31fe60d858fb",
     "original_sha256": "de3dc1081e40f12ce0b07a6cde98ace3fc28399e757a07814c14f74e41f46fa7",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27820,7 +27820,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42023,
     "name": "stret_entrancesign.png",
@@ -27833,8 +27833,8 @@
     "source_sha256": "9e3734bb133621524ae56327b2e4a15fe56e7a0f617bf3f6ec31d32a5905993a",
     "original_sha256": "66f6344b40e10097ff86f32804793a1796fee48a26c652e6317376dd8892b78c",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -27874,7 +27874,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42025,
     "name": "stret_arrowroadsign2.png",
@@ -27887,8 +27887,8 @@
     "source_sha256": "548d94d68aa7503753d85f621ff466500f86bcf1519395fea9a7ede2860fcd6a",
     "original_sha256": "0604d7134c0d41422088ce224326224178b799587e46634e8f48bdcbaa9b5a34",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -27928,7 +27928,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42179,
     "name": "on_the_edge_sign.png",
@@ -27941,8 +27941,8 @@
     "source_sha256": "350226064f65335b8d2178ba8c3d7206c715318375f8340b22dcac1aa2dc7716",
     "original_sha256": "aadeef6a7c5fca0e5a960077a029f9d143c2efd786c5c918ae5aafc26cb44515",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -27991,7 +27991,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42183,
     "name": "still_alive_sign_small_stone.png",
@@ -28004,8 +28004,8 @@
     "source_sha256": "95ce18f9bf9f8c645133398a6b7bd9058377ecb8e9d13d35c0b4f69b89a4e34c",
     "original_sha256": "db4e0c8beaffb94752e8a3d402ce75f2c7b90690ab5820cb038a6a445b4dedc4",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28054,7 +28054,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42187,
     "name": "tir arena_sign_metall.png",
@@ -28067,8 +28067,8 @@
     "source_sha256": "bb1987d80cec97b2fd0afa3b13aeedc22cc874b9a5f150dad91847ac37839b9f",
     "original_sha256": "0c377923d0b0d3b08a1507a9adf54c53b6d9dd1e42ceb0c3ece43f644ee85c6a",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -28108,7 +28108,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42212,
     "name": "weaponsordie_sign.png",
@@ -28121,8 +28121,8 @@
     "source_sha256": "7dfff2e3087d15d6081754564c85dc5aa2454a5526eb2efb5b02c347f690381f",
     "original_sha256": "f36ea321d00c6254cea9fa30628f1d7df7e6ef3c96f844367e60368620d95254",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28162,7 +28162,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 42216,
     "name": "thehappyrebel_sign.png",
@@ -28175,8 +28175,8 @@
     "source_sha256": "3144220fb7e67530d13a89342773ac22d84d966797d3da9f6742273e36aa1651",
     "original_sha256": "3b84a363106481443965b3c97346d0d301cb75ed12f15b948133386eb479fc11",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28216,7 +28216,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 43173,
     "name": "ent_sign_salvatore.png",
@@ -28229,8 +28229,8 @@
     "source_sha256": "550ae4b7b66a0b5a98528a894fce45426712a46ba52b1ba4f73ab12e8051eab1",
     "original_sha256": "0d7e22cf2c0c84a9892486d6ffdba6b813cd825a5c9b11e62d417f934f3a03ca",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28270,7 +28270,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 43177,
     "name": "ent_roadsign_dreadlocks.png",
@@ -28283,8 +28283,8 @@
     "source_sha256": "98fce3b8b47ca05c2673cb304afe2f8c1065bd7c11d723dee3ef6c1935245cbd",
     "original_sha256": "18069328d9fa924489c8fe83968c5ce728cbfa46e073cd68ab11d00a031357d5",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28324,7 +28324,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 43179,
     "name": "ent_roadsign_optimum_survival.png",
@@ -28337,8 +28337,8 @@
     "source_sha256": "d848ba3d43248e2b33206a9f710cafd26cbabd4a21b6b9b7576ee9bcc1f477e9",
     "original_sha256": "70efe8733f00bfed9ae6fb2a3da5ce05ca71b37e6e1256b9036c0f2060a67aed",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -28378,7 +28378,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 18042,
     "name": "hq_omniofficersonly.png",
@@ -28391,8 +28391,8 @@
     "source_sha256": "a3566967015897ba1a157e4b6000e0a7280cc5acf7fe8622aaffe0db83ba5943",
     "original_sha256": "d9e40335baddc70dce580bb9cda9b21ba943c769e3d98a97907a21f672b8a669",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28432,7 +28432,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 18054,
     "name": "hq_noclans.png",
@@ -28445,8 +28445,8 @@
     "source_sha256": "c125967816059f04c4964f30dc1070991b65a12ec89a5646740f08a464b80d7c",
     "original_sha256": "a893be5d2213e7c692a7caa429ae846a401fe452f20ef2915b7d24d15bd55a8a",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28486,7 +28486,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 18066,
     "name": "hq_silence.png",
@@ -28499,8 +28499,8 @@
     "source_sha256": "c0512494174fb7605b43307aa85d868e63fb35db9961a645f4465714da0c52f9",
     "original_sha256": "9a2466b47d4065499d16ec0c587460f40068b6aa16d83680d6c45e0b1fee2446",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -28540,7 +28540,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 161049,
     "name": "pads_broken.png",
@@ -28553,8 +28553,8 @@
     "source_sha256": "06f0339dfb8bf6aae5d8491f73165ca9db281cd67661f13169ee6bdcae7b1e54",
     "original_sha256": "9603e8e72b8669078275c3314dd9f8ad8429e2810e930cc90bd7a5154c719043",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28594,7 +28594,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 161050,
     "name": "pads2_broken.png",
@@ -28607,8 +28607,8 @@
     "source_sha256": "720f7e8c5776c1bc6fd45d665abcd87849a426787c9f8eeb501358416493ad25",
     "original_sha256": "a844f0036702c09d67065533843da15395c166e7024728dade287f3d5af700f7",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28648,7 +28648,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 213078,
     "name": "nagatika.png",
@@ -28661,8 +28661,8 @@
     "source_sha256": "b5f6a80085428a78542b0a64deb823570ba354b33789ebf6e6b1bea2af44074d",
     "original_sha256": "cf5a695c384937dfc9ea1c846b47db45dd372ef2757248b1b7d6ae6eb1e4b7b8",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28702,7 +28702,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 219018,
     "name": "cover_statue_face.png",
@@ -28715,8 +28715,8 @@
     "source_sha256": "d17ea1f340d0b53e53df13a36b667bb1829ce4c6fd7e959c74b5459cac8644e4",
     "original_sha256": "65471af7fedea332a4754b26630a2c96c931c3815e49019e10932e2122077452",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28765,7 +28765,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 218033,
     "name": "yuttos_village_tent.png",
@@ -28778,8 +28778,8 @@
     "source_sha256": "20a4f2ea5a35c295b1da46946c41a6604197548bd2233e7e9a93fe3a2d7ce15a",
     "original_sha256": "b22552d37580f945bb90c5fac73fa869319ead0725ce3f413cb073e04c88675a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28819,7 +28819,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 229054,
     "name": "redeemgarden_Tunnel.png",
@@ -28832,8 +28832,8 @@
     "source_sha256": "2096cbca163999ae79dcc554d3e64860e4a6c2ecb8dac10a5d0ac0ce9891fb87",
     "original_sha256": "42a775d7d7ed07d3b68dd799b4fff38408432fd25d1bda93789a4a5945218046",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -28873,7 +28873,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 209664,
     "name": "01_adoins_circles.png",
@@ -28886,8 +28886,8 @@
     "source_sha256": "97d4d119ad91806b424513df44439ea374016a9c6b363a30bfb195072f48c5da",
     "original_sha256": "929b5335d781c4e968aae3e3761263a4efc14744f034a39aab6f97d0d047fe42",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28927,7 +28927,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 210095,
     "name": "adoins_underwater_circles.png",
@@ -28940,8 +28940,8 @@
     "source_sha256": "547430058d70c3f464dfbf164549d53a94270bcb28f8663209a8a824b292bce0",
     "original_sha256": "37c256cc51a7a32ffb4c5c9cb83e515403309421238b19990efdd92d97851ec7",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -28981,7 +28981,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 224473,
     "name": "01_adoins_circles_snow.png",
@@ -28994,8 +28994,8 @@
     "source_sha256": "8efbc829f4ea30282e68a93d1ffb70b85e57c339e5802dbf0e9180394ae6cf41",
     "original_sha256": "373cbfb0c5f32da3b7057466f5532162aa419598d742e51256fbdad8d6a47394",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -29035,7 +29035,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 304774,
     "name": "alien_antlers_d.png",
@@ -29048,8 +29048,8 @@
     "source_sha256": "491acd34cff2c36e9a8ad357df4ee98d5b673b266b05e382cdf1f9fff89c0fdf",
     "original_sha256": "63576501ad2e77cc557c2cb12529eb7931d7b760c81f9eab52af84ef4226cab0",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -29089,7 +29089,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 301946,
     "name": "tophat_vday_red.png",
@@ -29102,8 +29102,8 @@
     "source_sha256": "d16951aa26b72f006ee95ebef69ca83d399a311eda5bfeb189e9bd9dd86c2cfc",
     "original_sha256": "96ea28d54d75b362da348fac0142c397220446ac72b454557e55e51fe7ed25ca",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -29143,7 +29143,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 284127,
     "name": "catgirl_ears.png",
@@ -29156,8 +29156,8 @@
     "source_sha256": "e7f82ba01e5e243ca7db14115f472b372ac89f8414a9ab286204f7650df92e83",
     "original_sha256": "2fc9bead47d53cad061981bdac4d53aa7051787d5f2a5b3a87449e501908be63",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -29413,7 +29413,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 119014,
     "name": "treeplateforsign.png",
@@ -29426,8 +29426,8 @@
     "source_sha256": "eefa7877f76dacfcb99b66e01402cce3ed4b1c76240ef90f259ffcd6f8012c42",
     "original_sha256": "765745a56b867cef02feedef22fe2987b2d618a347d811817181ed98b2437650",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29467,7 +29467,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 16544,
     "name": "head_nanomagefemale002.png",
@@ -29480,8 +29480,8 @@
     "source_sha256": "04a42474fb323b81fe072fdcdf3009c2ca0d5aa2ea31c65c19b6a45809314da3",
     "original_sha256": "78942aee62fb1e58eb7c7ab8232a81888197104b076747be14ccf0b1cc0d16a4",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29521,7 +29521,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 16554,
     "name": "head_nanomagefemale004.png",
@@ -29534,8 +29534,8 @@
     "source_sha256": "02cccc9faa352c9d7a7ea17b8f84ade503792457a32d62d7a825f2e1e9e2ce2c",
     "original_sha256": "1bb9bf69fca98b847795a9e7e00c9a8bc37e3fbcf5b3db3b6b52de1bd1250fe8",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29575,7 +29575,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 16557,
     "name": "head_nanomagefemale003.png",
@@ -29588,8 +29588,8 @@
     "source_sha256": "fdcd7b9a6445b5475e7d556404334a72dc0ac2e92a8f6508a4120937e09e7f85",
     "original_sha256": "1a8b218fc8922d20853df9c790530f4fc21ff2be725f3b174ea71851b8f9162e",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29629,7 +29629,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 16558,
     "name": "head_nanomagefemale003b.png",
@@ -29642,8 +29642,8 @@
     "source_sha256": "8dd1d86ed843726c0dc24c35d5419988bf97b9af1e9fc5f80748670bfdca33c6",
     "original_sha256": "bed3196b6b5fb15bbe4306437359743c34e4bdeeef69747f857ba498825f1176",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "maps": {
       "d": {
@@ -29683,7 +29683,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 16570,
     "name": "head_nanomagemale003.png",
@@ -29696,8 +29696,8 @@
     "source_sha256": "8c7a130706e485f594fffc0b29bdc837f5f815ddde32b21bbf9c6673a14fec7f",
     "original_sha256": "0e5bf55ee9468c4c876b1ac6d303deab1c2d2c2b546a4cf458afa33c10705541",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29737,7 +29737,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17382,
     "name": "head_nanomagemale007.png",
@@ -29750,8 +29750,8 @@
     "source_sha256": "4c5db6f155e4317c1ddb8e85f7cba34c0454a6a921b359a5f76fc1f8496ea966",
     "original_sha256": "538161285e082f898b8aafc71b031d2c72fb828c763e4d64a3bfe1adf38db1d2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29791,7 +29791,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17395,
     "name": "head_nanomagemale009.png",
@@ -29804,8 +29804,8 @@
     "source_sha256": "b6283564fd7cfc470ac649f6552e3baa321d6d5f95ab3d114a34668a39c74792",
     "original_sha256": "e02c46f861281437912193ceabf267e0371ad23c94b0403d5137ce69c32de2a5",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29854,7 +29854,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17951,
     "name": "head_nanomagefemale010.png",
@@ -29867,8 +29867,8 @@
     "source_sha256": "2a207dbdc15ed7432ac2ba5741337970a0304253719a3d594ff36a5b55c4fd54",
     "original_sha256": "182e24dbe0541b104f7925afe9c03bc5c5d2876e54466350153add9f29f5cb47",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29908,7 +29908,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17954,
     "name": "head_nanomagefemale013.png",
@@ -29921,8 +29921,8 @@
     "source_sha256": "ebba5b3f320efe43775833f0d44dc2b4e9b7cf99ed929facef2cfb434d4f15b0",
     "original_sha256": "e834c79ad92acbc40f5c11c5c1bae329dbcbc5b78ecc0433075095fd93f0d0e8",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -29962,7 +29962,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17957,
     "name": "head_nanomagefemale012.png",
@@ -29975,8 +29975,8 @@
     "source_sha256": "f91c06f00562491e4ae3f94d02a6ed7a4db8c92e0dda6fe2be180e090b14c6e4",
     "original_sha256": "a45c316d15bef06fc91ab2c4926099ee6c06879921c17f5a4dffb9f5ec38d80a",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30016,7 +30016,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 17966,
     "name": "head_nanomagefemale014.png",
@@ -30029,8 +30029,8 @@
     "source_sha256": "922227dbd9558cba3b5fff0ebd540144c874cef5d2abffb34af6ea951ddf4792",
     "original_sha256": "ee5c9abc01584a53928e60bcddf2889b646229a678707789f3e606fa7ba551a6",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30070,7 +30070,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 294434,
     "name": "snowheckler_xmas.png",
@@ -30083,8 +30083,8 @@
     "source_sha256": "d45280c847f5850915c33d7695dda096107db074bac9ed6ca9b0ee10ca637e7e",
     "original_sha256": "7fa47620be0c632c0eac7fb5c828822ccf42d82b152cba01cfc2cd244617c988",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30304,7 +30304,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 6476,
     "name": "pdframe.png",
@@ -30317,8 +30317,8 @@
     "source_sha256": "9ca23eb406da4389331706f1317cd1c61d0fcb28887fd290982c6f6e6e0bc841",
     "original_sha256": "e00a7b9b0dcc525025f3297fe77078b8995e30aa7d5493dd079101dd5ff0e8fc",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30358,7 +30358,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 26966,
     "name": "newbie_closecomb_loweredge2.png",
@@ -30371,8 +30371,8 @@
     "source_sha256": "5f313d7e485e4d60cac60ee7736cdd8a06bf7db93fadc2a25327858a0acf644f",
     "original_sha256": "8b6b642d602319d6cfd97cb45dedac5798f1da80f46caa59e968e97df969262a",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30412,7 +30412,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 32400,
     "name": "skiltback.png",
@@ -30425,8 +30425,8 @@
     "source_sha256": "28869083bdac666c335a794d3cf2a338ef4c8770916083e09ec1e1c70fc952b3",
     "original_sha256": "83dc6d585212acc4459447526e3f2a8ee81249e8e6525d7eb3f7979de1f0b3a4",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30466,7 +30466,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 6479,
     "name": "fairtradebar.png",
@@ -30479,8 +30479,8 @@
     "source_sha256": "282058e7a39382fa14f6eb8a6a90c5b9f24af572879a1db980d0abf15eea1dde",
     "original_sha256": "e7c52548c3178d52bf1f2d4e82d2543fc0b32a4d066cdd38e0368e7e5d433e63",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "maps": {
       "d": {
@@ -30529,7 +30529,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 6478,
     "name": "fairtrade.png",
@@ -30542,8 +30542,8 @@
     "source_sha256": "e302c7803470a63799043d1c6d7fee4d6413a9ae8705d3cd2cc53a95910d3bd4",
     "original_sha256": "f1dc41862d855d1439e400a1e3aef1eb783495789bea14cfaf47ae710a1ced5f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30583,7 +30583,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 6515,
     "name": "construction.png",
@@ -30596,8 +30596,8 @@
     "source_sha256": "703356627b3a372c410d5f7025133608e0f9ab820e844ea09b0572f299b7bf3f",
     "original_sha256": "a722c749415778025f6f08299b1e3e22fed74faad2051c8db03f767cb8c77f01",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30637,7 +30637,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 6521,
     "name": "mines.png",
@@ -30650,8 +30650,8 @@
     "source_sha256": "47f64a020504d042730e4958bda9d6d16cf03ba1f855a5b3731c4f451e843af9",
     "original_sha256": "eeda7f73a6c48fb7b9c050719f6067659b5afe229c976ce454f5261f93d545db",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30691,7 +30691,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 95403,
     "name": "warning_toxic_waste_ahead.png",
@@ -30704,8 +30704,8 @@
     "source_sha256": "7eef1ea7134217cce44fe2de681aadaafd6bc594fb9b58ac81750643d24d1613",
     "original_sha256": "efe8c0fdcaea1098ebed3354a66c152ce4d5c863aaf5040fcf7b06fdc0ac11c2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30745,7 +30745,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 95404,
     "name": "warning_yellow_bakside.png",
@@ -30758,8 +30758,8 @@
     "source_sha256": "d2dc09aa2846d3bd495ff1ad9f3fbd5b9c61a484b4eb88dd820fcae31288ccd0",
     "original_sha256": "5ea5f14fa9e0f5c8d912ba90fd9da2fb4abe8cc6d88d1aaabc52d496f39fe518",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "maps": {
       "d": {
@@ -30799,7 +30799,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 119009,
     "name": "7_62bulletfor_ammo_sign2.png",
@@ -30812,8 +30812,8 @@
     "source_sha256": "38c85a10ed91d39d0bebfffa4d9451432425fadedbdb030e6f9b3054f8664747",
     "original_sha256": "a8cda92b3b0f9079e07261b179d6d040f7b036646799b9d0c947a507c28e5b97",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30853,7 +30853,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 213954,
     "name": "hero chest.png",
@@ -30866,8 +30866,8 @@
     "source_sha256": "94a056fca88f1cbd56737ef59fb168e54f51bb558f1bc3348f0c88d12566270c",
     "original_sha256": "37203b928a876f2d46d56116c8810e74f6f9f6f5434a2d7d9303731d840bcee3",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30907,7 +30907,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 213958,
     "name": "profperk-chest4.png",
@@ -30920,8 +30920,8 @@
     "source_sha256": "f8c2eb0690568e8aa34ed831d1514e37fcd933ca516dc7b7001ce2256f40caf2",
     "original_sha256": "74e665a764d04bc96f07bc06f6a81f985c2d9196e5b6058063a2ebdacbaf5b62",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -30961,7 +30961,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 229042,
     "name": "mine_v01_shadowlands.png",
@@ -30974,8 +30974,8 @@
     "source_sha256": "54ec6c7868ae73fb4a29e89589adb7902f14bf9114a71cd11765ac0d19738591",
     "original_sha256": "ba56169c082c2cc245841b0971cd662688aae1e6c903ddb2f772e7696a60c486",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31186,7 +31186,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 119156,
     "name": "concretesign.png",
@@ -31199,8 +31199,8 @@
     "source_sha256": "79630e5d57cb9eaa9f2c38854c4141987ceaacea649b897433b7cb4459c662dc",
     "original_sha256": "d62fa9146290e3b6f28a801182001f6f6f817503206e2dde37aaa8c47f6768f7",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31240,7 +31240,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 225910,
     "name": "yuttos_village_signs AC- Gadgets -DC.png",
@@ -31253,8 +31253,8 @@
     "source_sha256": "da38bb5851091d7789a03de176f5d37491c7e0a42934e83e06396bcebf5b1ce4",
     "original_sha256": "eab2e517c7532e4025d4d0c04df148a77568dd02f379b030c4bfa629c654c222",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31303,7 +31303,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 225916,
     "name": "yuttos_village_signs Manual Gizmo.png",
@@ -31316,8 +31316,8 @@
     "source_sha256": "53188e958b94d656200d62fdae37bd00f2a8adbbae2359f01d709c90019825ed",
     "original_sha256": "5a14707c149a606806e3a26fbd11cf28f269deea7d49c8433a2e662329f768cb",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31366,7 +31366,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 225918,
     "name": "yuttos_village_signs_potions_and_lotions.png",
@@ -31379,8 +31379,8 @@
     "source_sha256": "7b7b1239752f518c13e72a027d60fb069490b3361f2f649cb47bbf0574ec9852",
     "original_sha256": "0aa0c441fd6306804365559d5a3c0c8fcb9560902caed794942d80e5db64b324",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31429,7 +31429,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 230475,
     "name": "yuttos_village_signs_notext_backsides.png",
@@ -31442,8 +31442,8 @@
     "source_sha256": "5352165d6f26368d3b198ca45716bcf4d1385088dd7090381acb8b15ae865cc9",
     "original_sha256": "94586c1cea9e4c03db3e63bdbcd25b5c6e8a671aadf47ca5dc122e0d21bd7137",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31483,7 +31483,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 260046,
     "name": "inferno_excaliber.png",
@@ -31496,8 +31496,8 @@
     "source_sha256": "50694ee704eed53c1a2ce1d7872d9f3249af571b4c2b5c5bb738c6bd492afffa",
     "original_sha256": "8961a10ffdc3d70a5bd1dabffddf4a7789438274fea7d0c63adb23d483de2c1f",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31537,7 +31537,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 277489,
     "name": "pumpkinhead.png",
@@ -31550,8 +31550,8 @@
     "source_sha256": "75a671eae95b475af1fce809eae573fcb9ed92fc728e221ae476e5cfffc3c0d3",
     "original_sha256": "711b88ae10dfbf156fdbfbf3ca540fdda748d6a992079849dd57f5bdd9f88ebe",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31600,7 +31600,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 277978,
     "name": "iwinbutton2k8.png",
@@ -31613,8 +31613,8 @@
     "source_sha256": "d80ddf70fa1afe3699d00eb881fd5da3720e31884723c9a6b8b52b94d08dd278",
     "original_sha256": "c7829e3d7b2dee9fac24a16a47ac35ebc5cf8ee45dd129bf83615cde853921ec",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31654,7 +31654,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 288310,
     "name": "placard_idkwtf.png",
@@ -31667,8 +31667,8 @@
     "source_sha256": "2d06ee659c9ccc1ea78cc290afb1cdfb4dcc55ac4cfbd7d47294e7b1192ba29d",
     "original_sha256": "b32667827d5ff34c65bb45ee1d9c8e5e1b18ccab19be74d351271e40bad5bd00",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31708,7 +31708,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 288314,
     "name": "placard_other_placard.png",
@@ -31721,8 +31721,8 @@
     "source_sha256": "4ab692bce239086a94a1ba70abe175f2100326cf0f8d0f46e475274fd9ddbf9b",
     "original_sha256": "4a3884174f855166ebf7082c5a51dd563057a1ddc95f09c8daba6363c25a5323",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31762,7 +31762,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 259014,
     "name": "veteran_plackard01.png",
@@ -31775,8 +31775,8 @@
     "source_sha256": "771c602facab9ef1e1eef791cf69885084a2989ccd3631102cda5a18334fb86c",
     "original_sha256": "ccba59eb372a8b99ffade2e1e3c51aac50cb05a4cbc5eda78d0d7eee8eaa265c",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31816,7 +31816,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 259118,
     "name": "veteran_plackard07.png",
@@ -31829,8 +31829,8 @@
     "source_sha256": "ad42ad5c6e7bf9d847eaf71d811af111b34dbabc786f87027adf7eaa658081cc",
     "original_sha256": "d82c363c1b91e3228094873f36ea10919498160ba6a1c44b1ff2f83458433c83",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -31870,7 +31870,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 259122,
     "name": "veteran_plackard11.png",
@@ -31883,8 +31883,8 @@
     "source_sha256": "ebba4c3970150250a39de923a502d2577fa024bec5780afef0794efc4f2357c8",
     "original_sha256": "b03204bb3d7e1ef186c7fb8637dee7358f37cc132d39935b55dc16ef74f6639a",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {
@@ -32032,7 +32032,7 @@
     "pack": "ao-cyber-world"
   },
   {
-    "worker": 3,
+    "worker": true,
     "type": 1010004,
     "id": 284966,
     "name": "xmas_placard_no_antleet.png",
@@ -32045,8 +32045,8 @@
     "source_sha256": "1073589ee83d36f666f4a4f48bd75c82de384edd45fe78247a1f56b89f2fa1c4",
     "original_sha256": "e48729e5daee03cd79c4c3f809befe05d8dec512e73afe6c60f4220cb7ea9153",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "maps": {
       "d": {

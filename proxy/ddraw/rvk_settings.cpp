@@ -58,6 +58,7 @@ Setting g_settings[] = {
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
     {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_InstantTime", "Instant Day/Night: Server / Day (13.5) / Night (0)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_DarkFloor",  "Darkness: the floor under the land's brightness, x (the exposure raised in the darkest places, as eyes adapt; 0 none)", "Lighting", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_Hdr"},
     {"RVK_PixelLight", "Per-pixel lighting",                                       "Lighting",         Bool,  0, 1, 1, 1, "RANDYVK_PIXEL_LIGHTING", 0},
     {"RVK_LightOver",  "All nearby lights (light override)",   "Lighting",         Bool,  0, 1, 1, 1, "RANDYVK_LIGHT_OVERRIDE", 0},
@@ -332,6 +333,12 @@ Setting g_settings[] = {
     {"RVK_Hdr", "Off-screen scene for every effect (0: none - the game's own drawing)", "Effects",  Bool,  0, 1, 1, 1, "RANDYVK_HDR", 0},
     {"RVK_Knee", "Tone mapping knee (1 = only clip)", "Tone mapping",  Float, 0.5f, 1, 0.05f, 0.85f, "RANDYVK_TONEMAP_KNEE", 0, "RVK_Hdr"},
     {"RVK_HdrRoom", "Local light headroom", "Tone mapping",  Float, 1, 4, 0.25f, 1.5f, "RANDYVK_HDR_HEADROOM", 0, "RVK_Hdr"},
+    {"RVK_LightGlowOn", "Light source glow", "Lighting", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_LightGlow", "Halo strength", "Lighting", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_LightGlowOn"},
+    {"RVK_AmbientOn", "Ambient life (fireflies, pollen and dust)", "Effects", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_AmbientOn"},
+    {"RVK_AmbientBright", "Brightness", "Effects", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_AmbientOn"},
+    {"RVK_AmbientStyle", "Style: Auto / Fireflies / Dust / Spores", "Effects", Choice, 0, 3, 1, 0, "0 1 2 3", 0, "RVK_AmbientOn"},
     {"RVK_BloomOn", "Bloom", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
     {"RVK_Bloom", "Strength", "Effects",  Float, 0.25f, 5, 0.25f, 1, "RANDYVK_BLOOM", 0, "RVK_BloomOn"},
     {"RVK_BloomThr", "Threshold (1 = above white)", "Effects",  Float, 0.5f, 2, 0.05f, 0.5f, "RANDYVK_BLOOM_THRESHOLD", 0, "RVK_BloomOn"},
@@ -456,6 +463,7 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_LightGlow",0}, {"RVK_AmbientMotes",0}, {"RVK_AmbientBright",0},
     {"RVK_WindowDepth", 0},
     {"RVK_WindowActivity", 1},
     {"RVK_WearDebug", 0}, {"RVK_BuildWear", 0},
@@ -547,6 +555,16 @@ bool Hidden(const Setting& s)
 
 float Stored(const char* name) { Setting* s = Find(name); return s ? s->value : 0.0f; }
 
+// A shortcut for the canonical clock controls, never a second clock override.
+// Reading/starting the settings panel cannot reset a saved manual console hour.
+float SettingValue(const Setting& s)
+{
+    if(std::strcmp(s.name,"RVK_InstantTime")!=0)return s.value;
+    if(std::fabs(Stored("RVK_TimeSpeed")-1.f)>1e-4f)return 0;
+    const float hour=Stored("RVK_TimeOfDay");
+    return std::fabs(hour-13.5f)<1e-4f ? 1.f:std::fabs(hour)<1e-4f ? 2.f:0.f;
+}
+
 // The features out of "Experimental" (2026-10-16: tested enough - the user): on by default, never inferred.
 bool NewFeature(const char* name)
 {
@@ -584,6 +602,7 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
+    if(std::strcmp(name,"RVK_InstantTime")==0)return SettingValue(*s);
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
     // DayCycle selects the automatic cycle and lighting profile. Explicit
@@ -1238,7 +1257,8 @@ void Load()
 float Get(const char* name)
 {
     Load();
-    return Stored(name);
+    const Setting* s=Find(name);
+    return s ? SettingValue(*s):0.f;
 }
 
 // Puts a value into effect without storing it (the profiling sweep); Restore puts the stored one back.
@@ -1271,6 +1291,12 @@ void Set(const char* name, float value)
     Load();
     Setting* s = Find(name);
     if (!s || !std::isfinite(value)) return;    // (a broken slider sent NaN every frame - user, 2026-10-14)
+    if(std::strcmp(name,"RVK_InstantTime")==0) {
+        const int choice=int(Clamp(*s,value));
+        Set("RVK_TimeSpeed",1.f);
+        Set("RVK_TimeOfDay",choice==1 ? 13.5f:choice==2 ? 0.f:-1.f);
+        return;
+    }
     float v = Clamp(*s, value);
     if (v == s->value) return;
     s->value = v;
@@ -1459,6 +1485,7 @@ const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's 
     {"RVK_ModernTex",2}, {"RVK_Albedo",1}, {"RVK_ICCArtwork",0}, {"RVK_ICCGlossiness",.5f},
     {"RVK_GlobalShiny",.5f}, {"RVK_BuildWear",1}, {"RVK_DayCycle",2}, {"RVK_CloudsOn",0},
     {"RVK_ImmersiveShips",1},
+    {"RVK_FarScenery",1}, {"RVK_SceneryDist",3}, {"RVK_TerraRough",.6f},
     {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
@@ -1473,7 +1500,9 @@ bool InPresets(const Setting& s, uint32_t preset)
 {
     if(preset==3 && (std::strcmp(s.name,"RVK_ModernTex")==0 || std::strcmp(s.name,"RVK_ICCArtwork")==0 ||
         std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
-        std::strcmp(s.name,"RVK_ImmersiveShips")==0)) return true;
+        std::strcmp(s.name,"RVK_ImmersiveShips")==0 || std::strcmp(s.name,"RVK_FarScenery")==0 ||
+        std::strcmp(s.name,"RVK_SceneryDist")==0 || std::strcmp(s.name,"RVK_TerraRough")==0)) return true;
+    if(std::strcmp(s.name,"RVK_InstantTime")==0)return false;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
         std::strcmp(s.name,"RVK_TerraRough")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
@@ -1626,7 +1655,7 @@ bool Info(uint32_t index, RvkSettingInfo* out, bool* hidden)
     out->min = s.min;
     out->max = s.max;
     out->step = s.step;
-    out->value = s.value;
+    out->value = SettingValue(s);
     out->defaultValue = s.defaultValue;
     out->parent = AlwaysOn(s.parent) ? nullptr : s.parent;
     out->choices = s.choices;
@@ -1678,7 +1707,7 @@ int RvkSettings_Get(uint32_t index, RvkSettingInfo* out)
     out->min = s.min;
     out->max = s.max;
     out->step = s.step;
-    out->value = s.value;
+    out->value = SettingValue(s);
     out->defaultValue = s.defaultValue;
     if (out->size >= sizeof(RvkSettingInfo)) {
         out->parent = AlwaysOn(s.parent) ? nullptr : s.parent;   // (grouped by their section instead)

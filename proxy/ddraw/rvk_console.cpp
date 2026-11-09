@@ -385,6 +385,12 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
         const char* names[]={"Rely on Server Sided day/night", "Longer Day / Shorter Night", "Enhanced Daylights (happier)"};
         return names[std::clamp(int(std::lround(v)),0,2)];
     }
+    if(std::strcmp(s.name,"RVK_InstantTime")==0) {
+        if(v==1)return "Day (13.5)";
+        if(v==2)return "Night (0)";
+        return rvk_settings::Get("RVK_TimeOfDay")>=0 || std::fabs(rvk_settings::Get("RVK_TimeSpeed")-1.f)>1e-4f
+            ? "Custom clock":"Server / cycle";
+    }
     if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
         return v>0 ? "AnarchyHD" : "Original";
     }
@@ -1237,7 +1243,7 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_Enhance", "RVK_DayCycle", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_LightGlowOn", "RVK_AmbientOn", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery",
          "RVK_BuildWear", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
          "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},

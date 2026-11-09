@@ -65,6 +65,7 @@ def main():
         if identity not in ledger:
             raise RuntimeError(f'Missing full-quality source dimensions for {identity}; audit before baking')
         gate.require_size(identity,tuple(item['size']),ledger[identity])
+        gate.require_detail_size(identity,tuple(item['size']),item.get('detail_exception'))
         if art.width<item['size'][0] or art.height<item['size'][1]:
             raise RuntimeError(f'{identity}: source art is smaller than the requested export; recover or render full-quality source')
         art = art.resize(tuple(item['size']), Image.Resampling.LANCZOS)

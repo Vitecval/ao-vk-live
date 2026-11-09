@@ -488,6 +488,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrain2[1] = fl->terrain2[2] = 0.0f;
     fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
     fl->terrainFar[1] = SharedGroundPlus() ? std::clamp(m_terrainRoughness,0.f,1.f):1.f;
+    fl->terrainFar[2] = m_hdr ? std::clamp(m_lightGlow,0.f,2.f):0.f;
     fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
     fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
     fl->windowLife[2]=EnhancedDaylight();
@@ -1692,7 +1693,7 @@ bool Device::SurfaceSheen(uint32_t fvf) const
 
 bool Device::GlowDraw(uint32_t fvf) const
 {
-    if (m_effectGlow <= 0.0f || m_target != m_scene || !m_rs[d3d::RS_ALPHABLENDENABLE] ||
+    if (m_bloomStrength<=0.f || m_effectGlow <= 0.0f || m_target != m_scene || !m_rs[d3d::RS_ALPHABLENDENABLE] ||
         (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZRHW || m_rs[d3d::RS_ZFUNC] == d3d::CMP_ALWAYS || SurfaceSheen(fvf))
         return false;
     uint32_t src = m_rs[d3d::RS_SRCBLEND], dst = m_rs[d3d::RS_DESTBLEND];
@@ -1704,7 +1705,7 @@ bool Device::GlowDraw(uint32_t fvf) const
 // before a wall in front of it bloomed through the wall (the Temple of the Three Winds portal through a rock).
 bool Device::GlowOccluder(uint32_t fvf) const
 {
-    if (m_effectGlow <= 0.0f || m_target != m_scene || (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZRHW ||
+    if ((m_effectGlow <= 0.0f && m_lightGlow <= 0.0f) || m_target != m_scene || (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZRHW ||
         !m_rs[d3d::RS_ZENABLE] || !m_rs[d3d::RS_ZWRITEENABLE] || m_rs[d3d::RS_ZFUNC] == d3d::CMP_ALWAYS ||
         m_drawIsLabel || ((m_drawTerrainLight || IsMultiplyPass()) && !m_groundOne))   // (the ground's one pass: its
         return false;                                                                // base pass's part, covering it)
@@ -2913,7 +2914,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // RVK_GrassOn: the terrain's ground heights feed the procedural grass (grass.cpp CaptureTerrain / RenderGrassField).
     // The native ground in one pass (RVK_GroundOne) is its base pass too: the grass takes its heights and colours from
     // it as well - with no base pass drawn, no tile was ever given its ground, and no grass grew (user, 2026-10-20).
-    if (m_grassOn && !m_external && vertices && IsTerrain(fvf) && !m_native.clutter) {   // (not the rocks on it)
+    if ((m_grassOn || m_ambientMotes>0.f) && !m_external && vertices && IsTerrain(fvf) && !m_native.clutter) {   // (not the rocks on it)
         CaptureTerrain(primitive, layout, vertices, vertexCount, indices, indexCount);
         if (m_groundOne && m_native.drawing)
             CaptureTerrain(primitive, layout, vertices, vertexCount, indices, indexCount, true);
@@ -2932,7 +2933,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         PickDraw(primitive, layout, vertices ? vertices : m_pickSkinned, vertexCount, indices, indexCount, IsTerrain(fvf));
     // ... and solid objects lying on the ground keep it off where they are (not characters, effects, the sky, plants
     // or anything see-through; grass.cpp CaptureCover).
-    if (m_grassOn && !m_external && vertices && !IsTerrain(fvf) && m_target == m_scene &&
+    if ((m_grassOn || m_ambientMotes>0.f) && !m_external && vertices && !IsTerrain(fvf) && m_target == m_scene &&
         (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZ && m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE] &&
         m_rs[d3d::RS_ZFUNC] != d3d::CMP_ALWAYS && !IsMultiplyPass() && !m_drawSkin && !m_drawIsLabel &&
         (!m_textures[0] || m_textures[0]->m_opaque) && !m_rs[d3d::RS_ALPHATESTENABLE]) {
@@ -3919,8 +3920,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     dt.texIdx[1] = BindlessImage(texStage1);
     dt.texIdx[2] = BindlessImage(bumpBase);
     dt.texIdx[3] = BindlessImage(normalTex);
-    dt.sampIdx[0] = StageSamplerSlot(0);
-    dt.sampIdx[1] = StageSamplerSlot(1);
+    dt.sampIdx[0] = StageSamplerSlot(0, texStage0 && texStage0!=m_textures[0] && texStage0!=m_blackTexture);
+    dt.sampIdx[1] = StageSamplerSlot(1, texStage1 && texStage1!=m_textures[1] && texStage1!=m_blackTexture);
     dt.sampIdx[2] = FixedSamplerSlot(0, m_bumpSampler);
     dt.sampIdx[3] = FixedSamplerSlot(1, m_normalSampler);
     const Texture* iccBase = m_drawBumpBase ? m_drawBumpBase : m_textures[0];
@@ -4193,7 +4194,12 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         std::fprintf(m_dumpFile, "  terrain-record: pass %.0f; codes %u; one-pass %u; combined %u; lighting %u\n",
             dt.terrainAt[3], codes, unsigned(m_groundOne), unsigned(combinedTerrain), unsigned(m_rs[d3d::RS_LIGHTING]));
     }
-    const bool windowGlow = dt.windows[0] > 0.f && m_target->m_format == Format::RGBA16F;
+    // Opaque authored emitters replace the glow at their covered pixels, just
+    // like window interiors. This preserves both their halo and occlusion of
+    // an older light behind them; ordinary walls only occlude.
+    const bool sourceGlow = m_lightGlow>0.f && !m_drawIsCharacter &&
+        ((dt.mat[2]&(kMatEmissive|kMatImmersiveShip))!=0u || std::max({m_material.emissive.r,m_material.emissive.g,m_material.emissive.b})>.05f);
+    const bool windowGlow = (dt.windows[0] > 0.f || sourceGlow) && m_target->m_format == Format::RGBA16F;
     // This state depends on a per-draw record, not shared constants. Split at
     // transitions, while retaining ordinary and same-mode window batching.
     if (m_target->m_format == Format::RGBA16F && m_group.active &&

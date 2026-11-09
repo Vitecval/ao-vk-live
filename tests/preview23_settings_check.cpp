@@ -76,13 +76,33 @@ int main(int argc,char**) {
     check(gloss.min==0 && gloss.max==1 && std::fabs(gloss.step-.1f)<.0001 && gloss.defaultValue==.5f,"slider schema");
     for(int v=0;v<=10;++v){set("RVK_ICCGlossiness",v/10.f);check(std::fabs(info("RVK_ICCGlossiness").value-v/10.f)<.0001,"slider values");}
     set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
+    set("RVK_FarScenery",0);set("RVK_SceneryDist",1.5f);
     for(unsigned p=0;p<4;++p){preset(p);if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
     check(info("RVK_ICCArtwork").value==0 && info("RVK_ICCGlossiness").value==.5f,"Ultra artwork/gloss");
     check(info("RVK_ModernTex").value==2 && info("RVK_Albedo").value==1,"Ultra HD on");
     check(info("RVK_DayCycle").value==2 && effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Ultra server daylight");
     check(info("RVK_BuildWear").value==1 && info("RVK_GlobalShiny").value==.5f,"Ultra material defaults");
-    check(info("RVK_FarScenery").value==1 && info("RVK_SceneryDist").value==3,"presets preserve optional far scenery");
-    check(std::fabs(info("RVK_TerraRough").value-.35f)<.001,"presets preserve terrain roughness");
+    check(info("RVK_FarScenery").value==1 && info("RVK_SceneryDist").value==3,"Ultra enables extended range at 3x");
+    check(std::fabs(info("RVK_TerraRough").value-.6f)<.001,"Ultra surface roughness 0.6");
+    check(effective("RVK_LightGlow")==0 && effective("RVK_AmbientMotes")==0,"new atmosphere effects optional by default");
+    set("RVK_LightGlowOn",1);set("RVK_LightGlow",.6f);
+    check(std::fabs(effective("RVK_LightGlow")-.6f)<.001,"light source halo independent strength");
+    set("RVK_LightGlowOn",0);
+    set("RVK_AmbientOn",1);set("RVK_AmbientMotes",1.2f);
+    check(std::fabs(effective("RVK_AmbientMotes")-1.2f)<.001,"ambient life density independent of combat effects");
+    set("RVK_AmbientOn",0);
+    check(info("RVK_AmbientStyle").defaultValue==0 && info("RVK_AmbientStyle").max==3,"automatic ambient biome default and style overrides");
+    set("RVK_InstantTime",1);
+    check(effective("RVK_TimeOfDay")==13.5f && effective("RVK_TimeSpeed")==1 && info("RVK_InstantTime").value==1,"instant day 13.5");
+    set("RVK_InstantTime",2);
+    check(effective("RVK_TimeOfDay")==0 && info("RVK_InstantTime").value==2,"instant night zero");
+    set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);
+    check(info("RVK_InstantTime").value==0 && effective("RVK_TimeOfDay")==14,"custom clock independent of shortcut");
+    set("RVK_InstantTime",0);
+    check(effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"instant shortcut restores server/cycle clock");
+    set("RVK_InstantTime",1);set("RVK_TimeOfDay",14);set("RVK_InstantTime",1);
+    check(effective("RVK_TimeOfDay")==13.5f,"reselect day after manual console hour");
+    set("RVK_InstantTime",0);
     set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);
     check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"manual clock must override Enhanced Daylights");
     check(info("RVK_DayCycle").value==2 && effective("RVK_Hdr")==1 && effective("RVK_PixelLight")==1,"manual clock must retain daylight lighting");
@@ -94,5 +114,6 @@ int main(int argc,char**) {
     set("RVK_TimeOfDay",14);
     for(int v=0;v<=20;++v){set("RVK_GlobalShiny",v/20.f);check(std::fabs(info("RVK_GlobalShiny").value-v/20.f)<.0001,"global shiny slider");}
     set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
+    set("RVK_TerraRough",.35f);
     std::puts("settings passed: Ultra defaults, server clock default, manual override/reset/restart, gloss sliders and no Living controls");
 }

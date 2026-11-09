@@ -216,7 +216,7 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
     float userFogEye[4];           // world eye and animation time
     float sharedGround[5][4];      // five master images (uint bits + 1), their RGB mean
     float sharedGroundConfig[4];   // blend amount, repeats per world unit, spare, native geometry with classic lighting
-    float terrainFar[4];           // filtered macro composition, Shared Ground+ bumps/grit, z/w reserved
+    float terrainFar[4];           // filtered macro composition, Shared Ground+ bumps/grit, source glow, w reserved
     float windowLife[4];           // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
     GpuLight lights[kFrameLights];
 };

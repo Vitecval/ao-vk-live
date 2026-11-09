@@ -50,7 +50,12 @@ int main(int argc,char**) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc>1)check(std::fabs(info("RVK_TerraRough").value-.35f)<.001,"restart terrain roughness");
     if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");check(effective("RVK_FarScenery")==1 && effective("RVK_SceneryDist")==3 && effective("RVK_ViewRange")==3,"restart far scenery");check(info("RVK_ViewRange").value==1.5f,"restart stored ordinary view range");std::puts("saved selections, Far Scenery and manual time survived process restart");return 0;}
+    check(info("RVK_TerraRough").defaultValue==.6f && info("RVK_TerraRough").min==0 &&
+          info("RVK_TerraRough").max==1 && info("RVK_TerraRough").step==.05f,"terrain roughness schema");
+    for(int i=0;i<=20;++i){set("RVK_TerraRough",i*.05f);check(std::fabs(info("RVK_TerraRough").value-i*.05f)<.001,"terrain roughness steps");}
+    set("RVK_TerraRough",.35f);
     check(info("RVK_FarScenery").defaultValue==0,"far scenery opt-in default");
     check(info("RVK_SceneryDist").min==1 && info("RVK_SceneryDist").max==3 &&
           std::strcmp(info("RVK_SceneryDist").parent,"RVK_FarScenery")==0,"far distance schema");
@@ -77,6 +82,7 @@ int main(int argc,char**) {
     check(info("RVK_DayCycle").value==2 && effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"Ultra server daylight");
     check(info("RVK_BuildWear").value==1 && info("RVK_GlobalShiny").value==.5f,"Ultra material defaults");
     check(info("RVK_FarScenery").value==1 && info("RVK_SceneryDist").value==3,"presets preserve optional far scenery");
+    check(std::fabs(info("RVK_TerraRough").value-.35f)<.001,"presets preserve terrain roughness");
     set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);
     check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"manual clock must override Enhanced Daylights");
     check(info("RVK_DayCycle").value==2 && effective("RVK_Hdr")==1 && effective("RVK_PixelLight")==1,"manual clock must retain daylight lighting");

@@ -1218,7 +1218,8 @@ const char* OptionParent(const RvkSettingInfo& info)
         {"RVK_TerrainHD","RVK_ModernTex"},{"RVK_BuildingHD","RVK_ModernTex"},{"RVK_Albedo","RVK_ModernTex"},
         {"RVK_LiveDrones","RVK_LivePeople"},{"RVK_AirTraffic","RVK_LivePeople"},{"RVK_LiveWild","RVK_LivePeople"},
         {"RVK_LiveMachine","RVK_LivePeople"},{"RVK_LiveAtmos","RVK_LivePeople"},
-        {"RVK_GroundOn","RVK_TerraBlend"}, {"RVK_ImprovedTiles","RVK_TerraBlend"}
+        {"RVK_GroundOn","RVK_TerraBlend"}, {"RVK_ImprovedTiles","RVK_TerraBlend"},
+        {"RVK_TerraRough","RVK_TerraBlend"}
     };
     for(const auto& group:groups)if(std::strcmp(info.name,group.first)==0)return group.second;
     return info.parent;

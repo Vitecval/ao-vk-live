@@ -961,6 +961,13 @@ void main()
             else
                 n = base ? BumpNormal(texImages[D.texIdx.z], bindlessSamplers[D.sampIdx.z], n, vPosW, vSet0)
                          : BumpNormal(texImages[D.texIdx.x], bindlessSamplers[D.sampIdx.x], n, vPosW, vTex0.xy);
+            // Shared Ground+ only: reduce surface relief before it shades the
+            // lightmap and reflections, including authored ICC paving. Preserve
+            // native geometric slope, source-color detail and the UV footprint.
+            if(terrainMapped && FL.terrainFar.y<1.0) {
+                vec3 softened=mix(unbumped,n,FL.terrainFar.y);
+                n=dot(softened,softened)>1e-8 ? normalize(softened)*length(unbumped):unbumped;
+            }
             // The ground's sunlight is baked into its lightmap (the live sun is kept off it): the relief scales the
             // lightmap by how much more or less the bumped surface faces the sun than the flat one.
             if (base && dot(FL.sunDir.xyz, FL.sunDir.xyz) > 0.0) {
@@ -976,6 +983,10 @@ void main()
         if (SurfaceStrength() > 0.0 && len2 > 0.0) {
             vec3 before = normalize(n);
             n = GlobalSurfaceNormal(n, Sample(0u).rgb);
+            // Procedural aggregate relief is independent of the normal map;
+            // scale its added bend too, rather than leaving rough road grit.
+            if(terrainMapped && FL.terrainFar.y<1.0)
+                n=normalize(mix(before,normalize(n),FL.terrainFar.y))*length(n);
             if (GlobalTerrain() && (C.flags.x & F_BUMPBASE) != 0u && dot(FL.sunDir.xyz,FL.sunDir.xyz) > 0.0) {
                 vec3 L = -normalize(FL.sunDir.xyz);
                 float ratio = clamp((max(dot(normalize(n),L),0.0)+.3)/(max(dot(before,L),0.0)+.3),.75,1.3);

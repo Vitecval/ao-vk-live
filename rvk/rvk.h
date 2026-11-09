@@ -286,6 +286,7 @@ struct DeviceInfo {
     X(DayCycle, m_dayCycle, C|L)                      /* server cycle, longer days, enhanced daylight */ \
     X(ImprovedTiles, m_improvedTiles, C|L)            /* ICC tile artwork in Shared Ground+ */ \
     X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
+    X(TerraRough, m_terrainRoughness, C|L)            /* Shared Ground+ surface bumps/grit, not gloss */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
@@ -2354,6 +2355,7 @@ private:
     void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
     void ReportWeatherStats(FILE* file=nullptr);
     float m_iccGlossiness = .5f, m_globalShiny = .5f;
+    float m_terrainRoughness = .6f;
     float m_immersiveShips = 0.f;
     float m_enhancedOriginal = 0.0f;
     float m_buildWear = 0.0f;

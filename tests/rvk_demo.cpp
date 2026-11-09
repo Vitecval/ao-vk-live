@@ -1024,7 +1024,7 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
 }
 
 int g_visualCase=-1, g_visualToggle=0;
-float g_dayCycle=0.f, g_globalShiny=.5f;
+float g_dayCycle=0.f, g_globalShiny=.5f, g_terrainRoughness=.6f;
 void AddCube(std::vector<VtxMesh>&, std::vector<uint16_t>&, float, float, float, float);
 template <typename D>
 void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
@@ -2566,6 +2566,7 @@ bool g_terrainLightingFixture=false, g_terrainRockyRoad=false, g_terrainLighting
 bool g_terrainLightingOccluder=false;
 bool g_improvedTiles=true, g_terrainCliffFixture=false, g_terrainCliffToeFixture=false;
 bool g_terrainNativeFixture=false;
+bool g_terrainCloseup=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
     dev.SetNativeGroundOn(g_terrainNativeFixture);
@@ -2673,7 +2674,7 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
         dev.SetTransform(World,Identity());
-        dev.SetTransform(View,LookAtLH({8,15,7.99f},{8,0,8},{0,0,1}));
+        dev.SetTransform(View,LookAtLH({8,g_terrainCloseup ? 2.f:15.f,7.99f},{8,0,8},{0,0,1}));
         dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
         dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
         dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
@@ -5605,6 +5606,7 @@ int main(int argc, char** argv)
         else if (a == "--terrain-cliff-fixture") g_terrainCliffFixture=g_terrainLightingFixture=true;
         else if (a == "--terrain-cliff-toe-fixture") g_terrainCliffToeFixture=g_terrainLightingFixture=true;
         else if (a == "--terrain-native-fixture") g_terrainNativeFixture=true;
+        else if (a == "--terrain-closeup") g_terrainCloseup=true;
         else if (a == "--improved-tiles" && i+1<argc) g_improvedTiles=std::atoi(argv[++i])!=0;
         else if (a == "--terrain-lighting-night") g_terrainLightingNight=g_terrainLightingFixture=true;
         else if (a == "--terrain-lighting-occluder") g_terrainLightingOccluder=g_terrainLightingFixture=true;
@@ -5850,6 +5852,7 @@ int main(int argc, char** argv)
         else if (a == "--visual-toggle" && i+1<argc) g_visualToggle=std::atoi(argv[++i]);
         else if (a == "--day-cycle" && i+1<argc) g_dayCycle=float(std::atof(argv[++i]));
         else if (a == "--global-shiny" && i+1<argc) g_globalShiny=float(std::atof(argv[++i]));
+        else if (a == "--terrain-roughness" && i+1<argc) g_terrainRoughness=float(std::atof(argv[++i]));
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
         else if (a == "--shared-maps-test") { g_sharedMapsTest=g_sharedMapsDump=pbrTest=true; hdr=true; }
@@ -6126,6 +6129,7 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::SoftHi, softHi);
     dev.SetKnob(rvk::Knob::DayLook, dayLook);
     dev.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
+    dev.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
     dev.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);
     dev.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
     if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
@@ -6200,6 +6204,7 @@ int main(int argc, char** argv)
     queued.SetKnob(rvk::Knob::SoftHi, softHi);
     queued.SetKnob(rvk::Knob::DayLook, dayLook);
     queued.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
+    queued.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
     queued.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);
     queued.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
     if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));

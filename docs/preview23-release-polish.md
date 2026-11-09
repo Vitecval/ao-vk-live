@@ -166,3 +166,26 @@ Switching all enhancements off disables Far Scenery without losing preferences.
 Terrain full-quality radius, tessellation, shadow distances, density, artwork,
 daylight and frame-generation behavior are unchanged. The owner's F: test setup
 selects Far Scenery on at 3; release defaults remain opt-in.
+
+## Shared Ground+ surface roughness (revision 27)
+
+The owner confirmed Far Scenery's distance feels much better and requested a
+Shared Ground+ control for bumpy/gritty detail, especially ICC paving and
+asphalt. Surface roughness now appears under Terrain Mode, from 0 to 1 in .05
+steps, default .6. One retains the previous detail and zero removes the added
+surface relief/grit. Presets preserve the choice, including Ultra.
+
+The control scales normal-map relief before baked-light modulation and PBR
+reflections, including authored ICC tiles; it also scales the added procedural
+surface bend, shared-master microcontrast, and close ground grit. It does not
+blur source textures or change native patterns, road markings, tile joints,
+geometry, cliff projection, material roughness/metalness, or gloss controls.
+The ground modes outside Shared Ground+ retain a strength of one. Wet-weather
+effects keep their own controls. A reserved frame-light component carries the
+value without changing the draw-record or uniform-buffer layout.
+
+The render fixture has a close camera for inspecting normal-map relief before
+distance filtering averages it away. Checks exercise ICC21 normal-map response
+and asphalt18 shared-grain contrast, with raw-source views and ICC material
+roughness as controls. The default produces approximately 60% of the previous
+bump/grit response in these fixtures. Other ground modes remain pixel-identical.

@@ -487,6 +487,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->terrain2[0] = SharedGroundPlus() ? 0.0f : std::clamp(m_native.ao, 0.0f, 1.0f);
     fl->terrain2[1] = fl->terrain2[2] = 0.0f;
     fl->terrainFar[0] = m_skyPlayfield ? std::clamp(m_terrainFar,0.0f,1.0f) : 0.0f;
+    fl->terrainFar[1] = SharedGroundPlus() ? std::clamp(m_terrainRoughness,0.f,1.f):1.f;
     fl->windowLife[0]=m_windowDepth>0.0f?float(WindowClock()):0.0f;
     fl->windowLife[1]=m_windowActivity?1.0f:0.0f;
     fl->windowLife[2]=EnhancedDaylight();

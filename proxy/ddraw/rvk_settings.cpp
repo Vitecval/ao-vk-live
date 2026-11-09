@@ -96,6 +96,7 @@ Setting g_settings[] = {
     {"RVK_TerrainHD", "Global terrain detail", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
     {"RVK_TerrainFar", "Distant terrain: broad rock/soil variation and slope definition", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0},
     {"RVK_TerraBlend", "Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides)", "Materials", Float, 0, 2, 0.1f, 1, nullptr, 0},
+    {"RVK_TerraRough", "Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail)", "Materials", Float, 0, 1, .05f, .6f, nullptr, 0},
     {"RVK_WearDebug", "Building weathering diagnostics: Off / Counters / Pixel coverage", "Debug", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowDepth", "Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows)", "Materials", Choice, 0, 2, 1, 1, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
@@ -463,6 +464,7 @@ const Vanilla kVanilla[] = {
     {"RVK_TerrainHD", 0},
     {"RVK_TerrainFar", 0},
     {"RVK_TerraBlend", 0},
+    {"RVK_TerraRough", 1},
     {"RVK_DayLook", 0},
     {"RVK_DayCycle", 0}, {"RVK_ImprovedTiles", 1},
     {"RVK_GlobalShiny",1}, {"RVK_ImmersiveShips",0}, {"RVK_FarScenery",0}, {"RVK_SceneryDist",1},
@@ -1472,7 +1474,8 @@ bool InPresets(const Setting& s, uint32_t preset)
     if(preset==3 && (std::strcmp(s.name,"RVK_ModernTex")==0 || std::strcmp(s.name,"RVK_ICCArtwork")==0 ||
         std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
         std::strcmp(s.name,"RVK_ImmersiveShips")==0)) return true;
-    if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0) return false;
+    if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
+        std::strcmp(s.name,"RVK_TerraRough")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;
     if (std::strcmp(s.section, "Debug") == 0) return false;   // (debug switches: randy-vk.ini only)
     if (std::strcmp(s.name, "RVK_ModernTex") == 0 || std::strcmp(s.name, "RVK_TerrainHD") == 0 ||

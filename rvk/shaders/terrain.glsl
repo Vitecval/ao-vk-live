@@ -525,7 +525,7 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     // Shared Ground+ preserves AO's overlap painting at full source precision;
     // the blurred colour sample classifies materials but never replaces it.
     vec3 base=FL.sharedGroundConfig.w>.5 ? original.rgb : mix(mask,original.rgb,marking);
-    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65),amount);
+    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65*FL.terrainFar.y),amount);
     return original;
 }
 
@@ -648,7 +648,7 @@ vec3 TerrainGrain(vec3 c, TerrainMap m, vec3 posW)
     // (Not on loose sand: its ripples are its detail - parallax.glsl. Nor on a tile with maps of its own - a texture
     // pack's, made for it: the rock's grit lay over it as faint scratches, and over one drawn in depth it didn't move
     // with the relief - the user's athens tile. posW: where the parallax met the ground, so it would.)
-    const float k = FL.terrain2.w * m.w.x * (1.0 - NativeSand(m.uv[0]) * clamp(FL.sand.x, 0.0, 1.0));
+    const float k = FL.terrain2.w * FL.terrainFar.y * m.w.x * (1.0 - NativeSand(m.uv[0]) * clamp(FL.sand.x, 0.0, 1.0));
     if (k <= 0.002 || !TerrainRockOn() || m.clutter) return c;
     if (TerrainNativeMaps() && NativeNormalImage(m.uv[0]) != 0xFFFFu) return c;
     const mat2 turn = mat2(0.8, 0.6, -0.6, 0.8);

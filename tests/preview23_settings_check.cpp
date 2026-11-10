@@ -9,9 +9,21 @@
 #include <cstring>
 #include <cmath>
 #include "../rvk/area_profiles.h"
+#include "../rvk/ambient_policy.h"
+#include "../rvk/surface_attachment.h"
 #include <cstdlib>
 
-int main(int argc,char**) {
+int main(int argc,char** argv) {
+    for(float frequency:{.20f,.40f,.62f,.75f})for(int i=0;i<20;++i) {
+        auto visible=[&](float value){float demand=rvk::ambient::Density(value)*frequency;float n=float(rvk::ambient::Population(demand));return 10.f*n*(demand/n);};
+        if(std::fabs((visible((i+1)*.1f)-visible(i*.1f))-1.33f*frequency)>.00001f)return 14;
+    }
+    {
+        using namespace rvk::attachment;
+        const auto q=Closest({.5f,.5f,9.f},{0,0,0},{2,0,0},{0,2,0});
+        if(std::fabs(q[0]-.5f)>.00001f || std::fabs(q[1]-.5f)>.00001f || q[2]!=0)return 15;
+        const auto edge=Closest({4,0,0},{0,0,0},{2,0,0},{0,2,0});if(edge!=Point{2,0,0})return 16;
+    }
     // Exercise the actual N3 ring policy: scenery must never expand the small
     // object rings or reach zones that N3 has not loaded. Off is the old policy.
     const float original[5]={.10f,.15f,.30f,.40f,.55f};
@@ -58,6 +70,10 @@ int main(int argc,char**) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc>2 && std::strcmp(argv[1],"--check-density")==0) {
+        check(std::fabs(info("RVK_AmbientMotes").value-std::atof(argv[2]))<.0001,"density migrates once and survives restart");
+        std::puts("density migration passed");return 0;
+    }
     if(argc>1)check(std::fabs(info("RVK_TerraRough").value-.35f)<.001,"restart terrain roughness");
     if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");check(effective("RVK_FarScenery")==1 && effective("RVK_SceneryDist")==3 && effective("RVK_ViewRange")==3,"restart far scenery");check(info("RVK_ViewRange").value==1.5f,"restart stored ordinary view range");std::puts("saved selections, Far Scenery and manual time survived process restart");return 0;}
     check(info("RVK_TerraRough").defaultValue==.6f && info("RVK_TerraRough").min==0 &&
@@ -97,7 +113,8 @@ int main(int argc,char**) {
     check(effective("RVK_LightGlow")>.5f && effective("RVK_AmbientMotes")>0 && info("RVK_AmbientMode").value==1 &&
           effective("RVK_AreaLight")>.5f && info("RVK_SkyStyle").value==1,"Ultra enables requested sky/glow/automatic/area defaults");
     check(effective("RVK_ShipLights")==1 && effective("RVK_ShipLightPower")>.5f,"Ultra ship beacons and nearby illumination");
-    check(std::fabs(info("RVK_AmbientMotes").value-1.33f)<.0001f && std::fabs(info("RVK_AmbientMotes").defaultValue-1.33f)<.0001f,"ambient default increased by one third");
+    check(std::fabs(info("RVK_AmbientMotes").value-1.f)<.0001f && std::fabs(info("RVK_AmbientMotes").defaultValue-1.f)<.0001f,"ambient baseline normalized to one");
+    check(info("RVK_WaterStyle").value==1.f,"Ultra uses Water Style Look 1");
     set("RVK_AmbientOn",0);set("RVK_LightGlowOn",0);
     set("RVK_LightGlowOn",1);set("RVK_LightGlow",.6f);
     check(std::fabs(effective("RVK_LightGlow")-.6f)<.001,"light source halo independent strength");

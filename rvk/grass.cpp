@@ -145,7 +145,7 @@ bool GreenRgb(const uint8_t c[3])
 
 int32_t FloorDiv(int32_t a, int32_t b) { return a >= 0 ? a / b : -((-a + b - 1) / b); }
 
-uint64_t TileKey(int32_t tx, int32_t tz) { return (uint64_t(uint32_t(tx)) << 32) | uint32_t(tz); }
+auto TileKey(int32_t tx, int32_t tz, uint64_t surface=0) { return std::make_tuple(tx,tz,surface); }
 
 // Rounding to an unsigned integer in 0 .. max, and a signed one in -max .. max: std::lround is a library call on the
 // 32-bit build, and a blade's record takes a dozen of these.
@@ -582,7 +582,7 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
         Check(Device* d_) : d(d_) { d->HeapCheck("before an object's cover capture", 2); }
         ~Check() { d->HeapCheck("after an object's cover capture", 2); if (!d->m_heapBroken) d->m_heapLastOk = "an object's cover capture"; }
     } check(this);
-    if (!m_drawMesh || m_grassTiles.empty() || primitive != d3d::TriangleList || layout.offset[0] < 0)
+    if (!m_drawMesh || m_grassTiles.empty() || primitive < d3d::TriangleList || primitive > d3d::TriangleFan || layout.offset[0] < 0)
         return;
     if (m_grassCoverFrame != m_frameNumber) {
         m_grassCoverFrame = m_frameNumber;
@@ -696,16 +696,66 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
             tile->lastChange = m_frameNumber;
         }
     };
-    const uint32_t triangles = indices ? indexCount / 3 : vertexCount / 3;
+    // Grass textured static ground (SL floating islands, raised planters):
+    // an independent height layer, never replacing the ground beneath it.
+    Texture* grassTex=m_textures[0];
+    const bool grassSurface=m_grassOn && grassTex && grassTex->m_thumbValid && grassTex->m_opaque &&
+        layout.offset[4]>=0 && (m_tss[0][d3d::TSS_TEXCOORDINDEX]&0xffffu)==0 &&
+        !(m_tss[0][d3d::TSS_TEXCOORDINDEX]&0xffff0000u) &&
+        m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS]==0;
+    const uint64_t surfaceKey=mapKey() | 1ull;
+    auto addGrass=[&](int32_t cx,int32_t cz,float y,float u,float v) {
+        if(!grassSurface)return;
+        const bool clamp=m_tss[0][d3d::TSS_ADDRESSU]==d3d::TADDRESS_CLAMP && m_tss[0][d3d::TSS_ADDRESSV]==d3d::TADDRESS_CLAMP;
+        uint8_t rgb[3];
+        if(!grassTex->TexelRgbBilinear(u,v,rgb,clamp) || !grass::Green(rgb))return;
+        const float cover=grassTex->GrassCoverAt(u,v,clamp);if(cover<.15f)return;
+        const int32_t tx=FloorDiv(cx,kGroundN),tz=FloorDiv(cz,kGroundN);
+        GrassTile* baseTile=GrassTileAt(tx,tz);const int index=(cz-tz*kGroundN)*kGroundN+(cx-tx*kGroundN);
+        // Native grass already covers a coincident surface. Do not draw twice.
+        if(baseTile && baseTile->rank[index]!=255 && std::fabs(baseTile->y[index]-y)<.15f && (baseTile->colour[index]&(1u<<24)))return;
+        auto key=TileKey(tx,tz,surfaceKey);auto it=m_grassTiles.find(key);
+        if(it==m_grassTiles.end()) {
+            size_t layers=0;for(const auto& pair:m_grassTiles)layers+=pair.second->surface!=0;
+            if(layers>=128)return; // bounded extra CPU/GPU residency
+            auto t=std::make_unique<GrassTile>();t->tx=tx;t->tz=tz;t->surface=surfaceKey;
+            std::memset(t->rank,255,sizeof(t->rank));std::memset(t->lightRank,255,sizeof(t->lightRank));
+            std::memset(t->blockRank,255,sizeof(t->blockRank));std::memset(t->blockLightRank,255,sizeof(t->blockLightRank));
+            std::fill(&t->cover[0][0],&t->cover[0][0]+GrassTile::kCells*GrassTile::kCoverLayers,1e30f);
+            t->created=m_frameNumber+1;t->lastChange=m_frameNumber;t->bases[0]=grassTex;
+            it=m_grassTiles.emplace(key,std::move(t)).first;
+        }
+        GrassTile& t=*it->second;
+        uint32_t colour=uint32_t(rgb[0])<<16 | uint32_t(rgb[1])<<8 | rgb[2] | (1u<<24) | (uint32_t(cover*127.f+.5f)<<25);
+        if(t.rank[index]==255 || std::fabs(t.y[index]-y)>.02f || t.colour[index]!=colour) {
+            if(t.rank[index]==255)++t.seen;
+            t.rank[index]=0;t.y[index]=y;t.colour[index]=colour;
+            // Static materials have no terrain lightmap. The grass shader takes
+            // frame sky/ambient/local lighting instead of a stale lightmap below.
+            ++t.version;t.lastChange=m_frameNumber;
+        }
+        t.lastUsed=m_frameNumber;
+    };
+    const uint32_t elementCount=indices ? indexCount:vertexCount;
+    const uint32_t triangles=primitive==d3d::TriangleList ? elementCount/3:elementCount>=3 ? elementCount-2:0;
+    auto triIndex=[&](uint32_t t,unsigned corner) {
+        uint32_t i=primitive==d3d::TriangleList ? t*3+corner:
+            primitive==d3d::TriangleFan ? (corner==0 ? 0:t+corner):t+corner;
+        return indices ? uint32_t(indices[i]):i;
+    };
     for (uint32_t t = 0; t < triangles; ++t) {
-        uint32_t i0 = indices ? indices[t * 3] : t * 3, i1 = indices ? indices[t * 3 + 1] : t * 3 + 1,
-                 i2 = indices ? indices[t * 3 + 2] : t * 3 + 2;
+        uint32_t i0=triIndex(t,0),i1=triIndex(t,1),i2=triIndex(t,2);
         if (i0 >= vertexCount || i1 >= vertexCount || i2 >= vertexCount)
             continue;
         float a[3], b[3], c[3];
         at(i0, a);
         at(i1, b);
         at(i2, c);
+        float uv[3][2]{};
+        if(grassSurface)for(int k=0;k<3;++k) {
+            const uint32_t i=k==0 ? i0:k==1 ? i1:i2;
+            std::memcpy(uv[k],base+size_t(i)*layout.stride+layout.offset[4],8);
+        }
         // Upward (or downward: either winding) and fairly flat: a surface one could stand on.
         const float e1[3] = {b[0] - a[0], b[1] - a[1], b[2] - a[2]}, e2[3] = {c[0] - a[0], c[1] - a[1], c[2] - a[2]};
         const float n[3] = {e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]};
@@ -727,7 +777,9 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
                 const float l2 = 1.0f - l0 - l1;
                 if (l0 < -0.01f || l1 < -0.01f || l2 < -0.01f)
                     continue;
-                addCover(cx, cz, l0 * a[1] + l1 * b[1] + l2 * c[1]);
+                const float y=l0*a[1]+l1*b[1]+l2*c[1];
+                addCover(cx,cz,y);
+                addGrass(cx,cz,y,l0*uv[0][0]+l1*uv[1][0]+l2*uv[2][0],l0*uv[0][1]+l1*uv[1][1]+l2*uv[2][1]);
             }
     }
     // Its footprint: an object standing in the ground - a tree's trunk and roots, a rock - has no surface one could
@@ -747,8 +799,7 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
             std::vector<float>& seg = m_grassFootprint;   // x0 z0 x1 z1 per side crossing the cut
             seg.clear();
             for (uint32_t t = 0; t < triangles; ++t) {
-                uint32_t i0 = indices ? indices[t * 3] : t * 3, i1 = indices ? indices[t * 3 + 1] : t * 3 + 1,
-                         i2 = indices ? indices[t * 3 + 2] : t * 3 + 2;
+                uint32_t i0=triIndex(t,0),i1=triIndex(t,1),i2=triIndex(t,2);
                 if (i0 >= vertexCount || i1 >= vertexCount || i2 >= vertexCount)
                     continue;
                 float v[3][3];
@@ -1264,7 +1315,7 @@ bool Device::BuildGrassTile(GrassTile& tile)
                 float sum = 0.0f, weight = 0.0f;
                 for (int k = 0; k < 4; ++k) {
                     float h;
-                    if (!cellY(ix + (k & 1), iz + (k >> 1), &h))
+                    if (!cellY(ix + (k & 1), iz + (k >> 1), &h) || std::fabs(h-*y)>1.f)
                         continue;
                     const float w = ((k & 1) ? tx : 1.0f - tx) * ((k >> 1) ? tz : 1.0f - tz);
                     sum += h * w;
@@ -1275,7 +1326,7 @@ bool Device::BuildGrassTile(GrassTile& tile)
                 return true;
             }
         }
-        return GroundAt(px, pz, y, colour, light);
+        return !tile.surface && GroundAt(px, pz, y, colour, light);
     };
     // The ground's slope right at a point, from the cells around it (quarter-unit steps): the coarse normals (above)
     // smooth a narrow step - the terrain climbing from a paved floor up a bank at the foot of a wall - into a gentle
@@ -1432,7 +1483,20 @@ bool Device::BuildGrassTile(GrassTile& tile)
         }
         float py;
         uint32_t pcol, plight;
-        if (!ground(px, pz, &py, &pcol, &plight) || !(pcol >> 24 & 1u) || CoveredAt(px, pz, py)) {
+        bool covered=false;
+        if(ground(px,pz,&py,&pcol,&plight)) {
+            covered=CoveredAt(px,pz,py);
+            if(tile.surface) {
+                covered=false;
+                const GrassTile* native=GrassTileAt(tile.tx,tile.tz);
+                if(native) {
+                    int cx=std::clamp(int((px-x0)/kGroundCell),0,kGroundN-1),cz=std::clamp(int((pz-z0)/kGroundCell),0,kGroundN-1);
+                    for(float h:native->cover[cz*kGroundN+cx])
+                        if(h>py+.08f && h<=py+kCoverAbove)covered=true;
+                }
+            }
+        } else pcol=0;
+        if (!(pcol >> 24 & 1u) || covered) {
             ++m_grassLeftOut[1];                 // no grass ground here (or an object lies on it)
             continue;
         }
@@ -1443,7 +1507,7 @@ bool Device::BuildGrassTile(GrassTile& tile)
             continue;
         }
         float tn[3];
-        sampleNormal(px, pz, tn);                // the blade grows along the ground's slope, not straight up
+        if(tile.surface){tn[0]=0;tn[1]=1;tn[2]=0;}else sampleNormal(px, pz, tn);                // the blade grows along the ground's slope, not straight up
         const float slopeUp = std::min(tn[1], localUp(px, pz));
         // Only steep ground stays bare (a cliff): from ~50 degrees, none past ~63 - the game's grassy banks and mounds
         // are steep too. (From 35 degrees it left whole tiles of a mound bare: a tile next to one not yet captured
@@ -1678,6 +1742,7 @@ void Device::UpdateGrassTiles()
                 ++tile.version;
                 tile.lastChange = m_frameNumber;
                 tile.created = m_grassTileEpoch = m_frameNumber + 1;
+                if(tile.surface)m_grassCovers.clear();
             }
         }
         m_groundTexUploaded.clear();
@@ -2111,6 +2176,13 @@ void Device::DrawGrassTiles(VkCommandBuffer cmd)
     }
     m_cache = StateCache{};                      // this pipeline and its vertex input are not the scene's
     m_arenaBound = m_bindlessBound = false;      // ... and its pushed set 0 replaced the scene's: rebind those too
+    if(m_dumpFile) {
+        unsigned tiles=0,blades=0;float low=1e30f,high=-1e30f;
+        for(const auto& pair:m_grassTiles)if(pair.second->surface && pair.second->blades) {
+            ++tiles;blades+=pair.second->blades;low=std::min(low,pair.second->minY);high=std::max(high,pair.second->maxY);
+        }
+        std::fprintf(m_dumpFile,"# Raised grass: tiles %u blades %u root heights %.3f %.3f\n",tiles,blades,low,high);
+    }
     ProfileMark("ground grass");
     m_grassBlades += drawn;
     ++m_grassDraws;

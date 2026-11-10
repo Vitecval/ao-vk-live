@@ -1,0 +1,2063 @@
+{
+  "scope": "Fresh visual inspection of 137 previously unresolved retained entries. All remaining entries stay explicitly outside repaint coverage.",
+  "reviewed": 137,
+  "restoredPhysicalMaterials": 13,
+  "records": [
+    {
+      "identity": "1010004:100473",
+      "size": [
+        256,
+        64
+      ],
+      "name": "startupn_exittocity.png",
+      "category": "retained_purpose_unresolved",
+      "reason": "Actual purpose unproved from available local evidence; preserve.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100473.png",
+      "sourceExists": true,
+      "sourceSha256": "48aa0d252196848bdfe17ae889865e7a8934d7c572a1adfaab8801cb747a02e5",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:10814",
+      "size": [
+        128,
+        128
+      ],
+      "name": "pickupbox_misc.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_10814.png",
+      "sourceExists": true,
+      "sourceSha256": "8ec0b6e6957756d3efd1b9bf48c03f196d8623a10b0d16bdaec33ee4f740b170",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:10939",
+      "size": [
+        128,
+        128
+      ],
+      "name": "techbar_bar-neonsign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_10939.png",
+      "sourceExists": true,
+      "sourceSha256": "5b9964c97273d6bf750bc14782e55b0d850dcf46a988894f366902d9f99a0feb",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:11641",
+      "size": [
+        256,
+        256
+      ],
+      "name": "omnicop_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_11641.png",
+      "sourceExists": true,
+      "sourceSha256": "63bab202a312daae35ba6e7caee046979cc015829a147e3ca7db2328c320791f",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:11644",
+      "size": [
+        256,
+        256
+      ],
+      "name": "philipross_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_11644.png",
+      "sourceExists": true,
+      "sourceSha256": "6e84a6b5b3448c771632407fd98a2a3ca70920ab169feaa9809c00e8fee55110",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:119013",
+      "size": [
+        32,
+        32
+      ],
+      "name": "wepsign_gummistolpe.png",
+      "category": "retained_optical_or_surface_role_unresolved",
+      "reason": "Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_119013.png",
+      "sourceExists": true,
+      "sourceSha256": "1506df0634444fd59d42c253d50018af2c26cc01925c94a6043eede1a1204939",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:120816",
+      "size": [
+        256,
+        64
+      ],
+      "name": "chalksign_facility2.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_120816.png",
+      "sourceExists": true,
+      "sourceSha256": "0c877554cfe040ad37ee9d1521c0a3f97e89d3fc0c64b6efbc1418dfe80848d4",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:130476",
+      "size": [
+        32,
+        32
+      ],
+      "name": "food_item_plate.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_130476.png",
+      "sourceExists": true,
+      "sourceSha256": "ce554b6938b3089ba2d7a7fc82db4a70c2db8890c818fabaf7272dca7b4512c8",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:14950",
+      "size": [
+        32,
+        32
+      ],
+      "name": "blackness.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_14950.png",
+      "sourceExists": true,
+      "sourceSha256": "09c99a33e790096f026097a250be19e0a7fe60161948663195f80101def67498",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:153759",
+      "size": [
+        128,
+        128
+      ],
+      "name": "lever_lght1.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_153759.png",
+      "sourceExists": true,
+      "sourceSha256": "56cacbf795063f5bd4de97b0aaec95497479f0fd3d97b63cb278ac44c6ce64ff",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:154696",
+      "size": [
+        256,
+        128
+      ],
+      "name": "proto_ninjadroid_head_white.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_154696.png",
+      "sourceExists": true,
+      "sourceSha256": "c624153e9eb40152ec5956f3791f61e09dc99ea2e247538009b73b0c68b12cfa",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:154889",
+      "size": [
+        128,
+        256
+      ],
+      "name": "council_of_truth_logo-banner.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_154889.png",
+      "sourceExists": true,
+      "sourceSha256": "f63c6176251c021e3db3e578bc01b9597634d82760bca3aa5a3118d17fe5c3cc",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:155057",
+      "size": [
+        128,
+        256
+      ],
+      "name": "council_sign_door.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_155057.png",
+      "sourceExists": true,
+      "sourceSha256": "a13b42521b813c5329cef8e92f5f04a5937d7c1945893ffdf28ebdf12f1f8b6b",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:15850",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_critters_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15850.png",
+      "sourceExists": true,
+      "sourceSha256": "c6195eb041bcba726b703c4790ede0d5b9945e9b5435f545246906ae277aabe8",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:15860",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_medical_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15860.png",
+      "sourceExists": true,
+      "sourceSha256": "a666eb685b773e107049fadc6ccd7783b6423f48639bcf7800096dd8f337be8d",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:15863",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_weapons_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15863.png",
+      "sourceExists": true,
+      "sourceSha256": "99404c223286802660c9e61f60581477d4968c1d55d3fb9c2b64fdaf3a768495",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:158852",
+      "size": [
+        32,
+        32
+      ],
+      "name": "cot_food2.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_158852.png",
+      "sourceExists": true,
+      "sourceSha256": "77b72e9e07b76b537936b85c7f323bd105456289ac4935805f5539a4fc654982",
+      "r31Decision": "material_or_effect_role_still_unresolved",
+      "r31Reason": "Small colour/noise patches named food; a material-versus-effect role cannot be established from these pixels alone. Original retained pending a live draw capture."
+    },
+    {
+      "identity": "1010004:158855",
+      "size": [
+        32,
+        32
+      ],
+      "name": "cot_food3.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_158855.png",
+      "sourceExists": true,
+      "sourceSha256": "4dfcd5f3a0a9b38cbd30cc5908495109a9c33bb6ed4e02058b08d358fe1025b1",
+      "r31Decision": "material_or_effect_role_still_unresolved",
+      "r31Reason": "Small colour/noise patches named food; a material-versus-effect role cannot be established from these pixels alone. Original retained pending a live draw capture."
+    },
+    {
+      "identity": "1010004:15899",
+      "size": [
+        16,
+        16
+      ],
+      "name": "toi1.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15899.png",
+      "sourceExists": true,
+      "sourceSha256": "756fbe258d51ae7c64e7cace05820eb2213b773403aa71584a79036fcc9c9343",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:159305",
+      "size": [
+        256,
+        64
+      ],
+      "name": "hq_baseplateforsigns.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_159305.png",
+      "sourceExists": true,
+      "sourceSha256": "5160ea086fa9c8793bd217da6a3fcd2c74480197047f55a3ad11a3e57dd13efd",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:161040",
+      "size": [
+        256,
+        128
+      ],
+      "name": "mongologoneon_broken.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161040.png",
+      "sourceExists": true,
+      "sourceSha256": "aadfca89e0a1f1c9f3797ab4610975bb600b0602635314125f797dbad33a241b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:161044",
+      "size": [
+        256,
+        64
+      ],
+      "name": "logo_broken.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161044.png",
+      "sourceExists": true,
+      "sourceSha256": "cefe0de7826e55a2018035c0dd6afc292ae1dc4469272baf5a0a95f74cccafda",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:161055",
+      "size": [
+        256,
+        128
+      ],
+      "name": "brontoburgerlogohbroken.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161055.png",
+      "sourceExists": true,
+      "sourceSha256": "b70935d03f3543d51cb64af9255cf231d7c1d00d47a159510454b63e7d521197",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:163176",
+      "size": [
+        256,
+        512
+      ],
+      "name": "blade.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_163176.png",
+      "sourceExists": true,
+      "sourceSha256": "075fa14b34e9d839d6e2827a58fc329752656c124097d84e795208598773672a",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:164686",
+      "size": [
+        128,
+        64
+      ],
+      "name": "sign_hub_warningwildlife.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164686.png",
+      "sourceExists": true,
+      "sourceSha256": "ef582be2cd13e904243b791762e89deeb617e12c94cc05eb93aed4a3d12d6bd1",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:164690",
+      "size": [
+        256,
+        64
+      ],
+      "name": "sign_hub_exit.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164690.png",
+      "sourceExists": true,
+      "sourceSha256": "18a897757f50d3919d27ab2e0739cc324af88fd9d0f09320a0f5774c83aa838d",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:164881",
+      "size": [
+        512,
+        512
+      ],
+      "name": "omnitek_poster.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164881.png",
+      "sourceExists": true,
+      "sourceSha256": "95c095c6845e1486b5be7747e7f8733da3a1325c1eb8d8d260243aecb95ce13b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:18336",
+      "size": [
+        16,
+        16
+      ],
+      "name": "dusj_1.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_18336.png",
+      "sourceExists": true,
+      "sourceSha256": "5e6f7f4418a971e8aa3e3989fdd20e245a097dc84e6354f357e555858bca5776",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:203565",
+      "size": [
+        256,
+        256
+      ],
+      "name": "boostershop_refmap_weak.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_203565.png",
+      "sourceExists": true,
+      "sourceSha256": "ded42d90b6389f8b90ee125efc5f75d3bbd632cf500606cdf2204938eb66365c",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:20398",
+      "size": [
+        256,
+        128
+      ],
+      "name": "baboon_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_20398.png",
+      "sourceExists": true,
+      "sourceSha256": "3a2fa188a540b8ccab6c4f7db33c47a98773d8db3b63721b1e2e312f07d46c5b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204885",
+      "size": [
+        16,
+        16
+      ],
+      "name": "glasses_orange.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204885.png",
+      "sourceExists": true,
+      "sourceSha256": "f860f5a3538212f83822885372d42bd8878de05fccef3aad3f0d6e188ae1df73",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204886",
+      "size": [
+        16,
+        8
+      ],
+      "name": "glasses_metal_orange.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204886.png",
+      "sourceExists": true,
+      "sourceSha256": "6673dc52fe40e4f58b97db10fa66fa39575676fd80370206b3d8846337aae524",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204888",
+      "size": [
+        16,
+        8
+      ],
+      "name": "glasses_metal.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204888.png",
+      "sourceExists": true,
+      "sourceSha256": "3043bb1b9e827111da3f65154baf3f9fb26e15d2acc1ed9e15282bf5966f2cf8",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204889",
+      "size": [
+        16,
+        16
+      ],
+      "name": "glasses_blue.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204889.png",
+      "sourceExists": true,
+      "sourceSha256": "633a6251d0376aaea3d95b3cedef3fdb1dc7dc702f2aebfaa9b54bd0c714adff",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204892",
+      "size": [
+        16,
+        16
+      ],
+      "name": "glasses_pink.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204892.png",
+      "sourceExists": true,
+      "sourceSha256": "6d3b64619a4761b55329f39d79d7617339ceb9eebc75ce59f031138e06683d99",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204897",
+      "size": [
+        16,
+        8
+      ],
+      "name": "glasses_metal_dark.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204897.png",
+      "sourceExists": true,
+      "sourceSha256": "b3df9f8933f10542d1438b979e408e97a03faccc27a8b2e9ad09168b00b8f1e1",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204900",
+      "size": [
+        16,
+        16
+      ],
+      "name": "glasses_black.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204900.png",
+      "sourceExists": true,
+      "sourceSha256": "3785a764012b89f31392e9b748e09b77befb853b44d74fd9b2e700cccd81108e",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:204903",
+      "size": [
+        16,
+        8
+      ],
+      "name": "glasses_metal_purple.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204903.png",
+      "sourceExists": true,
+      "sourceSha256": "0b40d185bdf6f8bff3554b756d4de0072f4f61ecf6716654f141f25fa56923b4",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:206074",
+      "size": [
+        256,
+        512
+      ],
+      "name": "ark_posters.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_206074.png",
+      "sourceExists": true,
+      "sourceSha256": "fe5507d96def21eec004bc85d9d7f7ba087e0d18d44cfafd9f6a117c42b7fb77",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:21019",
+      "size": [
+        64,
+        64
+      ],
+      "name": "smallgroundblob.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_21019.png",
+      "sourceExists": true,
+      "sourceSha256": "18c77a6ca46a489c65e0e344e1bbbb89b98eacfec5b79240db3e101edf8b9ea6",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:21052",
+      "size": [
+        16,
+        16
+      ],
+      "name": "lasah.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_21052.png",
+      "sourceExists": true,
+      "sourceSha256": "585b7e94e3bef5c84f2a4fc8315499b7cd05fa555c7c9096da1eaa56f6a25e7d",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:245535",
+      "size": [
+        128,
+        128
+      ],
+      "name": "prison_signs_elevator_down_v01.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_245535.png",
+      "sourceExists": true,
+      "sourceSha256": "2c2c1d63f70e0dbc65c31b1795baea9127930c1c87905507f4a452a3a78d069b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:250497",
+      "size": [
+        256,
+        256
+      ],
+      "name": "sign_metal.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_250497.png",
+      "sourceExists": true,
+      "sourceSha256": "ec6d06d2addc432a56db55b0cc19ee3b4905b687f5af194f81d4644cb8489894",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:254242",
+      "size": [
+        512,
+        256
+      ],
+      "name": "ai_city_sign_baboons.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_254242.png",
+      "sourceExists": true,
+      "sourceSha256": "c319039c0374145a664593c9a3da09e75fb7cba59683998f8d7f1ea9f50efc40",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:255447",
+      "size": [
+        512,
+        256
+      ],
+      "name": "reet-retreat_sign_teleporter.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_255447.png",
+      "sourceExists": true,
+      "sourceSha256": "392adebc38622571761e1246c69db26b1d03c71abe6f88626158f24a26b2d08f",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:256166",
+      "size": [
+        256,
+        128
+      ],
+      "name": "",
+      "category": "retained_purpose_unresolved",
+      "reason": "Actual purpose unproved from available local evidence; preserve.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_256166.png",
+      "sourceExists": true,
+      "sourceSha256": "2277057bd35fe47dace70fe0d4c4707ca7e8e504d966068e41a8e6b190689238",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:260072",
+      "size": [
+        512,
+        256
+      ],
+      "name": "omniposter01.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_260072.png",
+      "sourceExists": true,
+      "sourceSha256": "b10c08308f7c18afa92357dfc99d696ee019996a2468bbc4eb2412c8ed5f6a9e",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:27032",
+      "size": [
+        128,
+        64
+      ],
+      "name": "sign_adventurer.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27032.png",
+      "sourceExists": true,
+      "sourceSha256": "7d02e4533db6a46133bc5605ba40b0067afee99a0854806b7419262ed7dbeae9",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:27039",
+      "size": [
+        128,
+        64
+      ],
+      "name": "sign_engineer.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27039.png",
+      "sourceExists": true,
+      "sourceSha256": "3981ee42a09f4de7987dad3afc446766f283c2e214f533d19448520a50204734",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:272344",
+      "size": [
+        1024,
+        256
+      ],
+      "name": "phasefront_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272344.png",
+      "sourceExists": true,
+      "sourceSha256": "75fd6a512b625ded8b6920d9fbcf71c30e0b8226473e7594bcc3a3bb77df66e8",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:272347",
+      "size": [
+        256,
+        256
+      ],
+      "name": "phasefront_sign3.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272347.png",
+      "sourceExists": true,
+      "sourceSha256": "169f73318e2c505afd0f82cb60fd23c8d9c2e3e38dd50313fa2a779f4c4f46be",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:272348",
+      "size": [
+        256,
+        256
+      ],
+      "name": "phasefront_sign2.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272348.png",
+      "sourceExists": true,
+      "sourceSha256": "6ff3cd31fcf965147627a664f3d080261876724a06ef3ecdc61a6ae39aeb07c2",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:272349",
+      "size": [
+        256,
+        256
+      ],
+      "name": "phasefront_sign4.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272349.png",
+      "sourceExists": true,
+      "sourceSha256": "45a962e4e42226c17f0e051308ecb985cd206a30caa1ff88d1ea56978ee8ba33",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:27697",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_nanos_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27697.png",
+      "sourceExists": true,
+      "sourceSha256": "8e86477cc2b01a179a7858157df378c2ff09c30c584b95d5d94cafe98c4d2e92",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:277463",
+      "size": [
+        256,
+        256
+      ],
+      "name": "anka.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_277463.png",
+      "sourceExists": true,
+      "sourceSha256": "05a63215bd84e237247797f287351e38dfe36b5e0b994abce761629ffefa344c",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:280976",
+      "size": [
+        256,
+        256
+      ],
+      "name": "wedding_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_280976.png",
+      "sourceExists": true,
+      "sourceSha256": "16e3dde9a7a16a4b4993b0cdf82676bdc4364a0d510ddb6ebff2bb68590169ae",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:281741",
+      "size": [
+        256,
+        256
+      ],
+      "name": "bdayduck_cake.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_281741.png",
+      "sourceExists": true,
+      "sourceSha256": "495a9c0706df7b7f3b8f8da1af5a6309bead7bb7606eeca42d18a10bc334205d",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:282001",
+      "size": [
+        64,
+        128
+      ],
+      "name": "nc_pinklite.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282001.png",
+      "sourceExists": true,
+      "sourceSha256": "09539d2dddcb0438c19f42ed40ff04276d8d3023901e7451bd64db67bbc73cab",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:282017",
+      "size": [
+        256,
+        256
+      ],
+      "name": "nc_rooflogo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282017.png",
+      "sourceExists": true,
+      "sourceSha256": "024aae64f60136ae9f64e43907516d10ea8c50d07491c52acf6bd3630aaddfaa",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:282095",
+      "size": [
+        512,
+        512
+      ],
+      "name": "",
+      "category": "retained_purpose_unresolved",
+      "reason": "Actual purpose unproved from available local evidence; preserve.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282095.png",
+      "sourceExists": true,
+      "sourceSha256": "b95b57d1e0150148ca9e4f409f8a325f9a315038c74d27ca19d51f65531f3796",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:283878",
+      "size": [
+        256,
+        256
+      ],
+      "name": "halloween_placard_u.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283878.png",
+      "sourceExists": true,
+      "sourceSha256": "5c12e50654f9cf347063ce92a04e34316fd66b043871ce9aea8bbe70004c05cb",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:284026",
+      "size": [
+        256,
+        256
+      ],
+      "name": "halloween_placard_no.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284026.png",
+      "sourceExists": true,
+      "sourceSha256": "9d07dad9bfc80788736893dce14bbef88e4b70c2fbde458009d448b948a2466a",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:284192",
+      "size": [
+        256,
+        256
+      ],
+      "name": "halloween_placard_lessthanthree.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284192.png",
+      "sourceExists": true,
+      "sourceSha256": "29ee68f45d34999cb5a8e763de5ac2634204b2348958aab4d6321836349cd5b9",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:284377",
+      "size": [
+        32,
+        32
+      ],
+      "name": "",
+      "category": "retained_purpose_unresolved",
+      "reason": "Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284377.png",
+      "sourceExists": true,
+      "sourceSha256": "30a5faf4033e50a90a2878943dfcf4cc66c8feff3fe92c17dc8c7e7a30e9e845",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:287123",
+      "size": [
+        256,
+        256
+      ],
+      "name": "bdayduck_cake2.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287123.png",
+      "sourceExists": true,
+      "sourceSha256": "ad62b59c4b08f3d43bab172d76039f7b47a2a4a8bce2e13764a164e4a3c55303",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:287261",
+      "size": [
+        256,
+        256
+      ],
+      "name": "anka_caked.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287261.png",
+      "sourceExists": true,
+      "sourceSha256": "e2fcf4d992ed76024a6ccd2c3142dd0abd452aa57f667bc020925d6ba6eeaf21",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:287263",
+      "size": [
+        256,
+        256
+      ],
+      "name": "bdayduck_cake3.png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287263.png",
+      "sourceExists": true,
+      "sourceSha256": "876e3f1a240f5e909310d3397fe10dde9bb856c573df820c4bb8420bd6a489d5",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:287293",
+      "size": [
+        256,
+        256
+      ],
+      "name": "goldenv.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287293.png",
+      "sourceExists": true,
+      "sourceSha256": "5996352cabd9a02f2246562d437a012675f3d518c566385a1cbb665a97ded37d",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:287294",
+      "size": [
+        768,
+        192
+      ],
+      "name": "8-bitposter.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287294.png",
+      "sourceExists": true,
+      "sourceSha256": "c7fc43f36e3a9ff9051c9e761c0aa51a07603917d828931a223a380b6de7fd7a",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:289525",
+      "size": [
+        8,
+        8
+      ],
+      "name": "crunk_goblet_red.png",
+      "category": "retained_purpose_unresolved",
+      "reason": "Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_289525.png",
+      "sourceExists": true,
+      "sourceSha256": "e9200c72c5432a4154bf4b9c338f8e251a812e80ff1f08d4baa0bb9938517a01",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:290195",
+      "size": [
+        1024,
+        1024
+      ],
+      "name": "bsmap01_i.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_290195.png",
+      "sourceExists": true,
+      "sourceSha256": "cf6b3059a51562d3ccae07f1425043c99ad9794c8c7e56c569bb725f47d542d2",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291412",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291412.png",
+      "sourceExists": true,
+      "sourceSha256": "1c09485b5c5fcceaa4c662cbf8a5b89f63e8e8ed9f46cf60a47cb2c7d3b1f5d4",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291480",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_yellow_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291480.png",
+      "sourceExists": true,
+      "sourceSha256": "cc4785ff070d813d125d802aa455eab8f8c8ccda43214a7cc276d18999d0be70",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291481",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_black_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291481.png",
+      "sourceExists": true,
+      "sourceSha256": "811766034681787e13ac8cca4ce51f9f6f2f5ae73a7afddbb21772fa05b43d17",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291482",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_blue_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291482.png",
+      "sourceExists": true,
+      "sourceSha256": "1ab268a2f7031691b23d6909c9f030781aa995b88579dcfdeebe07cf61d2a586",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291484",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_green_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291484.png",
+      "sourceExists": true,
+      "sourceSha256": "a98cefae949b644685aabc5924ab4c4be60efbd8d0339bdbac0b1e6b8c9e4cde",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291485",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_orange_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291485.png",
+      "sourceExists": true,
+      "sourceSha256": "c6afa8cb55f73dc5def9a6c53100655899867da6f98defa7647bf2797e9d7338",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291486",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_purple_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291486.png",
+      "sourceExists": true,
+      "sourceSha256": "ebc6b37ca626f7fe777880dbc8d198f20c895041f4fd527f429c34630ea0ceee",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291487",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_red_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291487.png",
+      "sourceExists": true,
+      "sourceSha256": "e6b3c6e9f78a325eaddf5c319c3a3fbf794430404acb13959af8492e1d4ac552",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291489",
+      "size": [
+        32,
+        32
+      ],
+      "name": "shop_wenwen_white_eye.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291489.png",
+      "sourceExists": true,
+      "sourceSha256": "03dcf5cea0c0c1b67ab5dd05725c26576c6cc2ea38aa6cf164789d49717c3415",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291596",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_BLUE.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291596.png",
+      "sourceExists": true,
+      "sourceSha256": "8b982daaac82fec81fd4dd28a402d51bc72e0c2d9ad88a1ad306790ac9a8d2b5",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291597",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_GREEN.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291597.png",
+      "sourceExists": true,
+      "sourceSha256": "949d4ac6294d7c9d4900bfd418583b116f740f280a6405e20f92977acd3496aa",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291598",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_ORANGE.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291598.png",
+      "sourceExists": true,
+      "sourceSha256": "58dc500de5161d1992c954dd3433d47e8216c1f0ba1b14d6cc40acbb459f3b26",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291599",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_PINK.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291599.png",
+      "sourceExists": true,
+      "sourceSha256": "95aab963cc581d830a810e498809ee60d6bebbe168524667a83fccf2dc30983f",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291600",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_PURPLE.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291600.png",
+      "sourceExists": true,
+      "sourceSha256": "c1030843360123ef1f6e900d5c5940e9174d1f0cf2ea99fc7f0b06972a71908f",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291601",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_RED.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291601.png",
+      "sourceExists": true,
+      "sourceSha256": "bcb9c6f5a0ba5c9db9315c9e2253624a900da7263b92421c2be73c1060060793",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:291602",
+      "size": [
+        256,
+        256
+      ],
+      "name": "shop_glasspads_shield_YELLOW.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_291602.png",
+      "sourceExists": true,
+      "sourceSha256": "917847e226691852ed2326d996eef75a43379ba4278ef048bc7237b0d3f4910a",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:292036",
+      "size": [
+        256,
+        128
+      ],
+      "name": "NEUTRAL_sign_sitting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292036.png",
+      "sourceExists": true,
+      "sourceSha256": "3373a6390451d6c5743646963342df8d5fca7aecf88e632c1f03dd7e7afdd3fd",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:292037",
+      "size": [
+        256,
+        128
+      ],
+      "name": "NEUTRAL_sign_flowers.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292037.png",
+      "sourceExists": true,
+      "sourceSha256": "2a8958b191c9b64a756e9c201395723092f603f961582e900ec092dce3cfe2f2",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:292562",
+      "size": [
+        512,
+        256
+      ],
+      "name": "1st_winners_db3_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292562.png",
+      "sourceExists": true,
+      "sourceSha256": "5da28fe88b3c9e738619e08d8c8e63cbf44609a219635c6265e7b9a671f3a636",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:294611",
+      "size": [
+        512,
+        256
+      ],
+      "name": "wedding_painting_camelot_castle.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294611.png",
+      "sourceExists": true,
+      "sourceSha256": "c1a02990155dc25872f586b4f406918f37b7c61c6a33958b8b62201c65f5f6fe",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:294621",
+      "size": [
+        512,
+        256
+      ],
+      "name": "wedding_painting_notum_tree.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294621.png",
+      "sourceExists": true,
+      "sourceSha256": "94f430243104ab2f4ea0f9f90766b32e8fae9121a6619cb82da8a9ec9b838e0a",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:297249",
+      "size": [
+        128,
+        256
+      ],
+      "name": "poster_omni_pol_logo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297249.png",
+      "sourceExists": true,
+      "sourceSha256": "5a1a585eda0666e4544e3d814612d9940924338d75f1bd9b66ac5bd09a1246a9",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:297251",
+      "size": [
+        128,
+        256
+      ],
+      "name": "poster_omni_trans_logo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297251.png",
+      "sourceExists": true,
+      "sourceSha256": "95232bd544aed4893cdfc46afd2ec391386bc53cdc2350afb4588659db138275",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:297253",
+      "size": [
+        128,
+        256
+      ],
+      "name": "poster_omni_otaf_logo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297253.png",
+      "sourceExists": true,
+      "sourceSha256": "4780ddf99c13a0bbba4bf7e39c936b382676f9281f8faf257d92cf06220f165e",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:297256",
+      "size": [
+        128,
+        256
+      ],
+      "name": "poster_omni_med_logo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297256.png",
+      "sourceExists": true,
+      "sourceSha256": "5653c6bc6ae37c6d2b573fe09e754b6e3c3f4b1eb83ceec96e8a5775b0109923",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:297438",
+      "size": [
+        128,
+        512
+      ],
+      "name": "new_cc_nano_02_ab.png",
+      "category": "retained_purpose_unresolved",
+      "reason": "Actual purpose unproved from available local evidence; preserve.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297438.png",
+      "sourceExists": true,
+      "sourceSha256": "987ccf976fbd1640b548e3c208dd008a6ccb26ed0bcfaa9c269c2b1823b79eab",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:30962",
+      "size": [
+        256,
+        64
+      ],
+      "name": "4h_officesign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_30962.png",
+      "sourceExists": true,
+      "sourceSha256": "2934bee075ff6fda260da2b5e77d5d3bae47eb967b714bec76277dbf0331ee0c",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31081",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31081.png",
+      "sourceExists": true,
+      "sourceSha256": "0e1a70895dd4b2428ce49fb711a6fd38b3222ed1f0bc63c2e1be19118ae33028",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31083",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan3_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31083.png",
+      "sourceExists": true,
+      "sourceSha256": "70049f8582ae493d07a92354d2ea0b1c3c143e19a0279932a0312843ca6fa41b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31085",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan4_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31085.png",
+      "sourceExists": true,
+      "sourceSha256": "0ab824b53ad0743143d76330c2468a9f33d477982126a27da8d3960847fa8047",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31087",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan5_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31087.png",
+      "sourceExists": true,
+      "sourceSha256": "9fad5923127728be07e5b1ad56f2103bbb04640ee1ae9e44ba756c3279424a22",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31089",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan6_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31089.png",
+      "sourceExists": true,
+      "sourceSha256": "be35b9fe52a62b3844e6a5fabfceabe26d7ba9372cc3ff7e47b0eaa7de5e760f",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31091",
+      "size": [
+        256,
+        256
+      ],
+      "name": "clan2_painting.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31091.png",
+      "sourceExists": true,
+      "sourceSha256": "3ea2f8fd33977359a685f3b2fff40d24443ed1771e2b09dd2ec29439f850a6c3",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:31350",
+      "size": [
+        128,
+        32
+      ],
+      "name": "4h_storagessign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31350.png",
+      "sourceExists": true,
+      "sourceSha256": "b5c15e638a8b0b33d20dd89d0be62180ea2331fdf2e0cba717feb62d75b28c92",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:32462",
+      "size": [
+        128,
+        128
+      ],
+      "name": "avalon_sign_crappycrappy.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_32462.png",
+      "sourceExists": true,
+      "sourceSha256": "5e0c21646c13405148be221a3751dd67d6177affed3da681579c3705a431a4a4",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:32494",
+      "size": [
+        128,
+        64
+      ],
+      "name": "4h_livingqsign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_32494.png",
+      "sourceExists": true,
+      "sourceSha256": "ea598ea4b2743421deb7661c12ec3e518d26516f3bc5d10af78d3f76dddce800",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:35873",
+      "size": [
+        128,
+        64
+      ],
+      "name": "hq_adm_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35873.png",
+      "sourceExists": true,
+      "sourceSha256": "5db130f51236261473abb81b35016173b726bae4b71ef334846f9f7bbd9c5a9a",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:35881",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_bank_overdoorsign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35881.png",
+      "sourceExists": true,
+      "sourceSha256": "2e27f61260dd98a0ff1b6618c14ab26bd6d9f015c4f7db3e0fe048301e1e1c32",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:35967",
+      "size": [
+        128,
+        32
+      ],
+      "name": "hq_mine_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35967.png",
+      "sourceExists": true,
+      "sourceSha256": "262013228190325e94778b09b5d6527ff96b0058e3d9fc9bc8aee9cdb6ce9b1b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:36167",
+      "size": [
+        128,
+        32
+      ],
+      "name": "omni_mine_hq_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_36167.png",
+      "sourceExists": true,
+      "sourceSha256": "67585a1970982624b77ec428e88543ddabd76470f46d6aba6de3a4bd8dc11d00",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:39856",
+      "size": [
+        16,
+        16
+      ],
+      "name": "blue_cold.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_39856.png",
+      "sourceExists": true,
+      "sourceSha256": "ac41be639e06652d7143c23e8b8f72608f0fec440e938b709ff37607317fb5d4",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:39867",
+      "size": [
+        16,
+        16
+      ],
+      "name": "red_hot.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_39867.png",
+      "sourceExists": true,
+      "sourceSha256": "06dbaa54287da3a0f6e11560e9b3061192e7206e0ca555853699da1ed362cbf0",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:39997",
+      "size": [
+        128,
+        64
+      ],
+      "name": "omniminecorp_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_39997.png",
+      "sourceExists": true,
+      "sourceSha256": "50e6011e55a75efa79a3113afa4e9fc2d01c6f01e47c93a9160d104486eaad9b",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:40463",
+      "size": [
+        256,
+        128
+      ],
+      "name": "manic-miner-logo.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_40463.png",
+      "sourceExists": true,
+      "sourceSha256": "840a8802012aca2256da45bd9de85678f78b80806a39a8a2b1a01db024625b53",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:41316",
+      "size": [
+        32,
+        32
+      ],
+      "name": "small_yellow_partylampglow.png",
+      "category": "retained_optical_or_surface_role_unresolved",
+      "reason": "Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41316.png",
+      "sourceExists": true,
+      "sourceSha256": "d93be84a66e82e46c70bc4f8c79907eea605e32e821f19eabaaf137fe2199230",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:41609",
+      "size": [
+        64,
+        64
+      ],
+      "name": "omni_booth_registration_sign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41609.png",
+      "sourceExists": true,
+      "sourceSha256": "cbea37a7519bdc5bc281d43b7b93323ea2042106848fe48b19a9aaa4408c9308",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:41633",
+      "size": [
+        128,
+        128
+      ],
+      "name": "trappegrillen_square.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41633.png",
+      "sourceExists": true,
+      "sourceSha256": "32e3dd9a9f90b3d26dd23d24b5a98fd23702aaafdfc8191ddb590c486ea6534c",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:41965",
+      "size": [
+        256,
+        32
+      ],
+      "name": "sign_backside_blank.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41965.png",
+      "sourceExists": true,
+      "sourceSha256": "d98c634c2eaf69b2d6cad870f54a45623dc7670ae723d57eafd2bf76df027de3",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:41978",
+      "size": [
+        256,
+        128
+      ],
+      "name": "hq_omnimedbigsign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41978.png",
+      "sourceExists": true,
+      "sourceSha256": "5deb38770dfd66423c6f48e73eba28ccab72105fec73263863f7b00a7f82efdd",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:42374",
+      "size": [
+        32,
+        32
+      ],
+      "name": "tir_tube33spar3.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_42374.png",
+      "sourceExists": true,
+      "sourceSha256": "2a8e5c2d546e7f9452d2aa4f85cdd04493f903cae2c0ded90a3473beaa2ae8f8",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:42380",
+      "size": [
+        16,
+        16
+      ],
+      "name": "tir_tubespar3.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_42380.png",
+      "sourceExists": true,
+      "sourceSha256": "d56302c104ed3f95d0586af3c7237815f08eda682625ba13b4669be1cf8974b0",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:43427",
+      "size": [
+        128,
+        128
+      ],
+      "name": "wanted_poster1.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_43427.png",
+      "sourceExists": true,
+      "sourceSha256": "612f2c348a6ed8161df7c959ac0abe42fc9910a8e093ebac46a13b71e1545e06",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:43432",
+      "size": [
+        128,
+        128
+      ],
+      "name": "oldpaper_poster1.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_43432.png",
+      "sourceExists": true,
+      "sourceSha256": "ccd1a52ef77437f3afc3216a32317e4397b8522a87687297eac117a2194764a2",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:44645",
+      "size": [
+        16,
+        16
+      ],
+      "name": "trash_bag_blueinside.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_44645.png",
+      "sourceExists": true,
+      "sourceSha256": "c3ff9ae126cc3634219bb2c5152398fc1bfeac57d0815c13c069471f9cdc4378",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:44650",
+      "size": [
+        64,
+        128
+      ],
+      "name": "contain_fridge_screen1.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_44650.png",
+      "sourceExists": true,
+      "sourceSha256": "f133a0a1b18b99a6d837437d3714c022083b17ca986b7f014827a409e95c9ce0",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:44665",
+      "size": [
+        16,
+        16
+      ],
+      "name": "trash_bag_greeninside.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_44665.png",
+      "sourceExists": true,
+      "sourceSha256": "421cefa15b9a12ec948aab2051a56a718232028d06f18e0b8aa6e4f499b44c6c",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:44667",
+      "size": [
+        16,
+        16
+      ],
+      "name": "trash_bag_blackinside.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_44667.png",
+      "sourceExists": true,
+      "sourceSha256": "a0fcd98e22a54f2f74ef6994aa59c3a0e31b77ab9d2d39796cda7b5e1c3d84fe",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:55970",
+      "size": [
+        128,
+        64
+      ],
+      "name": "clan_teleporter_signplace.png",
+      "category": "retained_optical_or_surface_role_unresolved",
+      "reason": "Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_55970.png",
+      "sourceExists": true,
+      "sourceSha256": "cc9da25bb545a2f606de47fc7a434821e3723aa0d6aa9bc3bc42736940bf0cfa",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:6469",
+      "size": [
+        256,
+        128
+      ],
+      "name": "omni-tek_headquarter.png",
+      "category": "retained_purpose_unresolved",
+      "reason": "Actual purpose unproved from available local evidence; preserve.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_6469.png",
+      "sourceExists": true,
+      "sourceSha256": "fe82781437d020228a2ff8a88be031a0357b6621854e84e658232e85c7dd2712",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:70659",
+      "size": [
+        128,
+        32
+      ],
+      "name": "omnitrans_kiosk_sign_subway.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_70659.png",
+      "sourceExists": true,
+      "sourceSha256": "07fe7c455c171a8b8568a504190511100b895acfecd45e721b03579ecf3b42a7",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:82885",
+      "size": [
+        32,
+        32
+      ],
+      "name": "cameralens_black.png",
+      "category": "retained_visible_artwork_role_unresolved",
+      "reason": "Visible artwork/trim/prop; no proven globally safe replacement semantics.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_82885.png",
+      "sourceExists": true,
+      "sourceSha256": "151949453856bc8cb419e9584109eff9b7d72abcc312645300aaa8ee4ee4d4ae",
+      "r31Decision": "retained_graphic_or_functional_input_reviewed",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:85970",
+      "size": [
+        64,
+        32
+      ],
+      "name": "omni_shop_osign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_85970.png",
+      "sourceExists": true,
+      "sourceSha256": "5c16c95d1daf0932ba65cac24cc84831eea089ab4f91b475fa69982bc5bd3127",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    },
+    {
+      "identity": "1010004:95778",
+      "size": [
+        64,
+        64
+      ],
+      "name": "renates_cake_1 .png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_95778.png",
+      "sourceExists": true,
+      "sourceSha256": "15cc3d0aa14ecf6253e3cc86a9cc89cdc0dcb22730fa2abecd5d982bf0e8d881",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:95779",
+      "size": [
+        64,
+        64
+      ],
+      "name": "renates_cake_3 .png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_95779.png",
+      "sourceExists": true,
+      "sourceSha256": "3f4bf8e7ef04afb5f16743749f2378839643a14a9f547b849e001174d97fe8a3",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:95780",
+      "size": [
+        64,
+        64
+      ],
+      "name": "renates_cake_2 .png",
+      "category": "retained_original_graphic_or_surface",
+      "reason": "Original authored graphic or surface retained by policy; no exact nonvisual or readable-text function proved here.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_95780.png",
+      "sourceExists": true,
+      "sourceSha256": "3637d112104fe08ee50cbe675e34b2c8b7ab011875074e5878dedc36f9378170",
+      "r31Decision": "restored_individual_HD_material",
+      "r31Reason": "New individual render and complete material set, exact native coverage retained."
+    },
+    {
+      "identity": "1010004:99709",
+      "size": [
+        256,
+        64
+      ],
+      "name": "clan_toparksign.png",
+      "category": "retained_fidelity_source_missing",
+      "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+      "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99709.png",
+      "sourceExists": true,
+      "sourceSha256": "006e2fe4acaab3d972482f8e183dec7c281ea95f2d7e44bee32683904a78e215",
+      "r31Decision": "retained_printed_graphic_pending_faithful_HD_redraw",
+      "r31Reason": "Original text, printed image, UV colour/opacity field or optical gradient retained. This is not counted as an HD repaint; these historical labels no longer imply the source is missing."
+    }
+  ],
+  "allVisibleArtworkComplete": false
+}

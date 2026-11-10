@@ -22456,12 +22456,12 @@
     "family_key": 5942,
     "family_ids": [],
     "family": null,
-    "source": "worker-3/run-20261030-until31-1100-v3/source-art/1010004_215141-generated.png",
+    "source": "preview23-selected-215141-r31",
     "source_sha256": "fb368795d63a34ede4b2aded9c108f92aa94320a246cd93c24f287ced8b84669",
     "original_sha256": "c691eef36efdacf4fcbd36f8117bb611c2f0521612c6083225eb966eb847347f",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "maps": {
       "d": {
@@ -22498,7 +22498,9 @@
     ],
     "worker_visual_evidence": "Compared all sixteen generated cells against the exact original board. Original arch/white wall panel UVs, carpet motifs, bedspread pink band and folds, bamboo bindings, perforation layouts, medallion trims and distinct patina colors retained; new fine physical detail accepted. Functional swatches excluded before generation.",
     "live_model_fit_verified": false,
-    "pack": "ao-cyber-world"
+    "pack": "ao-cyber-world",
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "worker": true,

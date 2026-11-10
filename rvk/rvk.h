@@ -12,6 +12,7 @@
 
 #include <array>
 #include <memory>
+#include <tuple>
 #include <mutex>
 #include <cstring>
 #include <cstdint>
@@ -2421,6 +2422,7 @@ private:
         uint64_t created = 0;              // (frame number + 1: CaptureTerrain's chunk times)
         uint64_t lightReset = 0;           // its light last dropped (a lightmap re-uploaded), the same clock
         uint64_t lastUsed = 0;
+        uint64_t surface = 0;             // 0 native terrain; otherwise a stable grassy static mesh
         const void* lightmaps[4] = {};     // the lightmaps captured into it (a re-upload recaptures their light)
         const void* bases[8] = {};         // the base textures captured into it (a re-upload recaptures its ground)
         bool basesOverflow = false;        // ... more than those: any ground texture's re-upload recaptures it
@@ -2431,7 +2433,14 @@ private:
         uint32_t builtVersion = 0;
         float minY = 0.0f, maxY = 0.0f;    // the roots' height range (culling, light masks)
     };
-    std::unordered_map<uint64_t, std::unique_ptr<GrassTile>> m_grassTiles;
+    struct GrassTileHash {
+        size_t operator()(const std::tuple<int32_t,int32_t,uint64_t>& k) const {
+            uint64_t h=(uint64_t(uint32_t(std::get<0>(k)))<<32)|uint32_t(std::get<1>(k));
+            h^=std::get<2>(k)*0x9e3779b97f4a7c15ull;h^=h>>30;h*=0xbf58476d1ce4e5b9ull;h^=h>>27;
+            return size_t(h^(h>>32));
+        }
+    };
+    std::unordered_map<std::tuple<int32_t,int32_t,uint64_t>, std::unique_ptr<GrassTile>,GrassTileHash> m_grassTiles;
     GrassTile* GrassTileAt(int32_t tx, int32_t tz) const;
     // The terrain chunks seen (by contents, pass and texture): their ground box and when they were last captured, so
     // an unchanged chunk over tiles that already have it is skipped whole.
@@ -2861,9 +2870,15 @@ private:
     double m_ambientDrawClock = 0.0;
     void RenderAmbientMotes(VkCommandBuffer cmd);
     void RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const float (*points)[4],const char* profile);
-    struct ShipBeaconSet { uint64_t key=0,seen=~0ull; float points[3][4]={},previous[3][4]={}; };
+    struct ShipBeaconSet {
+        uint64_t key=0,seen=~0ull;
+        float local[3][3]={},points[3][4]={},previous[3][4]={};
+        d3d::Matrix view{},proj{},previousView{},previousProj{};
+        bool skyCamera=false;
+    };
     ShipBeaconSet m_shipBeacons[16];
-    void CaptureShipBeacons(const float lo[3],const float hi[3],uint64_t key);
+    void CaptureShipBeacons(uint32_t primitive,const detail::FvfLayout& layout,const void* vertices,uint32_t vertexCount,
+                            const uint16_t* indices,uint32_t indexCount,uint64_t key);
     void FillShipLights(detail::FrameLights* frame);
     void RenderShipBeacons(VkCommandBuffer cmd);
     void RenderDebris(VkCommandBuffer cmd);

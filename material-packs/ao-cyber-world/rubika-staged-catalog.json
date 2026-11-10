@@ -25855,10 +25855,10 @@
     "type": 1010004,
     "id": 6262,
     "name": "mounttransition.png",
-    "source": "rubika-family-6262-v1",
+    "source": "preview23-selected-6262-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "honed-stone",
     "batch": "rubika-complete-families-2026-10-26",
@@ -25870,7 +25870,9 @@
     "atlas_source": "rubika-family-atlas-085-v1",
     "atlas_cell": 7,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,
@@ -41942,10 +41944,10 @@
     "type": 1010004,
     "id": 42914,
     "name": "temple_wall_struc_part_stonewall2.png",
-    "source": "rubika-family-42914-v1",
+    "source": "preview23-selected-42914-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "honed-stone",
     "batch": "rubika-complete-families-2026-10-26",
@@ -41957,7 +41959,9 @@
     "atlas_source": "rubika-family-atlas-136-v1",
     "atlas_cell": 9,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,

@@ -1201,7 +1201,7 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
         dev.SetKnob(Knob::GlobalShiny,g_visualToggle ? 1.f:0.f);
     }
     const uint32_t orm=0xFFFF19FFu;
-    if(g_visualCase==20) {
+    if(g_visualCase==20 || g_visualCase==21 || g_visualCase==22) {
         dev.SetTextureRdbId(tex,99841,1010004,0);
         dev.SetKnob(Knob::ImmersiveShips,1.f);
         dev.SetKnob(Knob::ShipLights,g_visualToggle ? 1.f:0.f);
@@ -1284,14 +1284,25 @@ void RunVisualCorrection(D& dev, int frames, const std::string& shot)
             dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
             std::copy_n(plane,4,card);for(auto& v:card){v.x=v.x*.48f+1.f;v.nz=1;}
         }
-        if(g_visualCase==20) {
+        if(g_visualCase==20 || g_visualCase==21 || g_visualCase==22) {
             const VtxMesh floor[]={{-8,-1.7f,-5,0,1,0,0xFFFFFFFF,0,0},{-8,-1.7f,8,0,1,0,0xFFFFFFFF,0,1},
                 {8,-1.7f,-5,0,1,0,0xFFFFFFFF,1,0},{8,-1.7f,8,0,1,0,0xFFFFFFFF,1,1}};
             dev.SetTexture(0,nullptr);dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
             dev.DrawPrimitive(TriangleStrip,kFvfMesh,floor,4);
             dev.SetTexture(0,tex);dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
         }
-        dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);dev.SetDrawVisual(0,nullptr);
+        if(g_visualCase==21 || g_visualCase==22) {
+            if(g_visualCase==22)dev.SetTransform(View,Identity());
+            VtxMesh shared[5];std::copy_n(card,4,shared);shared[4]=card[0];shared[4].y=-100;shared[4].x=100;
+            const uint16_t ix[]={0,1,2,2,1,3};
+            for(unsigned i=0;i<2;++i) {
+                Matrix w=Identity();w.m[3][0]=(i ? 1.5f:-1.5f);w.m[0][0]=.6f;w.m[1][1]=.6f;if(g_visualCase==22)w.m[3][2]=5.f;
+                dev.SetTransform(World,w);dev.SetDrawVisual(uint32_t(VisualKind::Static),"indexed-ship",0,0x7100+i);
+                dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,shared,5,ix,6);
+            }
+        } else dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
+        dev.SetDrawVisual(0,nullptr);
+        if(g_visualCase==22)dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
         dev.EndFrame();
     }
     dev.DestroyTexture(tex);
@@ -2652,12 +2663,19 @@ bool g_terrainLightingFixture=false, g_terrainRockyRoad=false, g_terrainLighting
 bool g_terrainLightingOccluder=false;
 bool g_improvedTiles=true, g_terrainCliffFixture=false, g_terrainCliffToeFixture=false;
 bool g_terrainNativeFixture=false;
+int g_raisedGrass=0;
 bool g_terrainCloseup=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
     if(g_pbrDebug){Device::PbrSettings pbr;pbr.enabled=true;pbr.debug=g_pbrDebug;dev.SetPbr(pbr);}
     if(g_ambientFixture)dev.SetSkyPlayfield(g_ambientFixture==4 ? 0:g_ambientFixture==5 ? 386:g_areaZone);
     dev.SetNativeGroundOn(g_terrainNativeFixture);
+    Texture* islandTex=nullptr;
+    if(g_raisedGrass) {
+        dev.SetGrassField(g_raisedGrass!=2,40.f,4.f,.3f,true);
+        const auto pixels=Checker(64,16,g_raisedGrass==3 ? 0xFF666666:0xFF416B26,g_raisedGrass==3 ? 0xFF777777:0xFF608C36);
+        islandTex=dev.CreateTexture(64,64,pixels.data());
+    }
     dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
     auto terrainHeight=[](float x,float z) {return g_terrainCliffToeFixture ? std::clamp((x-8.f)*2.f,0.f,8.f)
         : g_terrainCliffFixture ? std::clamp((x+z-14.f)*2.f,0.f,12.f)
@@ -2807,9 +2825,27 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
             dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,occluder.data(),uint32_t(occluder.size()),occluderIndices.data(),uint32_t(occluderIndices.size()));
             dev.SetDrawVisual(0,nullptr);
         }
+        if(g_raisedGrass) {
+            const VtxMesh island[]={ {4,2,4,0,1,0,0xffffffff,0,0},{4,2,12,0,1,0,0xffffffff,0,1},
+                {12,2,4,0,1,0,0xffffffff,1,0},{12,2,12,0,1,0,0xffffffff,1,1} };
+            dev.SetRenderState(RS_ALPHABLENDENABLE,0);dev.SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);dev.SetRenderState(RS_ZWRITEENABLE,1);
+            dev.SetTexture(0,islandTex);dev.SetTexture(1,nullptr);dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+            dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+            dev.SetTextureStageState(0,TSS_TEXCOORDINDEX,0);dev.SetTextureStageState(0,TSS_TEXTURETRANSFORMFLAGS,0);
+            const Material object{{.6f,.6f,.6f,1},{.6f,.6f,.6f,1},{0,0,0,0},{0,0,0,0},0};dev.SetMaterial(object);
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"grass-island",0,0x7110);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,island,4);
+            if(g_raisedGrass==4) {
+                Matrix w=Identity();w.m[3][1]=4.f;dev.SetTransform(World,w);
+                dev.SetDrawVisual(uint32_t(VisualKind::Static),"upper-grass-island",0,0x7111);
+                dev.DrawPrimitive(TriangleStrip,kFvfMesh,island,4);dev.SetTransform(World,Identity());
+            }
+            dev.SetDrawVisual(0,nullptr);
+        }
         dev.EndFrame();
         Sleep(5); // allow real background PNG/mip decoding even on a warm pipeline cache
     }
+    if(islandTex)dev.DestroyTexture(islandTex);
     dev.DestroyTexture(tile);dev.DestroyTexture(light);
 }
 
@@ -5947,6 +5983,7 @@ int main(int argc, char** argv)
         else if (a == "--global-shiny" && i+1<argc) g_globalShiny=float(std::atof(argv[++i]));
         else if (a == "--terrain-roughness" && i+1<argc) g_terrainRoughness=float(std::atof(argv[++i]));
         else if (a == "--ambient-life" && i+1<argc) g_ambientDensity=float(std::atof(argv[++i]));
+        else if (a == "--raised-grass" && i+1<argc) g_raisedGrass=std::atoi(argv[++i]);
         else if (a == "--ambient-life-fixture" && i+1<argc) g_ambientFixture=std::atoi(argv[++i]);
         else if (a == "--ambient-style" && i+1<argc) g_ambientStyle=std::atoi(argv[++i]);
         else if (a == "--area-lighting" && i+1<argc) g_areaLight=float(std::atof(argv[++i]));
@@ -6100,7 +6137,7 @@ int main(int argc, char** argv)
             if(std::filesystem::exists(prefix+"_orm.png"))files.packed=prefix+"_orm.png";
             if(std::filesystem::exists(prefix+"_e.png"))files.emissive=prefix+"_e.png";
             const auto decoded=maps::Decode(files);
-            if(checked<12)std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
+            if(checked<32)std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
             const uint32_t pixel=0xFF808080;
             Texture* base=dev.CreateTexture(1,1,&pixel);
             unsigned kind=0,id=0;std::sscanf(std::filesystem::path(prefix).filename().string().c_str(),"%u_%u",&kind,&id);

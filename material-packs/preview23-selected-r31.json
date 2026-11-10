@@ -1,0 +1,336 @@
+{
+  "workflow": "Built-in image generation",
+  "materials": [
+    {
+      "identity": "1010004:214375",
+      "source": "preview23-selected-214375-r31",
+      "sourceSha256": "d767567ba231be66919504de68d57c8275c555d3292b18cd34af68e0cd6c0bac",
+      "size": [
+        512,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 214375. Produce a faithful individually rendered HD diffuse game texture at 1024x2048 portrait. Gray limestone cliff transition: top pale gray cracked slab, two horizontal strata across upper third, fading gradually into dark weathered limestone below. Keep the original vertical tonal transition at exactly the same height. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "1b802d42ebbe506c1ee04b85aa63be567e03d9372d160c71ee20e7cead17e69c",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:206747",
+      "source": "preview23-selected-206747-r31",
+      "sourceSha256": "1aa76179b009515d524b722baa049e07de927a38543165c4e05fc49ef58d5cf8",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 206747. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Dark gray layered Shadowlands rock. Preserve the broad horizontal geological strata and original crack layout, restrained dark neutral palette, add finely resolved mineral grains and sharp fracture edges. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "12a645479498a5d584dc0105ede1f61bfa387bf4110965e426bf7425da1b8a0d",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:202644",
+      "source": "preview23-selected-202644-r31",
+      "sourceSha256": "98d5ba4cadd06c37977b27b2e3bf7d46abfef06b9794b1aef567f932a7226ec6",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 202644. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Neutral gray Shadowlands rock, irregular broad slab shapes and branching diagonal cracks with fine mineral flecks. Preserve the recognizable diagonal crack network, broad low-frequency gray values. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "40c724b6c27d6e0777f916b91541128e83c720fb9edfefc440397866b67c2a63",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:202642",
+      "source": "preview23-selected-202642-r31",
+      "sourceSha256": "777a0d89026068da133411a0e021665e200dd5da12973c4f75b8a63ea0eebf70",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 202642. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Layered neutral gray Shadowlands rock: same family as plain shadowlandrock, but three deep broad horizontal fissures across the upper middle, preserve those strata and surrounding diagonal cracks. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "05f1b0b1a3077455d3d296251364e3c5ab60aeda1834abf05811b369369599bb",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:215141",
+      "source": "preview23-selected-215141-r31",
+      "sourceSha256": "0bb70ab9a0f3b21316b88f1cadb4df30e5e82937bc65bb4bab7c8dcb650b82c9",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.72,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 215141. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Pale ivory Jobe architectural stone panel. One thin vertical dark center joint, circular tiny blue indicator centered at the TOP edge, original narrow gray top trim and weathering along bottom. Preserve exact UV placement. Crisp fine stone pores, lightly mottled honed limestone; restrained wear, no excessive shine. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "c75966bfd0af90df313ace0c11473ca721ea0b2cfbf1ee58ec8de199fcd435ca",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:215151",
+      "source": "preview23-selected-215151-r31",
+      "sourceSha256": "b1a6fe8193b9bb2af14601561a2b246262c2c0d95eb530211e4d9b7cf61f07a9",
+      "size": [
+        512,
+        1024
+      ],
+      "roughness": 0.72,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 215151. Produce a faithful individually rendered HD diffuse game texture at 1024x2048 portrait. Jobe doorframe vertical fluted pale gray stone. Preserve exactly the source count, position and widths of vertical ribs and grooves and uniform light gray color. Refine fine mineral grain and precise recessed grooves, slight patina, no extra ornament. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "f856d7df7723ff44649c9eb2fb235a11f8d77b859917f74b2719ac7316bf2d16",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:42914",
+      "source": "preview23-selected-42914-r31",
+      "sourceSha256": "e42d3144f4242225c5f3fed698284b61393c527632c7089a92000beb0bec0f25",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 42914. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Warm light sandstone block masonry. Preserve every block boundary, staggered rectangular block size, cream and muted ochre palette, the exact seam locations. Natural fine pores and chipped edges, readable sharp stone grain, no gloss. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "9de7bcf84221425506c315c99fff6727742407c208983e585bed1ed9838c07a6",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:6262",
+      "source": "preview23-selected-6262-r31",
+      "sourceSha256": "b9939821b63a457d0fd1c534fa7de7455e11000d6310a281962112e31280f47e",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original game material 6262. Produce a faithful individually rendered HD diffuse game texture at 2048x2048 square. Warm tawny natural cliff stone with chunky rounded irregular strata and cracks. Preserve exact original forms, jagged fault layout and original warm palette. Crisp fine mineral texture, physically plausible weathered stone, no baked directional highlights. Flat orthographic texture filling the entire image, no perspective, no scene, no border, no labels. Preserve original material identity, structural UV layout and edge continuity; add actual resolved high resolution fine surface detail rather than enlarged blurry pixels or sharpening halos. Neutral diffuse illumination, no directional shadows, no bloom. Match the original low frequency palette and transition values. This will be applied to the same existing geometry and native alpha/masks are retained separately.",
+      "inputReferenceSha256": "8db7082d53757bc48114ed90413232386d2981b099d71061935fd50ca80a0c89",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only"
+    },
+    {
+      "identity": "1010004:10814",
+      "source": "preview23-selected-10814-r31",
+      "sourceSha256": "f1baee817e35201d0deac32e7db0134344bd9a4829b06a4448399ca5efa3155e",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.74,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 10814, pickupbox_misc.png. Create a faithful individually rendered HD diffuse texture. Square industrial pickup-box UV texture, brushed dark silver inset central rectangular metal panel with two subtle diagonal tonal bands, chunky silver bevel frame, ribbed vents on all four edges. Preserve frame, vents and corners exactly. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "8ec0b6e6957756d3efd1b9bf48c03f196d8623a10b0d16bdaec33ee4f740b170",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        128,
+        128
+      ]
+    },
+    {
+      "identity": "1010004:130476",
+      "source": "preview23-selected-130476-r31",
+      "sourceSha256": "9137b27501ee362065e0ae3b361d217e697289f8f976db9bc9c68215ccbd9425",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 130476, food_item_plate.png. Create a faithful individually rendered HD diffuse texture. Tiny prop UV texture of a white round plate with brown rim, separate small regions of brown cooked food, green vegetables and pale food. Preserve the exact arrangement and outline in the reference, refine food and ceramic detail only. No scene or added plate. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "ce554b6938b3089ba2d7a7fc82db4a70c2db8890c818fabaf7272dca7b4512c8",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        32,
+        32
+      ]
+    },
+    {
+      "identity": "1010004:155057",
+      "source": "preview23-selected-155057-r31",
+      "sourceSha256": "cd453f564e1d597a668292bc25e76e6070b4f279d0ee5aaaf3a817bd92eb45e3",
+      "size": [
+        512,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 155057, council_sign_door.png. Create a faithful individually rendered HD diffuse texture. Tall tan sandstone door panel, weathered tiled limestone with horizontal seams, preserve the exact large interlocking symmetrical geometric cross emblem in the middle-lower section and every border, joint and stone division. Fine stone pores, precise sculpted emblem. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "a13b42521b813c5329cef8e92f5f04a5937d7c1945893ffdf28ebdf12f1f8b6b",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        128,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:159305",
+      "source": "preview23-selected-159305-r31",
+      "sourceSha256": "d9140225290d7b3fa92d500788e892ad8a395e20c8d91383171c3ff5f1d0def1",
+      "size": [
+        1024,
+        256
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 159305, hq_baseplateforsigns.png. Create a faithful individually rendered HD diffuse texture. Long horizontal dark metallic blank sign backplate with inset rectangular panel, raised beveled angular border and crossed end braces. Preserve all geometry, exact aspect ratio and near black neutral palette. Refine metal grain and crisp bevels without shiny reflections. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "5160ea086fa9c8793bd217da6a3fcd2c74480197047f55a3ad11a3e57dd13efd",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        64
+      ],
+      "exportCrop": [
+        0,
+        91,
+        2170,
+        634
+      ]
+    },
+    {
+      "identity": "1010004:277463",
+      "source": "preview23-selected-277463-r31",
+      "sourceSha256": "3ab8354170280e50720713f2c6b5a342be0a573bd7e50279a5d9e2be1c709fb3",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 277463, anka.png. Create a faithful individually rendered HD diffuse texture. Yellow rubber duck UV atlas, preserving the exact placement and size of both black oval eyes on left, orange beak on right, and paired outlined wing marks and rounded yellow body shading. Keep the separated feature layout; do not draw a whole duck or a scene. Fine satin rubber finish, crisp feature boundaries. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "05a63215bd84e237247797f287351e38dfe36b5e0b994abce761629ffefa344c",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:281741",
+      "source": "preview23-selected-281741-r31",
+      "sourceSha256": "c00ef7f920e560861dbb0b1309fc575f9042e6b32bf4c639d0294239401f7976",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 281741, bdayduck_cake.png. Create a faithful individually rendered HD diffuse texture. Birthday cake and party prop UV atlas. Keep exact separated regions: off-white frosting base, red upper right polygon bearing two silver loops, cyan and pink triangular party-hat segments with five silver stars mid-right, white round cake top with red cherry ring lower left, cherry dots along horizontal lower frosting strip and layered sponge/brown strips on bottom edge. Preserve all feature positions, counts, shapes, colors. Add fine edible frosting, sponge and metallic detail only. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "495a9c0706df7b7f3b8f8da1af5a6309bead7bb7606eeca42d18a10bc334205d",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:287123",
+      "source": "preview23-selected-287123-r31",
+      "sourceSha256": "aed8b700f2b0bdc6f434b11973fc941cefaa8f6a6565dae45d3ab019d8436b78",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 287123, bdayduck_cake2.png. Create a faithful individually rendered HD diffuse texture. Cake UV atlas, exact regions and locations unchanged: narrow layered sponge strips across TOP and BOTTOM, off-white frosting background, round white cake top with red cherry ring mid-left, small evenly spaced cherry dots on lower horizontal icing strip. Keep every cherry position and strip height. Fine realistic frosting and sponge microtexture only. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "ad62b59c4b08f3d43bab172d76039f7b47a2a4a8bce2e13764a164e4a3c55303",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:287261",
+      "source": "preview23-selected-287261-r31",
+      "sourceSha256": "43dc33fa4795cd122951fa90eb630a994075da509cd63aa40aa3f99b5bcbe4c8",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 287261, anka_caked.png. Create a faithful individually rendered HD diffuse texture. Yellow rubber duck UV atlas with cake/frosting marks. Preserve exact separate positions of black oval eyes at upper left, orange beak at upper right, outlined paired wing marks, yellow body shading, white icing patches and brown cake crumbs above eyes and on top-right. Keep same atlas arrangement, no whole duck or scene. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "e2fcf4d992ed76024a6ccd2c3142dd0abd452aa57f667bc020925d6ba6eeaf21",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:287263",
+      "source": "preview23-selected-287263-r31",
+      "sourceSha256": "49abe7dc770ecff816de5d4bddc92ed19c912a16bd4d467d4348ab4e9a8f52c4",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 287263, bdayduck_cake3.png. Create a faithful individually rendered HD diffuse texture. Cake UV atlas: preserve exact sponge strips along TOP and BOTTOM, off-white frosting field, white circular cake top and red cherry ring left, small cherry dots across lower icing strip, large red pink frosted numeral 9 upper right. Keep precise layout, number 9 and every shape; realistic fine icing and sponge material detail. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "876e3f1a240f5e909310d3397fe10dde9bb856c573df820c4bb8420bd6a489d5",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "identity": "1010004:44650",
+      "source": "preview23-selected-44650-r31",
+      "sourceSha256": "fd15099885ffdeac5223560c32d0f00b1c92512938c2cd06fe1e7f209b3f2f77",
+      "size": [
+        512,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 44650, contain_fridge_screen1.png. Create a faithful individually rendered HD diffuse texture. Vertical blue industrial refrigerator screen/panel atlas. Preserve exact dark blue square display above, cyan rim and body, small recessed lower-left control rectangle, diagonal dark slatted grille lower-right, and thin dark base strip. Crisp subtle coated-metal grain and fine display surface; no text or additional controls. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "f133a0a1b18b99a6d837437d3714c022083b17ca986b7f014827a409e95c9ce0",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        64,
+        128
+      ]
+    },
+    {
+      "identity": "1010004:95778",
+      "source": "preview23-selected-95778-r31",
+      "sourceSha256": "30637d46d7a861de0cbe97de8daf16d877baa37340bd10d51dddda6945cbef39",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 95778, renates_cake_1 .png. Create a faithful individually rendered HD diffuse texture. Square nearly plain ivory cake icing diffuse texture. Preserve the even pale cream color across the complete tile; add only very fine subtle smooth buttercream microtexture, no large details, objects, motifs or shading. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "15cc3d0aa14ecf6253e3cc86a9cc89cdc0dcb22730fa2abecd5d982bf0e8d881",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        64,
+        64
+      ]
+    },
+    {
+      "identity": "1010004:95779",
+      "source": "preview23-selected-95779-r31",
+      "sourceSha256": "e89c2f4cc78631f4cba50bedfddfa86f73656c06b815894fa9f6d846faf2754e",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 95779, renates_cake_3 .png. Create a faithful individually rendered HD diffuse texture. Cake top UV texture: pale cream background, irregular fine piped icing coils, multiple red cherries in a circular wreath near center, small green sprinkles and existing very faint lettering. Preserve exact placement and footprint of all existing details, do not invent or change text, do not add scene. Fine realistic buttercream and glossy cherries, neutral diffuse light. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "3f4bf8e7ef04afb5f16743749f2378839643a14a9f547b849e001174d97fe8a3",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        64,
+        64
+      ]
+    },
+    {
+      "identity": "1010004:95780",
+      "source": "preview23-selected-95780-r31",
+      "sourceSha256": "107504eb74e7fbb3eec70d6946ad4e9ac7270caa2c44ff0197f097eb63133e63",
+      "size": [
+        1024,
+        1024
+      ],
+      "roughness": 0.86,
+      "prompt": "Use case: precise-object-edit. Edit target is the attached original Anarchy Online material 95780, renates_cake_2 .png. Create a faithful individually rendered HD diffuse texture. Cake side/partial-top UV atlas: pale cream square background with a wavy piped icing line descending through the middle-left and three red cherries in the exact source positions across upper midheight. Preserve very subtle original faint line decoration in upper right, add fine buttercream/cherry detail without new lettering or objects. Preserve the original UV layout, canvas aspect, edge continuity and coarse colors exactly, refining existing material microdetail and edges. Flat orthographic texture filling canvas; no border, scene, perspective, new logos, watermark, directional shadows or extra anatomy. Native alpha/masks are retained separately by the renderer. Request 2048px on the longest side; do not replace the atlas with a depicted 3D object.",
+      "inputReferenceSha256": "3637d112104fe08ee50cbe675e34b2c8b7ab011875074e5878dedc36f9378170",
+      "workflow": "Built-in image generation edit, independently rendered, downsample only",
+      "nativeSize": [
+        64,
+        64
+      ]
+    }
+  ]
+}

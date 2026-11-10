@@ -8,8 +8,18 @@ layout(location=2) out float vAlpha;
 layout(location=3) out vec4 vClip;
 layout(location=4) out vec4 vPrevClip;
 layout(location=5) out float vGlow;
-vec3 Position(vec3 origin,float t,float seed) {
-    return origin+vec3(sin(t*.43+seed)*1.4,.4+1.1*(1.+sin(t*.21+seed*2.)),cos(t*.31+seed)*1.4);
+vec3 Position(vec3 origin,float t,float seed,float kind,float variant) {
+    // Different small paths rather than a synchronized sheet of sine waves.
+    float speed=.28+.55*fract(seed*2.731), phase=t*speed;
+    vec3 spread=vec3(sin(seed*7.17)*3.8,fract(seed*3.17)*1.5,cos(seed*5.37)*3.8);
+    if(kind<.5 || kind>8.5) { // dust/pollen: a lazy, mostly horizontal drift
+        return origin+spread+vec3(sin(phase*.24+seed)*2.3,.8+.7*sin(phase*.31+seed),cos(phase*.19+seed)*1.8);
+    }
+    if(kind>5.5 && kind<8.5) { // snow/ash settle, embers rise, all loop without teleports
+        float rise=kind<7.5 && kind>6.5 ? 1.:-1.;
+        return origin+spread+vec3(sin(phase*.4+seed)*1.5,2.+rise*1.7*sin(phase*.21+seed),cos(phase*.3+seed));
+    }
+    return origin+spread+vec3(sin(phase+seed)*(.5+variant),.5+1.2*(1.+sin(phase*.43+seed*2.)),cos(phase*.71+seed)*(.8+variant));
 }
 void main() {
     uint id=uint(gl_VertexIndex)/6u, vertex=uint(gl_VertexIndex)%6u;
@@ -17,7 +27,8 @@ void main() {
     vec4 anchor=A.points[id/perAnchor];
     uint random=RainHash((id%perAnchor)*7919u+floatBitsToUint(anchor.x)+floatBitsToUint(anchor.z));
     float seed=RainRand(random)*6.2831853;
-    vec3 p=Position(anchor.xyz,R.time.x,seed),before=Position(anchor.xyz,R.time.y,seed);
+    float variant=RainRand(random);
+    vec3 p=Position(anchor.xyz,R.time.x,seed,anchor.w,variant),before=Position(anchor.xyz,R.time.y,seed,anchor.w,variant);
     if(anchor.w>9.5) {
         p=anchor.xyz;before=A.points[64u+id].xyz;
         float phase=mod(R.time.x,1.6);
@@ -33,7 +44,9 @@ void main() {
         vec3 right=vec3(R.view[0][0],R.view[1][0],R.view[2][0]);
         vec3 up=vec3(R.view[0][1],R.view[1][1],R.view[2][1]);
         vec3 offset=(right*vCorner.x+up*vCorner.y)*radius;
-        vClip=R.viewProj*vec4(p+offset,1.);vPrevClip=R.prevViewProj*vec4(before+offset,1.);gl_Position=vClip;
+        vClip=R.viewProj*vec4(p+offset,1.);vPrevClip=R.prevViewProj*vec4(before+offset,1.);
+        // Ships themselves use MAT_SKY far-plane clamping; their attachments must match.
+        vClip.z=min(vClip.z,vClip.w*.999998);vPrevClip.z=min(vPrevClip.z,vPrevClip.w*.999998);gl_Position=vClip;
         if(R.camera.w>.5)gl_Position.xy+=FL.taa.xy*gl_Position.w;
         return;
     }
@@ -55,16 +68,19 @@ void main() {
     vGlow=fleck || snow || ash ? 0.:spores || spirit || embers || (anchor.w>3.5 && anchor.w<4.5) ? 1.:vegetation*night;
     float pulse=.35+.65*pow(.5+.5*sin(R.time.x*(1.3+seed*.1)+seed),2.);
     float distanceToEye=distance(p,R.camera.xyz);
-    float opacity=(1.-smoothstep(24.,34.,distanceToEye))*smoothstep(.7,2.,distanceToEye);
+    float opacity=(1.-smoothstep(36.,52.,distanceToEye))*smoothstep(.7,2.,distanceToEye);
     float density=R.curtains.x;
     opacity*=1.-smoothstep(density-.02,density+.02,RainRand(random));
-    opacity*=mix(woodland ? .48:.32,pulse, vGlow)*R.colour.w;
+    // Automatic SL daylight is pollen, not luminous green confetti.
+    if(woodland)vGlow=night*(.3+.7*step(.65,variant));
+    opacity*=mix(woodland ? .54:.43,pulse, vGlow)*R.colour.w;
+    opacity*=.6+.4*pow(.5+.5*sin(R.time.x*.31+seed*3.),2.);
     vec3 tint=mix(vec3(.56,.43,.27),vec3(.72,.78,.52),vegetation);
     if(fleck)tint=vec3(.1,.16,.08);
     if(snow)tint=vec3(.83,.91,1.);
     if(ash)tint=vec3(.42,.43,.47);
     if(woodland)tint=vec3(.78,.83,.66);
-    vec3 lit=tint*max(R.ambient.rgb,vec3(.16));
+    vec3 lit=tint*max(R.ambient.rgb,vec3(mix(.38,.16,night)));
     vColour=mix(lit,(spores ? vec3(.7,1.,.75)*1.35:vec3(.65,.95,.28)*1.7),vGlow);
     if(spirit)vColour=vec3(.32,.65,1.)*1.35;
     if(embers)vColour=vec3(1.,.24,.035)*1.7;
@@ -72,7 +88,7 @@ void main() {
     const vec2 corners[6]=vec2[](vec2(-1,-1),vec2(1,-1),vec2(1,1),vec2(-1,-1),vec2(1,1),vec2(-1,1));
     vCorner=corners[vertex];
     float radius=spores ? (fleck ? .025:.018):mix(.022,.045,vGlow);
-    if(woodland)radius=mix(.032,.045,vGlow);
+    if(woodland)radius=mix(.038,.037,vGlow);
     if(snow || ash)radius=.018;
     if(spirit || embers)radius=.012;
     // A small subpixel mote fades rather than turning into a large distant star.

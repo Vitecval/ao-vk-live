@@ -4187,8 +4187,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             for(uint32_t id : {99841u,201230u,202773u,203102u,203531u,203532u}) knownHull |= hull->m_rdbId==id;
         if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) {
             dt.mat[2] |= kMatImmersiveShip;
-            if(m_drawMesh)CaptureShipBeacons(m_drawMesh->boundsMin,m_drawMesh->boundsMax,
-                m_drawVisual ? uint64_t(m_drawVisual):m_drawMeshKey);
+            if(m_drawMesh)CaptureShipBeacons(primitive,layout,vertices,vertexCount,indices,indexCount,
+                m_drawMeshKey ^ (uint64_t(m_drawVisual)*0x9e3779b97f4a7c15ull));
         }
     }
     if (m_drawIsCloudPuff && CloudSheetsOn())

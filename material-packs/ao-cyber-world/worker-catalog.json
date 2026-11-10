@@ -35514,10 +35514,10 @@
     "type": 1010004,
     "id": 215141,
     "name": "Middle_texture_low-detail_plain.png",
-    "source": "preview20-worker3-1010004_215141",
+    "source": "preview23-selected-215141-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "worker-reviewed-material",
     "batch": "preview20-worker-3",
@@ -35532,7 +35532,9 @@
         312
       ]
     },
-    "review": "Worker original/UV/material correspondence reviewed offline; integration reverified exact original alpha, dimensions, hashes and companion maps. Live mesh fit pending."
+    "review": "Worker original/UV/material correspondence reviewed offline; integration reverified exact original alpha, dimensions, hashes and companion maps. Live mesh fit pending.",
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,

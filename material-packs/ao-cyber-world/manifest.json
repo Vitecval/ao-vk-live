@@ -1,8 +1,8 @@
 {
   "name": "ao-cyber-world",
-  "version": 8,
+  "version": 9,
   "setting": "RVK_ModernTex=2",
-  "new_art_surfaces": 9953,
+  "new_art_surfaces": 9966,
   "materials": [
     {
       "type": 1010004,
@@ -6367,10 +6367,10 @@
       "type": 1010004,
       "id": 6262,
       "name": "mounttransition.png",
-      "source": "rubika-family-6262-v1",
+      "source": "preview23-selected-6262-r31",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -6388,9 +6388,10 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "worker": true,
-      "detailRestoration": "preview23-detail-v2"
+      "detailRestoration": "preview23-selected-r31",
+      "independentRender": true
     },
     {
       "type": 1010004,
@@ -17431,6 +17432,26 @@
       ],
       "priorState": "new_worker_provisional_replacement",
       "producerEvidenceSha256": "e9e099ad9801ae24a04f88fa31c78eddad08e84150601a62f9e56e23f1943d7e"
+    },
+    {
+      "type": 1010004,
+      "id": 10814,
+      "name": "pickupbox_misc.png",
+      "source": "preview23-selected-10814-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -87757,10 +87778,10 @@
       "type": 1010004,
       "id": 42914,
       "name": "temple_wall_struc_part_stonewall2.png",
-      "source": "rubika-family-42914-v1",
+      "source": "preview23-selected-42914-r31",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "honed-stone",
       "batch": "rubika-complete-families-2026-10-26",
@@ -87778,9 +87799,10 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "worker": true,
-      "detailRestoration": "preview23-detail-v2"
+      "detailRestoration": "preview23-selected-r31",
+      "independentRender": true
     },
     {
       "type": 1010004,
@@ -94663,6 +94685,26 @@
       "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
       "worker": true,
       "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 44650,
+      "name": "contain_fridge_screen1.png",
+      "source": "preview23-selected-44650-r31",
+      "size": [
+        512,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -108566,6 +108608,66 @@
     },
     {
       "type": 1010004,
+      "id": 95778,
+      "name": "renates_cake_1 .png",
+      "source": "preview23-selected-95778-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 95779,
+      "name": "renates_cake_3 .png",
+      "source": "preview23-selected-95779-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 95780,
+      "name": "renates_cake_2 .png",
+      "source": "preview23-selected-95780-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
       "id": 95782,
       "name": "renates_sjokoladekake_1 .png",
       "source": "preview20-worker3-1010004_95782",
@@ -116414,6 +116516,26 @@
     },
     {
       "type": 1010004,
+      "id": 130476,
+      "name": "food_item_plate.png",
+      "source": "preview23-selected-130476-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
       "id": 130477,
       "name": "pinkdrink_fooditems.png",
       "source": "preview23-final-overhaul",
@@ -118521,6 +118643,26 @@
       "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
       "worker": true,
       "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 155057,
+      "name": "council_sign_door.png",
+      "source": "preview23-selected-155057-r31",
+      "size": [
+        512,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -122010,6 +122152,26 @@
       "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
       "worker": true,
       "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 159305,
+      "name": "hq_baseplateforsigns.png",
+      "source": "preview23-selected-159305-r31",
+      "size": [
+        1024,
+        256
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -128576,10 +128738,10 @@
       "type": 1010004,
       "id": 202642,
       "name": "shadowlandrock_layered.png",
-      "source": "overnight-20261028-1010004_202642-v1",
+      "source": "preview23-selected-202642-r31",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "mineral",
       "batch": "overnight-20261028-batch004",
@@ -128591,7 +128753,7 @@
       "atlas_source": "overnight-20261028-batch004-atlas-004-v1",
       "atlas_cell": 14,
       "atlas_guard_pixels": 1,
-      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "maps": [
         "d",
         "n",
@@ -128599,16 +128761,17 @@
       ],
       "preserve_original_alpha": true,
       "worker": true,
-      "detailRestoration": "preview23-detail-v2"
+      "detailRestoration": "preview23-selected-r31",
+      "independentRender": true
     },
     {
       "type": 1010004,
       "id": 202644,
       "name": "shadowlandrock.png",
-      "source": "overnight-20261028-1010004_202644-v1",
+      "source": "preview23-selected-202644-r31",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "mineral",
       "batch": "overnight-20261028-batch004",
@@ -128620,7 +128783,7 @@
       "atlas_source": "overnight-20261028-batch004-atlas-004-v1",
       "atlas_cell": 15,
       "atlas_guard_pixels": 1,
-      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "maps": [
         "d",
         "n",
@@ -128628,7 +128791,8 @@
       ],
       "preserve_original_alpha": true,
       "worker": true,
-      "detailRestoration": "preview23-detail-v2"
+      "detailRestoration": "preview23-selected-r31",
+      "independentRender": true
     },
     {
       "type": 1010004,
@@ -131950,14 +132114,22 @@
       "type": 1010004,
       "id": 206747,
       "name": "shadowlandrock_layered_2_dark.png",
-      "source": "preview23-integrated-artwork",
+      "source": "preview23-selected-206747-r31",
       "maps": [
         "d",
         "n",
         "orm"
       ],
       "priorState": "new_worker_provisional_replacement",
-      "producerEvidenceSha256": "e9e099ad9801ae24a04f88fa31c78eddad08e84150601a62f9e56e23f1943d7e"
+      "producerEvidenceSha256": "e9e099ad9801ae24a04f88fa31c78eddad08e84150601a62f9e56e23f1943d7e",
+      "size": [
+        1024,
+        1024
+      ],
+      "worker": true,
+      "independentRender": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending."
     },
     {
       "type": 1010004,
@@ -140806,10 +140978,10 @@
       "type": 1010004,
       "id": 214375,
       "name": "jobe_rock_limestone_transition.png",
-      "source": "overnight-20261028-1010004_214375-v1",
+      "source": "preview23-selected-214375-r31",
       "size": [
-        256,
-        512
+        512,
+        1024
       ],
       "profile": "mineral",
       "batch": "overnight-20261028-batch005",
@@ -140821,7 +140993,7 @@
       "atlas_source": "overnight-20261028-batch005-atlas-001-v1",
       "atlas_cell": 5,
       "atlas_guard_pixels": 1,
-      "review": "Original layout/alpha and approved material masks preserved; rendered material grain and native x86 Vulkan upload verified; retail mesh appearance pending",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "maps": [
         "d",
         "n",
@@ -140829,7 +141001,9 @@
       ],
       "preserve_original_alpha": true,
       "resolutionRepair": "preview23-native-resolution-v1",
-      "worker": true
+      "worker": true,
+      "independentRender": true,
+      "detailRestoration": "preview23-selected-r31"
     },
     {
       "type": 1010004,
@@ -141622,10 +141796,10 @@
       "type": 1010004,
       "id": 215141,
       "name": "Middle_texture_low-detail_plain.png",
-      "source": "preview20-worker3-1010004_215141",
+      "source": "preview23-selected-215141-r31",
       "size": [
-        512,
-        512
+        1024,
+        1024
       ],
       "profile": "worker-reviewed-material",
       "batch": "preview20-worker-3",
@@ -141640,14 +141814,15 @@
           312
         ]
       },
-      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
       "maps": [
         "d",
         "n",
         "orm"
       ],
       "preserve_original_alpha": true,
-      "detailRestoration": "preview23-detail-v2"
+      "detailRestoration": "preview23-selected-r31",
+      "independentRender": true
     },
     {
       "type": 1010004,
@@ -141888,10 +142063,10 @@
       "type": 1010004,
       "id": 215151,
       "name": "door_frame_tile-up_jobe.png",
-      "source": "picked-215151-v1",
+      "source": "preview23-selected-215151-r31",
       "size": [
-        256,
-        512
+        512,
+        1024
       ],
       "profile": "stone",
       "batch": "picked-foliage-2026-10-24",
@@ -141903,7 +142078,10 @@
         "orm"
       ],
       "preserve_original_alpha": true,
-      "review": "atlas-reviewed; live appearance and tile boundaries pending"
+      "review": "Fresh individual HD render preserving native UV identity; native alpha retained separately. Retail visual review pending.",
+      "worker": true,
+      "independentRender": true,
+      "detailRestoration": "preview23-selected-r31"
     },
     {
       "type": 1010004,
@@ -193276,6 +193454,26 @@
     },
     {
       "type": 1010004,
+      "id": 277463,
+      "name": "anka.png",
+      "source": "preview23-selected-277463-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
       "id": 277489,
       "name": "pumpkinhead.png",
       "source": "preview20-worker3-1010004_277489",
@@ -198927,6 +199125,26 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 281741,
+      "name": "bdayduck_cake.png",
+      "source": "preview23-selected-281741-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -207335,6 +207553,26 @@
     },
     {
       "type": 1010004,
+      "id": 287123,
+      "name": "bdayduck_cake2.png",
+      "source": "preview23-selected-287123-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
       "id": 287124,
       "name": "pom_black.png",
       "source": "preview23-integrated-artwork",
@@ -207635,6 +207873,46 @@
         "orm"
       ],
       "preserve_original_alpha": true
+    },
+    {
+      "type": 1010004,
+      "id": 287261,
+      "name": "anka_caked.png",
+      "source": "preview23-selected-287261-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 287263,
+      "name": "bdayduck_cake3.png",
+      "source": "preview23-selected-287263-r31",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "worker": true,
+      "independentRender": true,
+      "preserve_original_alpha": true,
+      "detailRestoration": "preview23-selected-r31",
+      "review": "Fresh individual material restoration from original UV layout; native coverage retained. Exact x86 upload checked; retail mesh review pending."
     },
     {
       "type": 1010004,
@@ -245411,12 +245689,12 @@
     "1010004_202640_d.png": "502a121f86d2db3cbf8211f76f637c3b0cdc297fc5adef7d6f60286d82511032",
     "1010004_202640_n.png": "90881d4439f03a09137d3151c6a6e9cf5549e058cc66df01fde961cfa7984140",
     "1010004_202640_orm.png": "fe393ee554196fa056c3141790c891768df6a2ee367334753ed4b82b62487bd8",
-    "1010004_202642_d.png": "6eb99cdad9c664e437f44720a3ec5a2a29e678280abe58942d6468f5f50f42f8",
-    "1010004_202642_n.png": "4b10a8839925308b91fad545eab7b4d073e1684b8ce0f7c53f6fd7262fbdd47c",
-    "1010004_202642_orm.png": "bc3f8bea5e1208256d7137a6f1794011c88f2f7595e53f003c9bf279a7c94505",
-    "1010004_202644_d.png": "c23a3fa6ca0776f97c6ea5ba949b3603b10a22a434befcc335583c01ba0fc236",
-    "1010004_202644_n.png": "1ff09e673268507f94fe94adca0b9985ff3e9634a285a2d1f617a54ac6590aae",
-    "1010004_202644_orm.png": "1654817228443e88261a69807575a68a962943c35a56f8ebea548a08c87ac263",
+    "1010004_202642_d.png": "070fe186e5d6c4e160b33ccf90e98aab8dfc8f76080c82ca140469ab4ae4109e",
+    "1010004_202642_n.png": "96d4a54830a9ebe7bd77c572e896f365d4ff58b33740a31974ce254743724bf0",
+    "1010004_202642_orm.png": "21c7bd4f8fb0b1fa19982b443536968c8dbb72425d77775f909b94c08c8308ce",
+    "1010004_202644_d.png": "596ea2ea55bb9ea8efd2971cf7d74f85c9375a811beecea64ca083a54af358a6",
+    "1010004_202644_n.png": "feec1e81ac442ce83294b810aea5e901813a49a22bbe08d2fcd826df83dd8f53",
+    "1010004_202644_orm.png": "90ef0d984711036781d92eb8168494d2bae30a347ba927c1d36b6765a53d3d5a",
     "1010004_202755_d.png": "29db82af9011705b48eda7140f9d5bd284ef780e61e0645c4ed75a4a1c1eb6b0",
     "1010004_202755_n.png": "81d9683fb8a002f2033e22bd2e0e5ae16da56c97107f2e37162216874c784401",
     "1010004_202755_orm.png": "041d9986bbcab42f177985bd0e0dc476741bad3d7f76c928f8e9775fc517e9b1",
@@ -246984,9 +247262,9 @@
     "1010004_214254_d.png": "d339132e8f2a379e7da4c6af3d4bc10618fd336e544feaafc312faba3176f00e",
     "1010004_214254_n.png": "04a135d0507db9cdf71d793d9d7b4eaf865289fe9a79bb407b081ae77fab07b7",
     "1010004_214254_orm.png": "e6e9194efc501456a9851f0f840497cd335fb1c434c82922476f4796a4057f33",
-    "1010004_214375_d.png": "4ee6ce51e51a29462f8c47f2ecbac35404184ff1dfc1a960368b25f6ac70da62",
-    "1010004_214375_n.png": "33da9a427448ee747fa9af737077b93c579ecbf19358bfd0e6d297e73971c9b6",
-    "1010004_214375_orm.png": "7a2395742222fc7213dbbe2e8331594ff6fb749c116b657ecb3f7351b0d28023",
+    "1010004_214375_d.png": "505d6266d03c52bb51998507cc0d5ae0a4043393e78efd9f44a908015984ce49",
+    "1010004_214375_n.png": "f712d22ee1877959ddb4d7efa20111338e6a8752bd1c693efc0bcbb65b66d1b7",
+    "1010004_214375_orm.png": "63e5402408052ed36b84d97c0aeddc1afc7eea1bed594cb526dc767860a7c269",
     "1010004_214383_d.png": "9738c524ee680350c08b2d514b451104bf7097453215c299d0876ef46d16c5de",
     "1010004_214383_n.png": "1f512d718e2e134cd93ffad0371df7b869dc3db963d23d4621a6e507320d3e0b",
     "1010004_214383_orm.png": "9de8d956c492c4b827d4354f3dd15f774a85213a11d341ff924a1e5e4117df8f",
@@ -247065,9 +247343,9 @@
     "1010004_215140_d.png": "4be6ea2110945537ffe40e0e97d4c94020267aa24d61f7db4b211ed37199a2d4",
     "1010004_215140_n.png": "092c8dab6ba65c3437fd33631104ecf19a035e22225be4e505c4f4ac803dba2d",
     "1010004_215140_orm.png": "c491ad515507881269cc3ef41dd3bb55cb99b39c5258bcfce4a3139cf33df395",
-    "1010004_215141_d.png": "cce417194fc14252abdebe6bd73347b797ba5727d32dad9206ab09bb03f7e04f",
-    "1010004_215141_n.png": "e31b71a2786679caf93a6b4be5d86ee78374fb25b04448a4d51bf52b98cf0b99",
-    "1010004_215141_orm.png": "ca102b41cf3eb5d843a7ac1e130c292ba72d168fb3e7708137b73137c2419364",
+    "1010004_215141_d.png": "68560fdd74b551008d3be63637b568d2c1bd5e390203ea53f9dae70f813bf783",
+    "1010004_215141_n.png": "b11d5ac693e3329179f835968b7832cfd9dd938023b3731b05a0f9a35d143cdb",
+    "1010004_215141_orm.png": "921efdaff2db818a0bf79b80d6d5a8483f8c620f9f0a82ba05acf12e3d0a14d5",
     "1010004_215142_d.png": "9e6e4e52ded560c18a8224bb97f957070bdac32338c63890fd7b515f583493f2",
     "1010004_215142_e.png": "bef4cfd43b798f169456baeceb4a052dfe026fbfa11da28e9288e37045ee64b1",
     "1010004_215142_n.png": "c2e902a81ee5ff23a6154eb30b662e23824d70b4275ce161fb41e211a86699f1",
@@ -247094,9 +247372,9 @@
     "1010004_215150_d.png": "34700a7032eeeda7aa18c948dc6e4b132cc77d52a5ec4e769cf5598379d0a39d",
     "1010004_215150_n.png": "fcaff97c71f326c40e7d6bc35bbdaf437265231debd28c46c6ac4fc6013ec0ce",
     "1010004_215150_orm.png": "345baa7c1f16c424f4a0041adf835096e5d8aa23fce7abd343f5547a0729c7d1",
-    "1010004_215151_d.png": "fd95f6d56903871cbc3fcda68ee6fbd32618f85a3d25ca61ac0d31f89e40e591",
-    "1010004_215151_n.png": "06335a58c55c1209c37ef546e71e320162e6929888e9f926e5d6e0ff4c7a7c2e",
-    "1010004_215151_orm.png": "a029c982cd6649a59a5a19e275d4e5959068d51eb765167e1c3032dd070c4bc2",
+    "1010004_215151_d.png": "20c7777b976c4a1a42956076648ae20a7cd4826975a83c6e3c37bea5df78dc4e",
+    "1010004_215151_n.png": "575e56fc4b1a569b61a87a778f5ed9d2043ae2f4fc232f8a4940d2d8a56b3c55",
+    "1010004_215151_orm.png": "58a29ed4e8628bf52976bf16d970f652533bab3026f07d002059989f9bab54b4",
     "1010004_215152_d.png": "fc58ec6ac1dca37e176e4e527b91b348ed80b530daf031d114bcd7e6799d3b59",
     "1010004_215152_n.png": "5228fc556e3438b7c59692b19561ef5ca8f115d93309d68ee50ce24fc0c27f19",
     "1010004_215152_orm.png": "4e650e49ce7ddfb7061bbc6954ee2855aa2143d3e73503efd500c2dd46fe2ad2",
@@ -259110,9 +259388,9 @@
     "1010004_42913_d.png": "d3de90f92d31cd9498238d3f53918464372b7a009eb112b863fa07a69e210a6b",
     "1010004_42913_n.png": "b1d45be56b060200fe5c2fdd81b2d5ad5830b547901bcf2eb33a25cd1b074d89",
     "1010004_42913_orm.png": "e428422e39a5f4b34ef7d0f6908d7e8aeda0acd9cbc6944c0bb9c3fafdf1c2ec",
-    "1010004_42914_d.png": "d4519082835b9387adf0b28b84898ae41b648ad996e07fdab8bb20062ca43ec4",
-    "1010004_42914_n.png": "7382c65f60dc66a1764c819dcea80129f542c2b604c88de47bf8f91a0439f450",
-    "1010004_42914_orm.png": "c1f01f47209bf33f5e6cd659313d79ae32490e71283046302217fd66b27b2e13",
+    "1010004_42914_d.png": "cb21e689c6636e68d021cce7da252f54cf66a5538493e52560f771c0b2b54591",
+    "1010004_42914_n.png": "9755af9b07db5d84a70c2c16f2eb710f78bfaa1a99da19719cf3575ed7f828d3",
+    "1010004_42914_orm.png": "bf5b9bcdae398205809f5b8ff56c2b09ad151a3440647415a4874e460be8e69a",
     "1010004_42925_d.png": "e219fc890d0db5de44fd85a0ab51ed7b1601d626a02e6bc1d894fec92bbb6e52",
     "1010004_42925_n.png": "1995bcfe6a5f244400746c70b093a44a67d512ec7806e806938f9fc4219d9b79",
     "1010004_42925_orm.png": "6151d14389532ea8450b3ddee68abdd092a53216c37d493f805cfedcabfffdc4",
@@ -260912,9 +261190,9 @@
     "1010004_6251_d.png": "d43defd2204685acec1b03dc9124528c3e2b0f4fe847de2448a8ef4b8b32ae3f",
     "1010004_6251_n.png": "4c048aa1b60fc84c98c67be3155c7efef0860d3156b818dbd3c02a51ba3c88f1",
     "1010004_6251_orm.png": "1be89adf1a6711887c1501d91b620dee0df1907fd3628f234e4077d785b9cc46",
-    "1010004_6262_d.png": "70c83d63644ec169aa0be9c669860d2e7a3d6c9d8d9b5239631dc28686da6dab",
-    "1010004_6262_n.png": "e74cca734622d6d6bace3dcf5a6cc79a116f151906766e23628adb690d4256b2",
-    "1010004_6262_orm.png": "52377c2d4067248349255b8f20d36191c865addf488d61e2e95c3d86cfdf0e0c",
+    "1010004_6262_d.png": "b19958fdcba772b875965d5bd14d89f5434e8ad06441cd0ad029b1299d5c0004",
+    "1010004_6262_n.png": "66153aa33332ad3104046036fff1a276ba516d8ad1584280923bba531ea56881",
+    "1010004_6262_orm.png": "aa5fc984360e20c95d63cd027a0f372de946eb3c40a1a72ba2c75b73b0c207c6",
     "1010004_6263_d.png": "61df606abcd383fd681a8d98d94dfbdf477e9daccf3be95318625f926ee197f6",
     "1010004_6263_n.png": "d799e7220efa186807d252a48db4e43de7efb3870f1b02525eeba66eb89b4863",
     "1010004_6263_orm.png": "d5319a560ee2c16d501ac409cbc0e06d9479fdde5d2d878df0204a588ab4196a",
@@ -265227,9 +265505,9 @@
     "1010004_206709_d.png": "4bd40bbc022d44a3ec01f90aee3f3ec126bbe77f2f2b1915cf1fd549a0b49208",
     "1010004_206709_n.png": "734f7469a1253ffd29b64af426fea9c7a6177a72d225aee4757f88e620487ad8",
     "1010004_206709_orm.png": "8bb041f3644991e8d53ad39db730fc187602d0ff9cc83f25d032498144df8408",
-    "1010004_206747_d.png": "ece13375975c8403023fc9f4668cb37dbc4124916ce3fc655fb09dae8ba11196",
-    "1010004_206747_n.png": "8027269997f2b01cef39a963204d618def5236fce5158fa7c085a73bb2b63e50",
-    "1010004_206747_orm.png": "9dff82cf39f0bcf8337ce0a974c39ee7f8bdb8c3bcbaa0f850af394e82ebbb37",
+    "1010004_206747_d.png": "b12113508f2962d760967d0ed2f82835d00a7e24a88a30d92cd86c532dd157bf",
+    "1010004_206747_n.png": "3f142df1292ccfe4a905c6d83af013042b941e6bf095bcabff27f09e0bce49ef",
+    "1010004_206747_orm.png": "94fcc11a11e3f55d89faf67efff678cd8dc827d952032b95b38860964fb9822d",
     "1010004_206748_d.png": "0a0c54ff3065d6300951f76a581d529dfe2a8b953aad837fd5d385a5ec33a228",
     "1010004_206748_n.png": "b61465f5ecf77e502925c80fce9e70057e3808c13589cb2f18ddb71d15a4a9e5",
     "1010004_206748_orm.png": "06aa04f2e0e0f8ab5e6ccd79bebe6605f0a845869a01bb7866d3024191f1fb7a",
@@ -272180,7 +272458,46 @@
     "1010004_81736_orm.png": "4ce2c936454000b4d783a9978efb90462d4765cee740fa800c40851eb34919d8",
     "1010004_82883_d.png": "c5c5bd3faa9c5dcae758681cfb2d81dbda0e36ffdb898dfa58e96423dd2d1b13",
     "1010004_82883_n.png": "279616768b478e101c25e5e19681115cb3d4eb4281868df6496c5c0500a09ba0",
-    "1010004_82883_orm.png": "f076f29681281dc9abe10a4ce03bdf3156c71d1042e6b7bdfa3f6a57d9dff0b5"
+    "1010004_82883_orm.png": "f076f29681281dc9abe10a4ce03bdf3156c71d1042e6b7bdfa3f6a57d9dff0b5",
+    "1010004_10814_d.png": "89871201cbcb0c19715debac77ca78bf0804a37fd47ec7bb1e456e3b378da339",
+    "1010004_10814_n.png": "1f26393070e73e4faae6decc2bb187e544bec499f2b85820052e4712adadce31",
+    "1010004_10814_orm.png": "69faa81f557a37474d962552b0ed3bcd0489e3d52faa672e5b55798d8f90f649",
+    "1010004_130476_d.png": "5a2b39ee6afc1cbf21cc884b47dbf702d7e3e50ea51a330014e9334da3cace03",
+    "1010004_130476_n.png": "1603d82cd2a2a482759ab5d305fbeee6b963725a79a6aa38d2cef0bbd92ecb91",
+    "1010004_130476_orm.png": "6e4e5bc9aea7bbbdb140b45049b8d8de651f65f56093e3cf14a4dcc99b171f77",
+    "1010004_155057_d.png": "c907699a6c46422674b62e505f754d9ab54d930b0a649df58f2bf0d836cf8234",
+    "1010004_155057_n.png": "71e05d381f0d0653868f55acf0360d50ad12eb3801f3002087520111f3553f0a",
+    "1010004_155057_orm.png": "c9a1779c48d635c60ff7add731feefe50536a6f645b056adfff5da68c554855f",
+    "1010004_159305_d.png": "6e3c950aef838a0058d4beb483a05dae3154a67d4856413c0bdb895635e1a6ea",
+    "1010004_159305_n.png": "f367389dea80f89805e01f35fb84ce9571c9a87e8d0d53d0d9fbbd0a287628f8",
+    "1010004_159305_orm.png": "4ef8a0387b75e75fb0b1a7fbb655ef6854b5ba0f1d6e6b01fd6c1abac617d28d",
+    "1010004_277463_d.png": "cc1337e23bed7b47f00f66e82379ce8f86efe6ee9cc903c47cb73dc37bf8eddf",
+    "1010004_277463_n.png": "7d4556a68d1c07fe01eaedf087108584d56d5bb7e0ba6f591a9236eab2265b16",
+    "1010004_277463_orm.png": "45441c98d8cd78cba5bfeebb965a840d166d45f050cbaf03e1cc4e91657df4f4",
+    "1010004_281741_d.png": "d8ac1412fb7c54655fccd1743143aa6364b9c5516bfca48e6cb952bec52e9aef",
+    "1010004_281741_n.png": "a3d07590405a07381cc4c6cc0f407b3912da90d180a06c4960cd1f23fe24a7b9",
+    "1010004_281741_orm.png": "0bf8e0132633f4b3da76f1b1ac439875a7eb7730638bed7e14cd8e3be10e860b",
+    "1010004_287123_d.png": "9d84cdfffc6a18108d3ae77ebd250ded4e59fd58798059f1ed6cd21594b633ba",
+    "1010004_287123_n.png": "34057244531aa732322f0a6bc935aa342511e2606960bb8aa05ae71120950d2d",
+    "1010004_287123_orm.png": "aee23550655515b85e46e7d3252e9ec553bf1e518138598738506f3abd44a08b",
+    "1010004_287261_d.png": "d4ebf55eb5fd76c6b9731fd80e999753da8eecfd614656a1794f17483123f1dc",
+    "1010004_287261_n.png": "f48e488a6ee39cbb7d850f8a5739cfbddbf92d63b18cb6fba712096064a25b24",
+    "1010004_287261_orm.png": "b40fa5bd3840c5ed5b5bae9481634a24b4e9788e3c37f584ba8b3d37951a6a8a",
+    "1010004_287263_d.png": "0e62e3d075e27c82702e76782244f90efcdf2988e27a52ee4f02672d76d94bf2",
+    "1010004_287263_n.png": "6f943a32166325ef5ec25bac00e38203d15d260c06907760556196474b3aa7ef",
+    "1010004_287263_orm.png": "385600db62c83a8a6b611357a037f9c4ebc0266dd2a3b4e48b8df7dd86e3ef5b",
+    "1010004_44650_d.png": "ef73838531a1360d6ccfe1f72553f38f09ed9905d140cca6dbbf0da8d4b4c6b3",
+    "1010004_44650_n.png": "6411a28636b49021a6c4ba96c156e9538a5629f9b7b63f1ae2903befe2315d75",
+    "1010004_44650_orm.png": "b4a2b2627db036f7d6f7484e4cf6902b3d85ea962516b4efa2f0c8b6c9312da3",
+    "1010004_95778_d.png": "0ec996605a9b131bd396172c466ca594592a0d1ce5aadad220319c0c5a8a5f54",
+    "1010004_95778_n.png": "61121dbe6db301fbd2d87ede33059fb98cf94e27b66010111580e4c252d2950b",
+    "1010004_95778_orm.png": "dfc9a3cf11763f962c23ec3556fccafbc079fdfa1bb1806cb4729a3af536dbdf",
+    "1010004_95779_d.png": "2ca489202f3bff05235bc042d9e0071e3e52ab47b19e9b0f3d7a44bf0b4424d3",
+    "1010004_95779_n.png": "90b65ee1ca7bc6cf6b4d0f535fe479c323d657337a155483fd2ae9307a656384",
+    "1010004_95779_orm.png": "20da3df571554eb9b5a04957ad97c75f69a0c46d7e20b580208360970af23f42",
+    "1010004_95780_d.png": "38a7cdffc6d52f770e93d14f828ab136d1c84288e1d00986667ad1a888b0ab08",
+    "1010004_95780_n.png": "f436b689b4fba0e13c707d092534dac73e9b9db258b7a580610fffa5f87cd7a6",
+    "1010004_95780_orm.png": "3386bca486b06ab83339407483da0db23cb45120885b24a3747a9e5cf6625918"
   },
   "preview23Integration": {
     "newTypedIds": 2734,

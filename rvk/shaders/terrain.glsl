@@ -531,13 +531,30 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
         // Full material albedo replaces the old texel grain. Native low-frequency
         // colour remains the blend mask/palette only; alpha, overlap ownership,
         // validated cliff footprint and original geometry are unchanged.
+        // Softly averaging five unrelated paintings erased their fine structure.
+        // Sharpen the material weights, retaining continuous native transition masks.
+        float blendTotal=0.;
+        for(int i=0;i<5;++i){weights[i]=pow(max(weights[i],0.),4.);blendTotal+=weights[i];}
+        if(blendTotal>.00001)for(int i=0;i<5;++i)weights[i]/=blendTotal;
         vec3 modern=vec3(0.),mean=vec3(0.);float total=0.;
         vec2 mirrored=1.-abs(fract(world*.5)*2.-1.);
         vec2 mirrorDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(world*.5)));
+        float nearDetail=1.-smoothstep(35.,90.,distance(m.posW,C.eyePos.xyz));
         for(int i=0;i<5;++i) {
             if(weights[i]<.001)continue;
             uint slot=floatBitsToUint(FL.hdGround[i].x)-1u;
-            modern+=weights[i]*textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),mirrored,wx*mirrorDirection,wy*mirrorDirection).rgb;
+            vec3 broad=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),mirrored,wx*mirrorDirection,wy*mirrorDirection).rgb;
+            // Resolved modern grains at ~1.3m repeat; broad mineral/soil variation
+            // remains at 4m. Full mip/gradient filtering suppresses distant shimmer.
+            if(nearDetail>.001) {
+                vec2 fineWorld=world*3.+vec2(.173,.417);
+                vec2 fineUv=1.-abs(fract(fineWorld*.5)*2.-1.);
+                vec2 fineDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(fineWorld*.5)));
+                vec3 fine=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),fineUv,wx*3.*fineDirection,wy*3.*fineDirection).rgb;
+                vec3 micro=clamp(fine/max(FL.hdGround[i].yzw,vec3(.04)),vec3(.65),vec3(1.5));
+                broad*=mix(vec3(1.),micro,.5*nearDetail);
+            }
+            modern+=weights[i]*broad;
             mean+=weights[i]*FL.hdGround[i].yzw;total+=weights[i];
         }
         if(total>.01) {

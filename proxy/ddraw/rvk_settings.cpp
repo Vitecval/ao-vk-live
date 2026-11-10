@@ -348,7 +348,7 @@ Setting g_settings[] = {
     {"RVK_LightGlow", "Halo strength", "Lighting", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_LightGlowOn"},
     {"RVK_AmbientMode", "Ambient life", "Effects", Choice, 0, 8, 1, 0, nullptr, 0,nullptr,"0 1 2 3 4 5 6 7 8"},
     {"RVK_AmbientOn", "Ambient life enabled (compatibility)", "Effects", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1.33f, nullptr, 0, "RVK_AmbientMode"},
+    {"RVK_AmbientMotes", "Density", "Effects", Float, 0, 2, 0.1f, 1.f, nullptr, 0, "RVK_AmbientMode"},
     {"RVK_AmbientBright", "Brightness", "Effects", Float, 0, 2, 0.05f, 0.6f, nullptr, 0, "RVK_AmbientMode"},
     {"RVK_AmbientStyle", "Ambient style (compatibility)", "Effects", Choice, 0, 7, 1, 0, "0 1 2 3 4 5 6 7", 0, "RVK_AmbientOn"},
     {"RVK_BloomOn", "Bloom", "Effects",  Bool,  0, 1, 1, 1, nullptr, 0},
@@ -1245,6 +1245,13 @@ void Load()
         }
     }
     Migrate(inIni);
+    if (GetPrivateProfileIntA("Migrations", "AmbientScale31", 0, g_iniPath)==0) {
+        if (Setting* density=Find("RVK_AmbientMotes")) {
+            const size_t index=size_t(density-g_settings);
+            if(inIni[index])density->value/=1.33f;
+        }
+        WritePrivateProfileStringA("Migrations", "AmbientScale31", "1", g_iniPath);
+    }
     // A feature's on / off setting new to the ini (older ones had "0 = off" strengths): on unless its strength (the
     // first setting it switches with a game value) was at the game's value - which then gets its default back, so
     // that switching the feature on shows it.
@@ -1541,6 +1548,7 @@ const PresetValue kUltra[] = {   // (the user's own setup, 2026-10-16: Modern's 
     {"RVK_FullScenery",1}, {"RVK_SceneryFill",.6f}, {"RVK_FarDetail",1},
     {"RVK_FarScenery",1}, {"RVK_SceneryDist",3}, {"RVK_TerraRough",.6f},
     {"RVK_WindowDepth", 2}, {"RVK_WindowActivity", 1},
+    {"RVK_WaterStyle",1},
     {"RVK_TerraBlend", 2}, {"RVK_GroundOn", 0}, {"RVK_Pebbles", 1}, {"RVK_DayLook", 0},
     {"RVK_AutoMat", 1}, {"RVK_MatStrength", 1},
     {"RVK_FarHaze", .6f}, {"RVK_HazeStart", 350}, {"RVK_HazeEnd", 1000},

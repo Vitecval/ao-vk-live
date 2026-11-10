@@ -25855,10 +25855,10 @@
     "type": 1010004,
     "id": 6262,
     "name": "mounttransition.png",
-    "source": "rubika-family-6262-v1",
+    "source": "preview23-selected-6262-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "honed-stone",
     "batch": "rubika-complete-families-2026-10-26",
@@ -25870,7 +25870,9 @@
     "atlas_source": "rubika-family-atlas-085-v1",
     "atlas_cell": 7,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,
@@ -41942,10 +41944,10 @@
     "type": 1010004,
     "id": 42914,
     "name": "temple_wall_struc_part_stonewall2.png",
-    "source": "rubika-family-42914-v1",
+    "source": "preview23-selected-42914-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "honed-stone",
     "batch": "rubika-complete-families-2026-10-26",
@@ -41957,7 +41959,9 @@
     "atlas_source": "rubika-family-atlas-136-v1",
     "atlas_cell": 9,
     "atlas_guard_pixels": 1,
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,
@@ -80742,10 +80746,10 @@
     "type": 1010004,
     "id": 202642,
     "name": "shadowlandrock_layered.png",
-    "source": "overnight-20261028-1010004_202642-v1",
+    "source": "preview23-selected-202642-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "mineral",
     "batch": "overnight-20261028-batch004",
@@ -80758,16 +80762,18 @@
     "atlas_cell": 14,
     "atlas_guard_pixels": 1,
     "review": "Generated atlas visually inspected against the exact private UV reference; layout/palette checks passed; original runtime alpha required. Live model fit pending.",
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,
     "id": 202644,
     "name": "shadowlandrock.png",
-    "source": "overnight-20261028-1010004_202644-v1",
+    "source": "preview23-selected-202644-r31",
     "size": [
-      512,
-      512
+      1024,
+      1024
     ],
     "profile": "mineral",
     "batch": "overnight-20261028-batch004",
@@ -80780,7 +80786,9 @@
     "atlas_cell": 15,
     "atlas_guard_pixels": 1,
     "review": "Generated atlas visually inspected against the exact private UV reference; layout/palette checks passed; original runtime alpha required. Live model fit pending.",
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,
@@ -81820,10 +81828,10 @@
     "type": 1010004,
     "id": 214375,
     "name": "jobe_rock_limestone_transition.png",
-    "source": "overnight-20261028-1010004_214375-v1",
+    "source": "preview23-selected-214375-r31",
     "size": [
-      256,
-      512
+      512,
+      1024
     ],
     "profile": "mineral",
     "batch": "overnight-20261028-batch005",
@@ -81836,7 +81844,9 @@
     "atlas_cell": 5,
     "atlas_guard_pixels": 1,
     "review": "Generated atlas visually inspected against the exact private UV reference; layout/palette checks passed; original runtime alpha required. Live model fit pending.",
-    "worker": true
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,

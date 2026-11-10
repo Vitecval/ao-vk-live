@@ -2,21 +2,21 @@
   "version": "0.6.0-preview.23",
   "coverage": {
     "originalSurfaceIds": 14753,
-    "repaintIds": 13393,
-    "retainedOriginalIds": 1337,
+    "repaintIds": 13406,
+    "retainedOriginalIds": 1324,
     "unfinishedGenerationIds": 23,
-    "surfaceCoveragePercent": 90.78153595878804,
-    "plannedArtworkCompletionPercent": 90.78153595878804,
-    "originalOnlyIds": 1360,
+    "surfaceCoveragePercent": 90.86965362977021,
+    "plannedArtworkCompletionPercent": 90.86965362977021,
+    "originalOnlyIds": 1347,
     "priorWebsiteScopeIds": 14145,
-    "priorWebsiteScopeRepaintIds": 12787,
-    "additionalIdsSincePreview21": 4766,
-    "runtimeMapFiles": 41267,
+    "priorWebsiteScopeRepaintIds": 12800,
+    "additionalIdsSincePreview21": 4779,
+    "runtimeMapFiles": 41306,
     "newlyGeneratedIds": 310,
     "previouslyExcludedArtRecovered": 50,
     "independentlyGeneratedOutputsThisPass": 295,
     "existingGroundSetsRefined": 19,
-    "priorWebsiteScopeCoveragePercent": 90.3994344291269
+    "priorWebsiteScopeCoveragePercent": 90.49133969600565
   },
   "materials": [
     {
@@ -101375,5 +101375,37 @@
   ],
   "originalWorkerFilesModified": false,
   "retailMeshFitCertified": false,
-  "allZonePlaytestComplete": false
+  "allZonePlaytestComplete": false,
+  "revision31": {
+    "artworkRecord": "material-packs/preview23-selected-r31.json",
+    "independentRenders": 21,
+    "previouslyRetainedPhysicalIds": 13,
+    "reportedMaterialsRestored": [
+      214375,
+      206747,
+      202644,
+      202642,
+      215141,
+      215151,
+      42914,
+      6262
+    ],
+    "newPhysicalMaterialIds": [
+      10814,
+      130476,
+      155057,
+      159305,
+      277463,
+      281741,
+      287123,
+      287261,
+      287263,
+      44650,
+      95778,
+      95779,
+      95780
+    ],
+    "publicationOnHold": true,
+    "allOriginalsRepainted": false
+  }
 }

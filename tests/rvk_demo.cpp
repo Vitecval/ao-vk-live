@@ -933,6 +933,7 @@ bool g_worldMaterialsTest = false;
 bool g_mineralMaterialsTest = false;
 bool g_sharedMapsTest = false;
 int g_buildingFamilyTest = -1;
+bool g_materialCacheTest=false;
 bool g_materialPublicationTest = false;
 std::string g_materialList;
 bool g_sharedMapsDump = false;
@@ -2675,6 +2676,10 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         dev.SetGrassField(g_raisedGrass!=2,40.f,4.f,.3f,true);
         const auto pixels=Checker(64,16,g_raisedGrass==3 ? 0xFF666666:0xFF416B26,g_raisedGrass==3 ? 0xFF777777:0xFF608C36);
         islandTex=dev.CreateTexture(64,64,pixels.data());
+        if(g_raisedGrass==5) {
+            dev.SetTextureRdbId(islandTex,207100,1010004,0);
+            const std::vector<uint32_t> olive(64*64,0xFF4C4F27);dev.UpdateTexture(islandTex,0,0,0,64,64,olive.data(),64*4);
+        }
     }
     dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
     auto terrainHeight=[](float x,float z) {return g_terrainCliffToeFixture ? std::clamp((x-8.f)*2.f,0.f,8.f)
@@ -5993,6 +5998,7 @@ int main(int argc, char** argv)
         else if (a == "--cliff-join" && i+1<argc) g_cliffJoin=float(std::atof(argv[++i]));
         else if (a == "--terrain-side-view") g_terrainSideView=true;
         else if (a == "--soft-sky") g_softSky=true;
+        else if (a == "--material-cache-test") g_materialCacheTest=true;
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
         else if (a == "--check-material-list" && i+1<argc) g_materialList=argv[++i];
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
@@ -6110,7 +6116,9 @@ int main(int argc, char** argv)
     }
     Device dev;
     std::string error;
-    if (!dev.Init(hwnd, g_width, g_height, &error)) {
+    // The threaded publication fixture owns its device; avoid two complete
+    // Vulkan contexts in a 32-bit test process.
+    if (!g_materialPublicationTest && !dev.Init(hwnd, g_width, g_height, &error)) {
         std::printf("rvk init failed: %s\n", error.c_str());
         return 1;
     }
@@ -6157,11 +6165,45 @@ int main(int argc, char** argv)
         std::printf("MATERIAL CHECK %u failed %u\n",checked,failed);
         return checked && !failed ? 0:1;
     }
+    if(g_materialCacheTest) {
+        _putenv_s("RANDYVK_TEST_MODULES","1");_putenv_s("RANDYVK_TEST_MATERIAL_CACHE_MB","1");
+        dev.SetHdr(true);Device::PbrSettings pbr;pbr.enabled=true;pbr.albedoMaps=true;dev.SetPbr(pbr);
+        const uint32_t grey=0xff808080;
+        Texture* active=dev.CreateTexture(1,1,&grey),*cold=dev.CreateTexture(1,1,&grey),*alias=dev.CreateTexture(1,1,&grey);
+        maps::Decoded decoded;decoded.albedo.w=decoded.albedo.h=512;
+        decoded.albedo.levels.push_back(std::vector<uint32_t>(512*512,0xff407040));
+        decoded.albedo.levels[0][0]=0xff417141;
+        decoded.orm.w=decoded.orm.h=512;decoded.orm.levels.push_back(std::vector<uint32_t>(512*512,0xffffd900));
+        Texture* flat=maps::Upload(dev,decoded.orm,true);
+        bool okay=flat && flat->Width()==1 && flat->Height()==1;dev.DestroyTexture(flat);
+        maps::Replace(dev,active,decoded);maps::Replace(dev,cold,decoded);dev.ShareMaterialMaps(alias,cold);
+        const VtxMesh plane[]={{-2,-1,0,0,0,-1,0xffffffff,0,1},{-2,1,0,0,0,-1,0xffffffff,0,0},
+            {2,-1,0,0,0,-1,0xffffffff,1,1},{2,1,0,0,0,-1,0xffffffff,1,0}};
+        for(int frame=0;frame<300;++frame) {
+            dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xff101010,1);
+            dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+            dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+            dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_LIGHTING,0);
+            dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
+            dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+            dev.SetTexture(0,active);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);
+            if(frame<20){dev.SetTexture(0,cold);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);dev.SetTexture(0,alias);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);}
+            dev.SetTexture(0,nullptr);dev.EndFrame();
+        }
+        okay=okay && active->MaterialsState()==Texture::MaterialState::Ready && active->MaterialDrawFrame()>280;
+        okay=okay && cold->MaterialsState()==Texture::MaterialState::Evicted && alias->MaterialsState()==Texture::MaterialState::Evicted;
+        maps::Replace(dev,cold,decoded);dev.ShareMaterialMaps(alias,cold);
+        okay=okay && cold->MaterialsState()==Texture::MaterialState::Ready && alias->MaterialsState()==Texture::MaterialState::Ready;
+        dev.DestroyTexture(active);dev.DestroyTexture(cold);dev.DestroyTexture(alias);
+        std::printf("Material cache: %s (constant controls compacted, cold shared maps retired, active HD protected, reload ready)\n",okay?"passed":"FAILED");
+        return okay?0:1;
+    }
     if (g_materialPublicationTest) {
+      try {
         // Exercise the actual threaded queue: a non-null CPU wrapper with no
         // realized image must fail publication. No synchronization in production.
         ThreadedDevice queued;
-        if (!queued.Init(nullptr, 64, 64, &error)) return 1;
+        if (!queued.Init(nullptr, 64, 64, &error)) {std::fprintf(stderr,"publication init: %s\n",error.c_str());return 1;}
         queued.BeginFrame();
         const uint32_t pixel=0xFF70B0C0;
         Texture* base=queued.CreateTexture(1,1,&pixel);
@@ -6194,6 +6236,7 @@ int main(int argc, char** argv)
         queued.EndFrame(); queued.Sync();
         std::printf("material publication: %s (failed wrappers rejected, valid reload retained, warm aliases independent)\n",okay ? "passed" : "FAILED");
         return okay ? 0 : 1;
+      } catch(const std::exception& e) {std::fprintf(stderr,"publication exception: %s\n",e.what());return 1;}
     }
     if (g_grassUploadTest) {
         dev.BeginFrame();

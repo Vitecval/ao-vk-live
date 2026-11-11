@@ -121496,5 +121496,14 @@
     "publicationOnHold": true,
     "allOriginalsRepainted": false,
     "originalOnlyIds": 436
+  },
+  "revision33": {
+    "status": "release requested by owner",
+    "publicationOnHold": false,
+    "smokeBudgetEnforced": true,
+    "coldMaterialRetirement": true,
+    "oliveIslandGrass": true,
+    "regionalAmbientVariation": true,
+    "frameGenerationChanged": false
   }
 }

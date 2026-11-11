@@ -35,7 +35,7 @@ def main():
         if previous not in m['previousAddons']:m['previousAddons'].insert(0,previous)
         for name in ['ao-vk.dll','ddraw.dll','ao-vk-cache-warm.exe']:shutil.copy2(args.build.resolve()/name,folder/name)
         for name in ['setup-safety.ps1','install-live.ps1','setup-live.ps1','setup-progress.ps1','material-download.ps1','material-parts.ps1','large-address-aware.ps1','mesh-index.ps1','startup-report.ps1']:shutil.copy2(ROOT/'tools'/name,folder/name)
-        for name in ['preview23.md','preview23-artwork.md','preview23-release-polish.md','preview23-retained-originals.csv','settings.md','fsr-stability-audit.md','preview23-installer-audit.md','fsr-performance-audit.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
+        for name in ['preview23.md','preview23-artwork.md','preview23-release-polish.md','preview23-retained-originals.csv','settings.md','fsr-stability-audit.md','preview23-installer-audit.md','fsr-performance-audit.md','preview23-performance-audit.md']:shutil.copy2(ROOT/'docs'/name,folder/'docs'/name)
         for name in ['README.md','RELEASE-NOTES.md','PLAYTEST.md']:shutil.copy2(ROOT/'docs/preview23.md',folder/name)
         shutil.copy2(ROOT/'REPORT.md',folder/'REPORT.md')
         if edition=='full':
@@ -80,7 +80,7 @@ def main():
             m['artworkCoverage']=coverage
         m.update(version=VERSION,build='ao-vk-preview23-expanded-artwork',candidateRevision=args.revision,setupRevision=7,
                  sourceCommit=commit,setupSourceCommit=commit,livingIncluded=False,
-                 candidateStatus='expanded-artwork-integrated-release-validation',publicDistributionApproved=False)
+                 candidateStatus='private-test' if args.stage_only else 'release',publicDistributionApproved=not args.stage_only)
         m['addon']={name:sha(folder/name) for name in ['ao-vk.dll','ddraw.dll']}
         m['cacheWarmup']['sha256']=sha(folder/'ao-vk-cache-warm.exe')
         m['integrationSources']['preview23']=commit

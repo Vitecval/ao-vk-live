@@ -146,7 +146,7 @@ public:
     float GrassCoverAt(float u, float v, bool clamp) const;
     // (A normal map, before the device is handed it: its alpha is a height map's - rvk/material_maps.h.)
     void SetAlphaHeight(bool height) { m_alphaHeight = height; }
-    enum class MaterialState : uint32_t { Original, Pending, Ready, Failed };
+    enum class MaterialState : uint32_t { Original, Pending, Ready, Failed, Evicted };
     MaterialState MaterialsState() const { return m_materialState.load(std::memory_order_acquire); }
     uint64_t MaterialDrawFrame() const { return m_materialDrawFrame.load(std::memory_order_relaxed); }
     void MaterialsPending() { m_materialState.store(MaterialState::Pending, std::memory_order_release); }
@@ -155,6 +155,7 @@ private:
     friend class Device;
     std::atomic<MaterialState> m_materialState{MaterialState::Original};
     std::atomic<uint64_t> m_materialDrawFrame{0};
+    uint64_t m_materialResidentFrame=0;
     VkImage m_image = VK_NULL_HANDLE;
     VkImageView m_view = VK_NULL_HANDLE;
     VmaAllocation_T* m_allocation = nullptr;
@@ -3074,7 +3075,8 @@ private:
     // The steps' estimated cost (ms, StepCost) recorded in each frame slot, and the measured / estimated ratio from the
     // slots' GPU timestamps ("smoke simulation"), eased: the budget in this GPU's (and this load's) real time.
     double m_smokeEstimate[2] = {};
-    float m_smokeCostScale = 1.0f;
+    float m_smokeCostScale = 8.0f;
+    double m_smokeBudgetCredit = 0.0;
     double m_smokeLastClock = -1.0;
     VkSampler m_smokeSampler = VK_NULL_HANDLE, m_smokeRepeatSampler = VK_NULL_HANDLE;
     VkBuffer m_smokeBounds = VK_NULL_HANDLE;     // per volume: the cells with smoke (lowest, highest; the simulation's)
@@ -3201,6 +3203,8 @@ private:
     uint32_t m_textureCount[2] = {};
     uint64_t m_buildingFamiliesReady = 0;
     std::string GpuMemoryReport() const;
+    std::unordered_set<Texture*> m_materialOwners;
+    void TrimMaterialCache();
     void DestroyLeafResources();
     float m_pointLightScale = 1.0f, m_charLightScale = 1.0f;   // SetPointLightIntensity
     float LightScale(const d3d::Light& l) const;

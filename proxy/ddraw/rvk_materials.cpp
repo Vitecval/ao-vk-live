@@ -874,8 +874,10 @@ std::string DescribeTexture(const rvk::Texture* texture, std::string* reference)
 
 void AttachMaterialMaps(RSurface* top)
 {
-    if (!top || !top->rdbId || !top->texture || top->materialsFor == top->texture || !g_rvk.device)
+    if (!top || !top->rdbId || !top->texture || !g_rvk.device ||
+        (top->materialsFor==top->texture && top->texture->MaterialsState()!=rvk::Texture::MaterialState::Evicted))
         return;
+    if(top->texture->MaterialsState()==rvk::Texture::MaterialState::Evicted)top->texture->MaterialsPending();
     top->materialsFor = top->texture;
     const Folder& folder=FolderFor(top->rdbType,top->rdbId);
     top->buildingFamily=folder.modern==2 ? rvk::buildings::FamilyOf(top->rdbType,top->rdbId) : 0;

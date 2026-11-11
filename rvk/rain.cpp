@@ -441,6 +441,9 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     rf.time[3]=float(m_ambientOriginCount*perAnchor);rf.fall[3]=float(perAnchor);
     // Keep density steps linear above 1 too, instead of saturating the slider.
     rf.curtains[0]=demand/float(population);
+    const auto look=requested==0 ? areas::AmbientLook(m_skyPlayfield):areas::MoteLook{{1.f,1.f,1.f},1.f,1.f};
+    std::memcpy(rf.colour,look.colour,3*sizeof(float));
+    rf.curtains[1]=look.speed;rf.curtains[2]=look.flutter;
     rf.colour[3]=std::clamp(m_ambientBright,0.f,2.f)*(1.f-std::clamp(m_rain+m_storm,0.f,1.f)*.85f);
     if(m_terrainAmbient[3]>.5f)std::memcpy(rf.ambient,m_terrainAmbient,16);
     else ArgbTo4(m_rs[d3d::RS_AMBIENT],rf.ambient);

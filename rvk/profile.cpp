@@ -3,6 +3,7 @@
 // interval is named by the mark that ends it. Results are read when the frame slot comes round again (its fence
 // waited), so they never stall.
 #include "internal.h"
+#include "render_budget.h"
 
 #include <algorithm>
 #include <chrono>
@@ -93,8 +94,7 @@ void Device::ProfileBeginFrame(VkCommandBuffer cmd)
                 ProfileAdd(m_profileGpu, p.names[i], ms);
                 // (The smoke's budget: what its steps really took against what they were thought to - smoke.cpp.)
                 if (m_smokeEstimate[m_frameIndex] > 0.05 && std::strcmp(p.names[i], "smoke simulation") == 0)
-                    m_smokeCostScale = std::clamp(0.9f * m_smokeCostScale +
-                                                  0.1f * float(ms / m_smokeEstimate[m_frameIndex]), 0.1f, 5.0f);
+                    m_smokeCostScale = budget::SmokeScale(m_smokeCostScale,ms,m_smokeEstimate[m_frameIndex]);
             }
             const double total = double(t[p.count - 1] - t[0]) * m_timestampPeriod * 1e-6;
             ProfileAdd(m_profileGpu, "total", total);

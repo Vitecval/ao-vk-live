@@ -218,7 +218,7 @@ float Texture::GrassCoverAt(float u,float v,bool clamp) const
     if (m_grassMaskSide) return m_grassMask.empty() ? 0.0f :
         grass::Coverage(m_grassMask.data(),u,v,clamp,int(m_grassMaskSide));
     uint8_t rgb[3];
-    return TexelRgbBilinear(u,v,rgb,clamp) && GreenRgb(rgb) ? 1.0f : 0.0f;
+    return TexelRgbBilinear(u,v,rgb,clamp) && grass::SurfaceTexel(rgb,m_rdbType,m_rdbId) ? 1.0f : 0.0f;
 }
 
 Device::GrassTile* Device::GrassTileAt(int32_t tx, int32_t tz) const
@@ -708,7 +708,7 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
         if(!grassSurface)return;
         const bool clamp=m_tss[0][d3d::TSS_ADDRESSU]==d3d::TADDRESS_CLAMP && m_tss[0][d3d::TSS_ADDRESSV]==d3d::TADDRESS_CLAMP;
         uint8_t rgb[3];
-        if(!grassTex->TexelRgbBilinear(u,v,rgb,clamp) || !grass::Green(rgb))return;
+        if(!grassTex->TexelRgbBilinear(u,v,rgb,clamp) || !grass::SurfaceTexel(rgb,grassTex->m_rdbType,grassTex->m_rdbId))return;
         const float cover=grassTex->GrassCoverAt(u,v,clamp);if(cover<.15f)return;
         const int32_t tx=FloorDiv(cx,kGroundN),tz=FloorDiv(cz,kGroundN);
         GrassTile* baseTile=GrassTileAt(tx,tz);const int index=(cz-tz*kGroundN)*kGroundN+(cx-tx*kGroundN);

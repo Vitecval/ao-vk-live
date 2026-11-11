@@ -444,10 +444,17 @@ inline Decoded Decode(const MaterialFiles& f)
 }
 
 template <typename Dev>
-Texture* Upload(Dev& dev, const MipChain& chain)
+Texture* Upload(Dev& dev, const MipChain& chain,bool compactUniform=false)
 {
     if (chain.Empty())
         return nullptr;
+    // Exact constant control maps need one texel. Every mip must agree.
+    if(compactUniform && !chain.levels[0].empty()) {
+        const uint32_t colour=chain.levels[0][0];bool uniform=true;
+        for(const auto& level:chain.levels)
+            if(level.empty() || !std::all_of(level.begin(),level.end(),[colour](uint32_t p){return p==colour;})){uniform=false;break;}
+        if(uniform)return dev.CreateTexture(1,1,&colour);
+    }
     Texture* tex = dev.CreateTexture(chain.w, chain.h, Format::A8R8G8B8, uint32_t(chain.levels.size()));
     if (!tex)
         return nullptr;
@@ -464,15 +471,15 @@ Texture* Upload(Dev& dev, const MipChain& chain)
 template <typename Dev>
 void Attach(Dev& dev, Texture* texture, const Decoded& d)
 {
-    if (Texture* normal = Upload(dev, d.normal)) {
+    if (Texture* normal = Upload(dev, d.normal,true)) {
         normal->SetAlphaHeight(d.height);             // (set before the device sees it)
         dev.SetNormalMap(texture, normal);
     }
-    Texture* orm = Upload(dev, d.orm);
+    Texture* orm = Upload(dev, d.orm,true);
     Texture* albedo = Upload(dev, d.albedo);
     if (orm || albedo)
         dev.SetMaterialMaps(texture, orm, albedo, d.preserveAlbedoAlpha);
-    if (Texture* emissive = Upload(dev, d.emissive))
+    if (Texture* emissive = Upload(dev, d.emissive,true))
         dev.SetEmissiveMap(texture, emissive);
     if (Texture* leaves = Upload(dev, d.leaves))
         dev.SetLeafArt(texture, leaves, Upload(dev, d.leavesNormal));
@@ -482,11 +489,11 @@ void Attach(Dev& dev, Texture* texture, const Decoded& d)
 template <typename Dev>
 bool Replace(Dev& dev, Texture* texture, const Decoded& d)
 {
-    Texture* normal = Upload(dev, d.normal);
+    Texture* normal = Upload(dev, d.normal,true);
     if (normal) normal->SetAlphaHeight(d.height);
-    Texture* orm = Upload(dev, d.orm);
+    Texture* orm = Upload(dev, d.orm,true);
     Texture* albedo = Upload(dev, d.albedo);
-    Texture* emissive = Upload(dev, d.emissive);
+    Texture* emissive = Upload(dev, d.emissive,true);
     Texture* leaves = Upload(dev, d.leaves);
     Texture* leavesNormal = leaves ? Upload(dev, d.leavesNormal) : nullptr;
     const bool complete = (d.normal.Empty() || normal) && (d.orm.Empty() || orm) && (d.albedo.Empty() || albedo) &&

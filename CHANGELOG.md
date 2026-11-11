@@ -1,3 +1,10 @@
+## Preview 23 release
+
+- Expand the HD library and correct texture-detail loading.
+- Add clearer daylight, far scenery, regional ambient life, ship lights and improved terrain transitions.
+- Correct olive floating-island grass detection, enforce smoke budgets and release unused HD maps under graphics-memory pressure.
+- Preserve installer recovery, download verification and visible progress for Lite and Full HD.
+
 ## Preview 23 artwork integration
 
 - Integrate 4,476 additional original texture IDs, reaching 13,103 HD repaint IDs.

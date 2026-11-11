@@ -240,6 +240,9 @@ target_compile_options(object_cache_check PRIVATE /UNDEBUG)
 add_executable(grass_coverage_check tests/grass_coverage_check.cpp)
 target_include_directories(grass_coverage_check PRIVATE rvk)
 target_compile_options(grass_coverage_check PRIVATE /UNDEBUG)
+add_executable(render_budget_check tests/render_budget_check.cpp)
+target_include_directories(render_budget_check PRIVATE rvk)
+target_compile_options(render_budget_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)

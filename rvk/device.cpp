@@ -1964,6 +1964,7 @@ void Device::BeginFrame()
     vkBeginCommandBuffer(f.main, &b);
     m_cache = StateCache{};
     ++m_frameNumber;
+    TrimMaterialCache();
     ProfileBeginFrame(f.main);
     ProfileCpuAddMs("wait for the GPU (frame slot)", waitMs);
     LiveSmooth(m_liveGpuWaitMs, waitMs);

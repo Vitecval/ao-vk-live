@@ -57,4 +57,29 @@ inline int Ambient(uint32_t id)
     default:return 0; // Actual local vegetation/dry-ground classification.
     }
 }
+struct MoteLook {float colour[3],speed,flutter;};
+inline MoteLook AmbientLook(uint32_t id) {
+    switch(For(id)) {
+    case Biome::Snow:return {{.66f,.84f,1.32f},.60f,.65f};
+    case Biome::Spirit:return {{.70f,.86f,1.20f},.55f,1.35f};
+    case Biome::Marsh:return {{.78f,1.13f,.71f},.70f,1.20f};
+    case Biome::Alien:return {{.65f,1.22f,.78f},.86f,1.45f};
+    case Biome::Volcanic:return {{1.18f,.78f,.55f},1.15f,1.25f};
+    case Biome::Ash:return {{.86f,.82f,1.12f},.65f,.65f};
+    case Biome::Coast:return {{.68f,.94f,1.18f},.78f,.80f};
+    case Biome::Forest:
+        if(id>=4000 && id<5000) {
+            // Stable regional looks, with mint, pearl-blue and lilac spores.
+            // Gardens use warm pollen; snow/ash retain their own explicit style.
+            if(id>=4676)return {{1.08f,1.04f,.78f},.65f,.75f};
+            switch(id%3) {
+            case 0:return {{.55f,.90f,1.35f},.64f,1.20f};
+            case 1:return {{.78f,1.13f,.86f},.78f,.90f};
+            default:return {{1.08f,.76f,1.22f},.58f,1.40f};
+            }
+        }
+        return {{1.f,1.f,.90f},.85f,.90f};
+    default:return {{1.f,1.f,1.f},1.f,1.f};
+    }
+}
 }

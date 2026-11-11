@@ -10,10 +10,10 @@ layout(location=4) out vec4 vPrevClip;
 layout(location=5) out float vGlow;
 vec3 Position(vec3 origin,float t,float seed,float kind,float variant) {
     // Different small paths rather than a synchronized sheet of sine waves.
-    float speed=.28+.55*fract(seed*2.731), phase=t*speed;
+    float speed=(.28+.55*fract(seed*2.731))*R.curtains.y, phase=t*speed;
     vec3 spread=vec3(sin(seed*7.17)*3.8,fract(seed*3.17)*1.5,cos(seed*5.37)*3.8);
     if(kind<.5 || kind>8.5) { // dust/pollen: a lazy, mostly horizontal drift
-        return origin+spread+vec3(sin(phase*.24+seed)*2.3,.8+.7*sin(phase*.31+seed),cos(phase*.19+seed)*1.8);
+        return origin+spread+vec3(sin(phase*.24+seed)*2.3,.8+.7*sin(phase*.31+seed)*R.curtains.z,cos(phase*.19+seed)*1.8);
     }
     if(kind>5.5 && kind<8.5) { // snow/ash settle, embers rise, all loop without teleports
         float rise=kind<7.5 && kind>6.5 ? 1.:-1.;
@@ -84,6 +84,8 @@ void main() {
     vColour=mix(lit,(spores ? vec3(.7,1.,.75)*1.35:vec3(.65,.95,.28)*1.7),vGlow);
     if(spirit)vColour=vec3(.32,.65,1.)*1.35;
     if(embers)vColour=vec3(1.,.24,.035)*1.7;
+    // Regional ambience only: no change to scene exposure or lighting.
+    vColour*=R.colour.rgb;
     vAlpha=clamp(opacity,0.,.75);
     const vec2 corners[6]=vec2[](vec2(-1,-1),vec2(1,-1),vec2(1,1),vec2(-1,-1),vec2(1,1),vec2(-1,1));
     vCorner=corners[vertex];

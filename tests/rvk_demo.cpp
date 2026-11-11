@@ -6137,7 +6137,8 @@ int main(int argc, char** argv)
             if(std::filesystem::exists(prefix+"_orm.png"))files.packed=prefix+"_orm.png";
             if(std::filesystem::exists(prefix+"_e.png"))files.emissive=prefix+"_e.png";
             const auto decoded=maps::Decode(files);
-            if(checked<32)std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
+            // Full-inventory audits need the resident size of every material.
+            std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
             const uint32_t pixel=0xFF808080;
             Texture* base=dev.CreateTexture(1,1,&pixel);
             unsigned kind=0,id=0;std::sscanf(std::filesystem::path(prefix).filename().string().c_str(),"%u_%u",&kind,&id);

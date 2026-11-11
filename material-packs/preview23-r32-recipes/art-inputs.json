@@ -1,0 +1,2224 @@
+[
+  {
+    "identity": "1010004:100040",
+    "size": [
+      128,
+      128
+    ],
+    "name": "grid_internalteleport.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100040.png"
+  },
+  {
+    "identity": "1010004:100086",
+    "size": [
+      128,
+      32
+    ],
+    "name": "startupo_entrancesign1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100086.png"
+  },
+  {
+    "identity": "1010004:100096",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number19.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100096.png"
+  },
+  {
+    "identity": "1010004:100102",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number11.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100102.png"
+  },
+  {
+    "identity": "1010004:100108",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number14.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100108.png"
+  },
+  {
+    "identity": "1010004:100114",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number18.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100114.png"
+  },
+  {
+    "identity": "1010004:100121",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number3.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100121.png"
+  },
+  {
+    "identity": "1010004:100127",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number6.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100127.png"
+  },
+  {
+    "identity": "1010004:100133",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupo_number9.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100133.png"
+  },
+  {
+    "identity": "1010004:100147",
+    "size": [
+      128,
+      32
+    ],
+    "name": "startupn_entrancesign1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100147.png"
+  },
+  {
+    "identity": "1010004:100152",
+    "size": [
+      256,
+      64
+    ],
+    "name": "startupc_entrancesign1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100152.png"
+  },
+  {
+    "identity": "1010004:100154",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber20.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100154.png"
+  },
+  {
+    "identity": "1010004:100156",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber10.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100156.png"
+  },
+  {
+    "identity": "1010004:100158",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber11.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100158.png"
+  },
+  {
+    "identity": "1010004:100160",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber12.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100160.png"
+  },
+  {
+    "identity": "1010004:100162",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber13.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100162.png"
+  },
+  {
+    "identity": "1010004:100164",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber14.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100164.png"
+  },
+  {
+    "identity": "1010004:100166",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber15.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100166.png"
+  },
+  {
+    "identity": "1010004:100168",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber16.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100168.png"
+  },
+  {
+    "identity": "1010004:100170",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber17.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100170.png"
+  },
+  {
+    "identity": "1010004:100172",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber18.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100172.png"
+  },
+  {
+    "identity": "1010004:100174",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber19.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100174.png"
+  },
+  {
+    "identity": "1010004:100176",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100176.png"
+  },
+  {
+    "identity": "1010004:100178",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100178.png"
+  },
+  {
+    "identity": "1010004:100180",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber3.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100180.png"
+  },
+  {
+    "identity": "1010004:100182",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber4.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100182.png"
+  },
+  {
+    "identity": "1010004:100184",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber5.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100184.png"
+  },
+  {
+    "identity": "1010004:100186",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber6.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100186.png"
+  },
+  {
+    "identity": "1010004:100188",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber7.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100188.png"
+  },
+  {
+    "identity": "1010004:100190",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber8.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100190.png"
+  },
+  {
+    "identity": "1010004:100192",
+    "size": [
+      32,
+      32
+    ],
+    "name": "startupc_entrancenumber9.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100192.png"
+  },
+  {
+    "identity": "1010004:100291",
+    "size": [
+      128,
+      64
+    ],
+    "name": "startupn_junkyardsign.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100291.png"
+  },
+  {
+    "identity": "1010004:100478",
+    "size": [
+      256,
+      64
+    ],
+    "name": "startupc_exittocity.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100478.png"
+  },
+  {
+    "identity": "1010004:100990",
+    "size": [
+      64,
+      32
+    ],
+    "name": "icc_sign1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_100990.png"
+  },
+  {
+    "identity": "1010004:10939",
+    "size": [
+      128,
+      128
+    ],
+    "name": "techbar_bar-neonsign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_10939.png"
+  },
+  {
+    "identity": "1010004:11641",
+    "size": [
+      256,
+      256
+    ],
+    "name": "omnicop_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_11641.png"
+  },
+  {
+    "identity": "1010004:11644",
+    "size": [
+      256,
+      256
+    ],
+    "name": "philipross_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_11644.png"
+  },
+  {
+    "identity": "1010004:116761",
+    "size": [
+      128,
+      128
+    ],
+    "name": "newbie-help-symbol_new_2.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_116761.png"
+  },
+  {
+    "identity": "1010004:120816",
+    "size": [
+      256,
+      64
+    ],
+    "name": "chalksign_facility2.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_120816.png"
+  },
+  {
+    "identity": "1010004:121466",
+    "size": [
+      256,
+      128
+    ],
+    "name": "hq_omnitekcurve1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_121466.png"
+  },
+  {
+    "identity": "1010004:130480",
+    "size": [
+      64,
+      64
+    ],
+    "name": "food_item_bottle_of_wine.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_130480.png"
+  },
+  {
+    "identity": "1010004:130481",
+    "size": [
+      32,
+      32
+    ],
+    "name": "food_item_soda-can.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_130481.png"
+  },
+  {
+    "identity": "1010004:136572",
+    "size": [
+      64,
+      64
+    ],
+    "name": "food_bottle_of_beer.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_136572.png"
+  },
+  {
+    "identity": "1010004:154889",
+    "size": [
+      128,
+      256
+    ],
+    "name": "council_of_truth_logo-banner.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_154889.png"
+  },
+  {
+    "identity": "1010004:156651",
+    "size": [
+      32,
+      32
+    ],
+    "name": "bear2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156651.png"
+  },
+  {
+    "identity": "1010004:156656",
+    "size": [
+      32,
+      32
+    ],
+    "name": "bear1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156656.png"
+  },
+  {
+    "identity": "1010004:156658",
+    "size": [
+      32,
+      32
+    ],
+    "name": "wine2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156658.png"
+  },
+  {
+    "identity": "1010004:156661",
+    "size": [
+      32,
+      32
+    ],
+    "name": "wine3.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156661.png"
+  },
+  {
+    "identity": "1010004:156664",
+    "size": [
+      32,
+      32
+    ],
+    "name": "wine5.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156664.png"
+  },
+  {
+    "identity": "1010004:156666",
+    "size": [
+      32,
+      32
+    ],
+    "name": "wine1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156666.png"
+  },
+  {
+    "identity": "1010004:156681",
+    "size": [
+      64,
+      64
+    ],
+    "name": "arghh2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156681.png"
+  },
+  {
+    "identity": "1010004:156684",
+    "size": [
+      64,
+      64
+    ],
+    "name": "arghh1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156684.png"
+  },
+  {
+    "identity": "1010004:156714",
+    "size": [
+      128,
+      64
+    ],
+    "name": "bar.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_156714.png"
+  },
+  {
+    "identity": "1010004:15850",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_critters_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15850.png"
+  },
+  {
+    "identity": "1010004:15860",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_medical_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15860.png"
+  },
+  {
+    "identity": "1010004:15863",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_weapons_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_15863.png"
+  },
+  {
+    "identity": "1010004:161031",
+    "size": [
+      256,
+      256
+    ],
+    "name": "ticketmachine.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161031.png"
+  },
+  {
+    "identity": "1010004:161040",
+    "size": [
+      256,
+      128
+    ],
+    "name": "mongologoneon_broken.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161040.png"
+  },
+  {
+    "identity": "1010004:161044",
+    "size": [
+      256,
+      64
+    ],
+    "name": "logo_broken.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161044.png"
+  },
+  {
+    "identity": "1010004:161055",
+    "size": [
+      256,
+      128
+    ],
+    "name": "brontoburgerlogohbroken.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_161055.png"
+  },
+  {
+    "identity": "1010004:164686",
+    "size": [
+      128,
+      64
+    ],
+    "name": "sign_hub_warningwildlife.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164686.png"
+  },
+  {
+    "identity": "1010004:164690",
+    "size": [
+      256,
+      64
+    ],
+    "name": "sign_hub_exit.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164690.png"
+  },
+  {
+    "identity": "1010004:164881",
+    "size": [
+      512,
+      512
+    ],
+    "name": "omnitek_poster.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_164881.png"
+  },
+  {
+    "identity": "1010004:165010",
+    "size": [
+      256,
+      64
+    ],
+    "name": "animated_rope.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_165010.png"
+  },
+  {
+    "identity": "1010004:20398",
+    "size": [
+      256,
+      128
+    ],
+    "name": "baboon_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_20398.png"
+  },
+  {
+    "identity": "1010004:204219",
+    "size": [
+      256,
+      256
+    ],
+    "name": "cardboardbox_txt.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204219.png"
+  },
+  {
+    "identity": "1010004:204221",
+    "size": [
+      128,
+      128
+    ],
+    "name": "cardboardbox_txt_inside_posteron.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204221.png"
+  },
+  {
+    "identity": "1010004:204224",
+    "size": [
+      128,
+      256
+    ],
+    "name": "cardboardbox_txt_plain_poster.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_204224.png"
+  },
+  {
+    "identity": "1010004:205142",
+    "size": [
+      128,
+      128
+    ],
+    "name": "fightclub_boxingbag.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_205142.png"
+  },
+  {
+    "identity": "1010004:206074",
+    "size": [
+      256,
+      512
+    ],
+    "name": "ark_posters.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_206074.png"
+  },
+  {
+    "identity": "1010004:207005",
+    "size": [
+      256,
+      256
+    ],
+    "name": "confetti_heart.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_207005.png"
+  },
+  {
+    "identity": "1010004:224252",
+    "size": [
+      256,
+      128
+    ],
+    "name": "salvaged_items_sign_alienlanguage.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_224252.png"
+  },
+  {
+    "identity": "1010004:224257",
+    "size": [
+      256,
+      64
+    ],
+    "name": "vault_sign_alienlanguage.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_224257.png"
+  },
+  {
+    "identity": "1010004:242959",
+    "size": [
+      512,
+      256
+    ],
+    "name": "arkpaintings_main.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_242959.png"
+  },
+  {
+    "identity": "1010004:242965",
+    "size": [
+      512,
+      256
+    ],
+    "name": "arkpaintings2_main.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_242965.png"
+  },
+  {
+    "identity": "1010004:242971",
+    "size": [
+      256,
+      256
+    ],
+    "name": "ark_landingspot.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_242971.png"
+  },
+  {
+    "identity": "1010004:245535",
+    "size": [
+      128,
+      128
+    ],
+    "name": "prison_signs_elevator_down_v01.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_245535.png"
+  },
+  {
+    "identity": "1010004:245543",
+    "size": [
+      256,
+      256
+    ],
+    "name": "prison_sign_01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_245543.png"
+  },
+  {
+    "identity": "1010004:245791",
+    "size": [
+      256,
+      128
+    ],
+    "name": "lampleverwarning2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_245791.png"
+  },
+  {
+    "identity": "1010004:245796",
+    "size": [
+      256,
+      256
+    ],
+    "name": "lampleverwarning.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_245796.png"
+  },
+  {
+    "identity": "1010004:249149",
+    "size": [
+      1024,
+      1024
+    ],
+    "name": "Tactical_room_map_sheet.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_249149.png"
+  },
+  {
+    "identity": "1010004:250497",
+    "size": [
+      256,
+      256
+    ],
+    "name": "sign_metal.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_250497.png"
+  },
+  {
+    "identity": "1010004:254242",
+    "size": [
+      512,
+      256
+    ],
+    "name": "ai_city_sign_baboons.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_254242.png"
+  },
+  {
+    "identity": "1010004:255447",
+    "size": [
+      512,
+      256
+    ],
+    "name": "reet-retreat_sign_teleporter.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_255447.png"
+  },
+  {
+    "identity": "1010004:255758",
+    "size": [
+      128,
+      512
+    ],
+    "name": "ai_banner_omni-tek2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_255758.png"
+  },
+  {
+    "identity": "1010004:256200",
+    "size": [
+      128,
+      512
+    ],
+    "name": "ai_banner_clan.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_256200.png"
+  },
+  {
+    "identity": "1010004:259426",
+    "size": [
+      256,
+      512
+    ],
+    "name": "computer_interface.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_259426.png"
+  },
+  {
+    "identity": "1010004:259447",
+    "size": [
+      1024,
+      1024
+    ],
+    "name": "security_teleport.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_259447.png"
+  },
+  {
+    "identity": "1010004:259449",
+    "size": [
+      256,
+      128
+    ],
+    "name": "security_teleport_screen.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_259449.png"
+  },
+  {
+    "identity": "1010004:260072",
+    "size": [
+      512,
+      256
+    ],
+    "name": "omniposter01.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_260072.png"
+  },
+  {
+    "identity": "1010004:265393",
+    "size": [
+      512,
+      512
+    ],
+    "name": "ep03_terminals_screens.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_265393.png"
+  },
+  {
+    "identity": "1010004:265898",
+    "size": [
+      128,
+      128
+    ],
+    "name": "ep03_spacestation_terminal.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_265898.png"
+  },
+  {
+    "identity": "1010004:27032",
+    "size": [
+      128,
+      64
+    ],
+    "name": "sign_adventurer.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27032.png"
+  },
+  {
+    "identity": "1010004:27039",
+    "size": [
+      128,
+      64
+    ],
+    "name": "sign_engineer.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27039.png"
+  },
+  {
+    "identity": "1010004:272344",
+    "size": [
+      1024,
+      256
+    ],
+    "name": "phasefront_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272344.png"
+  },
+  {
+    "identity": "1010004:272347",
+    "size": [
+      256,
+      256
+    ],
+    "name": "phasefront_sign3.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272347.png"
+  },
+  {
+    "identity": "1010004:272348",
+    "size": [
+      256,
+      256
+    ],
+    "name": "phasefront_sign2.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272348.png"
+  },
+  {
+    "identity": "1010004:272349",
+    "size": [
+      256,
+      256
+    ],
+    "name": "phasefront_sign4.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_272349.png"
+  },
+  {
+    "identity": "1010004:27697",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_nanos_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_27697.png"
+  },
+  {
+    "identity": "1010004:280976",
+    "size": [
+      256,
+      256
+    ],
+    "name": "wedding_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_280976.png"
+  },
+  {
+    "identity": "1010004:281894",
+    "size": [
+      32,
+      32
+    ],
+    "name": "100transp.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_281894.png"
+  },
+  {
+    "identity": "1010004:282008",
+    "size": [
+      512,
+      512
+    ],
+    "name": "bigeds_bottle.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282008.png"
+  },
+  {
+    "identity": "1010004:282017",
+    "size": [
+      256,
+      256
+    ],
+    "name": "nc_rooflogo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282017.png"
+  },
+  {
+    "identity": "1010004:282019",
+    "size": [
+      512,
+      512
+    ],
+    "name": "nc_go_juice_orange.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282019.png"
+  },
+  {
+    "identity": "1010004:282042",
+    "size": [
+      512,
+      512
+    ],
+    "name": "nc_go_juice_blue.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282042.png"
+  },
+  {
+    "identity": "1010004:282045",
+    "size": [
+      512,
+      512
+    ],
+    "name": "nc_go_juice_green.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_282045.png"
+  },
+  {
+    "identity": "1010004:283512",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283512.png"
+  },
+  {
+    "identity": "1010004:283513",
+    "size": [
+      128,
+      256
+    ],
+    "name": "qo_reception_computer.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283513.png"
+  },
+  {
+    "identity": "1010004:283545",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_02.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283545.png"
+  },
+  {
+    "identity": "1010004:283547",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_03.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283547.png"
+  },
+  {
+    "identity": "1010004:283549",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_04.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283549.png"
+  },
+  {
+    "identity": "1010004:283551",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_05.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283551.png"
+  },
+  {
+    "identity": "1010004:283553",
+    "size": [
+      256,
+      512
+    ],
+    "name": "qo_rollscreen.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283553.png"
+  },
+  {
+    "identity": "1010004:283559",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qo_screenimage_06.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283559.png"
+  },
+  {
+    "identity": "1010004:283653",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qoot_screenimage_01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283653.png"
+  },
+  {
+    "identity": "1010004:283659",
+    "size": [
+      256,
+      128
+    ],
+    "name": "qoot_screenimage_02.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283659.png"
+  },
+  {
+    "identity": "1010004:283876",
+    "size": [
+      256,
+      256
+    ],
+    "name": "halloween_placard_pumpkin.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283876.png"
+  },
+  {
+    "identity": "1010004:283878",
+    "size": [
+      256,
+      256
+    ],
+    "name": "halloween_placard_u.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_283878.png"
+  },
+  {
+    "identity": "1010004:284026",
+    "size": [
+      256,
+      256
+    ],
+    "name": "halloween_placard_no.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284026.png"
+  },
+  {
+    "identity": "1010004:284192",
+    "size": [
+      256,
+      256
+    ],
+    "name": "halloween_placard_lessthanthree.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284192.png"
+  },
+  {
+    "identity": "1010004:284952",
+    "size": [
+      512,
+      512
+    ],
+    "name": "unicorn_panelscreen01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284952.png"
+  },
+  {
+    "identity": "1010004:284997",
+    "size": [
+      256,
+      64
+    ],
+    "name": "neutral_bar_sign.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_284997.png"
+  },
+  {
+    "identity": "1010004:285357",
+    "size": [
+      512,
+      512
+    ],
+    "name": "dqi_bombkit_omni.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_285357.png"
+  },
+  {
+    "identity": "1010004:287294",
+    "size": [
+      768,
+      192
+    ],
+    "name": "8-bitposter.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_287294.png"
+  },
+  {
+    "identity": "1010004:288570",
+    "size": [
+      512,
+      512
+    ],
+    "name": "halloween_nanospray_skullnbones.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_288570.png"
+  },
+  {
+    "identity": "1010004:288577",
+    "size": [
+      512,
+      512
+    ],
+    "name": "halloween_nanospray_candycorn.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_288577.png"
+  },
+  {
+    "identity": "1010004:288632",
+    "size": [
+      512,
+      512
+    ],
+    "name": "halloween_nanospray_beast.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_288632.png"
+  },
+  {
+    "identity": "1010004:288633",
+    "size": [
+      512,
+      512
+    ],
+    "name": "halloween_nanospray_skeleton.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_288633.png"
+  },
+  {
+    "identity": "1010004:289474",
+    "size": [
+      512,
+      512
+    ],
+    "name": "bottle_leet_fizz_especial.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_289474.png"
+  },
+  {
+    "identity": "1010004:289488",
+    "size": [
+      512,
+      512
+    ],
+    "name": "bottle_apple_cider.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_289488.png"
+  },
+  {
+    "identity": "1010004:289524",
+    "size": [
+      512,
+      512
+    ],
+    "name": "crunk_goblet.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_289524.png"
+  },
+  {
+    "identity": "1010004:290012",
+    "size": [
+      512,
+      512
+    ],
+    "name": "bd2010_jetpack_hud_randy_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_290012.png"
+  },
+  {
+    "identity": "1010004:290196",
+    "size": [
+      1024,
+      1024
+    ],
+    "name": "bsmap01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_290196.png"
+  },
+  {
+    "identity": "1010004:292036",
+    "size": [
+      256,
+      128
+    ],
+    "name": "NEUTRAL_sign_sitting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292036.png"
+  },
+  {
+    "identity": "1010004:292037",
+    "size": [
+      256,
+      128
+    ],
+    "name": "NEUTRAL_sign_flowers.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292037.png"
+  },
+  {
+    "identity": "1010004:292562",
+    "size": [
+      512,
+      256
+    ],
+    "name": "1st_winners_db3_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_292562.png"
+  },
+  {
+    "identity": "1010004:293360",
+    "size": [
+      512,
+      256
+    ],
+    "name": "shopping_bag_halloween_pumpkinhead.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_293360.png"
+  },
+  {
+    "identity": "1010004:293362",
+    "size": [
+      512,
+      256
+    ],
+    "name": "shopping_bag_halloween_moon.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_293362.png"
+  },
+  {
+    "identity": "1010004:293364",
+    "size": [
+      512,
+      256
+    ],
+    "name": "shopping_bag_halloween_skull.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_293364.png"
+  },
+  {
+    "identity": "1010004:293798",
+    "size": [
+      256,
+      128
+    ],
+    "name": "omnimed_screenimage_01.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_293798.png"
+  },
+  {
+    "identity": "1010004:293799",
+    "size": [
+      256,
+      128
+    ],
+    "name": "omnimed_screenimage_02.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_293799.png"
+  },
+  {
+    "identity": "1010004:294505",
+    "size": [
+      256,
+      256
+    ],
+    "name": "basic_cardboard_side2_d copy.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294505.png"
+  },
+  {
+    "identity": "1010004:294506",
+    "size": [
+      256,
+      256
+    ],
+    "name": "basic_cardboard_side1_d copy.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294506.png"
+  },
+  {
+    "identity": "1010004:294611",
+    "size": [
+      512,
+      256
+    ],
+    "name": "wedding_painting_camelot_castle.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294611.png"
+  },
+  {
+    "identity": "1010004:294621",
+    "size": [
+      512,
+      256
+    ],
+    "name": "wedding_painting_notum_tree.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_294621.png"
+  },
+  {
+    "identity": "1010004:295348",
+    "size": [
+      512,
+      512
+    ],
+    "name": "testlive_reward_nanospray_logo.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_295348.png"
+  },
+  {
+    "identity": "1010004:295355",
+    "size": [
+      512,
+      512
+    ],
+    "name": "testlive_reward_nanospray_logo_blue.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_295355.png"
+  },
+  {
+    "identity": "1010004:296030",
+    "size": [
+      512,
+      256
+    ],
+    "name": "new_terminal_icc_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_296030.png"
+  },
+  {
+    "identity": "1010004:296439",
+    "size": [
+      256,
+      256
+    ],
+    "name": "grass01_tileable.png",
+    "category": "visible_grass_ground_identity",
+    "reason": "World-table grass on ICC meshes; preserve ground identity.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_296439.png"
+  },
+  {
+    "identity": "1010004:297216",
+    "size": [
+      128,
+      64
+    ],
+    "name": "entrancekeygenerator.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297216.png"
+  },
+  {
+    "identity": "1010004:297249",
+    "size": [
+      128,
+      256
+    ],
+    "name": "poster_omni_pol_logo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297249.png"
+  },
+  {
+    "identity": "1010004:297251",
+    "size": [
+      128,
+      256
+    ],
+    "name": "poster_omni_trans_logo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297251.png"
+  },
+  {
+    "identity": "1010004:297253",
+    "size": [
+      128,
+      256
+    ],
+    "name": "poster_omni_otaf_logo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297253.png"
+  },
+  {
+    "identity": "1010004:297256",
+    "size": [
+      128,
+      256
+    ],
+    "name": "poster_omni_med_logo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297256.png"
+  },
+  {
+    "identity": "1010004:297379",
+    "size": [
+      1024,
+      512
+    ],
+    "name": "outdoor_clinic_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297379.png"
+  },
+  {
+    "identity": "1010004:297380",
+    "size": [
+      256,
+      128
+    ],
+    "name": "oc_screen_right_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297380.png"
+  },
+  {
+    "identity": "1010004:297381",
+    "size": [
+      256,
+      128
+    ],
+    "name": "oc_screen_left_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297381.png"
+  },
+  {
+    "identity": "1010004:297382",
+    "size": [
+      128,
+      256
+    ],
+    "name": "oc_screen_mid_d.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_297382.png"
+  },
+  {
+    "identity": "1010004:30962",
+    "size": [
+      256,
+      64
+    ],
+    "name": "4h_officesign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_30962.png"
+  },
+  {
+    "identity": "1010004:31081",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31081.png"
+  },
+  {
+    "identity": "1010004:31083",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan3_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31083.png"
+  },
+  {
+    "identity": "1010004:31085",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan4_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31085.png"
+  },
+  {
+    "identity": "1010004:31087",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan5_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31087.png"
+  },
+  {
+    "identity": "1010004:31089",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan6_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31089.png"
+  },
+  {
+    "identity": "1010004:31091",
+    "size": [
+      256,
+      256
+    ],
+    "name": "clan2_painting.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31091.png"
+  },
+  {
+    "identity": "1010004:31350",
+    "size": [
+      128,
+      32
+    ],
+    "name": "4h_storagessign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_31350.png"
+  },
+  {
+    "identity": "1010004:32462",
+    "size": [
+      128,
+      128
+    ],
+    "name": "avalon_sign_crappycrappy.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_32462.png"
+  },
+  {
+    "identity": "1010004:32494",
+    "size": [
+      128,
+      64
+    ],
+    "name": "4h_livingqsign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_32494.png"
+  },
+  {
+    "identity": "1010004:35873",
+    "size": [
+      128,
+      64
+    ],
+    "name": "hq_adm_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35873.png"
+  },
+  {
+    "identity": "1010004:35881",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_bank_overdoorsign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35881.png"
+  },
+  {
+    "identity": "1010004:35967",
+    "size": [
+      128,
+      32
+    ],
+    "name": "hq_mine_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_35967.png"
+  },
+  {
+    "identity": "1010004:36167",
+    "size": [
+      128,
+      32
+    ],
+    "name": "omni_mine_hq_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_36167.png"
+  },
+  {
+    "identity": "1010004:39997",
+    "size": [
+      128,
+      64
+    ],
+    "name": "omniminecorp_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_39997.png"
+  },
+  {
+    "identity": "1010004:40463",
+    "size": [
+      256,
+      128
+    ],
+    "name": "manic-miner-logo.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_40463.png"
+  },
+  {
+    "identity": "1010004:41609",
+    "size": [
+      64,
+      64
+    ],
+    "name": "omni_booth_registration_sign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41609.png"
+  },
+  {
+    "identity": "1010004:41965",
+    "size": [
+      256,
+      32
+    ],
+    "name": "sign_backside_blank.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41965.png"
+  },
+  {
+    "identity": "1010004:41978",
+    "size": [
+      256,
+      128
+    ],
+    "name": "hq_omnimedbigsign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_41978.png"
+  },
+  {
+    "identity": "1010004:43427",
+    "size": [
+      128,
+      128
+    ],
+    "name": "wanted_poster1.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_43427.png"
+  },
+  {
+    "identity": "1010004:43432",
+    "size": [
+      128,
+      128
+    ],
+    "name": "oldpaper_poster1.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_43432.png"
+  },
+  {
+    "identity": "1010004:70646",
+    "size": [
+      32,
+      32
+    ],
+    "name": "subway_toilets_woman.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_70646.png"
+  },
+  {
+    "identity": "1010004:70650",
+    "size": [
+      32,
+      32
+    ],
+    "name": "subway_toilets_man.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_70650.png"
+  },
+  {
+    "identity": "1010004:70659",
+    "size": [
+      128,
+      32
+    ],
+    "name": "omnitrans_kiosk_sign_subway.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_70659.png"
+  },
+  {
+    "identity": "1010004:85153",
+    "size": [
+      256,
+      128
+    ],
+    "name": "icchq1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_85153.png"
+  },
+  {
+    "identity": "1010004:85930",
+    "size": [
+      256,
+      64
+    ],
+    "name": "omni_subway_board.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_85930.png"
+  },
+  {
+    "identity": "1010004:85955",
+    "size": [
+      128,
+      128
+    ],
+    "name": "tile-galwpool2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_85955.png"
+  },
+  {
+    "identity": "1010004:85970",
+    "size": [
+      64,
+      32
+    ],
+    "name": "omni_shop_osign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_85970.png"
+  },
+  {
+    "identity": "1010004:8711",
+    "size": [
+      256,
+      128
+    ],
+    "name": "head_solitusmale_default.png",
+    "category": "retained_character_equipment_or_prop_atlas",
+    "reason": "Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_8711.png"
+  },
+  {
+    "identity": "1010004:88063",
+    "size": [
+      256,
+      256
+    ],
+    "name": "gridroof_lowerleft.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_88063.png"
+  },
+  {
+    "identity": "1010004:88064",
+    "size": [
+      256,
+      256
+    ],
+    "name": "gridroof_upperright.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_88064.png"
+  },
+  {
+    "identity": "1010004:88065",
+    "size": [
+      256,
+      256
+    ],
+    "name": "gridroof_upperleft.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_88065.png"
+  },
+  {
+    "identity": "1010004:88066",
+    "size": [
+      256,
+      256
+    ],
+    "name": "gridroof_lowerright.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_88066.png"
+  },
+  {
+    "identity": "1010004:90428",
+    "size": [
+      64,
+      32
+    ],
+    "name": "grinner_box.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_90428.png"
+  },
+  {
+    "identity": "1010004:90432",
+    "size": [
+      128,
+      32
+    ],
+    "name": "heavy_sniper_box.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_90432.png"
+  },
+  {
+    "identity": "1010004:90436",
+    "size": [
+      32,
+      32
+    ],
+    "name": "hood_box1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_90436.png"
+  },
+  {
+    "identity": "1010004:90439",
+    "size": [
+      64,
+      64
+    ],
+    "name": "nano_box.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_90439.png"
+  },
+  {
+    "identity": "1010004:99646",
+    "size": [
+      256,
+      64
+    ],
+    "name": "neutral_prisonsign1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99646.png"
+  },
+  {
+    "identity": "1010004:99709",
+    "size": [
+      256,
+      64
+    ],
+    "name": "clan_toparksign.png",
+    "category": "retained_fidelity_source_missing",
+    "reason": "Original source recovered from the local game database. Faithful HD restoration and validation are still pending; source absence no longer explains retention.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99709.png"
+  },
+  {
+    "identity": "1010004:99747",
+    "size": [
+      128,
+      64
+    ],
+    "name": "startupo_pidestaltext2.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99747.png"
+  },
+  {
+    "identity": "1010004:99748",
+    "size": [
+      128,
+      64
+    ],
+    "name": "startupo_pidestaltext1.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99748.png"
+  },
+  {
+    "identity": "1010004:99749",
+    "size": [
+      128,
+      64
+    ],
+    "name": "startupo_pidestaltext4.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99749.png"
+  },
+  {
+    "identity": "1010004:99750",
+    "size": [
+      128,
+      64
+    ],
+    "name": "startupo_pidestaltext3.png",
+    "category": "exact_fidelity_graphics_text_UI",
+    "reason": "Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99750.png"
+  },
+  {
+    "identity": "1010004:99824",
+    "size": [
+      128,
+      64
+    ],
+    "name": "spritefont.png",
+    "category": "reviewed_exact_graphic_or_font",
+    "reason": "The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",
+    "original": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\overhaul-final-pass\\originals\\1010004_99824.png"
+  }
+]

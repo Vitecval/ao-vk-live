@@ -1,0 +1,50 @@
+[
+  {
+    "name": "ground-sand",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless HD albedo master material for an Anarchy Online terrain restoration. Make a square 2048x2048 flat orthographic texture of warm golden fine desert sand, closely packed mineral grains, occasional tiny pale quartz flecks. Real resolved microdetail throughout, even distribution, restrained contrast, no dunes or large pebbles, no directional shadows, no ambient occlusion, no specular highlights, no lighting gradients, no vignette, no border, no text. Seamlessly tile on all four edges. This is a single ground material filling the full canvas, not a landscape, collage or material sample ball.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-9343eb2c-1290-48a3-819a-537ab7393561.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-sand-r32.png"
+  },
+  {
+    "name": "ground-grass",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless 2048x2048 HD albedo terrain master for Anarchy Online. Dense short natural grass with narrow individual olive and fresh green blades, tiny clover and very little dark soil; even coverage; no tall stems, flowers or large leaves. Flat orthographic texture entirely filling a square canvas, physically plausible resolved small surface detail. Neutral diffuse illumination only, no directional shadows, no specular highlights, no lighting gradients, no AO, no vignette, no borders, no text, no landscape, no collage. Even contrast, seamlessly tile all four sides.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-2089c407-b96c-44c6-a93c-9a602c2d3b64.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-grass-r32.png"
+  },
+  {
+    "name": "ground-rock",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless 2048x2048 HD albedo terrain master for Anarchy Online. Weathered neutral gray bedrock, fine resolved mineral grains, shallow angular fissures and chipped stone texture; no loose large boulders, deep pits or strongly shadowed cracks. Flat orthographic texture entirely filling a square canvas, physically plausible resolved small surface detail. Neutral diffuse illumination only, no directional shadows, no specular highlights, no lighting gradients, no AO, no vignette, no borders, no text, no landscape, no collage. Even contrast, seamlessly tile all four sides.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-9d337119-5359-434d-9a4a-645af8343fd8.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-rock-r32.png"
+  },
+  {
+    "name": "ground-soil",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless 2048x2048 HD albedo terrain master for Anarchy Online. Dark warm brown compact forest soil, very fine earthy crumbs, small broken root fibres and sparse decomposed leaf fragments; no large leaves, rocks, footprints or patches of grass. Flat orthographic texture entirely filling a square canvas, physically plausible resolved small surface detail. Neutral diffuse illumination only, no directional shadows, no specular highlights, no lighting gradients, no AO, no vignette, no borders, no text, no landscape, no collage. Even contrast, seamlessly tile all four sides.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-f66595e9-97f8-4cac-ad6a-bd561351a3e3.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-soil-r32.png"
+  },
+  {
+    "name": "ground-snow",
+    "prompt": "Use case: photorealistic-natural. Asset type: single seamless HD albedo terrain master for Anarchy Online. Square 2048x2048. Clean pale blue-white settled snow, fine packed ice crystals and subtle wind combing, gently irregular granular surface; no footprints, drifts, rocks or dark holes. Flat orthographic material entirely filling canvas. Resolved fine surface detail, neutral diffuse illumination, no directional shadows, no specular, no lighting gradients, no AO, no vignette or frame or text. Seamlessly tile all sides. Not a landscape or collage.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-b9b9b739-fc13-4596-b1c7-c8257f1518bb.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-snow-r32.png"
+  },
+  {
+    "name": "ground-asphalt",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless 2048x2048 HD albedo material for Anarchy Online ground. Fine neutral charcoal asphalt aggregate, densely packed tiny gray mineral chips, smooth worn ground surface with restrained fine grit. No lane markings, seams, potholes, large stones or painted shapes. Flat orthographic material fills the full square. Resolved high resolution microdetail, neutral diffuse lighting only. No directional shadows, highlights, gradients, vignette, frame, text, landscape or collage. Tile seamlessly on all four sides.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-c57d8879-4440-499d-9e6a-b0567b6bf574.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-asphalt-r32.png"
+  },
+  {
+    "name": "ground-litter",
+    "prompt": "Use case: photorealistic-natural. Asset type: one seamless 2048x2048 HD albedo ground master. Forest floor of densely packed tiny decomposed brown oak leaves, dark moss fibres, very fine broken twig fragments and humus. Small leaf scales, even distribution, no large isolated subjects, no grass. Flat orthographic square entirely filled by material. Actual crisp fine detail, neutral diffuse lighting only, no directional shadows, highlights, lighting gradients, AO, vignette, text, landscape, border or collage. Seamless all four sides.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-283d00ad-afc7-4c5d-9a65-3a76f04fca5a.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-litter-r32.png"
+  },
+  {
+    "name": "ground-gravel",
+    "prompt": "Use case: photorealistic-natural. Asset type: single seamless 2048x2048 HD albedo terrain master. Pale warm gray compact gravel with very small angular quartz, limestone grit and muted blue gray mineral chips. Dense even grain distribution, no large rocks, no isolated boulders or shadows, no dunes. Flat orthographic material completely fills a square. Actual resolved fine detail, restrained contrast, neutral diffuse illumination, no specular highlights, directional lighting, gradients, AO, vignette, borders, text, scene or collage. Tile seamlessly all edges.",
+    "generatedPath": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-e76c6107-9eb3-4f7c-bce6-b1e1d55abcdf.png",
+    "source": "material-packs/ao-cyber-world/source-art/preview23-ground-gravel-r32.png"
+  }
+]

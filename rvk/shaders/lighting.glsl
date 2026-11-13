@@ -26,7 +26,7 @@ vec3 PbrSpecular(vec3 n, vec3 L, vec3 V)
     float vis = 0.5 / (nl * sqrt(nv * nv * (1.0 - a2) + a2) + nv * sqrt(nl * nl * (1.0 - a2) + a2) + 1e-5);
     float f = pow(1.0 - vh, 5.0);
     vec3 F = gPbrF0 + (1.0 - gPbrF0) * f;
-    return F * (ndf * vis * nl * kPbrPi);
+    return F * (ndf * vis * nl * kPbrPi) * FL.windowLife.w;
 }
 
 // The split-sum environment term without its lookup table (Karis, "Physically Based Shading on Mobile").
@@ -47,6 +47,19 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
     if (type == 3u) {
         L = -normalize(l.direction.xyz);
         att = sunScale;                          // shadowed sunlight (1 = unshadowed)
+        // Only the actual outdoor sun: stronger warm-neutral daylight, still
+        // Lambert-shaped by the surface and shadowed by the existing maps.
+        // Effect directionals, studio lights and the sky dome are untouched.
+        float sunny = FL.windowLife.z * (1.0 - FL.rainNear.y);
+        if (sunny > 0.0 && (D.mat.z & MAT_SKY) == 0u &&
+            dot(L, FL.sunTrue.xyz) > .99) {
+            float energy = dot(l.diffuse.rgb, vec3(.3,.59,.11));
+            vec3 daylight = vec3(1.025,1.0,.94) * min(max(energy,.95),energy*2.25);
+            daylight=mix(daylight,FL.areaSun.rgb*min(max(energy,.95),energy*2.25),FL.areaSky.w);
+            vec3 original = l.diffuse.rgb;
+            l.diffuse.rgb = mix(original, daylight, sunny);
+            l.specular.rgb *= mix(vec3(1.0), daylight / max(original,vec3(.04)), sunny);
+        }
     } else {
         vec3 d = l.position.xyz - posW;
         float dist = length(d);
@@ -105,7 +118,7 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
             spec += a * l.diffuse.rgb * direct * PbrSpecular(normalize(normalW), L, toEye);
     } else if ((C.flags.x & F_SPECULAR) != 0u && nl > 0.0) {
         float nh = max(dot(normalW, normalize(L + toEye)), 0.0);
-        spec += att * pow(nh, C.misc.x) * l.specular.rgb * direct;
+        spec += att * pow(nh, C.misc.x) * l.specular.rgb * direct * FL.windowLife.w;
     }
 }
 
@@ -118,6 +131,42 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
                       inout vec3 spec, inout vec3 diffLocal, inout vec3 specLocal)
 {
     vec3 toEye = (C.flags.x & F_LOCALVIEWER) != 0u || gPbr ? normalize(C.eyePos.xyz - posW) : -C.eyeDir.xyz;
+    for(int i=0;i<int(FL.shipLightConfig.x);++i) {
+        vec3 delta=FL.shipLightPos[i].xyz-posW;float distanceToLight=length(delta);
+        float falloff=max(0.,1.-distanceToLight/FL.shipLightPos[i].w);
+        float facing=max(0.,dot(normalW,delta/max(distanceToLight,.001)));
+        diffLocal+=FL.shipLightColour[i].rgb*(falloff*falloff*facing*localScale);
+    }
+    // Outdoor sky irradiance: a blue hemisphere above, less on vertical faces
+    // and undersides. Supply only what the game's ambient does not already
+    // contain. It is material light, never a screen-space exposure/gamma lift.
+    float daylight=clamp(FL.windowLife.z,0.0,1.0);
+    if(daylight>0.0 && (D.mat.z & MAT_SKY)==0u) {
+        float up=dot(normalW,normalW)>1e-8 ? normalize(normalW).y : 0.0;
+        float ambientLuma=dot(C.ambient.rgb,vec3(.3,.59,.11));
+        float irradiance=(.16+.14*max(up,0.0))*(1.0-.85*FL.rainNear.y);
+        float missing=max(irradiance-ambientLuma,0.0);
+        vec3 skyColour=vec3(.72,.86,1.0);
+        if(FL.skyUp.w>.5) {
+            vec3 sky=max(FL.skyUp.rgb,vec3(0.0));
+            float luma=dot(sky,vec3(.3,.59,.11));
+            if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
+        }
+        ambient+=skyColour*(daylight*missing);
+        skyColour=mix(skyColour,skyColour*FL.areaSky.rgb,FL.areaSky.w);
+        // Retail ICC supplies ambient 0x7e, above the floor above: that floor
+        // supplied no sky light at all to its vertical facades. Add a bounded
+        // hemisphere/bounce lobe to sides, not more exposure on sunlit floors.
+        // Both still multiply the material and its occlusion; black paint stays
+        // black. Undersides get only the small, warm reflected-ground term.
+        float side=1.0-clamp(up*up,0.0,1.0);
+        vec3 groundColour=mix(vec3(.95,.89,.78),FL.areaGround.rgb,FL.areaSky.w);
+        vec3 bounce=skyColour*(.10*side)+groundColour*(.035*(1.0-up)*.5);
+        bounce+=skyColour*FL.areaGround.w*side;
+        // Reflected energy follows the zone's ambient, rather than imposing a
+        // second lighting floor on deliberately dim/near-black materials.
+        ambient+=bounce*(daylight*clamp(2.0*ambientLuma,0.0,1.0)*(1.0-.85*FL.rainNear.y));
+    }
     for (uint i = 0u; i < C.lightInfo.x; ++i)
         AccumulateLight(C.lights[i], posW, normalW, toEye, sunScale, localScale, ambient, diff, spec);
     // Only the frame lights whose range reaches the draw's bounding box (the CPU's mask): most draws have none or a

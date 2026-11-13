@@ -19,6 +19,10 @@ for name,args in cases.items():
  text=(d/'run.txt').read_text(errors='replace');assert not re.search('VUID-|VK_ERROR|device lost|AddressSanitizer',text,re.I),name
  ims[name]=np.asarray(Image.open(d/'result.bmp').convert('RGB')).astype(int)
  dump=(d/'native-frame.txt').read_text();rep[name]={'coverage':next(s for s in dump.splitlines() if '# terrain coverage:' in s),'mean':float(ims[name].mean())};print(name,rep[name],flush=True)
+ assert 'cliff-resources=1' in dump,('asynchronous cliff resources not ready for comparison',name)
+ if not name.startswith('void'):
+  ready=re.search(r'rocks (\d+); pebbles (\d+)',dump)
+  assert ready and int(ready[1])>0 and int(ready[2])>0,('clutter resources not ready for comparison',name)
 for a,b in [('opaque','transparent'),('void-opaque','void-transparent'),('yaw-opaque','yaw-transparent')]:
  delta=int(abs(ims[a]-ims[b]).max());rep[a+'/'+b]={'max_delta':delta};assert delta<=1,(a,b,delta)
 assert 'indices 73728; hidden-cells 4096' in rep['void-opaque']['coverage'],rep

@@ -5,8 +5,8 @@
     "name": "village_rustyhorisontaltile.png",
     "source": "completion-1010004-6221-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -14,7 +14,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -22,8 +23,8 @@
     "name": "tir_pillar1.png",
     "source": "completion-1010004-38724-v2",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -31,7 +32,8 @@
     "original_aspect": [
       64,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -39,8 +41,8 @@
     "name": "door_clan_boltbeam.png",
     "source": "completion-1010004-41509-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -48,7 +50,8 @@
     "original_aspect": [
       16,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -56,8 +59,8 @@
     "name": "door_siteofdoor.png",
     "source": "completion-1010004-41512-v2",
     "size": [
-      32,
-      256
+      64,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -65,7 +68,8 @@
     "original_aspect": [
       32,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -73,8 +77,8 @@
     "name": "tir_door4plate.png",
     "source": "completion-1010004-41510-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -90,7 +94,8 @@
         0.625,
         0.625
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -98,8 +103,8 @@
     "name": "tir_pillaruppe2.png",
     "source": "completion-1010004-38722-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -107,7 +112,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -115,8 +121,8 @@
     "name": "door_glassplate.png",
     "source": "completion-1010004-41511-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "glass",
     "batch": "completion-2026-10-25",
@@ -124,7 +130,8 @@
     "original_aspect": [
       64,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -132,8 +139,8 @@
     "name": "door_clan_lampupper.png",
     "source": "completion-1010004-41513-v1",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -150,7 +157,8 @@
         0.9,
         0.85
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -158,8 +166,8 @@
     "name": "door_clan_platevent.png",
     "source": "completion-1010004-41516-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -187,7 +195,8 @@
           0.76
         ]
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -195,8 +204,8 @@
     "name": "door_cleanplate1.png",
     "source": "completion-1010004-41515-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -204,7 +213,8 @@
     "original_aspect": [
       128,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -212,8 +222,8 @@
     "name": "Floorplate_grid.png",
     "source": "completion-1010004-8466-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "grate",
     "batch": "completion-2026-10-25",
@@ -221,7 +231,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -229,8 +240,8 @@
     "name": "door_clan_corneredge.png",
     "source": "completion-1010004-41514-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -238,7 +249,8 @@
     "original_aspect": [
       64,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -246,8 +258,8 @@
     "name": "tir_pillar2.png",
     "source": "completion-1010004-38735-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -255,7 +267,8 @@
     "original_aspect": [
       64,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -263,8 +276,8 @@
     "name": "entwall_lowplainplate_flooredge.png",
     "source": "completion-1010004-23139-v1",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -272,7 +285,8 @@
     "original_aspect": [
       256,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -280,8 +294,8 @@
     "name": "newclan_metaldoor1.png",
     "source": "completion-1010004-21525-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -289,7 +303,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -297,8 +312,8 @@
     "name": "ent_tribuilding_upperroughplate.png",
     "source": "completion-1010004-25581-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "stone",
     "batch": "completion-2026-10-25",
@@ -306,7 +321,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -536,8 +552,8 @@
     "name": "ent_tribuilding_overentrance.png",
     "source": "completion-1010004-27843-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "stone",
     "batch": "completion-2026-10-25",
@@ -545,7 +561,8 @@
     "original_aspect": [
       128,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -553,8 +570,8 @@
     "name": "ent_tribuilding_roughplateunderroof.png",
     "source": "completion-1010004-25582-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "stone",
     "batch": "completion-2026-10-25",
@@ -562,7 +579,8 @@
     "original_aspect": [
       64,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -570,8 +588,8 @@
     "name": "hitech_striped_door_insdie2.png",
     "source": "completion-1010004-8606-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "metal",
     "batch": "completion-2026-10-25",
@@ -579,7 +597,8 @@
     "original_aspect": [
       128,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -587,8 +606,8 @@
     "name": "hitech_semirustydoorplate.png",
     "source": "completion-1010004-8682-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -604,7 +623,8 @@
         0.29,
         0.9
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -629,8 +649,8 @@
     "name": "",
     "source": "completion-1010009-74018-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -638,7 +658,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -680,8 +701,8 @@
     "name": "cleanplatetopinset.png",
     "source": "completion-1010004-6223-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -689,7 +710,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -697,8 +719,8 @@
     "name": "omnitrashcannnnn2.png",
     "source": "completion-1010004-81946-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -706,7 +728,8 @@
     "original_aspect": [
       64,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -714,8 +737,8 @@
     "name": "save_sideplate3.png",
     "source": "completion-1010004-55879-v1",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -723,7 +746,8 @@
     "original_aspect": [
       128,
       16
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -731,8 +755,8 @@
     "name": "save_generalplateinsidetest2.png",
     "source": "completion-1010004-56165-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -740,7 +764,8 @@
     "original_aspect": [
       32,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -748,8 +773,8 @@
     "name": "lampetexture.png",
     "source": "completion-1010004-85115-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -757,7 +782,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -765,8 +791,8 @@
     "name": "worn_heavy_metal_box.png",
     "source": "completion-1010004-16499-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -774,7 +800,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -782,8 +809,8 @@
     "name": "dock_factory_concrete_main_broken.png",
     "source": "completion-1010004-21070-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "mineral",
     "batch": "completion-2026-10-25",
@@ -791,7 +818,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -799,8 +827,8 @@
     "name": "garbaggggge3.png",
     "source": "completion-1010004-81760-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "mineral",
     "batch": "completion-2026-10-25",
@@ -808,7 +836,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -816,8 +845,8 @@
     "name": "shrubstiny_tex.png",
     "source": "completion-1010004-6249-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "dry-foliage",
     "batch": "completion-2026-10-25",
@@ -825,7 +854,8 @@
     "original_aspect": [
       64,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -833,8 +863,8 @@
     "name": "grass_small_dry.png",
     "source": "completion-1010004-95574-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "dry-foliage",
     "batch": "completion-2026-10-25",
@@ -842,7 +872,8 @@
     "original_aspect": [
       64,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -850,8 +881,8 @@
     "name": "gronnbark.png",
     "source": "completion-1010004-6289-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "dry-organic",
     "batch": "completion-2026-10-25",
@@ -859,7 +890,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -867,8 +899,8 @@
     "name": "grass_small.png",
     "source": "completion-1010004-95359-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "dry-foliage",
     "batch": "completion-2026-10-25",
@@ -876,7 +908,8 @@
     "original_aspect": [
       64,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -893,7 +926,11 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "365501dcc5c49e73e25377b5ea30544e69264d301e3320907e0d514973c2f6a3"
+    }
   },
   {
     "type": 1010004,
@@ -901,8 +938,8 @@
     "name": "bark_mossy_tileable.png",
     "source": "completion-1010004-13142-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "dry-organic",
     "batch": "completion-2026-10-25",
@@ -910,7 +947,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -927,7 +965,11 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "7cf6855b1f86460532b1c4839eab0bb84c8907b525b5c9c394bbf0e718c6b2cf"
+    }
   },
   {
     "type": 1010004,
@@ -935,8 +977,8 @@
     "name": "mossybarken.png",
     "source": "completion-1010004-6270-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "dry-organic",
     "batch": "completion-2026-10-25",
@@ -944,7 +986,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -952,8 +995,8 @@
     "name": "trunk_green_tile_bark.png",
     "source": "completion-1010004-25911-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "dry-organic",
     "batch": "completion-2026-10-25",
@@ -961,7 +1004,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -978,7 +1022,11 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "detail_exception": {
+      "reason": "Effect/coverage input: retain approved pixels and filtering; no artificial material grain.",
+      "sha256": "4c4538a60a81ad9db09dcabc91f25feb70f89a0835967669591dd1fdeab4ecf8"
+    }
   },
   {
     "type": 1010004,
@@ -986,8 +1034,8 @@
     "name": "spookybark.png",
     "source": "completion-1010004-31899-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "dry-organic",
     "batch": "completion-2026-10-25",
@@ -995,7 +1043,8 @@
     "original_aspect": [
       128,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1003,8 +1052,8 @@
     "name": "blue_leaf.png",
     "source": "completion-1010004-25904-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "dry-foliage",
     "batch": "completion-2026-10-25",
@@ -1012,7 +1061,8 @@
     "original_aspect": [
       32,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -1020,8 +1070,8 @@
     "name": "",
     "source": "completion-1010009-75376-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "completion-2026-10-25",
@@ -1029,7 +1079,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -1037,8 +1088,8 @@
     "name": "",
     "source": "completion-1010009-9903-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -1046,7 +1097,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -1088,8 +1140,8 @@
     "name": "hq_twobiglightsupperwallpart_alpha.png",
     "source": "completion-1010004-42008-v1",
     "size": [
-      256,
-      32
+      512,
+      64
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1106,7 +1158,8 @@
         0.9,
         0.85
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1114,8 +1167,8 @@
     "name": "hq_mall_nexttodoor.png",
     "source": "completion-1010004-35838-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1123,7 +1176,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1140,7 +1194,8 @@
     "original_aspect": [
       128,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1148,8 +1203,8 @@
     "name": "standalone_wallpart_lower.png",
     "source": "completion-1010004-26859-v1",
     "size": [
-      256,
-      256
+      1024,
+      1024
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1157,7 +1212,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1165,8 +1221,8 @@
     "name": "ent_tribuilding_roughplate_insidedoor.png",
     "source": "completion-1010004-26169-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "mineral",
     "batch": "completion-2026-10-25",
@@ -1174,7 +1230,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1182,8 +1239,8 @@
     "name": "standalone_insidedoor_darktransfer.png",
     "source": "completion-1010004-26857-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1191,7 +1248,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1199,8 +1257,8 @@
     "name": "tir_pillarhorizontal2.png",
     "source": "completion-1010004-40741-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -1208,7 +1266,8 @@
     "original_aspect": [
       256,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1216,8 +1275,8 @@
     "name": "tir_pillarornamentalinside1.png",
     "source": "completion-1010004-40743-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -1225,7 +1284,8 @@
     "original_aspect": [
       128,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1233,8 +1293,8 @@
     "name": "roof.png",
     "source": "completion-1010004-6027-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -1242,7 +1302,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010009,
@@ -1267,8 +1328,8 @@
     "name": "ent_roughpillar.png",
     "source": "completion-1010004-18790-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1276,7 +1337,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1284,8 +1346,8 @@
     "name": "tileablemetallic2.png",
     "source": "completion-1010004-234531-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1293,7 +1355,8 @@
     "original_aspect": [
       64,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1301,8 +1364,8 @@
     "name": "hq_adm_towerside.png",
     "source": "completion-1010004-43500-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1324,7 +1387,8 @@
         0.75,
         0.98
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1332,8 +1396,8 @@
     "name": "woodwall_128_dirty_greenhue.png",
     "source": "completion-1010004-30003-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "fabric",
     "batch": "completion-2026-10-25",
@@ -1341,7 +1405,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1349,8 +1414,8 @@
     "name": "hq_adm_global_onestipe_window.png",
     "source": "completion-1010004-43583-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1366,7 +1431,8 @@
         0.527,
         0.97
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1374,8 +1440,8 @@
     "name": "standalone_wallpart_bigwall_topornamental.png",
     "source": "completion-1010004-26858-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1383,7 +1449,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1391,8 +1458,8 @@
     "name": "Omni_HQ_singledoor.png",
     "source": "completion-1010004-159277-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1400,7 +1467,8 @@
     "original_aspect": [
       64,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1408,8 +1476,8 @@
     "name": "hq_quadblock_simpleroof2.png",
     "source": "completion-1010004-43364-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1417,7 +1485,8 @@
     "original_aspect": [
       128,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1425,8 +1494,8 @@
     "name": "tir_door2_plateside.png",
     "source": "completion-1010004-41459-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1434,7 +1503,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1442,8 +1512,8 @@
     "name": "omni_booth_mission_sign.png",
     "source": "completion-1010004-37238-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1459,7 +1529,8 @@
         0.915,
         0.915
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1467,8 +1538,8 @@
     "name": "ent_plainblock_insidedoorstrip.png",
     "source": "completion-1010004-25478-v1",
     "size": [
-      32,
-      256
+      64,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1476,7 +1547,8 @@
     "original_aspect": [
       32,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1484,8 +1556,8 @@
     "name": "omni_both_mission_screen.png",
     "source": "completion-1010004-37240-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1501,7 +1573,8 @@
         0.96,
         0.96
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1509,8 +1582,8 @@
     "name": "yellowstripe.png",
     "source": "completion-1010004-6133-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1518,7 +1591,8 @@
     "original_aspect": [
       128,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1526,8 +1600,8 @@
     "name": "singleplate.png",
     "source": "completion-1010004-6051-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1535,7 +1609,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1543,8 +1618,8 @@
     "name": "neutral_entrance_dark.png",
     "source": "completion-1010004-26712-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "honed-stone",
     "batch": "completion-2026-10-25",
@@ -1552,7 +1627,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1560,8 +1636,8 @@
     "name": "massive_sign1_metal2.png",
     "source": "completion-1010004-258360-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1569,7 +1645,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1577,8 +1654,8 @@
     "name": "massive_sign1_metal1.png",
     "source": "completion-1010004-258361-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "fabric",
     "batch": "completion-2026-10-25",
@@ -1586,7 +1663,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1594,8 +1672,8 @@
     "name": "metal_plates_sides.png",
     "source": "completion-1010004-99837-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "completion-2026-10-25",
@@ -1603,7 +1681,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1611,8 +1690,8 @@
     "name": "dock_factory_metal_plate.png",
     "source": "completion-1010004-20917-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1620,7 +1699,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1628,8 +1708,8 @@
     "name": "biglamp_strange_metAL.png",
     "source": "completion-1010004-85112-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1637,7 +1717,8 @@
     "original_aspect": [
       32,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1645,8 +1726,8 @@
     "name": "top.png",
     "source": "completion-1010004-6231-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1654,7 +1735,8 @@
     "original_aspect": [
       32,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1662,8 +1744,8 @@
     "name": "rustyplate64x128.png",
     "source": "completion-1010004-5946-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1671,7 +1753,8 @@
     "original_aspect": [
       64,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1679,8 +1762,8 @@
     "name": "factory_detailstrip.png",
     "source": "completion-1010004-8681-v1",
     "size": [
-      256,
-      64
+      512,
+      128
     ],
     "profile": "metal",
     "batch": "completion-2026-10-25",
@@ -1688,7 +1771,8 @@
     "original_aspect": [
       128,
       32
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1696,8 +1780,8 @@
     "name": "rockyground.png",
     "source": "completion-1010004-8248-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "mineral",
     "batch": "completion-2026-10-25",
@@ -1705,7 +1789,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1713,8 +1798,8 @@
     "name": "garbage.png",
     "source": "completion-1010004-18487-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "fabric",
     "batch": "completion-2026-10-25",
@@ -1722,7 +1807,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1730,8 +1816,8 @@
     "name": "container_large_worn.png",
     "source": "completion-1010004-295918-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1739,7 +1825,8 @@
     "original_aspect": [
       256,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1747,8 +1834,8 @@
     "name": "singleplatebottom.png",
     "source": "completion-1010004-6062-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1756,7 +1843,8 @@
     "original_aspect": [
       128,
       64
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1764,8 +1852,8 @@
     "name": "metalplate.png",
     "source": "completion-1010004-6057-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1773,7 +1861,8 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1781,8 +1870,8 @@
     "name": "plates_rusty_simple-128.png",
     "source": "completion-1010004-99840-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1790,7 +1879,8 @@
     "original_aspect": [
       128,
       256
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -1798,8 +1888,8 @@
     "name": "hq_bigplate_upperfringe_lights.png",
     "source": "completion-1010004-14714-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "painted-metal",
     "batch": "completion-2026-10-25",
@@ -1807,6 +1897,7 @@
     "original_aspect": [
       128,
       128
-    ]
+    ],
+    "worker": true
   }
 ]

@@ -17,6 +17,10 @@ for edition in (['full'] if full_only else ['full','lite']):
         assert not any('/private/' in n or n.endswith(('randy-vk.ini','.log','.dmp','.pdb','.tmp','.bak')) for n in z.namelist())
         for name,wanted in dict(manifest['assets'],**manifest['addon']).items():
             assert hashlib.sha256(z.read(top+name)).hexdigest()==wanted,(edition,name)
+        if 'payload' in manifest:
+            expected={n[len(top):] for n in z.namelist() if not n.endswith('/') and n!=top+'manifest.json'}
+            assert expected==set(manifest['payload']),'Payload inventory incomplete'
+            for name,wanted in manifest['payload'].items():assert hashlib.sha256(z.read(top+name)).hexdigest()==wanted,(edition,name)
         for name in ['Install.cmd','Update.cmd','Uninstall.cmd','install-live.ps1','setup-live.ps1','LICENSE','THIRD-PARTY-NOTICES.md']:
             assert top+name in z.namelist(),(edition,name)
         for action in ['Install','Update','Uninstall']:
@@ -35,7 +39,22 @@ for edition in (['full'] if full_only else ['full','lite']):
                 assert len(selected)==1 and selected[0].endswith('_orm.png'),(identity,selected)
             assert not any(f'/1010006_{identity}_{suffix}.png' in n for identity in deck_ids for suffix in ['d','n','h'] for n in maps)
         else:
-            assert len(atlases)>=179
+            if manifest.get('authoringSourcePolicy')=='authoring-images-preserved-in-source-library':
+                assert not atlases,'Authoring-image inventory policy must not bundle partial source sheets'
+                inventories=[n for n in manifest['assets'] if n.endswith('/source-art-provenance.json')]
+                assert len(inventories)==4,'Every production pack must preserve its authoring inventory'
+                authoring_records=[]
+                for n in inventories:
+                    inventory=json.loads(z.read(top+n))
+                    assert inventory['policy']==manifest['authoringSourcePolicy'] and inventory['runtime_dependency'] is False
+                    pack=n.split('/')[2]
+                    for record in inventory['files']:
+                        path=Path(__file__).resolve().parents[1]/'material-packs'/pack/record['path']
+                        assert record['path'].startswith('source-art/') and '..' not in Path(record['path']).parts
+                        assert path.stat().st_size==record['bytes'] and hashlib.sha256(path.read_bytes()).hexdigest()==record['sha256']
+                        authoring_records.append(record)
+                assert len(authoring_records)>=179,'Approved authoring provenance lost'
+            else:assert len(atlases)>=179
             assert any('/1010004_297326_d.png' in n for n in maps),'Premium ICC panel missing'
         sizes[edition]={'bytes':archive.stat().st_size,'runtime_png_maps':len(maps),'authoring_atlases':len(atlases)}
 if not full_only:assert manifests['full']['addon']==manifests['lite']['addon'],'Edition DLLs differ'

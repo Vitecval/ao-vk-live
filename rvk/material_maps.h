@@ -358,6 +358,8 @@ struct MaterialFiles {
     std::string leaves, leavesNormal;          // a tree canopy's own leaf art (_leaves.png, _leaves_n.png)
     bool preserveAlbedoAlpha = false;
     uint32_t maxSize = 2048; // runtime cap; decoded mip chains retain filtering/normal variance
+    uint32_t maxAlbedoSize = 0; // 0 follows maxSize; colour art can keep more detail than auxiliary maps
+    uint32_t maxAlbedoPixels = 0; // bounded area, without needlessly shrinking a narrow atlas
     bool Any() const
     {
         return !normal.empty() || !height.empty() || !packed.empty() || HasParts() || !albedo.empty() ||
@@ -422,16 +424,37 @@ inline Decoded Decode(const MaterialFiles& f)
     if (!f.leavesNormal.empty() && !DecodeNormalMap(f.leavesNormal, &d.leavesNormal, &leafSpread, &error))
         d.errors += error + "; ";
     d.decodeFailed = !d.errors.empty();
-    for (MipChain* c : {&d.normal, &d.orm, &d.albedo, &d.emissive, &d.leaves, &d.leavesNormal})
-        CapChain(*c, &d.errors, f.maxSize);
+    MipChain* chains[]={&d.normal,&d.orm,&d.albedo,&d.emissive,&d.leaves,&d.leavesNormal};
+    const char* roles[]={"normal","ORM","albedo","emissive","canopy","canopy normal"};
+    for(unsigned i=0;i<6;++i) {
+        std::string note;
+        CapChain(*chains[i],&note,i==2 && f.maxAlbedoSize ? f.maxAlbedoSize:f.maxSize);
+        if(i==2 && f.maxAlbedoPixels) {
+            bool reduced=false;
+            while(uint64_t(d.albedo.w)*d.albedo.h>f.maxAlbedoPixels && d.albedo.levels.size()>1) {
+                d.albedo.levels.erase(d.albedo.levels.begin());
+                d.albedo.w=std::max(d.albedo.w/2,1u);d.albedo.h=std::max(d.albedo.h/2,1u);
+                reduced=true;
+            }
+            if(reduced)note+="pixel budget uses "+std::to_string(d.albedo.w)+"x"+std::to_string(d.albedo.h)+"; ";
+        }
+        if(!note.empty())d.errors+=std::string(roles[i])+": "+note;
+    }
     return d;
 }
 
 template <typename Dev>
-Texture* Upload(Dev& dev, const MipChain& chain)
+Texture* Upload(Dev& dev, const MipChain& chain,bool compactUniform=false)
 {
     if (chain.Empty())
         return nullptr;
+    // Exact constant control maps need one texel. Every mip must agree.
+    if(compactUniform && !chain.levels[0].empty()) {
+        const uint32_t colour=chain.levels[0][0];bool uniform=true;
+        for(const auto& level:chain.levels)
+            if(level.empty() || !std::all_of(level.begin(),level.end(),[colour](uint32_t p){return p==colour;})){uniform=false;break;}
+        if(uniform)return dev.CreateTexture(1,1,&colour);
+    }
     Texture* tex = dev.CreateTexture(chain.w, chain.h, Format::A8R8G8B8, uint32_t(chain.levels.size()));
     if (!tex)
         return nullptr;
@@ -448,15 +471,15 @@ Texture* Upload(Dev& dev, const MipChain& chain)
 template <typename Dev>
 void Attach(Dev& dev, Texture* texture, const Decoded& d)
 {
-    if (Texture* normal = Upload(dev, d.normal)) {
+    if (Texture* normal = Upload(dev, d.normal,true)) {
         normal->SetAlphaHeight(d.height);             // (set before the device sees it)
         dev.SetNormalMap(texture, normal);
     }
-    Texture* orm = Upload(dev, d.orm);
+    Texture* orm = Upload(dev, d.orm,true);
     Texture* albedo = Upload(dev, d.albedo);
     if (orm || albedo)
         dev.SetMaterialMaps(texture, orm, albedo, d.preserveAlbedoAlpha);
-    if (Texture* emissive = Upload(dev, d.emissive))
+    if (Texture* emissive = Upload(dev, d.emissive,true))
         dev.SetEmissiveMap(texture, emissive);
     if (Texture* leaves = Upload(dev, d.leaves))
         dev.SetLeafArt(texture, leaves, Upload(dev, d.leavesNormal));
@@ -466,11 +489,11 @@ void Attach(Dev& dev, Texture* texture, const Decoded& d)
 template <typename Dev>
 bool Replace(Dev& dev, Texture* texture, const Decoded& d)
 {
-    Texture* normal = Upload(dev, d.normal);
+    Texture* normal = Upload(dev, d.normal,true);
     if (normal) normal->SetAlphaHeight(d.height);
-    Texture* orm = Upload(dev, d.orm);
+    Texture* orm = Upload(dev, d.orm,true);
     Texture* albedo = Upload(dev, d.albedo);
-    Texture* emissive = Upload(dev, d.emissive);
+    Texture* emissive = Upload(dev, d.emissive,true);
     Texture* leaves = Upload(dev, d.leaves);
     Texture* leavesNormal = leaves ? Upload(dev, d.leavesNormal) : nullptr;
     const bool complete = (d.normal.Empty() || normal) && (d.orm.Empty() || orm) && (d.albedo.Empty() || albedo) &&

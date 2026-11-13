@@ -1,4 +1,5 @@
 #include "threaded.h"
+#include "win32_wait.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -27,6 +28,14 @@ LONG CALLBACK RenderWorkerFault(EXCEPTION_POINTERS* e)
 template <typename T>
 void WaitWhileEqual(std::atomic<T>& value, T expected, DWORD timeoutMs)
 {
+    if (!g_renderWorker) {
+        // The window-owning caller must service WSI's synchronous sends while
+        // waiting for renderer progress. A pure futex wait can deadlock the
+        // presenter, renderer and game thread in a cycle. Bound only caller
+        // sleeps to 1 ms; the render worker retains its indefinite idle futex.
+        win32::PumpSentMessages();
+        timeoutMs = std::min(timeoutMs, DWORD(1));
+    }
     // WaitOnAddress is a futex under Wine: cheap, and returns at once if the value already changed.
     WaitOnAddress(reinterpret_cast<volatile void*>(&value), &expected, sizeof(T), timeoutMs);
 }
@@ -89,7 +98,7 @@ void ThreadedDevice::StopWorker()
         // Setting m_stop and waking an unchanged write position could lose the wake just before its wait.
         Enqueue([this](const uint8_t*) { m_stop.store(true); });
         Publish();
-        while(WaitForSingleObject(m_thread,100)==WAIT_TIMEOUT)CheckWorkerFailed(true);
+        while(win32::WaitWithSentMessages(m_thread,100)==WAIT_TIMEOUT)CheckWorkerFailed(true);
         CheckWorkerFailed(true);
         CloseHandle(m_thread);
         m_thread = nullptr;
@@ -369,6 +378,12 @@ void ThreadedDevice::Sync()
     CheckWorkerFailed();
 }
 
+VkResult ThreadedDevice::WaitForPresentation()
+{
+    Sync();
+    return m_device.FgWaitForPresentation();
+}
+
 // ---------------------------------------------------------------------------------------------------
 // Frames and synchronous calls
 
@@ -439,6 +454,7 @@ void ThreadedDevice::EndFrame()
         const double ms = std::chrono::duration<double, std::milli>(now - m_lastEndFrame).count();
         AddGameSection("game thread frame", ms);
         Device::LiveSmooth(m_liveFrameMs, ms);
+        m_device.m_fgCpuProductionMs.store(float(std::max(0.0, ms - m_previousFrameWaitMs)), std::memory_order_relaxed);
     }
     m_lastEndFrame = now;
     Enqueue([this](const uint8_t*) {
@@ -460,6 +476,7 @@ void ThreadedDevice::EndFrame()
     const double waitedUs = std::chrono::duration<double, std::micro>(std::chrono::steady_clock::now() - waitStart).count();
     m_device.m_profileGameWaitUs.fetch_add(uint64_t(waitedUs));
     Device::LiveSmooth(m_liveGameWaitMs, waitedUs * 1e-3);
+    m_previousFrameWaitMs = waitedUs * 1e-3;
 }
 
 ThreadedDevice::LiveTimes ThreadedDevice::Live() const
@@ -500,6 +517,11 @@ bool ThreadedDevice::SetWindow(HWND window)
 void ThreadedDevice::RefreshPresentation()
 {
     Enqueue([this](const uint8_t*) { m_device.RefreshPresentation(); });
+}
+
+void ThreadedDevice::ResetTemporalHistory(uint64_t epoch)
+{
+    Enqueue([this, epoch](const uint8_t*) { m_device.ResetTemporalHistory(epoch); });
 }
 
 void ThreadedDevice::RequestFrameDump(const std::string& path, int frames)
@@ -1108,6 +1130,9 @@ void ThreadedDevice::LoadStatels(const char* path, uint32_t playfield)
     Enqueue([this, p, playfield](const uint8_t*) { m_device.LoadStatels(p.c_str(), playfield); });
 }
 
+void ThreadedDevice::SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation)
+{ Enqueue([this,playfield,outdoor,generation](const uint8_t*) { m_device.SetLivingContext(playfield,outdoor,generation); }); }
+
 void ThreadedDevice::SetSkyPlayfield(uint32_t playfield)
 {
     Enqueue([this, playfield](const uint8_t*) { m_device.SetSkyPlayfield(playfield); });
@@ -1481,6 +1506,15 @@ void ThreadedDevice::SetDrawVisual(uint32_t kind, const char* className, uint32_
     Enqueue([this, kind, className, owner, visual](const uint8_t*) {
         m_device.SetDrawVisual(kind, className, owner, visual);
     });
+}
+
+void ThreadedDevice::SetWindowHouseBounds(const float* modelBounds)
+{
+    std::array<float,6> copy{};
+    if (modelBounds) std::copy_n(modelBounds,6,copy.begin());
+    // Kept ordered before the next draw. Its coalesced visual changes only the
+    // identity; the engine-owned bounds have already been copied by value.
+    Enqueue([this,copy](const uint8_t*) {m_device.SetWindowHouseBounds(copy.data());});
 }
 
 void ThreadedDevice::SetSceneLights(const Device::SceneLight* lights, uint32_t count)

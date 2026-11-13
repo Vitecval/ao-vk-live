@@ -2,12 +2,14 @@
 #include "internal.h"
 #include "grass_coverage.h"
 #include "material_profiles.h"
+#include "render_budget.h"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
 #include <utility>
 
 namespace rvk {
@@ -593,7 +595,7 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                     uint8_t rgb[3];
                     const uint32_t x=std::min((2*i+1)*t->m_width/(2*side),t->m_width-1);
                     const uint32_t y=std::min((2*j+1)*t->m_height/(2*side),t->m_height-1);
-                    if (TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,x,y,rgb) && grass::Green(rgb)) {
+                    if (TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,x,y,rgb) && grass::SurfaceTexel(rgb,t->m_rdbType,t->m_rdbId)) {
                         const uint32_t bit=j*side+i;
                         mask[bit>>3]|=uint8_t(1u<<(bit&7));
                         any=true;
@@ -666,7 +668,7 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
             for (uint32_t j=0;j<side;++j) for (uint32_t i=0;i<side;++i) {
                 uint8_t rgb[3];
                 if (!sample(i,j,side,side,rgb)) continue;
-                const bool green=grass::Green(rgb);
+                const bool green=grass::SurfaceTexel(rgb,t->m_rdbType,t->m_rdbId);
                 if (green && t->m_grassMask.empty()) t->m_grassMask.assign(side*side/8,0);
                 if (!t->m_grassMask.empty()) {
                     const uint32_t bit=j*side+i;
@@ -727,6 +729,7 @@ void Device::DestroyTexture(Texture* texture)
         --texture->m_materialRefs;
         return;
     }
+    m_materialOwners.erase(texture);
     for (auto& t : m_textures)
         if (t == texture) t = nullptr;
     for (auto& l : m_heldLabels)                 // (a label held back for after the post passes)
@@ -852,6 +855,8 @@ void Device::ShareMaterialMaps(Texture* texture, Texture* source)
         *slot = next;
     }
     texture->m_preserveAlbedoAlpha = source->m_preserveAlbedoAlpha;
+    texture->m_materialResidentFrame=m_frameNumber;
+    m_materialOwners.insert(texture);
     ++texture->m_leafArtVersion;
     m_constantsDirty = true;
     texture->m_materialState.store(Texture::MaterialState::Ready, std::memory_order_release);
@@ -884,8 +889,55 @@ void Device::PublishMaterialMaps(Texture* texture, Texture* normal, Texture* orm
     SetLeafArt(texture, leaves, leavesNormal);
     texture->m_materialDrawFrame.store(0, std::memory_order_relaxed);
     const bool any = normal || orm || albedo || emissive || leaves;
+    texture->m_materialResidentFrame=m_frameNumber;
+    if(any)m_materialOwners.insert(texture);else m_materialOwners.erase(texture);
     texture->m_materialState.store(any ? Texture::MaterialState::Ready : Texture::MaterialState::Original,
                                    std::memory_order_release);
+}
+
+// Release only cold replacement sets when the driver's local-memory budget
+// tightens. The retail base texture survives, and a later bind reloads its HD
+// set. Destruction uses the normal submission-tagged retirement path.
+void Device::TrimMaterialCache()
+{
+    if(!m_allocator || m_materialOwners.empty() || m_frameNumber%30)return;
+    VkDeviceSize excess=0;
+    if(m_memoryBudget) {
+        const VkPhysicalDeviceMemoryProperties* props=nullptr;
+        vmaGetMemoryProperties(m_allocator,&props);
+        VmaBudget budgets[VK_MAX_MEMORY_HEAPS]{};vmaGetHeapBudgets(m_allocator,budgets);
+        uint64_t sizes[VK_MAX_MEMORY_HEAPS]{};bool local[VK_MAX_MEMORY_HEAPS]{};
+        for(uint32_t h=0;h<props->memoryHeapCount;++h) {
+            sizes[h]=props->memoryHeaps[h].size;
+            local[h]=(props->memoryHeaps[h].flags&VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)!=0;
+        }
+        const uint32_t heap=budget::MaterialHeap(sizes,local,props->memoryHeapCount);
+        if(heap<props->memoryHeapCount)
+            excess=budget::MaterialExcess(budgets[heap].usage,budgets[heap].budget);
+    }
+    // Isolated harnesses can exercise eviction without exhausting the GPU.
+    const char* modules=std::getenv("RANDYVK_TEST_MODULES");
+    const char* cap=std::getenv("RANDYVK_TEST_MATERIAL_CACHE_MB");
+    if(modules && std::strcmp(modules,"1")==0 && cap) {
+        const VkDeviceSize bytes=VkDeviceSize(std::max(std::atoi(cap),1))*1024*1024;
+        if(m_textureBytes[0]>bytes)excess=std::max(excess,m_textureBytes[0]-bytes);
+    }
+    if(!excess)return;
+    std::vector<Texture*> cold;
+    for(Texture* t:m_materialOwners)
+        if(t->MaterialsState()==Texture::MaterialState::Ready &&
+           budget::MaterialCold(m_frameNumber,t->m_materialResidentFrame,t->MaterialDrawFrame()))cold.push_back(t);
+    std::sort(cold.begin(),cold.end(),[](Texture* a,Texture* b){return a->MaterialDrawFrame()<b->MaterialDrawFrame();});
+    VkDeviceSize retired=0;unsigned count=0;
+    for(Texture* t:cold) {
+        if(retired>=excess || retired>=(256ull<<20) || count>=256)break;
+        for(Texture* map:{t->m_normalMap,t->m_ormMap,t->m_albedoMap,t->m_emissiveMap,t->m_leafArt,t->m_leafArtNormal})
+            if(map && map->m_materialRefs==1)retired+=map->m_bytes;
+        PublishMaterialMaps(t,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,false,true);
+        t->m_materialState.store(Texture::MaterialState::Evicted,std::memory_order_release);
+        ++count;
+    }
+    if(count)Log("materials: retired %u cold HD sets (%.1f MB) after GPU budget pressure; visible sets retained",count,double(retired)/(1024.*1024.));
 }
 
 void Device::SetPbr(const PbrSettings& s)
@@ -1007,7 +1059,7 @@ uint32_t Device::RegisterBindlessSampler(VkSampler s)
     return index;
 }
 
-uint64_t Device::SamplerKey(uint32_t stage) const
+uint64_t Device::SamplerKey(uint32_t stage, bool material) const
 {
     const auto& t = m_tss[stage];
     return uint64_t(t[d3d::TSS_MAGFILTER] & 7) | uint64_t(t[d3d::TSS_MINFILTER] & 7) << 3 |
@@ -1015,7 +1067,8 @@ uint64_t Device::SamplerKey(uint32_t stage) const
            uint64_t(t[d3d::TSS_ADDRESSV] & 7) << 12 | uint64_t(t[d3d::TSS_MAXMIPLEVEL] & 15) << 15 |
            uint64_t(t[d3d::TSS_BORDERCOLOR] >> 24 ? 1 : 0) << 19 |
            uint64_t(m_anisotropy) << 20 |      // samplers made at another level stay valid for work in flight
-           uint64_t(SceneMipBias() ? 100 - m_renderScale : 0) << 26;
+           uint64_t(SceneMipBias() ? 100 - m_renderScale : 0) << 26 |
+           uint64_t(material) << 40;
 }
 
 // RVK_RenderScale: the scene's textures sample a finer mip level by log2(scale), as sharp as at the output's size
@@ -1024,14 +1077,14 @@ bool Device::SceneMipBias() const { return m_target == m_scene && SceneScaled();
 
 // Samplers are never destroyed while the device lives (SamplerFor's map owns them), so a stage whose sampler state
 // is unchanged keeps its slot. Only a successful registration is remembered.
-uint32_t Device::StageSamplerSlot(uint32_t stage)
+uint32_t Device::StageSamplerSlot(uint32_t stage, bool material)
 {
     if (!m_bindless)
         return 0;
-    uint64_t key = SamplerKey(stage);
+    uint64_t key = SamplerKey(stage, material);
     if (key == m_stageSamplerKey[stage])
         return m_stageSamplerSlot[stage];
-    uint32_t index = RegisterBindlessSampler(SamplerFor(stage));
+    uint32_t index = RegisterBindlessSampler(SamplerFor(stage, material));
     if (index == ~0u)
         return 0;
     m_stageSamplerKey[stage] = key;
@@ -1053,11 +1106,11 @@ uint32_t Device::FixedSamplerSlot(uint32_t which, VkSampler s)
     return index;
 }
 
-VkSampler Device::SamplerFor(uint32_t stage)
+VkSampler Device::SamplerFor(uint32_t stage, bool material)
 {
     const auto& t = m_tss[stage];
     uint32_t addrU = t[d3d::TSS_ADDRESSU], addrV = t[d3d::TSS_ADDRESSV];
-    uint64_t key = SamplerKey(stage);
+    uint64_t key = SamplerKey(stage, material);
     auto it = m_samplers.find(key);
     if (it != m_samplers.end())
         return it->second;
@@ -1067,6 +1120,16 @@ VkSampler Device::SamplerFor(uint32_t stage)
     ci.mipmapMode = t[d3d::TSS_MIPFILTER] == d3d::TFP_LINEAR ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
     ci.minLod = float(t[d3d::TSS_MAXMIPLEVEL]);           // D3D MAXMIPLEVEL = most detailed level used
     ci.maxLod = t[d3d::TSS_MIPFILTER] == d3d::TFP_NONE ? ci.minLod : VK_LOD_CLAMP_NONE;
+    // A legacy texture-quality clamp refers to the game's small original,
+    // not a side-loaded HD colour map. Preserve original/data samplers, but
+    // let replacements use their full resident detail and proper mip filtering.
+    if(material) {
+        ci.minLod=0.f;
+        if(ci.minFilter==VK_FILTER_LINEAR && ci.magFilter==VK_FILTER_LINEAR) {
+            ci.mipmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR;
+            ci.maxLod=VK_LOD_CLAMP_NONE;
+        } else ci.maxLod=0.f;
+    }
     ci.addressModeU = AddressMode(addrU);
     ci.addressModeV = AddressMode(addrV);
     ci.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -1074,7 +1137,7 @@ VkSampler Device::SamplerFor(uint32_t stage)
                                                      : VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     // Enhancement: anisotropic filtering for textures the game filters linearly (point-filtered ones stay crisp), as
     // DXVK's forced anisotropy does.
-    if (SceneMipBias() && t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE)
+    if (SceneMipBias() && (material || t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE))
         ci.mipLodBias = std::log2(float(m_renderScale) / 100.0f);
     if (m_anisotropy > 1 && ci.minFilter == VK_FILTER_LINEAR && ci.magFilter == VK_FILTER_LINEAR) {
         ci.anisotropyEnable = VK_TRUE;

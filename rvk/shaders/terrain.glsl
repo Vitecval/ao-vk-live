@@ -67,6 +67,13 @@ void TerrainHexGrid(vec2 st, uint seed, float down, out vec3 w, out vec2 off0, o
     off2 = vec2(float(h2 & 0xFFFFu), float(h2 >> 16)) * scale;
 }
 
+float RetailHeight(ivec2 p) {
+    uint slot=floatBitsToUint(FL.nativeHeight.x)-1u;
+    ivec2 size=textureSize(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),0);
+    uvec4 b=uvec4(texelFetch(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),clamp(p,ivec2(0),size-1),0)*255.+.5);
+    return uintBitsToFloat((b.a<<24)|(b.r<<16)|(b.g<<8)|b.b);
+}
+
 // Where and how the ground's texture lies at this pixel. uv: the game's coordinates; n: the interpolated normal.
 TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 {
@@ -99,24 +106,51 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
     vec3 nu = len > 1e-12 ? face / len : vec3(0.0, 1.0, 0.0);
     // Steeper than ~32 degrees starts the faces (the texture from above already a fifth longer down the slope); past
     // ~57 they have it all.
-    m.side = smoothstep(0.85, 0.55, abs(nu.y)) * clamp(FL.terrain.x, 0.0, 1.0);
+    const float faceSide = 1.0 - smoothstep(0.55, 0.85, abs(nu.y));
+    m.side = faceSide * clamp(FL.terrain.x, 0.0, 1.0);
     // Which way it faces (the lay along x or along z): the interpolated normal, smooth from one triangle to the next -
     // each triangle's own made the lays change at its edges, seams across a wall at an angle. (Its own where the
     // interpolated one has no length.)
     vec3 nf = dot(n, n) > 0.0 ? normalize(n) : nu;
-    // The native ground: how steep from the interpolated normal too - each triangle's own switched to the rock at its
-    // edges, a row of straight-edged teeth along a cliff's rim. Its normals come from the heights over two cells, a
-    // one-cell cliff's corners read less steep than its face: the rock starts a little earlier (~23 degrees, all of it
-    // by ~45), and the line where it starts wanders with noise (a metre or two across) rather than following the grid.
+    // Smooth normals soften the transition on an actual slope. They also lean
+    // across a whole cell of flat floor next to a cliff. Never project a face
+    // onto that floor: its vertical UV derivative collapses into long streaks.
+    // Geometric support begins only on slopes above ~28 degrees. Conversely,
+    // a truly steep face must not retain stretched top UVs merely because its
+    // corner normals were averaged with the horizontal ground on either side.
     if ((floatBitsToUint(D.terrain.y) != 0u && D.terrainAt.y < 1.5) ||
         (floatBitsToUint(D.terrain.y) == 0u && FL.sharedGroundConfig.x > 0.0)) {
         const float wander = 0.09 * (TerrainNoise(posW.xz * 0.35 + vec2(4.3, 1.9)) - 0.5)
                            + 0.05 * (TerrainNoise(posW.xz * 1.3 + vec2(8.7, 2.6)) - 0.5);
-        m.side = smoothstep(0.92, 0.7, abs(nf.y) + wander) * clamp(FL.terrain.x, 0.0, 1.0);
+        const float smoothSide = 1.0 - smoothstep(0.7, 0.92, abs(nf.y) + wander);
+        const float support = 1.0 - smoothstep(0.70, 0.88, abs(nu.y));
+        m.side = max(faceSide, smoothSide * support) * clamp(FL.terrain.x, 0.0, 1.0);
     }
     vec2 across = pow(abs(nf.zx) + 1e-4, vec2(4.0));
     across /= across.x + across.y;
     m.w = vec3(1.0 - m.side, m.side * across);
+    if(FL.nativeHeight.w>.001 && floatBitsToUint(D.terrain.y)!=0u && D.terrainAt.y<1.5 && m.side>.001) {
+        // Blend inside the slope, never out onto the horizontal floor. Smooth
+        // vertex normals alone cannot identify the crest of a one-cell cliff.
+        ivec2 cell=ivec2(floor(posW.xz*FL.nativeHeight.yz));
+        vec4 h=vec4(RetailHeight(cell),RetailHeight(cell+ivec2(1,0)),RetailHeight(cell+ivec2(0,1)),RetailHeight(cell+ivec2(1,1)));
+        float low=min(min(h.x,h.y),min(h.z,h.w)),high=max(max(h.x,h.y),max(h.z,h.w));
+        if(high-low>.5) {
+            float at=clamp((posW.y-low)/(high-low),0.,1.);
+            float gx=(h.y+h.w)-(h.x+h.z),gz=(h.z+h.w)-(h.x+h.y);
+            bool alongX=abs(gx)>=abs(gz),positive=alongX ? gx>0.:gz>0.;
+            ivec2 axis=alongX ? ivec2(1,0):ivec2(0,1),crossAxis=alongX ? ivec2(0,1):ivec2(1,0);
+            float a=alongX ? (h.x+h.z)*.5:(h.x+h.y)*.5;
+            float b=alongX ? (h.y+h.w)*.5:(h.z+h.w)*.5;
+            float before=(RetailHeight(cell-axis)+RetailHeight(cell-axis+crossAxis))*.5;
+            float after=(RetailHeight(cell+axis*2)+RetailHeight(cell+axis*2+crossAxis))*.5;
+            bool lowFlat=abs(positive ? before-a:after-b)<(high-low)*.25;
+            bool highFlat=abs(positive ? after-b:before-a)<(high-low)*.25;
+            // A continuous long slope has neither boundary: no per-cell bands.
+            float edge=(lowFlat ? smoothstep(0.,.16,at):1.)*(highFlat ? 1.-smoothstep(.84,1.,at):1.);
+            m.side*=mix(1.,edge,FL.nativeHeight.w);m.w=vec3(1.-m.side,m.side*across);
+        }
+    }
     m.hex = clamp(FL.terrain.y, 0.0, 1.0);
     // The native ground's rocks (rvk ground_clutter.cpp; D.terrainAt.y 2): the rock from every side, from above too
     // (at its own size: top), by the interpolated normal (they are shaded smooth: by each face's own, the lays changed
@@ -181,6 +215,23 @@ bool NativeCellAuthored(vec2 cell)
     return (attributes & 64u) == 0u;
 }
 
+// Bit 5 cleared only for the two verified ICC tiles in playfield 655.
+bool NativeCellIcc(vec2 cell) {
+    const uint codes=floatBitsToUint(D.terrain.y)-1u;
+    const ivec2 size=textureSize(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),0);
+    uint attributes=uint(texelFetch(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)),ivec2(0),size-1),0).a*255.0+0.5);
+    return (attributes & 32u)==0u;
+}
+// Honed ICC paving; Enhanced Original and other terrain keep their own painting.
+bool NativeCellRefined(vec2 cell) {
+    const uint codes=floatBitsToUint(D.terrain.y)-1u;
+    const ivec2 size=textureSize(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),0);
+    uint attributes=uint(texelFetch(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)),ivec2(0),size-1),0).a*255.0+0.5);
+    return (attributes & 16u)==0u;
+}
+
 // Within a cell (a along x, b along z, 0..1) its tile's coordinates as the game lays them, by the turn
 // (docs/ground-format.md): 0 (a, 1 - b), 1 (1 - b, 1 - a), 2 (1 - a, b), 3 (b, a). And a step's.
 vec2 NativeTurn(vec2 f, uint turn)
@@ -211,7 +262,8 @@ vec3 NativeEdgeColour(uvec2 n, vec2 f, sampler smp)
 // their colours there, each averaged over about a quarter of the tile in from it. 0 the same.
 float NativeEdgeOff(uvec2 a, uvec2 b, bool alongZ, sampler smp)
 {
-    if (a == b) return 0.0;
+    // A repeated image can itself have mismatched opposite borders. Compare
+    // the borders even when its identity/turn match the neighbouring cell.
     const vec3 ca = NativeEdgeColour(a, alongZ ? vec2(0.5, 1.0) : vec2(1.0, 0.5), smp);
     const vec3 cb = NativeEdgeColour(b, alongZ ? vec2(0.5, 0.0) : vec2(0.0, 0.5), smp);
     return smoothstep(0.05, 0.15, length(ca - cb));
@@ -222,6 +274,20 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
     const uvec2 c = NativeCell(cell);
     const vec4 own = textureGrad(sampler2D(texImages[nonuniformEXT(c.x)], smp), NativeTurn(fract(cell), c.y),
                                  NativeTurnStep(dx, c.y), NativeTurnStep(dy, c.y));
+    if(NativeCellRefined(cell)) {
+        vec2 uv=NativeTurn(fract(cell),c.y);
+        vec3 detail=textureGrad(sampler2D(texImages[nonuniformEXT(c.x)],smp),.035+uv*.93,
+            NativeTurnStep(dx,c.y)*.93,NativeTurnStep(dy,c.y)*.93).rgb;
+        vec3 mean=textureLod(sampler2D(texImages[nonuniformEXT(c.x)],smp),vec2(.5),6.).rgb;
+        float edge=min(min(uv.x,uv.y),min(1.-uv.x,1.-uv.y));
+        float seam=mix(.72,1.,smoothstep(.0015,.005,edge));
+        float slab=.97+.04*float(TerrainHash(uvec2(ivec2(floor(cell))+0x4000))&255u)/255.;
+        return vec4(mix(mean,detail,.25)*seam*slab,own.a);
+    }
+    // Shared Ground+ preserves AO's authored tile joints and transition tiles.
+    // Neighbour synthesis belongs only to GroundOn, regardless of material ID.
+    if (FL.sharedGroundConfig.w > 0.5) return own;
+    if (NativeCellIcc(cell)) return own; // explicit manufactured ICC artwork keeps its designed tile joints
     const float blend = 0.3 * clamp(FL.terrain3.x, 0.0, 1.0);
     if (blend <= 0.0) return own;
     // The 2 x 2 cells about the nearest corner: t 0.5 on the edge between base and base + 1, wandered by noise (at most
@@ -246,7 +312,7 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
         const ivec2 o = ivec2(k & 1, k >> 1);
         w[k] = (o.x == 1 ? w1.x : w0.x) * (o.y == 1 ? w1.y : w0.y);
         col[k] = own;
-        if (o == mine || w[k] <= 0.002 || n[k] == c) continue;
+        if (o == mine || w[k] <= 0.002) continue;
         const vec2 f = 1.0 - abs(1.0 - abs(cell - base - vec2(o)));   // (mirrored into the cell about its edge)
         col[k] = textureGrad(sampler2D(texImages[nonuniformEXT(n[k].x)], smp), NativeTurn(f, n[k].y),
                              NativeTurnStep(dx, n[k].y), NativeTurnStep(dy, n[k].y));
@@ -452,7 +518,7 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     vec4 original=TerrainBaseRaw(image,smp,m);
     float amount=FL.sharedGroundConfig.x*m.w.x;
     if (amount<=0.0 || m.clutter || (D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
-        (ClassicNativeLighting() && NativeCellAuthored(m.uv[0]))) return original;
+        (TerrainNative() && NativeCellAuthored(m.uv[0]))) return original;
     vec2 uv=m.uv[0],dx=m.dx[0],dy=m.dy[0];
     uint source=image;
     if (TerrainNative()) {
@@ -479,6 +545,44 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     }
     vec2 world=m.posW.xz*FL.sharedGroundConfig.y;
     vec2 wx=m.px.xz*FL.sharedGroundConfig.y,wy=m.py.xz*FL.sharedGroundConfig.y;
+    if(FL.hdGroundConfig.x>.5 && (D.mat.z&MAT_ASPHALT)==0u) {
+        // Full material albedo replaces the old texel grain. Native low-frequency
+        // colour remains the blend mask/palette only; alpha, overlap ownership,
+        // validated cliff footprint and original geometry are unchanged.
+        // Softly averaging five unrelated paintings erased their fine structure.
+        // Sharpen the material weights, retaining continuous native transition masks.
+        float blendTotal=0.;
+        for(int i=0;i<5;++i){weights[i]=pow(max(weights[i],0.),4.);blendTotal+=weights[i];}
+        if(blendTotal>.00001)for(int i=0;i<5;++i)weights[i]/=blendTotal;
+        vec3 modern=vec3(0.),mean=vec3(0.);float total=0.;
+        vec2 mirrored=1.-abs(fract(world*.5)*2.-1.);
+        vec2 mirrorDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(world*.5)));
+        float nearDetail=1.-smoothstep(35.,90.,distance(m.posW,C.eyePos.xyz));
+        for(int i=0;i<5;++i) {
+            if(weights[i]<.001)continue;
+            uint slot=floatBitsToUint(FL.hdGround[i].x)-1u;
+            vec3 broad=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),mirrored,wx*mirrorDirection,wy*mirrorDirection).rgb;
+            // Resolved modern grains at ~1.3m repeat; broad mineral/soil variation
+            // remains at 4m. Full mip/gradient filtering suppresses distant shimmer.
+            if(nearDetail>.001) {
+                vec2 fineWorld=world*3.+vec2(.173,.417);
+                vec2 fineUv=1.-abs(fract(fineWorld*.5)*2.-1.);
+                vec2 fineDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(fineWorld*.5)));
+                vec3 fine=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),fineUv,wx*3.*fineDirection,wy*3.*fineDirection).rgb;
+                vec3 micro=clamp(fine/max(FL.hdGround[i].yzw,vec3(.04)),vec3(.65),vec3(1.5));
+                broad*=mix(vec3(1.),micro,.5*nearDetail);
+            }
+            modern+=weights[i]*broad;
+            mean+=weights[i]*FL.hdGround[i].yzw;total+=weights[i];
+        }
+        if(total>.01) {
+            modern/=total;mean/=total;
+            vec3 palette=clamp(mask/max(mean,vec3(.04)),vec3(.65),vec3(1.5));
+            modern*=mix(vec3(1.),palette,.65);
+            original.rgb=mix(original.rgb,modern,amount);
+        }
+        return original;
+    }
     vec3 detail=vec3(1.0);
     for (int i=0;i<5;++i) {
         if (weights[i]<.01) continue;
@@ -506,8 +610,10 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     // Strong original markings/joints keep their shape; noisy old texels are
     // softened before the new filtered detail. Alpha is always AO's original.
     float marking=smoothstep(.07,.22,length(original.rgb-mask));
-    vec3 base=mix(mask,original.rgb,marking);
-    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65),amount);
+    // Shared Ground+ preserves AO's overlap painting at full source precision;
+    // the blurred colour sample classifies materials but never replaces it.
+    vec3 base=FL.sharedGroundConfig.w>.5 ? original.rgb : mix(mask,original.rgb,marking);
+    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65*FL.terrainFar.y),amount);
     return original;
 }
 
@@ -534,6 +640,11 @@ vec3 TerrainNormalMap(vec3 n, texture2D top, float topStrength, texture2D face, 
             uvy = NativeTurnStep(m.dy[0], c.y);
             t = textureGrad(sampler2D(texImages[nonuniformEXT(img)], bindlessSamplers[D.sampIdx.w]),
                             NativeTurn(fract(m.uv[0]), c.y), uvx, uvy).xyz * 2.0 - 1.0;
+              if(NativeCellRefined(m.uv[0])) {
+                  t=textureGrad(sampler2D(texImages[nonuniformEXT(img)],bindlessSamplers[D.sampIdx.w]),
+                      .035+NativeTurn(fract(m.uv[0]),c.y)*.93,uvx*.93,uvy*.93).xyz*2.-1.;
+                  t.xy*=.25;
+              }
         } else {
             t = TerrainLay(top, bindlessSamplers[D.sampIdx.w], face, m, i).xyz * 2.0 - 1.0;
         }
@@ -578,7 +689,7 @@ vec3 TerrainPatchesAt(int k, vec3 posW)
 vec3 TerrainVariation(vec3 c, vec3 posW, TerrainMap m)
 {
     if ((D.mat.z & MAT_AUTHORED_GROUND) != 0u ||
-        (ClassicNativeLighting() && !m.clutter && NativeCellAuthored(m.uv[0]))) return c;
+        (TerrainNative() && !m.clutter && NativeCellAuthored(m.uv[0]))) return c;
     // World-anchored formations, not magnified close grit. Derivative filtering
     // removes each band before it becomes subpixel; no time or screen noise.
     float distant=FL.terrainFar.x*smoothstep(65.0,260.0,length(posW-C.eyePos.xyz));
@@ -630,7 +741,7 @@ vec3 TerrainGrain(vec3 c, TerrainMap m, vec3 posW)
     // (Not on loose sand: its ripples are its detail - parallax.glsl. Nor on a tile with maps of its own - a texture
     // pack's, made for it: the rock's grit lay over it as faint scratches, and over one drawn in depth it didn't move
     // with the relief - the user's athens tile. posW: where the parallax met the ground, so it would.)
-    const float k = FL.terrain2.w * m.w.x * (1.0 - NativeSand(m.uv[0]) * clamp(FL.sand.x, 0.0, 1.0));
+    const float k = FL.terrain2.w * FL.terrainFar.y * m.w.x * (1.0 - NativeSand(m.uv[0]) * clamp(FL.sand.x, 0.0, 1.0));
     if (k <= 0.002 || !TerrainRockOn() || m.clutter) return c;
     if (TerrainNativeMaps() && NativeNormalImage(m.uv[0]) != 0xFFFFu) return c;
     const mat2 turn = mat2(0.8, 0.6, -0.6, 0.8);
@@ -694,12 +805,13 @@ float NativeRockLight(vec3 n, float lit, float vis)
     // The AO lightmap already contains its hour's sun and ambient response.
     // Retain modest face definition without applying native directional light
     // to that baked lighting a second time.
-    if (ClassicNativeLighting()) return sky;
+    if (ClassicNativeLighting() && FL.windowLife.z <= 0.0) return sky;
     const vec3 S = dot(FL.sunDir.xyz, FL.sunDir.xyz) > 0.0 ? -normalize(FL.sunDir.xyz) : vec3(0.0);
     if (S.y <= 0.02) return sky;
     const float sun = clamp(max(dot(n, S), 0.0) / max(S.y, 0.3), 0.0, 2.0) * vis;
     const float k = kRockSun * NativeSunShare(n, true, lit);
-    return (1.0 - k) * sky + k * sun;
+    float shaped = (1.0 - k) * sky + k * sun;
+    return ClassicNativeLighting() ? mix(sky, shaped, FL.windowLife.z) : shaped;
 }
 
 // The native ground's loose sand (NativeSand) lit by the sun now on its dunes' own slopes (FL.sand.y, RVK_DuneLight):

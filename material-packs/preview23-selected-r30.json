@@ -1,0 +1,38 @@
+{
+  "workflow": "Built-in image generation",
+  "materials": [
+    {
+      "identity": "1010004:20144",
+      "source": "preview23-selected-20144-r30",
+      "sourceSha256": "252d1efd72b2bbf9cbfc24d50632504db43e369a8ea6ccd716f2a927299ae829",
+      "size": [
+        2048,
+        512
+      ],
+      "workflow": "Built-in image generation edit preserving original material layout; bounded normal/ORM bake",
+      "prompt": "Edit target: attached Anarchy Online architecture albedo texture 20144. Create a high-resolution faithful material restoration, a 4:1 horizontal strip, with at least 2048 pixels along its long edge and 512 pixels along its short edge if available. blue-grey metal moulding across the top, dark mottled inset panel across the middle, a thin blue-grey and rusted lower edge. Preserve these three horizontal bands and all border positions. Preserve the original UV layout, subdued original colour palette and flat orthographic texture composition. Add physically plausible crisp material edges and fine metal surface detail, restrained wear and soft highlights; no exaggerated shine, no baked directional lighting, no perspective, no text, no extra panels or invented logos. Fill the complete output with the texture, no padding. It must read sharply at close range while matching the original pattern."
+    },
+    {
+      "identity": "1010004:19926",
+      "source": "preview23-selected-19926-r30",
+      "sourceSha256": "2ebe06601bdfdb10d4aa25bf51e8ab54e40fd46c3ca187db6a790068890c26b2",
+      "size": [
+        512,
+        2048
+      ],
+      "workflow": "Built-in image generation edit preserving original material layout; bounded normal/ORM bake",
+      "prompt": "Edit target: attached Anarchy Online architecture albedo texture 19926. Create a high-resolution faithful material restoration, a 1:4 vertical strip, with at least 2048 pixels along its long edge and 512 pixels along its short edge if available. a narrow recessed black channel with two thin tarnished gold pipes beside a thicker segmented copper pipe in the centre; a dark weathered steel frame surrounds it. Preserve pipe locations, connectors, frame widths and lower rounded corner cutouts. Preserve the original UV layout, subdued original colour palette and flat orthographic texture composition. Add physically plausible crisp material edges and fine metal surface detail, restrained wear and soft highlights; no exaggerated shine, no baked directional lighting, no perspective, no text, no extra panels or invented logos. Fill the complete output with the texture, no padding. It must read sharply at close range while matching the original pattern."
+    },
+    {
+      "identity": "1010004:19924",
+      "source": "preview23-selected-19924-r30",
+      "sourceSha256": "560e4b65dc779130d0c719169ef52e7892cc3aacac96e6a22920331e702cbe34",
+      "size": [
+        512,
+        2048
+      ],
+      "workflow": "Built-in image generation edit preserving original material layout; bounded normal/ORM bake",
+      "prompt": "Edit target: attached Anarchy Online architecture albedo texture 19924. Create a high-resolution faithful material restoration, a 1:4 vertical strip, with at least 2048 pixels along its long edge and 512 pixels along its short edge if available. dark graphite industrial steel panel; three short diagonal black vent slits in the upper third, three horizontal raised ribs extending from the left across the lower half, and a very thin orange/black hazard strip at the bottom. Preserve every feature's location and scale. Preserve the original UV layout, subdued original colour palette and flat orthographic texture composition. Add physically plausible crisp material edges and fine metal surface detail, restrained wear and soft highlights; no exaggerated shine, no baked directional lighting, no perspective, no text, no extra panels or invented logos. Fill the complete output with the texture, no padding. It must read sharply at close range while matching the original pattern."
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 // rvk backend: shared state, pixel formats, caps, IDirectDraw7, IDirect3D7, clipper, palette, import hooks.
 #include "rvk_backend.h"
 #include "rvk_settings.h"
+#include "rvk_zoning.h"
+#include "startup.h"
 #include "native/gui.h"
 #include "native/ground.h"
 #include "native/rings.h"
@@ -43,6 +45,7 @@ void BackendWindowDestroyed(HWND window)
     ComScope scope(ComMethodCount() - 2);
     if (g_rvk.window != window)
         return;
+    ZoningStop();
     if (g_rvk.device) {
         RvkLog("shutdown: render window destroyed (%u graphics objects remain)", g_backendObjects.load());
         g_rvk.device->StopPresentation();
@@ -141,12 +144,7 @@ bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
         return device->Resize(width, height);
     }
     rvk::SetLogSink([](const char* line) { RvkLog("rvk: %s", line); });
-    {   // the pipeline cache next to randy-vk.ini (the client folder)
-        std::string cache = rvk_settings::IniPath();
-        size_t slash = cache.find_last_of("\\/");
-        cache = (slash == std::string::npos ? std::string() : cache.substr(0, slash + 1)) + "randy-vk.cache";
-        rvk::SetPipelineCachePath(cache.c_str());
-    }
+    rvk::startup::Begin(true);
     device = new rvk::ThreadedDevice;
     ++deviceSerial;
     std::string error;
@@ -320,6 +318,13 @@ bool RvkState::Frame()
 {
     if (device && window && !device->InFrame() && WindowDrawable())
     {
+        ZoningFrame();
+        // Cosmetic context must precede this frame's queued draws; a post-present update is a frame late on zoning.
+        if(rvk_settings::GetEffective("RVK_LivePeople")>=1||rvk_settings::GetEffective("RVK_LiveDrones")>=1||
+           rvk_settings::GetEffective("RVK_AirTraffic")>=1||rvk_settings::GetEffective("RVK_LiveWild")>=1||
+           rvk_settings::GetEffective("RVK_LiveMachine")>=1||rvk_settings::GetEffective("RVK_LiveAtmos")>=1){
+            StatelFrame();GroundFrame();
+        }
         PollMaterialMaps(); // publish completed uploads before this frame can draw
         device->BeginFrame();
     }
@@ -894,9 +899,64 @@ HRESULT RDirectDraw::DoGetFourCCCodes(LPDWORD count, LPDWORD codes)
     return DD_OK;
 }
 
-HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD)
+HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD flags)
 {
+    // AO's native windowed Initialize deliberately passes NULL with
+    // DDSCL_NORMAL | DDSCL_FPUPRESERVE (0x1008). DirectDraw permits this before
+    // a device window is associated. Rejecting it makes AO exit before Vulkan.
+    const bool normal = (flags & DDSCL_NORMAL) != 0;
+    if ((hwnd && !IsWindow(hwnd)) || (!hwnd && !normal) ||
+        (normal && (flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX))))
+        return DDERR_INVALIDPARAMS;
+    if (m_borderlessFallback && (!(flags & DDSCL_FULLSCREEN) || hwnd != m_modeWindow))
+        DoRestoreDisplayMode();
+    if (!hwnd) {
+        RvkLog("window mode: accepted normal cooperative level without a window (flags 0x%08lx); window association follows during native initialization", flags);
+        return DD_OK;
+    }
     g_rvk.SetWindow(hwnd);
+    if ((flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) == (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) {
+        // This backend has no VK_EXT_full_screen_exclusive acquisition/release path.
+        // Never claim ownership or change the monitor's desktop mode on its behalf.
+        if (!m_borderlessFallback) {
+            m_modeWindow = hwnd;
+            m_modeStyle = GetWindowLongPtrW(hwnd, GWL_STYLE);
+            m_modeExStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+            GetWindowRect(hwnd, &m_modeRect);
+            m_borderlessFallback = true;
+            RvkLog("fullscreen: exclusive DirectDraw request 0x%08lx unsupported (no Vulkan exclusive ownership); falling back to borderless on the window's monitor; desktop refresh retained",flags);
+        }
+        MONITORINFO monitor{sizeof(monitor)};
+        if (!GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitor)) return DDERR_GENERIC;
+        SetWindowLongPtrW(hwnd,GWL_STYLE,(m_modeStyle & ~WS_OVERLAPPEDWINDOW) | WS_POPUP);
+        SetWindowLongPtrW(hwnd,GWL_EXSTYLE,m_modeExStyle & ~(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE));
+        if (!SetWindowPos(hwnd,nullptr,monitor.rcMonitor.left,monitor.rcMonitor.top,
+            monitor.rcMonitor.right-monitor.rcMonitor.left,monitor.rcMonitor.bottom-monitor.rcMonitor.top,
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED)) return DDERR_GENERIC;
+    }
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoRestoreDisplayMode()
+{
+    if (m_borderlessFallback && IsWindow(m_modeWindow)) {
+        SetWindowLongPtrW(m_modeWindow,GWL_STYLE,m_modeStyle);
+        SetWindowLongPtrW(m_modeWindow,GWL_EXSTYLE,m_modeExStyle);
+        SetWindowPos(m_modeWindow,nullptr,m_modeRect.left,m_modeRect.top,
+            m_modeRect.right-m_modeRect.left,m_modeRect.bottom-m_modeRect.top,
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    m_borderlessFallback = false; m_modeWindow = nullptr;
+    g_rvk.displayWidth = g_rvk.displayHeight = 0;
+    return DD_OK;
+}
+
+HRESULT RDirectDraw::DoSetDisplayMode(DWORD w, DWORD h, DWORD bpp, DWORD refresh, DWORD flags)
+{
+    if (!w || !h || (bpp != 16 && bpp != 24 && bpp != 32)) return DDERR_INVALIDMODE;
+    g_rvk.displayWidth=w; g_rvk.displayHeight=h;
+    RvkLog("display mode: render size %lux%lu %lu bpp requested refresh %lu flags 0x%lx; desktop mode unchanged (%s)",
+        w,h,bpp,refresh,flags,m_borderlessFallback?"borderless fallback, not exclusive":"windowed");
     return DD_OK;
 }
 

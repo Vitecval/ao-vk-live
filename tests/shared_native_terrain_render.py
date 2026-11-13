@@ -31,6 +31,10 @@ cases={
  'plus-cycle':['--terrain-blend','2','--ground-mode-cycle'],
  'plus-unknown':['--terrain-blend','2','--native-unknown-pass'],
  'plus-separate':['--terrain-blend','2'],
+ 'plus-unlit':['--terrain-blend','2','--native-unlit-combined'],
+ 'plus-unlit-unknown':['--terrain-blend','2','--native-unlit-combined','--native-unknown-pass'],
+ 'groundon-unlit':['--native-on','--terrain-blend','0','--native-unlit-combined'],
+ 'shared-unlit':['--terrain-blend','1','--native-unlit-combined'],
 }
 env=dict(os.environ,RANDYVK_PIPELINE_CACHE=str(out/'pipeline.cache'))
 metrics={};images={};timings={}
@@ -46,7 +50,7 @@ for name,extra in cases.items():
  assert m,name
  metrics[name]=dict(zip(['plus','enabled','patches','patches_per_frame','rocks','pebbles','ao','sun'],map(float,m.groups())))
  images[name]=np.array(Image.open(dest/'result.bmp').convert('RGB')).astype(int)
- if name.startswith('plus') and name!='plus-unknown':
+ if name.startswith('plus') and 'unknown' not in name:
   assert 'lighting=classic-AO-baked-lightmap' in dump and 'ripples=disabled' in dump,name
   assert metrics[name]['ao']==metrics[name]['sun']==0,name
  (out/'progress.json').write_text(json.dumps(metrics,indent=2))
@@ -63,6 +67,21 @@ assert metrics['plus']['pebbles']==metrics['groundon']['pebbles']>0,'Missing or 
 assert metrics['plus-no-rocks']['rocks']==0
 assert metrics['plus-no-pebbles']['pebbles']==0
 assert metrics['plus-unknown']['patches_per_frame']==0,'Unknown ground passes must fall back safely'
+assert metrics['plus-unlit-unknown']['patches_per_frame']==0,'Unknown unlit stages must retain retail terrain'
+unlit_checks={}
+for name in ['plus-unlit','groundon-unlit']:
+ assert metrics[name]['patches_per_frame']>0,name
+ dump=(out/name/'native-frame.txt').read_text(errors='replace')
+ records=re.findall(r'terrain-record: pass (\d+); codes (\d+); one-pass (\d+); combined (\d+); lighting (\d+)',dump)
+ assert records and all(int(pass_)==2 and int(codes)>0 and int(one)==1 and int(lighting)==0 for pass_,codes,one,combined,lighting in records),('Unlit native draws lost the cell textures/lightmap',name,records)
+ assert all(int(combined)==(name=='plus-unlit') for pass_,codes,one,combined,lighting in records),name
+ # The broken pass paints one constant tile across the screen. Require the
+ # same broad material diversity that survives in the original submissions.
+ roi=np.s_[120:440,120:650]
+ native_variation=float(images[name][roi].mean(2).std())
+ original_variation=float(images['shared-unlit'][roi].mean(2).std())
+ assert native_variation>original_variation*.35 and native_variation>5,('Terrain texture flattened',name,native_variation,original_variation)
+ unlit_checks[name]={'native_luminance_std':native_variation,'retail_luminance_std':original_variation,'native_records_with_cell_textures':len(records),'lighting_enabled':False}
 assert delta('plus','plus-no-extra-light')<=1,'Native AO/sun/ripple controls leaked into classic mode'
 assert delta('groundon','groundon-overrides')<=1,'GroundOn comparison mode changed with shared setting'
 assert changed('plus','plus-no-rocks')>100,'Native boulders not visible'
@@ -82,4 +101,5 @@ if baseline and baseline.exists():
  ordinary=int(abs(np.array(Image.open(baseline).convert('RGB')).astype(int)-images['shared']).max())
  assert ordinary<=1,('Standard Shared Ground regression',ordinary)
 report={'result':'passed','metrics':metrics,'visible_rock_pixels':changed('plus','plus-no-rocks'),'visible_pebble_pixels':changed('plus','plus-no-pebbles'),'visible_cliff_pixels':changed('plus','plus-no-cliffs'),'distant_cliff_pixels':changed('plus-far','plus-far-no-cliffs'),'classic_control_max_delta':delta('plus','plus-no-extra-light'),'combined_separate_max_delta':delta('plus','plus-separate'),'ordinary_shared_baseline_max_delta':ordinary,'in_game_visual_verification':False}
+report['unlit_combined_regressions']=unlit_checks
 (out/'validation.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))

@@ -1,5 +1,9 @@
 // Device setup, main targets, swapchain, frames, render target switching, screenshots.
 #include "internal.h"
+#include "material_maps.h"
+#include "window_global.h"
+#include "win32_wait.h"
+#include "fsr_support.h"
 
 #include <algorithm>
 #include <chrono>
@@ -13,6 +17,47 @@ namespace rvk {
 
 namespace {
 void (*g_logSink)(const char*) = nullptr;
+#include "window_rooms.png.inc"
+}
+
+void Device::EnsureWindowRooms()
+{
+    if (m_windowRoomsTried || m_windowDepth <= 0 || !m_bindless) return;
+    m_windowRoomsTried = true;
+    VkBufferCreateInfo bi{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+    bi.size=sizeof(environment::windowPaneData);bi.usage=VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    VmaAllocationCreateInfo ac{};ac.usage=VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+    ac.flags=VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT|VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    VmaAllocationInfo info{};
+    if(vmaCreateBuffer(m_allocator,&bi,&ac,&m_windowPaneBuffer,&m_windowPaneAllocation,&info)==VK_SUCCESS){
+        std::memcpy(info.pMappedData,environment::windowPaneData,sizeof(environment::windowPaneData));
+        vmaFlushAllocation(m_allocator,m_windowPaneAllocation,0,VK_WHOLE_SIZE);
+        m_windowPaneBytes=sizeof(environment::windowPaneData);
+    }else Log("Global window pane table unavailable; reviewed global interiors disabled");
+    maps::Image image; std::string error;
+    if (!maps::LoadImageFromMemory(kWindowRooms, sizeof(kWindowRooms), &image, &error) ||
+        image.w != 1024 || image.h != 512) {
+        Log("Newland material atlas unavailable; interiors disabled: %s", error.c_str());
+        return;
+    }
+    // Opaque surface materials, not room pictures. Average channels independently.
+    maps::MipChain chain; chain.w = image.w; chain.h = image.h;
+    std::vector<float> values(image.rgba.size());
+    for (size_t i=0; i<values.size(); ++i) values[i]=image.rgba[i]/255.f;
+    int w=image.w,h=image.h;
+    for (;;) {
+        std::vector<uint32_t> pixels(size_t(w)*h);
+        for (size_t i=0; i<pixels.size(); ++i)
+            pixels[i]=maps::Byte(values[i*4+3])<<24 | maps::Byte(values[i*4])<<16 |
+                      maps::Byte(values[i*4+1])<<8 | maps::Byte(values[i*4+2]);
+        chain.levels.push_back(std::move(pixels));
+        if (w==1 && h==1) break;
+        int nw,nh; values=maps::Halve(values,w,h,4,&nw,&nh); w=nw; h=nh;
+    }
+    m_windowRooms=maps::Upload(*this,chain);
+    Log("Newland rooms: %s; 8 reusable 256px surface tiles, %.2f MiB with mips",
+        m_windowRooms?"material atlas ready":"upload failed, interiors disabled",
+        double(chain.Bytes())/(1024.0*1024.0));
 }
 
 void SetLogSink(void (*sink)(const char*)) { g_logSink = sink; }
@@ -178,9 +223,13 @@ Device::Device()
 
 Device::~Device()
 {
-    if (!m_device)
+    if (startup::Active()) startup::Finish("device ended before first presentation");
+    if (!m_device) {
+        FgReleaseDispatcher();
         return;
+    }
     WaitIdle();
+    DestroySwapchain(); // Stop the optional SDK presenter and its context before destroying sampled inputs.
     ReleaseParticleTextures(true);
     m_completed = UINT64_MAX;                   // the device is idle: everything deferred can go
     CollectGarbage();
@@ -193,9 +242,12 @@ Device::~Device()
     if (m_blackTexture) DestroyTextureNow(m_blackTexture);
     if (m_blueNoise) DestroyTextureNow(m_blueNoise);
     if (m_flatNormal) DestroyTextureNow(m_flatNormal);
+    if (m_windowRooms) DestroyTextureNow(m_windowRooms);
     if (m_rock.pending.valid()) m_rock.pending.wait();   // (the cliffs' rock: a decode still running finishes first)
     if (m_sharedGround.pending.valid()) m_sharedGround.pending.wait();
     for (Texture* t:m_sharedGround.images) DestroyTexture(t);
+    if(m_hdGroundState.pending.valid())m_hdGroundState.pending.wait();
+    for(Texture* t:m_hdGroundState.images)DestroyTexture(t);
     for (Texture* t : {m_rock.albedo, m_rock.normal, m_rock.orm, m_native.codes, m_native.maps, m_native.means, m_native.lightmap, m_native.lightmapGrey, m_native.lightmapPrev, m_native.sky})
         if (t) DestroyTextureNow(t);
     for (auto& [key, sampler] : m_samplers) vkDestroySampler(m_device, sampler, nullptr);
@@ -219,6 +271,7 @@ Device::~Device()
     DestroyLeafResources();
     DestroyWaterResources();
     DestroyRainResources();
+    DestroyLiving();
     DestroySmokeResources();
     DestroyCloudResources();
     DestroyStaticGeometry();
@@ -233,6 +286,7 @@ Device::~Device()
                                                  // slots aren't cleared)
     if (m_bindlessSetLayout) vkDestroyDescriptorSetLayout(m_device, m_bindlessSetLayout, nullptr);
     if (m_nullBuffer) vmaDestroyBuffer(m_allocator, m_nullBuffer, m_nullAllocation);
+    if (m_windowPaneBuffer) vmaDestroyBuffer(m_allocator,m_windowPaneBuffer,m_windowPaneAllocation);
     DestroyMainTargets();
     if (m_pool) vkDestroyCommandPool(m_device, m_pool, nullptr);
     DestroySwapchain();
@@ -240,6 +294,7 @@ Device::~Device()
     vkDestroyDevice(m_device, nullptr);
     if (m_surface) vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     if (m_instance) vkDestroyInstance(m_instance, nullptr);
+    FgReleaseDispatcher();
 }
 
 void Device::StopPresentation()
@@ -249,6 +304,7 @@ void Device::StopPresentation()
     Log("shutdown: draining presentation");
     WaitIdle();
     DestroySwapchain();                       // joins the optional frame-generation presenter threads
+    FgReleaseDispatcher();
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
     m_surface = VK_NULL_HANDLE;
     m_window = nullptr;
@@ -260,7 +316,9 @@ void Device::StopPresentation()
 
 bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* error)
 {
+    startup::Begin(false);
     m_window = window;
+    FgInitDispatcher(window);
     m_width = width;
     m_height = height;
     m_viewport = {0, 0, width, height, 0.0f, 1.0f};
@@ -273,7 +331,12 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
     auto step = [&](const char* name, auto&& run) {
         if (!ok)
             return;
+        startup::Stage(name);
+        const auto driverBefore = startup::DriverMicroseconds();
         ok = run();
+        Log("startup-stage: %s wall=%lld ms driver=%.3f ms result=%s", name,
+            static_cast<long long>(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now()-mark).count()),
+            (startup::DriverMicroseconds()-driverBefore)/1000.0, ok ? "ok" : "failed");
         char part[64];
         std::snprintf(part, sizeof(part), "%s%s %d", timings.empty() ? "" : ", ", name,
                       int(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - mark).count()));
@@ -293,8 +356,8 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
         SavePipelineCache("after the pipelines were made");
     Log("startup: %s%s; total %d ms", timings.c_str(), ok ? "" : " (failed)",
         int(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - begin).count()));
-    if (!ok)
-        return false;
+    if (!ok) { startup::Finish(error ? error->c_str() : "renderer initialization failed"); return false; }
+    startup::Stage("Preparing renderer resources");
     uint32_t black = 0xFF000000;
     m_blackTexture = CreateTexture(1, 1, &black);
     uint32_t flat = 0xFF8080FF;                  // (0.5, 0.5, 1): the unbent normal
@@ -306,16 +369,19 @@ bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* err
 namespace {
 
 std::string g_pipelineCachePath;
+uint64_t CacheHash(const std::vector<uint8_t>& data) {
+    uint64_t h=14695981039346656037ull;
+    for (uint8_t b:data) { h ^= b; h *= 1099511628211ull; }
+    return h;
+}
 
 // Where the cache lives: what the proxy set, else RANDYVK_PIPELINE_CACHE ("off" = none).
 std::string PipelineCacheFile()
 {
-    if (!g_pipelineCachePath.empty())
-        return g_pipelineCachePath;
-    char path[MAX_PATH] = {};
-    if (GetEnvironmentVariableA("RANDYVK_PIPELINE_CACHE", path, sizeof(path)) == 0)
-        return {};
-    return _stricmp(path, "off") == 0 ? std::string() : std::string(path);
+    char path[32768] = {};
+    const DWORD n = GetEnvironmentVariableA("RANDYVK_PIPELINE_CACHE", path, sizeof(path));
+    if (n && n < sizeof(path)) return _stricmp(path,"off") == 0 ? "off" : std::string(path);
+    return g_pipelineCachePath;
 }
 
 }  // namespace
@@ -327,7 +393,23 @@ void SetPipelineCachePath(const char* path) { g_pipelineCachePath = path ? path 
 void Device::CreatePipelineCache()
 {
     std::vector<uint8_t> data;
-    const std::string file = PipelineCacheFile();
+    bool wrapped=false;
+    std::string base = PipelineCacheFile();
+    if (base.empty()) {
+        char local[32768] = {};
+        const DWORD n = GetEnvironmentVariableA("LOCALAPPDATA", local, sizeof(local));
+        if (n && n < sizeof(local)) {
+            base = std::string(local) + "\\AO-VK"; CreateDirectoryA(base.c_str(), nullptr);
+            base += "\\pipelines-v1"; CreateDirectoryA(base.c_str(), nullptr);
+            char key[160];
+            std::snprintf(key,sizeof(key),"\\%08x-%08x-%08x-",m_props.vendorID,m_props.deviceID,m_props.driverVersion);
+            base += key;
+            for (uint8_t b : m_props.pipelineCacheUUID) { char hex[3]; std::snprintf(hex,sizeof(hex),"%02x",b); base += hex; }
+            base += ".cache";
+        }
+    }
+    m_pipelineCacheFile = base == "off" ? std::string() : base;
+    const std::string file = m_pipelineCacheFile;
     if (!file.empty()) {
         if (FILE* f = std::fopen(file.c_str(), "rb")) {
             std::fseek(f, 0, SEEK_END);
@@ -340,11 +422,21 @@ void Device::CreatePipelineCache()
             }
             std::fclose(f);
         }
+        // Our envelope detects damaged payloads before passing opaque bytes to a driver.
+        if (data.size()>=32 && std::memcmp(data.data(),"AOVKPC23",8)==0) {
+            wrapped=true;
+            uint32_t meta[8]; std::memcpy(meta,data.data(),32);
+            const uint64_t expected=uint64_t(meta[4]) | uint64_t(meta[5])<<32;
+            std::vector<uint8_t> payload(data.begin()+32,data.end());
+            if (meta[2]!=payload.size() || meta[3]!=1 || meta[6]!=m_props.driverVersion || CacheHash(payload)!=expected) {
+                Log("pipeline cache: corrupt/incompatible envelope; rebuilding locally"); data.clear();
+            } else data.swap(payload);
+        }
         // The header (Vulkan spec): size, version 1, vendor, device, the driver's cache UUID. Anything else is not ours.
         uint32_t header[4] = {};
         if (data.size() >= 32)
             std::memcpy(header, data.data(), sizeof(header));
-        if (!data.empty() && (header[0] < 32 || header[1] != VK_PIPELINE_CACHE_HEADER_VERSION_ONE ||
+        if (!data.empty() && (header[0] < 32 || header[0] > data.size() || header[1] != VK_PIPELINE_CACHE_HEADER_VERSION_ONE ||
                               header[2] != m_props.vendorID || header[3] != m_props.deviceID ||
                               std::memcmp(data.data() + 16, m_props.pipelineCacheUUID, VK_UUID_SIZE) != 0)) {
             Log("pipeline cache %s is from another GPU or driver: starting afresh", file.c_str());
@@ -354,38 +446,54 @@ void Device::CreatePipelineCache()
     VkPipelineCacheCreateInfo ci{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
     ci.initialDataSize = data.size();
     ci.pInitialData = data.empty() ? nullptr : data.data();
-    if (vkCreatePipelineCache(m_device, &ci, nullptr, &m_pipelineCache) != VK_SUCCESS) {
+    VkResult cacheResult;
+    { startup::DriverCall timer("vkCreatePipelineCache"); cacheResult = vkCreatePipelineCache(m_device, &ci, nullptr, &m_pipelineCache); }
+    if (cacheResult != VK_SUCCESS && !data.empty()) {
+        Log("pipeline cache: driver rejected %zu bytes (VkResult %d); retrying empty",data.size(),int(cacheResult));
+        data.clear(); ci.initialDataSize=0; ci.pInitialData=nullptr;
+        cacheResult=vkCreatePipelineCache(m_device,&ci,nullptr,&m_pipelineCache);
+    }
+    if (cacheResult != VK_SUCCESS) {
+        Log("pipeline cache: creation failed VkResult %d",int(cacheResult));
         m_pipelineCache = VK_NULL_HANDLE;        // (VK_NULL_HANDLE is also what the pipelines were made with before)
         return;
     }
-    m_pipelineCacheSaved = data.size();
+    m_pipelineCacheSaved = wrapped ? data.size() : 0; // upgrade compatible legacy files with a checksum envelope
+    m_pipelineCacheHash = CacheHash(data);
+    Log("pipeline cache: GPU=%04x:%04x driver=%08x SPIR-V-keyed driver cache (compatible shader entries retained)",m_props.vendorID,m_props.deviceID,m_props.driverVersion);
     if (!file.empty())
         Log("pipeline cache: %zu bytes loaded from %s", data.size(), file.c_str());
 }
 
-// Write the cache out if it holds more than the file does. Through a temporary file, so a crash can't leave half of one.
+// Write the cache whenever its content changed, even at the same byte size. Through a temporary file, so a crash can't leave half of one.
 void Device::SavePipelineCache(const char* why)
 {
-    const std::string file = PipelineCacheFile();
+    const std::string file = m_pipelineCacheFile;
     if (!m_pipelineCache || file.empty())
         return;
     size_t size = 0;
-    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size == m_pipelineCacheSaved)
+    if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, nullptr) != VK_SUCCESS || size == 0 || size >= (256u << 20))
         return;
     std::vector<uint8_t> data(size);
     if (vkGetPipelineCacheData(m_device, m_pipelineCache, &size, data.data()) != VK_SUCCESS)
         return;
     data.resize(size);
+    const uint64_t hash = CacheHash(data);
+    if (data.size() == m_pipelineCacheSaved && hash == m_pipelineCacheHash) return;
     const std::string temp = file + "." + std::to_string(GetCurrentProcessId()) + ".tmp";   // (two clients in one folder)
     FILE* f = std::fopen(temp.c_str(), "wb");
-    if (!f)
-        return;
-    const bool written = std::fwrite(data.data(), 1, data.size(), f) == data.size();
-    std::fclose(f);
-    if (written && MoveFileExA(temp.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+    if (!f) { Log("pipeline cache: cannot write %s (errno %d); next launch may rebuild",temp.c_str(),errno); return; }
+    uint32_t meta[8]={}; std::memcpy(meta,"AOVKPC23",8);
+    meta[2]=uint32_t(data.size()); meta[3]=1; meta[4]=uint32_t(hash); meta[5]=uint32_t(hash>>32); meta[6]=m_props.driverVersion;
+    const bool written = std::fwrite(meta,1,sizeof(meta),f)==sizeof(meta) && std::fwrite(data.data(), 1, data.size(), f) == data.size();
+    const bool flushed = std::fflush(f) == 0;
+    const bool closed = std::fclose(f) == 0;
+    if (written && flushed && closed && MoveFileExA(temp.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         m_pipelineCacheSaved = data.size();
+        m_pipelineCacheHash = hash;
         Log("pipeline cache: %zu bytes saved (%s)", data.size(), why);
     } else {
+        Log("pipeline cache: persistence failed for %s (Windows error %lu)",file.c_str(),GetLastError());
         DeleteFileA(temp.c_str());
     }
 }
@@ -405,7 +513,7 @@ bool Device::CreateInstance(std::string* error)
     ci.pApplicationInfo = &app;
     ci.enabledExtensionCount = 2;
     ci.ppEnabledExtensionNames = extensions;
-    if (!Check(vkCreateInstance(&ci, nullptr, &m_instance), "vkCreateInstance", error))
+    if (!Check([&] { startup::DriverCall timer("vkCreateInstance"); return vkCreateInstance(&ci, nullptr, &m_instance); }(), "vkCreateInstance", error))
         return false;
     LoadInstance(m_instance);
     if (m_window) {
@@ -439,7 +547,7 @@ bool Device::PickDevice(std::string* error)
             VkBool32 present = VK_TRUE;
             if (m_surface)
                 vkGetPhysicalDeviceSurfaceSupportKHR(devices[i], q, m_surface, &present);
-            if (!(qf[q].queueFlags & VK_QUEUE_GRAPHICS_BIT) || !present)
+            if ((qf[q].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) != (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT) || !present)
                 continue;
             bool discrete = p.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
             if (best < 0 || discrete) {
@@ -511,6 +619,8 @@ bool Device::CreateLogicalDevice(std::string* error)
     VkPhysicalDeviceRobustness2FeaturesEXT rob2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT};
     VkPhysicalDeviceTimelineSemaphoreFeatures timeline{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES};
     VkPhysicalDeviceFeatures2 features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    VkPhysicalDeviceShaderFloat16Int8Features fp16{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES};
+    timeline.pNext = &fp16;
     features.pNext = &v13;
     v13.pNext = &descIdx;
     descIdx.pNext = &rob2;
@@ -552,6 +662,28 @@ bool Device::CreateLogicalDevice(std::string* error)
         if (error) *error = "required Vulkan features missing (descriptor indexing, robustness2 nullDescriptor)";
         return false;
     }
+    const detail::FsrHardware fsrHardware{
+        (p11.subgroupSupportedStages & VK_SHADER_STAGE_COMPUTE_BIT) != 0,
+        (p11.subgroupSupportedOperations & VK_SUBGROUP_FEATURE_QUAD_BIT) != 0,
+        (p11.subgroupSupportedOperations & VK_SUBGROUP_FEATURE_ARITHMETIC_BIT) != 0,
+        features.features.shaderStorageImageExtendedFormats != 0,
+        timeline.timelineSemaphore != 0,
+        m_props.limits.maxComputeWorkGroupInvocations,
+        m_props.limits.maxComputeWorkGroupSize[0], m_props.limits.maxComputeWorkGroupSize[1], m_props.limits.maxComputeWorkGroupSize[2],
+        p11.subgroupSize, m_queueFamilyCount};
+    if (const char* reason = detail::FsrUnsupported(fsrHardware, true, false)) {
+        m_fsr2Failed = true;
+        Log("FSR 2: disabled on this GPU (%s); using TAA", reason);
+    }
+    if (const char* reason = detail::FsrUnsupported(fsrHardware, false, false)) {
+        m_fsr3Failed = true;
+        Log("FSR 3: disabled on this GPU (%s); using TAA", reason);
+    }
+    m_fgUnsupported = detail::FsrUnsupported(fsrHardware, false, true);
+    Log("FSR hardware: subgroup=%u compute=%u quad=%u arithmetic=%u queues=%u; upscalers=%s/%s; framegen=%s",
+        p11.subgroupSize, unsigned(fsrHardware.computeSubgroups), unsigned(fsrHardware.quad),
+        unsigned(fsrHardware.arithmetic), m_queueFamilyCount, m_fsr2Failed ? "off" : "available",
+        m_fsr3Failed ? "off" : "available", m_fgUnsupported ? m_fgUnsupported : "experimental");
     // Enable only what is used.
     VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT enVertexInput{
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT};
@@ -568,6 +700,7 @@ bool Device::CreateLogicalDevice(std::string* error)
     enDescIdx.shaderSampledImageArrayNonUniformIndexing = m_bindless ? VK_TRUE : VK_FALSE;
     enDescIdx.descriptorBindingSampledImageUpdateAfterBind = m_bindless ? VK_TRUE : VK_FALSE;
     enDescIdx.descriptorBindingPartiallyBound = m_bindless ? VK_TRUE : VK_FALSE;
+    enDescIdx.shaderStorageBufferArrayNonUniformIndexing = descIdx.shaderStorageBufferArrayNonUniformIndexing;
     VkPhysicalDeviceRobustness2FeaturesEXT enRob2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT};
     enRob2.nullDescriptor = m_bindless ? VK_TRUE : VK_FALSE;
     enRob2.pNext = &enEds3;
@@ -577,10 +710,15 @@ bool Device::CreateLogicalDevice(std::string* error)
     enTimeline.timelineSemaphore = timeline.timelineSemaphore;
     m_timelineSemaphores = timeline.timelineSemaphore == VK_TRUE;
     enVertexInput.pNext = &enTimeline;
+    VkPhysicalDeviceShaderFloat16Int8Features enFp16{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES};
+    enFp16.shaderFloat16=fp16.shaderFloat16;
+    enTimeline.pNext=&enFp16;
     VkPhysicalDeviceVulkan13Features enV13{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
     enV13.pNext = &enDescIdx;
     enV13.dynamicRendering = VK_TRUE;
     enV13.synchronization2 = VK_TRUE;
+    enV13.subgroupSizeControl=v13.subgroupSizeControl;
+    enV13.computeFullSubgroups=v13.computeFullSubgroups;
     enV13.shaderDemoteToHelperInvocation = VK_TRUE;     // glslc turns `discard` into OpDemoteToHelperInvocation
     VkPhysicalDeviceFeatures2 enabled{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     enabled.pNext = &enV13;
@@ -589,6 +727,11 @@ bool Device::CreateLogicalDevice(std::string* error)
     // Out-of-range vertex indices in game data read zeros instead of faulting the GPU.
     enabled.features.robustBufferAccess = features.features.robustBufferAccess;
     enabled.features.textureCompressionBC = features.features.textureCompressionBC;
+    enabled.features.shaderInt16=features.features.shaderInt16;
+    enabled.features.shaderStorageImageExtendedFormats=features.features.shaderStorageImageExtendedFormats;
+    enabled.features.shaderStorageImageReadWithoutFormat=features.features.shaderStorageImageReadWithoutFormat;
+    enabled.features.shaderStorageImageWriteWithoutFormat=features.features.shaderStorageImageWriteWithoutFormat;
+    Log("FSR Vulkan features: float16=%u int16=%u extended-storage=%u subgroup-control=%u full-subgroups=%u",enFp16.shaderFloat16,enabled.features.shaderInt16,enabled.features.shaderStorageImageExtendedFormats,enV13.subgroupSizeControl,enV13.computeFullSubgroups);
     enabled.features.imageCubeArray = VK_TRUE;           // point light shadow maps
     enabled.features.tessellationShader = features.features.tessellationShader;   // characters' Phong tessellation
     m_tessSupported = features.features.tessellationShader;
@@ -629,7 +772,7 @@ bool Device::CreateLogicalDevice(std::string* error)
     ci.pQueueCreateInfos = &qci;
     ci.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     ci.ppEnabledExtensionNames = extensions.data();
-    if (!Check(vkCreateDevice(m_physical, &ci, nullptr, &m_device), "vkCreateDevice", error))
+    if (!Check([&] { startup::DriverCall timer("vkCreateDevice"); return vkCreateDevice(m_physical, &ci, nullptr, &m_device); }(), "vkCreateDevice", error))
         return false;
     LoadDevice(m_device);
     vkGetDeviceQueue(m_device, m_queueFamily, 0, &m_queue);
@@ -830,7 +973,9 @@ bool Device::SetWindow(HWND window)
         vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
         m_surface = VK_NULL_HANDLE;
     }
+    FgReleaseDispatcher();
     m_window = window;
+    FgInitDispatcher(window);
     if (!window)
         return true;
     VkWin32SurfaceCreateInfoKHR si{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
@@ -873,6 +1018,17 @@ bool Device::CreateSwapchain(std::string* error)
     ci.surface = m_surface;
     ci.minImageCount = std::max(caps.minImageCount, 2u);
     if (caps.maxImageCount) ci.minImageCount = std::min(ci.minImageCount + 1, caps.maxImageCount);
+    if (m_frameGenWanted && !m_frameGenFailed) {
+        // Two real images must be acquirable before the first present. The WSI
+        // guarantee is imageCount - surface.minImageCount + 1; request one extra.
+        const uint32_t pairedCount = caps.minImageCount + 1;
+        if (pairedCount <= 6 && (!caps.maxImageCount || pairedCount <= caps.maxImageCount))
+            ci.minImageCount = std::max(ci.minImageCount, pairedCount);
+        else {
+            m_frameGenFailed = true;
+            Log("frame generation: surface cannot provide paired presentation images; using normal presentation");
+        }
+    }
     ci.imageFormat = format.format;
     ci.imageColorSpace = format.colorSpace;
     ci.imageExtent = m_swapExtent;
@@ -902,7 +1058,7 @@ bool Device::CreateSwapchain(std::string* error)
             Log("frame generation: off - %s", why.empty() ? "no second queue for its presenting" : why.c_str());
         }
     }
-    if (!fg && !Check(vkCreateSwapchainKHR(m_device, &ci, nullptr, &m_swapchain), "vkCreateSwapchainKHR", error))
+    if (!fg && !Check([&] { startup::DriverCall timer("vkCreateSwapchainKHR"); return vkCreateSwapchainKHR(m_device, &ci, nullptr, &m_swapchain); }(), "vkCreateSwapchainKHR", error))
         return false;
     if (fg) {
         FgGetSwapchainImages(&n, nullptr);
@@ -939,7 +1095,7 @@ bool Device::CreatePipelines(std::string* error)
     const VkShaderStageFlags vsfs = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     const VkShaderStageFlags tess = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT | VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
     const VkShaderStageFlags vsfstess = vsfs | tess;
-    VkDescriptorSetLayoutBinding bindings[12] = {
+    VkDescriptorSetLayoutBinding bindings[13] = {
         {0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, vsfstess, nullptr},   // the deduplicated DrawConstants array
         {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
         {2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
@@ -952,12 +1108,13 @@ bool Device::CreatePipelines(std::string* error)
         {10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},     // tessellation's normals
         {11, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},  // normal map
         {12, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, vsfstess, nullptr},  // the per-draw DrawRecords
+        {13, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // reviewed global panes
     };
     if (!m_tessSupported)
         for (auto& b : bindings) b.stageFlags &= ~tess;
     VkDescriptorSetLayoutCreateInfo sl{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
     sl.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-    sl.bindingCount = 12;
+    sl.bindingCount = 13;
     sl.pBindings = bindings;
     if (!Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, &m_setLayout), "vkCreateDescriptorSetLayout", error))
         return false;
@@ -1010,6 +1167,7 @@ bool Device::CreatePipelines(std::string* error)
         ci.pCode = code;
         return Check(vkCreateShaderModule(m_device, &ci, nullptr, out), "vkCreateShaderModule", error);
     };
+    startup::Stage("Loading embedded SPIR-V shader modules");
     VkShaderModule vert, frag, fragGlow, fragNoCut, fragGlowNoCut;
     if (!module(kVertSpirv, sizeof(kVertSpirv), &vert) || !module(kFragSpirv, sizeof(kFragSpirv), &frag) ||
         !module(kFragGlowSpirv, sizeof(kFragGlowSpirv), &fragGlow) ||
@@ -1061,6 +1219,7 @@ bool Device::CreatePipelines(std::string* error)
                                                           VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
                                                           VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
     bool ok = true;
+    startup::Stage("Preparing mandatory graphics pipelines");
     // One set for the 8-bit targets, one for the HDR scene (float); each also as a no-discard variant (early-Z for
     // draws that never cut out).
     for (int set = 0; set < 2 && ok; ++set)
@@ -1085,7 +1244,7 @@ bool Device::CreatePipelines(std::string* error)
         ci.layout = m_pipelineLayout;
         VkPipeline* dst = set ? (nc ? &m_pipelinesHdrNoCut[c] : &m_pipelinesHdr[c])
                               : (nc ? &m_pipelinesNoCut[c] : &m_pipelines[c]);
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
                    "vkCreateGraphicsPipelines", error);
     }
     // Characters' Phong tessellation: triangles as 3-point patches, through ffp.tesc / ffp.tese (both targets).
@@ -1124,7 +1283,7 @@ bool Device::CreatePipelines(std::string* error)
             ci.pDynamicState = &ds;
             ci.layout = m_pipelineLayout;
             VkPipeline* dst = nc ? &m_tessPipelinesNoCut[set] : &m_tessPipelines[set];
-            ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
+            ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, dst),
                        "tessellation pipeline", error);
         }
     }
@@ -1154,7 +1313,7 @@ bool Device::CreatePipelines(std::string* error)
             ci.pDynamicState = &ds;
             ci.layout = m_pipelineLayout;
             std::string leafError;
-            if (!Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPipelines[set]),
+            if (!Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPipelines[set]),
                        "leaf pipeline", &leafError))
                 m_leafPipelines[set] = VK_NULL_HANDLE;
         }
@@ -1215,7 +1374,7 @@ bool Device::CreatePipelines(std::string* error)
     // Zero vertex data for attributes a format doesn't have (bound with stride 0).
     VkBufferCreateInfo bi{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     bi.size = 64;
-    bi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bi.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     VmaAllocationCreateInfo ac{};
     ac.usage = VMA_MEMORY_USAGE_AUTO;
     ac.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
@@ -1320,11 +1479,16 @@ VkDeviceSize Device::Allocate(VkDeviceSize size, VkDeviceSize alignment, void** 
 bool Device::WaitFrame(Frame& f, const char* what)
 {
     // Reports a stuck GPU instead of hanging silently; gives up on a lost device.
-    for (int seconds = 1; !m_deviceLost; ++seconds) {
-        VkResult r = vkWaitForFences(m_device, 1, &f.fence, VK_TRUE, 1000000000ull);
+    const bool owner = m_fg && m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId();
+    const ULONGLONG began = GetTickCount64();
+    ULONGLONG reported = 0;
+    while (!m_deviceLost) {
+        if (owner) win32::PumpSentMessages();
+        VkResult r = vkWaitForFences(m_device, 1, &f.fence, VK_TRUE, owner ? 1000000ull : 1000000000ull);
+        const ULONGLONG seconds = (GetTickCount64() - began) / 1000;
         if (r == VK_SUCCESS) {
-            if (seconds > 1)
-                Log("%s finished after %d s", what, seconds);
+            if (seconds)
+                Log("%s finished after %llu s", what, seconds);
             m_completed = std::max(m_completed, f.serial);
             return true;
         }
@@ -1338,7 +1502,10 @@ bool Device::WaitFrame(Frame& f, const char* what)
             Log("GPU fence wait failed (%d, %s); rendering stops (restart the client)", int(r), what);
             return false;
         }
-        Log("still waiting for %s after %d s", what, seconds);
+        if (seconds > reported) {
+            Log("still waiting for %s after %llu s", what, seconds);
+            reported = seconds;
+        }
     }
     return false;
 }
@@ -1401,7 +1568,7 @@ void Device::EnsureRingSpace(VkDeviceSize bytes)
         // Between frames the slot's fence is signalled (UploadCommands waited on it); a fence must be
         // unsignalled to be submitted, or waits return early while the GPU still runs the commands.
         vkResetFences(m_device, 1, &f.fence);
-        vkQueueSubmit(m_queue, 1, &si, f.fence);
+        SubmitGpuWork(1, &si, f.fence);
         WaitFrame(f, "GPU frame work");
         // Leave the fence signalled: BeginFrame waits on it before using this slot.
         f.uploadsRecorded = false;
@@ -1634,6 +1801,7 @@ void Device::BeginFrame()
 {
     if (m_deviceLost)
         return;
+    ResetWeatherStats();
     HeapCheck("the frame's start", 1);
     if (!m_heapBroken && HeapCheckLevel() > 0) m_heapLastOk = "the frame's start";
     // Indoors (a room's playfield: rooms drawn, no terrain) for 10 frames running, or out again: no weather in there
@@ -1646,7 +1814,10 @@ void Device::BeginFrame()
             m_indoorRun = 0;
             Log("weather: %s (rooms %u, terrain %u drawn)", inside ? "indoors - none" : "outdoors", m_frameRoomVisuals,
                 m_frameTerrainVisuals);
-            if (inside) m_rain = m_stormSky = m_sand = m_storm = 0.0f;
+            if (inside) {
+                m_rain = m_stormSky = m_sand = m_storm = 0.0f;
+                m_daylightWorldSeen = ~0ull;
+            }
         }
         m_frameRoomVisuals = m_frameTerrainVisuals = 0;
     }
@@ -1709,6 +1880,7 @@ void Device::BeginFrame()
         m_ringPeak = std::max(m_ringPeak, f.ringOffset);
         f.ringOffset = 0;
     }
+    if ((m_wearDebug>0 && m_frameNumber%120==119) || (m_buildWear>0 && m_frameNumber%600==599)) ReportWeatherStats();
     if (m_frameNumber % 600 == 599) {            // how full frames get (logged with the profiler's numbers)
         Log("ring buffer: peak %.1f of %llu MB a frame, %u mid-frame flushes (last 600 frames)",
             double(m_ringPeak) / 1048576.0, (unsigned long long)(f.ringSize >> 20), m_midFrameFlushes);
@@ -1792,6 +1964,7 @@ void Device::BeginFrame()
     vkBeginCommandBuffer(f.main, &b);
     m_cache = StateCache{};
     ++m_frameNumber;
+    TrimMaterialCache();
     ProfileBeginFrame(f.main);
     ProfileCpuAddMs("wait for the GPU (frame slot)", waitMs);
     LiveSmooth(m_liveGpuWaitMs, waitMs);
@@ -1817,6 +1990,7 @@ void Device::BeginFrame()
     UpdateLightning();                           // (rain.cpp: the game's glow last frame)
     m_lightsPrev.swap(m_lightsCur);              // last frame's complete light set lights this frame
     m_lightsCur.clear();
+    PrepareLivingFrame();
     m_sunLuminance = 0.0f;
     m_casters.clear();
     m_blobShadowsReplaced.store(m_shadows && m_shadowValid, std::memory_order_relaxed);
@@ -1859,6 +2033,7 @@ void Device::BeginFrame()
     // which waits on frame work only an open frame submits.)
     PollTerrainRock();
     PollSharedTerrain();
+    EnsureWindowRooms();
 }
 
 void Device::EndFrame()
@@ -1981,6 +2156,7 @@ void Device::EndFrame()
     }
     if (m_fg && present)
         FgBeforePresent(f.main);                 // (frame generation: whether to generate, the interface's layer)
+    if (m_deviceLost) { m_inFrame=false; return; }
     vkEndCommandBuffer(f.main);
 
     VkCommandBuffer cmds[5];
@@ -2003,7 +2179,7 @@ void Device::EndFrame()
         si.pSignalSemaphores = &m_renderDone[imageIndex];
     }
     f.serial = ++m_submitted;
-    VkResult submitted = vkQueueSubmit(m_queue, 1, &si, f.fence);
+    VkResult submitted = SubmitGpuWork(1, &si, f.fence);
     if (submitted != VK_SUCCESS) {
         Log("frame submit failed: %d; rendering stops (restart the client)", int(submitted));
         m_deviceLost = true;
@@ -2012,6 +2188,7 @@ void Device::EndFrame()
     }
     f.uploadsRecorded = false;
     FrameCommandsSubmitted(f);
+    if (!m_window && !m_deviceLost) startup::Finish();
     if (present) {
         VkPresentInfoKHR pi{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
         pi.waitSemaphoreCount = 1;
@@ -2020,6 +2197,13 @@ void Device::EndFrame()
         pi.pSwapchains = &m_swapchain;
         pi.pImageIndices = &imageIndex;
         VkResult r = m_fg ? FgPresent(&pi) : vkQueuePresentKHR(m_queue, &pi);
+        if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) {
+            startup::Finish();
+            if (m_sceneSaw3D) {
+                m_worldPresents.fetch_add(1, std::memory_order_release);
+                m_freshWorldPresents.fetch_add(1, std::memory_order_release);
+            }
+        }
         if (r == VK_SUBOPTIMAL_KHR || r == VK_ERROR_OUT_OF_DATE_KHR)
             m_swapchainStale = true;
         else if (r < 0) {
@@ -2056,7 +2240,7 @@ void Device::SubmitAndWait()
     si.commandBufferCount = n;
     si.pCommandBuffers = cmds;
     f.serial = ++m_submitted;
-    vkQueueSubmit(m_queue, 1, &si, f.fence);
+    SubmitGpuWork(1, &si, f.fence);
     WaitFrame(f, "mid-frame flush");
     vkResetFences(m_device, 1, &f.fence);
     FrameCommandsSubmitted(f);                 // f.main stays the buffer being recorded
@@ -2123,7 +2307,7 @@ bool Device::ReadPixels(Texture* target, void* out)
         VkSubmitInfo si{VK_STRUCTURE_TYPE_SUBMIT_INFO};
         si.commandBufferCount = 1;
         si.pCommandBuffers = &cmd;
-        vkQueueSubmit(m_queue, 1, &si, VK_NULL_HANDLE);
+        SubmitGpuWork(1, &si, VK_NULL_HANDLE);
         vkQueueWaitIdle(m_queue);
         m_completed = m_submitted;
         vkFreeCommandBuffers(m_device, m_pool, 1, &cmd);

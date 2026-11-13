@@ -268,6 +268,7 @@ rvk::Texture* RSurface::RvkTexture()
     if (kind != Kind::Texture)
         return nullptr;
     RSurface* t = top;
+    if(t->texture && t->texture->MaterialsState()==rvk::Texture::MaterialState::Evicted)AttachMaterialMaps(t);
     if (!t->texture) {
         t->texture = dev->CreateTexture(t->desc.dwWidth, t->desc.dwHeight, t->format, t->levels);
         if (t->texture) ++g_gameTextures;

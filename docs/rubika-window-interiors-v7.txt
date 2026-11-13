@@ -1,0 +1,59 @@
+Preview 20 Rubi-Ka exterior windows v7
+
+RVK_WindowDepth: 0 Off(default),1 Subtle,2 Strong. Existing settings retained.
+Materials > Window interiors. No playfield restriction. Native Scene/Visuals,
+bindless rendering and the existing mesh-ids.bin are required.
+
+This extends the live-approved global v6/ICC experiment. The registry now has
+95 reviewed window materials (83 glazed/interior profiles plus12 shutter or
+diffusing-window light profiles),304 stock/HD pane records and451 positive
+material/model witnesses. Native render eligibility remains conservative.
+
+Selected rooms receive more indirect warm/cool light, particularly at night.
+The light belongs to the shared apartment, so adjacent small/large/corner panes
+see one consistently lit room. Small panes still crop a full-size room. Room
+dimensions, furniture, upright orientation, interior door and bright lamp
+emitter are retained. Quiet apartments remain dim. The existing deterministic
+room variation and day/night response supply variety without flickering or
+run-dependent randomness. This does not add animated light switches.
+
+The accepted ICC297408 and296246 profiles deliberately retain v6 appearance;
+the stronger indirect-light change does not apply to them. Matched Off/Subtle/
+Strong ICC fixtures are required to remain pixel-identical to approved v6.
+
+Added low-tech, shack, factory, Athenian, living-quarter and window-covering
+profiles use reviewed masks and positive model identities. Closed coverings
+retain their original texture and receive only a small light leak through the
+reviewed gaps; no room photograph replaces a shutter. A reviewed shop-front
+and storage-window profile prefer office furnishings.
+
+Clamp and mirrored addressing are supported on reviewed global profiles.
+Clamped pixels outside the actual UV tile retain original rendering. Mirrored
+UV charts mirror the mask while the physical room stays upright. Newland's
+reviewed, model-guarded fallback also supports self-lit/emissive windows.
+Border addressing, arbitrary UV transforms, alpha tests and unapproved blend
+states remain excluded. The existing ICC lobby blend is retained.
+
+The registry is broad global support for identifiable exterior openings, not
+a proof that every window-like surface in the entire game can be replaced.
+Real transparent views into playable space remain real views. Walls, signs,
+screens, doors, vehicles and ambiguous/unknown models retain their rendering.
+Native Omni-Trade captures were reviewed; plain metal panels are not turned
+into new windows. Exact accepted masks and preserved candidates are listed in
+assets/window-profiles/catalog.json. Do not infer windows from darkness alone.
+
+Large/curved volumes, inferred storeys and separate native visuals remain
+approximations. Separate visuals are not merged into one dwelling. Tiny/far/
+grazing panes may show only a wall/door/furniture fragment or averaged light.
+Interiors are not enterable/collidable, and bloom is optical light spill.
+
+No new raster asset. Same2.67MiB eight-tile surface atlas; pane table14,592 GPU
+bytes (14.25KiB). No new global rendering pass, per-apartment scene object,
+moving person or outdoor light. Off skips classification/initial uploads and
+native bounds queries; hot Off can retain allocations. Dense-facade distance
+detail and the8192-resource native bounds cache are retained from v6.
+
+Canonical review: assets/window-profiles/catalog.json.
+Regenerate/check: python tools/build-window-profiles.py [--check].
+Source changes are isolated in build/rubika-windows. See REPORT-v7.txt for
+validation, measured costs, comparison images, native live status and rollback.

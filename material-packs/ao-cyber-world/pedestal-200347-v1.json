@@ -1,0 +1,46 @@
+{
+  "type": 1010004,
+  "id": 200347,
+  "name": "pedestal_bg.png",
+  "reference": "1010004:14941",
+  "tool": "built-in image_gen",
+  "prompt": "Use case: precise-object-edit. Asset: production game diffuse/albedo texture, Anarchy Online resource 1010004:200347 (pedestal_bg), 1:2 portrait texture. Input 1 is the EDIT TARGET, the current tall pale-grey replacement. Input 2 is the STYLE/MATERIAL reference, 1010004:14941: clean modern light silver coated alloy, fine subtle grain, machined chamfered inset edges. Input 3 is the ORIGINAL UV-layout reference. Re-render input 1 as modern pale silver/off-white satin metal pedestal or wall cladding with a modest polished appearance, inspired by input 2. Preserve input 1/input 3's tall 1:2 canvas, faint orthogonal panel-grid arrangement, broad color values, and exact locations/proportions of existing panel boundaries. Make the existing shallow seams legible and precisely machined, add restrained rounded microbevels at their edges, with subtle uniform fine metal grain and smooth clean panel faces. No extra major divisions, no copying the eight inset rectangles of input 2, no new objects, no screws, no stripes, no text, no labels, no logos, no borders. This is a flat, straight-on UV texture filling the entire canvas, not a photograph or 3D preview. Neutral uniform diffuse lighting; NO baked specular shine, reflections, gradients, cast shadows or perspective. Actual shine will be authored in a separate PBR roughness map. Seamless opposite edges, retain compatible UV placement and proportions, no black padding. Render a high quality portrait raster texture at 1:2 aspect.",
+  "generatedFile": "artwork-provenance/generated/1010004_200347-v1.png",
+  "generatedSha256": "474654c9f8f7ef1b54f37457ea6574b34e0a2e8fbf6611d6c40f90ac56ec5c70",
+  "maps": {
+    "d": {
+      "file": "1010004_200347_d.png",
+      "sha256": "a385ceb061859b3373ab3835365eaeac44d42641334d5fa151446b7c31453203",
+      "size": [
+        512,
+        1024
+      ]
+    },
+    "n": {
+      "file": "1010004_200347_n.png",
+      "sha256": "e8abc26d9f6223bb9d7e271ba9330cdc31281c6f4da22678ee0ec45e610dce0c",
+      "size": [
+        256,
+        512
+      ]
+    },
+    "orm": {
+      "file": "1010004_200347_orm.png",
+      "sha256": "afc00f0078800881bcf37ebcd4d1fbfbe9c08304b6b7a6294948b28db189944a",
+      "size": [
+        256,
+        512
+      ]
+    }
+  },
+  "previousMapHashes": {
+    "1010004_200347_d.png": "6a3ac7b45f6c24499bec3a8b80df46025a97ebc81e8044c08cf9c740f6fdf01a",
+    "1010004_200347_n.png": "e517dadd6aca357336c6bea9640a526106fc6b634320bb0cb461b1ed23ca3201",
+    "1010004_200347_orm.png": "44a14107dc7cec8aaf3f5b8d1ead3e5375f2088211737c7cfb1a085da3ea8c0f"
+  },
+  "roughness": 0.3215686274509804,
+  "metalness": 0.6196078431372549,
+  "originalAlphaPreserved": true,
+  "originalAspectPreserved": true,
+  "retailMeshFitCertified": false
+}

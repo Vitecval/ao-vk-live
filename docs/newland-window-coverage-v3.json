@@ -1,0 +1,5604 @@
+{
+  "owned_materials_reviewed": 88,
+  "borrowed_materials_reviewed": 11,
+  "retained_functional_ids_reviewed": 9,
+  "previous_materials": [
+    6052,
+    6055,
+    6081
+  ],
+  "materials": [
+    6052,
+    6055,
+    6081,
+    6059,
+    6060,
+    6069,
+    6086
+  ],
+  "pane_regions_previous": 7,
+  "pane_regions_current": 15,
+  "arched_cap_now_included": true,
+  "scope": "reviewed HD open-glass materials; not a claim of complete live-world visibility",
+  "rows": [
+    {
+      "id": 5992,
+      "name": "shinystriped.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20693,
+          "name": "midtech_elevationwall_cornerinside.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14191,
+          "name": "midtech-elevationwall3.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29491,
+          "name": "wood_shack_02.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29498,
+          "name": "wood_shack_04.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29501,
+          "name": "wood_shack_05.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29504,
+          "name": "wood_shack_06.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29507,
+          "name": "wood_shack_07.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3686,
+          "name": "factory_barracks_armored.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3692,
+          "name": "factory_barracks1.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3706,
+          "name": "factory_bigtwinbuilding.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3742,
+          "name": "factory_twinoffice.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17887,
+          "name": "omni-slumhouse4.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 18647,
+          "name": "omni_slumhouse5.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 36181,
+          "name": "nice_slumhouse_halle_fords_home.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 3528,
+          "name": "dock_construct1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 5994,
+      "name": "dirty_metalplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3044,
+          "name": "midtech_bigwall_broken.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3060,
+          "name": "midtech_roadseparator_simple.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "rk-furniture",
+          "model": 283723,
+          "name": "nqo_table01.abiff"
+        },
+        {
+          "family": "rk-furniture",
+          "model": 283725,
+          "name": "nqo_stool01.abiff"
+        },
+        {
+          "family": "rk-furniture",
+          "model": 283727,
+          "name": "nqo_table01_broken01.abiff"
+        },
+        {
+          "family": "rk-furniture",
+          "model": 283728,
+          "name": "nqo_table01_broken02.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 3528,
+          "name": "dock_construct1.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 44967,
+          "name": "nature_omnitekbauta.abiff"
+        }
+      ]
+    },
+    {
+      "id": 5996,
+      "name": "metaldoor.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 42035,
+          "name": "midtech_building2_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42036,
+          "name": "midtech_building3_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42037,
+          "name": "midtech_building4_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42047,
+          "name": "midtech_building1_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100302,
+          "name": "backyard_neutral_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41738,
+          "name": "ruin_midtech_building2_door0.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 3528,
+          "name": "dock_construct1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 5997,
+      "name": "dirty_metalplate_fringe.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 152809,
+          "name": "Door_3x1_dangerstripes.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 152813,
+          "name": "Doorframe_3x1_dangerstripes.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 258798,
+          "name": "Door_3x1_dangerstripes_noanim.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 273647,
+          "name": "itm_closed_door.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14193,
+          "name": "wall_factory_broken.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14195,
+          "name": "wall_factory_broken2.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14203,
+          "name": "wall_factory_standalone1.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14205,
+          "name": "wall_factory_cornerpole.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14206,
+          "name": "wall_factory_gate.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 14207,
+          "name": "wall_factory_straight.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 17895,
+          "name": "neo_versailles_tower.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 273527,
+          "name": "itm_mainhull.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 160033,
+          "name": "bcave_tpillar1.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 160034,
+          "name": "bcave_tpillar2.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204212,
+          "name": "bcave_tpillar1_2.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204213,
+          "name": "bcave_tpillar1_1.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204215,
+          "name": "bcave_tpillar2_1.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204783,
+          "name": "bcave_tpillar1_2-10m.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204785,
+          "name": "bcave_tpillar1-10m.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204787,
+          "name": "bcave_tpillar1_2-6m_edges.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204788,
+          "name": "bcave_tpillar1_2-780cm_edges.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204857,
+          "name": "bcave_tpillar1_2-endplate.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 204858,
+          "name": "bcave_tpillar1_2-endplate_half.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 205128,
+          "name": "bcave_tpillar1_2-10,6m.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 3528,
+          "name": "dock_construct1.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 44967,
+          "name": "nature_omnitekbauta.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6050,
+      "name": "plateyellbars.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6051,
+      "name": "singleplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6080,
+          "name": "midtech_satelitedish.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 88061,
+          "name": "midtech_satelitedish_larger.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6052,
+      "name": "plateyellwindows.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6053,
+      "name": "plateyellsupplies_sign.png",
+      "status": "excluded",
+      "reason": "SUPPLIES sign; original text protected",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6054,
+      "name": "overdoor.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6055,
+      "name": "plateyellwindow2.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6056,
+      "name": "plateyellhorisontalpipeendpart.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6057,
+      "name": "metalplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13165,
+          "name": "clan_rooflamp1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29437,
+          "name": "ruin_midtech_building1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 116716,
+          "name": "door_blocker1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6059,
+      "name": "greymetalwindows.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": [
+        1416,
+        1418,
+        1420,
+        99415
+      ],
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 41686,
+          "name": "midtech_building5_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 41687,
+          "name": "midtech_building6_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42035,
+          "name": "midtech_building2_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42036,
+          "name": "midtech_building3_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42037,
+          "name": "midtech_building4_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42038,
+          "name": "midtech_building6_door2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42047,
+          "name": "midtech_building1_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41738,
+          "name": "ruin_midtech_building2_door0.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6060,
+      "name": "yelplatewindow.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6061,
+      "name": "plateyellhorisontalpipes.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6062,
+      "name": "singleplatebottom.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6063,
+      "name": "wallfront.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3041,
+          "name": "midtech_wall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3046,
+          "name": "midtech_bigwall_flipped.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4735,
+          "name": "midtech_bigwall.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6064,
+      "name": "concretewall.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3041,
+          "name": "midtech_wall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3044,
+          "name": "midtech_bigwall_broken.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3046,
+          "name": "midtech_bigwall_flipped.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3048,
+          "name": "midtech_bigwall_midpart.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4734,
+          "name": "midtech_bigwall_gate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4735,
+          "name": "midtech_bigwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4736,
+          "name": "midtech_bigwall_corner.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6065,
+      "name": "wallside.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3041,
+          "name": "midtech_wall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3044,
+          "name": "midtech_bigwall_broken.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3046,
+          "name": "midtech_bigwall_flipped.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4735,
+          "name": "midtech_bigwall.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1912,
+          "name": "village_shopbooth.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6066,
+      "name": "plateyellbottompart.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6069,
+      "name": "wallwindows.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": [
+        1419
+      ],
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 14212,
+          "name": "gate4.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6071,
+      "name": "vertikalplaate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 81749,
+          "name": "big_roof_barrelshaped_lamp_cone.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6073,
+      "name": "mplate_dirty.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29491,
+          "name": "wood_shack_02.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29494,
+          "name": "wood_shack_01.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29498,
+          "name": "wood_shack_04.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29501,
+          "name": "wood_shack_05.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29504,
+          "name": "wood_shack_06.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6079,
+      "name": "greycleanmetalplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4734,
+          "name": "midtech_bigwall_gate.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1457,
+          "name": "lowtech_building1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1459,
+          "name": "lowtech_building2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1464,
+          "name": "lowtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1466,
+          "name": "lowtech_building4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1469,
+          "name": "lowtech_building5.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6460,
+          "name": "midtech_lamppost1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 85371,
+          "name": "villagesbuilding3.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38543,
+          "name": "chalk_house_01.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38549,
+          "name": "chalk_house_02.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 100235,
+          "name": "irrigation_mainhub1.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 100236,
+          "name": "irrigation_sprinklers.abiff"
+        },
+        {
+          "family": "rk-tech-props",
+          "model": 121522,
+          "name": "satelite_dish_big.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 36702,
+          "name": "athen_shire_military_academy.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6570,
+          "name": "refuelingpod.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6081,
+      "name": "plateyellwindow.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6082,
+      "name": "wallwith bars2.png",
+      "status": "excluded",
+      "reason": "Bars/vent recess; no authored open-glass mask",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 160037,
+          "name": "bcave_tpillar4.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6083,
+      "name": "plateyelltopridge.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6084,
+      "name": "plateyelltubes.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6085,
+      "name": "glowplate.png",
+      "status": "excluded",
+      "reason": "Light diffuser, not a room aperture",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6460,
+          "name": "midtech_lamppost1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6086,
+      "name": "wallwithwindowtop.png",
+      "status": "enabled",
+      "reason": "Reviewed open glass; only inset pane pixels",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6087,
+      "name": "stripedstdmetal.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4734,
+          "name": "midtech_bigwall_gate.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6088,
+      "name": "midtech_metalwall1.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3139,
+          "name": "midtech_lowwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20693,
+          "name": "midtech_elevationwall_cornerinside.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20694,
+          "name": "midtech_elevationwall_stairs.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20695,
+          "name": "midtech_elevationwall_4m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20728,
+          "name": "midtech_elevationwall_simple.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20737,
+          "name": "midtech_elevationwall_bridge_end.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 21447,
+          "name": "midtech_elevationwall_bridge_mid8m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 22869,
+          "name": "midtech_elevationwall_smalending.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14187,
+          "name": "midtech-elevationwall1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14191,
+          "name": "midtech-elevationwall3.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22871,
+          "name": "ent_elevationwall3.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22872,
+          "name": "ent_elevationwall2.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22873,
+          "name": "ent_elevationwall_cornerinside.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22874,
+          "name": "ent_elevationwall_stairs.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22875,
+          "name": "ent_elevationwall_simple.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 35628,
+          "name": "ent_elevationwall_corner45.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 258523,
+          "name": "ent_elevationwall_corner45_the_other_way.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 116834,
+          "name": "tir_entrance1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6089,
+      "name": "pillarplates.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 289814,
+          "name": "rratinacage.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6090,
+      "name": "simplemetalplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6091,
+      "name": "greyshiny_topstripes.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6092,
+      "name": "screen_dark.png",
+      "status": "excluded",
+      "reason": "Functional screen, not a room window",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6094,
+      "name": "brushedmetalrustypatches.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1482,
+          "name": "lowtech_waterwell.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13935,
+          "name": "lowtech_lamp4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13937,
+          "name": "lowtech_lamp2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13938,
+          "name": "lowtech_lamp1.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 10943,
+          "name": "fillobject_cylcontainer.abiff"
+        },
+        {
+          "family": "rk-tech-props",
+          "model": 6557,
+          "name": "fillobject_containerelevator.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6560,
+          "name": "fillobject_cylcontholder.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6572,
+          "name": "techitem_automat.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6095,
+      "name": "windowyelplatetransfer.png",
+      "status": "excluded",
+      "reason": "Pipes/transfer texture, no open pane",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6096,
+      "name": "yellowstripedwindow.png",
+      "status": "excluded",
+      "reason": "CCCP sign/text; no room overlay",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29437,
+          "name": "ruin_midtech_building1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6097,
+      "name": "rustypillarsonmetalplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1457,
+          "name": "lowtech_building1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1459,
+          "name": "lowtech_building2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1464,
+          "name": "lowtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6546,
+          "name": "clan_fillobject_automat.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 85371,
+          "name": "villagesbuilding3.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 6556,
+          "name": "fillobject_clan_worncrate.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6563,
+          "name": "fillobject_rustytube.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6098,
+      "name": "greymetal.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6080,
+          "name": "midtech_satelitedish.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 88061,
+          "name": "midtech_satelitedish_larger.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6103,
+      "name": "singleplate_metalgrid.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3058,
+          "name": "midtech_roadseparator.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3060,
+          "name": "midtech_roadseparator_simple.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6105,
+      "name": "singleplatebottom_concrete.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3058,
+          "name": "midtech_roadseparator.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3060,
+          "name": "midtech_roadseparator_simple.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6106,
+      "name": "singleplate_small.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3058,
+          "name": "midtech_roadseparator.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1912,
+          "name": "village_shopbooth.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6114,
+      "name": "wallbottom.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3041,
+          "name": "midtech_wall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3044,
+          "name": "midtech_bigwall_broken.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3046,
+          "name": "midtech_bigwall_flipped.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3048,
+          "name": "midtech_bigwall_midpart.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4734,
+          "name": "midtech_bigwall_gate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4735,
+          "name": "midtech_bigwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4736,
+          "name": "midtech_bigwall_corner.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6128,
+      "name": "walltop.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3041,
+          "name": "midtech_wall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3044,
+          "name": "midtech_bigwall_broken.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3046,
+          "name": "midtech_bigwall_flipped.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4735,
+          "name": "midtech_bigwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4736,
+          "name": "midtech_bigwall_corner.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6129,
+      "name": "conc_top.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20694,
+          "name": "midtech_elevationwall_stairs.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20695,
+          "name": "midtech_elevationwall_4m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20728,
+          "name": "midtech_elevationwall_simple.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 22869,
+          "name": "midtech_elevationwall_smalending.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14191,
+          "name": "midtech-elevationwall3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6130,
+      "name": "conc_floorpiece.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20694,
+          "name": "midtech_elevationwall_stairs.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6131,
+      "name": "blockwallinset.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20694,
+          "name": "midtech_elevationwall_stairs.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20695,
+          "name": "midtech_elevationwall_4m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20728,
+          "name": "midtech_elevationwall_simple.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20737,
+          "name": "midtech_elevationwall_bridge_end.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 21447,
+          "name": "midtech_elevationwall_bridge_mid8m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 22869,
+          "name": "midtech_elevationwall_smalending.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14191,
+          "name": "midtech-elevationwall3.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 17895,
+          "name": "neo_versailles_tower.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6132,
+      "name": "conc_cleanside.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 4732,
+          "name": "midtech_elevationwall.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6133,
+      "name": "yellowstripe.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4734,
+          "name": "midtech_bigwall_gate.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6080,
+          "name": "midtech_satelitedish.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 88061,
+          "name": "midtech_satelitedish_larger.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 152809,
+          "name": "Door_3x1_dangerstripes.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 258798,
+          "name": "Door_3x1_dangerstripes_noanim.abiff"
+        },
+        {
+          "family": "dungeon-caves",
+          "model": 36135,
+          "name": "closed_mine_entrance.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6134,
+      "name": "platewindows.png",
+      "status": "excluded",
+      "reason": "Opaque closed blinds and mullions; no verified view through them",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 4736,
+          "name": "midtech_bigwall_corner.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8466,
+      "name": "Floorplate_grid.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8469,
+          "name": "Elev_floor_entre.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8476,
+          "name": "Elev_floor_flat.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8478,
+          "name": "Elev_floor_junction1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8480,
+          "name": "Elev_floor_junction2.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8484,
+          "name": "Elev_floor_simple1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8490,
+          "name": "Elev_floor_straight1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 8492,
+          "name": "Elev_floor_straight2.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8606,
+      "name": "hitech_striped_door_insdie2.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8680,
+      "name": "doorfrontal.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8681,
+      "name": "factory_detailstrip.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31348,
+          "name": "4h_storage1.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8682,
+      "name": "hitech_semirustydoorplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8691,
+      "name": "hitech_doorfront2.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8692,
+      "name": "hitech_door_wall_thinslice.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8693,
+      "name": "insidedoor.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8694,
+      "name": "hitech_door_wall_sideholes.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8695,
+      "name": "hitech_door_understripesdark.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8696,
+      "name": "hitechdoor_upperedge2.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8697,
+      "name": "hitech_door_hingepart.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 8699,
+          "name": "midtech_rounddoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8798,
+      "name": "hitech_door_shinymetinsidestrip.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 8805,
+          "name": "hitechdoor_cleanomni.abiff"
+        }
+      ]
+    },
+    {
+      "id": 11386,
+      "name": "lowtech_shinyplate_lowerholeswithwiresin.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 11387,
+      "name": "midtech_door_smallsquareplatewithwires.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 11388,
+      "name": "midtech_door_edge.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 11389,
+      "name": "midtech_door_upperstrip.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 11390,
+      "name": "midtech_doorpart_thinstrip.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 44724,
+          "name": "lowtech_rooflamp_simple.abiff"
+        }
+      ]
+    },
+    {
+      "id": 20909,
+      "name": "dock_factory_metal_girder.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31030,
+          "name": "4h_crane_low.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31031,
+          "name": "4h_crane_tall.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 20903,
+          "name": "dock_factory_crane.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 21068,
+          "name": "dock_factory_large_broken.abiff"
+        }
+      ]
+    },
+    {
+      "id": 25452,
+      "name": "teleporter_sideupper.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85928,
+          "name": "subway_entrance_omni-entertainment.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 25447,
+          "name": "teleporter_entrance.abiff"
+        },
+        {
+          "family": "rk-ai-cities",
+          "model": 254240,
+          "name": "ai_teleporter_baboon.abiff"
+        },
+        {
+          "family": "rk-ai-cities",
+          "model": 254244,
+          "name": "ai_teleporter_rompa.abiff"
+        },
+        {
+          "family": "rk-ai-cities",
+          "model": 255430,
+          "name": "ai_teleporter_neuters.abiff"
+        },
+        {
+          "family": "rk-ai-cities",
+          "model": 255435,
+          "name": "ai_teleporter_reet_retreat.abiff"
+        }
+      ]
+    },
+    {
+      "id": 26712,
+      "name": "neutral_entrance_dark.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29436,
+          "name": "ruin_midtech_building2.abiff"
+        }
+      ]
+    },
+    {
+      "id": 27795,
+      "name": "metaldoor2.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 41686,
+          "name": "midtech_building5_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 41687,
+          "name": "midtech_building6_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42038,
+          "name": "midtech_building6_door2.abiff"
+        }
+      ]
+    },
+    {
+      "id": 30003,
+      "name": "woodwall_128_dirty_greenhue.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 41786,
+          "name": "door_neutral_entrance1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 41789,
+          "name": "door_neutral_shack1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 88100,
+          "name": "door_neutral_shack2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1912,
+          "name": "village_shopbooth.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29480,
+          "name": "wood_shack_03.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29491,
+          "name": "wood_shack_02.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29494,
+          "name": "wood_shack_01.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29498,
+          "name": "wood_shack_04.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29501,
+          "name": "wood_shack_05.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29504,
+          "name": "wood_shack_06.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29507,
+          "name": "wood_shack_07.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 90410,
+          "name": "tree_platform_bridge.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 90415,
+          "name": "tree_platform_stairs.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 40458,
+          "name": "manic_miner_entrance.abiff"
+        },
+        {
+          "family": "rk-vegetation",
+          "model": 90417,
+          "name": "tree_platform.abiff"
+        }
+      ]
+    },
+    {
+      "id": 31008,
+      "name": "midtech_door_bigplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 31009,
+      "name": "midtech_door_tubepart.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 31010,
+      "name": "midtech_semirustypipebottompart.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 41788,
+      "name": "omni_gray_tilemetal.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 41786,
+          "name": "door_neutral_entrance1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 41789,
+          "name": "door_neutral_shack1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 88100,
+          "name": "door_neutral_shack2.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41802,
+          "name": "door_omni_military1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41809,
+          "name": "door_omni_military2.abiff"
+        }
+      ]
+    },
+    {
+      "id": 43399,
+      "name": "neutral_metalplate_pipe.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        }
+      ]
+    },
+    {
+      "id": 43400,
+      "name": "neutral_metalplate_dirty.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        }
+      ]
+    },
+    {
+      "id": 43401,
+      "name": "clan_metalplate_blueshine.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 99716,
+          "name": "startupc_balcony_door.abiff"
+        }
+      ]
+    },
+    {
+      "id": 43402,
+      "name": "clan_metalplate_plate2.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 99716,
+          "name": "startupc_balcony_door.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 99817,
+          "name": "startupo_platformdoor.abiff"
+        }
+      ]
+    },
+    {
+      "id": 99647,
+      "name": "neutral_newplate_nexttowindow1.png",
+      "status": "excluded",
+      "reason": "Tiny barred/vent-like inset; not a verified open room aperture",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 99648,
+      "name": "neutral_newplate_colstripeupper1.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99742,
+          "name": "startupn_simplewall.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99743,
+          "name": "startupn_simplewall_pillar.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        }
+      ]
+    },
+    {
+      "id": 99649,
+      "name": "neutral_prisonlamp.png",
+      "status": "excluded",
+      "reason": "Prison lamp, not a room aperture",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 120560,
+      "name": "door_neutral_old_and_shabby.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 41786,
+          "name": "door_neutral_entrance1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 42039,
+          "name": "midtech_building7_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41677,
+          "name": "wood_shack_03_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41681,
+          "name": "wood_shack_04_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41683,
+          "name": "wood_shack_06_door0.abiff"
+        }
+      ]
+    },
+    {
+      "id": 156808,
+      "name": "metalplate_dupelicate_neutralbuildings.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 5946,
+      "name": "rustyplate64x128.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "clan-settlement",
+          "model": 1852,
+          "name": "lowtechclan_building4.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 1873,
+          "name": "lowtechclan_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 3132,
+          "name": "midtech_ruins1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1864,
+          "name": "lowtechclan_mountainbuilding.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41754,
+          "name": "lowtech_building7_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 85412,
+          "name": "chalk_house_03_door0.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 6556,
+          "name": "fillobject_clan_worncrate.abiff"
+        },
+        {
+          "family": "rk-tech-props",
+          "model": 6557,
+          "name": "fillobject_containerelevator.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6572,
+          "name": "techitem_automat.abiff"
+        }
+      ]
+    },
+    {
+      "id": 5969,
+      "name": "smallrustyplate.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "clan-settlement",
+          "model": 1842,
+          "name": "lowtechclan_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1464,
+          "name": "lowtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1466,
+          "name": "lowtech_building4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1476,
+          "name": "lowtech_building7.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1482,
+          "name": "lowtech_waterwell.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1661,
+          "name": "village_gate.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1709,
+          "name": "village_elevatedwalkwaycorn.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1711,
+          "name": "village_elevatedwalkwaydown.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1715,
+          "name": "village_elevatedwalkwaytech.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 4737,
+          "name": "village_elevatedwalkwaystraight.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6546,
+          "name": "clan_fillobject_automat.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 6547,
+          "name": "clan_speedergarage.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13933,
+          "name": "lowtech_lamp6.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13934,
+          "name": "lowtech_lamp5.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13936,
+          "name": "lowtech_lamp3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 13938,
+          "name": "lowtech_lamp1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 85371,
+          "name": "villagesbuilding3.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 4072,
+          "name": "longwallcorner_village.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 4073,
+          "name": "longwall_village.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 6160,
+          "name": "pipe_clean_endblock2.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38543,
+          "name": "chalk_house_01.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 6570,
+          "name": "refuelingpod.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6112,
+      "name": "squarerimmedglowwhite.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "omni-hq-exteriors",
+          "model": 7861,
+          "name": "hitechbuilding_omnitower1.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 8169,
+          "name": "hitech_buildingconnector_middle.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 8679,
+          "name": "midtech_metalsideslidedoor.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 22530,
+          "name": "clan_hanginglamp_middle.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 44724,
+          "name": "lowtech_rooflamp_simple.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 99708,
+          "name": "startupc_parkgate.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 6207,
+          "name": "roof_light_neon_on.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41777,
+          "name": "door_cave_bigrusty1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 121398,
+          "name": "door_caveb_bigrusty1.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 14208,
+          "name": "gate2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 6113,
+          "name": "hitech_rooflamp.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 6122,
+          "name": "Omni_tablelamp.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 6124,
+          "name": "Omni_wallamp.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 6127,
+          "name": "Omni-wallamp2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 6663,
+          "name": "omni_lamp_big_hitech.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 8276,
+          "name": "hitechlamp_groundtype_small.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 8278,
+          "name": "omnitek_lamp_wallbased_small.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 8280,
+          "name": "omnilamp_hitech_wallbased.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 8677,
+          "name": "hitech_computerdeck_groundroundtype.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 284679,
+          "name": "nqo_hackerroom.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100150,
+          "name": "backyard_clan.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 44177,
+          "name": "ent_lamp_simple1.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 22362,
+          "name": "tir_lamp_wall.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 119228,
+          "name": "fixture_smetlamp2.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 119229,
+          "name": "fixture_smetlamp3.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 291992,
+          "name": "shopitem_park_clan.abiff"
+        }
+      ]
+    },
+    {
+      "id": 18556,
+      "name": "slum_dirtywall.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99650,
+          "name": "midtech_simpleblock1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 100290,
+          "name": "startupn_junkyard.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17879,
+          "name": "omni-slumhouse2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17885,
+          "name": "omni-slumhouse3.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 36181,
+          "name": "nice_slumhouse_halle_fords_home.abiff"
+        }
+      ]
+    },
+    {
+      "id": 20137,
+      "name": "slum_rundown_metal.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100472,
+          "name": "startupn_exittocity.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 100290,
+          "name": "startupn_junkyard.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20134,
+          "name": "ent_light_pole_trashcan.abiff"
+        },
+        {
+          "family": "rk-misc-props",
+          "model": 41901,
+          "name": "dead_swampghoul_hanging.abiff"
+        }
+      ]
+    },
+    {
+      "id": 20907,
+      "name": "dock_factory_concrete_weight.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100471,
+          "name": "startupn_tent1.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31030,
+          "name": "4h_crane_low.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31031,
+          "name": "4h_crane_tall.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 20903,
+          "name": "dock_factory_crane.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 21068,
+          "name": "dock_factory_large_broken.abiff"
+        }
+      ]
+    },
+    {
+      "id": 21522,
+      "name": "2wall-clean_tileable.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "clan-settlement",
+          "model": 21399,
+          "name": "clan_building2.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21400,
+          "name": "clan_building3.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21984,
+          "name": "clan_building10.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 27015,
+          "name": "clan_building3_ruin.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20693,
+          "name": "midtech_elevationwall_cornerinside.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20694,
+          "name": "midtech_elevationwall_stairs.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20695,
+          "name": "midtech_elevationwall_4m.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20728,
+          "name": "midtech_elevationwall_simple.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 20737,
+          "name": "midtech_elevationwall_bridge_end.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 21447,
+          "name": "midtech_elevationwall_bridge_mid8m.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14189,
+          "name": "midtech-elevationwall2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 14191,
+          "name": "midtech-elevationwall3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 121527,
+          "name": "clan_centerbuilding_tower.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 116834,
+          "name": "tir_entrance1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 21525,
+      "name": "newclan_metaldoor1.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "clan-settlement",
+          "model": 21401,
+          "name": "clan_building4_pod.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 27019,
+          "name": "clan_building4_pod_ruin.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 38483,
+          "name": "clan_building2_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 38501,
+          "name": "clan_building2_door2.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41611,
+          "name": "clan_building11_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41740,
+          "name": "clan_building1_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41741,
+          "name": "clan_building3_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41743,
+          "name": "clan_building5_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41744,
+          "name": "clan_building5_door2.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41745,
+          "name": "clan_building6_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41747,
+          "name": "clan_building7_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 41748,
+          "name": "clan_building_9_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 42463,
+          "name": "lowtechclan_building4_door0.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 85801,
+          "name": "clan_building12_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 85921,
+          "name": "subway_entrance_neutral_newland_door0.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41739,
+          "name": "lowtech_building1_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41752,
+          "name": "lowtech_building5_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41753,
+          "name": "lowtech_building6_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41756,
+          "name": "lowtech_building2_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 41956,
+          "name": "ruin_lowtech_4_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 42045,
+          "name": "lowtech_building4_door0.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 96237,
+          "name": "lowtech_building2_door2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 121529,
+          "name": "clan_centerbuilding_tower_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95471,
+          "name": "salty_mainentrance1_tower1_door0.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85927,
+          "name": "subway_entrance_tir-clan_door0.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 116835,
+          "name": "tir_entrance1_door0.abiff"
+        }
+      ]
+    },
+    {
+      "id": 25476,
+      "name": "ent_plainblock_insidedoor.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35841,
+          "name": "hq_omnimall.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35880,
+          "name": "hq_omnibank.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3724,
+          "name": "factory_livingmodule2.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 4034,
+          "name": "factory_livingmodule4.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 4036,
+          "name": "factory_livingmodule5.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 10847,
+          "name": "factory_livingmodule3.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30269,
+          "name": "tlr_factory_purification.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100083,
+          "name": "backyard_omni.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100468,
+          "name": "backyard_rome.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 17561,
+          "name": "ent_wall1_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20374,
+          "name": "ent_wall_baboon_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22853,
+          "name": "ent_twinblock1.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22854,
+          "name": "ent_twinblock2.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25417,
+          "name": "entwall3_mid_entrance3.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25418,
+          "name": "entwall3_mid_entrance2.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25419,
+          "name": "entwall3_mid_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25533,
+          "name": "entwall3_mid_entrance4.abiff"
+        },
+        {
+          "family": "dungeon-castles-temples",
+          "model": 20843,
+          "name": "dentrance_midtech.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 41206,
+          "name": "rome_apartmentblocks1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 29597,
+      "name": "concretebridge_generalside_veryplain.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "icc-city",
+          "model": 100266,
+          "name": "icc_entrance_big1.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 100364,
+          "name": "icc_ringbuilding1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99650,
+          "name": "midtech_simpleblock1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99654,
+          "name": "midtech_simpleblock4.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30030,
+          "name": "tlr_fact_smelter.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 29592,
+          "name": "dlr_lookouttower.abiff"
+        }
+      ]
+    },
+    {
+      "id": 85933,
+      "name": "flooredge_rusty.png",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "icc-city",
+          "model": 297012,
+          "name": "icc_space_elevator01.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99740,
+          "name": "startupn_parkgate.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 100472,
+          "name": "startupn_exittocity.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 100290,
+          "name": "startupn_junkyard.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99854,
+          "name": "spaceship_back_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99874,
+          "name": "spaceship_front_3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6014,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "clan-settlement",
+          "model": 1845,
+          "name": "lowtechclan_building2.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 1852,
+          "name": "lowtechclan_building4.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 1856,
+          "name": "lowtechclan_building6.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 1860,
+          "name": "lowtechclan_building7.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 1873,
+          "name": "lowtechclan_building5.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21397,
+          "name": "clan_building1.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21399,
+          "name": "clan_building2.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21400,
+          "name": "clan_building3.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21401,
+          "name": "clan_building4_pod.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21402,
+          "name": "clan_building5.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21403,
+          "name": "clan_building6.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21404,
+          "name": "clan_building7.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21983,
+          "name": "clan_building_9.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21984,
+          "name": "clan_building10.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21985,
+          "name": "clan_building11.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 21986,
+          "name": "clan_building12.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 27001,
+          "name": "clan_building2_ruin.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 27015,
+          "name": "clan_building3_ruin.abiff"
+        },
+        {
+          "family": "clan-settlement",
+          "model": 85394,
+          "name": "lowtechclan_building1.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 7861,
+          "name": "hitechbuilding_omnitower1.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 7876,
+          "name": "hitechbuilding_omnitower2.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 26860,
+          "name": "hq_building11.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 26869,
+          "name": "hq_building9.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35822,
+          "name": "hq_omni_pol&op.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35824,
+          "name": "hq_omnicentral.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35835,
+          "name": "hq_omniinsur_fasade.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35841,
+          "name": "hq_omnimall.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35850,
+          "name": "hq_omnireform.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35852,
+          "name": "hq_simpleblock1_door.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35863,
+          "name": "hq_omnilivingq_fasade.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35866,
+          "name": "hq_omni_admin.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35878,
+          "name": "hq_omni_lab.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35880,
+          "name": "hq_omnibank.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35882,
+          "name": "hq_med.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 35966,
+          "name": "hq_omnimine.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 42498,
+          "name": "hq_omnilivingq_fasade_small.abiff"
+        },
+        {
+          "family": "omni-hq-exteriors",
+          "model": 55892,
+          "name": "hq_simpleentranceblock.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 100266,
+          "name": "icc_entrance_big1.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 100364,
+          "name": "icc_ringbuilding1.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 101097,
+          "name": "icc_platformpath.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1414,
+          "name": "midtech_building2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1415,
+          "name": "midtech_building1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1416,
+          "name": "midtech_building3.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1417,
+          "name": "midtech_building4.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1419,
+          "name": "midtech_building6.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42556,
+          "name": "last_ditch_building_medium_combined.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42569,
+          "name": "last_ditch_building_medium1.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42572,
+          "name": "last_ditch_building_medium2.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42574,
+          "name": "last_ditch_building_medium3.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42576,
+          "name": "last_ditch_building_medium5.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42578,
+          "name": "last_ditch_building_small1.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42580,
+          "name": "last_ditch_building_small2.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42582,
+          "name": "last_ditch_building_small3.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42584,
+          "name": "last_ditch_building_small4.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42586,
+          "name": "last_ditch_building_small5.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42588,
+          "name": "last_ditch_four_towers_alone.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42591,
+          "name": "last_ditch_four_towers_combined.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42596,
+          "name": "last_ditch_building_large.abiff"
+        },
+        {
+          "family": "neutral-lastditch",
+          "model": 42603,
+          "name": "last_ditch_shack.abiff"
+        },
+        {
+          "family": "neutral-backyard",
+          "model": 100145,
+          "name": "backyard_neutral.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1457,
+          "name": "lowtech_building1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1459,
+          "name": "lowtech_building2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1464,
+          "name": "lowtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1466,
+          "name": "lowtech_building4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1469,
+          "name": "lowtech_building5.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1473,
+          "name": "lowtech_building6.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1476,
+          "name": "lowtech_building7.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1482,
+          "name": "lowtech_waterwell.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 1864,
+          "name": "lowtechclan_mountainbuilding.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 5968,
+          "name": "lowtechclan_triplebuilding.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 20779,
+          "name": "rhino_house2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 20798,
+          "name": "rhino_house1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 20804,
+          "name": "rhino_house3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 20811,
+          "name": "rhino_smallentrance.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 28566,
+          "name": "ruins_omni_1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 28716,
+          "name": "ruins_omni_3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 28720,
+          "name": "ruins_omni_2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29263,
+          "name": "ruin_lowtech_4.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29266,
+          "name": "ruin_lowtech_2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29435,
+          "name": "ruin_midtech_building3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29436,
+          "name": "ruin_midtech_building2.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29437,
+          "name": "ruin_midtech_building1.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 29438,
+          "name": "ruin_lowtech_3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 85371,
+          "name": "villagesbuilding3.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 99716,
+          "name": "startupc_balcony_door.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 99718,
+          "name": "startupc_well.abiff"
+        },
+        {
+          "family": "rk-settlements",
+          "model": 121527,
+          "name": "clan_centerbuilding_tower.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 25524,
+          "name": "science_facility_wall_entrance.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29480,
+          "name": "wood_shack_03.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29491,
+          "name": "wood_shack_02.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29494,
+          "name": "wood_shack_01.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29498,
+          "name": "wood_shack_04.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29501,
+          "name": "wood_shack_05.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29504,
+          "name": "wood_shack_06.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 29507,
+          "name": "wood_shack_07.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 30815,
+          "name": "eco_warrior_tent_door.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41760,
+          "name": "mine_entrance_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 41768,
+          "name": "desert_down1_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 42850,
+          "name": "door_blocker.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 45632,
+          "name": "notum_storage_buildings.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 46324,
+          "name": "roof_lamp_on_omni-lab.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95815,
+          "name": "mantis_entrance_complex_door2.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95816,
+          "name": "mantis_entrance_standard_door1.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95817,
+          "name": "mantis_entrance_plain_door3.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95818,
+          "name": "mantis_entrance_complex_desert_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95819,
+          "name": "mantis_entrance_standard_desert_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 95820,
+          "name": "mantis_entrance_simple_desert_door0.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 152813,
+          "name": "Doorframe_3x1_dangerstripes.abiff"
+        },
+        {
+          "family": "rk-shared-architecture",
+          "model": 159341,
+          "name": "door_blocker_flat.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 3489,
+          "name": "outpost_bunker1.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 3514,
+          "name": "outpost_ringbunker.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 36715,
+          "name": "military_academy_tower1.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 36716,
+          "name": "military_academy_tower2.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 31217,
+          "name": "junk_exhaust_pipe.abiff"
+        },
+        {
+          "family": "rk-industrial-props",
+          "model": 31226,
+          "name": "junk_vehicle_sandspeeder.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3686,
+          "name": "factory_barracks_armored.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3692,
+          "name": "factory_barracks1.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3706,
+          "name": "factory_bigtwinbuilding.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3724,
+          "name": "factory_livingmodule2.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 3742,
+          "name": "factory_twinoffice.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 4034,
+          "name": "factory_livingmodule4.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 4036,
+          "name": "factory_livingmodule5.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 10847,
+          "name": "factory_livingmodule3.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 21414,
+          "name": "factory_complex_end_garage.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 21420,
+          "name": "factory_complex_mid_cargo.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 21423,
+          "name": "factory_complex_end_entrance.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 21752,
+          "name": "factory_complex_mid_support_broken.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 25529,
+          "name": "factory_complex_mid_plain_entrance.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 25530,
+          "name": "factory_complex_end_garage_broken.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 30961,
+          "name": "4h_miningoffice.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31461,
+          "name": "4h_railtrack_mountainexit.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 31462,
+          "name": "4h_railtrack_mountainentrance.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 32492,
+          "name": "4h_livingquarters1.abiff"
+        },
+        {
+          "family": "rk-industrial-factories",
+          "model": 287039,
+          "name": "4h_livingquarters2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17879,
+          "name": "omni-slumhouse2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17883,
+          "name": "omni-slumhouse1.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17885,
+          "name": "omni-slumhouse3.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 17887,
+          "name": "omni-slumhouse4.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 18647,
+          "name": "omni_slumhouse5.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36117,
+          "name": "omnimine_hq_building_08.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36126,
+          "name": "omnimine_hq_building_02.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36127,
+          "name": "omnimine_hq_building_03.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36128,
+          "name": "omnimine_hq_building_04.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36133,
+          "name": "omnimine_hq_building_06.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36134,
+          "name": "omnimine_hq_building_07.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36155,
+          "name": "omnimine_hq_building_09.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36161,
+          "name": "omnimine_hq_building_10.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36163,
+          "name": "omnimine_hq_main_building_01.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36170,
+          "name": "omnimine_hq_samsons_office.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38689,
+          "name": "omnimine_blue_building_02.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38690,
+          "name": "omnimine_blue_building_03.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38691,
+          "name": "omnimine_blue_building_04.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38693,
+          "name": "omnimine_blue_building_06.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38694,
+          "name": "omnimine_blue_building_07.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38695,
+          "name": "omnimine_blue_building_08.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38696,
+          "name": "omnimine_blue_building_09.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 38697,
+          "name": "omnimine_blue_samsons_office.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 41990,
+          "name": "omnimine_hq_main_building_01_door0.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 42006,
+          "name": "omnimine_blue_building_09_door0.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30011,
+          "name": "reck_trading_outpost_bunker4.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30020,
+          "name": "reck_trading_outpost_bunker2_tower.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30022,
+          "name": "reck_trading_outpost_bunker3.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30024,
+          "name": "reck_trading_outpost_bunker1.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30028,
+          "name": "reck_trading_outpost_bunker5_large.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30269,
+          "name": "tlr_factory_purification.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 30333,
+          "name": "tlr_mountain_mineoutlet.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 35854,
+          "name": "hqt_triangleblock1.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 36181,
+          "name": "nice_slumhouse_halle_fords_home.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 37164,
+          "name": "mantis_hill_big_3_holes.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38543,
+          "name": "chalk_house_01.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38549,
+          "name": "chalk_house_02.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 38555,
+          "name": "chalk_house_03.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 78502,
+          "name": "sentinel_hq.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 95504,
+          "name": "salty_mainentrance1_tower1.abiff"
+        },
+        {
+          "family": "rk-additional-buildings",
+          "model": 273527,
+          "name": "itm_mainhull.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 23099,
+          "name": "sewer_recyclebuilding_small.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85928,
+          "name": "subway_entrance_omni-entertainment.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 70431,
+          "name": "dungeon_railtrack_entrance.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 99412,
+          "name": "dungeon_entrance_tankwreck.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 99414,
+          "name": "dungeon_entrance_tankwreck_door0.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100083,
+          "name": "backyard_omni.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100150,
+          "name": "backyard_clan.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 100468,
+          "name": "backyard_rome.abiff"
+        },
+        {
+          "family": "rk-commercial-buildings",
+          "model": 116625,
+          "name": "dungeon_entrance_shortroot_open_door0.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 17541,
+          "name": "ent_wall1_bridge.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 17551,
+          "name": "ent_wall1_tunnel.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 17561,
+          "name": "ent_wall1_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20115,
+          "name": "ent_wall_entrance_heads&tails.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20250,
+          "name": "ent_wall1_edencafe.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20374,
+          "name": "ent_wall_baboon_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 20607,
+          "name": "ent_wall1_roadkillrestaurant.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22852,
+          "name": "ent_triangleblock1.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22853,
+          "name": "ent_twinblock1.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 22854,
+          "name": "ent_twinblock2.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25417,
+          "name": "entwall3_mid_entrance3.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25419,
+          "name": "entwall3_mid_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25533,
+          "name": "entwall3_mid_entrance4.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 43163,
+          "name": "ent_wall1_hanlectershop.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 99817,
+          "name": "startupo_platformdoor.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 99959,
+          "name": "startupo_holoworld.abiff"
+        },
+        {
+          "family": "dungeon-castles-temples",
+          "model": 20843,
+          "name": "dentrance_midtech.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 46302,
+          "name": "tir_bigcurvedfan.abiff"
+        },
+        {
+          "family": "rk-clan-tir",
+          "model": 116834,
+          "name": "tir_entrance1.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 32432,
+          "name": "avalon_building4.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 32441,
+          "name": "avalon_building5.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 32445,
+          "name": "avalon_castle.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 32465,
+          "name": "avalon_building3.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 85101,
+          "name": "avalon_building2.abiff"
+        },
+        {
+          "family": "rk-clan-avalon",
+          "model": 85106,
+          "name": "avalon_building1.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 35959,
+          "name": "athens_clanhouse1.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 35961,
+          "name": "athens_clanhouse3.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 35970,
+          "name": "athens_clanhouse4.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 35974,
+          "name": "athens_clanhouse5.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 36202,
+          "name": "athens_clanhouse12.abiff"
+        },
+        {
+          "family": "rk-clan-athens",
+          "model": 36702,
+          "name": "athen_shire_military_academy.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 41206,
+          "name": "rome_apartmentblocks1.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 81943,
+          "name": "rome_med.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42910,
+          "name": "home_building_2_combo_01.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42911,
+          "name": "home_building_2_combo_02.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42912,
+          "name": "home_building_2_combo_03.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42915,
+          "name": "home_building_2_combo_04.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42916,
+          "name": "home_building_2_big_combo.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42917,
+          "name": "home_building_2_floor_02.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42918,
+          "name": "home_building_2_small_01.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42919,
+          "name": "home_building_2_small_platform_01.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42921,
+          "name": "home_building_2_small_platform_03.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42922,
+          "name": "home_building_2_small_platform_04.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42923,
+          "name": "home_building_box01.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 42924,
+          "name": "home_building_box02.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43019,
+          "name": "home_temple.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43218,
+          "name": "home_building_tower_tall.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43222,
+          "name": "home_building_small_mossy_platform.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43228,
+          "name": "home_building_big_stone_platform_alone.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43230,
+          "name": "home_building_big_mossy_platform_standalone.abiff"
+        },
+        {
+          "family": "rk-neutral-home",
+          "model": 43237,
+          "name": "home_building_2_small_moss-edge.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99835,
+          "name": "spaceship_middle_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99850,
+          "name": "spaceship_middle_2_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99852,
+          "name": "spaceship_back_1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99853,
+          "name": "spaceship_back_1_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99854,
+          "name": "spaceship_back_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99855,
+          "name": "spaceship_back_2_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99856,
+          "name": "spaceship_back_3.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99860,
+          "name": "spaceship_back_3_door1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99861,
+          "name": "spaceship_back_3_door2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99863,
+          "name": "spaceship_back_5.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99864,
+          "name": "spaceship_back_5_door1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99865,
+          "name": "spaceship_back_5_door2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99866,
+          "name": "spaceship_back_5_door3.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99867,
+          "name": "spaceship_booster_big.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99868,
+          "name": "spaceship_booster_small.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99870,
+          "name": "spaceship_front_1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99871,
+          "name": "spaceship_front_1_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99872,
+          "name": "spaceship_front_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99873,
+          "name": "spaceship_front_2_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99874,
+          "name": "spaceship_front_3.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99876,
+          "name": "spaceship_front_3_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99877,
+          "name": "spaceship_middle_1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99878,
+          "name": "spaceship_middle_1_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99886,
+          "name": "spaceship_part4.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99887,
+          "name": "spaceship_part4_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99888,
+          "name": "spaceship_part5_dragonmouth.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 99944,
+          "name": "spaceship_part5_dragonmouth_door0.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 207295,
+          "name": "spaceship_snow_front_1.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 207303,
+          "name": "spaceship_snow_back_3.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 207308,
+          "name": "spaceship_snow_back_5.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 207312,
+          "name": "spaceship_snow_back_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 207316,
+          "name": "spaceship_snow_middle_2.abiff"
+        },
+        {
+          "family": "dungeon-alien-ships",
+          "model": 285608,
+          "name": "spaceship_part2.abiff"
+        },
+        {
+          "family": "rk-ai-cities",
+          "model": 256033,
+          "name": "ai_lounge_fixtures.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41299,
+          "name": "street_party_lights_blue.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41305,
+          "name": "streetparty_lights_clan_blue.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41307,
+          "name": "streetparty_lights_clan_red.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41309,
+          "name": "streetparty_lights_clan_yellow.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41311,
+          "name": "streetparty_lights_red.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 41314,
+          "name": "streetparty_lights_yellow.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 265383,
+          "name": "streetparty_lights_pumpkin.abiff"
+        },
+        {
+          "family": "rk-misc-props",
+          "model": 85356,
+          "name": "hanging_beard_4x2meter.abiff"
+        },
+        {
+          "family": "rk-misc-props",
+          "model": 85358,
+          "name": "hanging_beard_1x2meter.abiff"
+        },
+        {
+          "family": "rk-misc-props",
+          "model": 130461,
+          "name": "food-item_coffee-can.abiff"
+        },
+        {
+          "family": "rk-misc-props",
+          "model": 136576,
+          "name": "food-item_coffee-can_hold.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 29602,
+          "name": "dlr_mountainmine.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6058,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 1418,
+          "name": "midtech_building5.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 1420,
+          "name": "midtech_building7.abiff"
+        }
+      ]
+    },
+    {
+      "id": 6093,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 3146,
+          "name": "midtech_smallshop.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99652,
+          "name": "midtech_simpleblock2.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 99653,
+          "name": "midtech_simpleblock3.abiff"
+        }
+      ]
+    },
+    {
+      "id": 8650,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "omni-hq-exteriors",
+          "model": 42982,
+          "name": "hq_hanginglamp1.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 100395,
+          "name": "icc_landingplatform1.abiff"
+        },
+        {
+          "family": "icc-city",
+          "model": 101097,
+          "name": "icc_platformpath.abiff"
+        },
+        {
+          "family": "neutral-midtech",
+          "model": 31007,
+          "name": "midtech_basicpipedoor.abiff"
+        },
+        {
+          "family": "rk-outposts",
+          "model": 14208,
+          "name": "gate2.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 9701,
+          "name": "hitech_boxwithlite.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 9958,
+          "name": "hitech_bench_kitchen.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 10903,
+          "name": "hitech_discospotsrack.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 10938,
+          "name": "hitech_discofloor&spotlite.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 11037,
+          "name": "hitech_spotlampstripe.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 11039,
+          "name": "hitech_spotlampstripe_small.abiff"
+        },
+        {
+          "family": "rk-omni-modern",
+          "model": 36288,
+          "name": "hitech_spotlampstripe_on.abiff"
+        },
+        {
+          "family": "rk-furniture",
+          "model": 9517,
+          "name": "mitech_lightshelf.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 25419,
+          "name": "entwall3_mid_entrance.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 43018,
+          "name": "ent_big_diagonalpillars.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 41214,
+          "name": "rome_crossoverlamp1.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 41217,
+          "name": "rome_curvelamp1.abiff"
+        },
+        {
+          "family": "rk-omni-rome",
+          "model": 254925,
+          "name": "rome_curvelamp1_nocol.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 8652,
+          "name": "lamp_bigblueplate.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 8654,
+          "name": "lamp_bigblueplate_nodynlite.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 157328,
+          "name": "lamp_bigblueplate_triangle.abiff"
+        },
+        {
+          "family": "rk-outdoor-props",
+          "model": 157329,
+          "name": "lamp_bigblueplate_triangle_nodynlite.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 291990,
+          "name": "shopitem_park_neutral.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 291992,
+          "name": "shopitem_park_clan.abiff"
+        },
+        {
+          "family": "rk-additional-props",
+          "model": 291994,
+          "name": "shopitem_park_omni.abiff"
+        }
+      ]
+    },
+    {
+      "id": 14683,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85928,
+          "name": "subway_entrance_omni-entertainment.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        }
+      ]
+    },
+    {
+      "id": 85930,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 85932,
+          "name": "subway_entrance_neutral_newland.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85928,
+          "name": "subway_entrance_omni-entertainment.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 85934,
+          "name": "subway_entrance_tir-clan.abiff"
+        },
+        {
+          "family": "dungeon-subway-sewer",
+          "model": 297642,
+          "name": "subway_entrance_icc.abiff"
+        }
+      ]
+    },
+    {
+      "id": 99646,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 99415,
+          "name": "midtech_prison1.abiff"
+        }
+      ]
+    },
+    {
+      "id": 100473,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 100472,
+          "name": "startupn_exittocity.abiff"
+        },
+        {
+          "family": "rk-omni-entertainment",
+          "model": 99947,
+          "name": "startupo_elevator.abiff"
+        }
+      ]
+    },
+    {
+      "id": 284997,
+      "name": "retained original",
+      "status": "excluded",
+      "reason": "No open-glass region: cladding, trim, opaque/functional surface, door part or borrowed non-window material",
+      "requires_positive_building_geometry": null,
+      "model_uses": [
+        {
+          "family": "neutral-midtech",
+          "model": 284996,
+          "name": "qo_barentrance.abiff"
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,8 @@
     ],
     "profile": "stone",
     "batch": "shared-architecture-2026-10-24",
-    "discovery": "reusable architectural families from local name inventory"
+    "discovery": "reusable architectural families from local name inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -45,7 +46,8 @@
         0.065,
         0.15
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -74,7 +76,8 @@
         0.76,
         0.96
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -95,7 +98,8 @@
         1,
         1
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -124,7 +128,8 @@
         0.65,
         0.5
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -172,7 +177,8 @@
         0.065,
         0.15
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -245,12 +251,13 @@
     "name": "simplemetalplate.png",
     "source": "shared-6090-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "metal",
     "batch": "shared-architecture-2026-10-24",
-    "discovery": "reusable architectural families from local name inventory"
+    "discovery": "reusable architectural families from local name inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -378,7 +385,8 @@
         1,
         1
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -391,7 +399,8 @@
     ],
     "profile": "stone",
     "batch": "shared-architecture-2026-10-24",
-    "discovery": "reusable architectural families from local name inventory"
+    "discovery": "reusable architectural families from local name inventory",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -417,6 +426,7 @@
     ],
     "profile": "stone",
     "batch": "shared-architecture-2026-10-24",
-    "discovery": "reusable architectural families from local name inventory"
+    "discovery": "reusable architectural families from local name inventory",
+    "worker": true
   }
 ]

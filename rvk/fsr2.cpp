@@ -15,6 +15,7 @@
 #include <cmath>
 #include <cstring>
 #include <vector>
+#include <new>
 
 namespace rvk {
 
@@ -37,10 +38,12 @@ void Device::DestroyFsr2()
         m_fsr2 = nullptr;
     }
     if (m_fsr2Reactive) {
+        WaitIdle(); // A failed context can still have a view referenced by submitted commands.
         vkDestroyImageView(m_device, m_fsr2Reactive, nullptr);
         m_fsr2Reactive = VK_NULL_HANDLE;
         m_fsr2ReactiveOf = VK_NULL_HANDLE;
     }
+    m_fsrInputsFrame = ~0ull;
     if (m_fsrMotion) { DestroyTextureNow(m_fsrMotion); m_fsrMotion = nullptr; }
     if (m_fsrOut) { DestroyTextureNow(m_fsrOut); m_fsrOut = nullptr; }
 }
@@ -98,6 +101,7 @@ bool Device::FsrInputs(VkCommandBuffer cmd, const float params[28])
 // params: TaaParams'. False: FSR 2 couldn't run (no context) - the TAA does it.
 bool Device::RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28])
 {
+    if (m_fsr2Failed || m_deviceLost) return false;
     if (!m_motionFillPipeline || !m_tonemapped || !m_depth)
         return false;
     const uint32_t rw = m_scene->m_width, rh = m_scene->m_height, dw = m_ldrMain->m_width, dh = m_ldrMain->m_height;
@@ -109,8 +113,11 @@ bool Device::RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28
         m_fsr2 = nullptr;
     }
     if (!m_fsr2) {
-        auto* s = new Fsr2State;
-        s->scratch.resize(ffxFsr2GetScratchMemorySizeVK(m_physical));
+        auto* s = new (std::nothrow) Fsr2State;
+        if (!s) { m_fsr2Failed = true; Log("FSR 2: CPU context allocation failed; using TAA for this session"); return false; }
+        try { s->scratch.resize(ffxFsr2GetScratchMemorySizeVK(m_physical)); } catch (const std::bad_alloc&) {
+            delete s; m_fsr2Failed = true; Log("FSR 2: backend memory allocation failed; using TAA for this session"); return false;
+        }
         FfxFsr2ContextDescription desc{};
         FfxErrorCode e = ffxFsr2GetInterfaceVK(&desc.callbacks, s->scratch.data(), s->scratch.size(), m_physical,
                                               vkGetDeviceProcAddr);
@@ -124,6 +131,7 @@ bool Device::RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28
             static bool logged;
             if (!logged) { logged = true; Log("FSR 2: the context could not be made (error 0x%x): our TAA upscales", unsigned(e)); }
             delete s;
+            m_fsr2Failed = true;
             return false;
         }
         s->renderW = rw;
@@ -135,6 +143,7 @@ bool Device::RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28
     }
     // The reactive mask: m_tonemapped's alpha as red (a view of it - remade when the image is).
     if (m_fsr2ReactiveOf != m_tonemapped->m_image) {
+        if (m_fsr2Reactive) WaitIdle();
         if (m_fsr2Reactive)                      // (in use by frames in flight: freed with this frame slot)
             m_deadImages.push_back({DeathTag(), {VK_NULL_HANDLE, m_fsr2Reactive, nullptr}});
         VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
@@ -190,7 +199,9 @@ bool Device::RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28
     m_fsrOut->m_layout = VK_IMAGE_LAYOUT_GENERAL;
     if (e != FFX_OK) {
         static bool logged;
-        if (!logged) { logged = true; Log("FSR 2: dispatch failed (error 0x%x)", unsigned(e)); }
+        if (!logged) { logged = true; Log("FSR 2: dispatch failed (error 0x%x); disabled for this session", unsigned(e)); }
+        m_fsr2Failed = true;
+        m_deviceLost = true; // A failed dispatch may have partially recorded work; stop submission safely.
         return false;
     }
     Transition(cmd, m_fsrOut, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

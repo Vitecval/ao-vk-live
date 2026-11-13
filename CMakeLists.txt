@@ -18,10 +18,10 @@ target_sources(randy_native PRIVATE proxy/native/client_build.cpp)
 # Drop-in randy31.dll. Exports not implemented here forward to the original, renamed randy31_orig.dll.
 add_library(randy31 SHARED proxy/dllmain.cpp proxy/trace.cpp proxy/ddraw/com_trace.cpp proxy/ddraw/com_trace_detail.cpp
             proxy/ddraw/rvk_ddraw.cpp proxy/ddraw/rvk_surface.cpp proxy/ddraw/rvk_device.cpp proxy/ddraw/rvk_settings.cpp proxy/ddraw/rvk_particles.cpp proxy/ddraw/rvk_weather.cpp proxy/ddraw/rvk_smoke.cpp proxy/ddraw/rvk_time.cpp proxy/ddraw/rvk_statels.cpp proxy/ddraw/rvk_ground.cpp proxy/ddraw/rvk_freecam.cpp proxy/ddraw/rvk_input.cpp proxy/ddraw/rvk_console.cpp
-            proxy/ddraw/rvk_materials.cpp proxy/exports.gen.cpp proxy/randy31.def)
+            proxy/ddraw/rvk_materials.cpp proxy/ddraw/rvk_zoning.cpp proxy/exports.gen.cpp proxy/randy31.def)
 target_include_directories(randy31 PRIVATE proxy third_party)
 target_compile_definitions(randy31 PRIVATE _CRT_SECURE_NO_WARNINGS)
-target_link_libraries(randy31 PRIVATE randy_native rvk user32 cabinet)
+  target_link_libraries(randy31 PRIVATE randy_native rvk user32 gdi32 cabinet)
 set_target_properties(randy31 PROPERTIES OUTPUT_NAME randy31 PREFIX "")
 target_link_options(randy31 PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/randy31.map")   # for profiling: function addresses
 
@@ -36,7 +36,7 @@ file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def" CONTENT "${LIVE_DEF
 add_library(ao_vk_live SHARED ${RANDY_SOURCES} proxy/live/live.cpp "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def")
 target_include_directories(ao_vk_live PRIVATE proxy third_party)
 target_compile_definitions(ao_vk_live PRIVATE _CRT_SECURE_NO_WARNINGS RANDYVK_ADDON)
-target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32 cabinet)
+  target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32 gdi32 cabinet)
 set_target_properties(ao_vk_live PROPERTIES OUTPUT_NAME ao-vk PREFIX "")
 target_link_options(ao_vk_live PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/ao-vk.map")
 add_library(ao_vk_loader SHARED proxy/live/ddraw.cpp proxy/live/ddraw.def)
@@ -59,13 +59,17 @@ find_program(GLSLC glslc HINTS "${VULKAN_SDK_DIR}/bin" REQUIRED)
 
 set(RVK_SHADER_OUT "${CMAKE_CURRENT_BINARY_DIR}/rvk-shaders")
 set(RVK_SHADER_INCS)
-foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag ffp_glow_nocut.frag prepass_cutout.frag shadow.vert shadow.frag fullscreen.vert tonemap.frag bloom_down.frag bloom_up.frag ao.frag ao_blur.frag gi.frag gi_blur.frag volume.frag volume_blur.frag sand_fog.frag sand_fog_blur.frag ssr.frag contact.frag taa.frag depth_up.frag motion_fill.frag reactive_mask.frag sharpen.frag fxaa.frag motion_blur.frag motion_tilemax.frag motion_neighbourmax.frag motion_object.frag dof_composite.frag dof_focus.frag dof_prefilter.frag dof_tiles.frag dof_gather.frag dof_final.frag ui_composite.frag grass.vert grass.frag grass_shadow.vert particles.comp skin.comp water.vert water.frag water_spray.vert water_spray.frag water_sim.comp rain.vert rain.frag splash.vert splash.frag bolt.vert bolt.frag debris.vert debris.frag smoke_sim.comp smoke.vert smoke.frag smoke_up.frag cloud.vert cloud.frag cloud_up.frag cloud_shadow.frag cloud_noise.comp cloud_layer_noise.comp cloud_weather.frag cloud_layer.frag cloud_resolve.frag sun.frag sky_glow.frag atmos_transmittance.frag atmos_multi.frag atmos_view.frag sun_vis.comp scene_luma.comp smoke_seen.comp terrain_sun.frag sand_prints.frag env_accum.frag env_filter.frag)
+foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag ffp_glow_nocut.frag prepass_cutout.frag shadow.vert shadow.frag fullscreen.vert tonemap.frag bloom_down.frag bloom_up.frag ao.frag ao_blur.frag gi.frag gi_blur.frag volume.frag volume_blur.frag sand_fog.frag sand_fog_blur.frag ssr.frag contact.frag taa.frag depth_up.frag motion_fill.frag reactive_mask.frag sharpen.frag fxaa.frag motion_blur.frag motion_tilemax.frag motion_neighbourmax.frag motion_object.frag dof_composite.frag dof_focus.frag dof_prefilter.frag dof_tiles.frag dof_gather.frag dof_final.frag ui_composite.frag grass.vert grass.frag grass_shadow.vert particles.comp skin.comp water.vert water.frag water_spray.vert water_spray.frag water_sim.comp rain.vert rain.frag ambient.vert ambient.frag splash.vert splash.frag bolt.vert bolt.frag debris.vert debris.frag smoke_sim.comp smoke.vert smoke.frag smoke_up.frag cloud.vert cloud.frag cloud_up.frag cloud_shadow.frag cloud_noise.comp cloud_layer_noise.comp cloud_weather.frag cloud_layer.frag cloud_resolve.frag sun.frag sky_glow.frag atmos_transmittance.frag atmos_multi.frag atmos_view.frag sun_vis.comp scene_luma.comp smoke_seen.comp terrain_sun.frag sand_prints.frag env_accum.frag env_filter.frag)
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/${shader}")
     set(out "${RVK_SHADER_OUT}/${shader}.inc")
+    set(sky_enhance_deps)
+    if(shader STREQUAL "sky_glow.frag")
+        list(APPEND sky_enhance_deps "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/sky_enhance.glsl")
+    endif()
     add_custom_command(OUTPUT "${out}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RVK_SHADER_OUT}"
         COMMAND ${GLSLC} --target-env=vulkan1.3 -O -mfmt=num -o "${out}" "${src}"
-        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
+        DEPENDS "${src}" ${sky_enhance_deps} "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/windows.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/window_geometry.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/weathering.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/ffp_main.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain.glsl"
@@ -105,7 +109,7 @@ foreach(entry "leaf.vert|ffp.vert|RVK_LEAF" "leaf_shadow.vert|shadow.vert|RVK_LE
     add_custom_command(OUTPUT "${out}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${RVK_SHADER_OUT}"
         COMMAND ${GLSLC} --target-env=vulkan1.3 -O -mfmt=num -fshader-stage=${stage} -D${define} -o "${out}" "${src}"
-        DEPENDS "${src}" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
+        DEPENDS "${src}" ${sky_enhance_deps} "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/windows.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/window_geometry.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/weathering.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/constants.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/frame_lights.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/sway.glsl"
@@ -124,7 +128,9 @@ endforeach()
 set(RVK_ASSET_INCS)
 foreach(entry "cliff_side_diff_1k.jpg|kRockAlbedo" "cliff_side_nor_gl_1k.jpg|kRockNormal" "cliff_side_arm_1k.jpg|kRockOrm"
               "shared-grass.png|kSharedGrass" "shared-dirt.png|kSharedDirt" "shared-gravel.png|kSharedGravel"
-              "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock")
+              "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock"
+              "shared-hd-grass.png|kHdGrass" "shared-hd-dirt.png|kHdDirt" "shared-hd-gravel.png|kHdGravel"
+              "shared-hd-sand.png|kHdSand" "shared-hd-rock.png|kHdRock")
     string(REPLACE "|" ";" asset "${entry}")
     list(GET asset 0 file)
     list(GET asset 1 name)
@@ -192,8 +198,25 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
     OBJECT_DEPENDS "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h")
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
-add_library(rvk STATIC rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
-target_sources(rvk PRIVATE rvk/shared_terrain.cpp)
+add_library(rvk STATIC rvk/startup.cpp rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
+target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/optional_population.cpp)
+target_link_libraries(rvk PUBLIC bcrypt)
+add_executable(ao_vk_cache_warm tools/cache-warm.cpp proxy/native/stb_image.cpp)
+set_target_properties(ao_vk_cache_warm PROPERTIES OUTPUT_NAME "ao-vk-cache-warm")
+target_link_libraries(ao_vk_cache_warm PRIVATE rvk user32)
+target_include_directories(ao_vk_cache_warm PRIVATE third_party)
+
+add_executable(ao_vk_prepare_materials tools/prepare-materials.cpp proxy/native/stb_image.cpp)
+set_target_properties(ao_vk_prepare_materials PROPERTIES OUTPUT_NAME "ao-vk-prepare-materials")
+target_include_directories(ao_vk_prepare_materials PRIVATE third_party)
+target_link_libraries(ao_vk_prepare_materials PRIVATE rvk cabinet)
+
+add_executable(material_cache_check tests/material_cache_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(material_cache_check PRIVATE third_party)
+target_link_libraries(material_cache_check PRIVATE rvk cabinet)
+
+add_executable(shadow_camera_check tests/shadow_camera_check.cpp)
+target_include_directories(shadow_camera_check PRIVATE rvk)
 target_include_directories(rvk PUBLIC rvk PRIVATE "${RVK_SHADER_OUT}" third_party third_party/fsr2)   # (stb: terrain.cpp decodes the embedded rock)
 # Vulkan headers and VMA come from the SDK; /imsvc keeps their warnings quiet.
 target_compile_options(rvk PUBLIC "/imsvc${VULKAN_SDK_DIR}/include")
@@ -217,6 +240,10 @@ target_include_directories(threaded_worker_check PRIVATE third_party)
 
 add_executable(material_catalog_check tests/material_catalog_check.cpp)
 target_include_directories(material_catalog_check PRIVATE rvk)
+add_executable(preview23_artwork_check tests/preview23_artwork_check.cpp)
+target_include_directories(preview23_artwork_check PRIVATE rvk)
+add_executable(preview23_day_cycle_check tests/preview23_day_cycle_check.cpp)
+target_include_directories(preview23_day_cycle_check PRIVATE rvk)
 
 add_executable(shadow_cache_check tests/shadow_cache_check.cpp)
 target_include_directories(shadow_cache_check PRIVATE proxy)
@@ -229,10 +256,15 @@ target_compile_options(object_cache_check PRIVATE /UNDEBUG)
 add_executable(grass_coverage_check tests/grass_coverage_check.cpp)
 target_include_directories(grass_coverage_check PRIVATE rvk)
 target_compile_options(grass_coverage_check PRIVATE /UNDEBUG)
+add_executable(render_budget_check tests/render_budget_check.cpp)
+target_include_directories(render_budget_check PRIVATE rvk)
+target_compile_options(render_budget_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)
 target_link_libraries(native_check PRIVATE randy_native)
+add_executable(window_bounds_check tests/window_bounds_check.cpp)
+target_link_libraries(window_bounds_check PRIVATE randy_native)
 
 # Crash and hang reports in the cases that matter (run with tools/crash-check.sh).
 add_executable(crash_check tests/crash_check.cpp)
@@ -242,3 +274,53 @@ target_link_libraries(crash_check PRIVATE randy_native)
 add_executable(randy_harness tests/randy_harness.cpp)
 target_compile_definitions(randy_harness PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_link_libraries(randy_harness PRIVATE user32)
+
+
+
+
+
+add_executable(skin_lifetime_check tests/skin_lifetime_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(skin_lifetime_check PRIVATE third_party)
+target_link_libraries(skin_lifetime_check PRIVATE rvk)
+
+# Preview 23 isolated regression programs (no AO process is created).
+add_executable(startup_progress_check tests/startup_progress_check.cpp proxy/native/stb_image.cpp)
+target_link_libraries(startup_progress_check PRIVATE rvk user32 gdi32)
+target_include_directories(startup_progress_check PRIVATE third_party)
+add_executable(preview23_settings_check tests/preview23_settings_check.cpp)
+  add_executable(zoning_policy_check tests/zoning_policy_check.cpp)
+  add_executable(huge_shadow_policy_check tests/huge_shadow_policy_check.cpp)
+  add_executable(zoning_window_check tests/zoning_window_check.cpp proxy/native/stb_image.cpp)
+  target_include_directories(zoning_window_check PRIVATE proxy third_party rvk)
+  target_link_libraries(zoning_window_check PRIVATE rvk user32 gdi32)
+target_include_directories(preview23_settings_check PRIVATE proxy)
+
+
+add_executable(fsr_lifecycle_check tests/fsr_lifecycle_check.cpp proxy/native/stb_image.cpp)
+add_executable(framegen_pacing_check tests/framegen_pacing_check.cpp)
+add_executable(framegen_wait_check tests/framegen_wait_check.cpp)
+add_executable(framegen_guard_check tests/framegen_guard_check.cpp)
+target_include_directories(framegen_guard_check PRIVATE "${FFX_SDK}/include" "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
+target_link_libraries(framegen_guard_check PRIVATE rvk user32)
+target_link_libraries(framegen_wait_check PRIVATE rvk user32)
+target_include_directories(framegen_pacing_check PRIVATE "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
+target_include_directories(fsr_lifecycle_check PRIVATE third_party)
+target_link_libraries(fsr_lifecycle_check PRIVATE rvk user32)
+
+add_executable(framegen_present_check tests/framegen_present_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(framegen_present_check PRIVATE third_party "${FFX_SDK}/include" "${FFX_SDK}/src/backends/vk/FrameInterpolationSwapchain")
+target_link_libraries(framegen_present_check PRIVATE rvk user32)
+
+add_executable(fsr_init_failure_check tests/fsr_init_failure_check.cpp)
+target_include_directories(fsr_init_failure_check PRIVATE third_party/ffx-sdk/include)
+target_link_libraries(fsr_init_failure_check PRIVATE rvk)
+
+add_executable(threaded_message_check tests/threaded_message_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(threaded_message_check PRIVATE third_party)
+target_link_libraries(threaded_message_check PRIVATE rvk user32)
+
+add_executable(fullscreen_fallback_check tests/fullscreen_fallback_check.cpp)
+target_link_libraries(fullscreen_fallback_check PRIVATE user32 dxguid)
+
+add_executable(fsr_support_check tests/fsr_support_check.cpp)
+target_include_directories(fsr_support_check PRIVATE rvk)

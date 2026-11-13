@@ -63,6 +63,30 @@ try {
     $manifest = @{ build = 'fixture-v1'; client = $originals; addon = $oldHashes; previousAddons = @() }
     Save-Manifest
     $arguments = @{ ClientDir = $client; PackageDir = $package }
+    $manifest.assets=@{'randy-vk/living/ao-transporter.lrm'=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'separate add-on'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Prohibited population payload changed renderer'
+    $manifest.Remove('assets')
+    $manifest.livingAssets=@{status='ready';provider='legacy-private-cache'}
+    Save-Manifest
+    Reject $arguments 'separate add-on'
+    $manifest.livingAssets=@{status='local-test-candidate';provider='installation-local-v1';helperSha256=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'separate add-on'
+    $manifest.Remove('livingAssets')
+    Save-Manifest
+    $manifest.cacheWarmup=@{helper='ao-vk-cache-warm.exe';relativeCache='../randy31.dll';sha256=('0'*64)}
+    Save-Manifest
+    Reject $arguments 'Invalid cache preparation descriptor'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Rejected warmup descriptor changed renderer'
+    $manifest.cacheWarmup.relativeCache='randy-vk-preview21-v9-living.cache'
+    Write-Bytes (Join-Path $package 'ao-vk-cache-warm.exe') 'not executable and never run'
+    Save-Manifest
+    Reject $arguments 'helper integrity failed'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Rejected warmup hash changed renderer'
+    $manifest.Remove('cacheWarmup')
+    Save-Manifest
     $global:AoInstallerTestBusy = $true
     Reject $arguments 'Close the game'
     $global:AoInstallerTestBusy = $false
@@ -109,6 +133,26 @@ try {
     New-Item -ItemType Directory -Path (Split-Path -Parent $assetSource) -Force | Out-Null
     Write-Bytes $assetSource 'fixture texture one'
     $manifest.assets = @{ $assetRelative = (Hash $assetSource) }
+    $enhancedRelative = 'randy-vk/packs/ao-icc-enhanced-original/1010004_295610_orm.png'
+    $enhancedSource = Join-Path $package $enhancedRelative
+    $enhancedTarget = Join-Path $client $enhancedRelative
+    New-Item -ItemType Directory -Path (Split-Path -Parent $enhancedSource) -Force | Out-Null
+    Write-Bytes $enhancedSource 'fixture Enhanced Original material'
+    $manifest.assets[$enhancedRelative] = Hash $enhancedSource
+    # Setup 4's real manifests include this metadata outside the artwork packs.
+    $meshRelative = 'randy-vk/mesh-ids.bin'
+    $meshSource = Join-Path $package $meshRelative
+    $meshTarget = Join-Path $client $meshRelative
+    $meshNames = [Text.Encoding]::ASCII.GetBytes(([string][char]0) + 'scenery_spaceship' + ([string][char]0))
+    $meshBytes = New-Object byte[] (52 + $meshNames.Length)
+    [Array]::Copy([Text.Encoding]::ASCII.GetBytes('AOMESHID'), $meshBytes, 8)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $meshBytes, 8, 4)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]1), 0, $meshBytes, 12, 4)
+    [Array]::Copy([BitConverter]::GetBytes([uint32]$meshNames.Length), 0, $meshBytes, 16, 4)
+    [Array]::Copy($meshNames, 0, $meshBytes, 52, $meshNames.Length)
+    [IO.File]::WriteAllBytes($meshSource, $meshBytes)
+    $manifest.assets[$meshRelative] = Hash $meshSource
+    $manifest.meshIndex = @{ file=$meshRelative; formatVersion=1; sha256=(Hash $meshSource) }
     $cyberRelative = 'randy-vk/packs/ao-cyber-icc/1010004_295610_orm.png'
     $cyberSource = Join-Path $package $cyberRelative
     $cyberTarget = Join-Path $client $cyberRelative
@@ -141,6 +185,8 @@ try {
     & $installer @arguments | Out-Null
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset absent'
     Assert ((Hash $cyberTarget) -eq $manifest.assets[$cyberRelative]) 'Cyber pack asset absent'
+    Assert ((Hash $enhancedTarget) -eq $manifest.assets[$enhancedRelative]) 'Enhanced Original asset absent'
+    Assert ((Hash $meshTarget) -eq $manifest.assets[$meshRelative]) 'Setup 4 model index absent'
     Assert ((Hash $characterTarget) -eq $manifest.assets[$characterRelative]) 'Character pack asset absent'
     Assert ((Hash $worldTarget) -eq $manifest.assets[$worldRelative]) 'World pack asset absent'
     $otherPack = Join-Path $client 'randy-vk/packs/personal/keep.txt'
@@ -151,14 +197,29 @@ try {
     Save-Manifest
     & $installer @arguments | Out-Null
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Pack asset update failed'
+    # An already verified HD installation must update without re-downloading or
+    # unpacking the same texture just to verify an unused package-side copy.
+    $manifest.materialParts=@(@{name='ao-vk-live-fixture-materials-1.zip';sha256=('0'*64);bytes=1;unpackedBytes=1;files=@($assetRelative)})
+    Move-Item -LiteralPath $assetSource -Destination ($assetSource+'.saved')
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Verified texture was changed during archive-free update'
+    Move-Item -LiteralPath ($assetSource+'.saved') -Destination $assetSource
+    $manifest.Remove('materialParts')
     $manifest.assets['../escape.png'] = Hash $assetSource
     Save-Manifest
     Reject $arguments 'Invalid optional material pack'
     $manifest.assets.Remove('../escape.png')
+    foreach ($unsafeIndex in @('randy-vk/mesh-idsXbin', 'randy-vk/other.bin', 'randy-vk/../mesh-ids.bin')) {
+        $manifest.assets[$unsafeIndex] = Hash $meshSource
+        Save-Manifest
+        Reject $arguments 'Invalid optional material pack'
+        $manifest.assets.Remove($unsafeIndex)
+    }
     Save-Manifest
     # Full -> Lite removes only owned optional files transactionally, preserving settings.
     $fullAssets=$manifest.assets.Clone()
-    $manifest.assets=@{}
+    $manifest.assets=@{ $meshRelative=$fullAssets[$meshRelative] }
     Save-Manifest
     # A removal rollback is tested by failing receipt replacement.
     $global:AoInstallerTestFailTarget=Join-Path $client 'ao-vk-live.install.json'
@@ -166,7 +227,7 @@ try {
     $global:AoInstallerTestFailTarget=''
     Assert (Test-Path -LiteralPath $assetTarget) 'Failed Lite switch lost previous HD assets'
     & $installer @arguments | Out-Null
-    foreach ($path in @($assetTarget,$cyberTarget,$characterTarget,$worldTarget)) {Assert (!(Test-Path -LiteralPath $path)) 'Lite switch left HD texture'}
+    foreach ($path in @($assetTarget,$cyberTarget,$characterTarget,$worldTarget,$enhancedTarget)) {Assert (!(Test-Path -LiteralPath $path)) 'Lite switch left HD texture'}
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Edition switch changed preferences'
     $manifest.assets=$fullAssets
     Save-Manifest
@@ -184,26 +245,24 @@ try {
     Write-Bytes (Join-Path $client 'randy31.dll') 'a later official update'
     Write-Bytes (Join-Path $client 'ddraw.dll') 'replacement wrapper not owned by AO-VK'
     $uninstall = @{ ClientDir = $client; PackageDir = $package; Uninstall = $true }
-    Reject $uninstall 'unrecognized'
-    Assert (Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll')) 'Rejected uninstall partially removed addon'
-    Copy-Item -LiteralPath (Join-Path $package 'ddraw.dll') -Destination (Join-Path $client 'ddraw.dll') -Force
     Write-Bytes $assetTarget 'personal modification'
-    Reject $uninstall 'unrecognized'
-    Assert (Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll')) 'Modified pack rejection partially removed addon'
-    Copy-Item -LiteralPath $assetSource -Destination $assetTarget -Force
     & $installer @uninstall | Out-Null
-    Assert (!(Test-Path -LiteralPath $assetTarget)) 'Uninstall left owned pack asset'
+    Assert (!(Test-Path -LiteralPath (Join-Path $client 'ao-vk.dll'))) 'Uninstall did not continue past modified files'
+    Assert ([IO.File]::ReadAllText((Join-Path $client 'ddraw.dll')) -eq 'replacement wrapper not owned by AO-VK') 'Uninstall changed unknown wrapper'
+    Assert ([IO.File]::ReadAllText($assetTarget) -eq 'personal modification') 'Uninstall changed modified artwork'
     Assert (!(Test-Path -LiteralPath $cyberTarget)) 'Uninstall left cyber pack asset'
+    Assert (!(Test-Path -LiteralPath $enhancedTarget)) 'Uninstall left Enhanced Original asset'
+    Assert (!(Test-Path -LiteralPath $meshTarget)) 'Uninstall left owned model index'
     Assert (!(Test-Path -LiteralPath $characterTarget)) 'Uninstall left character pack asset'
     Assert (!(Test-Path -LiteralPath $worldTarget)) 'Uninstall left world pack asset'
     Assert ([IO.File]::ReadAllText($otherPack) -eq 'personal pack') 'Uninstall changed personal pack'
-    foreach ($target in @((Join-Path $client 'ao-vk.dll'), (Join-Path $client 'ddraw.dll'),
+    foreach ($target in @((Join-Path $client 'ao-vk.dll'),
             (Join-Path $client 'ao-vk-live.install.json'), (Join-Path $loader 'ddraw.dll'))) {
         Assert (!(Test-Path -LiteralPath $target)) ('Uninstall left ' + $target)
     }
     Assert ((Hash (Join-Path $client 'randy-vk.ini')) -eq $preferences) 'Uninstall changed preferences'
     Assert ([IO.File]::ReadAllText((Join-Path $client 'randy31.dll')) -eq 'a later official update') 'Uninstall changed stock renderer'
-    Write-Output 'PASS: process guards, locked identical shared loader, wrapper refusal, build validation, install/update/rollback, optional pack install/update/rollback/uninstall, unsafe path refusal, modified-file refusal, personal packs and preferences preserved.'
+    Write-Output 'PASS: process guards, locked identical shared loader, wrapper refusal, build validation, install/update/rollback, optional pack install/update/rollback/uninstall, unsafe path refusal, modified files skipped while recognized files uninstall, personal packs and preferences preserved.'
 } finally {
     $env:APPDATA = $savedAppData
     Remove-Item Function:\Get-Process -ErrorAction SilentlyContinue

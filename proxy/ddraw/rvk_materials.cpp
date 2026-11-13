@@ -51,13 +51,22 @@
 #include <vector>
 
 #include "rvk_backend.h"
+#include "icc_materials.h"
+#include "startup.h"
 #include "native/native.h"
 
 #include "material_maps.h"
+#include "material_cache.h"
+#include "material_cache_legacy.h"
 #include "terrain_materials.h"
 #include "building_families.h"
+#include "preview23_artwork.h"
 
 namespace rvkproxy {
+namespace { std::atomic<unsigned> g_iccArtwork{0}; std::atomic<bool> g_iccZone{false},g_iccChanged{false}; }
+void SetIccArtwork(unsigned style) { if(g_iccArtwork.exchange(style)!=style) g_iccChanged=true; }
+void SetIccPlayfield(uint32_t id) { const bool zone=id==rvk::icc::Playfield; if(g_iccZone.exchange(zone)!=zone) g_iccChanged=true; }
+
 
 // {6a1f0e52-2d43-4b8e-9c55-7f3a0b1d9e10}
 const GUID IID_RvkSurface = {0x6a1f0e52, 0x2d43, 0x4b8e, {0x9c, 0x55, 0x7f, 0x3a, 0x0b, 0x1d, 0x9e, 0x10}};
@@ -151,6 +160,7 @@ Folder g_mat, g_live;                         // materials\ (applied maps), live
 std::vector<Folder> g_packs;                  // packs\<name>\ (released texture packs), by name
 std::unordered_set<uint64_t> g_liveKeys;      // texture ids with any file in live\ (their maps come from there only)
 bool g_scanned = false;
+std::string g_preparedDir;
 bool g_hot = false;                           // RANDYVK_HOTRELOAD=1
 std::atomic<unsigned> g_modernStyle{0};
 std::atomic<bool> g_sharedTerrainEnabled{false}, g_sharedTerrainChanged{false};
@@ -229,7 +239,7 @@ void ScanPacks(const std::string& root)
         f.dir = root + name + "\\";
         f.world = Lower(name) == "ao-cyber-world";
         f.modern = Lower(name) == "ao-modern-icc" ? 1u : (Lower(name) == "ao-cyber-icc" || f.world) ? 2u :
-                   Lower(name) == "ao-cyber-characters" ? 3u : 0u;
+                   Lower(name) == "ao-cyber-characters" ? 3u : Lower(name)=="ao-icc-enhanced-original" ? 4u : 0u;
         ScanFolder(f);
         RvkLog("materials: pack '%s', %u files", name.c_str(), unsigned(f.files.size()));
         if (!f.files.empty())
@@ -242,6 +252,8 @@ void Scan()
     if (g_scanned)
         return;
     g_scanned = true;
+    rvk::startup::Stage("Indexing Full HD material filenames");
+    const ULONGLONG scanStart=GetTickCount64();
     char path[MAX_PATH] = {};
     HMODULE self = nullptr;
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -250,6 +262,7 @@ void Scan()
     char* slash = std::strrchr(path, '\\');
     if (slash) slash[1] = 0; else path[0] = 0;
     g_mat.dir = std::string(path) + "randy-vk\\materials\\";
+    g_preparedDir = std::string(path) + "randy-vk\\cache\\materials\\";
     g_live.dir = std::string(path) + "randy-vk\\live\\";
     char hot[8] = {};
     g_hot = GetEnvironmentVariableA("RANDYVK_HOTRELOAD", hot, sizeof(hot)) && hot[0] == '1';
@@ -261,6 +274,7 @@ void Scan()
         ScanFolder(g_live);
         RebuildLiveKeys();
     }
+    RvkLog("startup-materials: filename index %llu ms (first scan; may follow presentation); image decode is demand-driven",GetTickCount64()-scanStart);
     RvkLog("materials: %u files in %s%s", unsigned(g_mat.files.size()), g_mat.dir.c_str(),
            g_hot ? "; hot reload on (watching it and live\\)" : "");
 }
@@ -309,12 +323,32 @@ void ScanBuildingFamilies()
     }
 }
 
+bool CompleteMaterialSet(const Folder& folder, uint32_t type, uint32_t id)
+{
+    return !FindIn(folder,type,id,"_d.png").empty() && !FindIn(folder,type,id,"_n.png").empty() &&
+        !FindIn(folder,type,id,"_orm.png").empty();
+}
+
+bool CompletedGroundSet(const Folder& folder, uint32_t type, uint32_t id)
+{
+    return folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(type,id) && CompleteMaterialSet(folder,type,id);
+}
+
 // Where a texture's maps come from (see the top of the file).
 const Folder& FolderFor(uint32_t type, uint32_t id)
 {
     Scan();
     if (g_liveKeys.count(KeyOf(type, id)))
         return g_live;
+    if (!HasAny(g_mat,type,id) && g_iccZone.load() && g_iccArtwork.load()==1 && g_modernStyle.load()==2 && rvk::icc::Target(type,id))
+        for (const Folder& pack:g_packs)
+            if(pack.name=="ao-icc-enhanced-original" && !FindIn(pack,type,id,"_d.png").empty() &&
+                !FindIn(pack,type,id,"_n.png").empty() && !FindIn(pack,type,id,"_orm.png").empty()) return pack;
+    if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
+        if (rvk::materials::Preview23CompletedGround(type,id))
+            for (const Folder& pack:g_packs)
+                if (CompletedGroundSet(pack,type,id)) return pack;
     if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
         if (const auto* resource=rvk::buildings::ResourceOf(type,id)) {
             for (const Folder& pack:g_packs)
@@ -361,9 +395,19 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
 {
     rvk::maps::MaterialFiles f;
     const Folder& folder = FolderFor(type, id);
+    const bool completedGround=CompletedGroundSet(folder,type,id);
+    if (folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(type,id) &&
+        !FindIn(folder,type,id,"_d.png").empty() && !completedGround) return f;
+    if (folder.modern == 2 && rvk::materials::Preview23CompletedWorld(type,id)) {
+        // The exception is for a completed material, never a partial install.
+        if (FindIn(folder,type,id,"_d.png").empty() || FindIn(folder,type,id,"_n.png").empty() ||
+            FindIn(folder,type,id,"_orm.png").empty()) return f;
+    }
     // A statue/corpse can share a character texture. Architecture's retained
     // originals must not suppress the independently selected equipment pack.
-    if (folder.modern == 2 && rvk::buildings::Managed(type,id)) {
+    if (folder.modern == 2 && rvk::buildings::Managed(type,id) &&
+        !rvk::materials::Preview23CompletedWorld(type,id)) {
         const uint32_t family=rvk::buildings::FamilyOf(type,id);
         const auto* resource=rvk::buildings::ResourceOf(type,id);
         if (!family || !resource) return f;
@@ -371,13 +415,22 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
         for (unsigned i=0;i<5;++i)
             if ((resource->maps&(1u<<i)) && FindIn(folder,type,id,required[i]).empty()) return f;
     }
-    // Partial per-tile repaints break road/biome transitions even with shared
-    // detail off. Original ground supplies those masks in both modes. Keep the
-    // reviewed manufactured deck/paving sets and all personal overrides.
+    // Only reviewed original-palette/edge-preserving restorations can extend
+    // the old manufactured-ground set. Unreviewed and partial per-tile
+    // repaints still retain the original road/biome transition painting.
     if (folder.modern && rvk::materials::IsGroundType(type) &&
-        !rvk::materials::AuthoredGround(type, id)) return f;
+        !rvk::materials::AuthoredGround(type, id) && !completedGround) return f;
     if (folder.modern) f.maxSize = 512; // bounded built-in artwork in the 2 GB retail process
-    f.preserveAlbedoAlpha = folder.modern == 3 ||
+    // Large world atlases lost lettering and edge detail when their colour
+    // map was capped with the normal/ORM maps. Keep one extra colour mip when
+    // address space permits; staging, cache and auxiliary-map budgets stay bounded.
+    if ((folder.modern==2 || folder.modern==4) && !rvk::materials::IsGroundType(type) &&
+        FreeMaterialAddressSpace() > (768ull<<20)) {
+        // A 2048x512 strip costs exactly the old 1024x1024 square budget.
+        // A longest-edge-only cap discarded its narrow dimension's detail.
+        f.maxAlbedoSize=2048;f.maxAlbedoPixels=1024u*1024u;
+    }
+    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
     f.height = FindMap(type, id, "_h.png");
@@ -390,9 +443,10 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     f.leaves = FindMap(type, id, "_leaves.png");
     f.leavesNormal = FindMap(type, id, "_leaves_n.png");
     if (rvk::materials::DeckGround(type,id)) {
-        // This identified family always retains AO's painting and tread.
-        // Old packs, previews and quality aliases cannot restore noisy relief.
-        f.albedo.clear(); f.normal.clear(); f.height.clear(); f.emissive.clear();
+        // Completed restorations retain the source tread/edge layout in their
+        // albedo. Old packs and all height/normal relief stay suppressed.
+        if (!completedGround) f.albedo.clear();
+        f.normal.clear(); f.height.clear(); f.emissive.clear();
     }
     return f;
 }
@@ -420,7 +474,7 @@ void WorkerLoop(Worker* w)
             std::unique_lock<std::mutex> lock(w->mutex);
             // Bounded look-ahead also progresses while AO is loading without
             // presenting. Never accumulate an entire zone's decoded maps.
-            w->wake.wait(lock, [w] { return !w->jobs.empty() && w->done.size() < 4 && w->doneBytes < (12u << 20); });
+            w->wake.wait(lock, [w] { return !w->jobs.empty() && w->done.size() < 32 && w->doneBytes < (12u << 20); });
             job = std::move(w->jobs.front());
             w->jobs.pop_front();
             w->decoding = job.key;
@@ -428,9 +482,23 @@ void WorkerLoop(Worker* w)
         DecodedPtr decoded;
         try {
             if (FreeMaterialAddressSpace() >= (192u << 20)) {
-                if (FreeMaterialAddressSpace() < (384u << 20))
+                if (FreeMaterialAddressSpace() < (384u << 20)) {
                     job.files.maxSize = std::min(job.files.maxSize,256u);
-                decoded = std::make_shared<rvk::maps::Decoded>(rvk::maps::Decode(job.files));
+                    job.files.maxAlbedoSize=std::min(job.files.maxAlbedoSize ? job.files.maxAlbedoSize:256u,256u);
+                    job.files.maxAlbedoPixels=256u*256u;
+                }
+                const auto started=GetTickCount64();
+                auto material=std::make_shared<rvk::maps::Decoded>();
+                const bool prepared=rvk::maps::prepared::Load(g_preparedDir,job.files,*material) ||
+                    rvk::maps::legacy::Load(g_preparedDir,job.files,*material);
+                if (!prepared) *material=rvk::maps::Decode(job.files);
+                decoded=std::move(material);
+                static unsigned hits=0,misses=0;
+                unsigned count=prepared ? ++hits : ++misses;
+                if (count<=8 || (count&(count-1))==0)
+                    RvkLog("materials: prepared cache %s %u:%u in %llu ms (%u hits, %u fallbacks)",
+                        prepared ? "hit":"miss",uint32_t(job.key>>32),uint32_t(job.key),
+                        GetTickCount64()-started,hits,misses);
             }
             else
                 RvkLog("materials: RDB texture %u:%u keeps original maps (low process address space)",
@@ -475,7 +543,9 @@ bool ShareUploaded(const Waiter& w)
     auto& owners=found->second;
     owners.erase(std::remove_if(owners.begin(),owners.end(),[](const Waiter& a){return a.top->texture!=a.texture;}),owners.end());
     owners.erase(std::remove_if(owners.begin(),owners.end(),[](const Waiter& a){
-        return a.texture->MaterialsState()==rvk::Texture::MaterialState::Failed;
+        // Eviction keeps the native surface alive, but its GPU maps are gone.
+        // A Pending self-owner used to short-circuit the reload forever.
+        return a.texture->MaterialsState()!=rvk::Texture::MaterialState::Ready;
     }),owners.end());
     if (owners.empty()) return false;
     for (const Waiter& a:owners) if (a.texture==w.texture) return true;
@@ -526,8 +596,13 @@ void Upload(const Waiter& w, const rvk::maps::Decoded& d)
 {
     if (w.top->texture != w.texture || !g_rvk.device) return;
     const auto* resource=w.top->buildingFamily ? rvk::buildings::ResourceOf(w.top->rdbType,w.top->rdbId) : nullptr;
-    const uint32_t required=resource ? resource->maps : 0;
-    if (w.top->buildingFamily && (d.decodeFailed ||
+    const Folder& folder=FolderFor(w.top->rdbType,w.top->rdbId);
+    const bool completedWorld=folder.modern==2 && rvk::materials::Preview23CompletedWorld(w.top->rdbType,w.top->rdbId);
+    const bool completedGround=folder.modern==2 && folder.name=="ao-cyber-world" &&
+        rvk::materials::Preview23CompletedGround(w.top->rdbType,w.top->rdbId);
+    uint32_t required=resource ? resource->maps : completedWorld || completedGround ? 7u : 0u;
+    if (completedGround && rvk::materials::DeckGround(w.top->rdbType,w.top->rdbId)) required&=~2u;
+    if ((w.top->buildingFamily || completedWorld || completedGround) && (d.decodeFailed ||
         ((required&1u) && d.albedo.Empty()) || ((required&2u) && d.normal.Empty()) ||
         ((required&4u) && d.orm.Empty()) || ((required&8u) && d.emissive.Empty()) || ((required&16u) && !d.height))) {
         g_failed.insert(KeyOf(w.top->rdbType,w.top->rdbId));
@@ -609,22 +684,10 @@ void SetCharacterMaterialPack(bool enabled)
         g_characterChanged.store(true);
 }
 
-void PollMaterialMaps()
+// The game thread may publish prepared maps while AO is creating textures
+// between frames. This keeps the same byte budget and never uploads mid-frame.
+void DrainMaterialUploads(bool pressure)
 {
-    const bool pressure = FreeMaterialAddressSpace() < (384u << 20);
-    static bool wasPressure = false;
-    if (pressure && !g_cache.empty()) {
-        g_cacheIndex.clear();
-        g_cache.clear();
-        g_cacheBytes = 0;
-    }
-    if (pressure != wasPressure) {
-        wasPressure = pressure;
-        RvkLog("materials: CPU decode cache %s (free process address space %llu MB)",
-               pressure ? "released" : "available", (unsigned long long)(FreeMaterialAddressSpace() >> 20));
-    }
-    HotReload();
-    PollModernPack();
     if (g_worker) {
         std::vector<Worker::Done> done;
         {
@@ -659,6 +722,25 @@ void PollMaterialMaps()
         Upload(w, *d);
     }
     if (g_worker) g_worker->wake.notify_one();
+}
+
+void PollMaterialMaps()
+{
+    const bool pressure = FreeMaterialAddressSpace() < (384u << 20);
+    static bool wasPressure = false;
+    if (pressure && !g_cache.empty()) {
+        g_cacheIndex.clear();
+        g_cache.clear();
+        g_cacheBytes = 0;
+    }
+    if (pressure != wasPressure) {
+        wasPressure = pressure;
+        RvkLog("materials: CPU decode cache %s (free process address space %llu MB)",
+               pressure ? "released" : "available", (unsigned long long)(FreeMaterialAddressSpace() >> 20));
+    }
+    HotReload();
+    PollModernPack();
+    DrainMaterialUploads(pressure);
     // A low-memory skip must not permanently leave holes in the selected pack.
     // Retry a few live resources at a time, with hysteresis and a cooldown; no
     // setting toggles or zone reload required when the game releases memory.
@@ -677,6 +759,11 @@ void PollMaterialMaps()
         }
         if (count) RvkLog("materials: retrying %u deferred resource(s) after memory recovery",count);
     }
+    // Native terrain can sample a tile without the game binding its RSurface again.
+    unsigned recovered=0;
+    for(RSurface* top:g_identified)
+        if(top->texture && top->texture->MaterialsState()==rvk::Texture::MaterialState::Evicted &&
+           top->texture->MaterialDrawFrame() && recovered<8) {AttachMaterialMaps(top);++recovered;}
     PollBuildingFamilies();
 }
 
@@ -816,13 +903,18 @@ std::string DescribeTexture(const rvk::Texture* texture, std::string* reference)
 
 void AttachMaterialMaps(RSurface* top)
 {
-    if (!top || !top->rdbId || !top->texture || top->materialsFor == top->texture || !g_rvk.device)
+    if (g_worker && g_rvk.device && !g_rvk.device->InFrame())
+        DrainMaterialUploads(FreeMaterialAddressSpace() < (384u << 20));
+    if (!top || !top->rdbId || !top->texture || !g_rvk.device ||
+        (top->materialsFor==top->texture && top->texture->MaterialsState()!=rvk::Texture::MaterialState::Evicted))
         return;
+    if(top->texture->MaterialsState()==rvk::Texture::MaterialState::Evicted)top->texture->MaterialsPending();
     top->materialsFor = top->texture;
     const Folder& folder=FolderFor(top->rdbType,top->rdbId);
     top->buildingFamily=folder.modern==2 ? rvk::buildings::FamilyOf(top->rdbType,top->rdbId) : 0;
     g_rvk.device->SetTextureRdbId(top->texture, top->rdbId, top->rdbType, top->buildingFamily,
-        folder.modern && rvk::materials::AuthoredGround(top->rdbType,top->rdbId));
+        folder.modern && rvk::materials::AuthoredGround(top->rdbType,top->rdbId) &&
+        !CompletedGroundSet(folder,top->rdbType,top->rdbId));
     uint64_t key = KeyOf(top->rdbType, top->rdbId);
     Waiter waiter{top, top->texture};
     // A warm hit only shares existing objects, never changes family visibility.
@@ -909,14 +1001,16 @@ void Reload(uint64_t key)
 
 void PollModernPack()
 {
+    const bool iccChanged = g_iccChanged.exchange(false);
     const bool modernChanged = g_modernChanged.exchange(false);
     const bool characterChanged = g_characterChanged.exchange(false);
     const bool terrainChanged = g_sharedTerrainChanged.exchange(false);
-    if (!modernChanged && !characterChanged && !terrainChanged)
+    if (!iccChanged && !modernChanged && !characterChanged && !terrainChanged)
         return;
     Scan();
     std::unordered_set<uint64_t> keys;
     for (RSurface* top : g_identified) {
+        if (iccChanged && rvk::icc::Target(top->rdbType,top->rdbId)) keys.insert(KeyOf(top->rdbType,top->rdbId));
         if (terrainChanged && FullQualityType(top->rdbType) == 1010006)
             keys.insert(KeyOf(top->rdbType, top->rdbId));
         for (const Folder& pack : g_packs)

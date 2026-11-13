@@ -35,5 +35,11 @@ int main() {
     uint8_t green[]={60,106,42},tan[]={150,120,90},black[]={0,0,0},grey[]={100,100,100};
     assert(rvk::grass::Green(green));
     assert(!rvk::grass::Green(tan)&&!rvk::grass::Green(black)&&!rvk::grass::Green(grey));
+    uint8_t olive[]={76,79,39};
+    assert(!rvk::grass::Green(olive));
+    for(uint32_t type:{1010004u,1010016u,1010017u})assert(rvk::grass::SurfaceTexel(olive,type,207100));
+    assert(!rvk::grass::SurfaceTexel(olive,1010006,207100));
+    assert(!rvk::grass::SurfaceTexel(olive,1010004,207101));
+    assert(!rvk::grass::SurfaceTexel(tan,1010004,207100));
     std::puts("Grass coverage: paths stay bare; edges taper; clamp/wrap and dark/grey rejection passed");
 }

@@ -60,7 +60,7 @@ bool Device::CreatePrepassPipeline(VkShaderModule vert, VkShaderModule leafVert)
     ci.pColorBlendState = &cb;
     ci.pDynamicState = &ds;
     ci.layout = m_pipelineLayout;
-    if (vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_prepassPipeline) != VK_SUCCESS) {
+    if (startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_prepassPipeline) != VK_SUCCESS) {
         m_prepassPipeline = VK_NULL_HANDLE;
         Log("depth pre-pass: pipeline creation failed; off");
         return false;
@@ -90,7 +90,7 @@ bool Device::CreatePrepassPipeline(VkShaderModule vert, VkShaderModule leafVert)
                 nullptr}};
     ci.stageCount = 2;
     ci.pStages = stages;
-    if (vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_prepassCutoutPipeline) != VK_SUCCESS) {
+    if (startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_prepassCutoutPipeline) != VK_SUCCESS) {
         m_prepassCutoutPipeline = VK_NULL_HANDLE;
         Log("depth pre-pass: cut-out pipeline creation failed; cut-outs kept out");
     }
@@ -99,7 +99,7 @@ bool Device::CreatePrepassPipeline(VkShaderModule vert, VkShaderModule leafVert)
     // nearest layer of a dense crown instead of every layer.
     if (leafVert && m_prepassCutoutPipeline) {
         stages[0].module = leafVert;
-        if (vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPrepassPipeline) != VK_SUCCESS)
+        if (startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_leafPrepassPipeline) != VK_SUCCESS)
             m_leafPrepassPipeline = VK_NULL_HANDLE;
     }
     vkDestroyShaderModule(m_device, frag, nullptr);

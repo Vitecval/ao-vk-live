@@ -25,6 +25,7 @@
 #include "FrameInterpolationSwapchainVK.h"
 #include "FrameInterpolationSwapchainVK_UiComposition.h"
 #include "FrameInterpolationSwapchainVK_DebugPacing.h"
+#include "FrameInterpolationSwapchainVK_Pacing.h"
 
 #include <FidelityFX/host/ffx_assert.h>
 
@@ -600,6 +601,11 @@ uint64_t getLastPresentCountFFX(VkSwapchainKHR swapchain)
     return pSwapChainVK->getLastPresentCount();
 }
 
+VkResult waitForPresentationFFX(VkSwapchainKHR swapchain)
+{
+    return reinterpret_cast<FrameInterpolationSwapChainVK*>(swapchain)->waitForPresentation();
+}
+
 //////////////////////////////////////////////
 /// FFX API overridden functions
 //////////////////////////////////////////////
@@ -624,6 +630,7 @@ FFX_API FfxErrorCode ffxGetSwapchainReplacementFunctionsVK(FfxDevice ffxDevice, 
 
     // additional functions only available for frame interpolation swapchain
     functions->getLastPresentCountFFX = getLastPresentCountFFX;
+    functions->waitForPresentationFFX = waitForPresentationFFX;
 
     return FFX_OK;
 }
@@ -760,7 +767,60 @@ FfxErrorCode ffxFrameInterpolationSwapchainGetGpuMemoryUsageVK(FfxSwapchain game
 //////////////////////////////////////////////
 /// Present
 //////////////////////////////////////////////
-VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex = 0)
+struct PresentSwapchainLock {
+    CRITICAL_SECTION& section;
+    explicit PresentSwapchainLock(CRITICAL_SECTION& s) : section(s) { EnterCriticalSection(&section); }
+    ~PresentSwapchainLock() { LeaveCriticalSection(&section); }
+};
+
+VkResult waitForPresentationCompletion(FrameinterpolationPresentInfo* presenter)
+{
+    if(!presenter->serializePresentation)return VK_SUCCESS;
+    const uint64_t target=presenter->pendingPresentation.load(std::memory_order_acquire);
+    if(!target)return VK_SUCCESS;
+    const DWORD began=GetTickCount();
+    for(;;){
+        uint64_t completed=presenter->completedPresentation.load(std::memory_order_acquire);
+        if(completed>=target)break;
+        const VkResult failure=presenter->lastPresentResult.load();
+        if(failure<0&&failure!=VK_ERROR_OUT_OF_DATE_KHR)return failure;
+        const DWORD elapsed=GetTickCount()-began;
+        if(elapsed>=5000){presenter->lastPresentResult.store(VK_ERROR_DEVICE_LOST);return VK_ERROR_DEVICE_LOST;}
+        WaitOnAddress(reinterpret_cast<volatile void*>(&presenter->completedPresentation),&completed,sizeof(completed),
+                      (std::min)(DWORD(100),DWORD(5000-elapsed)));
+    }
+    return presenter->lastPresentResult.load();
+}
+
+static VkResult waitForPresentReadyLocked(FrameinterpolationPresentInfo* pPresenter)
+{
+    // AO-VK: some Windows presentation paths retain a driver-wide graphics lock
+    // while waiting for the submitted image. The render worker can then block in
+    // descriptor recording while another SDK queue still needs to make progress.
+    // Drain just this present queue to a fence before entering WSI. Crucially,
+    // the CPU wait owns no queue mutex, so game/interpolation/acquire submissions
+    // remain possible. Keep the image's binary semaphore in the actual present.
+    VkResult& readiness = pPresenter->presentReadyResult;
+    if (readiness != VK_SUCCESS)
+        return readiness;
+    if (!pPresenter->presentReadyFence) {
+        VkFenceCreateInfo fenceInfo{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+        readiness = vkCreateFence(pPresenter->device, &fenceInfo, nullptr, &pPresenter->presentReadyFence);
+        if (readiness != VK_SUCCESS) return readiness;
+    }
+    readiness = vkResetFences(pPresenter->device, 1, &pPresenter->presentReadyFence);
+    if (readiness != VK_SUCCESS) return readiness;
+    SubmissionSemaphores noWait, noSignal;
+    readiness = pPresenter->presentQueue.submit(VK_NULL_HANDLE, noWait, noSignal, pPresenter->presentReadyFence);
+    if (readiness != VK_SUCCESS) return readiness;
+    readiness = vkWaitForFences(pPresenter->device, 1, &pPresenter->presentReadyFence, VK_TRUE, 5000000000ull);
+    // A timed-out fence may still be pending. Latch the failure and never reset
+    // or submit it again; report a stopped device instead of another driver wait.
+    if (readiness == VK_TIMEOUT) readiness = VK_ERROR_DEVICE_LOST;
+    return readiness;
+}
+
+static VkResult presentReadyToSwapChainLocked(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex)
 {
     VkPresentInfoKHR presentInfoKHR   = {};
     presentInfoKHR.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -772,16 +832,26 @@ VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t 
     presentInfoKHR.pImageIndices      = &imageIndex;
     presentInfoKHR.pResults           = nullptr;  // Optional
 
-    EnterCriticalSection(&pPresenter->swapchainCriticalSection);
     VkResult res;
-    {
+    if (pPresenter->queuePresentCallback) {
+        // Do not hold the queue mutex across a synchronous HWND-owner handoff.
+        // Its callback acquires the mutex on the executing thread instead.
+        res = pPresenter->queuePresentCallback(pPresenter->presentQueue.queue, &presentInfoKHR,
+                                              pPresenter->queuePresentContext);
+    } else {
         std::lock_guard<std::mutex> lock(ffxQueueMutex());   // (ao-vk)
         res = vkQueuePresentKHR(pPresenter->presentQueue.queue, &presentInfoKHR);
     }
-    LeaveCriticalSection(&pPresenter->swapchainCriticalSection);
 
     ++(pPresenter->realPresentCount);
     return res;
+}
+
+VkResult presentToSwapChain(FrameinterpolationPresentInfo* pPresenter, uint32_t imageIndex, uint32_t semaphoreIndex = 0)
+{
+    PresentSwapchainLock lock(pPresenter->swapchainCriticalSection);
+    const VkResult readiness = waitForPresentReadyLocked(pPresenter);
+    return readiness == VK_SUCCESS ? presentReadyToSwapChainLocked(pPresenter, imageIndex, semaphoreIndex) : readiness;
 }
 
 VkResult compositeSwapChainFrame(FrameinterpolationPresentInfo* pPresenter,
@@ -939,6 +1009,40 @@ VkResult compositeSwapChainFrame(FrameinterpolationPresentInfo* pPresenter,
     }
 }
 
+// AO-VK: prepare the whole generated/real pair before the first WSI call. A
+// blocking Win32 present must not withhold composition/replacement signals that
+// a later game/acquire submission already waits for on another queue.
+void presentPreparedPair(FrameinterpolationPresentInfo* presenter, const PreparedPresent* prepared,
+                         uint32_t count, int64_t& previousPresentQpc)
+{
+    const auto present = [&](bool pairReady) {
+        for (uint32_t i = 0; i < count; ++i) {
+            waitForPerformanceCount(previousPresentQpc + prepared[i].pacingDelta);
+            QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
+            const VkResult result = pairReady
+                ? presentReadyToSwapChainLocked(presenter, prepared[i].imageIndex, prepared[i].imageIndex)
+                : presentToSwapChain(presenter, prepared[i].imageIndex, prepared[i].imageIndex);
+            presenter->lastPresentResult.store(result);
+            if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR) break;
+        }
+    };
+    if (count && presenter->serializePresentation) {
+        PresentSwapchainLock lock(presenter->swapchainCriticalSection);
+        // Every GPU submission for BOTH prepared images is already queued, and
+        // the caller cannot submit a later game frame until this pair returns.
+        // One fence therefore proves both images ready. Do not submit another
+        // fence behind the first WSI call or include GPU readiness in pacing.
+        const VkResult readiness = waitForPresentReadyLocked(presenter);
+        if (readiness == VK_SUCCESS) present(true);
+        else presenter->lastPresentResult.store(readiness);
+    } else {
+        present(false); // nonserialized vendors retain per-present readiness
+    }
+    LARGE_INTEGER completed;
+    QueryPerformanceCounter(&completed);
+    presenter->completedPairQpc.store(completed.QuadPart, std::memory_order_release);
+}
+
 DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
 {
     FrameinterpolationPresentInfo* presenter = static_cast<FrameinterpolationPresentInfo*>(pParam);
@@ -971,6 +1075,8 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
                         presenter->lastPresentSemaphoreValue = entry.numFramesSentForPresentationBase;
                     }
 
+                    PreparedPresent prepared[PacingData::FrameType::Count]{};
+                    uint32_t preparedCount = 0;
                     for (uint32_t frameType = 0; frameType < PacingData::FrameType::Count; frameType++)
                     {
                         const PacingData::FrameInfo& frameInfo = entry.frames[frameType];
@@ -1052,14 +1158,8 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
 
                                 res = presentCommandList->execute(toWait, toSignal);
 
-                                waitForPerformanceCount(previousPresentQpc + frameInfo.presentQpcDelta);
-                                QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
-
-                                res = presentToSwapChain(presenter, imageIndex, imageIndex);
-                                // VK_SUBOPTIMAL_KHR & VK_ERROR_OUT_OF_DATE_KHR: the swapchain has been recreated
-                                FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
-                                                          "presentToSwapChain failed with error %d",
-                                                          res);
+                                if (res == VK_SUCCESS)
+                                    prepared[preparedCount++] = {imageIndex, frameInfo.presentQpcDelta};
                             }
                             else
                             {
@@ -1072,7 +1172,10 @@ DWORD WINAPI copyAndPresent_presenterThread(LPVOID pParam)
                         }
                     }
 
+                    presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
+                    presenter->completedPresentation.store(numFramesSentForPresentation, std::memory_order_release);
+                    WakeByAddressAll(&presenter->completedPresentation);
                 }
             }
         }
@@ -1116,6 +1219,8 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                         presenter->lastPresentSemaphoreValue = entry.numFramesSentForPresentationBase;
                     }
 
+                    PreparedPresent prepared[PacingData::FrameType::Count]{};
+                    uint32_t preparedCount = 0;
                     SubmissionSemaphores toWait;
                     toWait.add(presenter->gameSemaphore, entry.gameSemaphoreValue);
 
@@ -1166,14 +1271,8 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                                                               uiSurfaceTransfered);
                                 FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS, "compositeSwapChainFrame failed with error %d", res);
 
-                                waitForPerformanceCount(previousPresentQpc + frameInfo.presentQpcDelta);
-                                QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&previousPresentQpc));
-
-                                res = presentToSwapChain(presenter, realSwapchainImageIndex, realSwapchainImageIndex);
-                                // VK_SUBOPTIMAL_KHR & VK_ERROR_OUT_OF_DATE_KHR: the swapchain has been recreated
-                                FFX_ASSERT_MESSAGE_FORMAT(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
-                                                          "presentToSwapChain failed with error %d",
-                                                          res);
+                                if (res == VK_SUCCESS)
+                                    prepared[preparedCount++] = {realSwapchainImageIndex, frameInfo.presentQpcDelta};
                             }
                             else
                             {
@@ -1193,7 +1292,10 @@ DWORD WINAPI composeAndPresent_presenterThread(LPVOID pParam)
                         { SubmissionSemaphores noSignal; presenter->presentQueue.submit(VK_NULL_HANDLE, toWait, noSignal); }   // (ao-vk: a named one - clang-cl binds no temporary to it)
                     }
 
+                    presentPreparedPair(presenter, prepared, preparedCount, previousPresentQpc);
                     numFramesSentForPresentation = entry.numFramesSentForPresentationBase + entry.numFramesToPresent;
+                    presenter->completedPresentation.store(numFramesSentForPresentation, std::memory_order_release);
+                    WakeByAddressAll(&presenter->completedPresentation);
                 }
             }
         }
@@ -1251,15 +1353,19 @@ DWORD WINAPI interpolationThread(LPVOID param)
                     int64_t currentQpc = 0;
                     QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&currentQpc));
 
-                    const double deltaQpc = double(currentQpc - previousQpc) * (previousQpc > 0);
+                    const double elapsedQpc = double(currentQpc - previousQpc) * (previousQpc > 0);
+                    int64_t qpcFrequency;
+                    QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&qpcFrequency));
+                    const double cpuMs = presenter->getCpuFrameMs ? presenter->getCpuFrameMs(presenter->cpuFrameContext) : 0.0;
+                    const int64_t cpuQpc = cpuMs > 0.0 && cpuMs < 100.0 ? int64_t(cpuMs * qpcFrequency / 1000.0) : 0;
+                    const double deltaQpc = double(frameProductionInterval(previousQpc, currentQpc,
+                        presenter->completedPairQpc.load(std::memory_order_acquire), presenter->serializePresentation, cpuQpc));
                     previousQpc           = currentQpc;
 
                     // reset pacing averaging if delta > 10 fps,
-                    int64_t qpcFrequency;
-                    QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&qpcFrequency));
                     const float fTimeoutInSeconds       = 0.1f;
                     double      deltaQpcResetThreashold = double(qpcFrequency * fTimeoutInSeconds);
-                    if ((deltaQpc > deltaQpcResetThreashold) || presenter->resetTimer)
+                    if ((elapsedQpc > deltaQpcResetThreashold) || presenter->resetTimer)
                     {
                         frameTime.reset();
                     }
@@ -1504,6 +1610,12 @@ VkResult FrameInterpolationSwapChainVK::init(const VkSwapchainCreateInfoKHR* pCr
     presentInfo.interpolationQueue = presentInfo.gameQueue;
     presentInfo.asyncComputeQueue  = pFrameInterpolationInfo->asyncComputeQueue;
     presentInfo.presentQueue       = pFrameInterpolationInfo->presentQueue;
+    presentInfo.queuePresentCallback = pFrameInterpolationInfo->queuePresentCallback;
+    presentInfo.queuePresentContext = pFrameInterpolationInfo->queuePresentContext;
+    presentInfo.serializePresentation = pFrameInterpolationInfo->serializePresentation;
+    presentInfo.deferPresentationWait = pFrameInterpolationInfo->deferPresentationWait;
+    presentInfo.getCpuFrameMs = pFrameInterpolationInfo->getCpuFrameMs;
+    presentInfo.cpuFrameContext = pFrameInterpolationInfo->cpuFrameContext;
     imageAcquireQueue              = pFrameInterpolationInfo->imageAcquireQueue;
 
     // check that the queues are separate
@@ -1743,6 +1855,10 @@ void FrameInterpolationSwapChainVK::destroySwapchain(VkDevice device, const VkAl
     destroySemaphore(presentInfo.presentSemaphore);
     destroySemaphore(presentInfo.replacementBufferSemaphore);
     destroySemaphore(presentInfo.compositionSemaphore);
+    if (presentInfo.presentReadyFence) {
+        vkDestroyFence(device, presentInfo.presentReadyFence, nullptr); // paired with the guard's null allocator
+        presentInfo.presentReadyFence = VK_NULL_HANDLE;
+    }
 
     for (uint32_t i = 0; i < FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_ACQUIRE_SEMAPHORE_COUNT; ++i)
     {
@@ -2579,7 +2695,7 @@ VkResult FrameinterpolationPresentInfo::acquireNextRealImage(uint32_t& imageInde
 {
     acquireSemaphore = acquireSemaphores[nextAcquireSemaphoreIndex];
     EnterCriticalSection(&swapchainCriticalSection);
-    VkResult res = vkAcquireNextImageKHR(device, realSwapchain, UINT64_MAX, acquireSemaphore, VK_NULL_HANDLE, &imageIndex);
+    VkResult res = vkAcquireNextImageKHR(device, realSwapchain, 250000000ull, acquireSemaphore, VK_NULL_HANDLE, &imageIndex);
     LeaveCriticalSection(&swapchainCriticalSection);
     
     // only increment on success
@@ -2631,7 +2747,13 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
 
     if (runInterpolation)
     {
-        WaitForSingleObject(presentInfo.interpolationEvent, INFINITE);
+        if (WaitForSingleObject(presentInfo.interpolationEvent, 5000) != WAIT_OBJECT_0) {
+            // AO-VK: do not strand the render worker forever if a presenter or
+            // GPU dependency stops. The engine latches this and logs a restart.
+            presentInfo.lastPresentResult.store(VK_ERROR_DEVICE_LOST);
+            LeaveCriticalSection(&criticalSection);
+            return VK_ERROR_DEVICE_LOST;
+        }
 
         res = presentInterpolated(pPresentInfo, currentBackBufferIndex, needUICopy);
     }
@@ -2708,13 +2830,30 @@ VkResult FrameInterpolationSwapChainVK::queuePresent(VkQueue queue, const VkPres
 
     // update active backbuffer and block when no buffer is available
     replacementSwapBufferIndex = presentCount % gameBufferCount;
+    // Inline/passthrough calls have already returned from WSI. Only an async
+    // interpolated entry needs an actual-presentation gate on future submissions.
+    presentInfo.pendingPresentation.store(runInterpolation?framesSentForPresentation:0,std::memory_order_release);
 
     LeaveCriticalSection(&criticalSection);
+
+    if (presentInfo.serializePresentation && runInterpolation && !presentInfo.deferPresentationWait) {
+        // A ready GPU fence is insufficient on driver paths that drain other
+        // queues during WSI. Do not let the engine queue the next game's work
+        // (which can wait for a future composition) until this pair has returned
+        // from the real presentation calls. Own no SDK/queue mutex while waiting.
+        res = waitForPresentation();
+        if (res < 0 && res != VK_ERROR_OUT_OF_DATE_KHR) return res;
+    }
 
     waitForSemaphoreValue(
         presentInfo.device, presentInfo.replacementBufferSemaphore, replacementSwapBuffers[replacementSwapBufferIndex].availabilitySemaphoreValue, UINT64_MAX, presentInfo.waitCallback);
     
     return res;
+}
+
+VkResult FrameInterpolationSwapChainVK::waitForPresentation()
+{
+    return waitForPresentationCompletion(&presentInfo);
 }
 
 bool FrameInterpolationSwapChainVK::spawnPresenterThread()

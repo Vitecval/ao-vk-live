@@ -1,8 +1,840 @@
 {
   "name": "ao-cyber-icc",
-  "version": 1,
+  "version": 2,
   "setting": "RVK_ModernTex=2",
   "materials": [
+    {
+      "type": 1010004,
+      "id": 6017,
+      "name": "factory_pipetop.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6017-v1",
+      "size": [
+        512,
+        256
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6025,
+      "name": "factory_pipebottompart.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 6026,
+      "name": "factory_bigpipe.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6026-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6039,
+      "name": "factory_shinypipe.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "1010004_78404",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 6041,
+      "name": "factory_6pipeendpart.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6041-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6254,
+      "name": "bark.png",
+      "group": "picked",
+      "profile": "bark",
+      "source": "1010004_6254",
+      "size": [
+        512,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n",
+        "h"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 6656,
+      "name": "hitechlamp_smallplate.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6656-v1",
+      "size": [
+        512,
+        128
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6658,
+      "name": "hitechlamp_platebottomlamp.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6658-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6659,
+      "name": "hitechlamp_smallplatetop.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6659-v1",
+      "size": [
+        128,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6660,
+      "name": "hitechlamp_platepartfront.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6660-v1",
+      "size": [
+        128,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 6661,
+      "name": "hitechlamp_plateparttop.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_6661-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 8632,
+      "name": "midtech_roofpipe_plate1.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_8632-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 8633,
+      "name": "midtech_roofpipe_plate2.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "1010004_78404",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 8634,
+      "name": "hitech_ventwallgrid.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_8634-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 8635,
+      "name": "midtech_roofpipe_techieplate.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_8635-v1",
+      "size": [
+        512,
+        256
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 8636,
+      "name": "midtech_roofpipe_topfastener.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_8636-v1",
+      "size": [
+        512,
+        256
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 8637,
+      "name": "hitech_ventwallplate.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_8637-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 14870,
+      "name": "hq_plate_roundedshine_trash_text.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "e9e099ad9801ae24a04f88fa31c78eddad08e84150601a62f9e56e23f1943d7e"
+    },
+    {
+      "type": 1010004,
+      "id": 16084,
+      "name": "hq_smallventobjectside.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 16085,
+      "name": "hq_smallventshinysideslice.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "1010004_78404",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 16086,
+      "name": "hq_smallsideventfront.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 19938,
+      "name": "ent_trashcan.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "9ca0c8e02a13a8cd963d89edc1acb6e72f65464781d0680d8f6f228fc53877a7"
+    },
+    {
+      "type": 1010004,
+      "id": 21546,
+      "name": "factory_metal_small_pipe.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_21546-v1",
+      "size": [
+        128,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 21548,
+      "name": "factory_metal_bigpipe.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 21595,
+      "name": "factory_metal_pipes.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 21743,
+      "name": "factory_metal_bigpipe_broken.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_21743-v1",
+      "size": [
+        512,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch002",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 30287,
+      "name": "factory_bigbluepipe.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_30287-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch003",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 36219,
+      "name": "athens_simple_stripemetal_opac.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "55840b1da254f01e54eb83414551aad89c3fa23e2bc752547e2cad746d7d0b42"
+    },
+    {
+      "type": 1010004,
+      "id": 36220,
+      "name": "athens_simple_stripemetal2.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "67203920e1a72c97f481c30a3cc4bdbd205fb5732ffe841ab08bbdd0fb9c3cc8"
+    },
+    {
+      "type": 1010004,
+      "id": 41137,
+      "name": "rome_trashcan_redband.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 41138,
+      "name": "rome_trashtop.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf",
+      "size": [
+        512,
+        512
+      ],
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 44642,
+      "name": "trash_med_lowpart1.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "60922920b8e6c18de28d6b81562a210684df24b15f56ce0b34882b9743b58203"
+    },
+    {
+      "type": 1010004,
+      "id": 44643,
+      "name": "trash_ring1.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 44644,
+      "name": "trash_med_side.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "60922920b8e6c18de28d6b81562a210684df24b15f56ce0b34882b9743b58203"
+    },
+    {
+      "type": 1010004,
+      "id": 44646,
+      "name": "trash_ring_detail.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "60922920b8e6c18de28d6b81562a210684df24b15f56ce0b34882b9743b58203"
+    },
+    {
+      "type": 1010004,
+      "id": 44647,
+      "name": "trash_med_paneltest.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 78404,
+      "name": "pipes_darkmetal_straigth2.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "1010004_78404",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 78405,
+      "name": "pipes_darkmetal_straigth3.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_78405-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 78408,
+      "name": "pipes_darkmetal_straigth.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_78408-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 78410,
+      "name": "pipes_darkmetal_straigth5.png",
+      "group": "pipes",
+      "profile": "metal",
+      "source": "overnight-20261028-1010004_78410-v1",
+      "size": [
+        256,
+        512
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch004",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
+    },
+    {
+      "type": 1010004,
+      "id": 78479,
+      "name": "trash_grid.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "8ee0dc450e2cec33f25a1488f10e0c1d9be3b15d85c8a4b097b0779998ac8859"
+    },
+    {
+      "type": 1010004,
+      "id": 81946,
+      "name": "omnitrashcannnnn2.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 81947,
+      "name": "omnitrashcannnnn.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": "1010004_81947",
+      "size": [
+        512,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n",
+        "e"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 81948,
+      "name": "rome_trashcan_redband_omni.png",
+      "group": "bins",
+      "profile": "metal",
+      "source": "1010004_81948",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n",
+        "e"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 156581,
+      "name": "slbarsidetrashed.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf",
+      "size": [
+        256,
+        512
+      ],
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 164903,
+      "name": "arrivalhall_trashcanmaintexture.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "ef04314a08060160f0baf4272692be9cc94740bb3a032b5287487344df29d315"
+    },
     {
       "type": 1010004,
       "id": 295444,
@@ -22,31 +854,27 @@
       "type": 1010004,
       "id": 295500,
       "name": "icc_shuttle_tiles02.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "ebab29b7b690403c219fa7fab200782a26e1a83be5628d6fa440b08077ad3ab6"
     },
     {
       "type": 1010004,
       "id": 295501,
       "name": "icc_shuttle_tiles03.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "ebab29b7b690403c219fa7fab200782a26e1a83be5628d6fa440b08077ad3ab6"
     },
     {
       "type": 1010004,
@@ -61,6 +889,23 @@
       ],
       "maps": [
         "orm"
+      ]
+    },
+    {
+      "type": 1010004,
+      "id": 295610,
+      "name": "wh_basemetal_01_d.png",
+      "group": "picked",
+      "profile": "metal",
+      "source": "1010004_78404",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
       ]
     },
     {
@@ -97,16 +942,14 @@
       "type": 1010004,
       "id": 295916,
       "name": "tanker1_icc_d.png",
-      "group": "icc",
-      "profile": "panel",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "accepted_offline_replacement",
+      "producerEvidenceSha256": "fed2a16c2901bbd6133e6649a6f1761daef860631476594c17fee7a502aad5e4"
     },
     {
       "type": 1010004,
@@ -207,31 +1050,27 @@
       "type": 1010004,
       "id": 296964,
       "name": "icc_shuttle_wall_frame.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
     },
     {
       "type": 1010004,
       "id": 296965,
       "name": "icc_shuttle_mainroom.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
     },
     {
       "type": 1010004,
@@ -282,61 +1121,138 @@
       "type": 1010004,
       "id": 297117,
       "name": "icc_cantina_chair.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643",
+      "size": [
+        512,
+        512
+      ],
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending."
     },
     {
       "type": 1010004,
       "id": 297120,
       "name": "icc_cantina_table.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
     },
     {
       "type": 1010004,
       "id": 297122,
       "name": "icc_cantina_bar.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
     },
     {
       "type": 1010004,
       "id": 297135,
       "name": "icc_shuttle_tech.png",
-      "group": "icc",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
+    },
+    {
+      "type": 1010004,
+      "id": 297314,
+      "name": "new_vending_terminal_icc_hacking.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297316,
+      "name": "new_vending_terminal_icc_clusters_faded.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297317,
+      "name": "new_vending_terminal_icc_clusters_bright.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297318,
+      "name": "new_vending_terminal_icc_clusters_shiny.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297319,
+      "name": "new_vending_terminal_icc_implants.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297324,
+      "name": "new_vending_terminal_icc_pharmacy.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
@@ -406,6 +1322,162 @@
     },
     {
       "type": 1010004,
+      "id": 297414,
+      "name": "new_vending_terminal_icc_chemical.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297415,
+      "name": "new_vending_terminal_icc_weapon_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297416,
+      "name": "new_vending_terminal_icc_smithing_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297417,
+      "name": "new_vending_terminal_icc_architecture_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297418,
+      "name": "new_vending_terminal_icc_office_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297419,
+      "name": "new_vending_terminal_icc_armor.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297420,
+      "name": "new_vending_terminal_icc_weapons.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "cb91801b81cd23950c52bed68de3f484596f1786712035fe226301a77a66d2b9"
+    },
+    {
+      "type": 1010004,
+      "id": 297421,
+      "name": "new_vending_terminal_icc_accessories.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "fc0f0a1f19b69c7659506dd1e40405aa65b63f5dca79c4e5824026461ea6f69e"
+    },
+    {
+      "type": 1010004,
+      "id": 297422,
+      "name": "new_vending_terminal_icc_containers.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "8253cdaf0ea84221476e1fa3ebd20ce7fb11314e88931e0f1df14f71843a2c2c"
+    },
+    {
+      "type": 1010004,
+      "id": 297446,
+      "name": "new_vending_terminal_icc_engineering_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "cb91801b81cd23950c52bed68de3f484596f1786712035fe226301a77a66d2b9"
+    },
+    {
+      "type": 1010004,
+      "id": 297447,
+      "name": "new_vending_terminal_icc_fashion_supplies.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297458,
+      "name": "new_vending_terminal_icc_ammunition.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
       "id": 297461,
       "name": "icc_whompa_floor_d.png",
       "group": "icc",
@@ -421,1342 +1493,318 @@
     },
     {
       "type": 1010004,
-      "id": 297811,
-      "name": "icc_hirise_windows_blue_ab_d.png",
-      "group": "icc",
-      "profile": "glass",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6017,
-      "name": "factory_pipetop.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6025,
-      "name": "factory_pipebottompart.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6026,
-      "name": "factory_bigpipe.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6039,
-      "name": "factory_shinypipe.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": "1010004_78404",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6041,
-      "name": "factory_6pipeendpart.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8632,
-      "name": "midtech_roofpipe_plate1.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8633,
-      "name": "midtech_roofpipe_plate2.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": "1010004_78404",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8634,
-      "name": "hitech_ventwallgrid.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8635,
-      "name": "midtech_roofpipe_techieplate.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8636,
-      "name": "midtech_roofpipe_topfastener.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 8637,
-      "name": "hitech_ventwallplate.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 16084,
-      "name": "hq_smallventobjectside.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 16085,
-      "name": "hq_smallventshinysideslice.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": "1010004_78404",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 16086,
-      "name": "hq_smallsideventfront.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 21546,
-      "name": "factory_metal_small_pipe.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 21548,
-      "name": "factory_metal_bigpipe.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 21595,
-      "name": "factory_metal_pipes.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 21743,
-      "name": "factory_metal_bigpipe_broken.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 30287,
-      "name": "factory_bigbluepipe.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 78404,
-      "name": "pipes_darkmetal_straigth2.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": "1010004_78404",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 78405,
-      "name": "pipes_darkmetal_straigth3.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 78408,
-      "name": "pipes_darkmetal_straigth.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 78410,
-      "name": "pipes_darkmetal_straigth5.png",
-      "group": "pipes",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 14870,
-      "name": "hq_plate_roundedshine_trash_text.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 19938,
-      "name": "ent_trashcan.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 41137,
-      "name": "rome_trashcan_redband.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 41138,
-      "name": "rome_trashtop.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 44642,
-      "name": "trash_med_lowpart1.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 44643,
-      "name": "trash_ring1.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 44644,
-      "name": "trash_med_side.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 44646,
-      "name": "trash_ring_detail.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 44647,
-      "name": "trash_med_paneltest.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 78479,
-      "name": "trash_grid.png",
-      "group": "bins",
-      "profile": "grille",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 81946,
-      "name": "omnitrashcannnnn2.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 81947,
-      "name": "omnitrashcannnnn.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": "1010004_81947",
-      "size": [
-        512,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n",
-        "e"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 81948,
-      "name": "rome_trashcan_redband_omni.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": "1010004_81948",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n",
-        "e"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 156581,
-      "name": "slbarsidetrashed.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 164903,
-      "name": "arrivalhall_trashcanmaintexture.png",
-      "group": "bins",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 295610,
-      "name": "wh_basemetal_01_d.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": "1010004_78404",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 36220,
-      "name": "athens_simple_stripemetal2.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 36219,
-      "name": "athens_simple_stripemetal_opac.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297679,
-      "name": "statue_bronze_cheetah2.png",
-      "group": "picked",
-      "profile": "bronze",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297678,
-      "name": "piedestal.png",
-      "group": "picked",
-      "profile": "stone",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297672,
-      "name": "statue_bronze.png",
-      "group": "picked",
-      "profile": "bronze",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6660,
-      "name": "hitechlamp_platepartfront.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6658,
-      "name": "hitechlamp_platebottomlamp.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6661,
-      "name": "hitechlamp_plateparttop.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6656,
-      "name": "hitechlamp_smallplate.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6659,
-      "name": "hitechlamp_smallplatetop.png",
-      "group": "picked",
-      "profile": "metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 6254,
-      "name": "bark.png",
-      "group": "picked",
-      "profile": "bark",
-      "source": "1010004_6254",
-      "size": [
-        512,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n",
-        "h"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297314,
-      "name": "new_vending_terminal_icc_hacking.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297316,
-      "name": "new_vending_terminal_icc_clusters_faded.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297317,
-      "name": "new_vending_terminal_icc_clusters_bright.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297318,
-      "name": "new_vending_terminal_icc_clusters_shiny.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297319,
-      "name": "new_vending_terminal_icc_implants.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297324,
-      "name": "new_vending_terminal_icc_pharmacy.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297414,
-      "name": "new_vending_terminal_icc_chemical.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297415,
-      "name": "new_vending_terminal_icc_weapon_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297416,
-      "name": "new_vending_terminal_icc_smithing_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297417,
-      "name": "new_vending_terminal_icc_architecture_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297418,
-      "name": "new_vending_terminal_icc_office_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297419,
-      "name": "new_vending_terminal_icc_armor.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297420,
-      "name": "new_vending_terminal_icc_weapons.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297421,
-      "name": "new_vending_terminal_icc_accessories.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297422,
-      "name": "new_vending_terminal_icc_containers.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297446,
-      "name": "new_vending_terminal_icc_engineering_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297447,
-      "name": "new_vending_terminal_icc_fashion_supplies.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
-      "id": 297458,
-      "name": "new_vending_terminal_icc_ammunition.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010004,
       "id": 297465,
       "name": "new_vending_terminal_icc_ma_attacks.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297566,
       "name": "new_vending_terminal_icc_nano_programs_shade.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297567,
       "name": "new_vending_terminal_icc_nano_programs_general.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297572,
       "name": "new_vending_terminal_icc_nano_programs_adventurer.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297573,
       "name": "new_vending_terminal_icc_nano_programs_agent.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297574,
       "name": "new_vending_terminal_icc_nano_programs_bureaucrat.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297575,
       "name": "new_vending_terminal_icc_nano_programs_doctor.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297576,
       "name": "new_vending_terminal_icc_nano_programs_enforcer.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297577,
       "name": "new_vending_terminal_icc_nano_programs_engineer.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297578,
       "name": "new_vending_terminal_icc_nano_programs_fixer.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297579,
       "name": "new_vending_terminal_icc_nano_programs_keeper.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297580,
       "name": "new_vending_terminal_icc_nano_programs_martial_artist.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297581,
       "name": "new_vending_terminal_icc_nano_programs_meta-physicist.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297582,
       "name": "new_vending_terminal_icc_nano_programs_nano-technician.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297583,
       "name": "new_vending_terminal_icc_nano_programs_soldier.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 297584,
       "name": "new_vending_terminal_icc_nano_programs_trader.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
+    },
+    {
+      "type": 1010004,
+      "id": 297672,
+      "name": "statue_bronze.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
+    },
+    {
+      "type": 1010004,
+      "id": 297678,
+      "name": "piedestal.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf",
       "size": [
-        1024,
-        1024
+        512,
+        512
+      ],
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending."
+    },
+    {
+      "type": 1010004,
+      "id": 297679,
+      "name": "statue_bronze_cheetah2.png",
+      "source": "preview23-integrated-artwork",
+      "maps": [
+        "d",
+        "n",
+        "orm"
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "fc32f59e0446b3fcbf1ec06e59f83bca4ca18205df6a24ead74088a8c074f7bf"
+    },
+    {
+      "type": 1010004,
+      "id": 297811,
+      "name": "icc_hirise_windows_blue_ab_d.png",
+      "group": "icc",
+      "profile": "glass",
+      "source": "overnight-20261028-1010004_297811-v1",
+      "size": [
+        512,
+        512
       ],
       "maps": [
-        "orm"
-      ]
+        "orm",
+        "d",
+        "n"
+      ],
+      "preserve_original_alpha": true,
+      "batch": "overnight-20261028-batch001",
+      "review": "Pattern/layout preserved or individual selected artwork; source recovery and technical detail reconstruction recorded. Retail visual review pending.",
+      "worker": true,
+      "detailRestoration": "preview23-detail-v2"
     },
     {
       "type": 1010004,
       "id": 302079,
       "name": "new_vending_terminal_icc_nano_programs_fixer_1.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010004,
       "id": 302122,
       "name": "new_vending_terminal_icc_implants_soldier_1.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "new_worker_provisional_replacement",
+      "producerEvidenceSha256": "ba0de43bfd8cc76c70dd2bacc6f3f5ad8bcb67105683733ba30f84318651f3e6"
     },
     {
       "type": 1010004,
       "id": 302459,
       "name": "new_vending_terminal_icc_nano_programs_fixer_3.png",
-      "group": "terminal",
-      "profile": "painted_metal",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
+      "source": "preview23-integrated-artwork",
       "maps": [
+        "d",
+        "n",
         "orm"
-      ]
+      ],
+      "priorState": "historical_held_replacement",
+      "producerEvidenceSha256": "a85d4fa68c8666f72f1e3ccf8e96a5f59fc4937b62afd7fb76176a020d4fa643"
     },
     {
       "type": 1010006,
@@ -1783,6 +1831,21 @@
       "size": [
         1024,
         1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 17,
+      "name": "AO tread-plate family 17",
+      "group": "ground",
+      "profile": "matte-deck",
+      "source": null,
+      "size": [
+        128,
+        128
       ],
       "maps": [
         "orm"
@@ -1837,115 +1900,6 @@
         "orm",
         "d",
         "n"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 330,
-      "name": "ICC captured ground 330",
-      "group": "ground",
-      "profile": "gravel",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 351,
-      "name": "ICC captured ground 351",
-      "group": "ground",
-      "profile": "gravel",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 673,
-      "name": "ICC captured ground 673",
-      "group": "ground",
-      "profile": "grass",
-      "source": "1010006_673",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 674,
-      "name": "ICC captured ground 674",
-      "group": "ground",
-      "profile": "grass",
-      "source": "1010006_673",
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm",
-        "d",
-        "n"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 942,
-      "name": "ICC captured ground 942",
-      "group": "ground",
-      "profile": "rock_transition",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 943,
-      "name": "ICC captured ground 943",
-      "group": "ground",
-      "profile": "rock_transition",
-      "source": null,
-      "size": [
-        1024,
-        1024
-      ],
-      "maps": [
-        "orm"
-      ]
-    },
-    {
-      "type": 1010006,
-      "id": 17,
-      "name": "AO tread-plate family 17",
-      "group": "ground",
-      "profile": "matte-deck",
-      "source": null,
-      "size": [
-        128,
-        128
-      ],
-      "maps": [
-        "orm"
       ]
     },
     {
@@ -2277,33 +2231,131 @@
       "maps": [
         "orm"
       ]
+    },
+    {
+      "type": 1010006,
+      "id": 330,
+      "name": "ICC captured ground 330",
+      "group": "ground",
+      "profile": "gravel",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 351,
+      "name": "ICC captured ground 351",
+      "group": "ground",
+      "profile": "gravel",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 673,
+      "name": "ICC captured ground 673",
+      "group": "ground",
+      "profile": "grass",
+      "source": "1010006_673",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 674,
+      "name": "ICC captured ground 674",
+      "group": "ground",
+      "profile": "grass",
+      "source": "1010006_673",
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm",
+        "d",
+        "n"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 942,
+      "name": "ICC captured ground 942",
+      "group": "ground",
+      "profile": "rock_transition",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
+    },
+    {
+      "type": 1010006,
+      "id": 943,
+      "name": "ICC captured ground 943",
+      "group": "ground",
+      "profile": "rock_transition",
+      "source": null,
+      "size": [
+        1024,
+        1024
+      ],
+      "maps": [
+        "orm"
+      ]
     }
   ],
-  "new_art_surfaces": 17,
+  "new_art_surfaces": 97,
   "files": {
-    "1010004_14870_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_156581_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_14870_orm.png": "45cd0c3a30d7583ee6007a5ad0c120707f674f61cb057908f18ae128d77a65ad",
+    "1010004_156581_orm.png": "45e33151c4dbcd26e7207e424a67edfe21a63adc70d719bb66c800ac67d781fd",
     "1010004_16084_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_16085_d.png": "41fbac3790e951f29aaf603ea88035ea5621cfd56356c8770572b7f18af6432a",
     "1010004_16085_n.png": "114a990c7ef824269ece7871c912b60f5c8967f46d0ac143a3841205367c79a7",
     "1010004_16085_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_16086_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_164903_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_19938_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_164903_orm.png": "3919dfeb7e9f6a2796cd3c560c57763ab8a9f5a7a010b84437c953e9063d15d4",
+    "1010004_19938_orm.png": "cb89e80de0fdeb682b32d219696cc7a5d0924de9109fc2dd0b08bc040e947a6a",
+    "1010004_21546_d.png": "616e108f4477cdb189646dbcb1acae604d4ac9379cc3825e7c74cafaa1b48807",
+    "1010004_21546_n.png": "9401d404b99aad8d4e2e60af7e6961325ba27f8a885e9287da19721c59f5e3dd",
     "1010004_21546_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_21548_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_21595_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_21743_d.png": "4815b802991fa02fc40d31f3b50954c56e083d718616c3a1909e09d80c91352e",
+    "1010004_21743_n.png": "3488268a89726e70800354d1fca48647b11e60e87392f04c45c245ccfcefe7a9",
     "1010004_21743_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_295444_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_295500_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_295501_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
+    "1010004_295500_orm.png": "c2749b385cce1e722418d55a4b1498f9268a97051916bb236df36bdb32f81bd8",
+    "1010004_295501_orm.png": "c2749b385cce1e722418d55a4b1498f9268a97051916bb236df36bdb32f81bd8",
     "1010004_295502_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
     "1010004_295610_d.png": "41fbac3790e951f29aaf603ea88035ea5621cfd56356c8770572b7f18af6432a",
     "1010004_295610_n.png": "114a990c7ef824269ece7871c912b60f5c8967f46d0ac143a3841205367c79a7",
     "1010004_295610_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_295913_orm.png": "9e1bedf0cfa6306b5c6a849e66b6dfd240fafaea9a86fb9b2591016a75e4d8db",
     "1010004_295915_orm.png": "9f2a245105ac9b1ade5f91bbb09306b30ee44980ca2a97b20cf07e4b442aec9a",
-    "1010004_295916_orm.png": "9f2a245105ac9b1ade5f91bbb09306b30ee44980ca2a97b20cf07e4b442aec9a",
+    "1010004_295916_orm.png": "acc9c4058f785147e722793c9015e2b4a0c2abc110367daab2c5ed095b6bf56b",
     "1010004_295939_orm.png": "bb9bf13a1cf5ed6b8d0a8e3bf49ca7cbdef13db67c000d17d9867f7ebbddc5a8",
     "1010004_295945_orm.png": "9f2a245105ac9b1ade5f91bbb09306b30ee44980ca2a97b20cf07e4b442aec9a",
     "1010004_295986_orm.png": "9e1bedf0cfa6306b5c6a849e66b6dfd240fafaea9a86fb9b2591016a75e4d8db",
@@ -2315,21 +2367,21 @@
     "1010004_296442_n.png": "93740885b2b9c33a79214a4f963da661be7f72006fabcd1d7090b3df183d9bf2",
     "1010004_296442_orm.png": "e897f127368be0be4516e658cd7fe28f193edfda8f0f5a103c677e7cb6d25568",
     "1010004_296443_orm.png": "9e1bedf0cfa6306b5c6a849e66b6dfd240fafaea9a86fb9b2591016a75e4d8db",
-    "1010004_296964_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_296965_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
+    "1010004_296964_orm.png": "8352f34df68c4102eb5aa165ffbff9ee5a5abd38178aa7134c8a2094c9718cf6",
+    "1010004_296965_orm.png": "5fec633cf9d809869016efb170c850b93bba3449eb1c73f3a65a52093bbb16a5",
     "1010004_296966_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
     "1010004_297002_orm.png": "9e1bedf0cfa6306b5c6a849e66b6dfd240fafaea9a86fb9b2591016a75e4d8db",
     "1010004_297003_orm.png": "9f2a245105ac9b1ade5f91bbb09306b30ee44980ca2a97b20cf07e4b442aec9a",
-    "1010004_297117_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297120_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297122_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297135_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297314_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297316_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297317_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297318_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297319_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297324_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
+    "1010004_297117_orm.png": "6db5139576c4e6189bec59129ad5c69e9e55539599963c48aa22515bffa07a8e",
+    "1010004_297120_orm.png": "3d4a0d33d625f9a3a38a355b4bf79c482791bca344dac3746cd61fb20532a6f1",
+    "1010004_297122_orm.png": "61dc7d34d4a441c7b93763b0a4a33bec7af11a472c89b1b9663aaa2c552ef789",
+    "1010004_297135_orm.png": "8e4cdfc4fd09baea8a78ecce2d85b7042207c96c54a97a9a5a887cf2d882fee2",
+    "1010004_297314_orm.png": "9e538086d54016998c0e2b0bd81292295b7001be19890dd6074db2f98b0ac789",
+    "1010004_297316_orm.png": "40d3cd62c03f6c4dd899f95a49b1532afe34b4dc3d7bdb5abfa799c6a3a26928",
+    "1010004_297317_orm.png": "994dbff8d3b04e1bb7fa0092c12b406eec13552932c44b2d1bfa6ead131932c1",
+    "1010004_297318_orm.png": "ad2a6f613c4f1b13a17f558b26a629c8145b49c1b1dc075ec1f2a6b5785842fb",
+    "1010004_297319_orm.png": "bfdde172d9e376140789056ebe8bfecada97d1a10af244fefa14aea64230dc04",
+    "1010004_297324_orm.png": "b2c4eda70725d452aefa41980f8621f7d0b8a9459067899f8a27bdfb897a3832",
     "1010004_297326_d.png": "4cdd627940e1b7f38254e31b2ae2bbc82f190a3875c32f50c026c57e58678cc6",
     "1010004_297326_e.png": "0d098b81970bdea792319f2543725941a27637c5701c1e9cf0131c7027da1bd4",
     "1010004_297326_n.png": "edc2316f7eca0ae7780c9be82e8ba6e2113f3c18af72f163bbb7fa1270b34666",
@@ -2340,75 +2392,101 @@
     "1010004_297327_orm.png": "d2f780af295827edddf56e4012ece4b17a9c53118e5f51c88005a7ec4ec740f5",
     "1010004_297332_orm.png": "9f2a245105ac9b1ade5f91bbb09306b30ee44980ca2a97b20cf07e4b442aec9a",
     "1010004_297408_orm.png": "cf0b267348af99f727f76fb36987962d1d5f9949f4ba999476f91bdf37917c7e",
-    "1010004_297414_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297415_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297416_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297417_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297418_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297419_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297420_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297421_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297422_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297446_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297447_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297458_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
+    "1010004_297414_orm.png": "c2718d59e9be6e72b3293d65378eb21b366e0e352a8703595674a3974e35f008",
+    "1010004_297415_orm.png": "caf51f8505a197b2ad065c51b9ad5eefdd8f6382b03638bad01d67a4907dabba",
+    "1010004_297416_orm.png": "18378a7b1fb04247c540a731386a5f8d752b454b1170ddcc068aafbceddeae5e",
+    "1010004_297417_orm.png": "19ffe99e5d772b94a1476ce315c94ba1b67850ed93405323d7b133727875d9ef",
+    "1010004_297418_orm.png": "1a58e9ff1f08608b10e64cb9de92edbc5d3ef113b191266a30ddcad93da91536",
+    "1010004_297419_orm.png": "3df410733f0d161481c6379d3058465c191a6dbf6debb187c8a1c1d09304889f",
+    "1010004_297420_orm.png": "c2fba6d55686929c551db334838dfab8bd54baeb615ec4dd2d6d8de42a767445",
+    "1010004_297421_orm.png": "08f4a8fea2caac3e80d8d164ff280cdcce25ef7d3fb8c758fcb93185c00834eb",
+    "1010004_297422_orm.png": "ec38841418d6a2e06c6b623e3a5eb512eeacf1c468f3d5a068b4c2d3c85fce55",
+    "1010004_297446_orm.png": "45138d7d72ac48583c2ff88fbe2f790266cfa0ea99f257a0934cd6c6b50c2ce3",
+    "1010004_297447_orm.png": "e96d675793e271a484e745079ff9171c3ea9ea0db1ee5fc4a0bfa3be9efec08b",
+    "1010004_297458_orm.png": "c63693ad7af68878ae798621abf05afc31da0a041c4284eeaf3024b4508f423f",
     "1010004_297461_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_297465_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297566_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297567_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297572_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297573_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297574_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297575_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297576_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297577_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297578_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297579_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297580_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297581_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297582_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297583_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297584_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_297672_orm.png": "3ed8a936db40d81cb765bbb9cc631fdc5f4e9664ef2fb3e3d6f650d9ef24707d",
-    "1010004_297678_orm.png": "e19c559b60ba011507b3a768f6585bad37969bb7b03589c96eb3e9615e7ea8b2",
-    "1010004_297679_orm.png": "3ed8a936db40d81cb765bbb9cc631fdc5f4e9664ef2fb3e3d6f650d9ef24707d",
+    "1010004_297465_orm.png": "689846ded97f16eca7e3fa4bb8584e7a6551a9f47628b55d1b1367f4fda202bd",
+    "1010004_297566_orm.png": "430366e7132b3e0760d470028ae60c4c2d53ff3e13e2cd5a1a3ccf0e03bb82d8",
+    "1010004_297567_orm.png": "4fb8a4d27064de0b4bcd612267eaf74dbe1d23b6d786a4ce438ca4f7b805fcfb",
+    "1010004_297572_orm.png": "eb5c4cf408b215145c99c1e77cb5ce4fa54c7daf20815732fbd41b9c775ff62d",
+    "1010004_297573_orm.png": "7bf1de78f5b870ac06d33601834a8ae36e2e653a95607e73a6fb05330703e586",
+    "1010004_297574_orm.png": "fd3b2c7968260b9421589bc2008d36955aa7ad370ed3312b87603d16181d48b2",
+    "1010004_297575_orm.png": "377044fb151b80e0be01cefbf721c943dc4c2186afe98db95c4711d20117ffe2",
+    "1010004_297576_orm.png": "0d0778f26fb13370691c04c6fb7aafe5110143773598f3dd1ae143eaf6e7a632",
+    "1010004_297577_orm.png": "1fc5cb7ba6a87f3e2cddaf1783f87744dfd5f9700434208f06a232e295ac25e4",
+    "1010004_297578_orm.png": "89640718d4935ccff05b3468dbc3a173c0e3ac9fdfade642b7f059352aebae04",
+    "1010004_297579_orm.png": "a926dc473069b85c3080d5bce50802da7185ac90a932540893168f717a861cf2",
+    "1010004_297580_orm.png": "7449ff8a7c04f095c73772760e6d095e6ea4ed97665315b659bfea914853d2ed",
+    "1010004_297581_orm.png": "0e6d8f6aee1f4c70f8137c800aa1491ce7958717bb1ad4e69bed82e5190a28d8",
+    "1010004_297582_orm.png": "af89f4fe0b04653dc5bd37b3f0a39df7eb0662516ba205bf337e9d470802f067",
+    "1010004_297583_orm.png": "11631569494b0b411a4f619df33f7f0b2297437690405698be81433db534753c",
+    "1010004_297584_orm.png": "53728071176f7ba9f2f7e92958ebe215a2471f571b7f8328c1741e8ab1dbe141",
+    "1010004_297672_orm.png": "9789bceff49182b39732d045da4103d4c497cd0bec971ea4c538aa8c4c5ad633",
+    "1010004_297678_orm.png": "95c76ef5ac166b9f3c6867764318524e71a5a020c685a502cda3486b4b10843e",
+    "1010004_297679_orm.png": "923b209d6782c6be38988716c7b877fa51b1b0852b599e1ad8778da6f6ee306a",
+    "1010004_297811_d.png": "71406a28e600a325156a68bbcf0ac7e352b32050a76496d3384a1eaa6b5d75f2",
+    "1010004_297811_n.png": "7617614592a2c8fb502a2bfaa43d4450b63f84171d6c3b6e2c6871742624644c",
     "1010004_297811_orm.png": "cf0b267348af99f727f76fb36987962d1d5f9949f4ba999476f91bdf37917c7e",
-    "1010004_302079_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_302122_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
-    "1010004_302459_orm.png": "b57d5f4e9ccd8518cc0f9d17efbee55eca44c05dc07d436a0e094e7bcf3548f8",
+    "1010004_302079_orm.png": "0a0a2a7bc8fc68d10e450a9da1803e6cb0d0c99248cc4061fefe68bbf04bbc6b",
+    "1010004_302122_orm.png": "059c0df74d43930d8deeea061be35a6c381a10a13079899ad219b87628be72d9",
+    "1010004_302459_orm.png": "05dcb77e2926e528a38278cd675c3edde3b927c560b369a72b080f3c09505dfb",
+    "1010004_30287_d.png": "d535489f8b2f457f28d70243c38b57d192d44a779ccaa66cb327655754d4180c",
+    "1010004_30287_n.png": "1030bb788a4a5e7ac8ba2d45c55a1bd89255025ee126d62c895fcc2cc1d13242",
     "1010004_30287_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_36219_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_36220_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_36219_orm.png": "6abc685d34b4f8feb65dfa95eda844aad817ba5c3948ded825ab407039c1151a",
+    "1010004_36220_orm.png": "39bc87c2c9553566aba4334d1aee0101c99deed3ba7aa7b993a1ad1e1470158b",
     "1010004_41137_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_41138_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_44642_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_41138_orm.png": "df7d2fe2e9f0573de60ca38b6bc097c350926a00037706c55d1a4da36eeda7cd",
+    "1010004_44642_orm.png": "d571c14784c1846a70b98613bc6262b14f94ac40aba6f5b06aa1cc198c5f137d",
     "1010004_44643_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_44644_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_44646_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_44644_orm.png": "16d0acb77f8aa5c0de7cd7934bb83f863b8559edc50d3141dabf267e5b00e105",
+    "1010004_44646_orm.png": "ce157f49e677ba412a8316f7c293909f2462848e78976c66b9a8de46a20a7622",
     "1010004_44647_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6017_d.png": "f71de713ee213c84500c24633946c70a41b4ac5f0a0669c7bc331be13e334b9f",
+    "1010004_6017_n.png": "d7831eadba4d7b72878cb6fb79273989a879e336a5d3c16e4b7b9b3840706618",
     "1010004_6017_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_6025_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6026_d.png": "905a42b4cfe63f00a9bc679b9f7d92f293e886f9211c57819424f11d317c45fd",
+    "1010004_6026_n.png": "38068c91c00619bbc05395b0addfd77fd4a3a10c47529f968df7701d335d407d",
     "1010004_6026_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_6039_d.png": "41fbac3790e951f29aaf603ea88035ea5621cfd56356c8770572b7f18af6432a",
     "1010004_6039_n.png": "114a990c7ef824269ece7871c912b60f5c8967f46d0ac143a3841205367c79a7",
     "1010004_6039_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6041_d.png": "bd0926dba8cc365f9fa5b125d406a650491717ad6a8812a6920dfc81cc7c3460",
+    "1010004_6041_n.png": "17d711382dd4f0b941ee4c26648e0f2f8cc837abfe9f0dc2c41e52a12831ea01",
     "1010004_6041_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_6254_d.png": "534f6fefc605fabb797c69b22c696f92cd7c5704dcbfcbaed9b66f2bd969aaa6",
     "1010004_6254_h.png": "daebb633de8ae62faf96fe545b74c28cd054d0a84c477255ae7e903b43a13f95",
     "1010004_6254_n.png": "32806ddec1c3e8ed804ebfa9573d11a17eaa1e1afa61d94ddc880c02f53c6514",
     "1010004_6254_orm.png": "95c46808e8507f01e583ced4ffd6308541817465f9aa2c4baa5c3695cde97d60",
+    "1010004_6656_d.png": "7d412bf00f2bf661a1920fe93505402793c8de614b5435aa861786433bf48e74",
+    "1010004_6656_n.png": "961c2d83193f2561e2c6b8505e8a8985f3aa6d88f114f7b5bd0302e4353bb891",
     "1010004_6656_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6658_d.png": "14b8af8279903b8268e2e85858f6194b25b64bd9e0cc57b4d5d8363b69c8fc82",
+    "1010004_6658_n.png": "99f45ae79a3ae6849953da636b1b43d372f810bc7ef91cd15b4d8efabdbc16a5",
     "1010004_6658_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6659_d.png": "19e9736acdd34b18afe9499935f9f519524da3969aaac7cec727fa9873be86ed",
+    "1010004_6659_n.png": "f6fe43836bd7f1e6922cbfbf84e826ee4734f461855c4ec3921e7e78e9d8a391",
     "1010004_6659_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6660_d.png": "f1de1905669df631a7cf8d8b852c669b080d02738e6924352ec5598fc69004a8",
+    "1010004_6660_n.png": "5ff04b0746955f67c69e75f41a6f23e6327aca65a2af2fb6d99eec7f2ac6c85e",
     "1010004_6660_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_6661_d.png": "bbeb09aa8f6b460cb1fb9320e814cf1060aad454469cfec667f3fa644b5d39a6",
+    "1010004_6661_n.png": "e1bf34264979e7ca7fd6ed3d3ee50fe8b7aa7953adfff783abd8407b0c6b4821",
     "1010004_6661_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_78404_d.png": "41fbac3790e951f29aaf603ea88035ea5621cfd56356c8770572b7f18af6432a",
     "1010004_78404_n.png": "114a990c7ef824269ece7871c912b60f5c8967f46d0ac143a3841205367c79a7",
     "1010004_78404_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_78405_d.png": "c49ee62cffdf1d0e46f66e5ce71f02f1ed7b18196973d0bdc6c59d0732b77aff",
+    "1010004_78405_n.png": "19411998c0628b568b3934732199df2fe3ebefac49aa48c3177e5816dbe62310",
     "1010004_78405_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_78408_d.png": "019604e30efe2fb97e4637273d28ccd1007e015f1a4e9f6bc6662fbe2fd8cd32",
+    "1010004_78408_n.png": "8f350cedafe661f593f9420f68f8b337ad60a03fe7d0483321ad3e8592ef343a",
     "1010004_78408_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_78410_d.png": "a8b0f9c9cb36b0a9b907b4b5f3ed7aeada57099aaa08ce0e885a4f69abb4249d",
+    "1010004_78410_n.png": "ec9b58a532bbe0e6bf27e99ffd337ae552c3d2e2d31d2cc738230a7a72417fa6",
     "1010004_78410_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
-    "1010004_78479_orm.png": "9e1bedf0cfa6306b5c6a849e66b6dfd240fafaea9a86fb9b2591016a75e4d8db",
+    "1010004_78479_orm.png": "0639d3e25f56ce6bc00c6d7e375f12916a386b9a28242bc74269c195cd93deac",
     "1010004_81946_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_81947_d.png": "4e47050c3d03763b0954226f5246684ba4a2e44642ad5052778a0ec2d103cc62",
     "1010004_81947_e.png": "f5e9cd2d4652ca615e8d1899c8716ff557993fd6559dc96b5e521d9b8188761d",
@@ -2418,13 +2496,23 @@
     "1010004_81948_e.png": "3e6bf749d6f957a756d8545ea198613b50a744df7a9b3cf5e9af894d39ee4bbd",
     "1010004_81948_n.png": "34e67ca354dcdf7a0fbc3caffeb2b0b5d0b9b9d9c0fdcffe9ae096958eea65d7",
     "1010004_81948_orm.png": "f2a591a204cfc19043ba162d8389314bfb8d50d6fac74062540cc1d48ff658c9",
+    "1010004_8632_d.png": "9eeb0254687bf2189594020081196b84251c03867aab8ec7102dce04d63e749a",
+    "1010004_8632_n.png": "5d4186b5fdc2a2fe85bb57b80911787b65419f3d84f9103959fb11cb2ed4c575",
     "1010004_8632_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010004_8633_d.png": "41fbac3790e951f29aaf603ea88035ea5621cfd56356c8770572b7f18af6432a",
     "1010004_8633_n.png": "114a990c7ef824269ece7871c912b60f5c8967f46d0ac143a3841205367c79a7",
     "1010004_8633_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_8634_d.png": "01b33a3e4ef1f1f599e81b171c88f2badbccc9b538f6cf7770cd9a53d06bdfbf",
+    "1010004_8634_n.png": "092e6461c97b4340df70d868cf059d22f6605a75c921a4420ddc05c81b33582b",
     "1010004_8634_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_8635_d.png": "0b86976155f664fb4f6cdded9cdb1b80ac37a382cfb2805a4321e07660901e13",
+    "1010004_8635_n.png": "4e3e5f8a7f03070b32e9fc8a87654e4da7ace08a46e5db4640a689cc4768162a",
     "1010004_8635_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_8636_d.png": "c82f0cb99054d95cf6b5cb80266cc14a8b13002955edff2f0b4215ea83311929",
+    "1010004_8636_n.png": "00c2d18918d343183eefe4d943ea577b02d80a298c730a73a2ce1f38b79b8433",
     "1010004_8636_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
+    "1010004_8637_d.png": "b4de23300fe0dfa0d201644e889ab3e9acd3ce6ab41f02bb77893b9d2e6b10bd",
+    "1010004_8637_n.png": "77c4b52d0a8bb38539ef25352d68e0f1dfb47066288ad12b0e55aaef2d19354a",
     "1010004_8637_orm.png": "ae8d6f19a79cea6b133bc449f6488fd0494aaf9c5433343b1a451985c2d6e482",
     "1010006_174_orm.png": "bdf6dcd05f7092a63fe623e6afb58240084b02f0cc745fe49a509978e6080ec5",
     "1010006_176_orm.png": "9a034f9ad69157aeee4bbaba883fc8ed0fa4ce65ea2f0d744a0cc3eeeb4bfd27",
@@ -2469,6 +2557,131 @@
     "1010006_71_orm.png": "9a034f9ad69157aeee4bbaba883fc8ed0fa4ce65ea2f0d744a0cc3eeeb4bfd27",
     "1010006_7_orm.png": "39e5546502a5a948432c87f012759e0adba905fd556306507181db129eda4818",
     "1010006_942_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626",
-    "1010006_943_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626"
+    "1010006_943_orm.png": "1f9523aa9594c87a7315c1406c828264c6582ebf7a4d05a3ea83630ebd119626",
+    "1010004_14870_d.png": "b7918409a9d35f6d4e0a0c405200e2c5ab7aef6f912afd504ddcdb46ea0ac899",
+    "1010004_14870_n.png": "bd0060b4c8e9383db3c21695cefab971d48e6f80a45f0b27cf19c4814e7a0247",
+    "1010004_19938_d.png": "a54e98fd8d5e02c4bf8d0d785cd330aa9b40f3805191dc3b89a9a3ba21c07517",
+    "1010004_19938_n.png": "b186335911aa56e5eedb1fd236289d2eb10522005132e4c098240453cebd48af",
+    "1010004_36219_d.png": "0c246db7907d9d6f9609e65e1086a3483d9ffd13ad4541b99b05e6ca56725562",
+    "1010004_36219_n.png": "c2c473a0b87db35867638d6a8f83b426703418167dd29fdf460202f71228d107",
+    "1010004_36220_d.png": "6a5a9d9ec6d4e45efc9e5619043cbaa074ff8e5896e7dc18bf3c476a69885548",
+    "1010004_36220_n.png": "d6425c2cf970be81ba7cbcf339e95d4e260500e4b50dd9ebddbac982858fab56",
+    "1010004_41138_d.png": "452949b5aa27ad95a9d90226f2e09a272213ce4f449daabd64ac249fd509d804",
+    "1010004_41138_n.png": "5f109f61c8506f6f822d3a7ac5005d19b4f7aed550ca2b488a38dc9d2add9153",
+    "1010004_44642_d.png": "e7e09376f4dec1191955421a91fedcc6be5d3d87a32c82dfb074c5333eee4ea4",
+    "1010004_44642_n.png": "5631b3582463adf01a859816ff795fb27f56824b9c95c42ffbb51ee1ee91837a",
+    "1010004_44644_d.png": "19eb213ce481b8ae59d1a0973ddf711c28ac168a99c770c7cd572ecceeb2ee10",
+    "1010004_44644_n.png": "d913ddb29b1d876abdc310f02d1657ab257ae35a265866c53a26a8577ec22f90",
+    "1010004_44646_d.png": "82d479d0cbf1de602f20b28e15880ec852667b87bebd9cc4d3c337cfab689071",
+    "1010004_44646_n.png": "82ef6bc811180201bb0064ca8d566f50f681c986f7dfa36101ce83822a164f58",
+    "1010004_78479_d.png": "cd3490b6d6f16dd4dff158fce19a68a0841931b8e300f37a11503876acfe538c",
+    "1010004_78479_n.png": "8e52d37aaf2f4af30a0d29e8f7d826ff9f1bde65a036d5b35247f508add3a4eb",
+    "1010004_156581_d.png": "ddd874a528dfe99c99268a9efec36fc2f7ba97ff4a0934253fd81c3742d9f8d5",
+    "1010004_156581_n.png": "a477132e0ce9f94cbf8477a72ea5c907bca758f6a048aca6c7737d7e043ea919",
+    "1010004_164903_d.png": "199cbb2ca7d8f96fb2b116248b97934801c7f251e4e9cba30993343ebfac5032",
+    "1010004_164903_n.png": "925e30f7cc42c7e10253da5001b1365cdeed979f24390179e9d9b5a2b0d26574",
+    "1010004_295500_d.png": "dd8c137126881af8cf58b385fdbb221937f321068d8dfb9d7dca0c50e47c6f09",
+    "1010004_295500_n.png": "97bdbf79a985f6a04dd2b7556cf7e8ee7f1e728fb76fb3e79b4ab553d1abb205",
+    "1010004_295501_d.png": "b2014879b6c51e187790aa1e5d5b456b350f33e18b59c898d4f9e3dbc02ac735",
+    "1010004_295501_n.png": "19a0c3085e54af7d7ae61cb2df8d77d681794eabb158b9db45f3aa544797be65",
+    "1010004_295916_d.png": "a3b7fe68ebb53631f27b922313c4967cb8303dc8042471ca3a224944d34bd36a",
+    "1010004_295916_n.png": "426b95e111437d3ecd446d378339ff7c3a14157aa3b3a2514ccf4f31d73c8b8d",
+    "1010004_296964_d.png": "ea6f82e52b9f9a58b9ed6b0eed6edd8503b425a22ba280df3b899d6e84448e8d",
+    "1010004_296964_n.png": "bdab07805a56c8ec2bdc9527e4f52dde7ff597e57fc1c128bf6fcf989addf43f",
+    "1010004_296965_d.png": "205d45417b078b934f2b65e6e3fa8a518e661a93ac6de910b73d7a056d2c2bbe",
+    "1010004_296965_n.png": "9afa09cb7b298abf0a541507649a738f3fa83c8366773fe18988ef749a56d148",
+    "1010004_297117_d.png": "68455d152a609c3138af839959ae6fdc13146e48607f762fab0d30a65d564855",
+    "1010004_297117_n.png": "7dae7c07f9e695c0b3a0ecfed2bf7f7ab390e8eff8e48099771b7516850f0554",
+    "1010004_297120_d.png": "8bdfc2b601b824f2e4a74aaa9d1831ec7808c649717ae1516dc0a5173ce70e75",
+    "1010004_297120_n.png": "89c75b6481afaab8c33530ce242e10496668f477e93d485f6d6c2e421eff1839",
+    "1010004_297122_d.png": "bd8c0f47aee0d993c49d564a2a2487b49608742ba5aa286e06469564a0ccbc10",
+    "1010004_297122_n.png": "6c482ebbd168b697b8e4a666077afcfab071cbc3f32d2ec4f6cb32f5c992c04a",
+    "1010004_297135_d.png": "d53be293ec917a643b5711690aacde36d63123cdb3fe6a3009e3b9bf9ab76cc9",
+    "1010004_297135_n.png": "c4d7d56af078d3d08de6136fd81842450dd2dc71b36c3c9958104db86c29443d",
+    "1010004_297314_d.png": "6c242130d4653391293d098fd4d50a77f58e9f314f23c189c5cccd1df9d8f188",
+    "1010004_297314_n.png": "bdd917c2992794b9467e56e3aac754710e6c2fdb8817c18c07e29567dba6738d",
+    "1010004_297316_d.png": "6ecca9102563763bf3021ff6abf6535a4bdde3eb57f89238ceb7d7991109410e",
+    "1010004_297316_n.png": "ed47371b37aea7e2e229c935d65072d47df926085f8580a83fe76952d9c81ad1",
+    "1010004_297317_d.png": "876fb0f222aaf26d51a109817b29a28f563750e6735c206e681db1765ce0bee4",
+    "1010004_297317_n.png": "91e8a49efd54c2b925230d0a6053706bf64e427f83ec8cfb08feeab8eefb59ce",
+    "1010004_297318_d.png": "c9446042b8ab968e9e966766e4486384f9b2c134d9bde2e722a899eb19fc3cd5",
+    "1010004_297318_n.png": "4ff715d26514c80cbd2de723511e4cccb5904d2470385e241df90b8cc3abb8f7",
+    "1010004_297319_d.png": "c74ec22aaef06af59d6534ac495af9e8e61f3f186d3696ccd54f98882452ad56",
+    "1010004_297319_n.png": "8260b3a8d9831b508dc85da11e75d4dc69988bf25fb311333d447c4cbf2be40e",
+    "1010004_297324_d.png": "270b118253ee934607d54d3c0b893016b816485a13d2106728c667d93f53715c",
+    "1010004_297324_n.png": "4de17fb04994ca2f28861c2ee61ee923634efeca8cd1d083ff17533c5c221ada",
+    "1010004_297414_d.png": "9a253101b378552a1ffef9d41e271f1e56b7e470f2f2777d7a379654f8c703de",
+    "1010004_297414_n.png": "45046120720c40b642498dde02a1b81ea41e9e2126432d1225c995a927142056",
+    "1010004_297415_d.png": "17ef713a5ef9ef42fca070ea1072b91e2f36fdc0f2a3e11280e1b63205e9bd1a",
+    "1010004_297415_n.png": "a78485ece10f9715200ff0537be3a5b81964e164841b9a311c6a57bc64339c82",
+    "1010004_297416_d.png": "d176eb2a37df83e888b0f44a913bf79127659a67efb814d8cfc41d1a62b0345a",
+    "1010004_297416_n.png": "6be7a38fc214b0037f5408deea9fcfe024ca1410959be82066877d56155dbdbc",
+    "1010004_297417_d.png": "a3799d69073fb9a1988927e11426a84a21953111f687b5e1290e7d0c4c0d7888",
+    "1010004_297417_n.png": "4e9c997bb5267e908e850178fd0e736cb1f903bf673bfc880fa2ac0fb80922e5",
+    "1010004_297418_d.png": "7fcd0c2293e22f0a8985f22fc19ce6163c231fceddbdfb870a1583fb52379fcc",
+    "1010004_297418_n.png": "8db9f55b38a9ce3f61d713ceae07dee0f3a2aec51a17d1365d211b6c917974ee",
+    "1010004_297419_d.png": "ad241041f6a208b0a6611be9206d83298bd43ad4ee20d671299267662254ea1c",
+    "1010004_297419_n.png": "0e870986c3b82cddce87a0d116a10985e8d79bd69010f272b3add8713b462430",
+    "1010004_297420_d.png": "d8c813a4e0c2c39776b5116c79857b1902fe58ebb73841ca8930e1db10a279b2",
+    "1010004_297420_n.png": "db885449508b26488b46327c3534d7e3493eec997861344bb53f66e5edfcfee5",
+    "1010004_297421_d.png": "48dfe90ffedd054f0794506e52551b6fd3caa9e598296a029c33be5274f305d3",
+    "1010004_297421_n.png": "bd4745fbea6d10d91201ff32772d37018ce2c753292f262e316720fb4e094140",
+    "1010004_297422_d.png": "0cb712b896283d0e3b82560edf78360cde3fda6d6e993b3049f09d51698a4b77",
+    "1010004_297422_n.png": "cc5b92f3bd2663c2ff0150ec4508ed62c3877561860290e71d877d87f70a9bb4",
+    "1010004_297446_d.png": "0316d834c1eaf6981d705f1ba4cd25b2ecac581d131e4210a436ce2fcfa7ae95",
+    "1010004_297446_n.png": "b51f731fc7bdbcc19eaebd870fbb79bfa5133fae9b5c817ad010877e762478c3",
+    "1010004_297447_d.png": "35a24707222f2f6d1146e82e234b9b3ddfeb9fa2ac0d6ab11733fac073166e65",
+    "1010004_297447_n.png": "c19e6e05e24d7917886a14b5b132d4170eb7adc4de8ffc11910d86af0c769d4f",
+    "1010004_297458_d.png": "43e62c77781eff0f3d820b0ce2ef25006c0a20c85cb152e88d921f76e5f793ac",
+    "1010004_297458_n.png": "6f84fa8e27ebe727d6a042878cd9fcf77eeeef5dcb67cf47c4e3cf5e1eae215b",
+    "1010004_297465_d.png": "724dcda4af1e52bdecb12d37c81e49d0236fb4f307d28cd0aae31bf01e685597",
+    "1010004_297465_n.png": "09f89834cb7742594629f7b524c044e30f964604168cf5a35bec1cc0b9dfe66f",
+    "1010004_297566_d.png": "62f541fbb2d504007d20de85e4b659af51e02f5aa9cc3fc5efbfd181762f3a6f",
+    "1010004_297566_n.png": "9e696a67e7c29e362b8935da04790ea74f7c84745d4fc59636f457fa164f24a3",
+    "1010004_297567_d.png": "8b8331a81e9994f93216e6466aa38ba1e9cbf25b91b96b749e5cc668e9492542",
+    "1010004_297567_n.png": "de13028cf3758a0f79bd4603d99bbbbb1e8cf8b2422c19ce895d08549c367032",
+    "1010004_297572_d.png": "3e2211fe6803fcfda71da0f07ec531907645549caf06d15db153a5ccbc3f273c",
+    "1010004_297572_n.png": "21efc712014590731aff69632e053f3b803f5c235a54608368be1b9f552e82d1",
+    "1010004_297573_d.png": "e6051fb7cfb6440bbbf6e73c7624d94a0fd0f63390f8bf6a927741c9c48e2ad1",
+    "1010004_297573_n.png": "56edbdc08f8756fa25891ab6040a981bc3bd5c5daa8a36575af3d394146ee9c0",
+    "1010004_297574_d.png": "fcc09084bd64d58e65e5a737519b8409f58bad7423d80b4b827ff9132e5a74bc",
+    "1010004_297574_n.png": "cead8017d10d1b9334b84970dff6f2bf4840c6ee54323c26de414ad814da509f",
+    "1010004_297575_d.png": "f96bf3e388e405a88fb77f6e1d31cda110210c8b517ee9e48130df89f1544b92",
+    "1010004_297575_n.png": "8cdb5e407c8c978b89a3f77a9295726afc2cbd560ed299f14e70cfe18bfaf7d2",
+    "1010004_297576_d.png": "5496805f2bdc90bbbe24895f2687121fb6549ea19d888011384e86418b23393b",
+    "1010004_297576_n.png": "a5f5054d0467b11c1c0696aee0ed8333ad5f5d144957e85d87ee251bb0a3f113",
+    "1010004_297577_d.png": "58b07ebf252cfbe71aa2e5992c48c008d555eaddec75d9595d57c6af140dde73",
+    "1010004_297577_n.png": "fb1be7bc06a3103591100ee0f141ca37004f7b0311f2680a2bec568228b3d42a",
+    "1010004_297578_d.png": "7cb5d073a01f17d8cd728cff45a5bfcdb7938b7c25e170fa0b30d530aa29071c",
+    "1010004_297578_n.png": "e5276719c2f5ccaef2e83aac04a07535f13b40e3b5beb2625fd974d4e08b1e29",
+    "1010004_297579_d.png": "109cfe95a6f7c40b59310689b0d900dd826245ebfb96ba100ca033e666f15d7b",
+    "1010004_297579_n.png": "98bf28075a18db196125061a12c3d8f7dc0dc003c799751bac49a538843c6352",
+    "1010004_297580_d.png": "436d59a225cf9689725b28b0c25d320f51405284d284a7081dce43288588a5db",
+    "1010004_297580_n.png": "2560da5b4b9a9affceb33748856478a6ec32b18aa88037b82065faea5bd22b3c",
+    "1010004_297581_d.png": "d50ae9d85a8d867a47c71ee3661e46672ad596dcb7a8bd033cceeb8a732ebf39",
+    "1010004_297581_n.png": "e3262995ac6f863dba7a75a5bf3b8be1aed97b544e8d50700cc9949c41c64465",
+    "1010004_297582_d.png": "d40e6557d678ed53a032fd6738d14a1b06eb32e44bf029026f90ce34e2af6762",
+    "1010004_297582_n.png": "f30ae0fbdb4380c9b6ad2415378881f963825eb7df1d39c3f84b6d93ffecf7a9",
+    "1010004_297583_d.png": "4c4a1be586695901f7f8853a0062ddeed36877ce79fbb12a45ec477814e926f2",
+    "1010004_297583_n.png": "387cf1dd2dd0a4b3b1283686ba3b42898c84790d358385e25b146e383267d084",
+    "1010004_297584_d.png": "e685be8ad36643c9a43b4b44468fb23421a1d199359460db4ad3793796ad4cf1",
+    "1010004_297584_n.png": "b7895d6e5e9049854d17572bc9b107df717ae38a900ef90a8c50e1bd4ccc8657",
+    "1010004_297672_d.png": "c0029c03b2d8f92bd437fba234c973f78acf8b8b6175319518f716d24ba3808b",
+    "1010004_297672_n.png": "64216413bda73940b6fea3f4f2d1670c534477c805676386d5ff8329cc285333",
+    "1010004_297678_d.png": "4b2a93a9d70d7b3108122ecc7969fa66a481b5242558c39cb6c80a1c14ba1276",
+    "1010004_297678_n.png": "ceb72878a22879543258e145a1ee7b2e11cbf8b542dcb98e3f8825d9f1eff08f",
+    "1010004_297679_d.png": "3d175db2c47708491402a8a1038265a7e2abd3a2776225c6959974a6ed8fc670",
+    "1010004_297679_n.png": "83e0158f5de290126c18a4f213794dbdf90f41bbc0fe570fe89fbf762765fad7",
+    "1010004_302079_d.png": "245adba2131a02b48569451f96e9bee1495c0464dd781d2c6b3c69c42f9a9c6b",
+    "1010004_302079_n.png": "d63f756b8b85a76df9243822a0a83bbfd88aeb7f67e42e1a00b222da117e8077",
+    "1010004_302122_d.png": "3bdcf2252f436b1b9b3e596583b2312d57b751ad342aaa6f0067421977ed755c",
+    "1010004_302122_n.png": "81b0b094599de01c2e6e4988e4cd742cb3369a5925cdbc5e6970a578240a3b7b",
+    "1010004_302459_d.png": "4819c340ac86db67f39b6884c24fa39fdea73e18bfb1fef3d3b06da1d6e88571",
+    "1010004_302459_n.png": "08035e05f84eae4c5af0401eb3989b17dc98591bd1a40eae87df226abc9bd561"
+  },
+  "preview23Integration": {
+    "newTypedIds": 60,
+    "originalPixelsIncluded": false,
+    "retailMeshFitCertified": false
   }
 }

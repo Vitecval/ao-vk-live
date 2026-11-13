@@ -2,6 +2,8 @@
 #pragma once
 
 #include "rvk.h"
+#include "startup.h"
+#include "icc_materials.h"
 
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -49,6 +51,7 @@ struct DrawTransform {
                                    // fades out by, the rock's depth out of the cliffs
     uint32_t texIdx[4];            // bindless (M1): image slots for stage 0, stage 1, bump base, normal map
     uint32_t sampIdx[4];           // bindless (M1): sampler slots for stage 0, stage 1, bump, normal
+    float icc[4]; // saved glossiness, ICC zone guard, verified identity, reserved
     uint32_t mat[4];               // PBR material: occlusion/roughness/metallic image slot, the maps' sampler slot,
                                    // kMat* bits, emissive image slot
     float leaf[4];                 // a canopy with leaves (leaves.cpp): its crown's centre (model space), radius (0 = none)
@@ -58,6 +61,10 @@ struct DrawTransform {
                                    // native ground's tile-code texture's bindless image + 1 (the float's bits; 0 = the
                                    // game's ground); z its normal maps' (lighting pass; 0 = none); w its sky visibility's
                                    // (lighting pass; 0 = none)
+    float windows[4];             // mode, layout low 3 bits / atlas image+1 above, RGB stage, stable spatial seed
+    float windowHouseLo[4];       // whole visual's MODEL-space bounds; w: known (current native visual)
+    float windowHouseHi[4];       // shared by every material/pane of this building; shader derives room cells
+    float weather[4];             // intensity, material kind (1 concrete / 2 steel / 3 paint), world base Y, clean factor
     float terrainAt[4];            // ... xyz: its tile's mean colour (the cliffs' rock is tinted to it; -1 unknown) - the
                                    // native ground's base pass: x its cells' mean colours' bindless image + 1 (bits); its
                                    // rocks: y 2, its pebbles: y 3 and z kPebbleRange; w: kTerrainBase / kTerrainLight
@@ -75,7 +82,7 @@ enum : uint32_t { kMatPbr = 1, kMatBase = 2, kMatAlbedo = 4, kMatEmissive = 8, k
                   kMatOriginalAlpha = 1024, kMatOriginalAlpha1 = 2048,
                   kMatWorld = 4096, kMatTerrainHD = 8192,
                   kMatMineral = 16384, kMatHonedStone = 32768,
-                  kMatAuthoredGround = 65536, kMatAsphalt = 131072 };   // DrawTransform
+                  kMatAuthoredGround = 65536, kMatAsphalt = 131072, kMatImmersiveShip = 262144, kMatDistantScenery=524288 };   // DrawTransform
                                                  // mat[2]: has an ORM map; it is the ground base's; stage 0 draws an
                                                  // albedo map; has an emissive map; its texture was picked
 // GPU-driven M2: one record a draw (binding 12). `constIndex` selects the shared DrawConstants it draws with; the
@@ -209,7 +216,12 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
     float userFogEye[4];           // world eye and animation time
     float sharedGround[5][4];      // five master images (uint bits + 1), their RGB mean
     float sharedGroundConfig[4];   // blend amount, repeats per world unit, spare, native geometry with classic lighting
-    float terrainFar[4];           // filtered macro composition strength, remaining components reserved
+    float terrainFar[4];           // filtered macro composition, Shared Ground+ bumps/grit, source glow, w reserved
+    float windowLife[4];           // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
+    float areaSky[4],areaGround[4],areaSun[4]; // area-specific irradiance, strength / side fill / biome
+    float hdGround[5][4],hdGroundConfig[4]; // optional modern albedo layers, original masks unchanged
+    float nativeHeight[4];          // height image bits+1, inverse cell X/Z, valid
+    float shipLightPos[8][4],shipLightColour[8][4],shipLightConfig[4];
     GpuLight lights[kFrameLights];
 };
 

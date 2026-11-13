@@ -6,6 +6,13 @@ namespace rvk::grass {
 inline bool Green(const uint8_t* c) {
     return c[1]>24 && int(c[1])*100>int(c[0])*112 && int(c[1])*100>int(c[2])*112;
 }
+// This reviewed SL meadow is olive/yellow grass, not a path or a green prop.
+// Keep the wider colour test confined to its material; do not grass over sand.
+inline bool SurfaceTexel(const uint8_t* c,uint32_t type,uint32_t id) {
+    const bool meadow=(type==1010004 || type==1010016 || type==1010017) && id==207100;
+    return Green(c) || (meadow && c[1]>24 && int(c[1])*100>int(c[0])*88 &&
+                       int(c[1])*100>int(c[2])*120);
+}
 // 64x64 bits (512 bytes), or 128x128 for large baked ground atlases (2048
 // bytes), instead of retaining full RGB in the 32-bit client. Interpolate
 // coverage, never a nearest-cell on/off field.

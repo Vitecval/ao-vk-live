@@ -1520,6 +1520,21 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
         vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, nullptr);
         vkEnumerateDeviceExtensionProperties(backendContext->physicalDevice, nullptr, &backendContext->numDeviceExtensions, backendContext->extensionProperties);
 
+        struct GlobalRollback {
+            BackendContext_VK* context;
+            bool committed = false;
+            ~GlobalRollback() {
+                if (committed) return;
+                auto& f = context->vkFunctionTable;
+                if (context->uniformBufferMem) f.vkUnmapMemory(context->device, context->uniformBufferMemory);
+                f.vkDestroyBuffer(context->device, context->uniformBuffer, nullptr);
+                f.vkFreeMemory(context->device, context->uniformBufferMemory, nullptr);
+                f.vkDestroyDescriptorPool(context->device, context->descriptorPool, nullptr);
+                context->uniformBufferMutex.~mutex();
+                resetBackendContext(context);
+            }
+        } rollback{backendContext};
+
         // create a global descriptor pool to hold all descriptors we'll need
         VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
         VkDescriptorPoolSize poolSizes[] = {
@@ -1723,6 +1738,7 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
             if (devCaps.extendedSynchronizationSupported)
                 backendContext->breadcrumbsFlags |= BackendContext_VK::BREADCRUMBS_SYNCHRONIZATION2_ENABLED;
         }
+        rollback.committed = true;
     }
 
     // Increment the ref count
@@ -1842,8 +1858,9 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
                     setAllocateInfo.descriptorSetCount          = 1;
                     setAllocateInfo.pSetLayouts                 = &effectContext.bindlessTextureSrvDescriptorSetLayout;
 
-                    backendContext->vkFunctionTable.vkAllocateDescriptorSets(
-                        backendContext->device, &setAllocateInfo, &effectContext.bindlessTextureSrvDescriptorSet);
+                    if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(
+                        backendContext->device, &setAllocateInfo, &effectContext.bindlessTextureSrvDescriptorSet) != VK_SUCCESS)
+                        return FFX_ERROR_BACKEND_API_ERROR;
                 }
 
                 // create the descriptor layout for bindless buffer srv buffers
@@ -1879,8 +1896,9 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
                     setAllocateInfo.descriptorSetCount          = 1;
                     setAllocateInfo.pSetLayouts                 = &effectContext.bindlessBufferSrvDescriptorSetLayout;
 
-                    backendContext->vkFunctionTable.vkAllocateDescriptorSets(
-                        backendContext->device, &setAllocateInfo, &effectContext.bindlessBufferSrvDescriptorSet);
+                    if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(
+                        backendContext->device, &setAllocateInfo, &effectContext.bindlessBufferSrvDescriptorSet) != VK_SUCCESS)
+                        return FFX_ERROR_BACKEND_API_ERROR;
                 }
 
                 // create the descriptor layout for bindless texture uav buffers
@@ -1916,8 +1934,9 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
                     setAllocateInfo.descriptorSetCount          = 1;
                     setAllocateInfo.pSetLayouts                 = &effectContext.bindlessTextureUavDescriptorSetLayout;
 
-                    backendContext->vkFunctionTable.vkAllocateDescriptorSets(
-                        backendContext->device, &setAllocateInfo, &effectContext.bindlessTextureUavDescriptorSet);
+                    if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(
+                        backendContext->device, &setAllocateInfo, &effectContext.bindlessTextureUavDescriptorSet) != VK_SUCCESS)
+                        return FFX_ERROR_BACKEND_API_ERROR;
                 }
 
                 // create the descriptor layout for bindless buffer uav buffers
@@ -1953,8 +1972,9 @@ FfxErrorCode CreateBackendContextVK(FfxInterface* backendInterface, FfxEffect ef
                     setAllocateInfo.descriptorSetCount          = 1;
                     setAllocateInfo.pSetLayouts                 = &effectContext.bindlessBufferUavDescriptorSetLayout;
 
-                    backendContext->vkFunctionTable.vkAllocateDescriptorSets(
-                        backendContext->device, &setAllocateInfo, &effectContext.bindlessBufferUavDescriptorSet);
+                    if (backendContext->vkFunctionTable.vkAllocateDescriptorSets(
+                        backendContext->device, &setAllocateInfo, &effectContext.bindlessBufferUavDescriptorSet) != VK_SUCCESS)
+                        return FFX_ERROR_BACKEND_API_ERROR;
                 }
             }
             else
@@ -2175,6 +2195,7 @@ FfxErrorCode DestroyBackendContextVK(FfxInterface* backendInterface, FfxUInt32 e
         backendContext->device = VK_NULL_HANDLE;
         backendContext->physicalDevice = VK_NULL_HANDLE;
 
+        backendContext->uniformBufferMutex.~mutex();
         resetBackendContext(backendContext);
     }
 
@@ -3259,6 +3280,7 @@ FfxErrorCode CreatePipelineVK(FfxInterface* backendInterface,
     // One root signature (or pipeline layout) per pipeline
     FFX_ASSERT_MESSAGE(effectContext.nextPipelineLayout < (effectContextId * FFX_MAX_PASS_COUNT) + FFX_MAX_PASS_COUNT, "FFXInterface: Vulkan: Ran out of pipeline layouts. Please increase FFX_MAX_PASS_COUNT");
     BackendContext_VK::PipelineLayout* pPipelineLayout = &backendContext->pPipelineLayouts[effectContext.nextPipelineLayout++];
+    outPipeline->rootSignature = reinterpret_cast<FfxRootSignature>(pPipelineLayout);
 
     // Start by creating samplers
     FFX_ASSERT(pipelineDescription->samplerCount <= FFX_MAX_SAMPLERS);
@@ -3630,7 +3652,17 @@ FfxErrorCode CreatePipelineVK(FfxInterface* backendInterface,
     bool isWave64 = false;
     ffxIsWave64(effect, permutationOptions, isWave64);
     VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT subgroupSizeCreateInfo = {};
-    if (isWave64 && (capabilities.waveLaneCountMin <= 64 && capabilities.waveLaneCountMax >= 64))
+    VkPhysicalDeviceVulkan13Features subgroupFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+    VkPhysicalDeviceFeatures2 subgroupDeviceFeatures{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    subgroupDeviceFeatures.pNext = &subgroupFeatures;
+    vkGetPhysicalDeviceFeatures2(backendContext->physicalDevice, &subgroupDeviceFeatures);
+    VkPhysicalDeviceVulkan13Properties subgroupProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES};
+    VkPhysicalDeviceProperties2 subgroupDeviceProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+    subgroupDeviceProperties.pNext = &subgroupProperties;
+    vkGetPhysicalDeviceProperties2(backendContext->physicalDevice, &subgroupDeviceProperties);
+    if (isWave64 && subgroupFeatures.subgroupSizeControl &&
+        (subgroupProperties.requiredSubgroupSizeStages & VK_SHADER_STAGE_COMPUTE_BIT) &&
+        (capabilities.waveLaneCountMin <= 64 && capabilities.waveLaneCountMax >= 64))
     {
         subgroupSizeCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT;
         subgroupSizeCreateInfo.requiredSubgroupSize = 64;
@@ -3644,12 +3676,15 @@ FfxErrorCode CreatePipelineVK(FfxInterface* backendInterface,
     pipelineCreateInfo.layout = pPipelineLayout->pipelineLayout;
 
     VkPipeline computePipeline = VK_NULL_HANDLE;
-    if (backendContext->vkFunctionTable.vkCreateComputePipelines(backendContext->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &computePipeline) != VK_SUCCESS) {
+    const VkResult pipelineResult = backendContext->vkFunctionTable.vkCreateComputePipelines(
+        backendContext->device, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &computePipeline);
+    // The temporary shader belongs to this call, including allocation/compile failure.
+    backendContext->vkFunctionTable.vkDestroyShaderModule(backendContext->device, shaderModule, nullptr);
+    if (pipelineResult != VK_SUCCESS) {
+        if (computePipeline)
+            backendContext->vkFunctionTable.vkDestroyPipeline(backendContext->device, computePipeline, nullptr);
         return FFX_ERROR_BACKEND_API_ERROR;
     }
-
-    // done with shader module, so clean up
-    backendContext->vkFunctionTable.vkDestroyShaderModule(backendContext->device, shaderModule, nullptr);
 
     // set the pipeline
     outPipeline->pipeline = reinterpret_cast<FfxPipeline>(computePipeline);
@@ -3692,7 +3727,8 @@ FfxErrorCode DestroyPipelineVK(FfxInterface* backendInterface, FfxPipelineState*
 
         // Descriptor sets
         for (uint32_t i = 0; i < FFX_MAX_QUEUED_FRAMES * MAX_PIPELINE_USAGE_PER_FRAME; i++) {
-            backendContext->vkFunctionTable.vkFreeDescriptorSets(backendContext->device, backendContext->descriptorPool, 1, &pPipelineLayout->descriptorSets[i]);
+            if (pPipelineLayout->descriptorSets[i])
+                backendContext->vkFunctionTable.vkFreeDescriptorSets(backendContext->device, backendContext->descriptorPool, 1, &pPipelineLayout->descriptorSets[i]);
             pPipelineLayout->descriptorSets[i] = VK_NULL_HANDLE;
         }
 

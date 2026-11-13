@@ -1,86 +1,66 @@
-# AO-VK Live v0.6.0-preview.17
+# AO-VK Live Preview 24
 
-An experimental Vulkan renderer for the **32-bit classic Anarchy Online live
-client (18.8.62_EP1)**. This unofficial community preview may contain bugs.
-New Engine and other client builds are not validated.
+Preview 24 brings prepared texture data, faster zoning and more stable sunlight
+shadows to the classic Anarchy Online live client.
 
-## Preview 17 terrain corrections
+Choose **Lite** for the renderer, loading screens, ambient life and other visual
+features using the game's existing textures. Lite contains no replacement texture
+packs or prepared material cache and downloads no texture archives.
 
-Preview 17 brings the completed terrain corrections into the next numbered
-preview. Some were already included in the final Preview 16.1 preparation;
-upgrading from that final package carries them forward without new artwork.
+Choose **Full HD Setup** for everything in Lite plus all replacement textures and
+the prepared material cache. The setup downloads the required, verified companion
+archives automatically. You can also place all companions next to the setup ZIP
+for an offline installation. Every archive must belong to Preview 24; mixed
+release archives are rejected. Keep the setup folder to reuse downloads later.
 
-- Shared Ground+ uses GroundOn's native terrain geometry, cliffs, exposed rock,
-  boulders, pebbles and distant terrain, with classic combined-material lighting.
-- Preserves the classic ADD(lightmap, diffuse), then MODULATE(base) calculation,
-  including albedo multiplication and clamp order. Authored cobbled paving and
-  rocky-road colors are retained. Global brightness and exposure are unchanged.
-- Corrects transparent first-chunk handling in both color and cutout depth paths,
-  so camera chunk order cannot hide the native terrain.
-- Excludes identified void cells from native terrain, rock and pebble geometry.
-- Keeps additional terrain, puddle and water ripples disabled in Shared Ground+;
-  ordinary water remains. GroundOn retains its separate native lighting and
-  standard Shared Ground retains the original terrain submissions.
+The portable cache contains losslessly compressed, prefiltered material mip
+chains. Setup connects these to your own installation, avoiding PNG processing
+while zoning. Smaller texture-quality choices reuse the prepared mip levels.
+Changed, incomplete or corrupt cache data falls back to the original texture
+loading path. The cache reduces texture preparation; it cannot guarantee an
+identical zoning time in every area or on every computer.
 
-## Setup correction
+Sun shadows retain stable coverage through camera turns and mixed depth ranges.
+Nearby cascades refresh every frame; the two widest alternate updates. Static
+opaque shadow depth is reused when its inputs match. The default shadow distance
+is now **200 metres**. Existing preferences are preserved on update; change the
+distance in the in-game options or reset settings to use the new default.
 
-Install, Update and Uninstall now select 32-bit Windows PowerShell to inspect the
-32-bit client reliably. Direct script launches from 64-bit Windows PowerShell
-forward automatically. This fixes false "game is running" refusals caused by
-incomplete module enumeration when only another AO installation is running.
-Checks still block a running target installation or a shared loader being changed.
+## Install and update
 
-## Improvements inherited from Preview 16.1
+1. Extract the Lite ZIP or Full HD Setup ZIP into its own folder.
+2. Close the target game client and its launcher.
+3. Run **Install.cmd**, or **Update.cmd** for an existing AO-VK installation.
+4. Select the folder containing AnarchyOnline.exe. Start AO normally after setup
+   finishes and select Primary Display Driver. Open options with Ctrl+Shift+F12.
 
-- Full HD retains all **621 additional replacement identities compared with
-  Preview 15**, and all existing material packs. No artwork was regenerated.
-- The retained library contains **4,389 unique repaint identities**, including
-  **4,380** in the full-quality database inventory, plus **112 material-only
-  identities**, in **13,399 runtime map files**. There are **35 fully inventoried
-  recorded material families** and three partial families. These counts describe
-  inventory; style selection and intentional original-art policies affect use.
-- Carries forward renderer ownership, threaded cleanup, loader compatibility and
-  transactional setup fixes covered by the release validation report.
+Setup checks client compatibility, file ownership, archive hashes, available disk
+space for Full downloads and whether affected files are in use. Files are staged
+and verified before a recovery journal commits them. If setup is interrupted,
+run it again to recover before continuing. Unknown wrappers and personal files
+are preserved; a conflict can require resolving the named file before retrying.
 
-Controlled regressions cover day/night and HDR/LDR terrain lighting, transparent
-chunks, void cells, mode switching, material loading and threaded rendering.
-See the accompanying release REPORT.md and validation.json for performed tests
-and limitations. Live-zone visual parity, model fit, distant LOD transitions and
-extended gameplay stability still require in-game review.
+**Update.cmd** can switch editions. Full to Lite removes unmodified textures and
+cache files owned by the previous install. Personal or modified files are left
+alone. Lite to Full fetches only the required Full companions. Both preserve your
+settings.
 
-## Downloads
+## Revert settings and uninstall
 
-| Edition | Contents |
-| --- | --- |
-| **Lite** | Complete renderer and loader, embedded shaders and terrain resources, 44 core ground maps and installation utilities; excludes the optional Full HD texture library. |
-| **Full HD** | Identical renderer, loader and core resources, plus the retained world/character/material texture library and its provenance. |
+Run **Reset settings.cmd**, or choose **Reset settings** in Setup, to restore
+AO-VK's defaults. Close the target client first. This resets AO-VK preferences;
+the renderer and installed artwork stay installed. Defaults are created on the
+next start. You can also choose this from **Uninstall.cmd**.
 
-Download one Windows x86 ZIP and SHA256SUMS.txt. No compiler, Python or Vulkan
-SDK is required to play. A compatible Vulkan 1.3 GPU/driver is required.
-No game DLLs are distributed.
+Choose **Uninstall** to remove recognized, unmodified files owned by AO-VK.
+Settings, personal packs and unrecognized or modified files are preserved.
+Setup reverses only the executable memory changes it owns and can verify.
 
-## Installation, update and uninstall
+This is an experimental preview. Recovery and failure handling are tested, but
+hardware, antivirus, disk failure and third-party modifications can still cause
+errors. Setup reports these rather than claiming an installation succeeded.
 
-1. Verify the ZIP with `Get-FileHash -Algorithm SHA256` against SHA256SUMS.txt.
-2. Extract the **entire ZIP**. Close AO and its launcher before setup.
-3. Run **Install.cmd**, select the supported AO installation folder, then install.
-4. Start AO normally and select **Primary Display Driver** in its graphics setup.
-5. Open **Ctrl+Shift+F12** for renderer settings. Select Shared Ground+ to use
-   native terrain with classic lighting. In Full HD, choose the desired Materials
-   texture style to enable its optional replacements.
-
-To update, extract the desired edition and run **Update.cmd** against the same
-AO folder. This also switches editions. Setup checks running processes, verifies
-owned files, stages the transaction and rolls back on a copy/commit failure.
-Existing game files, saved graphics preferences and personal packs are preserved.
-Modified or unrecognized owned files cause setup to refuse the operation.
-
-Run **Uninstall.cmd** against the same folder to remove owned addon files and
-the installation receipt. Game files, preferences, personal packs and renderer
-settings/cache/logs are retained. Do not manually replace randy31.dll. Existing
-wrappers occupying ddraw.dll require their own supported removal workflow first.
-If Windows denies access, close setup and run the relevant .cmd as administrator;
-setup does not request elevation automatically.
-
-Based on [wannabuh's AO-VK](https://github.com/wannabuh/ao-vk). MIT license and
-third-party attribution are included. Not affiliated with Funcom.
+Replacement-artwork licensing and provenance remain in LICENSE-TEXTURES.md and
+the Full pack metadata. Original client DLLs, private Living exports, credentials,
+personal settings and GPU-specific binary caches are not distributed. The
+prepared material cache is portable artwork data, separate from the GPU cache.

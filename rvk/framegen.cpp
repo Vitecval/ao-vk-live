@@ -11,6 +11,7 @@
 // - The interface isn't interpolated: its layer (interface.cpp) isn't laid over our frame but registered with the
 //   swapchain, which lays it over the real and the generated frame alike (premultiplied, as ui_composite.frag).
 #include "internal.h"
+#include "win32_wait.h"
 
 #include <FidelityFX/host/ffx_fsr3.h>
 #include <FidelityFX/host/backends/vk/ffx_vk.h>
@@ -19,6 +20,8 @@
 #include <cstring>
 #include <mutex>
 #include <vector>
+#include <new>
+#include <cstdlib>
 
 // The frame interpolation swapchain's lock on its queues (third_party/ffx-sdk, FrameInterpolationSwapchainVK_Helpers).
 std::mutex& ffxQueueMutex();
@@ -33,6 +36,7 @@ struct Device::FrameGenState {
     VkFrameInterpolationInfoFFX info{};
     VkFormat format = VK_FORMAT_UNDEFINED;       // the swapchain's
     // The interpolation-only context, made at the first prepared frame, again when a size changes.
+    bool failed = false;
     bool made = false;
     FfxFsr3Context context{};
     VkDeviceContext deviceContext{};             // (ffxGetDeviceVK keeps a pointer to it)
@@ -41,11 +45,55 @@ struct Device::FrameGenState {
     uint64_t frame = 0;                          // this frame's id (prepare and configure share it)
     bool prepared = false;                       // FgPrepare ran this frame: generate a frame before it
     double lastTime = 0.0;
+    double rateStarted = 0.0;
     uint32_t rendered = 0, generatedAsked = 0;   // (the log's)
     uint64_t shownBefore = 0;
 };
 
 namespace {
+
+constexpr UINT kPresentMessage = WM_APP + 0x347;
+template<class Work> bool SdkCallWithOwnerPumping(Work& work)
+{
+    HANDLE helper = CreateThread(nullptr, 0, [](void* context) -> DWORD {
+        (*static_cast<Work*>(context))();
+        return 0;
+    }, &work, 0, nullptr);
+    if (!helper) return false;
+    const DWORD result = win32::WaitWithSentMessages(helper, INFINITE);
+    CloseHandle(helper);
+    return result == WAIT_OBJECT_0;
+}
+
+struct OwnerPresentRequest {
+    VkQueue queue;
+    const VkPresentInfoKHR* info;
+    VkResult result = VK_ERROR_DEVICE_LOST;
+};
+
+LRESULT CALLBACK PresentWindowProc(HWND window, UINT message, WPARAM wp, LPARAM lp)
+{
+    if (message == kPresentMessage) {
+        auto& request = *reinterpret_cast<OwnerPresentRequest*>(lp);
+        std::lock_guard<std::mutex> lock(ffxQueueMutex());
+        const auto ordinal = uintptr_t(GetWindowLongPtrW(window, GWLP_USERDATA)) + 1;
+        SetWindowLongPtrW(window, GWLP_USERDATA, LONG_PTR(ordinal));
+        if (ordinal <= 8) Log("frame generation: driver present %u begin, image %u", unsigned(ordinal), request.info->pImageIndices[0]);
+        request.result = vk::vkQueuePresentKHR(request.queue, request.info);
+        if (ordinal <= 8) Log("frame generation: driver present %u returned %d", unsigned(ordinal), int(request.result));
+        return 1;
+    }
+    return DefWindowProcW(window, message, wp, lp);
+}
+
+VkResult PresentOnWindowOwner(VkQueue queue, const VkPresentInfoKHR* info, void* context)
+{
+    // Synchronous handoff keeps the SDK's stack-backed VkPresentInfo alive.
+    // Caller waits already pump sent messages. No game input is dispatched here.
+    OwnerPresentRequest request{queue, info};
+    SendMessageW(static_cast<HWND>(context), kPresentMessage, 0, reinterpret_cast<LPARAM>(&request));
+    return request.result;
+}
 
 FfxResource Resource(VkImage image, VkFormat format, uint32_t w, uint32_t h, FfxResourceStates state, const wchar_t* name)
 {
@@ -75,13 +123,49 @@ void DestroyContext(FfxFsr3Context& context, bool& made)
 
 }  // namespace
 
+void Device::FgInitDispatcher(HWND window)
+{
+    if (!window || GetWindowThreadProcessId(window, nullptr) != GetCurrentThreadId())
+        return;
+    WNDCLASSW wc{};
+    wc.lpfnWndProc = PresentWindowProc;
+    // A module-scoped class prevents another loaded renderer DLL from sharing
+    // this callback or invalidating its lifetime.
+    GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                      reinterpret_cast<LPCWSTR>(&PresentWindowProc), &wc.hInstance);
+    wc.lpszClassName = L"AO-VK private present dispatcher 23";
+    if (!RegisterClassW(&wc) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS)
+        return;
+    m_fgDispatchWindow = CreateWindowExW(0, wc.lpszClassName, L"", 0, 0, 0, 0, 0,
+                                         HWND_MESSAGE, nullptr, wc.hInstance, nullptr);
+}
+
+void Device::FgReleaseDispatcher()
+{
+    if (m_fgDispatchWindow) {
+        // Presenter teardown has completed before this window is released.
+        const auto module = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(m_fgDispatchWindow, GWLP_HINSTANCE));
+        SendMessageW(m_fgDispatchWindow, WM_CLOSE, 0, 0);
+        m_fgDispatchWindow = nullptr;
+        // If another Device owns a dispatcher, its final close unregisters it.
+        UnregisterClassW(L"AO-VK private present dispatcher 23", module);
+    }
+}
+
 // The frame interpolation swapchain in place of a plain one (CreateSwapchain's create info). False: it couldn't be
 // made - CreateSwapchain makes a plain one.
 bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* error)
 {
-    if (!m_fgPresentQueue || !m_timelineSemaphores)   // (its pacing waits on timeline semaphores)
+    if (m_fgUnsupported || !m_fgPresentQueue || !m_fgAcquireQueue || !m_timelineSemaphores) {
+        if (error) *error = m_fgUnsupported ? m_fgUnsupported : "independent frame generation queues unavailable";
         return false;
-    auto* s = new FrameGenState;
+    }
+    if (!m_fgDispatchWindow || GetWindowThreadProcessId(m_fgDispatchWindow, nullptr) != GetWindowThreadProcessId(m_window, nullptr)) {
+        if (error) *error = "window-owner presentation dispatcher unavailable";
+        return false;
+    }
+    auto* s = new (std::nothrow) FrameGenState;
+    if (!s) { if (error) *error="frame generation CPU allocation failed"; return false; }
     // (Its device argument is the VkDevice itself, unlike the rest of the SDK's.)
     if (ffxGetSwapchainReplacementFunctionsVK(reinterpret_cast<FfxDevice>(m_device), &s->fns) != FFX_OK ||
         !s->fns.createSwapchainFFX) {
@@ -96,6 +180,16 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     s->info.presentQueue = {m_fgPresentQueue, m_queueFamily, nullptr};
     s->info.imageAcquireQueue = {m_fgAcquireQueue ? m_fgAcquireQueue : m_queue, m_queueFamily, nullptr};
     s->info.compositionMode = VK_COMPOSITION_MODE_NOT_FORCED_FFX;
+    s->info.queuePresentCallback = PresentOnWindowOwner;
+    s->info.queuePresentContext = m_fgDispatchWindow;
+    s->info.serializePresentation = m_props.vendorID == 0x10de;
+    const char* defer=std::getenv("RANDYVK_DEFER_PRESENT_GUARD");
+    s->info.deferPresentationWait=s->info.serializePresentation&&!(defer&&*defer=='0');
+    if(s->info.deferPresentationWait&&!s->fns.waitForPresentationFFX){delete s;if(error)*error="presentation submission guard unavailable";return false;}
+    s->info.getCpuFrameMs = [](void* context) -> double {
+        return static_cast<Device*>(context)->m_fgCpuProductionMs.load(std::memory_order_relaxed);
+    };
+    s->info.cpuFrameContext = this;
     s->format = ci.imageFormat;
     const VkResult r = s->fns.createSwapchainFFX(m_device, &ci, nullptr, &m_swapchain, &s->info);
     if (r != VK_SUCCESS) {
@@ -106,6 +200,12 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
     }
     m_fg = s;
     Log("frame generation: on (the frame interpolation swapchain, %ux%u)", ci.imageExtent.width, ci.imageExtent.height);
+    Log("frame generation: GPU-ready presentation guard enabled (5 s limit, queue unlocked while waiting)");
+    Log("frame generation: complete generated/real GPU pair submitted before WSI (requested images %u)", ci.minImageCount);
+    Log("frame generation: WSI presents run on window owner %lu through a private dispatcher", GetWindowThreadProcessId(m_window, nullptr));
+    if (s->info.serializePresentation)
+        Log("frame generation: NVIDIA compatibility pacing waits for the full WSI pair before the next game GPU submission; timing excludes prior pair wait and retains game CPU work");
+    if(s->info.deferPresentationWait)Log("frame generation: CPU recording overlaps presentation; every GPU submission still waits for actual WSI pair return");
     return true;
 }
 
@@ -114,10 +214,26 @@ bool Device::FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* 
 // wait under its lock on them (its last present may come after).
 void Device::WaitIdle()
 {
+    // Resize/destruction can call this on the HWND owner after the render
+    // worker was synchronized/stopped. Let a helper perform the blocking driver
+    // waits while that owner continues servicing WSI's synchronous messages.
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        HANDLE helper = CreateThread(nullptr, 0, [](void* context) -> DWORD {
+            static_cast<Device*>(context)->WaitIdle();
+            return 0;
+        }, this, 0, nullptr);
+        if (helper) {
+            win32::WaitWithSentMessages(helper, INFINITE);
+            CloseHandle(helper);
+            return;
+        }
+        Log("graphics idle: could not start the message-aware wait helper (error %lu)", GetLastError());
+    }
     if (!m_fg || !m_swapchain) {
         vkDeviceWaitIdle(m_device);
         return;
     }
+    (void)FgWaitForPresentation(); // retain the original GPU drain on failure too
     ffxWaitForPresents(FfxSwapchain(m_swapchain));
     std::lock_guard<std::mutex> lock(ffxQueueMutex());
     vkDeviceWaitIdle(m_device);
@@ -127,7 +243,22 @@ void Device::FgDestroySwapchain()
 {
     if (!m_fg)
         return;
+    // Idle GPU work does not mean the SDK's CPU presenter has returned from
+    // WSI yet. Its shutdown/join must also leave the HWND owner message-aware.
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        HANDLE helper = CreateThread(nullptr, 0, [](void* context) -> DWORD {
+            static_cast<Device*>(context)->FgDestroySwapchain();
+            return 0;
+        }, this, 0, nullptr);
+        if (helper) {
+            win32::WaitWithSentMessages(helper, INFINITE);
+            CloseHandle(helper);
+            return;
+        }
+        Log("frame generation shutdown: could not start the message-aware wait helper (error %lu)", GetLastError());
+    }
     // The swapchain first (its presenter thread ends), then the context its frame generation called into.
+    (void)FgWaitForPresentation();
     if (m_swapchain) m_fg->fns.destroySwapchainKHR(m_device, m_swapchain, nullptr);
     m_swapchain = VK_NULL_HANDLE;
     m_liveShown.store(0, std::memory_order_relaxed);
@@ -144,12 +275,59 @@ VkResult Device::FgGetSwapchainImages(uint32_t* count, VkImage* images)
 
 VkResult Device::FgAcquire(uint64_t timeout, VkSemaphore semaphore, uint32_t* index)
 {
+    // The SDK's logical acquire itself submits a GPU semaphore signal.
+    const auto ready=FgWaitForPresentation();
+    if(ready<0)return ready;
     return m_fg->fns.acquireNextImageKHR(m_device, m_swapchain, timeout, semaphore, VK_NULL_HANDLE, index);
+}
+
+VkResult Device::FgWaitForPresentation()
+{
+    if(m_deviceLost)return VK_ERROR_DEVICE_LOST;
+    if(!m_fg||!m_swapchain||!m_fg->info.deferPresentationWait)return VK_SUCCESS;
+    if(m_window&&GetWindowThreadProcessId(m_window,nullptr)==GetCurrentThreadId()){
+        VkResult result=VK_ERROR_DEVICE_LOST;
+        auto work=[&]{result=FgWaitForPresentation();};
+        if(!SdkCallWithOwnerPumping(work)){m_deviceLost=true;return VK_ERROR_DEVICE_LOST;}
+        return result;
+    }
+    const double guardStart=ProfileCpu();
+    const auto result=m_fg->fns.waitForPresentationFFX(m_swapchain);
+    ProfileCpuAdd("wait for presentation guard",guardStart);
+    if(result==VK_ERROR_OUT_OF_DATE_KHR||result==VK_SUBOPTIMAL_KHR)m_swapchainStale=true;
+    else if(result<0){Log("frame generation: presentation stopped (VkResult %d); GPU submission blocked; restart with frame generation off",int(result));m_deviceLost=true;}
+    return result;
+}
+
+VkResult Device::SubmitGpuWork(uint32_t count,const VkSubmitInfo* submits,VkFence fence)
+{
+    // All engine queue submissions, including uploads and readbacks, use this
+    // boundary. CPU recording may overlap; later GPU work must never do so.
+    if(m_deviceLost)return VK_ERROR_DEVICE_LOST;
+    const auto ready=FgWaitForPresentation();
+    if(ready<0&&ready!=VK_ERROR_OUT_OF_DATE_KHR)return ready;
+    const auto result=vkQueueSubmit(m_queue,count,submits,fence);
+    if(result!=VK_SUCCESS){Log("GPU submission failed (%d); rendering stops",int(result));m_deviceLost=true;}
+    return result;
 }
 
 VkResult Device::FgPresent(const VkPresentInfoKHR* info)
 {
-    return m_fg->fns.queuePresentKHR(m_queue, info);
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        VkResult result = VK_ERROR_DEVICE_LOST;
+        auto work = [&] { result = FgPresent(info); };
+        if (!SdkCallWithOwnerPumping(work)) {
+            Log("frame generation: SDK presentation helper failed; rendering stops");
+            m_deviceLost = true;
+        }
+        return result;
+    }
+    const VkResult result = m_fg->fns.queuePresentKHR(m_queue, info);
+    if (result < 0 && result != VK_ERROR_OUT_OF_DATE_KHR) {
+        Log("frame generation: presentation stopped (VkResult %d); restart with frame generation off", int(result));
+        m_deviceLost = true;
+    }
+    return result;
 }
 
 uint64_t Device::FgShownFrames() const
@@ -161,9 +339,17 @@ uint64_t Device::FgShownFrames() const
 // TaaParams'), at the scene's size, before the depth is brought up to the output's.
 void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
 {
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        auto work = [&] { FgPrepare(cmd, params); };
+        if (!SdkCallWithOwnerPumping(work)) {
+            Log("frame generation: SDK preparation helper failed; rendering stops");
+            m_deviceLost = true;
+        }
+        return;
+    }
     FrameGenState& s = *m_fg;
     s.prepared = false;
-    if (!m_depth || !m_scene || !m_swapExtent.width)
+    if (s.failed || m_deviceLost || !m_depth || !m_scene || !m_swapExtent.width)
         return;
     const uint32_t rw = m_scene->m_width, rh = m_scene->m_height, dw = m_swapExtent.width, dh = m_swapExtent.height;
     if (s.made && (s.renderW != rw || s.renderH != rh || s.displayW != dw || s.displayH != dh)) {
@@ -172,7 +358,8 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
     }
     if (!s.made) {
         s.deviceContext = {m_device, m_physical, vkGetDeviceProcAddr};
-        s.scratch.assign(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT), 0);
+        try { s.scratch.assign(ffxGetScratchMemorySizeVK(m_physical, FFX_FSR3_CONTEXT_COUNT), 0); }
+        catch (const std::bad_alloc&) { s.failed=true; Log("frame generation: backend memory allocation failed; interpolation disabled for this swapchain"); return; }
         FfxFsr3ContextDescription desc{};
         FfxErrorCode e = ffxGetInterfaceVK(&desc.backendInterfaceFrameInterpolation, ffxGetDeviceVK(&s.deviceContext),
                                            s.scratch.data(), s.scratch.size(), FFX_FSR3_CONTEXT_COUNT);
@@ -190,6 +377,7 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
         if (e != FFX_OK) {
             static bool logged;
             if (!logged) { logged = true; Log("frame generation: the context could not be made (error 0x%x)", unsigned(e)); }
+            s.failed = true;
             return;
         }
         s.made = true;
@@ -219,8 +407,9 @@ void Device::FgPrepare(VkCommandBuffer cmd, const float params[28])
     d.cameraFovAngleVertical = p[1][1] > 0.0f ? 2.0f * std::atan(1.0f / p[1][1]) : 1.0f;
     d.viewSpaceToMetersFactor = 1.0f;
     d.frameID = ++s.frame;
-    if (ffxFsr3ContextDispatchFrameGenerationPrepare(&s.context, &d) == FFX_OK)
-        s.prepared = true;
+    const FfxErrorCode prepared = ffxFsr3ContextDispatchFrameGenerationPrepare(&s.context, &d);
+    if (prepared == FFX_OK) s.prepared = true;
+    else { s.failed=true; Log("frame generation: prepare failed 0x%x; interpolation disabled",unsigned(prepared)); }
 }
 
 // The name labels (EndScene, after the post passes) into a layer of their own, cleared, for the overlay - drawn as the
@@ -349,6 +538,14 @@ Texture* Device::FgComposedFrame(VkCommandBuffer cmd)
 // swapchain to lay over both.
 void Device::FgBeforePresent(VkCommandBuffer cmd)
 {
+    if (m_window && GetWindowThreadProcessId(m_window, nullptr) == GetCurrentThreadId()) {
+        auto work = [&] { FgBeforePresent(cmd); };
+        if (!SdkCallWithOwnerPumping(work)) {
+            Log("frame generation: SDK configuration helper failed; rendering stops");
+            m_deviceLost = true;
+        }
+        return;
+    }
     FrameGenState& s = *m_fg;
     if (s.made) {
         FfxFrameGenerationConfig config{};
@@ -361,7 +558,12 @@ void Device::FgBeforePresent(VkCommandBuffer cmd)
         // generated frame was a copy of the next real one.)
         config.interpolationRect = {0, 0, int32_t(s.displayW), int32_t(s.displayH)};
         config.frameID = s.frame;
-        ffxFsr3ConfigureFrameGeneration(&s.context, &config);
+        const FfxErrorCode configured = ffxFsr3ConfigureFrameGeneration(&s.context, &config);
+        if (configured != FFX_OK) {
+            s.failed = true; s.prepared = false;
+            Log("frame generation: configuration failed 0x%x; presentation stopped safely",unsigned(configured));
+            m_deviceLost = true; // SDK configuration state is unknown; never submit invalid dependent work.
+        }
     }
     // The overlay: the interface layer alone when nothing else is over the frame, otherwise put together - the name
     // labels, the interface, the console, what the game drew after the interface (the mouse pointer) - in an image of
@@ -411,12 +613,17 @@ void Device::FgBeforePresent(VkCommandBuffer cmd)
     if (s.prepared) ++s.generatedAsked;
     s.prepared = false;
     m_liveShown.store(FgShownFrames(), std::memory_order_relaxed);   // (the readout's shown rate)
+    const double rateNow = SwayClock();
+    if (!s.rateStarted) s.rateStarted = rateNow;
     if (++s.rendered == 600) {                   // (the log: frames shown for frames rendered - about 2 when it works)
         const uint64_t shown = FgShownFrames();
-        Log("frame generation: %llu frames shown for %u rendered (%u with a generated one asked for)",
-            (unsigned long long)(shown - s.shownBefore), s.rendered, s.generatedAsked);
+        const double elapsed = std::max(1e-3, rateNow - s.rateStarted);
+        Log("frame generation: %llu frames shown for %u rendered (%u with a generated one asked for); %.1f rendered fps, %.1f presented fps",
+            (unsigned long long)(shown - s.shownBefore), s.rendered, s.generatedAsked,
+            s.rendered / elapsed, (shown - s.shownBefore) / elapsed);
         s.shownBefore = shown;
         s.rendered = s.generatedAsked = 0;
+        s.rateStarted = rateNow;
     }
 }
 

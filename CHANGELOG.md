@@ -1,3 +1,66 @@
+## Preview 23 release
+
+- Expand the HD library and correct texture-detail loading.
+- Add clearer daylight, far scenery, regional ambient life, ship lights and improved terrain transitions.
+- Correct olive floating-island grass detection, enforce smoke budgets and release unused HD maps under graphics-memory pressure.
+- Preserve installer recovery, download verification and visible progress for Lite and Full HD.
+
+## Preview 23 artwork integration
+
+- Integrate 4,476 additional original texture IDs, reaching 13,103 HD repaint IDs.
+- Complete twenty missing originals and recover fifty previously excluded artwork IDs.
+- Add per-ID retention reasons; preserve terrain blending, exact graphics and optical controls.
+- Load the complete new material sets through the legacy world-family lookup.
+- Pin the expanded Full HD companion archives to Preview 23; retain transactional Setup 6 protections in Setup 7.
+- Retain experimental frame generation and its current performance limitations unchanged.
+
+## Preview 23 candidate revision 4
+
+- Correct pre-window DirectDraw normal-mode initialization.
+- Responsive setup with current tasks, elapsed time and HD reuse.
+- Living separated into its own development archive and excluded from this build.
+- Remove the bulky license notice from the installer window.
+
+## Unreleased — Preview 23 isolated stabilization candidate
+
+- Record process age, renderer stages and slow Vulkan calls; reuse a GPU/driver cache in the user's local app-data folder, detect corrupt cache payloads, retry rejected caches and report failed writes.
+- Show a delayed, independently responsive preparation window on slow live renderer starts; quick starts add no window. First presentation closes it; full-client usability validation remains pending.
+- Handle legacy exclusive requests with an explicit borderless fallback on the window's monitor. True Vulkan exclusive ownership remains unsupported.
+- Enable the Vulkan features selected by the FSR backends; latch failed contexts to avoid repeated attempts and handle CPU allocation failure. Stop submitting partially failed SDK dispatches.
+- Add independent ICC Surface Artwork and ICC Glossiness settings for the three verified ICC floor/tile IDs, with a subtle default roughness correction. New Enhanced Original images are a separate private test pack awaiting rights and live-fit review.
+- Preserve cosmetic population preferences and Off defaults across all quality presets; remove the obsolete Ultra population entry.
+- Keep the frozen Preview 22 renderer/Living integration and validated setup payload. No installation or public publication is performed.
+
+## Unreleased â€” Preview 22 local integration candidate
+
+- Prepare Living Rubi-Ka resources from the selected AO installation, keeping the generated cache inside that installation. No original asset pack accompanies the download.
+- Preserve V5/V5.1 animation, clothing, routes and stability fixes alongside Preview 21 rendering. Missing or damaged cosmetic models are skipped with diagnostics.
+- Restore the Living Rubi-Ka settings group with Off defaults and preferences independent of graphics presets. Additional Phasefront/orbital traffic remains unavailable pending verified models, riders and whole-route clearance.
+- Keep Preview 21 artwork frozen and use a separate Preview 22 graphics cache. Combined live gameplay and performance validation are pending.
+
+## 0.6.0-preview.20
+
+- Add 866 verified worker original-ID bindings; preserve every Preview 19 map.
+- Integrate only Building Weathering v2: 92 reviewed architecture IDs, Off/Low/Medium/High, default Off, and material draw diagnostics.
+- Preserve production terrain, classic lighting, grass/foliage and transactional installation.
+- Keep connected-family, original-art and equipment-response holds; retain all generation provenance.
+
+# 0.6.0-preview.19
+
+Add 1,445 validated texture-ID bindings from all four texture workers; retain all
+Preview 18 maps and terrain fixes. Full HD contains 6,452 unique repaint identities
+and 19,968 runtime maps. Hold disputed ownership families, approved original-art
+conflicts, unfinished runs and the failed rubber-catsuit material family. Preserve
+all authoring artwork; player packages inventory non-runtime sheets instead of
+bundling them. Both editions retain identical x86 renderer/loader binaries.
+
+# 0.6.0-preview.18
+
+Fix flat-coloured Shared Ground+ terrain with AO lighting disabled. Retain every
+Preview 17 map and add 618 finalized repaint identities: 600 from earlier completed
+batches and 18 architecture, industrial and equipment worker textures. Natural
+per-tile transition policy and unfinished artwork remain unchanged.
+
 # 0.6.0-preview.17
 
 Fix false running-client refusals in setup by selecting 32-bit Windows PowerShell
@@ -12,16 +75,21 @@ Full HD library without artwork regeneration. See RELEASE-NOTES.md for scope.
 
 ## Unreleased
 
+### New
+
+- Isolated Preview20 experiment: Newland window depth (`RVK_WindowDepth`), Off / Subtle / Strong, default Off. Revision5 keeps the furniture and bright lamp, fixes flipped/Z-up model orientation using world gravity, shares an apartment across connected front/corner panes and gives every supported aperture inhabited content. Small windows crop full-size rooms. True native vertex bounds and shared-material door/gate exclusions remain.
+
 ### Changed
 
 - Distant terrain gains filtered broad soil/rock variation and gentle slope definition with `RVK_TerrainFar`. Horizon haze retains more distant structure, and water contacts keep a softer shoreline with restrained wetness and broad distant foam.
 - Complete the missing shared architecture, additional building, furnishing, technology and industrial prop batches, enabling 1,025 previously queued Rubi-Ka texture resources together. Preserve premium ICC artwork and functional original signs/screens; refine the picked ICC rock without changing unrelated shipped artwork.
-- Shared Ground+ now adds only nearby pebbles at density 1 to regular Shared Ground, retaining its terrain mesh, cliff materials and lighting. It adds no ripples or tile-edge blending. GroundOn overrides either shared mode; Ultra selects Shared Ground+ with GroundOn off.
+- Shared Ground+ uses the native terrain patches, cliffs, rocks and pebbles with classic baked lighting. It adds no ripples or tile-edge blending. GroundOn retains its separate terrain lighting; Ultra selects Shared Ground+ with GroundOn off.
 - Trees gain fuller foliage through their crowns with `RVK_TreeVolume`, retaining the original branches, leaf colours and distant silhouettes. Shrubs and palms keep their existing foliage.
 - The picked metal floor and its 22 related plate/transition tiles keep AO's original tread and borders with a rough, restrained metal finish. Older repaints and noisy normal maps cannot override this family; Full HD and Lite include the same material correction.
 
 ### Fixed
 
+- Fix Shared Ground+ rendering as a flat colour when AO submits its terrain texture stages with lighting disabled. Terrain textures, cliff detail and loose stones retain their cell materials in this draw state.
 - Shared Ground+ uses the same cliff textures as regular Shared Ground, including the saved cliff controls, instead of leaving steep faces covered in stretched ground textures.
 - Shared Ground and Shared Ground+ use GroundOn's smooth slope mask and existing rock material for broader, less patchy cliff coverage, including verified terrain composites that lack an individual database texture ID.
 - Fix expired terrain mesh records being reused after switching graphics modes, which could corrupt the grass cache later while moving or turning. Render-worker failures now stop promptly with the original fault details instead of leaving the game waiting indefinitely.
@@ -64,6 +132,10 @@ What changed in each ao-vk release, newest first. Downloads and install notes: t
 [releases page](https://github.com/wannabuh/ao-vk/releases).
 
 ## Unreleased
+
+### New
+
+- Isolated Preview20 experiment: Newland window depth (`RVK_WindowDepth`), Off / Subtle / Strong, default Off. Revision5 keeps the furniture and bright lamp, fixes flipped/Z-up model orientation using world gravity, shares an apartment across connected front/corner panes and gives every supported aperture inhabited content. Small windows crop full-size rooms. True native vertex bounds and shared-material door/gate exclusions remain.
 
 ### Changed
 - Rename Cyberpunk world style to AnarchyHD and remove Classic HD from the selector. Existing Cyberpunk choices keep their artwork; saved Classic HD choices move to AnarchyHD.

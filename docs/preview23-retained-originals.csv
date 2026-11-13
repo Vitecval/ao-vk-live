@@ -1,0 +1,437 @@
+identity,name,category,reason,newArtworkClaimed
+1010004:100021,arms_advisor_newbee.png,original_constant_control,Verified historical original constant; preserve colour and bytes.,False
+1010004:10085,glowblue_opacsides.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:10086,glowblueish.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:10208,transpglowstripe.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:10564,greenliquid.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:10612,computerlowergridglowspots.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:10620,comp_bigplate_glowinggreenreadoutplates.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:10885,hitech_flashglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:11323,window_opac.png,retained_alpha_cutout_mask_effect,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:117634,athens_smalltileable_shadow.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:117635,door_clandoor2_veryplain1_shadow.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:117664,arms_atrox.png,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:117694,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:118166,jungle_featheryflower_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:119013,wepsign_gummistolpe.png,retained_optical_or_surface_role_unresolved,"Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",False
+1010004:119021,side_bars_green_rusty_glowsbarsoff.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:119047,reflection-map_darkclouds.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:119187,env_lava2.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:120493,thegrid_energybeamglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:120494,thegrid_energybeamglow2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:121399,superplainblueglow.png,retained_emission_colour_effect,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:121445,suticase_env.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:14734,greenomniglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:14802,rectangular_omnihq_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:14950,blackness.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:152862,default_wall12.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152863,default_wall16.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152864,default_wall7.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152865,default_wall13.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152866,default_wall10.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152867,default_wall11.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152868,default_wall14.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152869,default_wall8.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152870,default_wall5.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152871,default_wall6.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152872,default_wall15.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:152873,default_wall9.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:153759,lever_lght1.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:154109,pumpkinman_env.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:154696,proto_ninjadroid_head_white.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:154947,stejnen2.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:154948,stejnen4.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:154949,stejnen1.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:154950,stejnen5.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:154951,stejnen3.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:155968,body_solitusmale_unfinished_nop.png,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:156676,blue_glow_clanwalllamp.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:157249,cobbbbbbbwebattempt.png,functional_alpha_cobweb,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:157474,camelot_fireplace_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:157877,brownrock_crack_light-map.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:158025,primitive_default04.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:158026,primitive_default06.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:158027,primitive_default03.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:158028,primitive_default05.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:158029,primitive_default02.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:158030,primitive_default01.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:15885,hq_greensquareglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:158852,cot_food2.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:158855,cot_food3.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:15899,toi1.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:159485,acg_redsymbol.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:159487,acg_arrow1.png,reviewed_recent_functional_original,Smooth arrow/light gradient: preserve exact functional RGB/alpha; no verified physical-detail region.,False
+1010004:159929,fixergrid_glowbright1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:160014,fixergrid_glowbrightplate1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:160050,fixergrid_topsignpart.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:16101,skymap_white.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:16128,stolper.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:16185,noise.PNG,reviewed_noise_input,The source is a black/white noise field. Preserve its existing distribution rather than replacing a likely shader/noise input with physical artwork; exact shader usage remains unverified.,False
+1010004:162372,weapon_bow_mini_string.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:163176,blade.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:164674,squareglowblue_stripe.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:164731,pedestalglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:164737,museum_nanocrystal_reflection.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:164876,cleanglow_reddark.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:164889,cleanglow_gray.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:17825,ent_pinggeneralglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:18332,wirah.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:18336,dusj_1.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:18513,ent_yellowgeneralglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:18518,sewertile_blackness2.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:18537,sewertile_blackness.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:201506,attackreflection_darkblue01.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:201632,tower_shockwave1.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:201708,arrivalhall_brightlightglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:20292,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:203537,yalm2_env_default.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:203565,boostershop_refmap_weak.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:203566,boostershop_metalpillar.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:203753,yalm2_env_orange.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:204283,side_beam_clan.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:204285,side_beam_neutral.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:204286,side_beam_omni.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:204885,glasses_orange.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204886,glasses_metal_orange.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204888,glasses_metal.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204889,glasses_blue.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204892,glasses_pink.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204897,glasses_metal_dark.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204900,glasses_black.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:204903,glasses_metal_purple.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:205695,omni_hq_sentrygun_laserlight.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:206023,tir_metallicjarreflect.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:206069,yalm2_env_darker.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:206078,yalm2_env_goldd.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:206287,hangingmoss_new_opac2.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:206492,plant_billboards_1024.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:206790,schmushroom_texture_opacity.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:209496,blade_opacity.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:21019,smallgroundblob.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:21046,holog2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:21052,lasah.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:213105,innihekken_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:213310,blue_fade.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:213317,blue_line_fade.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:214908,hangingmoss_new_opac_lars.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:215148,jobe_blue_glow_circular.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:215686,acg_glow_03.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:215698,acg_glow2_03.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:216590,orange_stripe_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:216614,blue_spot_weirdglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:216940,lens_flare_reflections.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:222709,jobe_appartement_selfillum.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:223584,cleanglow_faded_orange.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:224249,hologround_opacity_lightness.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:224281,forgedglass2.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:224506,cave-light_volume_lars.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:224509,cave-light_volume_lars2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:225924,Teleport safe_lars3pushedhalo.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:229963,welcometodarkness.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:23136,blue_Entertainmentgateglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:234522,glacierglasses.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:236639,redeemed grunt.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:242967,ark_whitelight.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:245756,sewertile_grill_opacity.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:245763,yalm3_env_multispots01.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245803,yalm3_reflectexture_regular01.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245805,yalm3_reflectexture_regular02.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245808,yalm3_reflectexture_kandi01.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245810,yalm3_env_multispots03.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245823,yalm3_reflectexture_kandi02.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245830,yalm3_reflectexture_kandi04.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:245833,yalm3_reflectexture_kandi03.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:247298,hoopchain.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:247854,ai_alien-acg_plankton.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:249117,ai_alien_acg_door2opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:249149,Tactical_room_map_sheet.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:249871,ai_mothership_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:250610,ai_building_neutral_circularglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:250713,ai_building_neutral_weirdglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:252276,fishpond_glass_opacity_tank.png,retained_alpha_cutout_mask_effect,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:255516,ai_hologram_screen2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:255517,ai_hologram_screen.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:255518,ai_hologram_keyboard.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:25568,medusa_rockfloor_glowhole.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:25569,medusa_lightcone.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:25572,medusa_rockfloor_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:255755,ai_building_omni_glow_blue.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:255759,ai_building_neutral_circularglow_darkblue.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:258192,holo.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:258426,holo_blue.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:258427,holo_green.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:258428,holo_red.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:258978,devil_and_angel.png,reviewed_palette_or_calibration_input,The source is a tiny flat colour/gradient or palette-like test image. It contains no established physical material detail; preserve the exact values and UV footprint.,False
+1010004:259388,holo_orange.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:259426,computer_interface.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:259447,security_teleport.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:26272,teleport_elevator_lightsquare.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:262733,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:262735,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:26275,teleport_elevator_lightsquare_big.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:26277,teleport_elevator_light_center.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:264735,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:264769,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:265659,groundhit.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:266547,ep03_spacestation_glass.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:266831,ep03_spacestation_red.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:266833,ep03_spacestation_blue.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:266835,ep03_spacestation_yellow.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:268744,veteran_tutu_arms.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:26928,cleanglow_bluebright.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:26941,cleanglow_bluedark.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:26949,cleanglow_bluemedium.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:269833,cot_glowthinandsmallrectangle.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:270423,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:270841,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:272255,head_invisible.png,reviewed_invisibility_or_opacity_input,The source is an invisible-character control image with no visible surface to repaint. Preserve its exact colour and opacity footprint.,False
+1010004:272258,body_invisible.png,reviewed_invisibility_or_opacity_input,The source is an invisible-character control image with no visible surface to repaint. Preserve its exact colour and opacity footprint.,False
+1010004:272329,blue_fade_with_sl_and_alpha.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:272332,phasefront_light.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:273665,itm_light.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:274147,xmas_red.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:274148,xmas_yellow.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:274149,xmas_white.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:274150,xmas_orange.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:274151,xmas_brown.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:274152,xmas_green.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:275566,xb_beam_effect.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:275940,theend.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:27770,glow22.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:279435,db_energyfield.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:279495,db_energyfield2.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:280013,xb_button_blue.png,reviewed_recent_functional_original,Smooth blue response/control gradient; preserve exact RGB response without invented physical grain.,False
+1010004:281401,apt_spotglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:281620,dr_turret_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:281821,luxcar_env.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:281822,luxcar_env_bw.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:281827,luxcar_env_rk.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:281882,nc_engineglow01.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:281892,luxcar_env21.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:281894,100transp.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:282001,nc_pinklite.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:282108,nc_lava1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:282109,nc_lava3.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:282110,nc_lava2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:283512,qo_screenimage_01.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:283553,qo_rollscreen.png,exact_fidelity_graphics_text_UI,Dense native scrolling credits and console lettering; requires exact typesetting rather than AI text redraw.,False
+1010004:284023,hoverboard_c_fx01.png,reviewed_recent_functional_original,Hoverboard waveform/light control: preserve exact graphic response and alpha; avoid invented physical surface.,False
+1010004:284073,redsquare.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:284126,spiritbrush.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284179,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:284377,,retained_purpose_unresolved,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:284413,omni_lamp_lightbeam.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284416,omni_textmat01.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:284604,xmas_lights_orng.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284605,xmas_lights_cyan.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284606,xmas_lights_red.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:284608,xmas_lights_blue.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284609,xmas_lights_yel.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284610,xmas_lights_green.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:284640,lantern_flame.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:285089,dqi_racemodule01_fx.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:285357,dqi_bombkit_omni.png,generation_service_blocked,"Image service rejected generation. Original retained; no retry, no new artwork claimed.",False
+1010004:285382,glowinthedarkloot.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:285424,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:285428,holo_blue2.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:287293,goldenv.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:287294,8-bitposter.png,retained_fidelity_source_missing,Deliberate upside-down pixel-art poster. Retain original pixel grid; an AI redraw would erase its intended style and lettering.,False
+1010004:287295,golddiffuse.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:287673,colsphere_ring.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:287707,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:287739,red02.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:288468,duckiegun_grey.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:288577,halloween_nanospray_candycorn.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:289525,crunk_goblet_red.png,retained_purpose_unresolved,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:290012,bd2010_jetpack_hud_randy_d.png,exact_fidelity_graphics_text_UI,Jetpack HUD alpha and instrument overlay; exact readout and masking retained.,False
+1010004:290195,bsmap01_i.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:290196,bsmap01.png,exact_fidelity_graphics_text_UI,Native 1024x1024 teleport map already resolves its simple vector diagram; no missing fine surface detail.,False
+1010004:291115,db_orange_glow.png,retained_emission_colour_effect,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:291123,basic_beam.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:291480,shop_wenwen_yellow_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291481,shop_wenwen_black_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291482,shop_wenwen_blue_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291484,shop_wenwen_green_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291485,shop_wenwen_orange_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291486,shop_wenwen_purple_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291487,shop_wenwen_red_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291489,shop_wenwen_white_eye.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:291491,energy_grid_low_opacity.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:291587,shop_buckethelmet_bottom.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:291595,shop_glasspads_inner.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:291986,basic_beam2.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:292038,chainlink_256.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:292830,ghosty_torch_01.png,reviewed_recent_functional_original,"Ghostly torch grayscale luminosity/opacity atlas, visually inspected with companion density mask; retain exact functional response, not physical material.",False
+1010004:292831,ghosty_torch_01_wisp.png,reviewed_recent_functional_original,"Grayscale alpha-density wisp/effect control; preserve exact original density distribution, no physical normal or roughness invention.",False
+1010004:292853,basic_beam_radial.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:293369,nanospray_halloween_bat_black.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:293371,nanospray_halloween_bat_orange.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:293798,omnimed_screenimage_01.png,exact_fidelity_graphics_text_UI,In-world editor screenshot with tiny program/interface content; faithful replacement requires recapture or exact typesetting.,False
+1010004:293799,omnimed_screenimage_02.png,exact_fidelity_graphics_text_UI,In-world code-editor screenshot; AI redraw would invent code and change content.,False
+1010004:294050,xmas_lights_white.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:29461,lazzer.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:294922,vd_luxcar_hoverfield.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:295320,dqi_ballfx01green.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:295348,testlive_reward_nanospray_logo.png,reviewed_exact_graphic_or_font,"The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",False
+1010004:295355,testlive_reward_nanospray_logo_blue.png,reviewed_exact_graphic_or_font,"The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",False
+1010004:295466,sv01_window_d.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:295538,bileswarm_flies_red.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:29557,laserbeam_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:295915,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:29614,tlr_bautatop_glowlight.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:29683,newbiezone_tube_light.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:29718,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:29733,dlr_lampglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:297379,outdoor_clinic_d.png,exact_fidelity_graphics_text_UI,Original graphic awaits faithful HD restoration and text/shape validation. Historical text-fidelity retention does not establish that this is a functional control.,False
+1010004:297438,new_cc_nano_02_ab.png,retained_purpose_unresolved,Actual purpose unproved from available local evidence; preserve.,False
+1010004:297613,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:297673,statue_bronze_ring.png,emissive_alpha_UV_atlas,"Multiple luminous strips/UV islands, declared alpha; not plain bronze.",False
+1010004:30025,reck_yellow_lemon_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:30033,tlr_factories_smallpillarsplate_glowmet.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:30043,light_sportscraft1b.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:30044,light_sportscraft1a.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:302557,ai_building_clan_glow_yellow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:303021,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:303959,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:30691,green_beam.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:30817,fade_opacity.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:31228,junk_bike_light.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31342,teleport_rings_glow2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31472,4h_glowpartonpillar.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31488,junk_light.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31489,junk_lights.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31561,4h_block_innertech_side_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:31873,bileswarm_flies_black.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:32273,transpglowstripe_more_transparent.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:32545,small_blue_partylampglow_edge.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:36104,athens_insidewindow_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:36187,cleanglow_greenbright.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:38202,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:38580,light_sportscraft2b.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:38581,light_sportscraft2a.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:38585,env_sleek.png,retained_reflection_optical_input,Reflection/environment input suspected; no albedo-only contract proved.,False
+1010004:38646,rome_pillardetailstripe_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:38718,ripple.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:39856,blue_cold.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:39867,red_hot.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:40477,white_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:40479,into_the_glow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41283,rome_greenglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41285,rome_blueglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41300,small_blue_partylampglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41306,party_lamp_glow_blue_symbols.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41308,party_lamp_glow_blue_symbols_red.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41310,party_lamp_glow_blue_symbols_yellow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41312,small_red_partylampglow_edge.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41313,small_red_partylampglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41315,small_yellow_partylampglow_edge.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41316,small_yellow_partylampglow.png,retained_optical_or_surface_role_unresolved,"Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",False
+1010004:41497,glassopacgalwaybord.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:41633,trappegrillen_square.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:41647,hq_glowthinandsmallrectangle.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:41974,statue_feet_athroxmale_default.png,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:41977,statue_legs_athroxmale_default.png,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:42132,gronn_lys_blink.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42134,red_lys_blink.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42135,gul_lys_blink.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42137,blu_lys_blink.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42140,lilla_lys_blink.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42141,leedning_til_pornolysene.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:42374,tir_tube33spar3.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:42376,tir_beamlight6.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42377,tir_beamlight4.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42378,tir_beamlight7.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42379,tir_beamlight5.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42380,tir_tubespar3.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:42381,tir_beamlight2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42382,tir_beamlight3.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42383,tir_beamlight1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:42828,skapvinduopacity.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:43317,jungle_starbush_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:43517,cleanglow_orangemedium.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:43533,tir_lampmetalbronze_lightplate.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:43538,tir_lampmetalbronze_lightplate2colored.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:44643,trash_ring1.png,reviewed_palette_or_calibration_input,The source is a tiny flat colour/gradient or palette-like test image. It contains no established physical material detail; preserve the exact values and UV footprint.,False
+1010004:44645,trash_bag_blueinside.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:44647,trash_med_paneltest.png,reviewed_palette_or_calibration_input,The source is a tiny flat colour/gradient or palette-like test image. It contains no established physical material detail; preserve the exact values and UV footprint.,False
+1010004:44651,contain_fridge_side_glowpart.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:44665,trash_bag_greeninside.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:44667,trash_bag_blackinside.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:46181,hq_teleportpillar_glow1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:46325,white_blue_lampglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:47481,light_halo.png,reviewed_optical_or_effect_input,"The source contains an optical gradient, glow, reflection or alpha-density pattern. Preserve that response and coverage; physical grain or normal maps could alter the effect. Full shader/model usage is not certified.",False
+1010004:49055,coldrock_crack_light-map.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:49056,cave-light_volume.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:49554,cleanglow_orangedark_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:55866,bank_glow_notext.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:55881,save_redbeamglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:55970,clan_teleporter_signplace.png,retained_optical_or_surface_role_unresolved,"Glow, optical input or surface region; exact stage semantics unresolved. Do not infer readable lettering from its name.",False
+1010004:56020,tide_redglow.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:56021,tide_yellowglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:5971,squareglowyell.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:5973,glowtube.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6014,blacktexture.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:6093,blueglow.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6115,roundglowwhite.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6159,fencediff.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:6322,water.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6326,brightsun2.png,reviewed_recent_functional_original,"Flat grayscale white disk on black field, with source edge antialiasing/compression. Pixel values and silhouette define an optical effect; added material grain would change the effect. Retain source without claiming unchanged upscale as generated artwork.",False
+1010004:6330,whitemap8x8.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:6332,yellowmap.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:6561,bigrustyplate_glowinglite.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6619,light.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:6652,squareglowblue.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:70279,bord_tube_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:70283,reagens_red.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:70285,reagens_green.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:70626,thegridmaintex.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:72810,body_bloody.png,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:75400,,generation_service_blocked,Earlier generation was blocked; not retried or rephrased.,False
+1010004:81733,inside_computer_lights_n_stuff.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:81742,hq_teleportpillar_glow1_green.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:82165,enigma_liquid_lamp_fill2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:8266,roundgloworange.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:82823,grid_darkness.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:82885,cameralens_black.png,retained_visible_artwork_role_unresolved,Visible artwork/trim/prop; no proven globally safe replacement semantics.,False
+1010004:82929,cableopac_midtech.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:82935,gridsign_glowpiece1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:83997,squareglowwhite_bigdiffuse.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:84015,side_bars_glowing.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:85803,gridcityglow1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:85812,thegrid_glowlightcone1.png,retained_emission_colour_effect,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:85936,body_nowear.png,original_constant_control,Verified historical original constant; preserve colour and bytes.,False
+1010004:85938,feet_nowear.png,original_constant_control,Verified historical original constant; preserve colour and bytes.,False
+1010004:85939,hands_nowear.png,original_constant_control,Verified historical original constant; preserve colour and bytes.,False
+1010004:85940,arms_nowear.png,original_constant_control,Verified historical original constant; preserve colour and bytes.,False
+1010004:85948,thegrid_sidepartglow1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:85972,glow_bluegrid.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:85975,glow_darkbluegrid.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:8650,squareglowblue_bigdiffuse.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:8711,head_solitusmale_default.png,retained_character_equipment_or_prop_atlas,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:8712,hands_solitusmale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:87434,arms_tattoo_7.png,reviewed_recent_functional_original,Visible source is a binary black ink graphic over a pure green-key field. Its exact line geometry and color-key mask are functional; physical surface detail would alter the flat ink design. Retain the original rather than count an unchanged upscale as new artwork.,False
+1010004:8851,head_solitusfemale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:8852,hands_solitusfemale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:8882,head_opifexfemale_default.png,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:8962,head_opifexmale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:8987,head_nanomagemale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:9025,head_nanomagefemale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:90420,grid_insidedoor1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:9232,head_athroxmale_default.png,constant_RGB_or_palette_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:9235,hands_athroxmale_default.png,verified_uniform_colour_or_opacity_input,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False
+1010004:95751,grid_glowtechbeam.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:9791,crystalglow_semitransparent.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:9866,yellowstarflower_opac.png,retained_alpha_cutout_mask_effect,Potential alpha/cutout/control/effect; RGB does not establish exact alpha or stage role.,False
+1010004:99156,thegridmaintex_bright.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99474,default_roof.png,exact_fidelity_UV_calibration,Authored letters/numbers/arrows; not unmarked building material.,False
+1010004:99824,spritefont.png,reviewed_exact_graphic_or_font,"The source is an exact symbol, number, font atlas or logo. Preserve its glyph shape, positioning and original opacity so labels remain readable and atlas coordinates stay correct.",False
+1010004:99941,grid_animglowstripe_black.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99942,grid_animglowstripe_light1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99945,startupo_orangeglow1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99946,startupo_orangeglow2.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99960,startupo_holoworldsign.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010004:99961,startupo_blueglow1.png,retained_emission_colour_effect,"Optical/emission/effect input suspected; preserve footprint, blend/test and brightness.",False
+1010006:27,,native_per_cell_terrain,"Black/green diagnostic tile marker, with no depicted physical ground material. Preserve its exact marker values.",False
+1010006:774,,native_ground_void_control,Brink void marker: renderer explicitly excludes these cells from visible terrain. Preserve the original marker; it is not a physical ground painting.,False
+1010009:1,,reviewed_recent_functional_original,Visible original is the red Error fallback diagnostic. Its meaning and readability are functional controls; surface-detail generation is inappropriate. No new artwork claimed.,False
+1010009:41408,,reviewed_recent_functional_original,"Fresh source contains one uniform RGB value, not painted surface detail. Preserve its material/color or mask values; no invented painting is needed.",False

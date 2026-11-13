@@ -1,0 +1,163 @@
+[
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 262891,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "bac6c8cfb46fc0f45b8b3966e3cbe8cd5c4c4775419aff217fd09ff5868e5bf9",
+    "original_sha256": "dc6994dd69ab93c02954f6b7388f0f4e7ba3df7faee859339175175f6ffa826c",
+    "maps": {
+      "1010004_262891_d.png": "913880409d723b82126a1897d1f9142f9e3afc249e0ed656fef2bd8e719b856f",
+      "1010004_262891_n.png": "aeaf97e3632a3a55040ff1bb03b5c57c52f48734ed5c2ad714b12ce697d73cd6",
+      "1010004_262891_orm.png": "e3b11c23b10de0758173787e82633d877ebc73e2d90e2369d793b99c8237d1e2",
+      "1010004_262891_e.png": "27b3bcfa3abb58fe4a127bcef683d691c37b5ec3f957bbae4f7dcfbe50ca481d"
+    },
+    "size": [
+      2048,
+      2048
+    ],
+    "palette_max_mean_delta": 0.09141546511186455,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 268223,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "fb9fec949eeab7ac606be263bc97b911a4fd857b117b878078033d73426f4134",
+    "original_sha256": "258ac7b118b14218b38f43aaa3b137a40657bf9bd242e45f8c10ea8ec254db05",
+    "maps": {
+      "1010004_268223_d.png": "9482fd39b87ce6b3236ef2ee3dd9ddbf6e1cfe7dad321c01cd00b5617fe03ecf",
+      "1010004_268223_n.png": "b8dc218321fb6c9cd363a4c34d778600e107ee62c6d9eb5325a2a66ac295a1c0",
+      "1010004_268223_orm.png": "d45afd14d330625921904ce5836f4a873154b782bf6bb70422248bea1bc40e0d",
+      "1010004_268223_e.png": "4c095c3fe6d61ff225ffa3a007caa9aef25da66a3d81af1e1cfebff9e2de48f2"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.05181358187805524,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 268602,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "6d68d885c659c23df20b38577f0d7533f498e34be3cd0442a7b0fcec78274e12",
+    "original_sha256": "1c28334185201b3b0e3016ef19ff2fe2b8cf9e3050067830af9a3db741db824c",
+    "maps": {
+      "1010004_268602_d.png": "06b9d2eda363c1c5983401c567c7853555d9e85408ed2aaa63c4929068decd92",
+      "1010004_268602_n.png": "92341da9e7c48caef9fec29efa5dfc96e111e0cae1d1072e403540e163d0c1b7",
+      "1010004_268602_orm.png": "519b80b8271d3e0f5f15edf9fdbf8c8927798f53f9d4f671c761ff3de714033d",
+      "1010004_268602_e.png": "a831be580bea305655647e34a50c04d6f24cb2d602f1a850e153e2e8f657788f"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.0056357589422526555,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 224103,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "29c28d6acb5b9a3a38705e6d2474dd169760fb7e0a52395b3305253aed5f716f",
+    "original_sha256": "a9a07e579a32dccdb9d5cde4917c8c5c7c8217a758be2e84a3702a0a64c59227",
+    "maps": {
+      "1010004_224103_d.png": "1a51867864fdc73c0dead6330b02cafa69906069d0ff7b84620cc74eb251c9c5",
+      "1010004_224103_n.png": "b533ccab8e7f45996d4f523b9abe24bd3f88261affabe1d3b25aac506a555d38",
+      "1010004_224103_orm.png": "9f536c6b243e8c26924400f2532b54d277dc5951705ea0969270f0ff2ba446dc",
+      "1010004_224103_e.png": "94907a3d648acdfa74696be0dca8b399b7c6a6d97e8fba2c624b62a2ceb1c2e6"
+    },
+    "size": [
+      1024,
+      2048
+    ],
+    "palette_max_mean_delta": 0.0381679160921953,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 224107,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "77e67320a5d5be6e52228e9036edf9f90d6cef055d4c95ebc9b83839acd02634",
+    "original_sha256": "10337a6e261ccea1a91ed97990daaaa4276b18781621d80cfa028a031885effb",
+    "maps": {
+      "1010004_224107_d.png": "eac2f34049d22f93cd240ab322e6d563cc56f1be3219502486769c1af469ba6f",
+      "1010004_224107_n.png": "d9267586ab821295e464b37d35f47fcc6f7199c2031840f82a35262f6f8e0085",
+      "1010004_224107_orm.png": "31570eac39635c862f466c2ba45e73a9549b35487c90dc356f6060e19c99321c",
+      "1010004_224107_e.png": "d8e64b6d837d0ea368289dbdf70a3c433278eff83193fccbc600314be8983acd"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.031185613894010755,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 224111,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "b18e2a547b8560d7968f78be338f793f500b501aabdf36d152cf247e9be9f721",
+    "original_sha256": "29f5bef89c007debb25556dcd100bac650a5fbd63da0b2ef571b9ffc0a8e5a69",
+    "maps": {
+      "1010004_224111_d.png": "5935bce089b1d3666a500ad2af341c553a19437411b348990ba853308dbf7080",
+      "1010004_224111_n.png": "d18cc7742c184ed66d4088c73c5e831e9709bc6be2f70a129f4b1cfdfc65fbd7",
+      "1010004_224111_orm.png": "c65b59ab24f4a54140df8a3b0552cb9ea6121eaa24ca9786c6a83ef1b55b0d77",
+      "1010004_224111_e.png": "94907a3d648acdfa74696be0dca8b399b7c6a6d97e8fba2c624b62a2ceb1c2e6"
+    },
+    "size": [
+      1024,
+      2048
+    ],
+    "palette_max_mean_delta": 0.13658543007058993,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  },
+  {
+    "worker": 4,
+    "type": 1010004,
+    "id": 301966,
+    "pack": "ao-cyber-characters",
+    "status": "integrated-awaiting-production-load",
+    "reason": "Final worker handoff, exact ID/provenance, decoded map companions, UV aspect, original alpha, palette, normals and applicable repeat checks passed.",
+    "source_sha256": "09dfecdff5b2fe44fdae138a7d94e693a468d71a34e94233f1fb6db56b00bb0e",
+    "original_sha256": "07d6d938f291865e848c6f9597855ba0492f8276a8c89f7b3513f3272b830d1f",
+    "maps": {
+      "1010004_301966_d.png": "31963c83433ce80cc988782906f1e663bf8c5f2d4c0082d85efb781cb889f84b",
+      "1010004_301966_n.png": "63e66deb184dddfb8e384ec65590fa5c39c461a8c283a8e06c7734d0965da7c0",
+      "1010004_301966_orm.png": "2770900afe4589b67879c878dce96e68451421fa435e907de49b68af4d7764ec",
+      "1010004_301966_e.png": "d8e64b6d837d0ea368289dbdf70a3c433278eff83193fccbc600314be8983acd"
+    },
+    "size": [
+      2048,
+      1024
+    ],
+    "palette_max_mean_delta": 0.027545166015618572,
+    "profile": "worker-equipment",
+    "repeat_axes": []
+  }
+]

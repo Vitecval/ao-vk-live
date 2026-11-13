@@ -101,10 +101,10 @@ def main():
     launch = fixture / 'launcher with spaces'
     launch.mkdir()
     (launch / 'setup-live.ps1').write_text('param([string]$Action)\n"$([IntPtr]::Size):$Action" | Set-Content -LiteralPath (Join-Path $PSScriptRoot "host.txt")\n')
-    for action in ['Install', 'Update', 'Uninstall']:
+    for action in ['Install', 'Update', 'Uninstall', 'Reset settings']:
         path = launch / (action + '.cmd')
         path.write_bytes(packager.launcher(action))
-        p = subprocess.run(['cmd.exe', '/d', '/c', str(path)], cwd=launch, env=env, capture_output=True, text=True, timeout=30)
+        p = subprocess.run(['cmd.exe', '/d', '/c', str(path)], cwd=launch, env=env, input="U\n" if action=="Uninstall" else None, capture_output=True, text=True, timeout=30)
         assert p.returncode == 0, (action, p.stdout, p.stderr)
         assert (launch / 'host.txt').read_text().strip() == '4:' + action
     results['cmd_launchers'] = {'actions': ['Install', 'Update', 'Uninstall'], 'actual_host_pointer_bytes': 4, 'result': 'passed'}

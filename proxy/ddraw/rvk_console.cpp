@@ -22,6 +22,7 @@
 #include "weather_options.h"
 
 #include <algorithm>
+#include <set>
 #include <atomic>
 #include <cctype>
 #include <cmath>
@@ -366,6 +367,11 @@ bool FindSetting(const std::string& word, SettingRef* out)
 
 std::string FormatValue(const RvkSettingInfo& s, float v)
 {
+    if (std::strcmp(s.name,"RVK_WindowDepth")==0) return v < 1 ? "Off" : v < 2 ? "Medium (Subtle)" : "Maximum (Strong)";
+    if (std::strcmp(s.name,"RVK_LivePeople")==0 || std::strcmp(s.name,"RVK_LiveDrones")==0 ||
+        std::strcmp(s.name,"RVK_AirTraffic")==0 || std::strcmp(s.name,"RVK_LiveWild")==0 || std::strcmp(s.name,"RVK_BuildWear")==0) {
+        const char* names[]={"Off","Low","Medium","High"};return names[std::clamp(int(std::lround(v)),0,3)];
+    }
     if (std::strcmp(s.name,"RVK_Pebbles")==0 && rvk_settings::GetEffective("RVK_TerraBlend")>1)
         return "1 (Shared Ground+)";
     if ((std::strcmp(s.name,"RVK_GroundAo")==0 || std::strcmp(s.name,"RVK_GroundSun")==0 ||
@@ -374,6 +380,22 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
          std::strcmp(s.name,"RVK_SandGlint")==0 || std::strcmp(s.name,"RVK_SandPrints")==0 ||
          std::strcmp(s.name,"RVK_WaterRipple")==0) &&
         rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
+    if (std::strcmp(s.name,"RVK_ICCArtwork")==0) return v>0 ? "Enhanced Original" : "AnarchyHD";
+    if(std::strcmp(s.name,"RVK_AmbientMode")==0) {
+        const char* names[]={"Off","Automatic (area and time)","Fireflies","Dust","Spores","Spirit motes","Snow crystals","Embers","Ash"};
+        return names[std::clamp(int(std::lround(v)),0,8)];
+    }
+    if(std::strcmp(s.name,"RVK_SkyStyle")==0)return v>.5f ? "Soft skies and starry nights":"Current / custom sky";
+    if (std::strcmp(s.name,"RVK_DayCycle")==0) {
+        const char* names[]={"Rely on Server Sided day/night", "Longer Day / Shorter Night", "Enhanced Daylights (happier)"};
+        return names[std::clamp(int(std::lround(v)),0,2)];
+    }
+    if(std::strcmp(s.name,"RVK_InstantTime")==0) {
+        if(v==1)return "Day (13.5)";
+        if(v==2)return "Night (0)";
+        return rvk_settings::Get("RVK_TimeOfDay")>=0 || std::fabs(rvk_settings::Get("RVK_TimeSpeed")-1.f)>1e-4f
+            ? "Custom clock":"Server / cycle";
+    }
     if (std::strcmp(s.name, "RVK_ModernTex") == 0) {
         return v>0 ? "AnarchyHD" : "Original";
     }
@@ -1195,8 +1217,23 @@ void OpenOptions()
     g_options = true;
     InputBlock(kInputConsole, true, true);
     const int preset = rvk_settings::PresetCurrent();
-    g_optionPreset = std::max(0, preset);
+    g_optionPreset = preset;
     g.dirty = true;
+}
+
+std::set<std::string> g_optionExpanded;
+
+const char* OptionParent(const RvkSettingInfo& info)
+{
+    const std::pair<const char*,const char*> groups[]={
+        {"RVK_TerrainHD","RVK_ModernTex"},{"RVK_BuildingHD","RVK_ModernTex"},{"RVK_Albedo","RVK_ModernTex"},
+        {"RVK_LiveDrones","RVK_LivePeople"},{"RVK_AirTraffic","RVK_LivePeople"},{"RVK_LiveWild","RVK_LivePeople"},
+        {"RVK_LiveMachine","RVK_LivePeople"},{"RVK_LiveAtmos","RVK_LivePeople"},
+        {"RVK_GroundOn","RVK_TerraBlend"}, {"RVK_ImprovedTiles","RVK_TerraBlend"},
+        {"RVK_TerraRough","RVK_TerraBlend"}, {"RVK_HDGround","RVK_TerraBlend"}
+    };
+    for(const auto& group:groups)if(std::strcmp(info.name,group.first)==0)return group.second;
+    return info.parent;
 }
 
 std::vector<std::string> OptionSections()
@@ -1211,8 +1248,9 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_TerraBlend", "RVK_Enhance", "RVK_ModernTex", "RVK_GradeOn", "RVK_DayLook", "RVK_Aniso", "RVK_Taa",
-         "RVK_RenderScale", "RVK_PixelLight", "RVK_NormalMaps", "RVK_Pbr", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn"},
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery", "RVK_ImmersiveShips",
+           "RVK_BuildWear", "RVK_ZoneScreen", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
+         "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},
         {"RVK_WeatherMode", "RVK_WeatherAmt", "RVK_WeatherOn", "RVK_RainAmount", "RVK_RainBright", "RVK_RainWet",
          "RVK_WindStorm", "RVK_StrikeRate", "RVK_FogMode", "RVK_FogRange"}
@@ -1221,14 +1259,24 @@ std::vector<SettingRef> OptionSettings()
     if (g_optionSection < 3) {
         for (const char* name : quick[g_optionSection]) {
             SettingRef r{};
-            if (FindSetting(name, &r)) result.push_back(r);
+            if (FindSetting(name, &r) && !r.hidden) result.push_back(r);
         }
     } else {
         const auto sections = OptionSections();
         for (const SettingRef& r : AllSettings())
-            if (!r.hidden && sections[size_t(g_optionSection)] == r.info.section) result.push_back(r);
+            if (!r.hidden && !OptionParent(r.info) && sections[size_t(g_optionSection)] == r.info.section) result.push_back(r);
     }
-    return result;
+    const auto all = AllSettings();
+    std::vector<SettingRef> visible;
+    auto append = [&](auto&& self, const SettingRef& parent, int depth) -> void {
+        visible.push_back(parent);
+        if (depth >= 8 || !g_optionExpanded.count(parent.info.name)) return;
+        for (const auto& child : all)
+            if (!child.hidden && OptionParent(child.info) && std::strcmp(OptionParent(child.info),parent.info.name)==0)
+                self(self, child, depth + 1);
+    };
+    for (const auto& row : result) append(append,row,0);
+    return visible;
 }
 
 void OptionKey(const Event& e)
@@ -1252,11 +1300,16 @@ void OptionKey(const Event& e)
         const int direction = e.code == VK_LEFT ? -1 : 1;
         if (extra && g_optionRow == 0) {
             const int presets = int(rvk_settings::PresetCount());
-            if (e.code == VK_RETURN) rvk_settings::PresetApply(uint32_t(g_optionPreset));
-            else if (e.code != VK_BACK) g_optionPreset = (g_optionPreset + direction + presets) % presets;
+            if (e.code == VK_RETURN && g_optionPreset>=0) rvk_settings::PresetApply(uint32_t(g_optionPreset));
+            else if (e.code != VK_BACK && e.code != VK_RETURN)
+                g_optionPreset = g_optionPreset<0 ? (direction>0 ? 0:presets-1) : (g_optionPreset + direction + presets) % presets;
             return;
         }
         const auto& s = settings[size_t(g_optionRow - extra)].info;
+        if (e.code == VK_RETURN) {
+            if (!g_optionExpanded.erase(s.name)) g_optionExpanded.insert(s.name);
+            return;
+        }
         float value = s.value;
         if (e.code == VK_BACK) value = s.defaultValue;
         else if (std::strcmp(s.name,"RVK_TerraBlend")==0) value=std::clamp(std::round(s.value)+direction,0.0f,2.0f);
@@ -1272,6 +1325,7 @@ void OptionKey(const Event& e)
             }
         } else if (s.type != 4) value += direction * std::max(s.step, 0.01f) * (e.shift ? 10.0f : 1.0f);
         rvk_settings::Set(s.name, value);
+        g_optionPreset=rvk_settings::PresetCurrent();
     }
 }
 
@@ -1358,7 +1412,7 @@ void DrawOptions(uint32_t w, uint32_t h)
     Fill(left, 0, right, 4, 0.44f, 0.77f, 0.82f, 1);
     Text(left + pad, ch, "AO-VK options", cValue, cols);
     Text(left + pad, 3 * ch, "Tab: next category  Shift+Tab: previous  Esc: close", cText, cols);
-    Text(left + pad, 4 * ch, "Up/Down: select  Left/Right: adjust  Backspace: default", cDim, cols);
+    Text(left + pad, 4 * ch, "Left/Right: adjust  Enter: expand details  Backspace: default", cDim, cols);
     const auto sections = OptionSections();
     const auto settings = OptionSettings();
     Text(left + pad, 6 * ch, sections[size_t(g_optionSection)] + "  (" +
@@ -1373,12 +1427,29 @@ void DrawOptions(uint32_t w, uint32_t h)
         std::string label, value;
         if (extra && row == 0) {
             label = "Graphics preset (Enter to apply)";
-            value = rvk_settings::PresetName(uint32_t(g_optionPreset));
+            value = g_optionPreset<0 ? "Custom" : rvk_settings::PresetName(uint32_t(g_optionPreset));
         } else {
             const auto& r = settings[size_t(row - extra)];
             label = g_optionSection<3 ? r.info.label : std::string(r.shortName) + "  " + r.info.label;
+            if (g_optionSection<3) {
+                const std::pair<const char*,const char*> labels[]={
+                    {"RVK_Enhance","Graphics enhancements"},{"RVK_ModernTex","Texture library"},
+                    {"RVK_ImmersiveShips","Immersive ships"},
+                    {"RVK_WindowDepth","Window interiors"},{"RVK_BuildWear","Building weathering"},
+                    {"RVK_RenderScale","Render scale"},{"RVK_Taa","Temporal anti-aliasing"},
+                    {"RVK_TerrainHD","Terrain materials"},{"RVK_BuildingHD","Building materials"},
+                    {"RVK_Albedo","HD replacement textures"},{"RVK_NormalMaps","Normal maps"},
+                    {"RVK_Pbr","Material reflections"},{"RVK_AoOn","Ambient occlusion"},
+                    {"RVK_GradeOn","Color grading"},{"RVK_WaterOn","Water"},{"RVK_WeatherOn","Weather"}
+                };
+                for(const auto& entry:labels)if(std::strcmp(r.info.name,entry.first)==0){label=entry.second;break;}
+            }
             if (std::strcmp(r.info.name,"RVK_TerraBlend")==0) label="Terrain mode";
             if (std::strcmp(r.info.name,"RVK_WeatherMode")==0) label="Weather";
+            bool children = false;
+            for (const auto& child : AllSettings())
+                if (!child.hidden && OptionParent(child.info) && std::strcmp(OptionParent(child.info),r.info.name)==0) children=true;
+            label = (OptionParent(r.info) ? "    " : "") + std::string(children ? (g_optionExpanded.count(r.info.name) ? "[-] " : "[+] ") : "    ") + label;
             value = FormatValue(r.info, r.info.value);
         }
         Text(left + pad, y, label, row == g_optionRow ? cName : cText, std::max(1, (valueX - left - pad) / cw - 2));
@@ -1543,11 +1614,11 @@ void HudFrame(rvk::ThreadedDevice* device)
         else std::snprintf(out, size, "%-6s     - ms", name);
     };
     char lines[6][48];
-    std::snprintf(lines[0], sizeof(lines[0]), "%4.0f fps  %5.2f ms", fps, fps > 0.0 ? 1000.0 / fps : 0.0);
+    std::snprintf(lines[0], sizeof(lines[0]), shownFps>0.0?"%4.0f rendered fps  %5.2f ms":"%4.0f fps  %5.2f ms", fps, fps > 0.0 ? 1000.0 / fps : 0.0);
     ms(lines[1], sizeof(lines[1]), "game", game);
     ms(lines[2], sizeof(lines[2]), "render", t.renderMs > 0.0f ? render : 0.0f);
-    ms(lines[3], sizeof(lines[3]), "GPU", t.gpuMs);
-    if (t.gpuMs > 0.0f && fps > 0.0) {           // (its share of the time: busy ms a second)
+    ms(lines[3], sizeof(lines[3]), shownFps>0.0?"scene GPU":"GPU", t.gpuMs);
+    if (shownFps<=0.0 && t.gpuMs > 0.0f && fps > 0.0) { // scene duty cycle; SDK interpolation is not timed here
         const size_t at = std::strlen(lines[3]);
         std::snprintf(lines[3] + at, sizeof(lines[3]) - at, " %3.0f%%", std::min(100.0, t.gpuMs * fps / 10.0));
     }

@@ -144,9 +144,21 @@ void Device::SkyKeyRatios(float out[4][3]) const
                                          {kSkyBlueTop, kSkyBlueLow, kSkyBlueLow},
                                          {kSkyNightTop, kSkyNightLow, kSkyNightLow}};
     float top[3] = {}, sun[3] = {}, away[3] = {};
+    // Enhanced Daylights has its own daytime art direction: a pale blue vault
+    // and a bright neutral horizon. These are sky radiance keys, not a grade
+    // applied to world pixels. Dawn/night and storm palettes remain theirs.
+    const float sunny = EnhancedDaylight() * (1.0f - StormSky()) *
+                        (1.0f - .65f * Smoothstep(.5f,.95f,CloudCover()));
+    static const uint32_t kSunnyDay[3] = {0x8FADD1, 0xCBD6DF, 0xCBD6DF};
     for (int p = 0; p < 4; ++p) {
         float r[3][3];
         for (int j = 0; j < 3; ++j) KeyRatio(k[kKeys[p][j]], kSkyKeyRef[kKeys[p][j]], r[j]);
+        if (p == 0 && sunny > 0.0f)
+            for (int j = 0; j < 3; ++j) {
+                float day[3];
+                KeyRatio(kSunnyDay[j], kSkyKeyRef[kKeys[p][j]], day);
+                for (int c = 0; c < 3; ++c) r[j][c] += (day[c] - r[j][c]) * sunny;
+            }
         for (int c = 0; c < 3; ++c) {
             top[c] += w[p] * r[0][c];
             sun[c] += w[p] * r[1][c];
@@ -160,6 +172,23 @@ void Device::SkyKeyRatios(float out[4][3]) const
         out[2][c] = sun[c];
         out[3][c] = away[c];
     }
+    // The historic keys are gamma-coded while this renderer presents AO's
+    // API colours without an sRGB conversion. Fit the daytime radiance to
+    // measured atmosphere rows instead of hoping brighter keys give a bright
+    // sky. Readback has the previous keys divided out, so this does not feed
+    // the last frame's brightness back into itself. Atmospheric direction,
+    // cloud overlays and the sun halo remain in the table.
+    static const float kDayRadiance[4][3] = {
+        {.45f,.58f,.76f},{.60f,.70f,.84f},{.77f,.81f,.86f},{.66f,.74f,.84f}};
+    const float brightness=std::clamp(m_skyBright,.25f,4.f);
+    if(sunny>0.f)
+        for(int row=0;row<4;++row)
+            if(m_skyPhys[row][3]>.5f)
+                for(int c=0;c<3;++c) {
+                    float ratio=std::clamp(kDayRadiance[row][c]*brightness /
+                                          std::max(m_skyPhys[row][c],.005f),.05f,64.f);
+                    out[row][c]+=(ratio-out[row][c])*sunny;
+                }
 }
 
 // The sun's light through the air at a height (the sine of its elevation; atmos_common.glsl's air, the column over
@@ -334,6 +363,7 @@ void Device::UpdateAtmosphere(VkCommandBuffer cmd)
     // (By day only: the zone's colour is its day sky's - kept through the blue hour and night, its teal turned the
     // night sky a light cyan.)
     push.zone[3] = m_skyFogSet ? std::clamp(m_skyZone, 0.0f, 1.0f) * Smoothstep(-0.07f, 0.05f, h) : 0.0f;
+    push.zone[3] *= 1.0f - .95f * EnhancedDaylight() * (1.0f - StormSky());
     // Weather: an overcast greys it, a storm darker, in the storm's own colour (StormHue: its green).
     {
         const float cloudy = CloudCover();

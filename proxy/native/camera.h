@@ -10,5 +10,6 @@ void Install(HMODULE orig);
 // then by true distance - a round view range, not the game's flat back plane (distant land popped in and out as the
 // camera turned: user, 2026-10-18). The renderer's fog goes out with it (rvk Device::SetViewRange).
 void SetViewRange(float range);
+void SetSceneryRange(float range);
 
 }  // namespace rnative::camera

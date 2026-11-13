@@ -11,19 +11,22 @@ by hand; run the script after changing a setting (`--check` tells whether this f
   the console (the key left of 1) takes any setting by name, with or without `RVK_` (`darkness 1`, `bloom 0.5`).
 - `RVK_Enhance` off gives the game's own look: each setting takes its *game value* (below) while the stored values
   stay. A feature's on / off switch (its *switch* below) does the same for the settings under it.
-- Presets (Original, Classic+, Modern, Ultra) set every setting outside General; Modern is the defaults.
+- Presets preserve texture-library and HD-surface choices. Classic+ and Modern use Medium windows; Ultra uses Maximum.
+- Ctrl+Shift+F12 opens standalone options: important controls first; Enter expands related settings.
+- Living Rubi-Ka reads validated resources prepared inside the selected AO folder. New population and aircraft controls default Off; appearance variety defaults Normal.
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-353 settings, 183 of them in the settings window.
+363 settings, 192 of them in the settings window.
 
 ## Sections
 
-- [General](#general) (9)
+- [General](#general) (10)
 - [Lighting](#lighting) (17)
-- [Materials](#materials) (20)
-- [Debug](#debug) (7)
-- [Terrain](#terrain) (24)
+- [Day/Night Cycle](#day/night-cycle) (1)
+- [Materials](#materials) (26)
+- [Debug](#debug) (8)
+- [Terrain](#terrain) (25)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
 - [Weather](#weather) (49)
@@ -50,6 +53,10 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_AlienMap` | AI missions' PF map: rooms shown black on green (the game's is black on black) | on / off | on | window; knob |
 | `RVK_DetailRange` | How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws) | 1 .. 4 | 2 | window |
 | `RVK_ViewRange` | How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws) | 1 .. 3 | 1.5 | window; game value 1 |
+| `RVK_FarScenery` | Far Scenery: extend loaded buildings, trees, rocks and shrubs; move to refresh the game's scenery rings | on / off | off | Main/General; opt-in, preserved by presets |
+| `RVK_SceneryDist` | Far Scenery distance multiplier; buildings/trees up to 3x, rocks/shrubs up to 2x, capped within loaded areas | 1 .. 3 | 2.5 | child of Far Scenery |
+| `RVK_TerraRough` | Shared Ground+ surface bumps/grit: 0 smooth, 1 previous detail; normal-map and procedural aggregate strength, not matte/gloss response | 0 .. 1, step .05 | .6 | child of Terrain Mode; preserved by presets |
+| `RVK_ImmersiveShips` | Immersive Ships: brighter navigation markings and clearer distant hulls; loaded buildings/trees reach up to 15% farther (camera and N3 rings, small-object detail unchanged) | on / off | off | window; game value off; knob |
 
 ## Lighting
 
@@ -73,6 +80,12 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Aniso` | Texture filtering (anisotropic; 1 = off) | 1 / 2 / 4 / 8 / 16 | 16 | window; game value 1; was env `RANDYVK_ANISOTROPY` |
 | `RVK_HillShade` | The terrain's shade from a low sun (valleys under mountains) | on / off | on | ini only; knob |
 
+## Day/Night Cycle
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_DayCycle` | Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+
 ## Materials
 
 | Setting | What it does | Values | Default | Notes |
@@ -91,8 +104,14 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PbrProbe` | PBR materials: environment probe | 0 .. 1 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_PbrGlow` | PBR materials: emissive map brightness | 0 .. 8 | 1 | ini only; switch `RVK_Pbr` |
 | `RVK_ModernTex` | World texture style: Original / AnarchyHD | 0 / 2 | 0 | window; game value 0 |
+| `RVK_ICCArtwork` | World surface artwork: AnarchyHD / Enhanced Original | 0 / 1 | 0 | window; switch `RVK_ModernTex`; knob |
+| `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 0.5 | window; switch `RVK_ModernTex`; knob |
+| `RVK_GlobalShiny` | Global Shiny | 0 .. 1 | 0.5 | window; game value 1; knob |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
-| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (enhanced terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |
+| `RVK_WindowActivity` | Window lights: slow apartment activity (off uses static light states) | on / off | on | window; switch `RVK_WindowDepth`; game value on; knob |
+| `RVK_BuildWear` | Building Weathering: Off / Low / Medium / High | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
 | `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |
 | `RVK_MatStrength` | Character & equipment materials: material response strength | 0 .. 1 | 1 | window; switch `RVK_AutoMat`; knob |
@@ -103,10 +122,11 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_PbrDebug` | PBR materials: debug view (Ctrl+Shift+K) | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 | 0 | ini only; switch `RVK_Pbr` |
+| `RVK_WearDebug` | Building weathering diagnostics: Off / Counters / Pixel coverage | 0 / 1 / 2 | 0 | ini only; game value 0; knob |
 | `RVK_ShadowView` | Debug: show the sun shadow map's light (white lit, dark shadowed; tint = cascade) | on / off | off | ini only; knob |
 | `RVK_SceneProf` | Debug: the scene's GPU time and overdraw by kind of draw in the gpu ms log (costs a little; console sceneprof 1) | on / off | off | ini only; knob; was env `RANDYVK_SCENE_PROFILE` |
 | `RVK_Occlusion` | The game's culling of what hills hide (off: all in view drawn - whole shadows, more draws) | on / off | on | ini only |
-| `RVK_TimeOfDay` | Testing: the game's time of day set to this hour (-1: the game's own; a day is 27 h) | -1 .. 27 | -1 | ini only |
+| `RVK_TimeOfDay` | Manual time override (-1: server/cycle clock; a day is 27 h) | -1 .. 27 | -1 | ini only |
 | `RVK_TimeSpeed` | Testing: how fast the time of day runs, x the game's (0 still; 1 and the hour -1: the game's own) | 0 .. 500 | 1 | ini only |
 | `RVK_HeapCheck` | Testing: the heap checked for corruption at points, the first broken one logged (0 off, 1 round the grass and each frame, 2 also round every object's grass cover - slow) | 0 .. 2 | 0 | ini only |
 
@@ -117,6 +137,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_TerrainFar` | Distant terrain: broad rock/soil variation and slope definition | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_GroundOn` | Enhanced ground renderer (overrides Shared Ground and Shared Ground+) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
+| `RVK_ImprovedTiles` | Improved Tiles (ICC artwork; off uses Shared Ground+ terrain) | on / off | on | window; game value on; knob |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |
 | `RVK_GroundAo` | Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none) | 0 .. 1 | 0.6 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_GroundSun` | Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |
@@ -285,7 +306,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `RVK_CloudsOn` | Volumetric clouds | on / off | on | window; game value off |
+| `RVK_CloudsOn` | Volumetric clouds | on / off | off | window; game value off |
 | `RVK_CloudThick` | Clouds: how thick | 0.1 .. 4 | 1 | ini only; switch `RVK_CloudsOn` |
 | `RVK_CloudBright` | Clouds: how light | 0.25 .. 3 | 0.5 | ini only; switch `RVK_CloudsOn` |
 | `RVK_CloudNight` | Clouds: how light at night (x the above) | 0.25 .. 2 | 0.4 | ini only; switch `RVK_CloudsOn` |
@@ -434,7 +455,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Taa` | Temporal anti-aliasing | on / off | on | window; game value off |
 | `RVK_Sharpen` | Temporal anti-aliasing: sharpening (0 = none) | 0 .. 1 | 0.4 | window; switch `RVK_Taa` |
 | `RVK_RenderScale` | Render scale: the 3D world drawn at this % of the screen's size, the TAA bringing it up to full size (lower is faster) | 100 / 85 / 75 / 67 / 50 | 100 | window; switch `RVK_Taa`; game value 100 |
-| `RVK_FrameGen` | Frame generation (AMD FSR 3.1): a frame interpolated between each two - about twice the frames shown, a little more latency | on / off | off | window; switch `RVK_Taa` |
+| `RVK_FrameGen` | Experimental frame generation (AMD FSR 3.1): adds intermediate frames; may add latency | on / off | off | window; switch `RVK_Taa` |
 | `RVK_Upscaler` | Upscaler for the render scale (0: ao-vk's own TAA, 1: AMD FSR 2.2, 2: AMD FSR 3.1) | 0 / 1 / 2 | 0 | window; switch `RVK_Taa` |
 | `RVK_Fxaa` | FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer) | on / off | off | window; game value off; knob |
 

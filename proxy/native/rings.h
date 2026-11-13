@@ -10,5 +10,11 @@ void Install();
 // game's. Each kept within the zones N3 keeps loaded.
 // Taken up when the rings are next measured: when the game's camera moves onto another tile.
 void SetScale(float scale);
+// Large scenery's outer rings only, at most 15% farther, inside loaded zones.
+void SetSceneryScale(float scale);
+// Optional far scenery: up to 3x outer rings and 2x small-object rings.
+void SetFarScale(float scale);
+// Fill more of the already loaded outer object groups; never expand loading.
+void SetFullness(float amount);
 
 }  // namespace rnative::rings

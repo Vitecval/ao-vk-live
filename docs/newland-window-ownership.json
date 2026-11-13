@@ -1,0 +1,190 @@
+{
+  "family": {
+    "id": 5,
+    "key": "neutral-midtech",
+    "name": "Newland and neutral mid-tech buildings, shops, subway and doors"
+  },
+  "materials": [
+    6052,
+    6055,
+    6081
+  ],
+  "dependent_models": [
+    {
+      "mesh_id": 1414,
+      "name": "midtech_building2.abiff",
+      "textures": [
+        5969,
+        6014,
+        6050,
+        6051,
+        6052,
+        6054,
+        6056,
+        6057,
+        6061,
+        6062,
+        6066,
+        6081,
+        6082,
+        6094,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 1415,
+      "name": "midtech_building1.abiff",
+      "textures": [
+        6014,
+        6050,
+        6051,
+        6054,
+        6055,
+        6056,
+        6061,
+        6062,
+        6066,
+        6084,
+        6085,
+        6094,
+        6096,
+        6098,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 1416,
+      "name": "midtech_building3.abiff",
+      "textures": [
+        5969,
+        6014,
+        6050,
+        6051,
+        6053,
+        6055,
+        6056,
+        6059,
+        6062,
+        6084,
+        6094,
+        6095,
+        6096,
+        6097,
+        6098,
+        26712,
+        156808
+      ]
+    },
+    {
+      "mesh_id": 1417,
+      "name": "midtech_building4.abiff",
+      "textures": [
+        6014,
+        6050,
+        6051,
+        6052,
+        6054,
+        6056,
+        6061,
+        6062,
+        6066,
+        6071,
+        6081,
+        6082,
+        6083,
+        6087,
+        6094,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 1418,
+      "name": "midtech_building5.abiff",
+      "textures": [
+        6014,
+        6050,
+        6051,
+        6052,
+        6053,
+        6054,
+        6055,
+        6056,
+        6057,
+        6058,
+        6059,
+        6060,
+        6061,
+        6062,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 1419,
+      "name": "midtech_building6.abiff",
+      "textures": [
+        6014,
+        6050,
+        6051,
+        6052,
+        6054,
+        6061,
+        6062,
+        6069,
+        6071,
+        6081,
+        6082,
+        6083,
+        6084,
+        6085,
+        6086,
+        6087,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 1420,
+      "name": "midtech_building7.abiff",
+      "textures": [
+        6014,
+        6050,
+        6051,
+        6052,
+        6054,
+        6057,
+        6058,
+        6059,
+        6062,
+        6066,
+        26712
+      ]
+    },
+    {
+      "mesh_id": 99653,
+      "name": "midtech_simpleblock3.abiff",
+      "textures": [
+        6052,
+        6057,
+        6090,
+        6093,
+        18556,
+        20909,
+        29597,
+        85933,
+        99648
+      ]
+    }
+  ],
+  "playfields": [
+    566,
+    567
+  ],
+  "not_model_placement_evidence": true,
+  "excluded": {
+    "6086": "Narrow inset may be a functional panel, insufficient evidence for a room",
+    "6095": "Transfer / pipes, not a verified pane",
+    "6134": "Blinds and mullions cover the opening; no per-slat protection mask",
+    "99647": "Very small inset; ambiguous room versus panel",
+    "all_other_ids": "No reviewed pane layout; including every shared and retained functional identity"
+  },
+  "art_requirement": "Selected ao-cyber-world HD albedo. Original/Lite materials are excluded until their exact pane masks are reviewed."
+}

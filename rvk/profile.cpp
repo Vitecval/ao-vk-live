@@ -3,10 +3,12 @@
 // interval is named by the mark that ends it. Results are read when the frame slot comes round again (its fence
 // waited), so they never stall.
 #include "internal.h"
+#include "render_budget.h"
 
 #include <algorithm>
 #include <chrono>
 #include <cstring>
+#include <cstdlib>
 
 namespace rvk {
 
@@ -48,6 +50,7 @@ bool Device::CreateProfiler(std::string* error)
     Log("profiling: a clock read costs %.0f ns", m_timerCost * 1e6);
     VkQueryPoolCreateInfo qi{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO};
     qi.queryType = VK_QUERY_TYPE_TIMESTAMP;
+    m_livingGpuProfile=false; // Population profiling belongs to the separate add-on.
     qi.queryCount = kProfileMarks + 2;          // (the last two: the clouds' own pass, ProfileFrame::cloudsTimed)
     for (ProfileFrame& p : m_profile)
         if (!Check(vkCreateQueryPool(m_device, &qi, nullptr, &p.pool), "timestamp query pool", error))
@@ -91,8 +94,7 @@ void Device::ProfileBeginFrame(VkCommandBuffer cmd)
                 ProfileAdd(m_profileGpu, p.names[i], ms);
                 // (The smoke's budget: what its steps really took against what they were thought to - smoke.cpp.)
                 if (m_smokeEstimate[m_frameIndex] > 0.05 && std::strcmp(p.names[i], "smoke simulation") == 0)
-                    m_smokeCostScale = std::clamp(0.9f * m_smokeCostScale +
-                                                  0.1f * float(ms / m_smokeEstimate[m_frameIndex]), 0.1f, 5.0f);
+                    m_smokeCostScale = budget::SmokeScale(m_smokeCostScale,ms,m_smokeEstimate[m_frameIndex]);
             }
             const double total = double(t[p.count - 1] - t[0]) * m_timestampPeriod * 1e-6;
             ProfileAdd(m_profileGpu, "total", total);
@@ -109,6 +111,13 @@ void Device::ProfileBeginFrame(VkCommandBuffer cmd)
             }
         }
     }
+    if(p.livingSkinCount){
+        uint64_t t[kLivingSkinQueries];if(vkGetQueryPoolResults(m_device,p.pool,kProfileMarks+2,p.livingSkinCount,sizeof(t),t,sizeof(uint64_t),VK_QUERY_RESULT_64_BIT)==VK_SUCCESS){
+            double ms=0;for(uint32_t i=0;i<p.livingSkinCount;i+=2)ms+=double(t[i+1]-t[i])*m_timestampPeriod*1e-6;
+            ProfileAdd(m_profileGpu,"living skin kernels",ms);
+        }
+    }
+    p.livingSkinCount=0;
     p.count = 0;
     p.cloudsTimed = false;
     m_smokeEstimate[m_frameIndex] = 0.0;
@@ -272,6 +281,7 @@ void Device::ProfileLog(const char* label)
         Log("%s%s (avg of %u frames)", label, out.c_str(), m_profileFrames);
         sums.clear();
     };
+    for(const auto& x:m_profileGpu)if(std::strcmp(x.first,"living skin kernels")==0)Log("%sliving GPU skin kernels: %.4f ms per frame (upload command buffer; separate from main GPU total)",label,x.second/double(m_profileFrames));
     line("gpu ms:", m_profileGpu);
     ProfileAdd(m_profileCpu, "render thread idle", m_profileIdleMs);
     ProfileAdd(m_profileCpu, "game thread in rvk (submit)", m_profileCallerMs);

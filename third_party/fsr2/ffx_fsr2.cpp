@@ -456,6 +456,7 @@ static FfxErrorCode fsr2Create(FfxFsr2Context_Private* context, const FfxFsr2Con
     // Create the device.
     FfxErrorCode errorCode = context->contextDescription.callbacks.fpCreateBackendContext(&context->contextDescription.callbacks, context->device);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
+    context->backendContextCreated = true;
 
     // call out for device caps.
     errorCode = context->contextDescription.callbacks.fpGetDeviceCapabilities(&context->contextDescription.callbacks, &context->deviceCapabilities, context->device);
@@ -625,6 +626,8 @@ static void fsr2SafeReleaseDevice(FfxFsr2Context_Private* context, FfxDevice* de
 static FfxErrorCode fsr2Release(FfxFsr2Context_Private* context)
 {
     FFX_ASSERT(context);
+    if (!context->backendContextCreated) return FFX_OK;
+    context->backendContextCreated = false;
 
     fsr2SafeReleasePipeline(context, &context->pipelineDepthClip);
     fsr2SafeReleasePipeline(context, &context->pipelineReconstructPreviousDepth);
@@ -1057,9 +1060,6 @@ static FfxErrorCode fsr2Dispatch(FfxFsr2Context_Private* context, const FfxFsr2D
 
 FfxErrorCode ffxFsr2ContextCreate(FfxFsr2Context* context, const FfxFsr2ContextDescription* contextDescription)
 {
-    // zero context memory
-    memset(context, 0, sizeof(FfxFsr2Context));
-
     // check pointers are valid.
     FFX_RETURN_ON_ERROR(
         context,
@@ -1067,6 +1067,8 @@ FfxErrorCode ffxFsr2ContextCreate(FfxFsr2Context* context, const FfxFsr2ContextD
     FFX_RETURN_ON_ERROR(
         contextDescription,
         FFX_ERROR_INVALID_POINTER);
+
+    memset(context, 0, sizeof(FfxFsr2Context));
 
     // validate that all callbacks are set for the interface
     FFX_RETURN_ON_ERROR(contextDescription->callbacks.fpGetDeviceCapabilities, FFX_ERROR_INCOMPLETE_INTERFACE);
@@ -1085,6 +1087,8 @@ FfxErrorCode ffxFsr2ContextCreate(FfxFsr2Context* context, const FfxFsr2ContextD
     // create the context.
     FfxFsr2Context_Private* contextPrivate = (FfxFsr2Context_Private*)(context);
     const FfxErrorCode errorCode = fsr2Create(contextPrivate, contextDescription);
+    if (errorCode != FFX_OK && contextPrivate->backendContextCreated)
+        fsr2Release(contextPrivate);
 
     return errorCode;
 }

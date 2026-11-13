@@ -35,6 +35,10 @@ void ffxSafeReleaseCopyResource(FfxInterface* backendInterface, FfxResourceInter
 {
     FFX_ASSERT(backendInterface->fpDestroyResource);
 
+    // A failed create leaves a null base; adding one would release another resource.
+    if (!resource.internalIndex)
+        return;
+
     FfxResourceInternal copyResource;
     copyResource.internalIndex = resource.internalIndex + 1;
     backendInterface->fpDestroyResource(backendInterface, copyResource, effectContextId);

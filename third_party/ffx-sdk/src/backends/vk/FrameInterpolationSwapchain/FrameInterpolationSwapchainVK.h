@@ -155,6 +155,12 @@ enum class FGSwapchainCompositionMode
     eComposeOnGameQueue      ///< legacy behavior
 };
 
+struct PreparedPresent
+{
+    uint32_t imageIndex;
+    uint64_t pacingDelta;
+};
+
 struct FrameinterpolationPresentInfo
 {
     VulkanCommandPool<3, 8> commandPool; // at most 3 families: game, asyncCompute, present
@@ -188,13 +194,25 @@ struct FrameinterpolationPresentInfo
     VkSemaphore presentSemaphore                                                             = VK_NULL_HANDLE;  // TODO: probably delete this one
     VkSemaphore replacementBufferSemaphore                                                   = VK_NULL_HANDLE;
     VkSemaphore compositionSemaphore                                                         = VK_NULL_HANDLE;
+    // AO-VK: finish queued image work before entering a potentially blocking WSI present.
+    VkFence presentReadyFence = VK_NULL_HANDLE;
+    VkResult presentReadyResult = VK_SUCCESS; // sticky failure; never reset/reuse a pending fence
+    VkResult (*queuePresentCallback)(VkQueue, const VkPresentInfoKHR*, void*) = nullptr;
+    void* queuePresentContext = nullptr;
+    bool serializePresentation = false;
+    bool deferPresentationWait = false;
+    alignas(8) std::atomic<uint64_t> pendingPresentation = 0;
+    alignas(8) std::atomic<uint64_t> completedPresentation = 0;
+    alignas(8) std::atomic<int64_t> completedPairQpc = 0;
+    double (*getCpuFrameMs)(void*) = nullptr;
+    void* cpuFrameContext = nullptr;
 
     uint64_t    lastPresentSemaphoreValue = 0;
 
     VkSemaphore acquireSemaphores[FFX_FRAME_INTERPOLATION_SWAP_CHAIN_MAX_ACQUIRE_SEMAPHORE_COUNT] = {};
     uint32_t    nextAcquireSemaphoreIndex                                                         = 0;
 
-    uint64_t realPresentCount = 0;
+    alignas(8) std::atomic<uint64_t> realPresentCount = 0;
 
     // using win32 threads to set the priorities
     HANDLE           presenterThreadHandle         = NULL;
@@ -239,6 +257,7 @@ public:  // vulkan functions reimplementation
     VkResult getSwapchainImages(VkDevice device, uint32_t* pSwapchainImageCount, VkImage* pSwapchainImages);
 
     VkResult queuePresent(VkQueue queue, const VkPresentInfoKHR* pPresentInfo);
+    VkResult waitForPresentation();
 
     void setHdrMetadata(VkDevice device, const VkHdrMetadataEXT* pMetadata);
 

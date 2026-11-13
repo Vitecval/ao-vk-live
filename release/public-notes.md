@@ -1,68 +1,31 @@
-# AO-VK Live Preview 16.1
+# AO-VK Live Preview 20 â€” Expanded HD Textures & Building Weathering
 
-An experimental Vulkan renderer for the **32-bit classic Anarchy Online live
-client (18.8.62_EP1)**. This unofficial community preview may contain bugs.
-New Engine and other client builds are not validated.
+Experimental preview for the classic Anarchy Online live client, Windows x86.
 
-## Changes
+Preview 20 expands the optional Full HD library with **866 verified original texture-ID bindings** from completed worker batches, including seven exact-original companion aliases. Architecture, industrial, natural, character and equipment artwork retain their original UV layout and alpha. All approved Preview 19 runtime maps are preserved. Full HD now has **7,318 unique repaint identities** and **22,903 runtime maps**.
 
-- Shared Ground+ reuses GroundOn's native terrain geometry, detailed cliffs,
-  exposed rock, boulders, pebbles and distant terrain/LOD path.
-- Corrects whole-surface terrain darkening by preserving authored paving colors
-  and applying classic AO's combined terrain material/lighting calculation.
-  Global exposure and brightness are unchanged. GroundOn remains a separate mode.
-- Disables added terrain, puddle and water ripple effects in Shared Ground+;
-  ordinary water rendering remains.
-- Corrects native terrain coverage that depended on the first retail chunk's
-  transparency, which could make the ground disappear as the camera turned.
-  Excludes Shadowlands Brink void-marker cells from native terrain, rocks and
-  pebbles. Controlled regressions pass; corrected live-zone verification remains
-  ongoing.
-- Retains renderer resource-ownership and cleanup fixes. Controlled terrain,
-  material loading, mode-switching and a 4,800-frame threaded sanitizer stress
-  test passed. This does not establish extended live-game stability or performance.
-- Full HD adds **621 texture replacements compared with Preview 15**. The current
-  full-quality database inventory contains **4,380 baked replacement IDs**, with
-  **35 fully covered recorded material families**. These are inventory counts;
-  style selection and deliberate original-art exclusions affect what is shown.
+**Building Weathering** is independently configurable under **Ctrl+Shift+F12 â†’ Materials**. Off is the default. Low adds light aging; Medium adds visible localized grime and runoff; High adds stronger material-specific oxidation and coating wear. The reviewed list covers 92 concrete, steel and painted architectural materials. Maintained modern architecture receives less aging. Unsupported materials retain their original appearance. Lite also supports weathering; two masked emissive ICC panels require the Full HD emission maps.
 
-Live-game visual verification, model fit and extended real-world stability testing
-remain ongoing. Controlled comparisons are not a claim of parity in every zone.
+**GroundOn and Shared Ground+** retain the production terrain geometry and fixes. Shared Ground+ preserves AO's original per-cell terrain colors, UVs and classic lighting. Existing grass, foliage, weather, water and shadows remain available.
 
-## Downloads
+## Choose an edition
 
-| Edition | Contents |
-| --- | --- |
-| **Lite** | Complete renderer and loader, embedded shaders/cliff/shared-terrain resources, core ground material maps and setup utilities; excludes the optional Full HD world/character replacement library. |
-| **Full HD** | The same renderer and core resources, plus the optional enhanced texture library. |
+- **Lite:** complete renderer, loader, embedded resources, core ground maps and Building Weathering.
+- **Full HD:** the same renderer and loader, plus the optional replacement library and its normal/ORM companions.
 
-Download one Windows x86 ZIP and `SHA256SUMS.txt`. No compiler, Python or Vulkan
-SDK is required to play. A compatible Vulkan 1.3 GPU/driver is required; testing
-has used an RTX 2070 Super. No game DLLs are distributed.
+## Install or update
 
-## Install, update or uninstall
+1. Download one edition and verify its ZIP against `SHA256SUMS.txt`.
+2. Extract the entire ZIP. Close clients and launchers that use the selected installation.
+3. Run **Install.cmd**, or **Update.cmd** for an existing AO-VK installation, and select the game folder. Keep a verified preservation backup before replacing an experimental build.
+4. Start AO normally. Use **Primary Display Driver** in the classic client's graphics configuration.
+5. Open **Ctrl+Shift+F12**. Choose **World texture style â†’ AnarchyHD** for Full HD artwork and enable **Character & equipment materials** for that library. For Shared Ground+, choose it under Materials and leave the separate GroundOn override off.
+6. Compare Building Weathering Off/Low/Medium/High from the same camera and lighting. No game client is started or closed by this release-preparation task.
 
-1. Extract the **entire ZIP**. Close AO and its launcher.
-2. Run **Install.cmd**, select the supported AO installation folder, and install.
-3. Start AO through the normal launcher and select **Primary Display Driver** in
-   AO's graphics configuration.
-4. Open **Ctrl+Shift+F12** for renderer settings. Select **Shared Ground+** to test
-   native terrain with classic lighting. In Full HD, select the desired Materials
-   texture style to use its optional replacements.
+The transactional installer verifies its payload and preserves original game DLLs, settings and personal packs. It refuses unknown wrappers. Keep `randy31.dll` intact. **Uninstall.cmd** removes owned addon files while preserving game and personal files.
 
-For an existing AO-VK Live installation, extract the desired edition and run
-**Update.cmd** against the same AO folder. This also switches editions. Run
-**Uninstall.cmd** from an extracted package to remove owned addon files.
-Original AO files and saved preferences are preserved; modified/unrecognized
-files cause setup to refuse the operation. Personal packs are preserved. Do not
-replace `randy31.dll` manually. Existing wrappers sharing `ddraw.dll` must be
-removed through their own supported workflow before installation.
+## Known limitations
 
-If Windows denies access, close setup and run the relevant `.cmd` file as
-administrator. Setup does not request elevation automatically.
+This is an experimental preview. Coverage is an inventory of database texture identities, not the percentage of the visible world upgraded. Some faithful runtime exports are below 2K. Only reviewed materials weather; signs, glass, terrain, characters and protected emissive regions are excluded. Offline matched Vulkan comparisons and GPU timings do not certify every live city, moving model, lighting condition, extended session or gameplay FPS. Final in-game evaluation remains pending. Held and conflicting families keep their previous approved or original artwork.
 
-Verify each downloaded ZIP with `Get-FileHash -Algorithm SHA256` and compare its
-result with the matching entry in `SHA256SUMS.txt` before installation.
-
-Based on [wannabuh's AO-VK](https://github.com/wannabuh/ao-vk). MIT license and
-third-party attribution are included. Not affiliated with Funcom.
+[Project page](https://asyncstuff.com/plugins/ao-vk/) Â· [Bug reports](https://github.com/Vitecval/ao-vk-live/issues)

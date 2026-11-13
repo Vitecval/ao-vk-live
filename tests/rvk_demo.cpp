@@ -8,7 +8,11 @@
 #include "threaded.h"
 #include "material_maps.h"
 #include "material_profiles.h"
+#include "terrain_materials.h"
 #include "grass_coverage.h"
+#include "mesh_id.h"
+#include "sky_styles.h"
+#include <cstddef>
 
 #include <chrono>
 #include <thread>
@@ -17,12 +21,15 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <filesystem>
 
 using namespace rvk;
 using namespace rvk::d3d;
 
 namespace {
 
+bool g_nativeResidencyCheck=false;
 constexpr uint32_t kTile = 320, kCols = 3, kRows = 3;
 uint32_t g_width = kTile * kCols, g_height = kTile * kRows;   // --size W H (benchmarks at a game's resolution)
 constexpr float kPi = 3.14159265f;
@@ -914,6 +921,7 @@ bool g_pbrRoom = false;       // --pbr-room: unlit coloured walls around (red le
 // --pbr-maps DIR: the side-loaded files, through the proxy's loader (rvk/material_maps.h): the floor gets
 // floor_n.png, floor_h.png, floor_ao.png / floor_r.png / floor_m.png (separate) and floor_d.png; the bottom row's middle ball
 // ball_n.png and ball_orm.png (packed). Missing files are skipped.
+bool g_iccFloorTest=false;
 std::string g_pbrMaps;
 bool g_pbrSelfLit = false;          // --pbr-selflit: the emissive map's ball drawn with an emissive (self-lit) material
 extern float g_sunDir[3];               // (--sun-dir, below: also the PBR scene's sun - from under the ground, night)
@@ -926,7 +934,9 @@ bool g_worldMaterialsTest = false;
 bool g_mineralMaterialsTest = false;
 bool g_sharedMapsTest = false;
 int g_buildingFamilyTest = -1;
+bool g_materialCacheTest=false;
 bool g_materialPublicationTest = false;
+std::string g_materialList;
 bool g_sharedMapsDump = false;
 float g_worldTerrainHD = 0.0f, g_worldBuildingHD = 0.0f;
 float g_materialStrength = 1.0f;
@@ -1010,7 +1020,7 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
     // Keep an authored map present in both cases: omitting it changes the
     // shared-detail route and would test two different material configurations.
     if (originalAlbedo) maps::MakeAlbedoChain(*originalAlbedo,&d.albedo);
-    maps::Attach(dev, tex, d);
+    if(g_nativeResidencyCheck)maps::Replace(dev,tex,d);else maps::Attach(dev,tex,d);
     QueryPerformanceCounter(&t1);
     std::printf("pbr maps: %s: orm from %s, albedo %s, emissive %s (%.1f ms)%s%s\n", stem.c_str(),
                 d.ormFrom.empty() ? "(none)" : d.ormFrom.c_str(), d.albedo.Empty() ? "no" : "yes",
@@ -1019,9 +1029,383 @@ void AttachFileMaps(D& dev, Texture* tex, const std::string& stem, const maps::I
                 d.errors.c_str());
 }
 
+int g_visualCase=-1, g_visualToggle=0;
+float g_dayCycle=0.f, g_globalShiny=.5f, g_terrainRoughness=.6f;
+float g_areaLight=0.f,g_farDetail=0.f,g_hdGround=0.f;
+float g_cliffJoin=1.f;
+uint32_t g_areaZone=655;
+bool g_softSky=false;
+bool g_terrainSideView=false;
+extern bool g_profileWindow;
+float g_ambientDensity=0.f;
+float g_ambientBrightness=1.f;
+int g_ambientStyle=0;
+int g_ambientFixture=0;
+void AddCube(std::vector<VtxMesh>&, std::vector<uint16_t>&, float, float, float, float);
+template <typename D>
+void RunSunnyDayScene(D& dev, int frames, const std::string& shot)
+{
+    // The owner's ICC capture: ambient 0x7e, grey .55 sun, AO strength 2.
+    // The older low-ambient fixture did not exercise this common retail case.
+    const bool huge = g_visualCase == 15;
+    dev.SetKnob(Knob::SkipHugeShadows,(g_visualToggle&4) ? 1.f:0.f);
+    if(huge)dev.SetShadows(true);
+    const bool icc = g_visualCase == 13 || g_visualCase == 14;
+    const bool night = g_visualCase == 8 || g_visualCase == 14;
+    const bool skyOnly = g_visualCase == 9;
+    dev.SetSkyPlayfield(g_areaZone);
+    dev.SetKnob(Knob::DayCycle,(g_visualToggle&1) ? 2.f:0.f);
+    dev.SetKnob(Knob::DayLook,0);
+    dev.SetHdr(true);dev.SetTonemap(1,1);dev.SetBloom(0,1);dev.SetDarkness(0,0);
+    dev.SetPixelLighting(true);dev.SetLightOverride(false);
+    if(icc)dev.SetAo((g_visualToggle&2) ? 0.f:2.f,1.f);
+    dev.SetProcSky(true,.25f,1.f);
+    dev.SetKnob(Knob::SkyStyle,g_softSky ? 1.f:0.f);
+    dev.SetKnob(Knob::MoonLight,0);
+    NightSky nightSky;nightSky.stars=false;nightSky.galaxy=nightSky.meteors=nightSky.aurora=0;
+    if(g_softSky){nightSky.stars=true;nightSky.bright=1.45f;nightSky.twinkle=.18f;nightSky.galaxy=.5f;}
+    dev.SetNightSky(nightSky);
+    SkyColours keys;keys.keys[kSkyDayTop]=0x2E6E78;keys.keys[kSkyDayLow]=0x8CC8C0;
+    if(g_softSky)for(unsigned i=0;i<kSkyKeyCount;++i)keys.keys[i]=kSoftSky[i];
+    dev.SetSkyColours(keys);
+    auto pixels=Checker(128,16,0xFF989289,0xFF8F8980);
+    Texture* ground=dev.CreateTexture(128,128,pixels.data());
+    std::vector<VtxMesh> dome,boxes;std::vector<uint16_t> di,bi;
+    for(int i=0;i<=8;++i)for(int j=0;j<=16;++j) {
+        float el=(float(i)/8-.5f)*kPi,az=float(j)/16*2*kPi;
+        float x=std::cos(el)*std::cos(az),y=std::sin(el),z=std::cos(el)*std::sin(az);
+        dome.push_back({x*500,y*500,z*500,-x,-y,-z,0xFFFFFFFF,0,0});
+    }
+    for(int i=0;i<8;++i)for(int j=0;j<16;++j) {
+        uint16_t a=uint16_t(i*17+j),b=uint16_t(a+17);
+        di.insert(di.end(),{a,b,uint16_t(a+1),uint16_t(a+1),b,uint16_t(b+1)});
+    }
+    AddCube(boxes,bi,-3,2,5,2);AddCube(boxes,bi,3,3,10,3);
+    const VtxMesh floor[]={
+        {-50,0,-20,0,1,0,0xFFFFFFFF,0,0},{-50,0,100,0,1,0,0xFFFFFFFF,0,20},
+        {50,0,-20,0,1,0,0xFFFFFFFF,20,0},{50,0,100,0,1,0,0xFFFFFFFF,20,20}};
+    std::vector<VtxMesh> giant;std::vector<uint16_t> gi;
+    if(huge)AddCube(giant,gi,0,25,0,25);
+    const Vector eye=huge ? Vector{0,12,-35}:Vector{0,3,-9};
+    Material mat{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
+    for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
+        if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
+        dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
+        dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+        dev.SetTransform(World,Identity());
+        dev.SetTransform(View,LookAtLH(eye,skyOnly ? Vector{0,12,8}:Vector{0,2,8},{0,1,0}));
+        dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,1000));
+        dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
+        dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
+        dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENT,night ? 0xFF101218:icc ? 0xFF7E7E7E:0xFF282828);
+        dev.SetRenderState(RS_FOGCOLOR,0xFF879F75);dev.SetRenderState(RS_FOGENABLE,0);
+        Light sun{};sun.type=LIGHT_DIRECTIONAL;
+        sun.direction={-.55f,night ? .7f:-.7f,.45f};sun.diffuse={.50f,.47f,.39f,1};
+        if(icc && !night){sun.direction={.70f,-.71f,.04f};sun.diffuse={.55f,.55f,.55f,1};}
+        dev.SetLight(0,sun);dev.LightEnable(0,true);
+        // Establish outdoor context once, then look up for many frames. The
+        // profile must not disappear merely because no terrain is in view.
+        if(frame==0)dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"outdoor-context");
+        dev.SetDrawVisual(uint32_t(VisualKind::Sky),"GenericMeshObject_t");
+        dev.SetTransform(World,Translate(eye.x,eye.y,eye.z));dev.SetMaterial(mat);
+        dev.SetRenderState(RS_ZWRITEENABLE,0);dev.SetTexture(0,nullptr);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+        dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+        dev.SetTextureStageState(0,TSS_ALPHAOP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_ALPHAARG1,TA_DIFFUSE);
+        dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+        dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,dome.data(),uint32_t(dome.size()),di.data(),uint32_t(di.size()));
+        dev.SetTransform(World,Identity());dev.SetRenderState(RS_ZWRITEENABLE,1);
+        if(!skyOnly) {
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"sunny-ground");
+            dev.SetTexture(0,ground);dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
+            dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,floor,4);
+            mat.diffuse=mat.ambient={.65f,.66f,.67f,1};dev.SetMaterial(mat);
+            dev.SetTexture(0,nullptr);dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"sunny-facades");
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,boxes.data(),uint32_t(boxes.size()),bi.data(),uint32_t(bi.size()));
+            mat.diffuse=mat.ambient={1,1,1,1};
+        }
+        if(huge) {
+            dev.SetTransform(World,Translate(35,0,15));
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"huge-building-fixture");
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,giant.data(),uint32_t(giant.size()),gi.data(),uint32_t(gi.size()));
+        }
+        dev.SetDrawVisual(0,nullptr);dev.EndFrame();
+    }
+    dev.DestroyTexture(ground);
+}
+// Turn-away regression: the only visible surface is terrain, which is not a
+// caster. Off-screen scenery must retain its shadow even after one observed frame.
+template <typename D>
+void RunShadowStability(D& dev,int frames,const std::string& shot) {
+    dev.SetSkyPlayfield(655); dev.SetHdr(true); dev.SetTonemap(1,1); dev.SetBloom(0,1);
+    dev.SetPixelLighting(true);dev.SetLightOverride(false);dev.SetShadows(true);
+    if(const char* range=std::getenv("AOVK_FIXTURE_SHADOW_RANGE"))dev.SetShadowParams(.65f,float(std::atof(range)),4);
+    dev.SetShadowMemory((g_visualToggle&256) ? 0u:1u);
+    dev.SetShadowResolution(2048,256);dev.SetKnob(Knob::SkipHugeShadows,(g_visualToggle&8) ? 1.f:0.f);
+    dev.SetKnob(Knob::SunSoft,0);dev.SetKnob(Knob::MoonLight,0);
+    auto pixels=Checker(64,8,0xFFB0B0B0,0xFFAAAAAA);
+    Texture* ground=dev.CreateTexture(64,64,pixels.data());
+    const uint32_t white=0xFFFFFFFF;Texture* lightmap=dev.CreateTexture(1,1,&white);
+    struct GroundVertex {float x,y,z,nx,ny,nz,u,v,u1,v1;};
+    const GroundVertex floor[]={ {-100,0,-100,0,1,0,0,0,0,0},{-100,0,100,0,1,0,0,8,0,1},
+        {100,0,-100,0,1,0,8,0,1,0},{100,0,100,0,1,0,8,8,1,1} };
+    std::vector<VtxMesh> building[2];std::vector<uint16_t> indices[2];
+    if(g_visualToggle&4) {
+        for(int part=0;part<2;++part) {
+            AddCube(building[part],indices[part],part ? 15.f:-15.f,15,0,15);
+            for(auto& v:building[part])v.y*=.4f;
+        }
+    } else AddCube(building[0],indices[0],-15,8,-15,8);
+    int gridSize=32;
+    if(const char* grid=std::getenv("AOVK_FIXTURE_SHADOW_GRID"))gridSize=std::clamp(std::atoi(grid),8,64);
+    std::vector<VtxMesh> gridCube;std::vector<uint16_t> gridIndices;
+    if(g_visualToggle&2048)AddCube(gridCube,gridIndices,0,4,0,4);
+    for(int frame=0;frame<frames;++frame) {
+        if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("shadow-stability.txt");}
+        dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
+        dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+        const float yaw=(g_visualToggle&16) && frame!=frames-1 ? (frame%2 ? .7f:-.7f):0.f;
+        const float eyeZ=(g_visualToggle&64) && frame!=frames-1 ? -10+6*std::sin(float(frame)*.07f):-10.f;
+        const float eyeX=(g_visualToggle&8192)&&frame!=frames-1 ? 10.f*std::sin(float(frame)*.03f):0.f;
+        dev.SetTransform(View,LookAtLH({eyeX,7,eyeZ},{eyeX+std::sin(yaw)*15,0,-10+std::cos(yaw)*15},{0,1,0}));
+        dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,1000));
+        dev.SetTransform(World,Identity());
+        dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);dev.SetRenderState(RS_CULLMODE,CULL_NONE);
+        dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetRenderState(RS_AMBIENT,0xFF202020);dev.SetRenderState(RS_COLORVERTEX,0);
+        dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
+        Material material{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};dev.SetMaterial(material);
+        Light sun{};sun.type=LIGHT_DIRECTIONAL;sun.direction={.6f,-.7f,.6f};sun.diffuse={.8f,.8f,.8f,1};
+        dev.SetLight(0,sun);dev.LightEnable(0,true);
+        dev.SetTexture(0,ground);dev.SetTexture(1,lightmap);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+        dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);dev.SetTextureStageState(1,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(1,TSS_COLORARG2,TA_CURRENT);
+        dev.SetTextureStageState(1,TSS_TEXCOORDINDEX,1);
+        dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"shadow-stability-ground");
+        dev.DrawPrimitive(TriangleStrip,FVF_XYZ|FVF_NORMAL|(2<<8),floor,4);
+        dev.SetRenderState(RS_ALPHABLENDENABLE,1);dev.SetRenderState(RS_SRCBLEND,BLEND_ZERO);dev.SetRenderState(RS_DESTBLEND,BLEND_SRCCOLOR);
+        dev.SetRenderState(RS_ZFUNC,CMP_EQUAL);dev.SetTexture(0,lightmap);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_ADD);dev.SetTextureStageState(0,TSS_TEXCOORDINDEX,1);
+        dev.DrawPrimitive(TriangleStrip,FVF_XYZ|FVF_NORMAL|(2<<8),floor,4);
+        dev.SetTextureStageState(0,TSS_TEXCOORDINDEX,0);dev.SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);
+        dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetTexture(0,nullptr);dev.SetTexture(1,nullptr);dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+        dev.SetDrawVisual(uint32_t(VisualKind::Static),"shadow-stability-building",0,(g_visualToggle&4096)?0x4301u:0u);
+        if(g_visualToggle&512)dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,1.f,800));
+        // A second camera with the same lens must remain excluded; near/far
+        // changes in the same world view must keep their casters.
+        if(g_visualToggle&1024)dev.SetTransform(View,LookAtLH({100,7,-10},{100,0,5},{0,1,0}));
+        dev.SetTransform(World,(g_visualToggle&4) ? Translate(-30,0,-30):Identity());
+        if(g_visualToggle&4096)dev.SetTransform(World,RotateY(float(frame)*.02f));
+        bool omit=(g_visualToggle&1) ? frame>=1:(g_visualToggle&2) ? frame>=30:false;
+        for(int part=0;part<((g_visualToggle&4) ? 2:1);++part) {
+            if(g_visualToggle&32)continue;
+            if(omit && (!(g_visualToggle&4) || part==1))continue;
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,building[part].data(),uint32_t(building[part].size()),indices[part].data(),uint32_t(indices[part].size()));
+        }
+        if((g_visualToggle&2048)&&frame==0)for(int z=0;z<gridSize;++z)for(int x=0;x<gridSize;++x) {
+            dev.SetTransform(World,Translate(float(x-gridSize/2)*7,0,float(z-gridSize/2)*7));
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,gridCube.data(),uint32_t(gridCube.size()),gridIndices.data(),uint32_t(gridIndices.size()));
+        }
+        dev.SetDrawVisual(0,nullptr);dev.EndFrame();
+    }
+    dev.DestroyTexture(ground);dev.DestroyTexture(lightmap);
+}
+
+template <typename D>
+void RunVisualCorrection(D& dev, int frames, const std::string& shot)
+{
+    if(g_visualCase==19){RunShadowStability(dev,frames,shot);return;}
+    if((g_visualCase>=7 && g_visualCase<=9) || g_visualCase==13 || g_visualCase==14 || g_visualCase==15){RunSunnyDayScene(dev,frames,shot);return;}
+    // Actual renderer exercise: a zero-ambient creation studio, an exterior
+    // daylight reference, or an intentionally mismatched HD/original pattern.
+    auto original=Checker(128,4,0xFF807060u,0xFF304860u);
+    if(g_visualCase>=3 && g_visualCase<=6) {
+        const uint32_t colours[]={0xFFE8E8E8,0xFF808080,0xFF202020,0xFFB02020,0xFF20A050,0xFF2050B0,0xFFB09020,0xFF0D0D0D};
+        for(unsigned y=0;y<128;++y)for(unsigned x=0;x<128;++x) original[y*128+x]=colours[x/16];
+    }
+    auto art=Checker(512,16,0xFFCC2010u,0xFF1070CCu);
+    for(unsigned y=0;y<512;++y)for(unsigned x=0;x<512;++x)
+        if((x+y)%7==0) art[y*512+x]^=0x00060606u;
+    if(g_visualCase==10)original=Checker(1024,64,0xFF807060,0xFF304860);
+    if(g_visualCase==12 || g_visualCase==17)original=Checker(128,8,0xFF1060DD,0xFFDD8010);
+    if(g_visualCase==15)original=Checker(128,16,0xFF807060,0xFF304860);
+    if(g_visualCase==16) {
+        original.assign(128*128,0xFF202428);
+        for(unsigned y=57;y<71;++y)for(unsigned x=57;x<71;++x)original[y*128+x]=0xFFFFB040;
+        // A bright painted area is a negative control: no emission mask there.
+        for(unsigned y=12;y<36;++y)for(unsigned x=12;x<36;++x)original[y*128+x]=0xFFE0E0E0;
+    }
+    Texture* tex=dev.CreateTexture(g_visualCase==10 ? 1024:128,g_visualCase==10 ? 1024:128,original.data());
+    if(g_visualCase==15) {
+        dev.DestroyTexture(tex);
+        const unsigned size=(g_visualToggle&1) ? 1024:128;
+        auto mipTexture=[&](unsigned edge) {
+            unsigned levels=1;for(unsigned n=edge;n>1;n/=2)++levels;
+            Texture* result=dev.CreateTexture(edge,edge,Format::A8R8G8B8,levels);
+            for(unsigned level=0;level<levels;++level) {
+                unsigned side=std::max(1u,edge>>level);
+                auto pixels=Checker(side,std::min(side,16u),level ? 0xFF304050:0xFFE8D0A0,level ? 0xFF506070:0xFF203040);
+                dev.UpdateTexture(result,level,0,0,side,side,pixels.data(),side*4);
+            }
+            return result;
+        };
+        tex=mipTexture(128);
+        dev.SetTextureRdbId(tex,32434,1010004,0);
+        if(g_visualToggle&1)dev.SetMaterialMaps(tex,nullptr,mipTexture(size),true);
+    }
+    if(g_visualCase==16) {
+        std::vector<uint32_t> emission(128*128,0xFF000000);
+        for(unsigned y=57;y<71;++y)for(unsigned x=57;x<71;++x)emission[y*128+x]=0xFFFFB040;
+        dev.SetEmissiveMap(tex,dev.CreateTexture(128,128,emission.data()));
+        dev.SetKnob(Knob::LightGlow,g_visualToggle ? 1.f:0.f);
+    }
+    if(g_visualCase==12) {
+        dev.SetTextureRdbId(tex,202773,1010004,0);
+        dev.SetKnob(Knob::ImmersiveShips,g_visualToggle ? 1.f:0.f);
+    }
+    if(g_visualCase==17) {
+        dev.SetTextureRdbId(tex,202773,1010004,0);
+        dev.SetKnob(Knob::ImmersiveShips,1.f);
+        dev.SetKnob(Knob::LightGlow,g_visualToggle ? 1.f:0.f);
+    }
+    if(g_visualCase==19) {
+        auto normals=Checker(16,8,0xFF80C0E0,0xFF8040E0);
+        dev.SetNormalMap(tex,dev.CreateTexture(16,16,normals.data()));
+        dev.SetNormalMaps(true,1.f);
+        const uint32_t material=0xFF809900;
+        dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&material),nullptr,true);
+        dev.SetKnob(Knob::FarDetail,(g_visualToggle&1) ? 1.f:0.f);
+    }
+    if(g_visualCase==10) {
+        dev.SetTextureRdbId(tex,297003,1010004,0);
+        if(g_visualToggle)dev.SetMaterialMaps(tex,nullptr,dev.CreateTexture(256,256,art.data()),true);
+    }
+    if(g_visualCase==11) {
+        const uint32_t polished=0xFFB510FF;
+        dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&polished),nullptr,true);
+        dev.SetKnob(Knob::GlobalShiny,g_visualToggle ? 1.f:0.f);
+    }
+    const uint32_t orm=0xFFFF19FFu;
+    if(g_visualCase==20 || g_visualCase==21 || g_visualCase==22) {
+        dev.SetTextureRdbId(tex,99841,1010004,0);
+        dev.SetKnob(Knob::ImmersiveShips,1.f);
+        dev.SetKnob(Knob::ShipLights,g_visualToggle ? 1.f:0.f);
+        dev.SetKnob(Knob::ShipLightPower,g_visualToggle>=2 ? .6f:0.f);
+    }
+    if(g_visualCase==2 && g_visualToggle>0)
+        dev.SetMaterialMaps(tex,dev.CreateTexture(1,1,&orm),dev.CreateTexture(512,512,art.data()),true);
+    Device::PbrSettings pbr;pbr.enabled=true;if(g_visualCase==19)pbr.debug=g_pbrDebug;dev.SetPbr(pbr);
+    const bool studio=g_visualCase==0 || g_visualCase==3 || g_visualCase==4;
+    dev.SetPixelLighting(true);dev.SetLightOverride((g_visualCase==0 && g_visualToggle!=0) || g_visualCase==3 || g_visualCase==4);
+    dev.SetSkyPlayfield(studio ? 0:655);
+    dev.SetPointLightIntensity(.25f,.25f);
+    dev.SetKnob(Knob::ICCArtwork,g_visualCase==2 && g_visualToggle==2 ? 1.f:0.f);
+    dev.SetKnob(Knob::DayCycle,g_visualCase<15 && (g_visualCase==1 || g_visualCase>=3) && g_visualToggle ? 2.f:0.f);
+    dev.SetKnob(Knob::DayLook,0);
+    dev.SetHdr(g_visualCase!=2);dev.SetTonemap(1,1);dev.SetBloom(0,1);
+    dev.SetDarkness(0,0); // measure lighting, without automatic exposure compensating for it
+    const Material material{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
+    const VtxMesh plane[]={
+        {-2,-1.5f,0,0,0,-1,0xFFFFFFFF,0,1},{-2,1.5f,0,0,0,-1,0xFFFFFFFF,0,0},
+        {2,-1.5f,0,0,0,-1,0xFFFFFFFF,1,1},{2,1.5f,0,0,0,-1,0xFFFFFFFF,1,0}};
+    for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
+        if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("visual-frame.txt");}
+        dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
+        dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+        dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+        dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+        if(g_visualCase==19 && (g_visualToggle&2)) {
+            Matrix w=Identity();w.m[0][0]=w.m[1][1]=w.m[2][2]=80.f;w.m[3][2]=395.f;dev.SetTransform(World,w);
+            dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,1000));
+        }
+        if(g_visualCase==3 || g_visualCase==4) {
+            Matrix w=Identity();w.m[3][0]=-22;w.m[3][1]=1;w.m[3][2]=-42;dev.SetTransform(World,w);
+            dev.SetTransform(View,LookAtLH({-22,1,-37},{-22,1,-42},{0,1,0}));
+        }
+        dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
+        dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+        dev.SetRenderState(RS_LIGHTING,1);dev.SetRenderState(RS_NORMALIZENORMALS,1);
+        dev.SetRenderState(RS_AMBIENT,studio ? 0:g_visualCase==1 || g_visualCase>=5 ? 0xFF282828:0xFFFFFFFF);
+        dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
+        dev.SetRenderState(RS_COLORVERTEX,0);dev.SetRenderState(RS_FOGENABLE,0);
+        Light light{};
+        if(g_visualCase==0) {
+            light.type=LIGHT_POINT;light.diffuse={.8f,.9f,1,1};light.position={-2,2,-4};
+            light.range=200;light.attenuation0=1;light.attenuation1=.005f;
+        } else {
+            light.type=LIGHT_DIRECTIONAL;light.diffuse={1,.95f,.85f,1};light.direction={0,-.8f,.6f};
+        }
+        dev.SetLight(0,light);dev.LightEnable(0,true);
+        if(g_visualCase==3 || g_visualCase==4) {
+            // The three lights from the retail creation/login scan.
+            const float x[]={-30.32f,9.44f,158.11f};
+            const Color colour[]={{0,0,0,1},{.71f,.91f,.87f,1},{1,.97f,.91f,1}};
+            for(unsigned i=0;i<3;++i) {
+                Light l{};l.type=LIGHT_POINT;l.position={x[i],0,0};l.diffuse=colour[i];l.range=200;l.attenuation1=.005f;
+                dev.SetLight(i,l);dev.LightEnable(i,true);
+            }
+        }
+        dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
+        dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+        dev.SetTextureStageState(0,TSS_ALPHAOP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_ALPHAARG1,TA_TEXTURE);
+        dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+        if(g_visualCase==15) {
+            dev.SetTextureStageState(0,TSS_MAGFILTER,TFG_LINEAR);
+            dev.SetTextureStageState(0,TSS_MINFILTER,TFN_LINEAR);
+            dev.SetTextureStageState(0,TSS_MIPFILTER,TFP_LINEAR);
+            dev.SetTextureStageState(0,TSS_MAXMIPLEVEL,(g_visualToggle&2) ? 3:0);
+        }
+        dev.SetTexture(0,tex);dev.SetMaterial(material);
+        if(g_visualCase==1 || g_visualCase==5)dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"daylight-outdoor-context");
+        const bool character=g_visualCase==0 || g_visualCase==4;
+        dev.SetDrawVisual(uint32_t(character ? VisualKind::Character:VisualKind::Static),character ? "RCATMesh_t":"RTriMesh_t");
+        VtxMesh card[4];std::copy_n(plane,4,card);
+        if(g_visualCase==3 || g_visualCase==4)for(auto& v:card)v.nz=1;
+        if(g_visualCase==5) {
+            for(auto& v:card)v.x=v.x*.48f-1.f;
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
+            std::copy_n(plane,4,card);for(auto& v:card){v.x=v.x*.48f+1.f;v.nz=1;}
+        }
+        if(g_visualCase==20 || g_visualCase==21 || g_visualCase==22) {
+            const VtxMesh floor[]={{-8,-1.7f,-5,0,1,0,0xFFFFFFFF,0,0},{-8,-1.7f,8,0,1,0,0xFFFFFFFF,0,1},
+                {8,-1.7f,-5,0,1,0,0xFFFFFFFF,1,0},{8,-1.7f,8,0,1,0,0xFFFFFFFF,1,1}};
+            dev.SetTexture(0,nullptr);dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG2);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,floor,4);
+            dev.SetTexture(0,tex);dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);
+        }
+        if(g_visualCase==21 || g_visualCase==22) {
+            if(g_visualCase==22)dev.SetTransform(View,Identity());
+            VtxMesh shared[5];std::copy_n(card,4,shared);shared[4]=card[0];shared[4].y=-100;shared[4].x=100;
+            const uint16_t ix[]={0,1,2,2,1,3};
+            for(unsigned i=0;i<2;++i) {
+                Matrix w=Identity();w.m[3][0]=(i ? 1.5f:-1.5f);w.m[0][0]=.6f;w.m[1][1]=.6f;if(g_visualCase==22)w.m[3][2]=5.f;
+                dev.SetTransform(World,w);dev.SetDrawVisual(uint32_t(VisualKind::Static),"indexed-ship",0,0x7100+i);
+                dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,shared,5,ix,6);
+            }
+        } else dev.DrawPrimitive(TriangleStrip,kFvfMesh,card,4);
+        dev.SetDrawVisual(0,nullptr);
+        if(g_visualCase==22)dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+        dev.EndFrame();
+    }
+    dev.DestroyTexture(tex);
+}
+
 template <typename D>
 void RunPbrTest(D& dev, int frames, const std::string& shot)
 {
+    if(g_visualCase>=0){RunVisualCorrection(dev,frames,shot);return;}
     const int kSeg = 32, kRing = 24;
     std::vector<VtxMesh> sphere;
     std::vector<uint16_t> sphereIdx;
@@ -1074,7 +1458,8 @@ void RunPbrTest(D& dev, int frames, const std::string& shot)
     Texture* floor = dev.CreateTexture(64, 64, floorPixels.data());
     dev.SetMaterialMaps(floor, orm(1.0f, 0.3f, 0.0f), nullptr);
     if (!g_pbrMaps.empty()) {
-        AttachFileMaps(dev, floor, "floor");
+        AttachFileMaps(dev, floor, g_iccFloorTest ? "1010004_295610" : "floor");
+        if(g_iccFloorTest) dev.SetTextureRdbId(floor,295610,1010004);
         AttachFileMaps(dev, tex[3][2], "ball");
     }
     if (g_buildingFamilyTest >= 0) {
@@ -1377,6 +1762,7 @@ bool g_walkerLight = false;    // --walker-light: the round "character" carries 
 int g_grassDense = 1;          // --grass-dense K: K x K as many tufts, K times closer (a field, for profiling)      // --grass-flip: the tufts modelled upside down, turned up by their world matrix
 bool g_grassBench = false;     // --grass-bench: RunGrassBench (a big terrain, the camera walking)
 bool g_grassCombined = false;  // --grass-combined: live's opaque lit ground, lightmap at stage 0 and base at stage 1
+bool g_nativeUnlitCombined = false; // retail terrain can retain this stage layout with D3D lighting off
 bool g_grassUploadTest = false;
 bool g_globalTerrainTest = false; // every-tile fallback with no authored material maps
 int g_grassLate = 0;               // --grass-late N: the grass switched on at frame N of the zone ground scene
@@ -1726,6 +2112,8 @@ bool g_nativeFirstTransparent = false, g_nativeCoverageTest = false, g_nativeVoi
 bool g_groundDetailFixture=false,g_groundModeCycle=false,g_grassLifetimeTest=false;
 bool g_groundFarView=false;
 bool g_groundUntiled=false;
+std::string g_groundArtDir; // test-only: actual source-aligned terrain material fixture
+int g_groundArtMode=1;      // 0 original, 1 complete material, 2 albedo-only comparison
 extern bool g_profileWindow;
 template <typename D> void ConfigureGroundDetailFixture(D& dev);
 template <typename D> void GrassLifetimeStep(D& dev,int frame,std::shared_ptr<NativeGround>& ground);
@@ -1751,7 +2139,37 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
                 if ((hash(x, y + 97 * t) & 15u) == 0) c ^= 0x00101010u;   // (some grain)
                 px[size_t(y) * kTex + x] = c;
             }
-        tiles.push_back(dev.CreateTexture(kTex, kTex, px.data()));
+        if (g_groundArtDir.empty()) {
+            tiles.push_back(dev.CreateTexture(kTex, kTex, px.data()));
+        } else {
+            constexpr uint32_t ids[kTiles]={1u,5u,12u,17u};
+            const std::string stem="1010006_"+std::to_string(ids[t]);
+            maps::Image original;std::string error;
+            if (!maps::LoadImage(g_groundArtDir+"/originals/"+stem+".png",&original,&error)) {
+                std::fprintf(stderr,"terrain original: %s\n",error.c_str());std::exit(2);
+            }
+            maps::MipChain chain;maps::MakeAlbedoChain(original,&chain);
+            Texture* tile=maps::Upload(dev,chain);
+            if (!tile) {std::fprintf(stderr,"terrain original upload failed\n");std::exit(2);}
+            dev.SetTextureRdbId(tile,ids[t],1010006,0,false);
+            if (g_groundArtMode) {
+                maps::MaterialFiles files;files.maxSize=512;
+                const std::string path=g_groundArtDir+"/baked/"+stem;
+                files.albedo=path+"_d.png";
+                if (g_groundArtMode==1) {
+                    files.packed=path+"_orm.png";
+                    if (!materials::DeckGround(1010006,ids[t])) files.normal=path+"_n.png";
+                }
+                maps::Decoded decoded=maps::Decode(files);
+                if (decoded.decodeFailed || decoded.albedo.Empty() ||
+                    (g_groundArtMode==1 && decoded.orm.Empty())) {
+                    std::fprintf(stderr,"terrain material decode failed: %s\n",stem.c_str());std::exit(2);
+                }
+                maps::Attach(dev,tile,decoded);
+            }
+            tiles.push_back(tile);
+            std::printf("terrain artwork fixture: %s mode %d\n",stem.c_str(),g_groundArtMode);
+        }
         if (g_terrainMaps) {                 // (--terrain-maps: a normal map from its brightness: the mark sunk)
             std::vector<uint32_t> nm(kTex * kTex);
             auto lum = [&](int x, int y) {
@@ -1768,9 +2186,12 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
             dev.SetNormalMap(tiles.back(), dev.CreateTexture(kTex, kTex, nm.data()));
         }
     }
-    if (g_terrainMaps) {
+    if (g_terrainMaps || (!g_groundArtDir.empty() && g_groundArtMode==1)) {
         dev.SetPixelLighting(true);
         dev.SetNormalMaps(true, 1.0f);
+    } else if (!g_groundArtDir.empty()) {
+        dev.SetPixelLighting(false);
+        dev.SetNormalMaps(false, 0.0f);
     }
     auto height = [](float x, float z) {
         float t = std::clamp((z - 150.0f) / 12.0f, 0.0f, 1.0f);
@@ -1875,6 +2296,11 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
     }
     if (g_grassCombined) dev.SetPixelLighting(true);
     for (int frame = 0; frame < frames; ++frame) {
+        // These fixed-clock laboratory runs can otherwise finish before the
+        // asynchronous rock decode and clutter jobs receive wall-clock time.
+        // Pace the fixture; regression scripts also require ready resources.
+        // This does not run in the addon or alter simulation/fixed-clock time.
+        if (g_groundDetailFixture) std::this_thread::sleep_for(std::chrono::milliseconds(10));
         if(g_grassLifetimeTest) GrassLifetimeStep(dev,frame,ground);
         if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
         if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"terrain window: ");
@@ -1946,7 +2372,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetTextureStageState(0, TSS_ALPHAARG1, TA_TEXTURE);
         dev.SetDrawVisual(uint32_t(VisualKind::Terrain), "AnarchyGround_t");
         if (g_grassCombined) {
-            dev.SetRenderState(RS_LIGHTING,1);
+            dev.SetRenderState(RS_LIGHTING,g_nativeUnlitCombined ? 0 : 1);
             dev.SetRenderState(RS_AMBIENT,0xFF515151);
             dev.SetRenderState(RS_ALPHABLENDENABLE,0);
             dev.SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);
@@ -2013,6 +2439,9 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetRenderState(RS_ALPHABLENDENABLE, 0);
         dev.EndFrame();
     }
+    // Flush the artwork fixture's terrain lifetime so its actual draw counters
+    // are logged before the headless demo exits (including the queued device).
+    if (!g_groundArtDir.empty()) dev.SetNativeGround(nullptr);
 }
 
 // A real playfield's ground (--native-ground-file F, from tools/ground-data.py --export): rvk's native ground drawn
@@ -2326,10 +2755,29 @@ std::string g_sharedTerrainSource;
 bool g_sharedTerrainAuthored=false, g_sharedTerrainRoadMask=false, g_groundPaletteControl=false, g_groundPersonal=false;
 bool g_terrainLightingFixture=false, g_terrainRockyRoad=false, g_terrainLightingNight=false;
 bool g_terrainLightingOccluder=false;
+bool g_improvedTiles=false, g_terrainCliffFixture=false, g_terrainCliffToeFixture=false;
+bool g_terrainNativeFixture=false;
+int g_raisedGrass=0;
+bool g_terrainCloseup=false;
 void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
 {
-    dev.SetNativeGroundOn(false);
-    auto terrainHeight=[](float x,float z) {return g_terrainRockyRoad ? .45f*std::sin(x*.3f)*std::cos(z*.25f):0.0f;};
+    if(g_pbrDebug){Device::PbrSettings pbr;pbr.enabled=true;pbr.debug=g_pbrDebug;dev.SetPbr(pbr);}
+    if(g_ambientFixture)dev.SetSkyPlayfield(g_ambientFixture==4 ? 0:g_ambientFixture==5 ? 386:g_areaZone);
+    dev.SetNativeGroundOn(g_terrainNativeFixture);
+    Texture* islandTex=nullptr;
+    if(g_raisedGrass) {
+        dev.SetGrassField(g_raisedGrass!=2,40.f,4.f,.3f,true);
+        const auto pixels=Checker(64,16,g_raisedGrass==3 ? 0xFF666666:0xFF416B26,g_raisedGrass==3 ? 0xFF777777:0xFF608C36);
+        islandTex=dev.CreateTexture(64,64,pixels.data());
+        if(g_raisedGrass==5) {
+            dev.SetTextureRdbId(islandTex,207100,1010004,0);
+            const std::vector<uint32_t> olive(64*64,0xFF4C4F27);dev.UpdateTexture(islandTex,0,0,0,64,64,olive.data(),64*4);
+        }
+    }
+    dev.SetKnob(Knob::ImprovedTiles,g_improvedTiles ? 1.f:0.f);
+    auto terrainHeight=[](float x,float z) {return g_terrainCliffToeFixture ? std::clamp((x-8.f)*2.f,0.f,8.f)
+        : g_terrainCliffFixture ? std::clamp((x+z-14.f)*2.f,0.f,12.f)
+        : g_terrainRockyRoad ? .45f*std::sin(x*.3f)*std::cos(z*.25f):0.0f;};
     const float lightmapShade=g_terrainLightingNight ? .82f:.20f;
     auto lightLevel=[](int x,int z){return uint8_t(x<2 ? 5+(z&1):14+(z&1));};
     constexpr int S=128;
@@ -2354,6 +2802,7 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
             pixels[y*S+x]=uint32_t(c[3])<<24|uint32_t(c[0])<<16|uint32_t(c[1])<<8|c[2];
         }
     }
+    if(g_ambientFixture)std::fill(pixels.begin(),pixels.end(),g_ambientFixture==2 ? 0xFFB79763u:g_ambientFixture==3 ? 0xFF808080u:0xFF3C6A2Au);
     maps::Image source;source.w=source.h=S;source.rgba.resize(S*S*4);
     for(int i=0;i<S*S;++i) for(int c=0;c<4;++c)
         source.rgba[i*4+c]=uint8_t(c==3 ? 255 : pixels[i]>>(16-8*c)&255u);
@@ -2373,6 +2822,12 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         dev.SetMaterialMaps(tile,dev.CreateTexture(S,S,orm.data()),dev.CreateTexture(S,S,art.data()));
         }
     }
+    Texture* cold=nullptr;
+    if(g_nativeResidencyCheck) {
+        const std::vector<uint32_t> pixels(512*512,0xFF456789u);
+        cold=dev.CreateTexture(1,1,pixels.data());
+        dev.PublishMaterialMaps(cold,nullptr,nullptr,dev.CreateTexture(512,512,pixels.data()),nullptr,nullptr,nullptr,false,true);
+    }
     if (g_sharedTerrainPebbles) {
         auto ground=std::make_shared<NativeGround>();
         ground->id=655;ground->cellsX=ground->cellsZ=4;ground->cellX=ground->cellZ=4;ground->patch=4;
@@ -2380,8 +2835,9 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
         if(g_terrainLightingFixture) {
             for(int z=0;z<5;++z)for(int x=0;x<5;++x)ground->heights[z*5+x]=terrainHeight(float(x*4),float(z*4));
             Device::TerrainSettings terrain;terrain.round=0;dev.SetTerrain(terrain); // identical sampling geometry for A/B
+            if(g_terrainOff){terrain.cliff=0;terrain.rock=false;dev.SetTerrain(terrain);}
         }
-        dev.SetNativeGroundOn(false);
+        dev.SetNativeGroundOn(g_terrainNativeFixture);
         std::FILE* table=std::fopen("pebble-test.tsv","w");
         if(table){std::fputs("* 0 1 1 0\n",table);std::fclose(table);}
         dev.SetPebbleTablePath("pebble-test.tsv");dev.SetNativeGroundPebbles(1);
@@ -2425,11 +2881,15 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
     if(g_terrainLightingOccluder) AddCube(occluder,occluderIndices,4.0f,2.0f,4.0f,1.5f);
     const Material material{{0,0,0,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};
     for(int frame=0;frame<frames;++frame) {
+        if(g_profileWindow && frame==frames/2)dev.ProfileWindow(true,"");
+        if(g_profileWindow && frame==frames-1)dev.ProfileWindow(false,"window: ");
         if(frame==frames-1){dev.RequestScreenshot(shot);dev.RequestFrameDump("terrain-frame.txt");}
         dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});
         dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
         dev.SetTransform(World,Identity());
-        dev.SetTransform(View,LookAtLH({8,15,7.99f},{8,0,8},{0,0,1}));
+        dev.SetTransform(View,LookAtLH({8,g_terrainCloseup ? 2.f:15.f,7.99f},{8,0,8},{0,0,1}));
+        if(g_terrainSideView)dev.SetTransform(View,LookAtLH({-6,10,-4},{10,4,8},{0,1,0}));
+        if(g_ambientFixture)dev.SetTransform(View,LookAtLH({8,3,-2},{8,2,8},{0,1,0}));
         dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
         dev.SetRenderState(RS_ZENABLE,1);dev.SetRenderState(RS_ZWRITEENABLE,1);
         dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
@@ -2469,9 +2929,34 @@ void RunSharedTerrainTest(Device& dev,int frames,const std::string& shot)
             dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,occluder.data(),uint32_t(occluder.size()),occluderIndices.data(),uint32_t(occluderIndices.size()));
             dev.SetDrawVisual(0,nullptr);
         }
+        if(g_raisedGrass) {
+            const VtxMesh island[]={ {4,2,4,0,1,0,0xffffffff,0,0},{4,2,12,0,1,0,0xffffffff,0,1},
+                {12,2,4,0,1,0,0xffffffff,1,0},{12,2,12,0,1,0,0xffffffff,1,1} };
+            dev.SetRenderState(RS_ALPHABLENDENABLE,0);dev.SetRenderState(RS_ZFUNC,CMP_LESSEQUAL);dev.SetRenderState(RS_ZWRITEENABLE,1);
+            dev.SetTexture(0,islandTex);dev.SetTexture(1,nullptr);dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+            dev.SetTextureStageState(0,TSS_COLOROP,TOP_MODULATE);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
+            dev.SetTextureStageState(0,TSS_TEXCOORDINDEX,0);dev.SetTextureStageState(0,TSS_TEXTURETRANSFORMFLAGS,0);
+            const Material object{{.6f,.6f,.6f,1},{.6f,.6f,.6f,1},{0,0,0,0},{0,0,0,0},0};dev.SetMaterial(object);
+            dev.SetDrawVisual(uint32_t(VisualKind::Static),"grass-island",0,0x7110);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,island,4);
+            if(g_raisedGrass==4) {
+                Matrix w=Identity();w.m[3][1]=4.f;dev.SetTransform(World,w);
+                dev.SetDrawVisual(uint32_t(VisualKind::Static),"upper-grass-island",0,0x7111);
+                dev.DrawPrimitive(TriangleStrip,kFvfMesh,island,4);dev.SetTransform(World,Identity());
+            }
+            dev.SetDrawVisual(0,nullptr);
+        }
         dev.EndFrame();
         Sleep(5); // allow real background PNG/mip decoding even on a warm pipeline cache
     }
+    if(g_nativeResidencyCheck) {
+        std::printf("native residency: active state %u, last sampled %llu, cold state %u\n",unsigned(tile->MaterialsState()),
+            static_cast<unsigned long long>(tile->MaterialDrawFrame()),unsigned(cold->MaterialsState()));
+        if(tile->MaterialsState()!=Texture::MaterialState::Ready || tile->MaterialDrawFrame()<uint64_t(frames) ||
+           cold->MaterialsState()!=Texture::MaterialState::Evicted)std::exit(9);
+        dev.DestroyTexture(cold);
+    }
+    if(islandTex)dev.DestroyTexture(islandTex);
     dev.DestroyTexture(tile);dev.DestroyTexture(light);
 }
 
@@ -3335,6 +3820,7 @@ float g_cloudSheet = 1.0f;        // --cloud-sheet X: RVK_CloudSheet
 float g_cloudShadow = 0.6f;       // --cloud-shadow X: RVK_CloudShadow
 float g_cloudNight = 0.8f;        // --cloud-night X: RVK_CloudNight
 float g_skyVary = 0.0f;           // --sky-vary X: RVK_SkyVary (off: the demo's skies as they were)
+float g_iccGlossiness=1.f;
 uint32_t g_skyZone = 0;      // --sky-zone PF: the sky leans by that playfield's climate (sky.cpp)
 double g_skyTime = -1.0;          // --sky-time T: the sky weather's clock (seconds)
 float g_moonLight = 1.0f;         // --moon-light X: RVK_MoonLight
@@ -3346,6 +3832,9 @@ float g_duskRays = 1.0f;                      // --dusk-rays X: RVK_DuskRays
 // --sky-dome RRGGBB (the water scenes): a dome like the game's - the sky's first draw, a lit unblended mesh round the
 // eye - in that colour, which the fog takes too (the zone's sky: 4FE6D9 the user's teal); RVK_ProcSky replaces it.
 uint32_t g_skyDome = 0;
+bool g_skyEnhanceFixture=false;
+float g_skyCameraOffset=0.f;
+float g_skyClouds=0.f,g_skyTraffic=0.f;
 bool g_procSky = true;                        // --proc-sky 0|1: RVK_ProcSky
 float g_skyZoneHint = 0.25f;                  // --sky-zone-hint X: RVK_SkyZone
 rvk::SkyColours g_skyColours;                 // --sky-key I RRGGBB: the sky's colour key I (rvk::SkyKey)
@@ -3667,6 +4156,7 @@ void RunWaterScene(D& dev, int frames, const std::string& shot)
     if (g_sweepSteps > 0)
         frames = g_sweepSteps * g_sweepHold;
     for (int frame = 0; frame < frames; ++frame) {
+        if(g_skyEnhanceFixture && frame==frames-1)dev.RequestFrameDump("sky-frame.txt");
         // --profile-window: the GPU's passes timed over the second half of the run ("window: gpu ms ...").
         if (g_profileWindow && frame == frames / 2) dev.ProfileWindow(true, "");
         if (g_profileWindow && frame == frames - 1) dev.ProfileWindow(false, "window: ");
@@ -3760,6 +4250,11 @@ void RunWaterScene(D& dev, int frames, const std::string& shot)
         dev.SetTextureStageState(0, TSS_ALPHAOP, TOP_SELECTARG1);
         dev.SetTextureStageState(0, TSS_ALPHAARG1, TA_TEXTURE);
         if (g_skyDome) {
+            if(g_skyCameraOffset!=0.f) {
+                auto view=LookAtLH(eye,at,{0,1,0});
+                view.m[3][0]+=g_skyCameraOffset;
+                dev.SetTransform(View,view);
+            }
             // (A UV sphere of 17 x 9 rings round the eye in the fog's colour, lit, unblended: the game's dome.)
             static std::vector<VtxMesh> dome;
             static std::vector<uint16_t> domeIdx;
@@ -3789,6 +4284,7 @@ void RunWaterScene(D& dev, int frames, const std::string& shot)
             dev.SetRenderState(RS_ZWRITEENABLE, 1);
             dev.SetRenderState(RS_FOGENABLE, 1);
             dev.SetTransform(World, Identity());
+            if(g_skyCameraOffset!=0.f)dev.SetTransform(View,LookAtLH(eye,at,{0,1,0}));
         }
         // --clouds: the sky's puffs first (as the game: the sky, then the scene), each a sheet turned to the camera.
         if (g_clouds)
@@ -5183,6 +5679,8 @@ LONG WINAPI Crashed(EXCEPTION_POINTERS* e)
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
+#include "weathering_fixture.inc"
+
 int main(int argc, char** argv)
 {
     SetUnhandledExceptionFilter(&Crashed);
@@ -5281,6 +5779,51 @@ int main(int argc, char** argv)
         else if (a == "--city-no-cull") g_cityNoCull = true;
         else if (a == "--city-statels" && i + 1 < argc) g_cityStatels = argv[++i];
         else if (a == "--game-ms" && i + 1 < argc) g_benchGameMs = std::atof(argv[++i]);
+        else if (a == "--window-fixture") {g_windowFixture=g_wearFixture=true;g_wearId=6055;g_skyZone=566;}
+        else if (a == "--window-mode" && i+1<argc) g_windowMode=std::atoi(argv[++i]);
+        else if (a == "--window-angle" && i+1<argc) g_windowAngle=float(std::atof(argv[++i]))*kPi/180.f;
+        else if (a == "--window-repeat" && i+1<argc) g_windowRepeat=float(std::atof(argv[++i]));
+        else if (a == "--window-wall" && i+2<argc){g_windowWallWidth=float(std::atof(argv[++i]));g_windowWallHeight=float(std::atof(argv[++i]));}
+        else if (a == "--window-offset-y" && i+1<argc)g_windowWallOffsetY=float(std::atof(argv[++i]));
+        else if(a=="--window-corner")g_windowCorner=true;
+        else if(a=="--window-no-house")g_windowNoHouse=true;
+        else if(a=="--window-activity"&&i+1<argc)g_windowActivity=std::atoi(argv[++i]);
+        else if(a=="--window-mirror-y")g_windowMirrorY=true;
+        else if(a=="--window-z-up")g_windowZUp=true;
+        else if(a=="--window-bay")g_windowBay=true;
+        else if(a=="--window-flat-house")g_windowFlatHouse=true;
+        else if(a=="--window-unlit")g_windowUnlit=true;
+        else if(a=="--window-emissive")g_windowEmissive=true;
+        else if(a=="--window-alpha"&&i+1<argc)g_windowAlpha=std::clamp(std::atoi(argv[++i]),0,255);
+        else if(a=="--window-address"&&i+2<argc){g_windowAddressU=std::atoi(argv[++i]);g_windowAddressV=std::atoi(argv[++i]);}
+        else if(a=="--window-house-box"&&i+6<argc){g_windowHouseBox=true;for(int axis=0;axis<6;++axis)g_windowCustomHouse[axis]=float(std::atof(argv[++i]));}
+        else if(a=="--window-eye-y"&&i+1<argc)g_windowEyeY=float(std::atof(argv[++i]));
+        else if(a=="--window-house-depth"&&i+1<argc)g_windowHouseDepth=float(std::atof(argv[++i]));
+        else if(a=="--window-uv-scale"&&i+2<argc){g_windowRepeat=float(std::atof(argv[++i]));g_windowRepeatV=float(std::atof(argv[++i]));}
+        else if(a=="--window-house-y"&&i+2<argc){g_windowHouseY=true;g_windowHouseMinY=float(std::atof(argv[++i]));g_windowHouseMaxY=float(std::atof(argv[++i]));}
+        else if (a == "--window-origin" && i+2<argc) {g_windowOriginX=float(std::atof(argv[++i]));g_windowOriginZ=float(std::atof(argv[++i]));}
+        else if (a == "--window-baked") g_windowBaked=true;
+        else if (a == "--window-model" && i+1<argc) g_windowModel=std::atoi(argv[++i]);
+        else if (a == "--window-model2" && i+1<argc) g_windowModel2=std::atoi(argv[++i]);
+        else if (a == "--window-batch-probe") g_windowBatchProbe=true;
+        else if (a == "--wear-catalog" && i+1<argc) g_wearCatalog=argv[++i];
+        else if (a == "--wear-night") g_wearNight=true;
+        else if (a == "--wear-original" && i+1<argc) g_wearOriginal=argv[++i];
+        else if (a == "--wear-fixture") g_wearFixture=true;
+        else if (a == "--wear-id" && i+1<argc) g_wearId=std::atoi(argv[++i]);
+        else if (a == "--wear-level" && i+1<argc) g_wearLevel=std::atoi(argv[++i]);
+        else if (a == "--wear-debug" && i+1<argc) g_wearDebug=std::atoi(argv[++i]);
+        else if (a == "--wear-maps" && i+1<argc) g_wearMapRoot=argv[++i];
+        else if (a == "--wear-distance" && i+1<argc) g_wearDistance=float(std::atof(argv[++i]));
+        else if (a == "--wear-visual" && i+1<argc) g_wearVisual=std::atoi(argv[++i]);
+        else if (a == "--wear-no-pbr") g_wearPbr=false;
+        else if (a == "--wear-lite") g_wearFull=false;
+        else if (a == "--wear-classic") g_wearClassic=true;
+        else if (a == "--wear-hot-off") g_wearHotOff=true;
+        else if (a == "--wear-discard") g_wearDiscard=true;
+        else if (a == "--wear-sweep") g_wearSweep=true;
+        else if (a == "--wear-combined") g_wearCombined=true;
+        else if (a == "--wear-blend") g_wearBlend=true;
         else if (a == "--frames" && i + 1 < argc) frames = std::atoi(argv[++i]);
         else if (a == "--hdr") hdr = true;
         else if (a == "--dof" && i + 1 < argc) { dof = float(std::atof(argv[++i])); hdr = true; }
@@ -5296,6 +5839,7 @@ int main(int argc, char** argv)
         else if (a == "--grass-field") { g_grassFieldOn = true; hdr = true; }
         else if (a == "--grass-bench") { g_grassFieldOn = g_grassBench = true; hdr = true; }
         else if (a == "--grass-combined") g_grassCombined = true;
+        else if (a == "--native-unlit-combined") g_nativeUnlitCombined = true;
         else if (a == "--grass-upload-test") g_grassUploadTest = true;
         else if (a == "--grass-lifetime-test") {g_grassLifetimeTest=g_nativeGroundTest=g_groundDetailFixture=g_grassFieldOn=true;hdr=true;}
         else if (a == "--shared-terrain-test") {g_sharedTerrainTest=true;g_skyZone=655;}
@@ -5309,6 +5853,12 @@ int main(int argc, char** argv)
         else if (a == "--terrain-source" && i+1<argc) g_sharedTerrainSource=argv[++i];
         else if (a == "--terrain-lighting-fixture") g_terrainLightingFixture=true;
         else if (a == "--terrain-rocky-road") g_terrainRockyRoad=g_terrainLightingFixture=true;
+        else if (a == "--terrain-cliff-fixture") g_terrainCliffFixture=g_terrainLightingFixture=true;
+        else if (a == "--terrain-cliff-toe-fixture") g_terrainCliffToeFixture=g_terrainLightingFixture=true;
+        else if (a == "--terrain-native-fixture") g_terrainNativeFixture=true;
+        else if (a == "--native-residency-check") g_nativeResidencyCheck=true;
+        else if (a == "--terrain-closeup") g_terrainCloseup=true;
+        else if (a == "--improved-tiles" && i+1<argc) g_improvedTiles=std::atoi(argv[++i])!=0;
         else if (a == "--terrain-lighting-night") g_terrainLightingNight=g_terrainLightingFixture=true;
         else if (a == "--terrain-lighting-occluder") g_terrainLightingOccluder=g_terrainLightingFixture=true;
         else if (a == "--terrain-type" && i+1<argc) g_sharedTerrainType=uint32_t(std::strtoul(argv[++i],nullptr,10));
@@ -5323,6 +5873,11 @@ int main(int argc, char** argv)
         else if (a == "--ground-untiled") g_groundUntiled=true;
         else if (a == "--ground-mode-cycle") g_groundModeCycle=true;
         else if (a == "--native-ground-test") g_nativeGroundTest = true;
+        else if (a == "--ground-art-dir" && i+1<argc) {g_groundArtDir=argv[++i];g_nativeGroundTest=true;}
+        else if (a == "--ground-art-mode" && i+1<argc) {
+            g_groundArtMode=std::atoi(argv[++i]);
+            if (g_groundArtMode<0 || g_groundArtMode>2) {std::fprintf(stderr,"invalid ground art mode\n");return 2;}
+        }
         else if (a == "--native-on") g_nativeOn = true;
         else if (a == "--native-unknown-pass") g_nativeUnknownPass = true;
         else if (a == "--native-coverage-test") g_nativeCoverageTest = true;
@@ -5446,6 +6001,10 @@ int main(int argc, char** argv)
         }
         else if (a == "--dusk-rays" && i + 1 < argc) g_duskRays = float(std::atof(argv[++i]));
         else if (a == "--sky-dome" && i + 1 < argc) g_skyDome = 0xFF000000u | uint32_t(std::strtoul(argv[++i], nullptr, 16));
+        else if (a == "--sky-enhance-fixture") g_skyEnhanceFixture=true;
+        else if (a == "--sky-camera-offset" && i+1<argc) g_skyCameraOffset=float(std::atof(argv[++i]));
+        else if (a == "--sky-clouds" && i+1<argc) g_skyClouds=float(std::atof(argv[++i]));
+        else if (a == "--sky-traffic" && i+1<argc) g_skyTraffic=float(std::atof(argv[++i]));
         else if (a == "--proc-sky" && i + 1 < argc) g_procSky = std::atoi(argv[++i]) != 0;
         else if (a == "--stars" && i + 1 < argc) g_nightSky.stars = std::atoi(argv[++i]) != 0;
         else if (a == "--star-bright" && i + 1 < argc) g_nightSky.bright = float(std::atof(argv[++i]));
@@ -5542,8 +6101,28 @@ int main(int argc, char** argv)
         else if (a == "--aniso" && i + 1 < argc) anisotropy = uint32_t(std::atoi(argv[++i]));
         else if (a == "--bump" && i + 1 < argc) bump = float(std::atof(argv[++i]));
         else if (a == "--normal-map-test") normalMapTest = true;
+        else if (a=="--icc-floor-test") {g_iccFloorTest=true;pbrTest=true;}
         else if (a == "--pbr-test") pbrTest = true;
+        else if (a == "--visual-case" && i+1<argc) {g_visualCase=std::atoi(argv[++i]);pbrTest=true;}
+        else if (a == "--visual-toggle" && i+1<argc) g_visualToggle=std::atoi(argv[++i]);
+        else if (a == "--day-cycle" && i+1<argc) g_dayCycle=float(std::atof(argv[++i]));
+        else if (a == "--global-shiny" && i+1<argc) g_globalShiny=float(std::atof(argv[++i]));
+        else if (a == "--terrain-roughness" && i+1<argc) g_terrainRoughness=float(std::atof(argv[++i]));
+        else if (a == "--ambient-life" && i+1<argc) g_ambientDensity=float(std::atof(argv[++i]));
+        else if (a == "--ambient-brightness" && i+1<argc) g_ambientBrightness=float(std::atof(argv[++i]));
+        else if (a == "--raised-grass" && i+1<argc) g_raisedGrass=std::atoi(argv[++i]);
+        else if (a == "--ambient-life-fixture" && i+1<argc) g_ambientFixture=std::atoi(argv[++i]);
+        else if (a == "--ambient-style" && i+1<argc) g_ambientStyle=std::atoi(argv[++i]);
+        else if (a == "--area-lighting" && i+1<argc) g_areaLight=float(std::atof(argv[++i]));
+        else if (a == "--area-zone" && i+1<argc) g_areaZone=uint32_t(std::atoi(argv[++i]));
+        else if (a == "--far-detail" && i+1<argc) g_farDetail=float(std::atof(argv[++i]));
+        else if (a == "--hd-ground" && i+1<argc) g_hdGround=float(std::atof(argv[++i]));
+        else if (a == "--cliff-join" && i+1<argc) g_cliffJoin=float(std::atof(argv[++i]));
+        else if (a == "--terrain-side-view") g_terrainSideView=true;
+        else if (a == "--soft-sky") g_softSky=true;
+        else if (a == "--material-cache-test") g_materialCacheTest=true;
         else if (a == "--material-publication-test") g_materialPublicationTest=true;
+        else if (a == "--check-material-list" && i+1<argc) g_materialList=argv[++i];
         else if (a == "--building-family-test" && i+1<argc) {g_buildingFamilyTest=std::atoi(argv[++i]);pbrTest=true;}
         else if (a == "--shared-maps-test") { g_sharedMapsTest=g_sharedMapsDump=pbrTest=true; hdr=true; }
         else if (a == "--shared-maps-control") { g_sharedMapsDump=pbrTest=true; hdr=true; }
@@ -5598,6 +6177,7 @@ int main(int argc, char** argv)
         else if (a == "--lamp-wobble") g_lampWobble = true;
         else if (a == "--sharpen" && i + 1 < argc) sharpen = float(std::atof(argv[++i]));
         else if (a == "--render-scale" && i + 1 < argc) renderScale = std::atoi(argv[++i]);
+        else if (a=="--icc-gloss" && i+1<argc) g_iccGlossiness=std::clamp(float(std::atof(argv[++i])),0.f,1.f);
         else if (a == "--upscaler" && i + 1 < argc) upscaler = std::atoi(argv[++i]);
         else if (a == "--frame-gen") frameGen = true;
         else if (a == "--ui-window") g_uiWindow = true;
@@ -5651,22 +6231,101 @@ int main(int argc, char** argv)
         if (!queued.Init(hwnd,g_width,g_height,&initError)) {std::printf("init failed: %s\n",initError.c_str());return 1;}
         queued.SetPixelLighting(pixelLighting);queued.SetLightingDebug(lightingDebug);
         queued.SetLightOverride(lightOverride);queued.SetShadows(shadows);
-        queued.SetHdr(hdr);queued.SetSkyPlayfield(g_skyZone);queued.SetKnob(Knob::TerraBlend,terrainBlend);
+        queued.SetHdr(hdr);queued.SetSkyPlayfield(g_skyZone);queued.SetKnob(Knob::TerraBlend,terrainBlend);queued.SetKnob(Knob::BuildWear,float(g_wearLevel));
         if(g_grassFieldOn)queued.SetGrassField(true,g_grassFieldDist,3.0f,.5f,g_grassFieldTex);
         RunNativeGroundTest(queued,frames,shot);queued.Sync();
         std::printf("rendered; screenshot %s\n",shot.c_str());return 0;
     }
     Device dev;
     std::string error;
-    if (!dev.Init(hwnd, g_width, g_height, &error)) {
+    // The threaded publication fixture owns its device; avoid two complete
+    // Vulkan contexts in a 32-bit test process.
+    if (!g_materialPublicationTest && !dev.Init(hwnd, g_width, g_height, &error)) {
         std::printf("rvk init failed: %s\n", error.c_str());
         return 1;
     }
+    if(!g_materialList.empty()) {
+        std::ifstream input(g_materialList);if(!input){std::printf("Cannot read material list\n");return 2;}
+        std::string prefix;unsigned checked=0,failed=0;std::vector<Texture*> batch;
+        Device::PbrSettings pbr;pbr.enabled=true;dev.SetPbr(pbr);dev.SetPixelLighting(true);
+        dev.SetHdr(false);
+        const VtxMesh plane[]={{-2,-1,0,0,0,-1,0xFFFFFFFF,0,1},{-2,1,0,0,0,-1,0xFFFFFFFF,0,0},
+            {2,-1,0,0,0,-1,0xFFFFFFFF,1,1},{2,1,0,0,0,-1,0xFFFFFFFF,1,0}};
+        while(std::getline(input,prefix)) {
+            if(prefix.empty())continue;
+            if(!batch.size()) {
+                dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xFF101010,1);
+                dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+                dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+                dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_LIGHTING,0);
+                dev.SetRenderState(RS_AMBIENT,0xFFFFFFFF);dev.SetRenderState(RS_ALPHABLENDENABLE,0);
+                dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
+                dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+            }
+            maps::MaterialFiles files;files.albedo=prefix+"_d.png";files.maxSize=512;files.maxAlbedoSize=2048;files.maxAlbedoPixels=1024u*1024u;
+            if(std::filesystem::exists(prefix+"_n.png"))files.normal=prefix+"_n.png";
+            if(std::filesystem::exists(prefix+"_orm.png"))files.packed=prefix+"_orm.png";
+            if(std::filesystem::exists(prefix+"_e.png"))files.emissive=prefix+"_e.png";
+            const auto decoded=maps::Decode(files);
+            // Full-inventory audits need the resident size of every material.
+            std::printf("RESIDENT %s %ux%u %zu bytes\n",prefix.c_str(),decoded.albedo.w,decoded.albedo.h,decoded.Bytes());
+            const uint32_t pixel=0xFF808080;
+            Texture* base=dev.CreateTexture(1,1,&pixel);
+            unsigned kind=0,id=0;std::sscanf(std::filesystem::path(prefix).filename().string().c_str(),"%u_%u",&kind,&id);
+            dev.SetTextureRdbId(base,id,kind,0);
+            const bool ready=!decoded.decodeFailed && !decoded.albedo.Empty() && maps::Replace(dev,base,decoded) &&
+                base->MaterialsState()==Texture::MaterialState::Ready;
+            if(!ready){++failed;std::printf("FAIL %s %s\n",prefix.c_str(),decoded.errors.c_str());}
+            dev.SetTexture(0,base);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);batch.push_back(base);++checked;
+            if(batch.size()==8) {
+                dev.SetTexture(0,nullptr);dev.EndFrame();for(auto* t:batch)dev.DestroyTexture(t);batch.clear();
+            }
+            if(checked%100==0){std::printf("CHECKED %u failed %u\n",checked,failed);std::fflush(stdout);}
+        }
+        if(batch.size()){dev.SetTexture(0,nullptr);dev.EndFrame();for(auto* t:batch)dev.DestroyTexture(t);}
+        for(int i=0;i<5;++i){dev.BeginFrame();dev.EndFrame();}
+        std::printf("MATERIAL CHECK %u failed %u\n",checked,failed);
+        return checked && !failed ? 0:1;
+    }
+    if(g_materialCacheTest) {
+        _putenv_s("RANDYVK_TEST_MODULES","1");_putenv_s("RANDYVK_TEST_MATERIAL_CACHE_MB","1");
+        dev.SetHdr(true);Device::PbrSettings pbr;pbr.enabled=true;pbr.albedoMaps=true;dev.SetPbr(pbr);
+        const uint32_t grey=0xff808080;
+        Texture* active=dev.CreateTexture(1,1,&grey),*cold=dev.CreateTexture(1,1,&grey),*alias=dev.CreateTexture(1,1,&grey);
+        maps::Decoded decoded;decoded.albedo.w=decoded.albedo.h=512;
+        decoded.albedo.levels.push_back(std::vector<uint32_t>(512*512,0xff407040));
+        decoded.albedo.levels[0][0]=0xff417141;
+        decoded.orm.w=decoded.orm.h=512;decoded.orm.levels.push_back(std::vector<uint32_t>(512*512,0xffffd900));
+        Texture* flat=maps::Upload(dev,decoded.orm,true);
+        bool okay=flat && flat->Width()==1 && flat->Height()==1;dev.DestroyTexture(flat);
+        maps::Replace(dev,active,decoded);maps::Replace(dev,cold,decoded);dev.ShareMaterialMaps(alias,cold);
+        const VtxMesh plane[]={{-2,-1,0,0,0,-1,0xffffffff,0,1},{-2,1,0,0,0,-1,0xffffffff,0,0},
+            {2,-1,0,0,0,-1,0xffffffff,1,1},{2,1,0,0,0,-1,0xffffffff,1,0}};
+        for(int frame=0;frame<300;++frame) {
+            dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xff101010,1);
+            dev.SetTransform(World,Identity());dev.SetTransform(View,LookAtLH({0,0,-5},{0,0,0},{0,1,0}));
+            dev.SetTransform(Projection,PerspectiveLH(kPi/3,float(g_width)/g_height,.1f,100));
+            dev.SetRenderState(RS_CULLMODE,CULL_NONE);dev.SetRenderState(RS_LIGHTING,0);
+            dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);
+            dev.SetTextureStageState(1,TSS_COLOROP,TOP_DISABLE);
+            dev.SetTexture(0,active);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);
+            if(frame<20){dev.SetTexture(0,cold);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);dev.SetTexture(0,alias);dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);}
+            dev.SetTexture(0,nullptr);dev.EndFrame();
+        }
+        okay=okay && active->MaterialsState()==Texture::MaterialState::Ready && active->MaterialDrawFrame()>280;
+        okay=okay && cold->MaterialsState()==Texture::MaterialState::Evicted && alias->MaterialsState()==Texture::MaterialState::Evicted;
+        maps::Replace(dev,cold,decoded);dev.ShareMaterialMaps(alias,cold);
+        okay=okay && cold->MaterialsState()==Texture::MaterialState::Ready && alias->MaterialsState()==Texture::MaterialState::Ready;
+        dev.DestroyTexture(active);dev.DestroyTexture(cold);dev.DestroyTexture(alias);
+        std::printf("Material cache: %s (constant controls compacted, cold shared maps retired, active HD protected, reload ready)\n",okay?"passed":"FAILED");
+        return okay?0:1;
+    }
     if (g_materialPublicationTest) {
+      try {
         // Exercise the actual threaded queue: a non-null CPU wrapper with no
         // realized image must fail publication. No synchronization in production.
         ThreadedDevice queued;
-        if (!queued.Init(nullptr, 64, 64, &error)) return 1;
+        if (!queued.Init(nullptr, 64, 64, &error)) {std::fprintf(stderr,"publication init: %s\n",error.c_str());return 1;}
         queued.BeginFrame();
         const uint32_t pixel=0xFF70B0C0;
         Texture* base=queued.CreateTexture(1,1,&pixel);
@@ -5699,6 +6358,7 @@ int main(int argc, char** argv)
         queued.EndFrame(); queued.Sync();
         std::printf("material publication: %s (failed wrappers rejected, valid reload retained, warm aliases independent)\n",okay ? "passed" : "FAILED");
         return okay ? 0 : 1;
+      } catch(const std::exception& e) {std::fprintf(stderr,"publication exception: %s\n",e.what());return 1;}
     }
     if (g_grassUploadTest) {
         dev.BeginFrame();
@@ -5741,6 +6401,8 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::HazeStart,hazeStart);
     dev.SetKnob(rvk::Knob::HazeEnd,hazeEnd);
     if ((g_globalTerrainTest || g_worldMaterialsTest) && !noWorldPlayfield) dev.SetSkyPlayfield(655);
+    dev.SetKnob(rvk::Knob::BuildWear, float(g_wearLevel));
+    dev.SetKnob(rvk::Knob::WearDebug, float(g_wearDebug));
     dev.SetKnob(rvk::Knob::BuildingHD, g_worldBuildingHD);
     dev.SetHdr(hdr);
     if (!g_meshIds.empty())
@@ -5815,6 +6477,14 @@ int main(int argc, char** argv)
     dev.SetKnob(rvk::Knob::NeonSat, neonSat);
     dev.SetKnob(rvk::Knob::SoftHi, softHi);
     dev.SetKnob(rvk::Knob::DayLook, dayLook);
+    dev.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
+    dev.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
+    dev.SetKnob(rvk::Knob::AreaLight,g_areaLight);dev.SetKnob(rvk::Knob::FarDetail,g_farDetail);dev.SetKnob(rvk::Knob::HDGround,g_hdGround);
+    dev.SetKnob(rvk::Knob::CliffJoin,g_cliffJoin);
+    dev.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
+    dev.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
+    dev.SetKnob(rvk::Knob::AmbientBright,g_ambientBrightness);
+    dev.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);
     dev.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
     if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
     dev.SetKnob(rvk::Knob::BloomWide, bloomWide);
@@ -5827,6 +6497,8 @@ int main(int argc, char** argv)
     dev.SetTwilight(g_twilight, g_skyGlow);
     dev.SetKnob(rvk::Knob::DuskRays, g_duskRays);
     dev.SetProcSky(g_procSky, g_skyZoneHint, 1.0f);
+    dev.SetKnob(Knob::SkyStyle,g_softSky ? 1.f:0.f);
+    dev.SetKnob(Knob::SkyClouds,g_skyClouds);dev.SetKnob(Knob::SkyTraffic,g_skyTraffic);
     dev.SetSkyColours(g_skyColours);
     dev.SetNightSky(g_nightSky);
     dev.SetRainbow(1.0f, g_rainbowForce);
@@ -5848,6 +6520,8 @@ int main(int argc, char** argv)
     dev.SetTaa(taa, sharpen);
     dev.SetRenderScale(uint32_t(renderScale));
     dev.SetUpscaler(uint32_t(upscaler));
+    dev.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
+    if(g_iccFloorTest) dev.SetSkyPlayfield(g_skyZone);
     dev.SetFrameGen(frameGen);
     dev.SetKnob(rvk::Knob::Fxaa, fxaa);
     dev.SetGrading(saturation, contrast, warmth, 1.0f, nightTint, vignette);
@@ -5874,6 +6548,91 @@ int main(int argc, char** argv)
     dev.SetMotionBlurMode(motionMode);
     dev.SetDof(dof > 0.0f, dofBokeh, true, dof, 16.0f, dofFocus, 0.2f, dofFar, 3.0f);
     dev.SetPointShadowFadeIn(fadeIn);    // frames here are milliseconds apart: no fade-in unless asked
+    if(g_wearFixture){
+        if(threaded){ThreadedDevice queued;std::string error;
+            if(!queued.Init(nullptr,g_width,g_height,&error)){std::printf("fixture init failed: %s\n",error.c_str());return 1;}
+            queued.SetHdr(hdr);queued.SetShadows(shadows);queued.SetLightOverride(lightOverride);queued.SetKnob(Knob::Headroom,headroom);
+    queued.SetTonemap(knee, 1.0f);
+    queued.SetBloom(bloom, 1.0f);
+    queued.SetEffectGlow(effectGlow);
+    queued.SetKnob(rvk::Knob::BloomOcc, bloomOcc);
+    queued.SetKnob(rvk::Knob::NeonSat, neonSat);
+    queued.SetKnob(rvk::Knob::SoftHi, softHi);
+    queued.SetKnob(rvk::Knob::DayLook, dayLook);
+    queued.SetKnob(rvk::Knob::DayCycle, g_dayCycle);
+    queued.SetKnob(rvk::Knob::TerraRough, g_terrainRoughness);
+    queued.SetKnob(rvk::Knob::AreaLight,g_areaLight);queued.SetKnob(rvk::Knob::FarDetail,g_farDetail);queued.SetKnob(rvk::Knob::HDGround,g_hdGround);
+    queued.SetKnob(rvk::Knob::CliffJoin,g_cliffJoin);
+    queued.SetKnob(rvk::Knob::AmbientMotes,g_ambientDensity);
+    queued.SetKnob(rvk::Knob::AmbientBright,g_ambientBrightness);
+    queued.SetKnob(rvk::Knob::AmbientStyle,float(g_ambientStyle));
+    queued.SetKnob(rvk::Knob::GlobalShiny, g_globalShiny);
+    queued.SetKnob(rvk::Knob::TerraBlend, terrainBlend);
+    if(g_sharedTerrainTest) std::printf("shared terrain fixture: zone %u, amount %.2f, login %d\n",g_skyZone,terrainBlend,int(noWorldPlayfield));
+    queued.SetKnob(rvk::Knob::BloomWide, bloomWide);
+    queued.SetKnob(rvk::Knob::SunSoft, sunSoft);
+    queued.SetLeafLight(leaf);
+    queued.SetKnob(rvk::Knob::NightGlow, nightGlow);
+    queued.SetKnob(rvk::Knob::MoonLight, g_moonLight);
+    queued.SetDarkness(g_darkness, g_darkFloor);
+    queued.SetKnob(rvk::Knob::Atmos, g_atmos);
+    queued.SetTwilight(g_twilight, g_skyGlow, 1.0f);
+    queued.SetKnob(rvk::Knob::DuskRays, g_duskRays);
+    queued.SetProcSky(g_procSky, g_skyZoneHint, 1.0f);
+    queued.SetKnob(Knob::SkyStyle,g_softSky ? 1.f:0.f);
+    queued.SetKnob(Knob::SkyClouds,g_skyClouds);queued.SetKnob(Knob::SkyTraffic,g_skyTraffic);
+    queued.SetSkyColours(g_skyColours);
+    queued.SetNightSky(g_nightSky);
+    queued.SetRainbow(1.0f, g_rainbowForce);
+    queued.SetKnob(rvk::Knob::DawnLight, g_dawnLight);
+    queued.SetKnob(rvk::Knob::Mist, g_mist);
+    queued.SetKnob(rvk::Knob::Contact, contact);
+    queued.SetKnob(rvk::Knob::Sway, sway);
+    queued.SetKnob(rvk::Knob::GrassPush, grassPush);
+    queued.SetGrassStyle(g_grassStyle[0], g_grassStyle[1], g_grassStyle[2], g_grassStyle[3], g_grassStyle[4] != 0.0f);
+    queued.SetGrassEven(g_grassEven);
+    queued.SetGrassShadows(g_grassShadow);
+    queued.SetKnob(rvk::Knob::PlantDetail, plantDetail);
+    queued.SetKnob(rvk::Knob::FoliageLod, foliageLod);
+    if (g_grassFieldOn)                  // --grass-field: the procedural ground grass (needs HDR: its pass draws into the scene)
+        queued.SetGrassField(true, g_grassFieldDist, 3.0f, 0.5f, g_grassFieldTex);
+    queued.SetShadowResolution(uint32_t(sunRes), uint32_t(ptRes));
+    queued.SetPointLightIntensity(ptLight, ptLight);
+    queued.SetTessellation(tess, 20.0f, uint32_t(tessLevel));
+    queued.SetTaa(taa, sharpen);
+    queued.SetRenderScale(uint32_t(renderScale));
+    queued.SetUpscaler(uint32_t(upscaler));
+    queued.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
+    queued.SetFrameGen(frameGen);
+    queued.SetKnob(rvk::Knob::Fxaa, fxaa);
+    queued.SetGrading(saturation, contrast, warmth, 1.0f, nightTint, vignette);
+    if (lutSepia) {                      // --lut-sepia: a 16^3 sepia lookup table in the day slot (the 3D LUT path)
+        const uint32_t n = 16;
+        std::vector<uint8_t> lut(size_t(n) * n * n * 4);
+        for (uint32_t b = 0; b < n; ++b)
+            for (uint32_t g = 0; g < n; ++g)
+                for (uint32_t r = 0; r < n; ++r) {
+                    float y = (0.3f * r + 0.59f * g + 0.11f * b) / float(n - 1);
+                    uint8_t* p = &lut[((size_t(b) * n + g) * n + r) * 4];
+                    p[0] = uint8_t(std::min(1.0f, y * 1.07f) * 255); p[1] = uint8_t(y * 0.74f * 255);
+                    p[2] = uint8_t(y * 0.43f * 255); p[3] = 255;
+                }
+        queued.SetColorLut(0, n, lut.data());
+    }
+    queued.SetAo(ao, aoRadius);
+    queued.SetGi(gi, giRadius);
+    queued.SetVolume(volume, volHaze, volShafts);
+    queued.SetSsr(ssr, 1.0f, 0.3f, ssrWet);
+    queued.SetBump(bump);
+    queued.SetAnisotropy(anisotropy);
+    queued.SetMotionBlur(motionBlur, 8.0f);
+    queued.SetMotionBlurMode(motionMode);
+    queued.SetDof(dof > 0.0f, dofBokeh, true, dof, 16.0f, dofFocus, 0.2f, dofFar, 3.0f);
+    // Point-shadow fade-in is irrelevant to this shadow-disabled matched fixture.    // frames here are milliseconds apart: no fade-in unless asked
+            RunWeatheringFixture(queued,frames,shot);queued.Sync();
+        }else RunWeatheringFixture(dev,frames,shot);
+        return 0;
+    }
     if (glowOccludeTest) {
         RunGlowOccludeTest(dev, frames, shot);
         std::printf("rendered; screenshot %s\n", shot.c_str());
@@ -5939,6 +6698,7 @@ int main(int argc, char** argv)
             tdev.SetTaa(true, sharpen);
             tdev.SetRenderScale(uint32_t(renderScale));
             tdev.SetUpscaler(uint32_t(upscaler));
+            tdev.SetKnob(Knob::ICCGlossiness,g_iccGlossiness);
         }
         if (g_pbrDebug) {
             Device::PbrSettings pbr;
@@ -5978,7 +6738,7 @@ int main(int argc, char** argv)
         if (!g_statelPack.empty()) RunStatelTest(tdev, frames, shot, dump);
         else if (shadowTest) RunShadowTest(tdev, frames, shot, cacheTest, frameMs, dump);
         else if(g_nativeGroundTest) {
-            tdev.SetHdr(hdr);tdev.SetSkyPlayfield(g_skyZone);tdev.SetKnob(Knob::TerraBlend,terrainBlend);
+            tdev.SetHdr(hdr);tdev.SetSkyPlayfield(g_skyZone);tdev.SetKnob(Knob::TerraBlend,terrainBlend);tdev.SetKnob(Knob::BuildWear,float(g_wearLevel));
             if(g_grassFieldOn)tdev.SetGrassField(true,g_grassFieldDist,3.0f,.5f,g_grassFieldTex);
             RunNativeGroundTest(tdev,frames,shot);
             tdev.Sync();

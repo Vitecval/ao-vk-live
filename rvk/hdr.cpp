@@ -296,7 +296,7 @@ bool Device::CreateHdrResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = layout;
-        bool ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, out), "post pipeline", error);
+        bool ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, out), "post pipeline", error);
         vkDestroyShaderModule(m_device, frag, nullptr);
         return ok;
     };
@@ -356,6 +356,8 @@ bool Device::CreateHdrResources(std::string* error)
 
 void Device::DestroyHdrResources()
 {
+    DestroyFsr2(); // Contexts and reactive image views precede their backing images.
+    DestroyFsr3();
     for (Texture* t : m_bloomLevels) DestroyTextureNow(t);
     m_bloomLevels.clear();
     for (Texture*& t : m_aoTex)
@@ -385,8 +387,6 @@ void Device::DestroyHdrResources()
     if (m_tonemapped) { DestroyTextureNow(m_tonemapped); m_tonemapped = nullptr; }
     if (m_fxaaOut) { DestroyTextureNow(m_fxaaOut); m_fxaaOut = nullptr; }
     if (m_taaOut) { DestroyTextureNow(m_taaOut); m_taaOut = nullptr; }
-    DestroyFsr2();
-    DestroyFsr3();
     if (m_uiLayer) { DestroyTextureNow(m_uiLayer); m_uiLayer = nullptr; }
     if (m_fgLabels) { DestroyTextureNow(m_fgLabels); m_fgLabels = nullptr; }
     if (m_fgOverlay) { DestroyTextureNow(m_fgOverlay); m_fgOverlay = nullptr; }
@@ -452,6 +452,7 @@ void Device::BeginScene()
     float w = m_scene ? float(m_scene->m_width) : 1.0f, h = m_scene ? float(m_scene->m_height) : 1.0f;
     m_taaJitter[0] = (halton(k, 2) - 0.5f) * 2.0f / w;
     m_taaJitter[1] = (halton(k, 3) - 0.5f) * 2.0f / h;
+    m_livingCameraValid=false;m_livingWorldCamera=false;m_livingLightingValid=false;m_livingLightCount=0;m_livingReplaced=0;
     m_sceneSaw3D = false;
     m_aoProjValid = false;
     m_sceneClass = 0;
@@ -481,10 +482,12 @@ void Device::BeginScene()
 // first interface draw, before a read-back of the main target, and at the end of the frame.
 void Device::EndScene()
 {
+    if (m_inFrame && !m_deviceLost && m_native.basePending && m_scenePhase) DrawPendingGroundBase();
+    try { DrawLiving(); }
+    catch (const std::exception& e) { m_drawSkin=nullptr; m_drawGpu=nullptr; m_drawSkinBase=nullptr; m_pickSkinned=nullptr; m_drawStaticBuffer=VK_NULL_HANDLE; m_drawStaticIndexBuffer=VK_NULL_HANDLE; DestroyLiving(); m_livingAttempt=true; Log("Living Rubi-Ka disabled: %s", e.what()); }
     if (!m_inFrame || m_deviceLost)
         return;
-    if (m_native.basePending && m_scenePhase)
-        DrawPendingGroundBase();                 // (RVK_GroundOne: no lighting pass came after the ground's base pass)
+
     if (!m_scenePhase)
         return;
     m_scenePhase = false;
@@ -497,12 +500,18 @@ void Device::EndScene()
     ProfileMark("scene");
     RenderGrassField(cmd);                       // RVK_GrassOn: our ground grass, over the scene (its own block)
     ProfileMark("ground grass");
+    // Living exhaust must retain the captured world camera even if a UI caller already changed D3D transforms.
+    const auto smokeView=m_view,smokeProj=m_proj;const auto smokeViewport=m_viewport;const auto smokeAmbient=m_rs[d3d::RS_AMBIENT];
+    if(m_liveAtmos>=1&&m_living&&m_livingCameraValid){m_view=m_livingView;m_proj=m_livingProj;m_viewport=m_livingViewport;if(m_livingLightingValid)m_rs[d3d::RS_AMBIENT]=m_livingAmbient;}
     RenderSmoke(cmd);                            // RVK_SmokeOn: the smoke's simulation, and it over the scene
+    m_view=smokeView;m_proj=smokeProj;m_viewport=smokeViewport;m_rs[d3d::RS_AMBIENT]=smokeAmbient;
     RenderDebris(cmd);                           // RVK_StormDebris: a storm's blown leaves, straw and twigs
+    RenderAmbientMotes(cmd);                     // optional local pollen, dust and night fireflies
+    RenderShipBeacons(cmd);
     RenderRain(cmd);                             // RVK_WeatherOn: the rain, over all of it
     double cpu = ProfileCpu();
     Transition(cmd, m_scene, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    bool bloom = m_bloomStrength > 0.0f;
+    bool bloom = m_bloomStrength > 0.0f || m_lightGlow>0.f;
     if (bloom)
         RenderBloom(cmd);
     ProfileMark("bloom");
@@ -528,7 +537,7 @@ void Device::EndScene()
     // params[8..15]: colour grading (identity lookup tables until the proxy loads others).
     for (Texture*& lut : m_lut)
         if (!lut) lut = CreateLut(16, nullptr);
-    float params[16] = {m_tonemapKnee, m_exposure * m_darkGain, bloom ? m_bloomStrength / m_bloomWeightSum : 0.0f,
+    float params[16] = {m_tonemapKnee, m_exposure * m_darkGain, bloom ? (m_bloomStrength>0.f ? m_bloomStrength:1.f) / m_bloomWeightSum : 0.0f,
                         m_bloomDepth ? m_bloomOverNearer : -1.0f, m_aoProj.m[2][2], m_aoProj.m[3][2],
                         gi ? m_giStrength : 0.0f,
                         float((volume ? 1 : 0) | (ssr ? 2 : 0) | (ao ? 4 : 0) | (contact ? 8 : 0))};
@@ -581,9 +590,11 @@ void Device::EndScene()
     ProfileMark("tonemap");
     // (RVK_Upscaler 1: FSR 2 upscales the scaled scene - fsr2.cpp; 2: FSR 3.1 - fsr3.cpp; the TAA if they can't.)
     Texture* upscaled = blur ? blurSrc : m_ldrMain;
-    if (taa && !(scaled && m_upscaler == 1 && RenderFsr2(cmd, upscaled, taaParams)) &&
-        !(scaled && m_upscaler == 2 && RenderFsr3(cmd, upscaled, taaParams)))
-        RenderTaa(cmd, upscaled, taaParams);
+    bool fsrUpscaled=false;
+    if (taa && scaled && m_upscaler==1) fsrUpscaled=RenderFsr2(cmd,upscaled,taaParams);
+    if (taa && scaled && m_upscaler==2) fsrUpscaled=RenderFsr3(cmd,upscaled,taaParams);
+    if (m_deviceLost) return; // Never submit a partially failed SDK dispatch.
+    if (taa && !fsrUpscaled) RenderTaa(cmd,upscaled,taaParams);
     if (taa && m_fg)
         FgPrepare(cmd, taaParams);               // (RVK_FrameGen: the scene's depth and motion for the generated frame)
     if (fxaa) {
@@ -886,7 +897,7 @@ bool Device::RenderDof(VkCommandBuffer cmd, bool bloom, bool ao, bool gi, bool v
         t = CreateImage(tw_, th_, f, 1, true);
         return t != nullptr;
     };
-    bool focusNew = !m_dofFocus[0];
+    bool focusNew = !m_dofFocus[0] || m_dofFocusReset;
     if (!ensure(m_dofIn, w, h, Format::RGBA16F) || !ensure(m_dofOut, w, h, Format::RGBA16F) ||
         !ensure(m_dofHalf, hw, hh, Format::RGBA16F) || !ensure(m_dofBlur, hw, hh, Format::RGBA16F) ||
         !ensure(m_dofTiles[0], tw, th, Format::RG16F) || !ensure(m_dofTiles[1], tw, th, Format::RG16F) ||
@@ -894,6 +905,7 @@ bool Device::RenderDof(VkCommandBuffer cmd, bool bloom, bool ao, bool gi, bool v
         return false;
     MakeDepthReadable(cmd);
     if (focusNew) {                              // no focus yet: the focus pass starts from "invalid"
+        m_dofFocusReset = false;
         for (Texture* t : m_dofFocus) {
             Transition(cmd, t, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
             VkClearColorValue zero{};
@@ -1651,7 +1663,7 @@ void Device::RenderBloom(VkCommandBuffer cmd)
         // (By night - as dark as RVK_Darkness makes it - the threshold lower: lamps and windows glow out of the dark.)
         const float nightGlow = NightAmount() * std::min(m_dark.tone, 1.0f);
         float params[8] = {1.0f / float(src->m_width), 1.0f / float(src->m_height),
-                           m_bloomThreshold * (1.0f - 0.25f * nightGlow), i == 0 ? 1.0f : 0.0f,
+                           m_bloomStrength>0.f ? m_bloomThreshold * (1.0f - 0.25f * nightGlow):1e10f, i == 0 ? 1.0f : 0.0f,
                            m_aoProj.m[2][2], m_aoProj.m[3][2], m_bloomDepth ? 1.0f : 0.0f, 0.0f};
         // The first pass adds the glow (additive effects) to the scene's light above the threshold.
         Texture* src2 = i == 0 ? m_glow : src;
@@ -1708,6 +1720,20 @@ void Device::RenderObjectMotionBlur(VkCommandBuffer cmd, Texture* src, const flo
 
 // This frame's camera against the last one's: the reprojection matrix (current clip -> previous clip) and the blur
 // parameters for motion_blur.frag. Remembers this frame's camera for the next.
+void Device::ResetTemporalHistory(uint64_t epoch)
+{
+    m_prevViewProjValid = false;
+    m_taaFrame = ~0ull;
+    m_cloudHistoryValid = false;
+    m_fsrInputsFrame = ~0ull;
+    m_prevSceneTime = 0;
+    m_motionPrev.Clear();
+    m_motionCur.Clear();
+    m_dofFocusReset = true;
+    m_freshWorldPresents.store(0, std::memory_order_release);
+    m_temporalEpoch.store(epoch, std::memory_order_release);
+}
+
 bool Device::MotionBlurParams(float out[28])
 {
     double now = SwayClock(), dt = now - m_prevSceneTime;

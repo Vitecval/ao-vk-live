@@ -84,6 +84,7 @@ typedef struct FfxOpticalflowContext_Private
 {
     FfxOpticalflowContextDescription contextDescription;
     FfxUInt32 effectContextId;
+    bool backendContextCreated;
     OpticalflowConstants constants;
     FfxDevice device;
     FfxDeviceCapabilities deviceCapabilities;

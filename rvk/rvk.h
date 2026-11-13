@@ -7,10 +7,13 @@
 
 #include "d3d7.h"
 #include "skin.h"
+#include "optional_population.h"
+#include "huge_shadow_policy.h"
 #include "vk.h"
 
 #include <array>
 #include <memory>
+#include <tuple>
 #include <mutex>
 #include <cstring>
 #include <cstdint>
@@ -144,7 +147,7 @@ public:
     float GrassCoverAt(float u, float v, bool clamp) const;
     // (A normal map, before the device is handed it: its alpha is a height map's - rvk/material_maps.h.)
     void SetAlphaHeight(bool height) { m_alphaHeight = height; }
-    enum class MaterialState : uint32_t { Original, Pending, Ready, Failed };
+    enum class MaterialState : uint32_t { Original, Pending, Ready, Failed, Evicted };
     MaterialState MaterialsState() const { return m_materialState.load(std::memory_order_acquire); }
     uint64_t MaterialDrawFrame() const { return m_materialDrawFrame.load(std::memory_order_relaxed); }
     void MaterialsPending() { m_materialState.store(MaterialState::Pending, std::memory_order_release); }
@@ -153,6 +156,7 @@ private:
     friend class Device;
     std::atomic<MaterialState> m_materialState{MaterialState::Original};
     std::atomic<uint64_t> m_materialDrawFrame{0};
+    uint64_t m_materialResidentFrame=0;
     VkImage m_image = VK_NULL_HANDLE;
     VkImageView m_view = VK_NULL_HANDLE;
     VmaAllocation_T* m_allocation = nullptr;
@@ -250,6 +254,16 @@ struct DeviceInfo {
 // this name), the member it sets, and what a change must refresh (C the draws' constants, L the frame lights, G the
 // ground grass's tiles).
 #define RVK_FLOAT_KNOBS(X) \
+    X(LivePeople, m_livePeople, 0) \
+    X(NPCVariety, m_npcVariety, 0) \
+    X(ArmoredCivilians, m_armoredCivilians, 0) \
+    X(PhasefrontTraffic, m_phasefrontTraffic, 0) \
+    X(OrbitalCraft, m_orbitalCraft, 0) \
+    X(LiveDrones, m_liveDrones, 0) \
+    X(AirTraffic, m_liveAir, 0) \
+    X(LiveWild, m_liveWild, 0) \
+    X(LiveMachine, m_liveMachine, 0) \
+    X(LiveAtmos, m_liveAtmos, 0) \
     X(TerrainHD, m_terrainHD, C|L)                /* global original-mesh terrain detail, 0..1 */ \
     X(TerrainFar, m_terrainFar, C|L)              /* filtered distant land composition, 0..1 */ \
     X(BuildingHD, m_buildingHD, C|L)              /* global architecture material/detail pass, 0..1 */ \
@@ -272,12 +286,35 @@ struct DeviceInfo {
     X(NeonSat, m_neonSat, L)                          /* coloured light keeps its colour (0: to white) */ \
     X(SoftHi, m_softHi, L)                            /* gentler bright world surfaces */ \
     X(DayLook, m_dayLook, L)                          /* brighter, neutral daylight presentation */ \
+    X(DayCycle, m_dayCycle, C|L)                      /* server cycle, longer days, enhanced daylight */ \
+    X(ImprovedTiles, m_improvedTiles, C|L)            /* ICC tile artwork in Shared Ground+ */ \
     X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
+    X(TerraRough, m_terrainRoughness, C|L)            /* Shared Ground+ surface bumps/grit, not gloss */ \
+    X(LightGlow, m_lightGlow, C|L)                   /* authored light-source halos */ \
+    X(AmbientMotes, m_ambientMotes, 0)               /* local biome-aware ambient motes */ \
+    X(AmbientBright, m_ambientBright, 0)             /* ambient mote brightness */ \
+    X(AmbientStyle, m_ambientStyle, 0)               /* auto / fireflies / dust / spores */ \
+    X(AreaLight, m_areaLight, C|L)                   /* bounded area-specific daylight irradiance */ \
+    X(FarDetail, m_farDetail, C|L)                   /* distant static shading detail saving */ \
+    X(HDGround, m_hdGroundMode, C|L)                 /* continuous full-HD terrain albedo */ \
+    X(CliffJoin, m_cliffJoin, C|L)                   /* slope-only crest/toe material transition */ \
+    X(SkyClouds, m_skyClouds, C)                     /* sky-only cloud enhancement */ \
+    X(SkyTraffic, m_skyTraffic, C)                   /* bounded distant cosmetic craft */ \
+    X(SkyStyle, m_skyStyle, C|L)                     /* optional soft sky / richer night stars */ \
     X(Sway, m_sway, C|L)                              /* wind in small plants (0 still) */ \
     X(GrassPush, m_grassPush, L)                      /* plants bending from characters (0 off) */ \
     X(PlantDetail, m_plantDetail, 0)                  /* plants' big quads split for smooth bending (0 off) */ \
     X(FoliageLod, m_foliageLod, 0)                    /* foliage shaded cheaper past this (units; 0 off) */ \
     X(FolDither, m_foliageDither, 0)                  /* plants' soft edges dithered past this (units; 0 off) */ \
+    X(WearDebug, m_wearDebug, C)                        /* 0 off, 1 counters, 2 pixel coverage */ \
+    X(WindowDepth, m_windowDepth, C)                    /* Exterior windows: 0 off, 1 subtle, 2 strong */ \
+    X(ICCGlossiness, m_iccGlossiness, C)               /* verified ICC targets only, 0..1 */ \
+    X(GlobalShiny, m_globalShiny, C|L)                /* material gloss/specular response, 0..1 */ \
+    X(ImmersiveShips, m_immersiveShips, C)            /* enhance existing named sky ships */ \
+    X(ShipLights, m_shipLights, C|L)                 /* depth-tested navigation beacons */ \
+    X(ShipLightPower, m_shipLightPower, C|L)          /* bounded nearby ship illumination */ \
+    X(ICCArtwork, m_enhancedOriginal, C)              /* original world patterns plus authored fine detail */ \
+    X(BuildWear, m_buildWear, C)                        /* building weathering, 0..3 */ \
     X(GrassWidth, m_grassWidth, G)                    /* the grass blades' width, x (baked: rebuilds the tiles) */ \
     X(GrassBright, m_grassBright, 0)                  /* the grass against its ground (1 as bright) */ \
     X(WindStorm, m_windStormScale, 0)                 /* a storm's wind, x (wind.cpp) */ \
@@ -313,6 +350,7 @@ struct DeviceInfo {
     X(Contact, m_contact, C)                          /* contact shadows' strength */ \
     X(Headroom, m_lightHeadroom, C|L)                 /* how bright local lights may make a surface (1..2) */
 #define RVK_BOOL_KNOBS(X) \
+    X(SkipHugeShadows, m_skipHugeShadows, 0)        /* omit massive solid static sun casters */ \
     X(AutoMat, m_autoMaterials, C)                 /* catalog material defaults for characters and equipment */ \
     X(FogInside, m_userFogInside, L)                /* allow selected fog indoors too */ \
     X(Prepass, m_prepassOn, 0)                        /* the depth pre-pass */ \
@@ -328,7 +366,8 @@ struct DeviceInfo {
     X(AlienMap, m_alienMap, 0)                        /* AI missions' map on green */ \
     X(HillShade, m_hillShade, 0)                      /* the terrain shaded from a low sun */ \
     X(GroundOne, m_groundOnePass, C)                  /* the native ground drawn in one pass, not two */ \
-    X(SceneProf, m_sceneProfile, 0)                   /* debug: the scene timed and its overdraw counted by kind */
+    X(SceneProf, m_sceneProfile, 0)                   /* debug: the scene timed and its overdraw counted by kind */ \
+    X(WindowActivity, m_windowActivity, 0)            /* slow, stable apartment light schedules */
 enum class Knob : uint32_t {
 #define RVK_KNOB_NAME(name, member, refresh) name,
     RVK_FLOAT_KNOBS(RVK_KNOB_NAME) RVK_BOOL_KNOBS(RVK_KNOB_NAME)
@@ -360,6 +399,10 @@ public:
 
     void BeginFrame();
     void EndFrame();
+    void ResetTemporalHistory(uint64_t epoch);
+    uint64_t WorldPresents() const { return m_worldPresents.load(std::memory_order_acquire); }
+    uint64_t FreshWorldPresents() const { return m_freshWorldPresents.load(std::memory_order_acquire); }
+    uint64_t TemporalEpoch() const { return m_temporalEpoch.load(std::memory_order_acquire); }
     bool InFrame() const { return m_inFrame; }
     // Reads a target (null = main) as B8G8R8A8 rows of width*4 bytes. Mid-frame this submits the work
     // recorded so far and waits for it (rendering then continues in the same frame).
@@ -687,6 +730,7 @@ public:
     // RVK_Upscaler: what brings the scaled scene up to the output's size - 0 our TAA (taa.frag), 1 AMD's FSR 2.2
     // (fsr2.cpp). At 100% the TAA either way.
     void SetUpscaler(uint32_t which) { m_upscaler = which; }
+    const std::string& PipelineCacheFilePath() const { return m_pipelineCacheFile; }
     // RVK_FrameGen: AMD's FSR 3.1 frame generation (framegen.cpp) - the swapchain made again at the next frame.
     void SetFrameGen(bool enable) { if (enable != m_frameGenWanted) m_frameGenFailed = false; m_frameGenWanted = enable; }
     // Frames the frame interpolation swapchain has presented (generated ones too); 0 without frame generation.
@@ -788,6 +832,7 @@ public:
     void SetSkyTime(double t) { m_skyTime = t; }
     // The playfield the game is in (its resource id; 0 none): its climate leans the sky (sky.cpp SkyZoneLean).
     void SetSkyPlayfield(uint32_t playfield);
+    void SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation=0);
     void SetEffectGlow(float gain) { if (m_effectGlow != gain) { m_effectGlow = gain; m_constantsDirty = true; } }
     float EffectGlow() const { return m_effectGlow; }
     float BloomStrength() const { return m_bloomStrength; }
@@ -964,6 +1009,7 @@ public:
     // The game's visual issuing the next draws (rnative::scene): its kind (VisualKind) and class name - for exact
     // decisions where the draw alone needs heuristics. 0 / "": not known.
     void SetDrawVisual(uint32_t kind, const char* className, uint32_t owner = 0, uint32_t visual = 0);
+    void SetWindowHouseBounds(const float* modelBounds); // six copied floats; nullptr: unknown
     // The game's lights of this frame (rnative::scene), each with its carrier's owner id (SetDrawVisual's) or 0: who
     // carries which light, exactly (FindCarriers).
     struct SceneLight { d3d::Light light; uint32_t owner; };
@@ -1041,6 +1087,8 @@ public:
     static constexpr uint32_t kFramesInFlight = 2;
 
 private:
+    friend struct LivingRuntimeProbe;
+    friend struct SkinLifetimeCheck;
     friend struct SmokeRingCheck;                 // regression fixture: force a flush at the smoke pass
     struct Frame {
         VkCommandBuffer upload = VK_NULL_HANDLE, main = VK_NULL_HANDLE;
@@ -1115,6 +1163,8 @@ private:
     // The pipeline cache: loaded from its file when the device starts, saved after the pipelines are made, once the
     // game has run a while (the pipelines made on demand), and when the device goes.
     VkPipelineCache m_pipelineCache = VK_NULL_HANDLE;
+    std::string m_pipelineCacheFile;
+    uint64_t m_pipelineCacheHash = 0;
     size_t m_pipelineCacheSaved = 0;             // the size of what the file holds (loaded or last saved)
     void CreatePipelineCache();
     void SavePipelineCache(const char* why);
@@ -1127,10 +1177,10 @@ private:
     // Makes sure `bytes` (plus alignment slack) fit in this frame's ring; if not, submits and waits for the
     // work recorded so far and restarts the ring. Call before a group of allocations that belong together.
     void EnsureRingSpace(VkDeviceSize bytes);
-    VkSampler SamplerFor(uint32_t stage);
+    VkSampler SamplerFor(uint32_t stage, bool material = false);
     void Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32_t vertexCount,
               const uint16_t* indices, uint32_t indexCount);
-    void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride);
+    void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride, bool windowGlow = false);
     // The draw's vertex buffer (slot 0; slot 1 is the null buffer) and index buffer (null: leave it), each bound only
     // when it differs from what is (StateCache): every bind is a call into the driver (through Wine's 32/64-bit thunk).
     void BindGeometry(VkCommandBuffer cmd, VkBuffer vb, VkBuffer ib);
@@ -1184,6 +1234,8 @@ private:
     };
     struct NativePatch {
         std::shared_ptr<const std::vector<uint8_t>> vertices, indices;   // (each cell's diagonal its own)
+        std::shared_ptr<const std::vector<uint8_t>> retailIndices;      // Shared Ground+: AO's overlap/collision surface
+        std::vector<uint16_t> materialTiles; // distinct tile owners sampled by this patch
         float lo[3], hi[3];
         std::vector<NativeClutter> clutter;      // its rocks, made when the eye is near
         bool clutterMade = false;
@@ -1207,6 +1259,7 @@ private:
         std::vector<NativePatch> patches;
         uint32_t vertices = 0, indexCount = 0;   // a patch's
         Texture* codes = nullptr;
+        Texture* heights = nullptr;             // exact retail heights for slope-only crest/toe blending
         Texture* maps = nullptr;                 // each cell's tile's normal map and material map (their bindless images
                                                  // in R, G and B, A; 0xFFFF none)
         Texture* anyOrm = nullptr;               // a tile's material map (the lighting pass's stand-in: PBR on)
@@ -1307,12 +1360,24 @@ private:
         float means[5][3]{};
         bool started = false;
         std::future<std::shared_ptr<SharedTerrainMaps>> pending;
-    } m_sharedGround;
-    static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain();
+        std::shared_ptr<SharedTerrainMaps> decoded;
+        unsigned uploaded=0;
+    } m_sharedGround,m_hdGroundState;
+    float m_hdGroundMode=0.f;
+    float m_cliffJoin=1.f;
+    float m_areaLight=0.f,m_farDetail=0.f;
+    float m_skyStyle=0.f,m_skyClouds=0.f,m_skyTraffic=0.f;
+    static std::shared_ptr<SharedTerrainMaps> DecodeSharedTerrain(bool hd=false);
     void PollSharedTerrain();
     void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);
     bool SharedGroundPlus() const { return !m_native.on && m_sharedTerrain>1.0f && m_skyPlayfield!=0; }
+    bool ImprovedTile(const Texture* tile) const;
+    // Outdoor proof survives camera culling; reset on playfield/indoor entry.
+    uint64_t m_daylightWorldSeen = ~0ull;
+    float EnhancedDaylight() const { return m_dayCycle > 1.5f && m_skyPlayfield && !m_indoors && SunKnown() &&
+        m_daylightWorldSeen != ~0ull
+        ? std::clamp((SunUp() - 0.02f) / 0.28f, 0.0f, 1.0f) : 0.0f; }
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
     bool TerrainTexturingOn() const
     {
@@ -1386,6 +1451,7 @@ private:
         uint32_t carrierGroup = ~0u;             // the ShadowItem group (run of draws) of that origin this frame
         std::vector<uint32_t> carrierGroups;     // every group that is the carrier's (sorted): the point shadow pass
         float carrier[3] = {};
+        uint32_t cosmeticGroup = ~0u;           // renderer-owned equipment light; never a game carrier
         float carried = 0.0f;                    // 0..1: counted as a character's light (smoothed over frames)
         uint32_t owner = 0;                      // its carrier (SetDrawVisual owner) when the scene's lights are known
     };
@@ -1490,6 +1556,13 @@ private:
     // world's), so 3D interface elements drawn with their own camera neither move the map nor cast into it.
     struct CasterView { d3d::Matrix view, proj; uint32_t count; };
     std::vector<CasterView> m_casterViews;
+    struct CasterMotion {
+        d3d::Matrix anchor{};
+        uint64_t lastFrame=0,lastKey=0;
+        uint32_t stableFrames=0;
+        bool moving=false;
+    };
+    std::unordered_map<uint64_t,CasterMotion> m_casterMotion;
     uint32_t m_casterViewLast = 0;               // the view most casters matched (RecordShadowCaster's fast path)
     uint64_t m_casterViewGen = 0, m_casterViewFrame = 0;   // ... as of this camera generation, this frame
     d3d::Matrix m_shadowWorldProj{};             // the world camera's projection: only its draws take shadows
@@ -1513,10 +1586,21 @@ private:
     bool m_drawingHeldLabels = false;
     void DrawHeldLabels();
     uint32_t m_midFrameFlushes = 0;
-    bool m_shadows = false;
-    float m_shadowStrength = 0.65f, m_shadowRange = 400.0f;
+    bool m_shadows = false, m_skipHugeShadows = false;
+    float m_shadowStrength = 0.65f, m_shadowRange = 200.0f;
     uint32_t m_shadowCascades = kShadowCascades;
     VkImage m_shadowImage = VK_NULL_HANDLE;
+    // A reusable depth layer for retained, opaque scenery. Actors and foliage
+    // are still drawn every frame over a depth copy of this layer.
+    VkImage m_shadowStaticImage = VK_NULL_HANDLE;
+    VmaAllocation_T* m_shadowStaticAllocation = nullptr;
+    VkImageView m_shadowStaticViews[kShadowCascades] = {};
+    VkImageLayout m_shadowStaticLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    uint64_t m_shadowStaticKeys[kShadowCascades] = {};
+    uint64_t m_shadowStaticCandidates[kShadowCascades] = {};
+    uint32_t m_shadowStaticReused = 0, m_shadowStaticRefreshed = 0;
+    uint64_t m_shadowExcludedKey = 0;
+    uint32_t m_shadowCascadesUpdated = 0;
     VmaAllocation_T* m_shadowAllocation = nullptr;
     VkImageView m_shadowView = VK_NULL_HANDLE;   // all cascades (sampled)
     VkImageView m_shadowLayerViews[kShadowLayers] = {};     // one cascade each, and the grass's (rendered)
@@ -1845,6 +1929,7 @@ private:
     // (at: where it stood when the streak began; moved: it has moved since - a thing that moves isn't remembered.)
     struct CasterStreak { uint64_t lastFrame = 0; uint32_t count = 0; float at[3] = {}; bool moved = false; };
     std::unordered_map<uint64_t, CachedCaster> m_casterCache;
+    shadow::HugeGroups m_hugeShadowGroups;
     // Placed objects (statels.cpp): every piece of the playfield's static objects, placed; a grid (x, z) over them.
     // (opaque: of a cut-out piece's mask, the share kept by its alpha test - a roof's cut-out mostly whole, a canopy's
     // leaves not; 1 for a solid piece.)
@@ -1920,6 +2005,7 @@ private:
     void ForgetCachedCaster(std::unordered_map<uint64_t, CachedCaster>::iterator it);
     void ForgetCasterTexture(Texture* texture);
     static double SwayClock();
+    static double WindowClock();
     static void TickFixedClock();
     d3d::Matrix SwayPose(const CachedCaster& e) const;
     void CaptureSun(const d3d::Light& light);
@@ -1990,6 +2076,7 @@ private:
     VkPipeline m_tonemapPipeline = VK_NULL_HANDLE;
     VkSampler m_pointSampler = VK_NULL_HANDLE, m_linearSampler = VK_NULL_HANDLE;
     float m_bloomStrength = 1.5f, m_bloomThreshold = 1.0f;
+    float m_lightGlow = 0.0f;
     float m_sunSoftness = 1.0f, m_leafLight = 1.0f, m_nightGlow = 1.5f, m_contact = 0.6f;
     bool m_drawMayDiscard = true;                // the current draw can cut out (alpha test / F_CUTOUT): pick the variant
     bool m_drawPrepassCutout = false;            // pre-passed with the cut-out pre-pass (prepass_cutout.frag)
@@ -2185,6 +2272,7 @@ private:
     const MeshInfo* m_drawMesh = nullptr;        // the current draw's (null: external geometry, pre-transformed)
     const skin::Job* m_drawSkin = nullptr;       // the current draw is this skinned character piece (DrawSkinned)
     uint32_t m_drawVisualKind = 0;               // SetDrawVisual (VisualKind)
+    float m_windowHouseBounds[6] = {};
     uint32_t m_drawOwner = 0;                    // ... the character it belongs to (0: none / unknown)
     uint32_t m_drawVisual = 0;                   // ... the visual object itself (the game's; for picking)
     std::vector<SceneLight> m_sceneLights;       // SetSceneLights, of frame m_sceneLightsFrame
@@ -2201,6 +2289,8 @@ private:
         uint64_t lastFrame = 0;
     };
     struct SkinOutput {
+        uint64_t jobSerial=0, boneSerial=0, prevBoneSerial=0;
+        bool rest=false;
         SkinMesh* mesh = nullptr;
         VkDeviceSize vertexOffset = 0, prevOffset = 0, smoothOffset = 0;   // in the frame's skin arena
         bool smoothReady = false;
@@ -2275,7 +2365,7 @@ private:
     bool m_skinUploadsPending = false;
     std::unordered_map<const skin::Source*, SkinMesh> m_skinMeshes;
     std::unordered_map<const skin::Job*, SkinOutput> m_skinOutputs;   // this frame's
-    struct SkinBonesAt { VkDeviceSize offset, bytes; uint64_t generation; };
+    struct SkinBonesAt { VkDeviceSize offset, bytes; uint64_t generation, serial; };
     std::unordered_map<const skin::Palette*, SkinBonesAt> m_skinBonesAt;   // this frame's bones in the ring
     bool CreateSkinResources(std::string* error);
     void DestroySkinResources();
@@ -2306,6 +2396,21 @@ private:
     static constexpr float kGrassTileSize = 8.0f;   // world units a tile covers
     static constexpr int kGroundN = 32;          // cells along a tile's side (kGrassTileSize / kGroundCell)
     static constexpr int kGroundBlock = 8;       // cells along a capture block's side (4 x 4 blocks a tile)
+    float m_wearDebug=0.0f;
+    struct WearStat { uint64_t key=0; uint32_t draws=0,matched=0,eligible=0,active=0,pbr=0,hd=0,stage1=0,reasons=0; };
+    std::array<WearStat,256> m_wearStats{};
+    uint32_t m_wearDraws=0,m_wearMatched=0,m_wearEligible=0,m_wearActive=0,m_wearOverflow=0;
+    void ResetWeatherStats();
+    void NoteWeatherDraw(const Texture* t,bool matched,uint32_t blocked,bool active,bool pbr,bool hd,bool stage1);
+    void ReportWeatherStats(FILE* file=nullptr);
+    float m_iccGlossiness = .5f, m_globalShiny = .5f;
+    float m_terrainRoughness = .6f;
+    float m_immersiveShips = 0.f;
+    float m_shipLights=1.f,m_shipLightPower=.6f;
+    float m_enhancedOriginal = 0.0f;
+    float m_buildWear = 0.0f;
+    float m_windowDepth = 0.0f;
+    bool m_windowActivity = true;
     bool m_grassOn = false;                      // RVK_GrassOn (off: nothing drawn, nothing captured)
     float m_grassDistance = 25.0f;               // RVK_GrassDist (radius around the camera, world units)
     float m_grassDensity = 5.0f;                 // RVK_GrassBlades (blades a patch)
@@ -2346,6 +2451,7 @@ private:
         uint64_t created = 0;              // (frame number + 1: CaptureTerrain's chunk times)
         uint64_t lightReset = 0;           // its light last dropped (a lightmap re-uploaded), the same clock
         uint64_t lastUsed = 0;
+        uint64_t surface = 0;             // 0 native terrain; otherwise a stable grassy static mesh
         const void* lightmaps[4] = {};     // the lightmaps captured into it (a re-upload recaptures their light)
         const void* bases[8] = {};         // the base textures captured into it (a re-upload recaptures its ground)
         bool basesOverflow = false;        // ... more than those: any ground texture's re-upload recaptures it
@@ -2356,7 +2462,14 @@ private:
         uint32_t builtVersion = 0;
         float minY = 0.0f, maxY = 0.0f;    // the roots' height range (culling, light masks)
     };
-    std::unordered_map<uint64_t, std::unique_ptr<GrassTile>> m_grassTiles;
+    struct GrassTileHash {
+        size_t operator()(const std::tuple<int32_t,int32_t,uint64_t>& k) const {
+            uint64_t h=(uint64_t(uint32_t(std::get<0>(k)))<<32)|uint32_t(std::get<1>(k));
+            h^=std::get<2>(k)*0x9e3779b97f4a7c15ull;h^=h>>30;h*=0xbf58476d1ce4e5b9ull;h^=h>>27;
+            return size_t(h^(h>>32));
+        }
+    };
+    std::unordered_map<std::tuple<int32_t,int32_t,uint64_t>, std::unique_ptr<GrassTile>,GrassTileHash> m_grassTiles;
     GrassTile* GrassTileAt(int32_t tx, int32_t tz) const;
     // The terrain chunks seen (by contents, pass and texture): their ground box and when they were last captured, so
     // an unchanged chunk over tiles that already have it is skipped whole.
@@ -2775,6 +2888,28 @@ private:
     VkPipeline m_rainNearPipeline = VK_NULL_HANDLE;   // the streaks again, into m_rainNear alone
     VkPipeline m_boltPipeline = VK_NULL_HANDLE;  // our lightning bolts, into m_rainNear (bolt.vert/frag)
     VkPipeline m_debrisPipeline = VK_NULL_HANDLE;   // a storm's blown debris (debris.vert/frag)
+    VkPipeline m_ambientPipeline = VK_NULL_HANDLE;
+    float m_ambientMotes = 0.f, m_ambientBright = 1.f;
+    float m_ambientStyle = 0.f;
+    int m_ambientStyleCached = -1;
+    float m_ambientOrigins[128][4] = {};
+    uint32_t m_ambientOriginCount = 0, m_ambientPlayfield = ~0u;
+    int32_t m_ambientCell[2] = {INT32_MIN,INT32_MIN};
+    double m_ambientRefresh = -1.0;
+    double m_ambientDrawClock = 0.0;
+    void RenderAmbientMotes(VkCommandBuffer cmd);
+    void RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const float (*points)[4],const char* profile);
+    struct ShipBeaconSet {
+        uint64_t key=0,seen=~0ull;
+        float local[3][3]={},points[3][4]={},previous[3][4]={};
+        d3d::Matrix view{},proj{},previousView{},previousProj{};
+        bool skyCamera=false;
+    };
+    ShipBeaconSet m_shipBeacons[16];
+    void CaptureShipBeacons(uint32_t primitive,const detail::FvfLayout& layout,const void* vertices,uint32_t vertexCount,
+                            const uint16_t* indices,uint32_t indexCount,uint64_t key);
+    void FillShipLights(detail::FrameLights* frame);
+    void RenderShipBeacons(VkCommandBuffer cmd);
     void RenderDebris(VkCommandBuffer cmd);
     double m_debrisDrift[3] = {0, 0, 0}, m_debrisClock = -1.0, m_debrisClockAll = 0.0;
     float m_stormDebris = 1.0f;                  // RVK_StormDebris: blown leaves, straw and twigs, x
@@ -2968,7 +3103,8 @@ private:
     // The steps' estimated cost (ms, StepCost) recorded in each frame slot, and the measured / estimated ratio from the
     // slots' GPU timestamps ("smoke simulation"), eased: the budget in this GPU's (and this load's) real time.
     double m_smokeEstimate[2] = {};
-    float m_smokeCostScale = 1.0f;
+    float m_smokeCostScale = 8.0f;
+    double m_smokeBudgetCredit = 0.0;
     double m_smokeLastClock = -1.0;
     VkSampler m_smokeSampler = VK_NULL_HANDLE, m_smokeRepeatSampler = VK_NULL_HANDLE;
     VkBuffer m_smokeBounds = VK_NULL_HANDLE;     // per volume: the cells with smoke (lowest, highest; the simulation's)
@@ -3095,6 +3231,8 @@ private:
     uint32_t m_textureCount[2] = {};
     uint64_t m_buildingFamiliesReady = 0;
     std::string GpuMemoryReport() const;
+    std::unordered_set<Texture*> m_materialOwners;
+    void TrimMaterialCache();
     void DestroyLeafResources();
     float m_pointLightScale = 1.0f, m_charLightScale = 1.0f;   // SetPointLightIntensity
     float LightScale(const d3d::Light& l) const;
@@ -3176,6 +3314,7 @@ private:
     uint32_t m_upscaler = 0;
     struct Fsr2State;
     Fsr2State* m_fsr2 = nullptr;
+    bool m_fsr2Failed = false, m_fsr3Failed = false;
     struct Fsr3State;
     Fsr3State* m_fsr3 = nullptr;
     Texture* m_fsrMotion = nullptr;
@@ -3188,6 +3327,7 @@ private:
     bool FsrInputs(VkCommandBuffer cmd, const float params[28]);   // the motion vectors filled in, the output image
     uint64_t m_fsrInputsFrame = ~0ull;           // (FsrInputs: once a frame - FSR and frame generation both ask)
     // RVK_FrameGen (framegen.cpp): non-null while the swapchain is the frame interpolation one.
+    const char* m_fgUnsupported = nullptr;
     bool m_frameGenWanted = false;
     bool m_frameGenFailed = false;               // (it couldn't be made: not tried again until the setting changes)
     struct FrameGenState;
@@ -3213,11 +3353,15 @@ private:
     Texture* m_fgShot = nullptr;
     Texture* FgComposedFrame(VkCommandBuffer cmd);   // the frame as seen, for reading back (null: m_main is)
     bool FgCreateSwapchain(const VkSwapchainCreateInfoKHR& ci, std::string* error);
+    void FgInitDispatcher(HWND window);
+    void FgReleaseDispatcher();
     void FgDestroySwapchain();
     void WaitIdle();                             // vkDeviceWaitIdle, frame generation's presents done first
     VkResult FgGetSwapchainImages(uint32_t* count, VkImage* images);
     VkResult FgAcquire(uint64_t timeout, VkSemaphore semaphore, uint32_t* index);
     VkResult FgPresent(const VkPresentInfoKHR* info);
+    VkResult FgWaitForPresentation();
+    VkResult SubmitGpuWork(uint32_t count, const VkSubmitInfo* submits, VkFence fence);
     void FgPrepare(VkCommandBuffer cmd, const float params[28]);
     void FgBeforePresent(VkCommandBuffer cmd);
     bool RenderFsr2(VkCommandBuffer cmd, Texture* dst, const float params[28]);   // false: not done (the TAA then)
@@ -3238,6 +3382,7 @@ private:
     float m_neonSat = 0.0f, m_bloomWide = 0.0f;  // RVK_NeonSat, RVK_BloomWide (SetNeonSat, SetBloomWide)
     float m_softHi = 0.75f;
     float m_dayLook = 0.0f, m_sharedTerrain = 0.0f;
+    float m_dayCycle = 0.0f, m_improvedTiles = 0.0f;
     float m_bloomWeightSum = 1.0f;               // the bloom levels' weights summed this frame (RenderBloom)
     bool m_bloomDepth = false;                   // this frame's bloom carries its light's depth
     std::vector<Texture*> m_bloomLevels;         // half resolution and down, float
@@ -3346,6 +3491,8 @@ private:
     d3d::Matrix m_prevView{}, m_prevProj{};      // the last frame's world camera
     float m_prevEye[3] = {};
     bool m_prevViewProjValid = false;
+    std::atomic<uint64_t> m_worldPresents{0};
+    std::atomic<uint64_t> m_freshWorldPresents{0}, m_temporalEpoch{0};
     double m_prevSceneTime = 0.0;
     bool MotionBlurParams(float out[28]);        // reprojection + parameters for this frame; false: no blur
     bool m_dof = false, m_dofBokeh = true, m_dofNear = true, m_dofFar = false;
@@ -3358,6 +3505,7 @@ private:
     Texture* m_dofTiles[2] = {};                 // largest CoC per tile, per neighbourhood
     Texture* m_dofFocus[2] = {};                 // focus distance (1x1), this and last frame's
     uint32_t m_dofFocusIndex = 0;
+    bool m_dofFocusReset = false;
     double m_dofPrevTime = 0.0;
     VkPipeline m_dofCompositePipeline = VK_NULL_HANDLE, m_dofFocusPipeline = VK_NULL_HANDLE,
                m_dofPrefilterPipeline = VK_NULL_HANDLE, m_dofTilesPipeline = VK_NULL_HANDLE,
@@ -3577,6 +3725,7 @@ private:
     std::array<bool, size_t(Format::Count)> m_formatSupported{};
 
     HWND m_window = nullptr;
+    HWND m_fgDispatchWindow = nullptr;
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
     std::vector<VkImage> m_swapImages;
@@ -3640,8 +3789,11 @@ private:
         uint8_t shadeClass[kShadeQueries] = {};
         uint64_t shadePixels = 0;                 // the scene target's pixels (what the counts are divided by)
         bool shadeOverflow = false;               // ran out of queries: the rest of the frame went uncounted
+        uint32_t livingSkinCount=0;
         bool cloudsTimed = false;                 // the clouds' own commands (Frame::clouds) timed: the pool's last two
     };
+    bool m_livingGpuProfile=false;
+    static constexpr uint32_t kLivingSkinQueries=128;
     bool m_shadeQueries = false;                  // pipelineStatisticsQuery enabled
     bool m_sceneProfile = false;                  // RANDYVK_SCENE_PROFILE=1: the scene timed and counted by class
     uint64_t m_shadeSum[kSceneClasses] = {};      // fragment shader invocations by class since the last log
@@ -3702,6 +3854,7 @@ public:
     // The live readout (RVK_PerfHud): the last frames' GPU time, the render thread's whole frame and its wait for the
     // GPU in it (ms, smoothed; written by the render thread, read by any).
     std::atomic<float> m_liveGpuMs{0.0f}, m_liveRenderMs{0.0f}, m_liveGpuWaitMs{0.0f};
+    std::atomic<float> m_fgCpuProductionMs{0.0f}; // game work, excluding render backpressure
     std::atomic<uint64_t> m_liveShown{0};        // frame generation's frames shown (framegen.cpp; 0 without it)
     static void LiveSmooth(std::atomic<float>& a, double ms)
     {
@@ -3763,8 +3916,8 @@ private:
     uint32_t BindlessSampler(VkSampler s);       // its slot, registering it on first use
     // A draw's sampler slots without the two map lookups (SamplerFor, then the slot) per sampler: each stage's last
     // sampler state and slot, and the last slot of each fixed sampler (bump, normal map) by handle.
-    uint64_t SamplerKey(uint32_t stage) const;
-    uint32_t StageSamplerSlot(uint32_t stage);
+    uint64_t SamplerKey(uint32_t stage, bool material = false) const;
+    uint32_t StageSamplerSlot(uint32_t stage, bool material = false);
     uint32_t FixedSamplerSlot(uint32_t which, VkSampler s);
     uint64_t m_stageSamplerKey[2] = {~0ull, ~0ull};
     uint32_t m_stageSamplerSlot[2] = {};
@@ -3774,10 +3927,16 @@ private:
     std::array<VkPipeline, 3> m_pipelines{};   // per topology class: points, lines, triangles
     VkBuffer m_nullBuffer = VK_NULL_HANDLE;    // zeros, bound at stride 0 for attributes a format lacks
     VmaAllocation_T* m_nullAllocation = nullptr;
+    VkBuffer m_windowPaneBuffer = VK_NULL_HANDLE;
+    VmaAllocation_T* m_windowPaneAllocation = nullptr;
+    VkDeviceSize m_windowPaneBytes = 0;
     Texture* m_blackTexture = nullptr;         // what an unbound stage samples
     Texture* m_blueNoise = nullptr;            // 64 x 64 blue noise (r; g the same shifted half a tile): the cloud
                                                // march's offsets (clouds.cpp CreateBlueNoise)
     Texture* CreateBlueNoise();
+    Texture* m_windowRooms = nullptr;           // reusable surface-material atlas for geometric rooms, Newland only
+    bool m_windowRoomsTried = false;
+    void EnsureWindowRooms();
     std::unordered_map<uint64_t, VkSampler> m_samplers;
 
     std::string m_screenshotPath;
@@ -3805,6 +3964,31 @@ private:
     VkBuffer m_readback = VK_NULL_HANDLE;
     VmaAllocation_T* m_readbackAllocation = nullptr;
     void* m_readbackData = nullptr;
+
+    // Optional renderer-owned ambient population; never a game entity.
+    void PrepareLivingFrame();
+    bool SuppressLivingCached(uint32_t vc,uint32_t ic,const float* lo,const float* hi) const;
+    bool SuppressLivingOriginal(uint32_t fvf,const void* vertices,uint32_t vc,const uint16_t* indices,uint32_t ic);
+    uint32_t m_livingContextPlayfield=0;uint64_t m_livingContextGeneration=0;bool m_livingContextKnown=false,m_livingOutdoor=false;
+    static constexpr std::array<uint32_t,7> LivingFogStates{d3d::RS_FOGENABLE,d3d::RS_FOGCOLOR,d3d::RS_FOGTABLEMODE,d3d::RS_FOGSTART,d3d::RS_FOGEND,d3d::RS_FOGDENSITY,d3d::RS_FOGVERTEXMODE};
+    std::array<uint32_t,7> m_livingWorldFog{};
+    bool m_livingCameraValid=false,m_livingWorldCamera=false,m_livingHadLights=false,m_livingLightingValid=false;
+    uint32_t m_livingAmbient=0;std::vector<LightSlot> m_livingWorldLights;
+    d3d::Matrix m_livingView{},m_livingProj{};
+    d3d::Viewport m_livingViewport{};
+    uint32_t m_livingLightCount=0,m_livingReplaced=0,m_livingFallbackCount=0;
+    std::vector<std::pair<uint32_t,std::function<void()>>> m_livingOriginals;
+    std::array<uint32_t,6> m_livingDraws{};
+    void DrawLiving();
+    void DestroyLiving();
+    std::unique_ptr<living::Scene> m_living;
+    bool m_livingAttempt=false,m_livingDrawing=false;
+    const float (*m_livingPreviousWorld)[4]=nullptr;
+    uint64_t m_livingFrame=~uint64_t(0);
+    double m_livingStart=0;
+    std::array<double,6> m_livingEnabled{{-1,-1,-1,-1,-1,-1}};
+    float m_livePeople=0,m_liveDrones=0,m_liveAir=0,m_liveWild=0,m_liveMachine=0,m_liveAtmos=0;
+    float m_npcVariety=0,m_armoredCivilians=0,m_phasefrontTraffic=0,m_orbitalCraft=0;
 
     // D3D7 state
     std::array<uint32_t, d3d::RS_COUNT> m_rs{};

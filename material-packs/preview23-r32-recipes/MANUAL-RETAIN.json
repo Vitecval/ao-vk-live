@@ -1,0 +1,26 @@
+[
+  {
+    "identity": "1010004:283553",
+    "reason": "Dense native scrolling credits and console lettering; requires exact typesetting rather than AI text redraw."
+  },
+  {
+    "identity": "1010004:287294",
+    "reason": "Deliberate upside-down pixel-art poster. Retain original pixel grid; an AI redraw would erase its intended style and lettering."
+  },
+  {
+    "identity": "1010004:290012",
+    "reason": "Jetpack HUD alpha and instrument overlay; exact readout and masking retained."
+  },
+  {
+    "identity": "1010004:290196",
+    "reason": "Native 1024x1024 teleport map already resolves its simple vector diagram; no missing fine surface detail."
+  },
+  {
+    "identity": "1010004:293798",
+    "reason": "In-world editor screenshot with tiny program/interface content; faithful replacement requires recapture or exact typesetting."
+  },
+  {
+    "identity": "1010004:293799",
+    "reason": "In-world code-editor screenshot; AI redraw would invent code and change content."
+  }
+]

@@ -621,7 +621,7 @@ std::vector<uint8_t> BuildBmp24(unsigned w, unsigned h, uint32_t (*color)(unsign
     return bmp;
 }
 
-void TestTextureStream(unsigned rdbId = 0, unsigned rdbType = 1010004, unsigned w = 65, unsigned h = 33)
+void* TestTextureStream(unsigned rdbId = 0, unsigned rdbType = 1010004, unsigned w = 65, unsigned h = 33)
 {
     std::vector<uint8_t> bmp = BuildBmp24(w, h, [](unsigned x, unsigned y) -> uint32_t {
         return ((x / 4) ^ (y / 4)) & 1 ? 0xF0C040u : 0x3060C0u;
@@ -637,7 +637,7 @@ void TestTextureStream(unsigned rdbId = 0, unsigned rdbType = 1010004, unsigned 
         &stream, "harness.bmp", 0);
     std::printf("texture: bitmap %ux%u, %d bpp\n", w, h,
                 bitmap ? *reinterpret_cast<int*>(static_cast<uint8_t*>(bitmap) + 0x10c) : 0);
-    if (!bitmap) return;
+    if (!bitmap) return nullptr;
     using TSCCtorBitmapFn = void*(__fastcall*)(void*, void*, void*, const char*, int);
     using TSCreateTextureBitmapFn = void*(__fastcall*)(void*, void*, void*, const char*);
     void* creator = Export<TSCCtorBitmapFn>("??0TextureStreamCreator@@QAE@PAVLBitmap_t@@PBDH@Z")(
@@ -681,6 +681,7 @@ void TestTextureStream(unsigned rdbId = 0, unsigned rdbType = 1010004, unsigned 
             std::printf("texture: surface lock failed\n");
         }
     }
+    return surface;
 }
 
 const GUID kTnLHalDevice = {0xf5049e78, 0x4861, 0x11d2, {0xa4, 0x07, 0x00, 0xa0, 0xc9, 0x06, 0x29, 0xa8}};
@@ -1563,6 +1564,41 @@ void DrawCharacterScene(CharacterScene& scene, void* viewport, float time, bool 
     if (g_shadow) DrawShadow(scene, viewport);
 }
 
+// Real native camera after settings have been applied to a live device.
+void TestFarSceneryCamera(void* viewport)
+{
+    auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+    void* root=Export<FrameCtorFn>("??0RRefFrame_t@@QAE@PAV0@PAVRAnimation_t@@@Z")(
+        ::operator new(0xA4),nullptr,nullptr,nullptr);
+    void* camera=Export<CameraCtorFn>("??0RCamera_t@@QAE@MMMMPAVRRefFrame_t@@PAVRAnimation_t@@@Z")(
+        ::operator new(0x200),nullptr,.6f,640.f/480.f,.1f,200.f,root,nullptr);
+    const Vector3 eye{0,0,0},target{0,0,1};
+    Export<SetPosFn>("?SetRelativePosition@RRefFrame_t@@QAEXABVVector3_t@@PBV1@@Z")(camera,nullptr,&eye,nullptr);
+    Export<SetTargetFn>("?SetWorldTarget@RRefFrame_t@@QAEXABVVector3_t@@@Z")(camera,nullptr,&target);
+    auto* original=reinterpret_cast<uint8_t*>(OriginalRenderer());
+    auto sees=reinterpret_cast<bool(__fastcall*)(void*,void*,const float*,float)>(original+0x2B3E4);
+    auto seesVolume=reinterpret_cast<bool(__fastcall*)(void*,void*,void*,const float*,float)>(original+0x2B4A6);
+    auto projection=Export<void(__fastcall*)(void*,void*,float*)>("?GetTransformationMatrix@RCamera_t@@QBEXPAVTMatrix4_t@@@Z");
+    set("RVK_Enhance",1);set("RVK_ViewRange",3);set("RVK_ImmersiveShips",1);set("RVK_SceneryDist",3);
+    float identity[16]={};identity[0]=identity[5]=identity[10]=identity[15]=1;
+    alignas(float) uint8_t volume[0x38]={};
+    const float distant[3]={0,0,1000},low[3]={-10,-10,990},high[3]={10,10,1010};
+    std::memcpy(volume+8,distant,12);*reinterpret_cast<float*>(volume+0x14)=20;
+    std::memcpy(volume+0x18,low,12);std::memcpy(volume+0x24,high,12);
+    for(int enabled:{0,1,0}) {
+        set("RVK_FarScenery",float(enabled));
+        Export<PtrArgFn>("?SetCamera@RViewPort_t@@QAEXPAVRCamera_t@@@Z")(viewport,nullptr,camera);
+        Export<PtrArgFn>("?Process@RViewPort_t@@QAEXPAVRRefFrame_t@@@Z")(viewport,nullptr,root);
+        float matrix[16];projection(camera,nullptr,matrix);
+        const bool inClip=(1000*matrix[10]+matrix[14])/1000<=1.f;
+        const bool large=sees(camera,nullptr,distant,20.f),tinySphere=sees(camera,nullptr,distant,1.f);
+        const bool mesh=seesVolume(camera,nullptr,volume,identity,1.f);
+        std::printf("far scenery native camera: on %d sphere %d mesh %d clip %d small %d\n",enabled,large,mesh,inClip,tinySphere);
+        if(large!=(enabled!=0) || mesh!=(enabled!=0) || inClip!=(enabled!=0) || tinySphere)std::exit(3);
+    }
+    std::puts("far scenery native camera passed: off/on/off restores culling and projection");
+}
+
 // A crash ends the harness with a line on its output instead of Wine's crash dialog on the desktop.
 LONG WINAPI Crashed(EXCEPTION_POINTERS* e)
 {
@@ -1594,9 +1630,12 @@ int main(int argc, char** argv)
     bool backgroundTest = false;                     // hidden window: background pause/resume without stealing focus
     bool modernPackTest = false;                     // --modern-pack-test: real material-hook and async toggle fixture
     bool cyberPackTest = false;                      // --cyber-pack-test: both styles, shared props, terrain and quality variants
+    void* materialRecoverySurface=nullptr;
+    unsigned materialRecoveryId=0;
     bool materialPressureTest = false;               // reserve address space while optional artwork loads
     bool sharedTerrainLoaderTest = false;
     bool terrainSettingsTest=false;
+    bool preview21SettingsTest=false;
     int terrainSettingsRestart=-1;
     std::vector<void*> pressureReservations;
     bool characterMaterialsTest = false;
@@ -1604,6 +1643,7 @@ int main(int argc, char** argv)
     bool worldMaterialsTest = false;
     bool propsPackTest = false;
     std::vector<unsigned> customArtIds;             // --art-ids: isolated loader fixture for new batches
+    bool farSceneryTest=false;
     unsigned customArtType = 1010004;
     bool customEquipment = false;                  // same supplied IDs, with character-pack toggles
     bool still = false;                              // the animation time doesn't advance (static vertex buffers)
@@ -1638,14 +1678,17 @@ int main(int argc, char** argv)
         else if (a == "--start-minimized") { startMinimized = true; minimizeTest = true; }
         else if (a == "--modern-pack-test") modernPackTest = true;
         else if (a == "--cyber-pack-test") { cyberPackTest = modernPackTest = true; }
+        else if (a == "--material-recovery-test" && i+1<argc) {materialRecoveryId=unsigned(std::strtoul(argv[++i],nullptr,10));frames=std::max(frames,720);}
         else if (a == "--material-pressure-test") { materialPressureTest = cyberPackTest = modernPackTest = true; }
         else if (a=="--terrain-settings-test") terrainSettingsTest=true;
+        else if (a=="--preview21-settings-test") preview21SettingsTest=true;
         else if (a=="--terrain-settings-restart" && i+1<argc) terrainSettingsRestart=std::atoi(argv[++i]);
         else if (a == "--shared-terrain-loader-test") {sharedTerrainLoaderTest=true;frames=std::max(frames,700);}
         else if (a == "--character-materials-test") characterMaterialsTest = true;
         else if (a == "--surface-memory-test") surfaceMemoryTest = true;
         else if (a == "--world-materials-test") worldMaterialsTest = true;
         else if (a == "--props-pack-test") propsPackTest = worldMaterialsTest = true;
+        else if (a == "--far-scenery-test") farSceneryTest=true;
         else if (a == "--art-type" && i+1<argc) customArtType=unsigned(std::strtoul(argv[++i],nullptr,10));
         else if ((a == "--art-ids" || a == "--equipment-ids") && i+1<argc) {
             customEquipment = a == "--equipment-ids";
@@ -1778,6 +1821,41 @@ int main(int argc, char** argv)
     TestProcessVertices(render);
     if (g_materials) TestMaterials();
     if (g_texture) TestTextureStream();   // before the first present: in the frame=1 call log window
+    if (preview21SettingsTest) {
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        auto count=Export<uint32_t(__cdecl*)()>("RvkSettings_Count");
+        auto get=Export<int(__cdecl*)(uint32_t,RvkSettingInfo*)>("RvkSettings_Get");
+        auto preset=Export<int(__cdecl*)(uint32_t)>("RvkPresets_Apply");
+        auto value=[&](const char* name,bool defaults=false){
+            for(uint32_t i=0;i<count();++i){RvkSettingInfo info{};info.size=sizeof(info);if(get(i,&info)&&std::strcmp(info.name,name)==0)return defaults?info.defaultValue:info.value;}
+            return -999.f;
+        };
+        auto check=[&](bool ok,const char* why){if(!ok){std::printf("Preview 21 settings FAILED: %s\n",why);std::exit(3);}};
+        check(value("RVK_WindowDepth",true)==1,"new Medium windows default");
+        auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");
+        for(const char* name:{"RVK_LivePeople","RVK_LiveDrones","RVK_AirTraffic","RVK_LiveWild","RVK_LiveMachine","RVK_LiveAtmos"}){
+            check(value(name,true)==0,"population defaults Off");set(name,1);check(value(name)==1,"local population preference can be saved");
+        }
+        for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"}){
+            check(value(name,true)==0,"new appearance/aircraft defaults are Off or Normal");
+            const float chosen=std::strcmp(name,"RVK_NPCVariety")==0?1.f:std::strcmp(name,"RVK_PhasefrontTraffic")==0?4.f:2.f;
+            set(name,chosen);check(value(name)==chosen&&effective(name)==chosen,"new optional appearance/aircraft controls are exposed and saved");
+        }
+        set("RVK_PhasefrontTraffic",3);check(value("RVK_PhasefrontTraffic")==3&&effective("RVK_PhasefrontTraffic")==3,"Phasefront High is independently selectable");
+        set("RVK_PhasefrontTraffic",4);check(value("RVK_PhasefrontTraffic")==4&&effective("RVK_PhasefrontTraffic")==4,"Phasefront Ultra is independently selectable");
+        for(int style:{0,2})for(uint32_t quality:{1u,2u,3u}){
+            set("RVK_ModernTex",float(style));set("RVK_TerrainHD",0);set("RVK_BuildingHD",1);
+            check(preset(quality)!=0,"preset applies");
+            check(value("RVK_ModernTex")==style&&value("RVK_TerrainHD")==0&&value("RVK_BuildingHD")==1,"texture choices survive every quality preset");
+            check(value("RVK_WindowDepth")==float(quality==3?2:1),"quality-specific window defaults");
+            check(value("RVK_LiveDrones")==1,"population preferences survive graphics presets");
+            check(value("RVK_NPCVariety")==1&&value("RVK_ArmoredCivilians")==2&&value("RVK_PhasefrontTraffic")==4&&value("RVK_OrbitalCraft")==2,"new appearance/aircraft preferences survive graphics presets");
+        }
+        set("RVK_WindowDepth",2);set("RVK_LivePeople",0);
+        for(const char* name:{"RVK_NPCVariety","RVK_ArmoredCivilians","RVK_PhasefrontTraffic","RVK_OrbitalCraft"})set(name,0);
+        check(value("RVK_WindowDepth")==2&&effective("RVK_LivePeople")==0,"manual Strong/Off overrides remain available");
+        std::puts("Preview 21 settings passed: presets, independent texture choices, new defaults and custom overrides");
+    }
     if (terrainSettingsTest || terrainSettingsRestart>=0) {
         auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
         auto effective=Export<float(__cdecl*)(const char*)>("RvkSettings_Effective");
@@ -1805,6 +1883,7 @@ int main(int argc, char** argv)
             set("RVK_Enhance",1);set("RVK_ModernTex",2);set("RVK_RenderBg",1);
             set("RVK_GroundAo",.6f);set("RVK_GroundSun",1);set("RVK_DuneLight",1);
             set("RVK_GroundBlend",1);
+            set("RVK_GroundTess",1);set("RVK_CliffDepth",.4f);
             set("RVK_Pebbles",2);set("RVK_GroundRocks",1);set("RVK_CliffTex",1);set("RVK_CliffRock",1);
             for(const auto& mode:std::vector<std::pair<float,float>>{{0,1},{1,0},{1,1},{2,0},{2,1}}) {
                 set("RVK_GroundOn",mode.second);set("RVK_TerraBlend",mode.first);
@@ -1815,6 +1894,7 @@ int main(int argc, char** argv)
                 check("RVK_GroundAo",on && !plus ? .6f:0);check("RVK_GroundSun",on && !plus ? 1:0);
                 check("RVK_DuneLight",on && !plus ? 1:0);
                 check("RVK_GroundBlend",on && !plus ? 1:0);
+                check("RVK_GroundTess",on ? 1:0);check("RVK_CliffDepth",on ? .4f:0);
                 if(plus) {check("RVK_SandRipple",0);check("RVK_RippleDepth",0);check("RVK_WaterRipple",0);}
                 std::printf("terrain settings mode %.0f raw GroundOn %.0f: native %d; pebbles %.0f; AO %.1f; sun %.0f passed\n",
                             mode.first,mode.second,int(on),effective("RVK_Pebbles"),effective("RVK_GroundAo"),effective("RVK_GroundSun"));
@@ -1835,6 +1915,16 @@ int main(int argc, char** argv)
             if(saved("RVK_ModernTex")!=2) return 3;
             check("RVK_ModernTex",2);check("RVK_GroundOn",0);check("RVK_Pebbles",1);
             std::puts("AnarchyHD legacy style upgrade and selector compatibility passed");
+            set("RVK_ImprovedTiles",0);check("RVK_ImprovedTiles",0);
+            set("RVK_DayCycle",2);set("RVK_ModernTex",0);set("RVK_AutoMat",0);
+            set("RVK_TerrainHD",0);set("RVK_BuildingHD",0);set("RVK_Hdr",0);set("RVK_PixelLight",0);
+            check("RVK_DayCycle",2);check("RVK_Hdr",1);check("RVK_PixelLight",1);
+            set("RVK_Enhance",0);check("RVK_DayCycle",0);check("RVK_Hdr",0);check("RVK_PixelLight",0);
+            set("RVK_Enhance",1);check("RVK_DayCycle",2);
+            if(!preset(3) || saved("RVK_DayCycle")!=2 || saved("RVK_ImprovedTiles")!=0) return 3;
+            set("RVK_DayCycle",1);check("RVK_DayCycle",1);
+            set("RVK_DayCycle",0);check("RVK_DayCycle",0);
+            std::puts("Day/night options, quality-preset independence, enhancement-off server clock and Improved Tiles passed");
             std::puts("terrain settings Ultra, immediate switching, effective parents and saved preferences passed");
         }
     }
@@ -1956,6 +2046,14 @@ int main(int argc, char** argv)
             TestTextureStream(18, 1010021);           // low-quality terrain variant too
             frames = std::max(frames, 900);
         }
+    }
+    if (materialRecoveryId) {
+        auto set=Export<int(__cdecl*)(const char*,float)>("RvkSettings_Set");
+        Export<int(__cdecl*)(uint32_t)>("RvkPresets_Apply")(0);
+        set("RVK_Enhance",1);set("RVK_ModernTex",2);set("RVK_Albedo",1);
+        set("RVK_RenderThread",0);set("RVK_RenderBg",1);set("RVK_FsrMode",0);set("RVK_FrameGen",0);
+        materialRecoverySurface=TestTextureStream(materialRecoveryId,1010004,128,128);
+        if(!materialRecoverySurface)return 3;
     }
     if (g_png) TestPng();                 // likewise
     if (!g_mapTiles.empty()) TestMapTiles();
@@ -2141,6 +2239,7 @@ int main(int argc, char** argv)
         open(viewport, nullptr, &restored);
         unsigned clearColor = 0xFF203040;
         clear(viewport, nullptr, &clearColor, true, true, 0);
+        if(farSceneryTest && frame==0)TestFarSceneryCamera(viewport);
         if (!scene.characters.empty()) {
             if (g_lightmap) ApplyLightmap(scene, frame);
             QueryPerformanceCounter(&frameStart);
@@ -2237,16 +2336,33 @@ int main(int argc, char** argv)
             }
         }
 
+        if(materialRecoveryId && (frame<80 || frame>=380)) {
+            auto* dd=*static_cast<IDirect3DDevice7**>(render);
+            auto** surf=Export<GetSurfacePointerFn>("?GetSurfacePointer@surface_t@@QAEPAPAUIDirectDrawSurface7@@XZ")(materialRecoverySurface,nullptr);
+            D3DMATRIX identity{};identity._11=identity._22=identity._33=identity._44=1;
+            dd->SetTransform(D3DTRANSFORMSTATE_WORLD,&identity);dd->SetTransform(D3DTRANSFORMSTATE_VIEW,&identity);dd->SetTransform(D3DTRANSFORMSTATE_PROJECTION,&identity);
+            dd->SetRenderState(D3DRENDERSTATE_LIGHTING,FALSE);dd->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);
+            dd->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE,FALSE);dd->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE,FALSE);
+            dd->SetRenderState(D3DRENDERSTATE_CULLMODE,D3DCULL_NONE);
+            dd->SetTextureStageState(0,D3DTSS_COLOROP,D3DTOP_SELECTARG1);dd->SetTextureStageState(0,D3DTSS_COLORARG1,D3DTA_TEXTURE);
+            dd->SetTextureStageState(1,D3DTSS_COLOROP,D3DTOP_DISABLE);dd->SetTexture(0,*surf);
+            struct Vertex {float x,y,z,nx,ny,nz;DWORD colour;float u,v;};
+            const Vertex plane[]={{-.7f,-.7f,.5f,0,0,-1,0xffffffff,0,1},{-.7f,.7f,.5f,0,0,-1,0xffffffff,0,0},
+                                  {.7f,-.7f,.5f,0,0,-1,0xffffffff,1,1},{.7f,.7f,.5f,0,0,-1,0xffffffff,1,0}};
+            dd->DrawPrimitive(D3DPT_TRIANGLESTRIP,D3DFVF_XYZ|D3DFVF_NORMAL|D3DFVF_DIFFUSE|D3DFVF_TEX1,const_cast<Vertex*>(plane),4,0);
+            dd->SetTexture(0,nullptr);
+        }
         close(viewport, nullptr);
-        if (frame == frames - 1) {
+        if (frame == frames - 1 || (materialRecoveryId && frame==75)) {
             void* bb = backBuffer(randy, nullptr);
             IDirectDrawSurface7** surface = bb ? surfacePtr(bb, nullptr) : nullptr;
             if (surface && *surface)
-                SaveSurface(*surface, shot.c_str());
+                SaveSurface(*surface, (frame==75 ? shot+".warm.bmp":shot).c_str());
             else
                 std::printf("no back buffer surface\n");
         }
         flip(randy, nullptr, false);
+        if(materialRecoveryId)Sleep(3);
     }
     PrintDeviceState("devicestate (end)", deviceState);
     if (g_terrain > 0.0f) {                          // the heightmap as meshes left it

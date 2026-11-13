@@ -222,7 +222,7 @@ bool Device::CreateCloudResources(std::string* error)
         ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module,
                     "main", nullptr};
         ci.layout = m_cloudNoiseLayout;
-        const bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_cloudNoisePipeline),
+        const bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_cloudNoisePipeline),
                               "cloud noise pipeline", error);
         vkDestroyShaderModule(m_device, module, nullptr);
         if (!ok)
@@ -344,7 +344,7 @@ bool Device::CreateCloudResources(std::string* error)
             ci.pColorBlendState = &cb;
             ci.pDynamicState = &ds;
             ci.layout = layout;
-            ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
+            ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
                        "vkCreateGraphicsPipelines (clouds)", error);
         }
         if (vert) vkDestroyShaderModule(m_device, vert, nullptr);
@@ -419,7 +419,7 @@ bool Device::CreateCloudResources(std::string* error)
         VkComputePipelineCreateInfo ci{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
         ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, m, "main", nullptr};
         ci.layout = m_sunVisLayout;
-        const bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_sunVisPipeline),
+        const bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_sunVisPipeline),
                               "sun visibility pipeline", error);
         vkDestroyShaderModule(m_device, m, nullptr);
         if (!ok)
@@ -517,7 +517,7 @@ bool Device::CreateCloudResources(std::string* error)
         VkComputePipelineCreateInfo ci{VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO};
         ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, m, "main", nullptr};
         ci.layout = m_cloudLayerNoiseLayout;
-        const bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_cloudLayerNoisePipeline),
+        const bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_cloudLayerNoisePipeline),
                               "cloud layer noise pipeline", error);
         vkDestroyShaderModule(m_device, m, nullptr);
         if (!ok)

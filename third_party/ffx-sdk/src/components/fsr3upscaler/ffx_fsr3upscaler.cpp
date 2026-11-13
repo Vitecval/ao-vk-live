@@ -403,7 +403,7 @@ static FfxErrorCode createPipelineStates(FfxFsr3UpscalerContext_Private* context
 
     // Query device capabilities
     FfxDeviceCapabilities capabilities;
-    context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities);
+    FFX_VALIDATE(context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &capabilities));
 
     // Setup a few options used to determine permutation flags
     bool haveShaderModel66 = capabilities.maximumSupportedShaderModel >= FFX_SHADER_MODEL_6_6;
@@ -519,6 +519,7 @@ static FfxErrorCode fsr3upscalerCreate(FfxFsr3UpscalerContext_Private* context, 
     // Create the context.
     FfxErrorCode errorCode = context->contextDescription.backendInterface.fpCreateBackendContext(&context->contextDescription.backendInterface, FFX_EFFECT_FSR3UPSCALER, nullptr, &context->effectContextId);
     FFX_RETURN_ON_ERROR(errorCode == FFX_OK, errorCode);
+    context->backendContextCreated = true;
 
     // call out for device caps.
     errorCode = context->contextDescription.backendInterface.fpGetDeviceCapabilities(&context->contextDescription.backendInterface, &context->deviceCapabilities);
@@ -651,6 +652,9 @@ static FfxErrorCode fsr3upscalerCreate(FfxFsr3UpscalerContext_Private* context, 
 static FfxErrorCode fsr3upscalerRelease(FfxFsr3UpscalerContext_Private* context)
 {
     FFX_ASSERT(context);
+    if (!context->backendContextCreated)
+        return FFX_OK;
+    context->backendContextCreated = false;
 
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelinePrepareInputs, context->effectContextId);
     ffxSafeReleasePipeline(&context->contextDescription.backendInterface, &context->pipelinePrepareReactivity, context->effectContextId);
@@ -1178,9 +1182,6 @@ static FfxErrorCode fsr3upscalerDispatch(FfxFsr3UpscalerContext_Private* context
 
 FFX_API FfxErrorCode ffxFsr3UpscalerContextCreate(FfxFsr3UpscalerContext* context, const FfxFsr3UpscalerContextDescription* contextDescription)
 {
-    // zero context memory
-    memset(context, 0, sizeof(FfxFsr3UpscalerContext));
-
     // check pointers are valid.
     FFX_RETURN_ON_ERROR(
         context,
@@ -1188,6 +1189,8 @@ FFX_API FfxErrorCode ffxFsr3UpscalerContextCreate(FfxFsr3UpscalerContext* contex
     FFX_RETURN_ON_ERROR(
         contextDescription,
         FFX_ERROR_INVALID_POINTER);
+
+    memset(context, 0, sizeof(FfxFsr3UpscalerContext));
 
     // validate that all callbacks are set for the interface
     FFX_RETURN_ON_ERROR(contextDescription->backendInterface.fpGetSDKVersion, FFX_ERROR_INCOMPLETE_INTERFACE);
@@ -1207,6 +1210,8 @@ FFX_API FfxErrorCode ffxFsr3UpscalerContextCreate(FfxFsr3UpscalerContext* contex
     // create the context.
     FfxFsr3UpscalerContext_Private* contextPrivate = (FfxFsr3UpscalerContext_Private*)(context);
     const FfxErrorCode errorCode = fsr3upscalerCreate(contextPrivate, contextDescription);
+    if (errorCode != FFX_OK && contextPrivate->backendContextCreated)
+        fsr3upscalerRelease(contextPrivate);
 
     return errorCode;
 }

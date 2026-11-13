@@ -71,13 +71,14 @@
     "name": "helmet_techarmour.png",
     "source": "scans-18003-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -85,13 +86,14 @@
     "name": "helmet_omnieliteguard.png",
     "source": "scans-18000-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -99,13 +101,14 @@
     "name": "body_techarmour.png",
     "source": "scans-8741-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -113,13 +116,14 @@
     "name": "feet_techarmour.png",
     "source": "scans-9416-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -127,13 +131,14 @@
     "name": "legs_omnieliteguard.png",
     "source": "scans-15805-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -141,13 +146,14 @@
     "name": "body_omnieliteguard.png",
     "source": "scans-15809-v2",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -155,13 +161,14 @@
     "name": "arms_techarmour.png",
     "source": "scans-9400-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -169,12 +176,13 @@
     "name": "legs_techarmour.png",
     "source": "scans-9417-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "roughness": 0.57,
     "metallic": 0.25,
-    "batch": "scan-families-2026-10-25"
+    "batch": "scan-families-2026-10-25",
+    "worker": true
   }
 ]

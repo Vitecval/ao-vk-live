@@ -6,6 +6,8 @@
 // around the camera, each three times as wide as the one before (the nearest sharpest, the last reaching the shadow
 // distance), oriented with the sun and snapped to whole texels so they don't shimmer while the camera moves.
 #include "internal.h"
+#include "huge_shadow_policy.h"
+#include "shadow_camera.h"
 
 #include <algorithm>
 #include <bit>
@@ -13,6 +15,7 @@
 #include <cmath>
 #include <climits>
 #include <cstring>
+#include <cstdlib>
 
 namespace rvk {
 
@@ -115,6 +118,12 @@ double Device::SwayClock()
 
 // Tests and benchmarks: the clock (simulations, wind, sway) steps `step` seconds a frame instead of following real
 // time, so a demo can render flat out - no sleeping, the GPU stays at its clocks - and still simulate at a game's pace.
+double Device::WindowClock()
+{
+    if(g_fixedClockStep>0.0)return std::fmod(1000.0+double(g_fixedClockTicks)*g_fixedClockStep,4096.0);
+    using namespace std::chrono;
+    return std::fmod(duration<double>(system_clock::now().time_since_epoch()).count(),4096.0);
+}
 void Device::SetFixedClock(double step) { g_fixedClockStep = step; }
 void Device::TickFixedClock() { ++g_fixedClockTicks; }
 
@@ -206,11 +215,41 @@ bool Device::CreateShadowMap(std::string* error)
             return false;
     }
     m_shadowImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    // Optional optimization: failure to allocate this disposable depth cache
+    // falls back to the original complete shadow pass.
+    const char* cacheSetting=std::getenv("RANDYVK_STATIC_SHADOW_CACHE");
+    // Bound the extra allocation to 64 MiB even with an 8K shadow setting.
+    if ((!cacheSetting || cacheSetting[0]!='0') && m_shadowSize<=2048) {
+        ci.arrayLayers=kShadowCascades;
+        ci.usage=VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        if (vmaCreateImage(m_allocator,&ci,&ac,&m_shadowStaticImage,&m_shadowStaticAllocation,nullptr)==VK_SUCCESS) {
+            vi.image=m_shadowStaticImage;
+            bool valid=true;
+            for(uint32_t i=0;i<kShadowCascades;++i) {
+                vi.subresourceRange={VK_IMAGE_ASPECT_DEPTH_BIT,0,1,i,1};
+                if(vkCreateImageView(m_device,&vi,nullptr,&m_shadowStaticViews[i])!=VK_SUCCESS){valid=false;break;}
+            }
+            if(!valid) {
+                for(auto& view:m_shadowStaticViews)if(view){vkDestroyImageView(m_device,view,nullptr);view=VK_NULL_HANDLE;}
+                vmaDestroyImage(m_allocator,m_shadowStaticImage,m_shadowStaticAllocation);
+                m_shadowStaticImage=VK_NULL_HANDLE;m_shadowStaticAllocation=nullptr;
+            }
+        }
+    }
+    m_shadowStaticLayout=VK_IMAGE_LAYOUT_UNDEFINED;
+    std::fill(std::begin(m_shadowStaticKeys),std::end(m_shadowStaticKeys),0);
+    std::fill(std::begin(m_shadowStaticCandidates),std::end(m_shadowStaticCandidates),0);
     return true;
 }
 
 void Device::DestroyShadowMap()
 {
+    for(auto& view:m_shadowStaticViews)if(view){vkDestroyImageView(m_device,view,nullptr);view=VK_NULL_HANDLE;}
+    if(m_shadowStaticImage)vmaDestroyImage(m_allocator,m_shadowStaticImage,m_shadowStaticAllocation);
+    m_shadowStaticImage=VK_NULL_HANDLE;m_shadowStaticAllocation=nullptr;
+    m_shadowStaticLayout=VK_IMAGE_LAYOUT_UNDEFINED;
+    std::fill(std::begin(m_shadowStaticKeys),std::end(m_shadowStaticKeys),0);
+    std::fill(std::begin(m_shadowStaticCandidates),std::end(m_shadowStaticCandidates),0);
     if (m_shadowView) vkDestroyImageView(m_device, m_shadowView, nullptr);
     for (VkImageView& v : m_shadowLayerViews)
         if (v) { vkDestroyImageView(m_device, v, nullptr); v = VK_NULL_HANDLE; }
@@ -338,7 +377,7 @@ bool Device::CreateShadowResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = m_shadowPipelineLayout;
-        ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_shadowPipelines[alphaTest]),
+        ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_shadowPipelines[alphaTest]),
                    "shadow pipeline", error);
     }
     // A canopy's leaves (leaves.cpp): leaf_shadow.vert, cut out by shadow.frag. Not fatal.
@@ -362,7 +401,7 @@ bool Device::CreateShadowResources(std::string* error)
         gi.pColorBlendState = &cb;
         gi.pDynamicState = &ds;
         gi.layout = m_shadowPipelineLayout;
-        if (!Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_leafShadowPipeline),
+        if (!Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &gi, nullptr, &m_leafShadowPipeline),
                    "leaf shadow pipeline", &leafError))
             m_leafShadowPipeline = VK_NULL_HANDLE;
         vkDestroyShaderModule(m_device, leafVert, nullptr);
@@ -375,6 +414,7 @@ bool Device::CreateShadowResources(std::string* error)
 void Device::DestroyShadowResources()
 {
     m_casterCache.clear();                       // their arena goes with the static one (DestroyStaticGeometry)
+    m_hugeShadowGroups.Clear();
     ++m_casterCacheEpoch;
     for (auto& [tag, b] : m_deadBuffers) vmaDestroyBuffer(m_allocator, b.first, b.second);
     m_deadBuffers.clear();
@@ -550,11 +590,41 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
     c.key = key;
     std::memcpy(c.sway, m_drawSway, sizeof(c.sway));
     c.draw = m_frameDraw;
-    c.animated = m_drawMesh && !m_drawMeshStatic;
+    c.animated = m_livingDrawing || (m_drawMesh && !m_drawMeshStatic);
     c.owner = m_drawOwner;
     c.kind = m_drawVisualKind;
     c.leafKey = m_drawLeaves ? m_drawLeafKey : 0;
+    // Large rotating scenery used to bypass the promotion streak on every new
+    // heading key. Each old pose then lived forever, filling the cache and
+    // casting ghost shadows. Observe movement by visual/mesh/placement before
+    // the pose-dependent key, and retire the last retained pose when it moves.
+    bool movingScenery=false;
+    if(m_drawVisual && VisualKind(c.kind)==VisualKind::Static && !c.owner && !c.texture && !c.leafKey && c.sway[3]<=.5f) {
+        const uint64_t shape[]={m_drawVisual,uint64_t(primitive)<<32|fvf,uint64_t(vertexCount)<<32|indexCount,
+            m_drawMesh ? m_drawMesh->indexHash:0};
+        int32_t placement[3];for(int j=0;j<3;++j)placement[j]=int32_t(std::round(m_world.m[3][j]));
+        const uint64_t identity=HashBytes(placement,sizeof(placement),HashBytes(shape,sizeof(shape),0x4d4f54494full));
+        if(m_casterMotion.size()<32768 || m_casterMotion.count(identity)) {
+            auto& motion=m_casterMotion[identity];
+            if(!motion.stableFrames) {motion.anchor=m_world;motion.stableFrames=1;}
+            bool moved=false;
+            for(int a=0;a<4;++a)for(int b=0;b<3;++b)
+                moved|=std::fabs(motion.anchor.m[a][b]-m_world.m[a][b])>(a==3?.05f:.01f);
+            if(moved) {
+                motion.moving=true;motion.anchor=m_world;motion.stableFrames=1;
+                auto old=m_casterCache.find(motion.lastKey);
+                if(old!=m_casterCache.end())ForgetCachedCaster(old);
+            } else if(motion.lastFrame!=m_frameNumber) {
+                motion.stableFrames=motion.lastFrame+1==m_frameNumber ? motion.stableFrames+1:1;
+                if(motion.stableFrames>=kPromoteFrames)motion.moving=false;
+            }
+            motion.lastFrame=m_frameNumber;motion.lastKey=key;
+            movingScenery=motion.moving;
+            if(movingScenery)c.animated=true;
+        }
+    }
     m_casters.push_back(c);
+    if(movingScenery){++m_cacheRefusedMoving;return;}
     if (VisualKind(c.kind) == VisualKind::Static) {
         if (m_statelVerified[0] == 0 || m_statelVerified[1] == 0)
             CheckStatelDraw(m_world, vertexCount, indexCount);   // (statels.cpp: is our placement the game's?)
@@ -637,7 +707,14 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
         ++m_cacheStreakStarts;
     }
     streak.lastFrame = m_frameNumber;
-    if (streak.count < kPromoteFrames)
+    // Known solid scenery is not a character's moving gear. Capture substantial
+    // structures on first sight so a quick camera turn cannot outrun promotion.
+    float staticExtent = 0;
+    if (VisualKind(c.kind)==VisualKind::Static && !c.texture && c.sway[3]<=.5f && !c.leafKey) {
+        float lo[3],hi[3]; TransformBounds(c.boundsMin,c.boundsMax,c.world,lo,hi);
+        for (int j=0;j<3;++j) staticExtent=std::max(staticExtent,hi[j]-lo[j]);
+    }
+    if (streak.count < kPromoteFrames && staticExtent < 8.f)
         return;
     // Remembered only what stands still in the world: not what moved while seen (a character's gear - idle, its
     // pieces shifted, each new key remembered at an old place and forgotten again: small shadows blinking ~0.4 s,
@@ -873,6 +950,7 @@ void Device::UpdateCasterCache()
     m_characterSpotsPrev.swap(m_characterSpots);   // (this frame's the last's; the next frame's anew)
     m_characterSpots.clear();
     if (m_frameNumber % 300 == 0) {
+        std::erase_if(m_casterMotion,[&](const auto& p){return m_frameNumber-p.second.lastFrame>600;});
         Log("caster cache: %zu remembered, %zu streaks; this frame %u streaks started, refused %u far (last %.0f from the "
             "eye (%.1f %.1f %.1f)), %u full, %u without vertices, %u moving or a character's; %u kept "
             "solid when the game let their texture go",
@@ -907,7 +985,8 @@ void Device::UpdateCasterCache()
             if (d2 > forget * forget) {
                 ++m_forgottenFar;
                 ForgetCachedCaster(it);
-            } else if (m_frameViewProjValid && d2 < 20.0f * 20.0f && m_frameNumber - e.lastSeen >= 60 &&
+            } else if (VisualKind(e.kind)!=VisualKind::Static && m_frameViewProjValid &&
+                       d2 < 20.0f * 20.0f && m_frameNumber - e.lastSeen >= 60 &&
                        BoxInClip(centre, centre, m_frameViewProj, true) == 1) {
                 // (Gone only when near - within 20 units - and unseen in view a second: the game doesn't draw all it
                 // has in view - its occlusion culling and levels of detail leave out a wall's top a little off -
@@ -934,7 +1013,8 @@ void Device::UpdateCasterCache()
 bool Device::WorldCamera() const
 {
     if (m_worldCameraGen != m_cameraGen) {       // (asked several times a draw: once per camera)
-        m_worldCameraSame = std::memcmp(&m_proj, &m_shadowWorldProj, sizeof(m_proj)) == 0;
+        m_worldCameraSame = std::memcmp(&m_proj,&m_shadowWorldProj,sizeof(m_proj))==0 ||
+            (shadow::SameLens(m_proj,m_shadowWorldProj) && m_aoProjValid && shadow::SameView(m_view,m_aoView));
         m_worldCameraGen = m_cameraGen;
     }
     return m_worldCameraSame;
@@ -944,6 +1024,11 @@ bool Device::ShadowReceiver(uint32_t fvf) const
 {
     if (m_drawIsLabel || !WorldCamera() || !m_shadows || !ShadingOn() || m_target != m_main || (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ ||
         !m_rs[d3d::RS_ZENABLE] || VisualKind(m_drawVisualKind) == VisualKind::Sky)   // the sky: no shadows on it
+        return false;
+    // SharedGround+'s opaque combined pass has its sun in the lightmap,
+    // not in C.lights. In sunny mode route shadows to that lightmap; treating
+    // it as a normally lit receiver shadows a directional light it never has.
+    if (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsTerrain(fvf) && IsCombinedTerrainPass())
         return false;
     if (!m_rs[d3d::RS_ALPHABLENDENABLE])
         // The ground's base pass, where a lightmap + lights pass follows (it did last frame): that pass takes the
@@ -966,7 +1051,9 @@ bool Device::IsCombinedTerrainPass() const
 {
     using namespace d3d;
     if (m_native.drawing) return m_groundOne && m_native.combinedPass && SharedGroundPlus();
-    return !m_native.drawing && m_rs[RS_LIGHTING] && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
+    // Retail also submits this lightmap/base layout with fixed-function lighting
+    // disabled. Its texture stages and coordinates still define a combined pass.
+    return !m_native.drawing && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&
            m_tss[0][TSS_COLOROP] == TOP_ADD && m_tss[0][TSS_COLORARG1] == TA_TEXTURE && m_tss[0][TSS_COLORARG2] == TA_DIFFUSE &&
            m_tss[1][TSS_COLOROP] == TOP_MODULATE && m_tss[1][TSS_COLORARG1] == TA_TEXTURE && m_tss[1][TSS_COLORARG2] == TA_CURRENT &&
            m_tss[0][TSS_TEXCOORDINDEX] == 1 && m_tss[1][TSS_TEXCOORDINDEX] == 0 &&
@@ -979,7 +1066,8 @@ bool Device::IsCombinedTerrainPass() const
 bool Device::ShadowInLightmap(uint32_t fvf) const
 {
     return !m_drawIsLabel && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main && m_rs[d3d::RS_ZENABLE] &&
-           IsTerrain(fvf) && IsMultiplyPass();
+           IsTerrain(fvf) && (IsMultiplyPass() ||
+               (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsCombinedTerrainPass()));
 }
 
 // Anarchy Online's round blob shadow under characters (GfxVisualSimpleShadow_c): a black, alpha-blended disc of
@@ -1075,7 +1163,8 @@ void Device::CollectShadowItems()
     std::vector<uint64_t> staleKeys;
     std::vector<uint32_t> drawOf;                // per item: its draw number
     for (const ShadowCaster& c : m_casters) {
-        if (c.view != world)
+        if (c.view != world && (!shadow::SameView(m_casterViews[c.view].view,m_casterViews[world].view) ||
+                               !shadow::SameLens(m_casterViews[c.view].proj,m_casterViews[world].proj)))
             continue;
         bool ringData = !c.vb || c.ib == m_frames[m_frameIndex].ring;
         if (ringData && c.generation != m_ringGeneration) {   // the ring restarted since (mid-frame flush): overwritten
@@ -1144,6 +1233,7 @@ void Device::CollectShadowItems()
         m_shadowItems.push_back(it);
     }
     AddStatelShadowItems();                      // the playfield's placed objects (statels.cpp)
+    if(m_liveMachine>=1&&m_living)std::erase_if(m_shadowItems,[&](const ShadowItem& item){return item.cached&&SuppressLivingCached(item.vertexCount,item.indexCount,item.boundsMin,item.boundsMax);});
     // The drawn-static tally and the animated subset: the point-light pass asks "is anything animated in range?" once
     // per cube, and only animated casters (characters) can answer yes, so static casters need not be scanned.
     m_shadowItemsCount = uint32_t(m_shadowItems.size());
@@ -1496,9 +1586,12 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
     const float lowFade = lowT * lowT * (3.0f - 2.0f * lowT);
     const bool moon = !haveSun && !lowSun && MoonOn();
     const float* lightDir = haveSun || lowSun ? m_sunDir : m_moonDir;
+    const bool previousValid=m_shadowValid;
     m_shadowValid = false;
     m_shadowItemsCount = m_shadowStaticItems = m_shadowAnimatedItems = 0;
     m_shadowDrawn = m_shadowCulled = m_shadowStaticDrawn = m_shadowAnimatedDrawn = 0;
+    m_shadowStaticReused=m_shadowStaticRefreshed=0;
+    m_shadowCascadesUpdated=0;
     m_shadowCollectMs = m_shadowCullMs = m_shadowDrawMs = 0.0;
     m_animatedItems.clear();
     // The sun for effects that don't need the shadow map (light through leaves, contact shadows).
@@ -1521,20 +1614,26 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
     uint32_t world = 0;
     for (uint32_t i = 1; i < m_casterViews.size(); ++i)
         if (m_casterViews[i].count > m_casterViews[world].count) world = i;
-    float eye[3], forward[3];
-    m_frameViewProjValid = !m_casterViews.empty();
+    float eye[3];
+    // A terrain-only view still needs the remembered/placed scenery shadows.
+    // No current caster does not mean there is no world camera or no occluder.
+    const d3d::Matrix* worldView = !m_casterViews.empty() ? &m_casterViews[world].view :
+        m_aoProjValid ? &m_aoView : nullptr;
+    const d3d::Matrix* worldProj = !m_casterViews.empty() ? &m_casterViews[world].proj :
+        m_aoProjValid ? &m_aoProj : nullptr;
+    m_frameViewProjValid = worldView && worldProj;
     if (m_frameViewProjValid) {
-        const auto& v = m_casterViews[world].view.m;
+        const auto& v = worldView->m;
         for (int i = 0; i < 3; ++i) {
             eye[i] = -(v[3][0] * v[i][0] + v[3][1] * v[i][1] + v[3][2] * v[i][2]);
-            forward[i] = v[i][2];
         }
-        m_frameViewProj = MulMatrix(m_casterViews[world].view, m_casterViews[world].proj);
-        m_shadowWorldProj = m_casterViews[world].proj;
+        m_frameViewProj = MulMatrix(*worldView, *worldProj);
+        m_shadowWorldProj = *worldProj;
         m_worldCameraGen = 0;                    // (WorldCamera: asked again)
         std::memcpy(m_frameEye, eye, sizeof(eye));             // also what caster cache eviction measures from
+        m_frameEyeValid = true;
     }
-    if (!m_frameViewProjValid || m_casters.empty()) {
+    if (!m_frameViewProjValid) {
         m_shadowItems.clear();
         m_shadowOrder.clear();
         m_shadowOrderBox.clear();
@@ -1548,12 +1647,45 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         PrepareDrawArenas();
     double collectStart = ProfileCpu();
     CollectShadowItems();
+    // Build per-instance bounds after all visible, remembered and placed casters were collected.
+    std::vector<uint64_t> buildingKeys(m_skipHugeShadows ? m_shadowItems.size() : 0);
+    std::vector<bool> skipHuge(buildingKeys.size(), false);
+    if (m_skipHugeShadows) {
+        for (size_t i = 0; i < m_shadowItems.size(); ++i) {
+            const auto& item = m_shadowItems[i];
+            // A freshly uploaded static mesh also carries the generic animated
+            // flag until its buffer is recognized as reusable. That flag is not
+            // evidence of an actor; use the game's scenery kind and owner here.
+            if (VisualKind(item.kind) != VisualKind::Static || item.owner || item.texture || item.leafKey || item.sway[3] > .5f) continue;
+            // Identity-space geometry may contain the whole city; don't merge unrelated absolute meshes.
+            const auto& at = item.world.m[3];
+            const bool placed = std::fabs(at[0])+std::fabs(at[1])+std::fabs(at[2]) > .001f;
+            int32_t transform[12];
+            for (int row=0;row<4;++row) for (int col=0;col<3;++col)
+                transform[row*3+col]=int32_t(std::round(item.world.m[row][col]*(row==3 ? 8.f:1024.f)));
+            uint64_t key = placed ? HashBytes(transform,sizeof(transform),0x48554745u) : item.cacheKey;
+            if (!key) key=HashBytes(item.boundsMax,sizeof(item.boundsMax),HashBytes(item.boundsMin,sizeof(item.boundsMin),0x4944454eu));
+            key |= 1u;
+            buildingKeys[i] = key;
+            skipHuge[i] = shadow::Huge(item.boundsMin, item.boundsMax, lightDir);
+            m_hugeShadowGroups.Observe(key,item.boundsMin,item.boundsMax,lightDir);
+        }
+        for (size_t i = 0; i < buildingKeys.size(); ++i) if (buildingKeys[i]) {
+            skipHuge[i] = skipHuge[i] || m_hugeShadowGroups.Excluded(buildingKeys[i]);
+        }
+    }
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Huge shadow filter: enabled %u; skipped %zu of %zu casters\n",unsigned(m_skipHugeShadows),size_t(std::count(skipHuge.begin(),skipHuge.end(),true)),m_shadowItems.size());
+    uint64_t excludedKey=0;
+    for(size_t i=0;i<skipHuge.size();++i)if(skipHuge[i])
+        excludedKey+=HashBytes(&m_shadowItems[i].cacheKey,sizeof(uint64_t),0x48554745u);
+    const bool exclusionsChanged=excludedKey!=m_shadowExcludedKey;
+    m_shadowExcludedKey=excludedKey;
     m_shadowCollectMs = ProfileCpu() - collectStart;
     ProfileCpuAdd("shadow collect", collectStart);
     if (!m_shadows || !(haveSun || moon))
         return;
 
-    // Light view: z along the sun's (moon's) direction; each cascade centred ahead of the camera, snapped to its texels.
+    // Light view: z along the sun's (moon's) direction; each cascade centred on the camera, snapped to its texels.
     std::memcpy(m_shadowLightDir, lightDir, sizeof(m_shadowLightDir));
     float z[3] = {lightDir[0], lightDir[1], lightDir[2]};
     float up[3] = {0.0f, 1.0f, 0.0f};
@@ -1562,10 +1694,10 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
     Cross(up, z, x);
     Normalize(x);
     Cross(z, x, y);
-    bool sunMoved = Dot(z, m_shadowSunDir) < 0.99999f;
     uint32_t count = m_shadowCascades;
-    if (count != m_cascadeCount)                 // cascades changed: draw them all this frame
-        sunMoved = true;
+    static const bool fullRefresh=[](){const char* v=std::getenv("RANDYVK_SHADOW_FULL_REFRESH");return v&&v[0]=='1';}();
+    const bool refreshAll=fullRefresh || !previousValid || count!=m_cascadeCount ||
+        Dot(z,m_shadowSunDir)<.99999f || m_shadowIsMoon!=!haveSun || exclusionsChanged;
 
     ImageBarrier(cmd, m_shadowImage, VK_IMAGE_ASPECT_DEPTH_BIT, m_shadowImageLayout,
                  VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, 0,
@@ -1577,13 +1709,14 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
     ++m_cascadeFrame;
     BindShadowRecords(cmd);
     for (uint32_t c = 0; c < count; ++c) {
-        // The two widest cascades take turns (their shadows are far away, a frame's lag doesn't show).
-        bool alternate = count >= 3 && c >= count - 2;
-        if (alternate && !sunMoved && ((m_cascadeFrame & 1) != ((count - 1 - c) & 1)))
-            continue;
+        // Keep close shadows current. The two distant layers take turns, with
+        // their own retained matrices, so camera rotation cannot move an old
+        // layer's coverage. Changed exclusions/lighting invalidate all layers.
+        if(!refreshAll && count>=3 && c>=count-2 && ((m_cascadeFrame&1)!=((count-1-c)&1)))continue;
+        ++m_shadowCascadesUpdated;
         float range = m_shadowRange / std::pow(3.0f, float(count - 1 - c));   // half the cascade's width
         float center[3];
-        for (int i = 0; i < 3; ++i) center[i] = eye[i] + forward[i] * range * 0.4f;
+        for (int i = 0; i < 3; ++i) center[i] = eye[i];
         float texel = 2.0f * range / float(m_shadowSize);
         float cx = std::round(Dot(x, center) / texel) * texel, cy = std::round(Dot(y, center) / texel) * texel;
         float cz = Dot(z, center);
@@ -1609,14 +1742,6 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         ri.renderArea = {{0, 0}, {m_shadowSize, m_shadowSize}};
         ri.layerCount = 1;
         ri.pDepthAttachment = &depthAtt;
-        vkCmdBeginRendering(cmd, &ri);
-        vkCmdSetViewport(cmd, 0, 1, &viewport);
-        vkCmdSetScissor(cmd, 0, 1, &scissor);
-        // Bias in depth units grows with the cascade's depth range; slope bias per texel stays the same.
-        vkCmdSetDepthBias(cmd, 2.0f * 600.0f / depth, 0.0f, 2.5f);
-        ShadowPassMatrix(cmd, lightViewProj);
-        ShadowBind bind;
-        bool last = c == count - 1;
         double cullStart = ProfileCpu();
         m_cascadeVisible.clear();
         const bool affine = lightViewProj.m[0][3] == 0.0f && lightViewProj.m[1][3] == 0.0f &&
@@ -1625,11 +1750,12 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         const size_t orderCount = std::min(m_shadowOrder.size(), m_shadowOrderCached.size());
         for (size_t k = 0; k < orderCount; ++k) {
             const uint32_t i = m_shadowOrder[k];
+            if (m_skipHugeShadows && skipHuge[i]) { ++m_shadowCulled; continue; }
             const float* bmin = &m_shadowOrderBox[k * 6];
             const float* bmax = bmin + 3;
-            // Only casters reaching into this cascade's square (the widest takes every one the game drew).
-            if ((m_shadowOrderCached[k] || !last) &&
-                (affine ? BoxOutsideAffine(bmin, bmax, lightViewProj)
+            // Even current draws outside the widest square cannot write a
+            // shadow texel. Apply the same exact light-space bound to every layer.
+            if ((affine ? BoxOutsideAffine(bmin, bmax, lightViewProj)
                         : BoxInClip(bmin, bmax, lightViewProj, false) == -1)) {
                 ++m_shadowCulled;
                 continue;
@@ -1648,14 +1774,73 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         m_shadowCullMs += ProfileCpu() - cullStart;
         ProfileCpuAdd("shadow cull", cullStart);
         double drawStart = ProfileCpu();
-        for (uint32_t i : m_cascadeVisible) {
-            ShadowItem& item = m_shadowItems[i];
-            item.cascades |= 1u << c;
-            if (item.cached) ++m_cachedCastersDrawn;
+        auto retained=[](const ShadowItem& item) {
+            return item.cached && !item.texture && !item.leafKey && item.sway[3]<=.5f;
+        };
+        uint64_t staticSum=0;uint32_t staticCount=0;
+        for(uint32_t i:m_cascadeVisible) {
+            auto& item=m_shadowItems[i];item.cascades|=1u<<c;
+            if(m_shadowStaticImage && retained(item)) {
+                uint64_t h=HashBytes(&item.world,sizeof(item.world),item.cacheKey);
+                const uint64_t location[]={uint64_t(item.buffer),uint64_t(item.ibBuffer),item.vbOffset,item.ibOffset};
+                staticSum+=HashBytes(location,sizeof(location),h);++staticCount;
+            }
+        }
+        uint64_t staticKey=HashBytes(&lightViewProj,sizeof(lightViewProj),staticSum^uint64_t(staticCount));
+        if(!staticKey)staticKey=1;
+        // During continuous camera/light/geometry changes, use the ordinary
+        // pass. Build a reusable layer only after its signature repeats, so
+        // motion does not pay for an extra render pass and depth copy.
+        const bool useCache=m_shadowStaticImage && staticCount &&
+            (m_shadowStaticKeys[c]==staticKey || m_shadowStaticCandidates[c]==staticKey);
+        m_shadowStaticCandidates[c]=staticKey;
+        auto beginPass=[&](bool staticPass) {
+            depthAtt.imageView=staticPass ? m_shadowStaticViews[c] : m_shadowLayerViews[c];
+            depthAtt.loadOp=staticPass||!useCache ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+            vkCmdBeginRendering(cmd,&ri);
+            vkCmdSetViewport(cmd,0,1,&viewport);vkCmdSetScissor(cmd,0,1,&scissor);
+            vkCmdSetDepthBias(cmd,2.0f*600.0f/depth,0.0f,2.5f);
+            ShadowPassMatrix(cmd,lightViewProj);
+        };
+        auto drawItem=[&](uint32_t i,ShadowBind& bind) {
+            auto& item=m_shadowItems[i];
+            if(item.cached)++m_cachedCastersDrawn;
             ++m_shadowDrawn;
-            if (uint32_t(item.kind) == uint32_t(VisualKind::Static)) ++m_shadowStaticDrawn;
-            if (item.animated) ++m_shadowAnimatedDrawn;
-            DrawShadowItem(cmd, bind, item);
+            if(uint32_t(item.kind)==uint32_t(VisualKind::Static))++m_shadowStaticDrawn;
+            if(item.animated)++m_shadowAnimatedDrawn;
+            DrawShadowItem(cmd,bind,item);
+        };
+        if(useCache) {
+            if(m_shadowStaticKeys[c]!=staticKey) {
+                ImageBarrier(cmd,m_shadowStaticImage,VK_IMAGE_ASPECT_DEPTH_BIT,m_shadowStaticLayout,
+                    VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,VK_ACCESS_2_MEMORY_READ_BIT|VK_ACCESS_2_MEMORY_WRITE_BIT,
+                    VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
+                    VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT|VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+                m_shadowStaticLayout=VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+                beginPass(true);ShadowBind staticBind;
+                for(uint32_t i:m_cascadeVisible)if(retained(m_shadowItems[i]))drawItem(i,staticBind);
+                FlushShadowGroup(cmd);vkCmdEndRendering(cmd);
+                m_shadowStaticKeys[c]=staticKey;++m_shadowStaticRefreshed;
+            } else ++m_shadowStaticReused;
+            ImageBarrier(cmd,m_shadowStaticImage,VK_IMAGE_ASPECT_DEPTH_BIT,m_shadowStaticLayout,
+                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,VK_ACCESS_2_MEMORY_WRITE_BIT|VK_ACCESS_2_MEMORY_READ_BIT,
+                VK_PIPELINE_STAGE_2_TRANSFER_BIT,VK_ACCESS_2_TRANSFER_READ_BIT);
+            m_shadowStaticLayout=VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            ImageBarrier(cmd,m_shadowImage,VK_IMAGE_ASPECT_DEPTH_BIT,VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
+                VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT|VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                VK_PIPELINE_STAGE_2_TRANSFER_BIT,VK_ACCESS_2_TRANSFER_WRITE_BIT);
+            VkImageCopy copy{};copy.srcSubresource={VK_IMAGE_ASPECT_DEPTH_BIT,0,c,1};copy.dstSubresource=copy.srcSubresource;
+            copy.extent={m_shadowSize,m_shadowSize,1};
+            vkCmdCopyImage(cmd,m_shadowStaticImage,VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,m_shadowImage,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
+            ImageBarrier(cmd,m_shadowImage,VK_IMAGE_ASPECT_DEPTH_BIT,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,VK_PIPELINE_STAGE_2_TRANSFER_BIT,VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT|VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
+                VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT|VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+        }
+        beginPass(false);ShadowBind bind;
+        for (uint32_t i : m_cascadeVisible) {
+            if(!useCache||!retained(m_shadowItems[i]))drawItem(i,bind);
         }
         FlushShadowGroup(cmd);                   // the cascade's last batch (M4)
         DrawLeafShadows(cmd);                    // the canopies' leaves (leaves.cpp)

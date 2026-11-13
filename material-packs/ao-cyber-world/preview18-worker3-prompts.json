@@ -1,0 +1,30 @@
+{
+  "tool": "built-in image_gen",
+  "worker": 3,
+  "prompts_sha256": "86924dffe9612223a0acf574b825b566552d86fe9952c7fd350eadabb3179c85",
+  "prompt_records": {
+    "tool": "built-in image_gen",
+    "batches": [
+      {
+        "batch": 1,
+        "prompt": "Use case: precise-object-edit. Asset: AO original 1010004:38566 small_metall_plate.png, a flat tileable game albedo. Edit target is the supplied exact 2:1 original UV reference. Produce 2048x1024 high detail artwork, edge-to-edge. Faithfully preserve the original soft gray/blue steel center and irregular ochre-brown oxidation toward left/right/bottom; same broad distribution, dark brightness and hue. Resolve blurred surface into high-quality physically convincing weathered steel: restrained brushed grain, fine pitting, delicate scratches and tarnish. Surface is one continuous plain plate with NO new panel boundaries, holes, bolts, emblems, letters, symbols or objects. No baked directional light, cast shadow, bevel or perspective. Microdetail only; do not make the source brighter. Repeat seamlessly horizontally and vertically, including corrosion. This is a flat diffuse texture, not a photograph of a sheet. Preserve exact 2:1 aspect. No labels or border.",
+        "generated_path": "exec-11c27125-e11b-4147-9a9f-47def67c90f5.png"
+      },
+      {
+        "batch": 2,
+        "prompt": "Use case: precise-object-edit. Flat AO game albedo UV reference for ID45132 edge_blackmetall.png. This square sheet contains FOUR IDENTICAL vertical copies of the SAME narrow 1:4 trim texture, equal columns. Re-render at 2048x2048 maintaining exact four equal 512px column placements and all original narrow vertical ribs/channels in each column. Every column must match the same original. Keep dark charcoal weathered iron, exact original subtle stripe widths and positions; refine original mottling into fine corrosion pitting, worn longitudinal machining and restrained edge scuffs. Preserve original brightness; no white metal. NO new bolts, fittings, holes, symbols, text, horizontal divisions or ornaments. No new seams beyond original narrow ribs. Flat orthographic unlit diffuse, no directional light or cast shadows. Seamless repeating vertically, top edge matches bottom. The four columns are source copies for extraction, do not draw grid/gutters/borders. Exact UV trace and restrained material realism.",
+        "generated_path": "exec-57894811-d20e-49ae-b55c-64039502b3f5.png"
+      },
+      {
+        "batch": 3,
+        "prompt": "Use case: precise-object-edit. Produce faithful high-detail AO albedo atlas, square 2048x2048. Supplied edit target has TWO 2:1 rectangles stacked exactly at 50% height. TOP HALF ID85284 is plain muted dark olive-gray painted jetboat hull, with original cloudy subtle variation and thin worn silver metal strip across its bottom (~last 7% of the rectangle). BOTTOM HALF ID85289 is the same olive hull and bottom silver strip, with EXACTLY THREE original circular/oval mechanical openings: one small dark round opening at normalized x .156/y .45 within the bottom rectangle; two slightly larger elliptical slotted openings near x .516/y .84 and x .922/y .84 within that rectangle. TRACE original outlines/positions and orientations exactly, including the dark slits inside the two lower ovals. Preserve all shape locations, sizes, dark olive color and strip height. Improve with subtle enamel grain, very fine paint scratches, chipped silver strip and convincing original rim metal. No extra rivets, holes, seams, panels, symbols, words, graphics, glow, lights, perspective or cast shadows. Keep top rectangle entirely free of openings. Both rectangles horizontally seamless, retaining exact bottom trim. No grid/gutters or border. Flat diffuse game texture, restrained original dark brightness, high quality surface art.",
+        "generated_path": "exec-211b26fe-76a1-46f4-9dee-4da56614ae57.png"
+      },
+      {
+        "batch": 4,
+        "prompt": "Use case: precise-object-edit. Faithful HD AO original game UV albedo sheet, 2048x3072 portrait 2:3. EXACT two source rectangles: TOP TWO THIRDS is one square ID269319 corroded brown desert metal plates. BOTTOM THIRD is one 2:1 horizontal trim ID269321. Keep split exactly y=2/3. TOP square: original two large ochre rusted panel fields divided by the exact thin dark central vertical seam at x50%, with original dark upper/lower horizontal framing, precisely centered downward pentagonal bracket at top and upward pentagonal bracket at bottom, exact border thickness and original faint engraved/mechanical strokes. Trace original markings, do not invent glyphs. Preserve warm desert brown/ochre hue and original brightness. BOTTOM rectangle: preserve exact original layered horizontal bronze/dark rust rails, narrow dense vertical ribbed grille bands in the exact upper/lower positions, all rail heights and original sparse small plate joints. Modern material detail: oxidized metal pitting, fine corrosion, sand abrasion, worn bronze edges and restrained machined ribs. Faithful original flat UV geometry, no new screws, holes, seams, shapes, symbols, text, emblems, perspective, lighting or shadows. No new relief objects. Top plate seamless both axes, bottom trim seamless horizontally. No gutters or outer border. Original source composition must remain recognizable at low resolution; replace blur with fine detailed painted material only.",
+        "generated_path": "exec-99842ca2-154e-42b1-be5a-aa1b8ac7c00b.png"
+      }
+    ]
+  }
+}

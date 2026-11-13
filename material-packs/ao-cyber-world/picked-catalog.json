@@ -39,7 +39,8 @@
     "profile": "stone",
     "batch": "picked-foliage-2026-10-24",
     "picks": 1,
-    "captured_frames": 5
+    "captured_frames": 5,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -67,7 +68,8 @@
     "profile": "metal",
     "batch": "picked-foliage-2026-10-24",
     "picks": 1,
-    "captured_frames": 5
+    "captured_frames": 5,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -280,7 +282,8 @@
         0.53,
         0.64
       ]
-    ]
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -364,7 +367,8 @@
     "profile": "stone",
     "batch": "picked-foliage-2026-10-24",
     "picks": 1,
-    "captured_frames": 2
+    "captured_frames": 2,
+    "worker": true
   },
   {
     "type": 1010004,
@@ -761,15 +765,18 @@
     "type": 1010004,
     "id": 215151,
     "name": "door_frame_tile-up_jobe.png",
-    "source": "picked-215151-v1",
+    "source": "preview23-selected-215151-r31",
     "size": [
-      256,
-      512
+      512,
+      1024
     ],
     "profile": "stone",
     "batch": "picked-foliage-2026-10-24",
     "picks": 1,
-    "captured_frames": 0
+    "captured_frames": 0,
+    "worker": true,
+    "independentRender": true,
+    "detailRestoration": "preview23-selected-r31"
   },
   {
     "type": 1010004,

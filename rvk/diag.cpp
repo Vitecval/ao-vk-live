@@ -93,7 +93,7 @@ std::string Device::GpuMemoryReport() const
         vmaGetAllocationInfo(m_allocator, a, &info);
         return info.size;
     };
-    const VkDeviceSize sunShadow = bytesOf(m_shadowAllocation), pointShadow = bytesOf(m_cubeAllocation),
+    const VkDeviceSize sunShadow = bytesOf(m_shadowAllocation)+bytesOf(m_shadowStaticAllocation), pointShadow = bytesOf(m_cubeAllocation),
                        depth = bytesOf(m_depthAllocation);
     VkDeviceSize skin = 0, particles = bytesOf(m_particleStateAllocation) + bytesOf(m_particleIndicesAllocation);
     for (const Frame& f : m_frames) skin += f.skinArenaSize;
@@ -189,6 +189,7 @@ void Device::EndFrameDump()
         DumpGroundTextures(base + "-ground.bmp");
         DumpLightmaps(base + "-lightmaps.bin");
     }
+    ReportWeatherStats(m_dumpFile);
     std::fprintf(m_dumpFile, "# %s\n", GpuMemoryReport().c_str());
     std::fprintf(m_dumpFile,"# native terrain: shared-plus %u; enabled %u; patches %zu; patches/frame %.2f; rocks %u; pebbles %u; AO %.2f; sun %.2f\n",
         unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),
@@ -265,6 +266,9 @@ void Device::EndFrameDump()
                  m_shadowItemsCount, m_shadowStaticItems, m_shadowAnimatedItems, m_shadowDrawn, m_shadowStaticDrawn,
                  m_shadowAnimatedDrawn, m_shadowCulled, m_shadowCollectMs, m_shadowCullMs, m_shadowDrawMs,
                  m_shadowGroupCalls);
+    std::fprintf(m_dumpFile,"# retained shadow depth cache: %u cascades reused, %u refreshed; %s\n",
+        m_shadowStaticReused,m_shadowStaticRefreshed,m_shadowStaticImage ? "available":"disabled or unavailable");
+    std::fprintf(m_dumpFile,"# sun cascade cadence: updated %u of %u layers; close layers every frame\n",m_shadowCascadesUpdated,m_cascadeCount);
     std::fprintf(m_dumpFile, "# instancing: %u runs of >=2 identical static draws; %u draws could merge away (longest run"
                              " %u)\n", m_batchRuns, m_batchMerged, m_batchMaxRun);
     std::fprintf(m_dumpFile, "# M3 batching: %u indirect calls for %u draws (%u single); %u indexed draws left direct\n",
@@ -541,6 +545,9 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
                          (long long)(m_frameNumber - t->m_uploadFrame),
                          t->m_level0NonZero == ~0u ? -1 : int(t->m_level0NonZero), t->m_image ? "" : " NO-IMAGE",
                          t->m_view ? "" : " NO-VIEW", t->m_albedoMap ? " albedo" : "", uint32_t(t->m_format));
+            if(t->m_albedoMap)
+                std::fprintf(f," resident-albedo:%ux%u/%u-levels native-min-mip:%u",t->m_albedoMap->Width(),
+                    t->m_albedoMap->Height(),t->m_albedoMap->Levels(),m_tss[s][d3d::TSS_MAXMIPLEVEL]);
             if (!t->m_alphaMask.empty())         // (its alpha: hard edges, soft share - two-pass foliage, its dither)
                 std::fprintf(f, " alpha edges %.3f soft %.2f", double(t->m_alphaHardEdges), double(t->m_alphaSoftShare));
         }

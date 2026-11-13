@@ -47,6 +47,10 @@ public:
     bool Resize(uint32_t width, uint32_t height);
     bool SetWindow(HWND window);
     void RefreshPresentation();
+    void ResetTemporalHistory(uint64_t epoch);
+    uint64_t WorldPresents() const { return m_device.WorldPresents(); }
+    uint64_t FreshWorldPresents() const { return m_device.FreshWorldPresents(); }
+    uint64_t TemporalEpoch() const { return m_device.TemporalEpoch(); }
     HWND Window() const { return m_window; }
     const DeviceInfo& Info() const { return m_device.Info(); }
     uint32_t Width() const { return m_width; }
@@ -109,6 +113,7 @@ public:
     void LoadStatels(const char* path, uint32_t playfield);                   // (the path copied)
     void SetStatelMode(uint32_t mode);
     void SetSkyPlayfield(uint32_t playfield);
+    void SetLivingContext(uint32_t playfield,bool outdoor,uint64_t generation=0);
     void SetGrassField(bool on, float distance, float density, float height, bool texOnly);
     void SetGrassStyle(float variety, float flowers, float glow, float gusts, bool trails);
     void SetGrassTrailLook(float seconds, float shade);
@@ -208,6 +213,7 @@ public:
     bool WaterReady() const { return m_device.WaterReady(); }
     void SetTexture(uint32_t stage, Texture* texture);
     void SetDrawVisual(uint32_t kind, const char* className, uint32_t owner = 0, uint32_t visual = 0);   // className: stays valid (RTTI)
+    void SetWindowHouseBounds(const float* modelBounds);
     void SetSceneLights(const Device::SceneLight* lights, uint32_t count);   // copied
     void SetRenderTarget(Texture* target);
     Texture* GetRenderTarget() const { return m_target; }
@@ -263,6 +269,7 @@ public:
     static uint32_t FvfStride(uint32_t fvf) { return Device::FvfStride(fvf); }
 
     void Sync();                                       // waits until the worker has executed everything queued
+    VkResult WaitForPresentation();                    // also drains deferred actual WSI calls (owner-message aware)
 
     static constexpr uint32_t kMaxFramesAhead = 1;
     static constexpr uint32_t kQueueBytes = 48u << 20;
@@ -388,6 +395,7 @@ private:
     // This frame's draws by how their data crossed the hand-off (the profile's 'hand-off draws' line).
     struct DrawStats { uint64_t copied = 0, vertexBytes = 0, shared = 0, skinned = 0, indexBytes = 0, retained = 0, handles = 0; } m_drawStats;
     std::chrono::steady_clock::time_point m_lastEndFrame{};       // the game thread's frame (EndFrame to EndFrame)
+    double m_previousFrameWaitMs = 0.0;
     std::atomic<float> m_liveFrameMs{0.0f}, m_liveGameWaitMs{0.0f};   // (Live: smoothed, the game thread's)
     struct SentState {
         uint32_t rs[256];

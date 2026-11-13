@@ -1,0 +1,103 @@
+Preview 20 Newland windows v4 — shared geometric rooms
+
+RVK_WindowDepth: 0 Off (default), 1 Subtle, 2 Strong. User settings are retained.
+The reviewed Full HD Newland family and the seven glass masks remain the scope.
+See newland-window-coverage-v3.json for every material/model use and exclusion.
+
+Why v4
+Live review confirmed v3 activated at night, but its depth-warped room pictures
+looked like tiny televisions. V4 does not fit a room image to each window.
+It traces actual geometric furniture and room surfaces behind the glass point.
+Small windows therefore reveal only a physically cropped glimpse. Larger windows
+reveal more of the room, including perspective, occlusion and surface shading.
+
+Whole-house coordinates
+The current verified RTriMesh_t provides true whole-model vertex bounds. Initial
+live v4 captures exposed AO's historical BVolume Y/Z extreme-point bug: some
+boxes were truncated or almost planar. The corrected build independently
+reduces XYZ extrema across every SimpleMesh. It never changes the game's
+BVolume, culling, collision or native resource layout. Bounds are cached by
+mesh-data lifetime, erased on data initialization/destruction and cleared by
+native position replacement/mirroring. All six relevant writer/lifetime hooks
+must be installed or the helper fails closed. Only copied floats leave this
+cache; no game pointer is dereferenced by the render thread. Initial reduction
+locks existing CPU-side vertices read-only; subsequent uses reuse six floats.
+The cache is capped at 8192 resources and only populated while the effect is on.
+Only six copied floats cross to the render thread; no retained native visual
+pointer is dereferenced there. Bounds are refreshed when the visual changes and
+on a new presented frame, even when the visual address is unchanged.
+Every material/pane of that visual receives the same bounds and transform.
+Room divisions fit the building envelope, targeting about 4.8 x 5 x 4.8 world units.
+The number of cells is rounded; this is an inferred rectangular floor plan,
+not existing gameplay interior geometry. Native transform scale is removed from
+the furniture metrics, so a desk or bed does not shrink to fit a small window.
+The floor is selected below the sill; structural partitions remain occluders.
+
+Room content/lighting identity derives from the world-space room-cell centre,
+not from texture identity, pane index or a room photograph. Adjacent and corner
+panes that enter the same cell view the SAME furniture and lamp from different
+directions. Separate cells can represent different units and lighting states.
+Moving the camera does not change a room's assignment.
+
+Geometry and materials
+Beds are approximately 1.6 x 2.2 units, desks approximately 1.6 x 0.75, with
+0.8-unit working height and 0.45-unit chair seats. Layouts include cabinets,
+drawers, headboards, rounded pillows, chairs, shelves/books, monitors, partitions,
+rugs, small framed art, lamps and ceiling fixtures. Every room also has a
+0.90 x 2.10-unit closed interior door with a three-piece frame and metal handle.
+It prefers an internal partition, centred on the selected wall; a single-room
+house uses a side wall. It is a virtual interior fixture and never
+replaces or changes an existing AO door. Placement follows the room,
+with modest adjustments for genuinely small house cells, never an aperture fit.
+Ten presets reuse a compact set of box/ellipsoid/tapered-shade primitives.
+Only surface albedos are textured: plaster, wood, metal, quilt, rug, books and a
+monitor face. No complete room picture is sampled in the runtime shader.
+The material atlas is 1024x512, eight 256px tiles, embedded in ao-vk.dll.
+GPU allocation with mips is 2,796,204 bytes (2.67 MiB), as in v3.
+Generation prompts, original/runtime art, packing method and hashes are in
+assets/newland-materials. Repack with tools/pack_newland_materials.py.
+Older room-card source art is retained as v3 history; it is not embedded or read
+by v4. The exact previous v3 source/package/binary are preserved separately.
+
+Subtle uses up to 16 furnishing plus 5 door/frame primitives and one primary-light
+shadow sample. Strong uses up to 24 plus the same 5 structural primitives, with
+four stable shadow samples for softer lamp shadows. Even unfurnished rooms have
+their door. Quality changes do not swap the base room layout or furniture seed.
+Both share the same physical room scale; Subtle reduces transmission, detail
+and room-light frequency. Strong gives more readable detail and warm lamp pools.
+The bright lamp and its bright local light pool were explicitly retained after
+user review. Homes are warm, offices more neutral/cool, and mixed rooms uncommon.
+Approximate room assignment remains 65% home / 25% office / 10% mixed.
+Strong lighting remains about 45% dark / 27% dim / 20% clear / 8% hero rooms;
+Subtle about 50 / 30 / 16 / 4%. These apply to rooms, not independent panes:
+several windows of one apartment can naturally share one lit/dark state.
+Daylight still weakens interiors, but no longer suppresses the whole room to
+v3's nearly invisible daytime card gain. Glass keeps the original PBR specular.
+
+Performance and compatibility
+Analytic rays run only inside reviewed eligible glass. No extra scene draw,
+global render pass, per-window object allocation, external model pack or dynamic
+scene light is created. The existing HDR bloom attachment supplies optical spill.
+This is not physically cast outdoor light. Mixed eligible/ordinary batches split
+at the existing v3 glow-state transition. Current whole-house metadata adds
+32 bytes per draw record and six floats per changed native visual command.
+Off skips house metadata queries/classification, but the fixed record layout
+still includes the 32-byte fields. Texture upload remains once per enabled
+Newland device, and hot Off retains an already uploaded atlas until teardown.
+The CPU vertex-bounds cache adds six floats plus map overhead per queried native
+resource, at most 8192; unloading erases entries. GPU fixture timings do not
+measure native model-query CPU work. The dedicated window_bounds_check uses the
+isolated retail vertex-buffer ABI and reproduces the original bug before
+checking true multi-part bounds, cache reuse and malformed-resource refusal.
+
+Limits
+The inferred rectangular cells cannot recover the actual hidden floor plan or
+irregular/sloped house envelope. Some openings can show mostly wall, a partition,
+or only part of furniture; that is often the correct glimpse. Floor estimation
+and modular building pieces can still create awkward views. Furniture is compact
+analytic geometry with approximate lighting; it is not an enterable/collidable
+game interior, and no scene objects or animated people are added. Extreme grazing
+angles and tiny/far panes intentionally lose interior detail. Missing/untrusted
+whole-house bounds fail closed. Shared door/gate textures keep their independent
+positive current-geometry model guard. Other surfaces and original/Lite art stay
+unchanged. Matched fixtures and live captures must be labelled separately.

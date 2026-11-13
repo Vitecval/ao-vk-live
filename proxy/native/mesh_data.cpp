@@ -24,8 +24,11 @@
 #include "native/vc10.h"
 
 #include <cmath>
+#include <algorithm>
+#include <array>
 #include <cstring>
 #include <initializer_list>
+#include <unordered_map>
 #include <utility>
 
 namespace rnative::meshdata {
@@ -34,6 +37,8 @@ namespace {
 
 HMODULE g_orig;
 void* const* g_randy;
+std::unordered_map<void*,std::array<float,6>> g_windowBounds;
+bool g_windowBoundsTracked=false;
 
 template <typename T>
 T& Field(void* object, uint32_t offset) { return *reinterpret_cast<T*>(static_cast<uint8_t*>(object) + offset); }
@@ -269,6 +274,7 @@ void __fastcall RTriListSetTriList(void* d, void*, void* t)   // FUN_100488bd
 
 void __fastcall RTriListSetVertices(void* d, void*, uint32_t fvf, const void* data, uint32_t bytes)   // FUN_100488ed
 {
+    g_windowBounds.clear(); // position buffers can be replaced under an owner
     void* vb = orig::VertexBuffer_c_VertexBuffer_c_61(NewVertexBuffer(), fvf, 0, 2, bytes);
     const uint32_t size = orig::VertexBuffer_c_GetFormatSize(fvf);
     Field<uint32_t>(d, kFvf) = fvf;
@@ -518,6 +524,7 @@ void __fastcall MeshUVs(void* m, void*, vc10::Vector<float>* out)   // (vertices
 // triangles turned around. (The data it shared stays referenced, as in the original.)
 void __fastcall MeshMirror(void* m, void*, uint32_t axes)
 {
+    g_windowBounds.clear(); // existing owner, changed positions
     if (!Data(m)) return;
     void* d = RTriListCopy(vc10::Allocate(0x4C), nullptr, Data(m));
     Field<void*>(m, kData) = d;
@@ -628,6 +635,7 @@ void __fastcall Unregister(void*, void* v)            // FUN_1004e9c7 (ECX unuse
 
 void InitVisualData(void* v)
 {
+    g_windowBounds.erase(v); // an address can be reused by a new native resource
     SetVtable(v, kVisualDataVtable);
     std::memset(static_cast<uint8_t*>(v) + kAnimPosition, 0, 0x18);
     Field<float>(v, 0x44) = 1.0f;
@@ -694,6 +702,7 @@ void* __cdecl VisualDataInstantiate(void* archive)
 
 void __fastcall VisualDataDestroy(void* v)            // FUN_1004ecdc
 {
+    g_windowBounds.erase(v);
     SetVtable(v, kVisualDataVtable);
     for (void** m = Meshes(v).first; m != Meshes(v).last; ++m)
         if (*m) DeleteObject(*m);
@@ -954,6 +963,56 @@ void* MakePrivate(void* data, bool systemOnly) { return TriMeshDataPrivate(data,
 
 void* SharedCopy(void* data) { return TriMeshDataSharedCopy(data); }
 
+bool WindowBounds(void* data, float bounds[6])
+{
+    if(!data || !g_windowBoundsTracked)return false;
+    if(auto found=g_windowBounds.find(data);found!=g_windowBounds.end()){
+        std::copy(found->second.begin(),found->second.end(),bounds);return true;
+    }
+    const auto& meshes=Meshes(data);
+    if(meshes.size()==0 || meshes.size()>4096)return false;
+    std::array<float,6> box{};bool any=false;uint32_t total=0;
+    for(void** m=meshes.first;m!=meshes.last;++m){
+        if(!*m || !Data(*m))return false;
+        void* d=Data(*m);
+        uint32_t count=Field<uint32_t>(d,kVertices);
+        if(!count)continue;
+        if(count>1000000 || total>1000000-count || (Field<uint32_t>(d,kFvf)&0xEu)!=2u)return false;
+        total+=count;
+        void* vb=Buffer(d);if(!vb)return false;
+        uint32_t stride=orig::VertexBuffer_c_GetStride(vb);
+        if(stride<12 || stride>512)return false;
+        const uint8_t* p=static_cast<const uint8_t*>(orig::VertexBuffer_c_Lock(vb,0,0x10));
+        if(!p)return false;
+        bool valid=true;
+        for(uint32_t i=0;i<count;++i,p+=stride){
+            float xyz[3];std::memcpy(xyz,p,12);
+            for(int a=0;a<3;++a){
+                if(!std::isfinite(xyz[a])){valid=false;break;}
+                if(!any)box[a]=box[a+3]=xyz[a];
+                else {box[a]=std::min(box[a],xyz[a]);box[a+3]=std::max(box[a+3],xyz[a]);}
+            }
+            if(!valid)break;
+            any=true;
+        }
+        orig::VertexBuffer_c_Unlock(vb);
+        if(!valid)return false;
+    }
+    if(!any)return false;
+    int dimensions=0;
+    for(int a=0;a<3;++a){
+        float extent=box[a+3]-box[a];
+        if(extent<0.f || extent>1000.f)return false;
+        dimensions+=extent>=.1f;
+    }
+    // Some real facades are planar resources. Copy their true bounds; only
+    // reviewed global glazing may construct an inward virtual volume later.
+    if(dimensions<2)return false;
+    if(g_windowBounds.size()>=8192)g_windowBounds.clear();
+    g_windowBounds.emplace(data,box);
+    std::copy(box.begin(),box.end(),bounds);return true;
+}
+
 void Install(HMODULE orig)
 {
     if (GetMode("Scene", Mode::On) != Mode::On) return;
@@ -1046,14 +1105,19 @@ void Install(HMODULE orig)
         {0x4E7EF, FN(VisualDataSimpleMeshes), "RVisualData_t::GetSimpleMeshArray"},
     };
 #undef FN
-    int installed = 0, writers = 0;
+    int installed = 0, writers = 0, boundsWriters = 0;
     for (const Entry& e : entries) {
         bool ok = Replace(orig, e.rva, e.target, e.what);
         installed += ok ? 1 : 0;
         for (uint32_t writer : {0x188FBu, 0x1FE9Du, 0x1FEDFu, 0x48CDFu, 0x1FE30u})   // the TriList writers
             if (ok && e.rva == writer) ++writers;
+        for(uint32_t writer:{0x488EDu,0x4E8C2u,0x4EE3Fu,0x4EEC6u,0x4EFA8u,0x4ECDCu})
+            if(ok && e.rva==writer)++boundsWriters;
     }
     g_indexTracked = writers == 5;
+    // Lifetime/mutation tracking must be complete; partial native ports fail
+    // closed rather than trusting a pointer cache after an untracked writer.
+    g_windowBoundsTracked = boundsWriters == 6;
     Log("mesh data: %d of %d functions native%s", installed, int(sizeof(entries) / sizeof(entries[0])),
         g_indexTracked ? "" : "; triangle list writes not all native: static meshes' indices are not kept");
 }

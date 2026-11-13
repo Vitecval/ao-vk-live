@@ -5,8 +5,8 @@
     "name": "helmet_steelribbed_under.png",
     "source": "completion-1010004-17988-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -15,7 +15,8 @@
       64,
       64
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -41,8 +42,8 @@
     "name": "shoulderpad_torch.png",
     "source": "completion-1010004-28553-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -51,7 +52,8 @@
       64,
       64
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -77,8 +79,8 @@
     "name": "weapon_blunt_tonfa.png",
     "source": "completion-1010004-162274-v1",
     "size": [
-      64,
-      256
+      128,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -87,7 +89,8 @@
       64,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -131,8 +134,8 @@
     "name": "powershotgun.png",
     "source": "completion-1010004-99153-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -141,7 +144,8 @@
       256,
       128
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -149,8 +153,8 @@
     "name": "medium_blaster.png",
     "source": "completion-1010004-17222-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -159,7 +163,8 @@
       256,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -185,8 +190,8 @@
     "name": "clan_shotgun_new.png",
     "source": "completion-1010004-17238-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -195,7 +200,8 @@
       256,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -203,8 +209,8 @@
     "name": "powerpistol.png",
     "source": "completion-1010004-99145-v1",
     "size": [
-      256,
-      128
+      512,
+      256
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -213,7 +219,8 @@
       256,
       128
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -221,8 +228,8 @@
     "name": "clan_proj_weapon.png",
     "source": "completion-1010004-17237-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -231,7 +238,8 @@
       256,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -239,8 +247,8 @@
     "name": "ptech_pads_uvPANDE.png",
     "source": "completion-1010004-290732-v1",
     "size": [
-      256,
-      256
+      512,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -249,7 +257,8 @@
       256,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -257,8 +266,8 @@
     "name": "shoulders_xeno.png",
     "source": "completion-1010004-303930-v1",
     "size": [
-      128,
-      256
+      256,
+      512
     ],
     "profile": "coated-armour",
     "batch": "completion-2026-10-25",
@@ -267,6 +276,7 @@
       128,
       256
     ],
-    "group": "preserved-equipment"
+    "group": "preserved-equipment",
+    "worker": true
   }
 ]

@@ -91,7 +91,22 @@ void Device::SetSkyPlayfield(uint32_t playfield)
 {
     if (playfield == m_skyPlayfield)
         return;
+    // Visibility is not a deletion signal. Clear retained scenery explicitly at
+    // the playfield boundary, including zones without a statel pack.
+    while (!m_casterCache.empty()) ForgetCachedCaster(m_casterCache.begin());
+    m_casterStreaks.clear();
+    m_casterMotion.clear();
+    m_hugeShadowGroups.Clear();
+    std::fill(std::begin(m_shadowStaticKeys),std::end(m_shadowStaticKeys),0);
+    std::fill(std::begin(m_shadowStaticCandidates),std::end(m_shadowStaticCandidates),0);
+    m_shadowValid = false;
+    m_cascadeCount = 0;
+    if(m_living || m_livingAttempt) DestroyLiving();
     m_skyPlayfield = playfield;
+    for(auto& beacons:m_shipBeacons)beacons=ShipBeaconSet{};
+    m_ambientOriginCount=0;m_ambientRefresh=-1.0;m_ambientPlayfield=~0u;
+    m_grassGroundReset=true;
+    m_daylightWorldSeen = ~0ull;
     m_skyZoneLean = 0.0f;
     for (const ZoneSky& z : kZoneSkies)
         if (z.playfield == playfield)
@@ -578,7 +593,11 @@ void Device::DrawSkyGlow()
         float view[4], sky[16], star[3][4], night[4], meteor[2][4], aurora[4];
     } push{};
     static_assert(sizeof(Push) == 256, "sky_glow.frag's push constants");
-    if (!InvertMatrix(MulMatrix(m_view, m_proj), &push.invViewProj))
+    // Sky rays need rotation only: world translation loses precision at AO coordinates.
+    auto skyView=m_view,skyProj=m_proj;
+    skyView.m[3][0]=skyView.m[3][1]=skyView.m[3][2]=0.0f;
+    if(TaaActive()) { skyProj.m[2][0]+=m_taaJitter[0];skyProj.m[2][1]+=m_taaJitter[1]; }
+    if (!InvertMatrix(MulMatrix(skyView, skyProj), &push.invViewProj))
         return;
     push.view[0] = float(m_scene->m_width);
     push.view[1] = float(m_scene->m_height);
@@ -602,6 +621,7 @@ void Device::DrawSkyGlow()
         push.star[2][3] = std::clamp(m_nightSky.twinkle, 0.0f, 1.0f);
         push.night[0] = std::max(m_nightSky.galaxy, 0.0f);
         push.night[1] = float(std::fmod(m_frameClock, 3600.0));
+        push.night[2] = m_skyStyle>.5f ? 1.f+std::clamp(NightAmount(),0.f,1.f):0.f;
         push.night[3] = m_auroraNow;
         std::memcpy(push.meteor, m_meteor, sizeof(push.meteor));
         // (The twilight model's slots - unused under our own sky: sky_glow.frag reads them only over the game's - hold
@@ -611,6 +631,16 @@ void Device::DrawSkyGlow()
             push.aurora[i] = std::pow(float((m_nightSky.auroraColour >> (16 - 8 * i)) & 0xFFu) / 255.0f, 2.2f);
     } else {
         push.meteor[1][3] = -1.0f;
+    }
+    if(ours) {
+        const bool outdoors=m_skyPlayfield && !m_indoors;
+        push.view[3]=outdoors && !m_cloudParams.enable ? std::clamp(m_skyClouds,0.f,1.f):0.f;
+        for(int i=0;i<3;++i)push.sky[8+i]=-m_trueSunDir[i];
+        if(!SunKnown()){push.sky[8]=.4f;push.sky[9]=.7f;push.sky[10]=.5f;}
+        push.sky[11]=outdoors ? std::clamp(m_skyTraffic,0.f,2.f):0.f;
+        push.sky[12]=float(m_skyPlayfield);push.sky[13]=std::clamp(NightAmount(),0.f,1.f);
+        push.night[1]=float(std::fmod(m_frameClock,7200.0));
+        if(m_dumpFile)std::fprintf(m_dumpFile,"# Sky enhancements: clouds %.0f; traffic %.0f; sky-only, no ground shadows or illumination changes\n",push.view[3],push.sky[11]);
     }
     FlushGroup();
     VkCommandBuffer cmd = m_frames[m_frameIndex].main;

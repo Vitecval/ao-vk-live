@@ -110,12 +110,17 @@ vec3 Indirect()
 
 // What the scene's colour is multiplied by for ambient occlusion - which takes ambient light away, not the light
 // local lights shine into the corner - and contact shadows.
-float AmbientFactor()
+float AmbientFactor(float daylight)
 {
     float factor = 1.0;
     if ((int(P.proj.w) & 4) != 0) {
         float local = texelFetch(localFraction, ivec2(gl_FragCoord.xy), 0).r;
-        factor = mix(Occlusion(), 1.0, local);
+        // Enhanced daylight: SSAO removes indirect light, not direct sun.
+        // B already holds the sun's share for contact shadows. Leave those
+        // actual visibility shadows intact and avoid double-darkening the sun.
+        float sun = texelFetch(localFraction, ivec2(gl_FragCoord.xy), 0).b;
+        float direct = clamp(local + sun*clamp(daylight,0.0,1.0),0.0,1.0);
+        factor = mix(Occlusion(), 1.0, direct);
     }
     // Contact shadows take away the direct sunlight's share of the colour (the local-fraction target's B).
     if ((int(P.proj.w) & 8) != 0 && texelFetch(depthTex, ivec2(gl_FragCoord.xy), 0).r < 1.0) {

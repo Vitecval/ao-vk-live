@@ -2,6 +2,13 @@
 
 AO-VK Live is derived from [AO-VK by wannabuh](https://github.com/wannabuh/ao-vk), copyright (c) 2026 wannabuh, under the MIT license. The full license is preserved in LICENSE and licenses/AO-VK-MIT.txt.
 
+The renderer software is MIT-licensed. Separately licensed AsyncStuff HD artwork
+is covered by [LICENSE-TEXTURES.md](LICENSE-TEXTURES.md); the software MIT license
+does not grant redistribution rights to that separately licensed collection.
+Existing MIT artwork grants, CC0 content and other third-party permissions retain
+their original terms. The artwork license expressly preserves those rights and
+does not claim ownership of Funcom's original assets.
+
 Bundled or compiled components:
 
 | Component | License / notice |
@@ -14,3 +21,12 @@ Bundled or compiled components:
 | Poly Haven Cliff Side terrain maps | CC0; authors and source in licenses/Poly-Haven-terrain.md |
 
 Build-only tools such as LLVM, shaderc and SPIRV-Cross are not bundled in the player download. Game files are supplied by the player's installation, never by this package. Anarchy Online and Funcom names identify compatibility; this package is unofficial.
+
+The Preview 22 local preparation helper additionally bundles unmodified CPython
+3.13, NumPy 2.5.4 (including its bundled numerical runtime), Pillow 13.0.0 and
+their required libraries. Their license texts accompany the helper. The helper
+is built with PyInstaller 6.16.0 and its bootloader exception; PyInstaller is not
+an AO resource provider. No Funcom code, DLL, model, animation, texture, terrain
+or converted cache is included in that helper. Generated AO-derived files must
+remain inside the selected AO installation and must never be redistributed.
+Local-only copying and user authorization do not establish Funcom permission.

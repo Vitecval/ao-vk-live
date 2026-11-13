@@ -292,6 +292,7 @@ void Device::FindCarriers()
 
     const bool exact = m_sceneLightsFrame == m_frameNumber;   // the game's own lights with their carriers
     for (CapturedLight& c : m_lightsCur) {
+        if(c.cosmeticGroup<6){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
         c.hasCarrier = false;
         c.owner = 0;
         c.carrierGroup = ~0u;
@@ -431,6 +432,7 @@ void Device::FindCarriers()
     // a frame in a crowd, and a light jumping between the two intensities for a frame flickers. It becomes a
     // character's within a few frames and stops being one over ~20. The same light last frame: same range, nearest.
     for (CapturedLight& c : m_lightsCur) {
+        if(c.cosmeticGroup<6){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
         const CapturedLight* prev = nullptr;
         float prevBest = 1.0f;
         for (const CapturedLight& q : m_lightsPrev) {

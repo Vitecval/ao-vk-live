@@ -110,7 +110,7 @@ void Device::DestroyNativeGround()
     DropNativePebbles(true);
     // (The lightmap stays: it is the hour's, handed over when it changes - perhaps before this playfield's ground.)
     // (Nor does the fade from the last hour's: across playfields, it would be another place's light.)
-    for (Texture** t : {&m_native.codes, &m_native.maps, &m_native.means, &m_native.sky, &m_native.lightmapPrev})
+    for (Texture** t : {&m_native.codes, &m_native.maps, &m_native.means, &m_native.sky, &m_native.lightmapPrev, &m_native.heights})
         if (*t) { DestroyTexture(*t); *t = nullptr; }
     m_native.lightFit[0] = 0.0f;
     m_native.anyOrm = nullptr;
@@ -199,23 +199,37 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
             // game's split: split the other way, a hillside's cells lay up to a few units below where the game puts
             // characters, and they floated.
             auto indices = std::make_shared<std::vector<uint8_t>>(size_t(P) * P * 6 * 2);
+            auto retail = std::make_shared<std::vector<uint8_t>>(indices->size());
             uint16_t* ix = reinterpret_cast<uint16_t*>(indices->data());
+            uint16_t* retailIx = reinterpret_cast<uint16_t*>(retail->data());
+            bool different = false;
             for (uint32_t j = 0; j < P; ++j)
                 for (uint32_t i = 0; i < P; ++i) {
                     if (!g.CellVisible(px * P + i, pz * P + j)) continue;
+                    const uint16_t tile=g.codes[size_t(pz*P+j)*g.cellsX+px*P+i]&0x3FFFu;
+                    if(std::find(p.materialTiles.begin(),p.materialTiles.end(),tile)==p.materialTiles.end())p.materialTiles.push_back(tile);
                     const uint16_t a = uint16_t(j * (P + 1) + i), b = uint16_t(a + 1), c = uint16_t(a + P + 1),
                                    d = uint16_t(c + 1);
                     const bool across = NativeCellAcross(v[a].y, v[b].y, v[c].y, v[d].y, std::min(g.cellX, g.cellZ));
+                    const uint16_t original[6] = {a,c,b,b,c,d};
+                    std::memcpy(retailIx,original,sizeof(original));
+                    retailIx += 6;
+                    different = different || across;
                     // (The game's winding: culling is off for the ground anyway.)
                     const uint16_t q[6] = {a, c, across ? d : b, across ? a : b, across ? d : c, across ? b : d};
                     std::memcpy(ix, q, sizeof(q));
                     ix += 6;
                 }
             indices->resize(size_t(reinterpret_cast<uint8_t*>(ix) - indices->data()));
+            retail->resize(indices->size());
             p.indices = indices;
+            p.retailIndices = different ? retail : indices;
             m_native.patches.push_back(std::move(p));
         }
     m_native.ground = ground;
+    // Packed IEEE float bits, read with texelFetch (never filtered as colour).
+    // No new mesh or displacement: these are AO's existing collision heights.
+    m_native.heights=CreateTexture(g.cellsX+1,g.cellsZ+1,g.heights.data());
     MakeNativeCodes();
     FitNativeLight();
     if (!SharedGroundPlus() && m_native.ao>0) m_native.skyPending = std::async(std::launch::async, SkyVisibility, ground);
@@ -249,7 +263,21 @@ uint64_t Device::NativeMapsSignature() const
         h = (h ^ o) * 1099511628211ull;
         h = (h ^ uint64_t(t && t->m_image)) * 1099511628211ull;
     }
+    h ^= m_skyPlayfield==icc::Playfield ? 0x494343u : 0u;
+    h ^= uint64_t(m_improvedTiles > 0.5f) << 29;
+    h ^= uint64_t(SharedGroundPlus()) << 30;
+    h ^= uint64_t(m_hdGroundMode > .5f) << 31;
+    h ^= uint64_t(m_enhancedOriginal > .5f) << 32;
     return (h ^ uint64_t(reinterpret_cast<uintptr_t>(m_native.pebbleTable.get()))) * 1099511628211ull;   // (the sand)
+}
+
+bool Device::ImprovedTile(const Texture* tile) const
+{
+    // Tile styling is independent of HD artwork. Off must keep installed HD ground.
+    if ((m_sharedTerrain>0.f || m_native.on) && tile && materials::IsGroundType(tile->m_rdbType))
+        return m_skyPlayfield==icc::Playfield && (m_improvedTiles>.5f || m_hdGroundMode>.5f) &&
+               icc::Target(tile->m_rdbType,tile->m_rdbId);
+    return true;
 }
 
 // The sand's prevailing wind (its ripples' crests lie across it: terrain.glsl), a bearing in radians: fixed for a
@@ -278,6 +306,13 @@ void Device::MakeNativeCodes()
     for (size_t t = 0; t < g.tiles.size(); ++t) {
         Texture* tex = g.tiles[t];
         if (!tex || !tex->m_image) continue;
+        if (!ImprovedTile(tex)) {
+            image[t] = BindlessImage(tex);
+            // Original manufactured paving is still authored artwork. Turning
+            // custom ICC tiles off must not turn its joints into natural soil.
+            authored[t]=materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId);
+            continue;
+        }
         Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;
         authored[t] = (tex->m_albedoMap && m_pbr.albedoMaps) || materials::DeckGround(tex->m_rdbType, tex->m_rdbId);
         image[t] = BindlessImage(drawn);
@@ -309,8 +344,13 @@ void Device::MakeNativeCodes()
         const uint32_t tile = code & 0x3FFFu, turn = code >> 14;
         const uint32_t t = tile < image.size() ? tile : 0;
         const uint32_t img = image.empty() ? 0u : image[t];
-        const uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
+        uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
                                     (t < authored.size() && authored[t] ? 0xBFu : 0xFFu);
+        if (m_skyPlayfield==icc::Playfield && t<g.tiles.size() && g.tiles[t] && ImprovedTile(g.tiles[t]) && g.tiles[t]->m_albedoMap &&
+            icc::Target(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId)) {
+            attributes &= ~32u;
+            if(m_improvedTiles>.5f && m_enhancedOriginal<.5f)attributes &= ~16u;
+        }
         codes[k] = attributes << 24 | (img & 0xFFu) << 16 |
                    ((img >> 8) & 0xFFu) << 8 | turn;
         means[k] = mean.empty() ? 0x00808080u : mean[t];
@@ -457,11 +497,12 @@ void Device::FillNativeLights(detail::FrameLights* fl)
     for (int k = 0; k < 3; ++k) fl->terrainLight[k] = fl->terrainLight2[k] = f[k + 1];
     fl->terrainLight[3] = f[0];
     const float sx = -fl->sunDir[0], sz = -fl->sunDir[2], s = std::sqrt(sx * sx + sz * sz);
-    if (SharedGroundPlus() || m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
+    if ((SharedGroundPlus() && EnhancedDaylight() <= 0.0f) || m_native.sun <= 0.0f || s < 0.05f || fl->moon[3] > 0.5f) return;
     const float b = std::sqrt(f[1] * f[1] + f[3] * f[3]);
     fl->terrainLight[0] = b * sx / s;
     fl->terrainLight[2] = b * sz / s;
-    fl->terrainLight2[3] = std::clamp(m_native.sun, 0.0f, 1.0f);
+    fl->terrainLight2[3] = std::clamp(m_native.sun, 0.0f, 1.0f) *
+                           (SharedGroundPlus() ? EnhancedDaylight() : 1.0f);
 }
 
 bool Device::NativeGroundRgb(float u, float v, uint8_t rgb[3]) const
@@ -509,7 +550,8 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     if (SharedGroundPlus() && !m_native.lightmap) return false;
     if (m_drawVisualKind != uint32_t(VisualKind::Terrain) || !IsTerrain(fvf))
         return false;
-    const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE];
+    const bool base = !m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE] &&
+        m_tss[0][d3d::TSS_TEXCOORDINDEX] == 0 && m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS] == 0;
     const bool light = m_rs[d3d::RS_LIGHTING] && IsMultiplyPass();
     const bool combined = IsCombinedTerrainPass();
     // Retail combines (lightmap + diffuse) * base in one opaque draw. The old
@@ -686,6 +728,11 @@ void Device::DrawNativeGround(bool lightPass)
         }
         if (outside[0] || outside[1] || outside[2] || outside[3] || outside[4] || outside[5])
             continue;
+        // Bindless terrain samples map children directly, bypassing drawn(owner).
+        for(uint16_t tile:p.materialTiles)
+            if(tile<m_native.ground->tiles.size())
+                if(Texture* owner=m_native.ground->tiles[tile];owner && ImprovedTile(owner))
+                    owner->m_materialDrawFrame.store(m_frameNumber+1,std::memory_order_relaxed);
         // Tessellated only within kNativeTessDistance (its box): beyond it ffp.tesc splits nothing and ffp.tese moves
         // nothing, the very same triangles - but through the tessellation stages every one of the ground's triangles
         // to the horizon cost the base pass ~2.5 ms at 2560 x 1440 (rvk_demo, Newland Desert). Both passes choose alike.
@@ -695,7 +742,8 @@ void Device::DrawNativeGround(bool lightPass)
             d2 += d * d;
         }
         m_native.tessPatch = d2 < kNativeTessDistance * kNativeTessDistance;
-        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, p.indices, uint32_t(p.indices->size() / 2));
+        const auto& indices = p.retailIndices; // both terrain modes meet retail overlays and collision geometry
+        DrawSharedIndexed(d3d::TriangleList, kFvf, p.vertices, 0, m_native.vertices, indices, uint32_t(indices->size() / 2));
         ++drawn;
     }
     if (!m_native.pebblesOnly) DrawNativeClutter(vp);

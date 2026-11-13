@@ -17,6 +17,7 @@
 // bare, skimming along it; characters' feet kick it up. It moves with the
 // camera a whole cell at a time, its floor under the lowest ground in it.
 #include "internal.h"
+#include "render_budget.h"
 
 #include <algorithm>
 #include <cmath>
@@ -474,7 +475,7 @@ bool Device::CreateSmokeResources(std::string* error)
         ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module,
                     "main", nullptr};
         ci.layout = m_smokeSimLayout;
-        bool ok = Check(vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSimPipeline),
+        bool ok = Check(startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSimPipeline),
                         "smoke sim pipeline", error);
         vkDestroyShaderModule(m_device, module, nullptr);
         if (!ok)
@@ -581,7 +582,7 @@ bool Device::CreateSmokeResources(std::string* error)
             ci.pColorBlendState = &cb;
             ci.pDynamicState = &ds;
             ci.layout = layout;
-            ok = Check(vkCreateGraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
+            ok = Check(startup::GraphicsPipelines(m_device, m_pipelineCache, 1, &ci, nullptr, out),
                        "vkCreateGraphicsPipelines (smoke)", error);
         }
         if (vert) vkDestroyShaderModule(m_device, vert, nullptr);
@@ -634,7 +635,7 @@ bool Device::CreateSmokeSeen()
     ci.stage = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_COMPUTE_BIT, module, "main",
                 nullptr};
     ci.layout = m_smokeSeenLayout;
-    const bool ok = vkCreateComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSeenPipeline) == VK_SUCCESS;
+    const bool ok = startup::ComputePipelines(m_device, m_pipelineCache, 1, &ci, nullptr, &m_smokeSeenPipeline) == VK_SUCCESS;
     vkDestroyShaderModule(m_device, module, nullptr);
     if (!ok)
         return false;
@@ -1178,7 +1179,12 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
     // detail), a multiple of 4, at most RVK_SmokeQual's. A volume whose count changed, or a scratch too small for
     // one, is made again - after the GPU is done with the old (rare: a source's box or the settings changed).
     auto cells = [&](const SmokeVolume& v) {
-        return v.key == kSandKey ? SandCells(P) : v.parent ? DriftCells(v.source.size, P) : SmokeCells(v.source.size, P);
+        if(v.key==kSandKey)return SandCells(P);
+        const uint32_t requested=v.parent ? DriftCells(v.source.size,P):SmokeCells(v.source.size,P);
+        const uint32_t bounded=budget::SmokeCells(requested,P.budget,m_smokeCostScale);
+        // While budgeted, grids only shrink. Small calibration changes must not
+        // recreate images and wait for the GPU every frame.
+        return P.budget>0.f && v.n ? std::min(v.n,bounded):bounded;
     };
     uint32_t scratch = 0;
     bool remake = false;
@@ -1369,17 +1375,27 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
             SmokeVolume& v = *live[i].second;
             v.age += dt;
             v.simWait += dt;
-            if (!m_smokeNoiseMade || v.simWait >= 2.0f * period[i] || (period[i] <= dt && v.simWait + 0.5f * dt >= period[i])) {
+            if (v.key==kSandKey && (!m_smokeNoiseMade || v.simWait>=2.f*period[i] ||
+                (period[i]<=dt && v.simWait+.5f*dt>=period[i]))) {
                 stepNow[i] = 1;
                 spent += StepCost(v.n, jacobiOf[i]);
-            } else if (v.simWait + 0.5f * dt >= period[i]) {
+            } else if (!m_smokeNoiseMade || v.simWait + 0.5f * dt >= period[i]) {
                 due.emplace_back(v.simWait / period[i], i);
             }
         }
         std::sort(due.begin(), due.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+        double largest=0.;
+        for(const auto& item:due)largest=std::max(largest,StepCost(live[item.second].second->n,jacobiOf[item.second])*m_smokeCostScale);
+        const double available=P.budget>0.f ? std::max(0.,double(P.budget)-spent*m_smokeCostScale):0.;
+        m_smokeBudgetCredit=std::min(m_smokeBudgetCredit+available,std::max(2.*double(P.budget),largest));
         for (const auto& [late, i] : due) {
             const double cost = StepCost(live[i].second->n, jacobiOf[i]);
-            if (spent == 0.0 || spent + 0.5 * cost <= expected) { stepNow[i] = 1; spent += cost; }
+            if(P.budget>0.f) {
+                const double measured=cost*m_smokeCostScale;
+                if(measured>m_smokeBudgetCredit)continue;
+                m_smokeBudgetCredit-=measured;
+            } else if(spent!=0. && spent+.5*cost>expected)continue;
+            stepNow[i]=1;spent+=cost;
         }
         m_smokeEstimate[m_frameIndex] = spent;
     }

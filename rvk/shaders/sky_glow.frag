@@ -72,6 +72,7 @@ float Noise3(vec3 p)
 }
 float Fbm3(vec3 p) { return 0.5 * Noise3(p) + 0.3 * Noise3(p * 2.03) + 0.2 * Noise3(p * 4.11); }
 float Fbm2(vec2 p) { return 0.6 * Noise2(p) + 0.4 * Noise2(p * 2.07); }
+#include "sky_enhance.glsl"
 
 // The stars on a cube round the sky: 128 x 128 cells a face, each with a star by chance - less towards a face's
 // corners, where its cells take less of the sky, so they lie evenly. About 9000 down to magnitude 6.5 (Earth's
@@ -216,18 +217,30 @@ void main()
 {
     outGlow = outLocal = outMotion = outAlbedo = vec4(0.0);
     vec2 ndc = vec2(gl_FragCoord.x / P.view.x * 2.0 - 1.0, 1.0 - gl_FragCoord.y / P.view.y * 2.0);
-    vec4 a = P.invViewProj * vec4(ndc, 0.0, 1.0), b = P.invViewProj * vec4(ndc, 1.0, 1.0);
-    vec3 dir = normalize(b.xyz / b.w - a.xyz / a.w);
+    // Rotation-only inverse: a near-plane point is a ray, with no far-plane division or cancellation.
+    vec3 dir = normalize((P.invViewProj * vec4(ndc, 0.0, 1.0)).xyz);
     if (P.view.z > 0.5) {
         vec3 sky = textureLod(skyView, SkyViewUv(dir), 0.0).rgb;
+        if(P.night.z>.5) {
+            // Optional sky-only colour design over the physical atmosphere.
+            // Preserve daytime luminance and the scattering around the suns;
+            // no exposure/gamma lift of world surfaces or the interface.
+            float up=pow(clamp(dir.y,0.,1.),.45);
+            vec3 hue=mix(vec3(.68,.79,.91),vec3(.30,.51,.78),up);
+            hue/=max(dot(hue,vec3(.3,.59,.11)),.01);
+            float energy=dot(sky,vec3(.3,.59,.11));
+            sky=mix(sky,hue*energy,.30);
+            vec3 nightSky=mix(vec3(.025,.045,.08),vec3(.007,.014,.034),up);
+            sky=mix(sky,max(sky*.65,nightSky),clamp(P.night.z-1.,0.,1.));
+        }
         // Our night sky over it: the stars, the galaxy, a shooting star, an aurora - dimmed through the air near the
         // horizon (its air mass) and lost in a bright sky (the moon's glow, the blue hour), as by eye.
         float shown = P.star0.w;
         if (shown > 0.0 && dir.y > -0.02) {
             // (A pixel's angle: to the next pixel's ray - right whatever the sky's camera's projection.)
             vec2 ndc2 = ndc + vec2(2.0 / P.view.x, 0.0);
-            vec4 a2 = P.invViewProj * vec4(ndc2, 0.0, 1.0), b2 = P.invViewProj * vec4(ndc2, 1.0, 1.0);
-            float pa = max(length(cross(dir, normalize(b2.xyz / b2.w - a2.xyz / a2.w))), 1e-6), t = P.night.y;
+            vec3 dir2 = normalize((P.invViewProj * vec4(ndc2, 0.0, 1.0)).xyz);
+            float pa = max(length(cross(dir, dir2)), 1e-6), t = P.night.y;
             float through = exp(-0.25 * (1.0 / max(dir.y + 0.04, 0.02) - 1.0 / 1.04));
             vec3 s = vec3(dot(dir, P.star0.xyz), dot(dir, P.star1.xyz), dot(dir, P.star2.xyz));
             float lowTwinkle = P.star2.w * (0.35 + 0.65 * (1.0 - clamp(dir.y, 0.0, 1.0)));
@@ -239,6 +252,9 @@ void main()
             float seen = ls * ls / (ls * ls + 0.16 * sl * sl + 1e-12);
             sky += lit * shown * through * seen;
         }
+        vec4 cloud=FairClouds(dir);
+        sky=mix(sky,cloud.rgb,cloud.a);
+        sky=SkyTraffic(sky,dir);
         outScene = vec4(sky, 1.0);
         return;
     }

@@ -223,9 +223,10 @@
     "profile": "painted_metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -329,11 +330,13 @@
     "name": "icc_hirise_windows_blue_ab_d.png",
     "group": "icc",
     "profile": "glass",
-    "source": null,
+    "source": "overnight-20261028-1010004_297811-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -341,11 +344,13 @@
     "name": "factory_pipetop.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6017-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      256
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -365,11 +370,13 @@
     "name": "factory_bigpipe.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6026-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -389,11 +396,13 @@
     "name": "factory_6pipeendpart.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6041-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -401,11 +410,13 @@
     "name": "midtech_roofpipe_plate1.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_8632-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -425,11 +436,13 @@
     "name": "hitech_ventwallgrid.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_8634-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -437,11 +450,13 @@
     "name": "midtech_roofpipe_techieplate.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_8635-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      256
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -449,11 +464,13 @@
     "name": "midtech_roofpipe_topfastener.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_8636-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      256
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -461,11 +478,13 @@
     "name": "hitech_ventwallplate.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_8637-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -509,11 +528,13 @@
     "name": "factory_metal_small_pipe.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_21546-v1",
     "size": [
-      1024,
-      1024
-    ]
+      128,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -545,11 +566,13 @@
     "name": "factory_metal_bigpipe_broken.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_21743-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch002",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -557,11 +580,13 @@
     "name": "factory_bigbluepipe.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_30287-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch003",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -581,11 +606,13 @@
     "name": "pipes_darkmetal_straigth3.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_78405-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -593,11 +620,13 @@
     "name": "pipes_darkmetal_straigth.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_78408-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -605,11 +634,13 @@
     "name": "pipes_darkmetal_straigth5.png",
     "group": "pipes",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_78410-v1",
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "batch": "overnight-20261028-batch004",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -655,9 +686,10 @@
     "profile": "metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -775,9 +807,10 @@
     "profile": "metal",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      256,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -847,9 +880,10 @@
     "profile": "stone",
     "source": null,
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "worker": true
   },
   {
     "type": 1010004,
@@ -869,11 +903,13 @@
     "name": "hitechlamp_platepartfront.png",
     "group": "picked",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6660-v1",
     "size": [
-      1024,
-      1024
-    ]
+      128,
+      512
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -881,11 +917,13 @@
     "name": "hitechlamp_platebottomlamp.png",
     "group": "picked",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6658-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -893,11 +931,13 @@
     "name": "hitechlamp_plateparttop.png",
     "group": "picked",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6661-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      512
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -905,11 +945,13 @@
     "name": "hitechlamp_smallplate.png",
     "group": "picked",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6656-v1",
     "size": [
-      1024,
-      1024
-    ]
+      512,
+      128
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,
@@ -917,11 +959,13 @@
     "name": "hitechlamp_smallplatetop.png",
     "group": "picked",
     "profile": "metal",
-    "source": null,
+    "source": "overnight-20261028-1010004_6659-v1",
     "size": [
-      1024,
-      1024
-    ]
+      128,
+      512
+    ],
+    "batch": "overnight-20261028-batch001",
+    "worker": true
   },
   {
     "type": 1010004,

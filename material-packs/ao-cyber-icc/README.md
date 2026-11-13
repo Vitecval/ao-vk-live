@@ -1,8 +1,14 @@
 # Cyberpunk ICC material pass
 
+Preview 20 contains **149 material records**, including **37 repaint records**, and **229 runtime maps** in this pack. Counts across packs overlap; the release-wide unique total is in RELEASE-NOTES.md and TEXTURE-INVENTORY.json. Existing original-art policies and original alpha remain active. Full HD carries the optional library; Lite carries its core ground subset.
+
+## Historical production notes
+
+The notes below describe earlier individual batches, not the current library totals.
+
 Preview.10 restores these original premium building panels through explicit ICC resource providers in `../building-families.json`. The original artwork/maps are unchanged. Family requirements allow material-only profiles. Current manufactured ground policy preserves AO colours with authored relief/gloss; partial natural/asphalt repaints remain library history.
 
-Select **Ctrl+Shift+F12 → Materials → ICC material style → Cyberpunk**.
+Select **Ctrl+Shift+F12 â†’ Materials â†’ ICC material style â†’ Cyberpunk**.
 Original and Classic HD remain available. The selection saves automatically.
 
 This pass assigns physical materials to **127 identified resource IDs** across

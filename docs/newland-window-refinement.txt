@@ -1,0 +1,23 @@
+Preview 20 Newland Window Experiment — inhabited interiors (revision 2)
+
+Materials > Newland window depth: RVK_WindowDepth=0 Off (default), 1 Subtle,
+2 Strong. Requires the existing Full HD ao-cyber-world window artwork.
+
+The three verified material IDs and Newland playfield restriction are unchanged:
+6052, 6055 and 6081; playfields 566/567. Original/Lite, other cities, signs,
+doors, panels, transparent/alpha-tested draws and non-window texels are excluded.
+
+Revision 2 adds deterministic dark/dim/bright room tiers, warm/cool soft light,
+and four small furniture arrangements: desk/drawers, bed/headboard/pillow,
+shelving/storage, or a partition with a cabinet. Other rooms stay empty.
+Strong selects about 42% dark, 38% dim and 20% brighter rooms, and furniture in
+about 64%; Subtle selects about 60/30/10% and furniture in about 36%.
+No random animation, people, new textures, scene passes or model assets are added.
+The stable spatial seed uses world object bounds, or world-transformed draw
+bounds when object metadata is absent, so baked-world geometry also varies.
+Each furnished pixel tests at most three small boxes. Original glass specular
+is preserved and a restrained broad glass sheen is added inside pane masks.
+Depth bounds and the original pane masks remain as in the first experiment.
+
+Review the experiment REPORT-v2.txt for controlled comparisons, previous-version
+timings, exclusions, live-validation limits and the installation/rollback receipt.

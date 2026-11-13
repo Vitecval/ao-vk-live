@@ -1,0 +1,70 @@
+{
+  "workflow": "Built-in image generation; new original tileable ground albedo artwork",
+  "materials": [
+    {
+      "material": "grass",
+      "path": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-d81117f5-97e0-4688-9e18-cb6441c20d21.png",
+      "prompt": "lush short temperate grass and tiny clover, restrained olive and fresh green blades, scattered fine dark soil visible between tufts, natural realistic scale, no large weeds or flowers",
+      "rawWorkspacePath": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\lost-eden-r29\\generated-ground\\grass.png",
+      "rawSha256": "5a89147087c778845241e4074f9461a1d1b2d125770fd7dd7cc118f981d0c3b7",
+      "runtimeSize": [
+        1024,
+        1024
+      ],
+      "runtimePath": "shared-hd-grass.png",
+      "runtimeSha256": "edb96d51558104ae9b12666bd3ea6561386640acadb81830ad56f78e9ad96b28"
+    },
+    {
+      "material": "dirt",
+      "path": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-eff53248-c9fc-4750-94f1-3cafdcd31e82.png",
+      "prompt": "dry warm brown loam soil, fine mineral grains and tiny organic fragments, restrained varied earth tones, only a few tiny stones, no large gravel, no footprints or furrows",
+      "rawWorkspacePath": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\lost-eden-r29\\generated-ground\\dirt.png",
+      "rawSha256": "264e4c24ccffeac4dc5203b5a097466475824c022bd58146817aa03b6a33147e",
+      "runtimeSize": [
+        1024,
+        1024
+      ],
+      "runtimePath": "shared-hd-dirt.png",
+      "runtimeSha256": "36998189dcca2970857516f6620595a6b19939569143e298a06a0fb34b662518"
+    },
+    {
+      "material": "gravel",
+      "path": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-07125051-23aa-487b-b273-dad044060842.png",
+      "prompt": "neutral medium grey fine crushed mineral gravel with a few darker aggregate grains, compacted smooth enough for city road edges, realistic tiny grains, no large stones, no masonry pattern",
+      "rawWorkspacePath": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\lost-eden-r29\\generated-ground\\gravel.png",
+      "rawSha256": "b74ca24cbe4d94ee935a6e70ad49a95b0fb6bca1880aa5aa52de00e35e0a3944",
+      "runtimeSize": [
+        1024,
+        1024
+      ],
+      "runtimePath": "shared-hd-gravel.png",
+      "runtimeSha256": "31488857a0173a85df1226915b4907f24bd67630a616adc13315d12df3d6afd7"
+    },
+    {
+      "material": "sand",
+      "path": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-f5c3b92c-2087-46ab-9592-8fcde36f42e3.png",
+      "prompt": "pale warm golden beige desert sand, very fine granular detail and faint low micro-ripples, subtle natural tonal variation, no large dunes, no objects or footprints",
+      "rawWorkspacePath": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\lost-eden-r29\\generated-ground\\sand.png",
+      "rawSha256": "4ed58952c761858e8eada0463ec4c1ed8ec511fe10438524fecee2863e88a3b7",
+      "runtimeSize": [
+        1024,
+        1024
+      ],
+      "runtimePath": "shared-hd-sand.png",
+      "runtimeSha256": "cee4fda5e2dfcf0b14c7c88e28dea5dfb1195fd22df8cffb2c2f8546cf3dd5ab"
+    },
+    {
+      "material": "rock",
+      "path": "C:\\Users\\valer\\.codex\\generated_images\\01a1ae83-af6a-7420-aeec-93356e062ea1\\exec-576b04b2-fd5a-4f5b-8c29-095e4333c035.png",
+      "prompt": "weathered neutral grey and warm brown natural bedrock, fine mineral grains and restrained thin irregular fractures and small layered patches, dull dry stone, no boulders or regular paving",
+      "rawWorkspacePath": "C:\\AOSharp\\AO-VK\\ao-vk-main\\build\\preview23\\lost-eden-r29\\generated-ground\\rock.png",
+      "rawSha256": "a6a79e82b65c05d4be1c370633c47aa8d8f9327f09fcf2676d1cb65cd9780d05",
+      "runtimeSize": [
+        1024,
+        1024
+      ],
+      "runtimePath": "shared-hd-rock.png",
+      "runtimeSha256": "ae583d6c0fde6f65f6fc5ce6228e2babddc947bf4e02cb69fa932929d85f6dd0"
+    }
+  ]
+}

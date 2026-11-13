@@ -6,6 +6,8 @@ The renderer samples original coverage/glow alpha from the player's live texture
 """
 import hashlib
 import json
+import argparse
+import importlib.util
 from pathlib import Path
 
 import numpy as np
@@ -23,18 +25,49 @@ def save(path, values):
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only-new',action='store_true',help='Verify and retain existing baked materials; bake new identities only.')
+    args=parser.parse_args()
+    spec=importlib.util.spec_from_file_location('resolution_gate',Path(__file__).with_name('check-material-resolution.py'))
+    gate=importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gate)
+    ledger=json.loads(gate.DEFAULT_LEDGER.read_text())['sizes']
     output = ROOT / 'maps'
     output.mkdir(exist_ok=True)
     catalog = json.loads((ROOT / 'catalog.json').read_text())
     completion = ROOT / 'completion-catalog.json'
     if completion.exists():
         catalog += json.loads(completion.read_text())
+    workers=ROOT/'worker-catalog.json'
+    if workers.exists():catalog+=json.loads(workers.read_text())
     if len({(x['type'], x['id']) for x in catalog}) != len(catalog):
         raise RuntimeError('Duplicate resource identity in equipment catalogs')
     files, materials = {}, []
+    prior=json.loads((ROOT/'manifest.json').read_text()) if args.only_new else {}
+    previous={(x['type'],x['id']):x for x in prior.get('materials',[])}
     for item in catalog:
         stem = f"{item['type']}_{item['id']}"
+        old=previous.get((item['type'],item['id']))
+        if old:
+            if any(old.get(k)!=v for k,v in item.items() if k!='review'):
+                raise RuntimeError(f'Existing material inputs changed: {stem}')
+            for suffix in old['maps']:
+                name=stem+'_'+suffix+'.png'
+                if hashlib.sha256((output/name).read_bytes()).hexdigest()!=prior['files'][name]:
+                    raise RuntimeError(f'Existing map integrity failure: {name}')
+                files[name]=prior['files'][name]
+            materials.append(old)
+            continue
+        if item.get('worker'):
+            raise RuntimeError(f'Imported worker material {stem} requires its verified baked maps; use --only-new to retain them')
         art = Image.open(ROOT / 'source-art' / (item['source'] + '.png')).convert('RGB')
+        identity=f"{gate.canonical(item['type'])}:{item['id']}"
+        if identity not in ledger:
+            raise RuntimeError(f'Missing full-quality source dimensions for {identity}; audit before baking')
+        gate.require_size(identity,tuple(item['size']),ledger[identity])
+        gate.require_detail_size(identity,tuple(item['size']),item.get('detail_exception'))
+        if art.width<item['size'][0] or art.height<item['size'][1]:
+            raise RuntimeError(f'{identity}: source art is smaller than the requested export; recover or render full-quality source')
         art = art.resize(tuple(item['size']), Image.Resampling.LANCZOS)
         art.save(output / (stem + '_d.png'), optimize=True)
         rgb = np.asarray(art, dtype=np.float32) / 255

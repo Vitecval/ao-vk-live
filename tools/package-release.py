@@ -12,7 +12,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DIRS = ['cmake', 'docs', 'ghidra-scripts', 'interface', 'proxy', 'rvk', 'tests', 'third_party', 'tools', 'release', 'licenses', 'material-packs']
 ROOT_FILES = ['.gitignore', 'CHANGELOG.md', 'CMakeLists.txt', 'CMakePresets.json', 'LICENSE',
-              'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']
+              'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md', 'LICENSE-TEXTURES.md']
 EXCLUDE_PARTS = {'__pycache__', '.git', '.codex', '.agents', 'private'}
 EXCLUDE_SUFFIXES = {'.dll', '.exe', '.lib', '.obj', '.pdb', '.pyc', '.log', '.cache', '.bmp'}
 EXCLUDE_FILES = {'tools/build-windows.ps1', 'tools/package-live.py'}
@@ -33,13 +33,37 @@ def archive(folder, result=None):
                 z.write(path, str(path.relative_to(folder.parent)))
     return result
 
+def archive_players(editions, version):
+    results=[]
+    for folder in editions:
+        if version=='0.6.0-preview.21' and folder.name.endswith('-full'):
+            spec=importlib.util.spec_from_file_location('material_archives', ROOT/'tools/material-archives.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+            lite=folder.with_name(folder.name[:-4]+'lite')
+            essential=json.loads((lite/'manifest.json').read_text())['assets'] if (lite/'manifest.json').exists() else ()
+            results.extend(module.build_full_setup(folder,version,essential))
+        else:results.append(archive(folder))
+    return results
+
 
 def launcher(action):
+    choice = ''
+    selected = action
+    if action == 'Uninstall':
+        choice = ('set "AO_VK_ACTION=Uninstall"\r\n'
+                  'echo U: Uninstall AO-VK ^(keep settings^)\r\n'
+                  'echo R: Reset settings only ^(keep AO-VK installed^)\r\n'
+                  'echo C: Cancel\r\n'
+                  'choice /C URC /N /M "Choose U, R or C: "\r\n'
+                  'if errorlevel 3 exit /b 0\r\n'
+                  'if errorlevel 2 set "AO_VK_ACTION=Reset settings"\r\n')
+        selected = '%AO_VK_ACTION%'
     return (
         '@echo off\r\n'
+        + choice +
         'set "AO_VK_POWERSHELL=%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"\r\n'
         'if exist "%SystemRoot%\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe" set "AO_VK_POWERSHELL=%SystemRoot%\\SysWOW64\\WindowsPowerShell\\v1.0\\powershell.exe"\r\n'
-        f'"%AO_VK_POWERSHELL%" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0setup-live.ps1" -Action {action}\r\n'
+        f'"%AO_VK_POWERSHELL%" -NoLogo -NoProfile -STA -ExecutionPolicy Bypass -File "%~dp0setup-live.ps1" -Action "{selected}"\r\n'
         'set "result=%errorlevel%"\r\n'
         'if not "%result%"=="0" pause\r\n'
         'exit /b %result%\r\n'
@@ -48,12 +72,14 @@ def launcher(action):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--defer-archives', action='store_true', help='Stage verified editions for companion material packaging.')
     parser.add_argument('--version', default='0.1.0')
     parser.add_argument('--build-dir', type=Path, default=ROOT / 'build/windows-release')
     parser.add_argument('--output-dir', type=Path)
     parser.add_argument('--full-only', action='store_true', help='Build only Full HD and its checksum; skip Lite and all source export/archive work.')
     parser.add_argument('--lite-only', action='store_true', help='Add Lite to an existing matching Full HD release without rebuilding Full or exporting source.')
     parser.add_argument('--no-source', action='store_true', help='Package player editions only, with no source export or source ZIP.')
+    parser.add_argument('--omit-authoring-images', action='store_true', help='Keep all runtime maps and provenance records, but inventory authoring atlas images instead of bundling them in player downloads.')
     args = parser.parse_args()
     if args.full_only and args.lite_only:
         parser.error('Choose either --full-only or --lite-only.')
@@ -67,7 +93,8 @@ def main():
     if args.lite_only:
         full = out / f'ao-vk-live-{args.version}-windows-x86-full'
         prior = json.loads((full/'manifest.json').read_text())
-        if prior['version'] != args.version or prior['edition'] != 'full' or not Path(str(full)+'.zip').is_file():
+        full_archive=out / f'ao-vk-live-{args.version}-windows-x86-full-setup.zip' if args.version=='0.6.0-preview.21' else Path(str(full)+'.zip')
+        if prior['version'] != args.version or prior['edition'] != 'full' or not full_archive.is_file():
             parser.error('Lite-only requires the existing matching Full HD folder and ZIP.')
         if any(digest(build/name) != prior['addon'][name] for name in ['ao-vk.dll','ddraw.dll']):
             parser.error('Built renderer/loader differ from the existing validated Full HD release.')
@@ -83,21 +110,26 @@ def main():
         source.mkdir()
     for name in ['ao-vk.dll', 'ddraw.dll']:
         shutil.copy2(build / name, common / name)
-    for name in ['install-live.ps1', 'setup-live.ps1']:
+    for name in ['setup-safety.ps1','install-live.ps1', 'setup-live.ps1', 'reset-settings.ps1', 'setup-progress.ps1', 'mesh-index.ps1', 'material-parts.ps1', 'material-download.ps1', 'large-address-aware.ps1']:
         shutil.copy2(ROOT / 'tools' / name, common / name)
-    for name in ['LICENSE', 'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']:
+    if args.version=='0.6.0-preview.21':
+        shutil.copy2(build/'ao-vk-cache-warm.exe',common/'ao-vk-cache-warm.exe')
+    for name in ['LICENSE', 'LICENSE-TEXTURES.md', 'THIRD-PARTY-NOTICES.md', 'RELEASE-NOTES.md']:
         shutil.copy2(ROOT / name, common / name)
     shutil.copytree(ROOT / 'licenses', common / 'licenses')
     (common / 'docs').mkdir()
-    for name in ['live-client.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
+    for name in ['live-client.md', 'large-address-aware.md', 'build-windows.md', 'publishing.md', 'weather.md', 'modern-materials.md', 'texture-rework.md', 'texture-overhaul-plan.md', 'preview12-validation.md', 'shared-ground-plus-fix.md', 'tree-pebbles-validation.md', 'shadowlands-terrain-visibility.md']:
         shutil.copy2(ROOT / 'docs' / name, common / 'docs' / name)
     shutil.copy2(ROOT / 'material-packs/scan-coverage.json', common / 'docs/scan-coverage.json')
     shutil.copy2(ROOT / 'material-packs/building-families.json', common / 'docs/building-families.json')
-    for name in ['preview16-validation.md']:
+    for name in ['preview16-validation.md','preview18-validation.md','preview19-validation.md','preview20-validation.md','building-weathering.md']:
         if (ROOT/'docs'/name).exists():shutil.copy2(ROOT/'docs'/name,common/'docs'/name)
+    shutil.copy2(ROOT/'docs/full-hd-setup.md',common/'docs/full-hd-setup.md')
     readme = (ROOT / 'docs/repository-readme.md').read_text(encoding='utf-8').replace('0.1.0', args.version)
+    if args.version=='0.6.0-preview.21':
+        readme='# AO-VK Live Preview 21\n\nLite: download the Lite ZIP, extract, run Install.cmd.\n\nFull HD: download the small Full HD Setup ZIP, extract, run Install.cmd.\nSetup automatically downloads and verifies all matching material packs.\nNo separate downloads or extra installed software are needed.\nSee docs/full-hd-setup.md for progress, retry/resume and offline installation.\n'
     (common / 'README.md').write_text(readme, encoding='utf-8')
-    for action in ['Install', 'Update', 'Uninstall']:
+    for action in ['Install', 'Update', 'Uninstall', 'Reset settings']:
         (common / f'{action}.cmd').write_bytes(launcher(action))
     spec = importlib.util.spec_from_file_location('live_preflight', ROOT / 'tools/live-preflight.py')
     preflight = importlib.util.module_from_spec(spec)
@@ -107,6 +139,9 @@ def main():
                 'client': preflight.EXPECTED,
                 'addon': {name: digest(common / name) for name in ['ao-vk.dll', 'ddraw.dll']},
                 'previousAddons': [item['addon'] for item in known]}
+    manifest['largeAddressAware'] = json.loads((ROOT / 'release/large-address-aware.json').read_text(encoding='utf-8'))
+    manifest['artworkLicense'] = dict(file='LICENSE-TEXTURES.md',sha256=digest(common/'LICENSE-TEXTURES.md'))
+    if args.version=='0.6.0-preview.21':manifest['cacheWarmup']=dict(helper='ao-vk-cache-warm.exe',sha256=digest(common/'ao-vk-cache-warm.exe'),relativeCache='randy-vk-preview21-v9-living.cache')
     if not (args.full_only or args.lite_only):
         shutil.copytree(player,lite)
     editions=[]
@@ -136,25 +171,43 @@ def main():
             if edition=='lite':selected['new_art_surfaces']=sum('d' in x['maps'] for x in materials)
             (pack_dest/'manifest.json').write_text(json.dumps(selected,indent=2)+'\n')
             shutil.copy2(pack/'README.md',pack_dest/'README.md')
+            shutil.copy2(ROOT/'LICENSE-TEXTURES.md',pack_dest/'LICENSE-TEXTURES.md')
             if edition=='full':
                 if pack_name=='ao-cyber-world':
                     for name in ['building-families.json','rubika-worklist.json','art-publication.json']:
                         shutil.copy2(ROOT/'material-packs'/name,pack_dest/name)
                 for item in sorted(pack.glob('*catalog.json')):
                     shutil.copy2(item,pack_dest/item.name)
-                for item in sorted(pack.glob('preview16*prompts.json')):
+                for item in sorted(pack.glob('*prompts.json')):
                     shutil.copy2(item,pack_dest/item.name)
                 # Authoring atlases are provenance, never an extra geometry pass.
-                for atlas in sorted((pack/'source-art').glob('*atlas*.png')):
-                    target=pack_dest/'source-art'/atlas.name
-                    target.parent.mkdir(exist_ok=True)
-                    shutil.copy2(atlas,target)
+                atlases=sorted((pack/'source-art').glob('*atlas*.png'))
+                if args.omit_authoring_images:
+                    records=[{'path':'source-art/'+p.name,'bytes':p.stat().st_size,'sha256':digest(p)} for p in sorted((pack/'source-art').glob('*.png'))]
+                    (pack_dest/'source-art-provenance.json').write_text(json.dumps({
+                        'policy':'authoring-images-preserved-in-source-library',
+                        'runtime_dependency':False,
+                        'description':'Original authoring images remain in the preserved production source library. Player downloads contain every declared runtime map, material catalog and generation provenance record.',
+                        'files':records},indent=2)+'\n',encoding='utf-8')
+                else:
+                    for atlas in atlases:
+                        target=pack_dest/'source-art'/atlas.name
+                        target.parent.mkdir(exist_ok=True)
+                        shutil.copy2(atlas,target)
             edition_manifest['assets'].update({p.relative_to(destination).as_posix():digest(p) for p in sorted(pack_dest.rglob('*')) if p.is_file()})
+        if args.omit_authoring_images and edition=='full':
+            edition_manifest['authoringSourcePolicy']='authoring-images-preserved-in-source-library'
+        edition_manifest['payload']={p.relative_to(destination).as_posix():digest(p) for p in sorted(destination.rglob('*')) if p.is_file()}
         (destination/'manifest.json').write_text(json.dumps(edition_manifest,indent=2)+'\n',encoding='utf-8')
         editions.append(destination)
+    if args.defer_archives:
+        print('Verified editions staged for companion packaging:', out)
+        return
     if args.full_only or args.lite_only or args.no_source:
-        results=[archive(folder) for folder in editions]
-        if args.lite_only:results.append(Path(str(player)+'.zip'))
+        results=archive_players(editions,args.version)
+        if args.lite_only:
+            results.append(full_archive)
+            results.extend(out/p['name'] for p in prior.get('materialParts',[]))
         for result in results:
             if result.stat().st_size>=2**31:raise RuntimeError(f'GitHub release asset exceeds 2 GiB: {result}')
         (out/'SHA256SUMS.txt').write_text(''.join(f'{digest(result)}  {result.name}\n' for result in sorted(results)),encoding='ascii')
@@ -202,7 +255,7 @@ refuses to replace differing files. The Full HD download includes pre-baked maps
     for path in source.rglob('*'):
         if path.is_file() and (path.suffix.lower() in EXCLUDE_SUFFIXES or 'randy-vk.ini' == path.name):
             raise RuntimeError(f'Unexpected local artifact in source: {path}')
-    archives = [archive(folder) for folder in editions] + [archive(source)]
+    archives = archive_players(editions,args.version) + [archive(source)]
     for path in archives:
         if path.stat().st_size>=2**31:raise RuntimeError(f'GitHub release asset exceeds 2 GiB: {path}')
     (out / 'SHA256SUMS.txt').write_text(''.join(f'{digest(path)}  {path.name}\n' for path in archives), encoding='ascii')

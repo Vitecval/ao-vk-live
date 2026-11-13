@@ -112,6 +112,7 @@ typedef struct FfxFrameInterpolationContext_Private {
 
     FfxFrameInterpolationContextDescription     contextDescription;
     FfxUInt32                                   effectContextId;
+    bool backendContextCreated;
     FfxFrameInterpolationRenderDescription      renderDescription;
     FrameInterpolationConstants                 constants;
     InpaintingPyramidConstants                  inpaintingPyramidContants;

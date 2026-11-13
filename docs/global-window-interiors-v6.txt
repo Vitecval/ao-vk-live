@@ -1,0 +1,52 @@
+Preview 20 global exterior window interiors v6
+
+RVK_WindowDepth 0 Off (default), 1 Subtle, 2 Strong. Existing settings retained.
+Materials > Window interiors. Native Scene/Visuals and mesh-ids.bin required.
+Stock and selected HD artwork supported; no playfield restriction.
+
+The explicit registry covers 71 reviewed exterior glazing materials, including
+297408 and 296246 on ICC tower2/3/4/5. Positive model witnesses exclude shuttles,
+doors, signs, screens, vehicles, furniture and decorative functional surfaces.
+Original transparent views into actual playable space, sealed shutters and
+unknown/ambiguous architecture retain the existing rendering. This is broad
+global support, not a verified promise that every opening in the entire game
+can already be replaced. The exact registry and exclusions are documented.
+
+Newland HD preserves the approved v5 upright room, bright lamp, furnishings,
+interior door and whole-house shared floor plan. Small windows crop that space.
+Other facades use a deterministic metric apartment grid within true native
+bounds (approximately 7.5m x 3.6m x 7.5m units). Openings select a floor below
+their sill. Connected panes/corners in one native visual share room space.
+ICC modules are native separate visuals; they are not merged across instances.
+Furniture is analytical 3D geometry shaded with the retained eight-tile surface
+atlas, never a fitted room photo. No moving people, new scene lights or passes.
+
+Global screen-footprint detail: >90px retains full mode detail; 32-90px uses
+restrained detail and one shadow sample; 12-32px uses simple furniture without
+shadow rays; below 12px uses stable apartment light averages. Fade ends at
+1000m and below roughly one pixel. Legacy Newland keeps its v5 fade/detail.
+Strong retains more light and detail nearby. Subtle remains quieter. Far modes
+can have similar costs because both use the inexpensive distance path.
+
+Whole native model bounds are read from existing CPU vertices and cached with
+lifetime/writer tracking. Original BVolume/culling is untouched. Reviewed
+planar facade resources can create inward virtual depth; narrow panes do not
+shrink furniture. Unknown or invalid bounds fail closed. Dense facades and
+irregular/curved buildings are approximations, not enterable/collidable rooms.
+
+The pane table adds 9,312 GPU bytes (194 stock/HD records); the existing 2.67MiB
+surface atlas is reused unchanged. No additional raster asset pack is required.
+Off skips classification and upload/query work; hot Off may retain allocations.
+
+Canonical review: assets/window-profiles/catalog.json.
+Regenerate/check: python tools/build-window-profiles.py [--check].
+Only approved, inspected glass and positive model identities should be added.
+The local review scanned 11,896 ABiff/room models, paired 214 named/catalog
+candidates, and swept 2,053 other architecture textures. The existing installed
+mesh table contains 279 of 317 unique reviewed model identities; the 38 absent
+ones are room resources and remain outside this static-exterior renderer path.
+
+Validation/package/report are kept in build/global-windows outside production.
+Comparison sheets are real Vulkan fixtures using local artwork and synthetic
+identity witnesses; they are not live city screenshots. See REPORT-v6.txt for
+performance, exact coverage, native ICC capture/installation status and rollback.

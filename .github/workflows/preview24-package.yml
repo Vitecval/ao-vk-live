@@ -1,0 +1,33 @@
+name: Reproduce Preview 24 archives
+on:
+  push:
+    branches: [codex/preview24-cloud-package]
+permissions:
+  contents: write
+concurrency:
+  group: preview24-archive-reproduction
+  cancel-in-progress: false
+jobs:
+  archives:
+    runs-on: windows-2025
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        part: [setup, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    env:
+      GH_TOKEN: ${{ github.token }}
+      INPUT_SHA256: 'b48d28611848664695259a2dd824fc5e43db03e67baccdcbacba1007d0755d88'
+      INPUT_CHUNKS: '[{"index":1,"assetId":745325030,"sha256":"e3d671214864b2135d3133efd552a7ea009076ee04f0b4a06025c0f0fe3f60a3","bytes":10401006,"name":"preview24-build-input-01.bin"},{"index":2,"assetId":745325031,"sha256":"6952574cd07bec41142529a1fad0e7893b466f6be6559a47b581de3361c534f8","bytes":10401006,"name":"preview24-build-input-02.bin"},{"index":3,"assetId":745325029,"sha256":"10e6aa8f386dac2d45c2d384e3b8c18d807a438c659ad5811ce7d1632c6b1e9b","bytes":10401006,"name":"preview24-build-input-03.bin"},{"index":4,"assetId":745325028,"sha256":"61a3fec7a59de2ec1834d06307bb0e432b742f9e6d00b9a8e449666aa1fb5874","bytes":10401006,"name":"preview24-build-input-04.bin"},{"index":5,"assetId":745329249,"sha256":"9b280730c532e2461584d29bbd2f044fbe5d2247cdf7fd779a536aaba7dba9af","bytes":10401006,"name":"preview24-build-input-05.bin"},{"index":6,"assetId":745329337,"sha256":"ee7cf082824af1fb8b70745225f8d3dc4146f21d14e6f49405637fc6eb03be24","bytes":10401006,"name":"preview24-build-input-06.bin"},{"index":7,"assetId":745329444,"sha256":"fd03c2fcb44407ea42ca48f36e48b4b0e281c8f2b6a583e66b4da48603c6daa2","bytes":10401006,"name":"preview24-build-input-07.bin"},{"index":8,"assetId":745329927,"sha256":"e9cb3a31ae898741e3c5a85a2a7f30c541a09dd2c2d8739f5f4aad14003390ad","bytes":10401002,"name":"preview24-build-input-08.bin"}]'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.13.1'
+          architecture: x64
+      - name: Rebuild and verify exact archive bytes
+        shell: pwsh
+        run: python release/preview24-cloud-package.py --part "${{ matrix.part }}"

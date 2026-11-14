@@ -36,7 +36,7 @@ layout(set = 0, binding = 7) uniform sampler2D cloudShadow;                     
 layout(set = 0, binding = 8) uniform sampler2D terrainSunMap;                    // the terrain's shade (terrain_sun.cpp)
 #include "cloud_shadow_common.glsl"
 // Which of the frame's 64 lights reach this tile (grass.cpp: the tile's box against each light's range).
-layout(push_constant) uniform GrassPush { uvec2 lightMask; } GP;
+layout(push_constant) uniform GrassPush { uvec2 lightMask; uint pusherMask; } GP;
 
 layout(location = 0) out vec3 vColour;
 layout(location = 1) out float vAcross;     // -1 .. 1 across the blade (the vein)
@@ -67,7 +67,9 @@ vec3 PusherOffset(vec3 posW, float h, float plantHeight, vec2 trailPush, out vec
     uint count = min(FL.info.y, 16u);
     float reach = 0.7 * sqrt(amount);            // the game's plants use 1.4; the grass bends over a smaller radius
     vec2 push = vec2(0.0), rustle = vec2(0.0);
-    for (uint i = 0u; i < count; ++i) {
+    uint mask=GP.pusherMask & ((1u<<count)-1u);
+    while(mask!=0u) {
+        uint i=uint(findLSB(mask));mask&=mask-1u;
         vec4 p = FL.pushers[i];
         float dy = posW.y - p.y;
         if (dy < -1.0 || dy > 3.0)               // a blade on another floor, or a character on a roof

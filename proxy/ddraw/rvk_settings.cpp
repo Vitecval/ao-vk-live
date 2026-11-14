@@ -50,6 +50,7 @@ Setting g_settings[] = {
     {"RVK_UiRate", "Interface refresh rate (0 = every frame)", "General", Choice, 0, 120, 1, 60, nullptr, 0, nullptr, "0 30 60 90 120"},
     {"RVK_RenderBg", "Render in Background", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_ZoneScreen", "Zoning screen", "General", Bool, 0, 1, 1, 1, nullptr, 0},
+    {"RVK_ZoneClick", "Zoning screen: Click to continue...", "General", Bool, 0, 1, 1, 0, nullptr, 0, "RVK_ZoneScreen"},
     {"RVK_PerfHud", "Performance readout in the top left: frames a second, the game's and the renderer's CPU time, the GPU's", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_AlienMap", "AI missions' PF map: rooms shown black on green (the game's is black on black)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_DetailRange", "How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws)", "General", Float, 1, 4, 0.25f, 2, nullptr, 0},
@@ -112,6 +113,8 @@ Setting g_settings[] = {
     {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
     {"RVK_BuildWear", "Building Weathering: Off / Low / Medium / High", "Materials", Choice, 0, 3, 1, 0, nullptr, 0, nullptr, "0 1 2 3"},
     {"RVK_BuildingHD", "Global building materials", "Materials", Float, 0, 1, 0.1f, 0, nullptr, 0},
+    {"RVK_EnhancedRocks", "Enhanced Rocks", "Materials", Float, 0, 1, .1f, 1, nullptr, 0},
+    {"RVK_RockShape", "Legacy rock shape (disabled)", "Materials", Float, 0, 1, .1f, 0, nullptr, 0, "RVK_EnhancedRocks"},
     {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
     {"RVK_Albedo", "Enhanced textures", "Materials",     Bool,  0, 1, 1, 1, nullptr, 0},
@@ -241,7 +244,7 @@ Setting g_settings[] = {
     {"RVK_RainFog",    "Thunderstorms: the rain's mist - the distance grey, rain shafts hanging under the storm, lit by lightning (x; 0: none; with RVK_SandFog)", "Weather", Float, 0, 3, 0.1f, 1, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_Lightning",  "Lightning: each of the game's strikes lights the land and the clouds round it with a flash (x; 0: none)", "Weather", Float, 0, 3, 0.1f, 1, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_HeatFlash", "Heat lightning: on some warm, dry nights silent flashes in far-off clouds (x; 0: none)", "Weather", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_WeatherOn"},
-    {"RVK_StormFlash", "The game's lightning glow: the sky flashing over the clouds in storms - it flickers (off: left out; the bolts stay)", "Weather", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WeatherOn"},
+    {"RVK_StormFlash", "Original lightning glow (used when replacement lightning is disabled)", "Weather", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_SandHaze",   "Sand and ash storms: how thick the storm's air - the fog (or the flat haze), in place of the game's tint, x (0: none)", "Weather", Float, 0, 3, 0.05f, 0.4f, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_SandForce", "Force a sandstorm (1 = full storm; 0 = the game's weather)", "Weather", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_WeatherOn"},
     {"RVK_SandAsh",    "Sand and ash storms: the forced one is an ash storm (grey) instead of sand", "Weather", Bool, 0, 1, 1, 0, nullptr, 0, "RVK_WeatherOn"},
@@ -496,6 +499,8 @@ const Vanilla kVanilla[] = {
     {"RVK_DayCycle", 0}, {"RVK_ImprovedTiles", 0},
     {"RVK_GlobalShiny",1}, {"RVK_ImmersiveShips",0}, {"RVK_FarScenery",0}, {"RVK_SceneryDist",1},
     {"RVK_BuildingHD", 0},
+    {"RVK_EnhancedRocks", 0},
+    {"RVK_RockShape", 0},
     {"RVK_FarHaze", 0},
     {"RVK_ModernTex", 0},
     {"RVK_WeatherMode", 0}, {"RVK_FogMode", 0},
@@ -513,6 +518,7 @@ const Vanilla kVanilla[] = {
 // changes, and most of the experimental features' tuning - each keeps its value, its game value and its part in the
 // presets. A setting whose feature switch is listed here is left out with it.
 const char* const kHidden[] = {
+    "RVK_RockShape", // retained for old INIs; no geometry path remains
     "RVK_HeapCheck",
     "RVK_Prepass", "RVK_PrepassEq", "RVK_LightOver", "RVK_OwnLight", "RVK_LeafLightOn", "RVK_PlantDetOn", "RVK_FolLodOn",
     "RVK_GrassTex", "RVK_ShadowMem", "RVK_FxGlowOn", "RVK_NightOn", "RVK_MoonOn", "RVK_GameSun", "RVK_HillShade",
@@ -629,7 +635,9 @@ float V(const char* name)
 {
     Setting* s = Find(name);
     if (!s) return 0.0f;
+    if(std::strcmp(name,"RVK_RockShape")==0)return 0.f; // discontinued geometry control; keep stored legacy preference
     if(std::strcmp(name,"RVK_InstantTime")==0 || std::strcmp(name,"RVK_AmbientMode")==0)return SettingValue(*s);
+    if(std::strcmp(name,"RVK_ZoneClick")==0)return Stored("RVK_ZoneScreen")!=0 ? s->value:0.f;
     const Vanilla* vanilla = FindVanilla(name);
     const bool plus=SharedGroundPlus();
     if(Stored("RVK_Enhance")!=0 && Stored("RVK_SkyStyle")>.5f) {
@@ -1581,7 +1589,8 @@ bool InPresets(const Setting& s, uint32_t preset)
         std::strcmp(s.name,"RVK_ImprovedTiles")==0 || std::strcmp(s.name,"RVK_ShipLights")==0 ||
         std::strcmp(s.name,"RVK_ShipLightPower")==0 || std::strcmp(s.name,"RVK_FullScenery")==0 ||
         std::strcmp(s.name,"RVK_SceneryFill")==0 || std::strcmp(s.name,"RVK_FarDetail")==0)) return true;
-    if(std::strcmp(s.name,"RVK_InstantTime")==0 || std::strcmp(s.name,"RVK_AmbientMode")==0)return false;
+    if(std::strcmp(s.name,"RVK_InstantTime")==0 || std::strcmp(s.name,"RVK_AmbientMode")==0 ||
+       std::strcmp(s.name,"RVK_ZoneClick")==0)return false;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
         std::strcmp(s.name,"RVK_TerraRough")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;

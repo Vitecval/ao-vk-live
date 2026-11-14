@@ -448,23 +448,35 @@ Texture* Upload(Dev& dev, const MipChain& chain,bool compactUniform=false)
 {
     if (chain.Empty())
         return nullptr;
-    // Exact constant control maps need one texel. Every mip must agree.
-    if(compactUniform && !chain.levels[0].empty()) {
-        const uint32_t colour=chain.levels[0][0];bool uniform=true;
-        for(const auto& level:chain.levels)
-            if(level.empty() || !std::all_of(level.begin(),level.end(),[colour](uint32_t p){return p==colour;})){uniform=false;break;}
-        if(uniform)return dev.CreateTexture(1,1,&colour);
-    }
-    Texture* tex = dev.CreateTexture(chain.w, chain.h, Format::A8R8G8B8, uint32_t(chain.levels.size()));
-    if (!tex)
+    Texture* tex = nullptr;
+    try {
+        // Exact constant control maps need one texel. Every mip must agree.
+        if(compactUniform && !chain.levels[0].empty()) {
+            const uint32_t colour=chain.levels[0][0];bool uniform=true;
+            for(const auto& level:chain.levels)
+                if(level.empty() || !std::all_of(level.begin(),level.end(),[colour](uint32_t p){return p==colour;})){uniform=false;break;}
+            if(uniform) {
+                tex=dev.CreateTexture(1,1,Format::A8R8G8B8,1);
+                if(tex)dev.UpdateTexture(tex,0,0,0,1,1,&colour,4);
+                return tex;
+            }
+        }
+        tex = dev.CreateTexture(chain.w, chain.h, Format::A8R8G8B8, uint32_t(chain.levels.size()));
+        if (!tex)
+            return nullptr;
+        uint32_t w = chain.w, h = chain.h;
+        for (uint32_t level = 0; level < chain.levels.size(); ++level) {
+            dev.UpdateTexture(tex, level, 0, 0, w, h, chain.levels[level].data(), w * 4);
+            w = std::max(w / 2, 1u);
+            h = std::max(h / 2, 1u);
+        }
+        return tex;
+    } catch (const std::bad_alloc&) {
+        // A failed CPU staging/mip allocation must not orphan a GPU texture.
+        // Callers already keep the previous material set when Upload returns null.
+        if (tex) dev.DestroyTexture(tex);
         return nullptr;
-    uint32_t w = chain.w, h = chain.h;
-    for (uint32_t level = 0; level < chain.levels.size(); ++level) {
-        dev.UpdateTexture(tex, level, 0, 0, w, h, chain.levels[level].data(), w * 4);
-        w = std::max(w / 2, 1u);
-        h = std::max(h / 2, 1u);
     }
-    return tex;
 }
 
 // Gives `texture` its decoded maps (the device owns the new textures and frees them with it).

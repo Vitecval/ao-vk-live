@@ -11,7 +11,7 @@ layout(set = 0, binding = 1) uniform sampler2DArrayShadow shadowMap;
 layout(set = 0, binding = 2) uniform sampler2D cloudShadow;   // the clouds' (rvk clouds.cpp; FL.clouds: where, if any)
 layout(set = 0, binding = 3) uniform sampler2D terrainMap;    // terrain_sun.cpp: R the height to see a low sun, G the ground
 layout(set = 0, binding = 5) uniform sampler2D shelterMap;    // sand_map.cpp SandFogShelter: R the shelter over the top, G the top
-layout(push_constant) uniform Push {
+layout(std140, set = 0, binding = 6) uniform Push {
     mat4 invViewProj;   // the world camera's clip -> world (raw D3DMATRIX memory)
     vec4 eye;           // camera position; w: the march's reach (world units)
     vec4 proj;          // D3D projection m[2][2], m[3][2]; the full target's width, height

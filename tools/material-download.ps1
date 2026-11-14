@@ -76,7 +76,35 @@ function Test-AoMaterialArchive([string]$Path, $Part) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -ieq $Part.sha256
 }
 
+# Separate AO folders can share Setup's download cache. Serialize each archive,
+# including its metadata/resume checks, then reuse a completed verified file.
 function Receive-AoMaterialArchive([string]$Cache, $Manifest, $Part, [string]$Label, [scriptblock]$ProgressCallback) {
+    Assert-AoMaterialRelease $Manifest $Part
+    $path = [IO.Path]::GetFullPath((Join-Path $Cache $Part.name)).ToUpperInvariant()
+    $digest = [Security.Cryptography.SHA256]::Create()
+    try { $key = ([BitConverter]::ToString($digest.ComputeHash([Text.Encoding]::UTF8.GetBytes($path)))).Replace('-','') }
+    finally { $digest.Dispose() }
+    $mutex = New-Object Threading.Mutex($false, ('Local\AO-VK-Material-' + $key))
+    $owned = $false
+    try {
+        while (!$owned) {
+            try { $owned = $mutex.WaitOne(500) }
+            catch {
+                $cause = $_.Exception
+                while ($cause.InnerException) { $cause = $cause.InnerException }
+                if ($cause -is [Threading.AbandonedMutexException]) { $owned = $true }
+                else { throw }
+            }
+            if (!$owned) { Write-AoMaterialProgress "$Label - waiting for another setup to finish this download..." -1 $ProgressCallback }
+        }
+        return (Receive-AoMaterialArchiveUnderLock $Cache $Manifest $Part $Label $ProgressCallback)
+    } finally {
+        if ($owned) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+    }
+}
+
+function Receive-AoMaterialArchiveUnderLock([string]$Cache, $Manifest, $Part, [string]$Label, [scriptblock]$ProgressCallback) {
     Assert-AoMaterialRelease $Manifest $Part
     if (!$Manifest.materialDownload) { throw "Missing offline archive $($Part.name). Use the matching Full HD Setup for automatic downloads." }
     $url = [string]$Manifest.materialDownload.baseUrl + [string]$Part.name
@@ -84,6 +112,10 @@ function Receive-AoMaterialArchive([string]$Cache, $Manifest, $Part, [string]$La
     $partial = $final + '.partial'; $metadata = $partial + '.json'
     foreach ($path in @($final, $partial, $metadata)) {
         if ((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Unsafe download cache link; extract Setup to a new folder.' }
+    }
+    if (Test-AoMaterialArchive $final $Part) {
+        Write-AoMaterialProgress "$Label - reusing the verified download." 100 $ProgressCallback
+        return $final
     }
     $pin = "$url|$($Part.sha256)|$($Part.bytes)"
     if (!(Test-Path -LiteralPath $metadata) -or (Get-Content -LiteralPath $metadata -Raw) -cne $pin) {

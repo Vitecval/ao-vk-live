@@ -1,5 +1,29 @@
 # AO-VK Live Preview 24
 
+## Revision 53 update
+
+- Fixed Original preset zoning screens remaining over a live game until their
+  timeout. Readiness now follows actual world presentations with enhancements off.
+- Added optional **Click to continue...**, off by default. Once zoning is ready,
+  only the prompt fades in; the loading picture stays in place.
+- Background rendering defaults off for logged-in characters. Login and character
+  selection keep rendering; the restriction ends immediately on logout.
+- Included the lightning/sun-shadow fixes, indexed scenery and conservative
+  occlusion fixes for disappearing scenery when looking upward.
+- Enhanced Rocks uses the original meshes with detail-only material improvements;
+  experimental geometry changes and rock clusters are disabled.
+- Fixed GPU feature/limit compatibility, partial-startup resource leaks, failed
+  texture uploads, noncoherent memory handling and DirectDraw lifetime, bounds and
+  low-memory failures. Grass range remains 80 m.
+- Hardened installer cache sharing, Unicode paths, interrupted updates and cache
+  warmup. Both editions retain Reset settings and preserve existing preferences.
+
+Validation includes 54 stability regressions, 16 instrumented memory runs, four
+pixel-identical rendering comparisons and a two-hour mixed rendering run covering
+4,629 zone cycles and 1,147,992 frames. Revision 53 additionally passed repeated
+Original zoning, prompt/input/fade, settings and 16 DirectDraw checks. These are
+isolated tests, not a guarantee of retail FPS or certification on every GPU.
+
 Preview 24 brings prepared texture data, faster zoning and more stable sunlight
 shadows to the classic Anarchy Online live client.
 

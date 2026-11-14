@@ -16,7 +16,7 @@ layout(set = 0, binding = 13) uniform sampler2D smokeCover;   // half resolution
                                                               // cover; P.dust2.w bit 1 only)
 layout(set = 0, binding = 14) uniform sampler2D sandFog;      // half resolution: a storm's air (sand_fog.frag) - the
                                                               // light it scatters, its transmittance (dust2.w bit 2)
-layout(push_constant) uniform Push {
+layout(std140, set = 0, binding = 17) uniform Push {
     vec4 params;        // knee, exposure, bloom strength, bloom left on objects nearer than its light (-1: no depth)
     vec4 proj;          // D3D projection m[2][2], m[3][2] (view depth from the depth buffer), indirect light strength,
                         // volumetric light on (bit 1), reflections on (bit 2), ambient occlusion on (bit 4),

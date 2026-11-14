@@ -82,7 +82,8 @@ enum : uint32_t { kMatPbr = 1, kMatBase = 2, kMatAlbedo = 4, kMatEmissive = 8, k
                   kMatOriginalAlpha = 1024, kMatOriginalAlpha1 = 2048,
                   kMatWorld = 4096, kMatTerrainHD = 8192,
                   kMatMineral = 16384, kMatHonedStone = 32768,
-                  kMatAuthoredGround = 65536, kMatAsphalt = 131072, kMatImmersiveShip = 262144, kMatDistantScenery=524288 };   // DrawTransform
+                  kMatAuthoredGround = 65536, kMatAsphalt = 131072, kMatImmersiveShip = 262144, kMatDistantScenery=524288,
+                  kMatEnhancedRock=1048576, kMatRockShape=2097152 };   // DrawTransform
                                                  // mat[2]: has an ORM map; it is the ground base's; stage 0 draws an
                                                  // albedo map; has an emissive map; its texture was picked
 // GPU-driven M2: one record a draw (binding 12). `constIndex` selects the shared DrawConstants it draws with; the
@@ -222,6 +223,7 @@ struct FrameLights {               // binding 4: per-frame data (constants.glsl 
     float hdGround[5][4],hdGroundConfig[4]; // optional modern albedo layers, original masks unchanged
     float nativeHeight[4];          // height image bits+1, inverse cell X/Z, valid
     float shipLightPos[8][4],shipLightColour[8][4],shipLightConfig[4];
+    float rockObjects[4];          // strength, reserved (shares the existing cliff images)
     GpuLight lights[kFrameLights];
 };
 

@@ -14,6 +14,7 @@
 #include <string>
 #include <memory>
 #include <new>
+#include <stdexcept>
 #include <vector>
 
 namespace rvkproxy {
@@ -51,7 +52,7 @@ bool FreeCamWorld(const float game[16], float out[16]);
 void FreeCamWheel(float notches);                 // the mouse wheel while it is on (rvk_input.cpp)
 // The game kept from the keyboard / mouse (rvk_input.cpp): DirectInput and its window's messages, while any owner
 // asks. InputAttach subclasses the game's window (once).
-enum InputOwner : unsigned { kInputFreeCam = 1, kInputConsole = 2 };
+enum InputOwner : unsigned { kInputFreeCam = 1, kInputConsole = 2, kInputZoning = 4 };
 void InputAttach(HWND window);
 void InputBlock(unsigned owner, bool keys, bool mouse);
 bool InputFocused();                              // the game's window is the foreground one
@@ -111,6 +112,7 @@ template<class F> HRESULT ComHresult(F&& call) noexcept
 {
     try { return call(); }
     catch (const std::bad_alloc&) { return E_OUTOFMEMORY; }
+    catch (const std::length_error&) { return E_OUTOFMEMORY; }
 }
 
 #include "com_stub.gen.h"
@@ -128,40 +130,58 @@ public:
     ~Com() override { BackendObjectReleased(); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE QueryInterface(REFIID iid, void** out) final
     {
-        static const unsigned index = ComIndex((std::string(B::kName) + "::QueryInterface").c_str());
-        CountComCall(index);
-        ComScope scope(index);
-        if (!out)
-            return E_POINTER;
-        *out = iid == IID_IUnknown ? static_cast<IUnknown*>(this) : Cast(iid);
-        if (!*out) {
-            RvkLog("%s::QueryInterface: no interface {%08lx-%04x-%04x}", B::kName, iid.Data1, iid.Data2, iid.Data3);
-            return E_NOINTERFACE;
-        }
-        if (*out == static_cast<IUnknown*>(this) || iid == IID_IUnknown)
-            AddRef();
-        return S_OK;
+        if (!out) return E_POINTER;
+        *out = nullptr;
+        return ComHresult([&]() -> HRESULT {
+            static const unsigned index = MethodIndex("::QueryInterface");
+            CountComCall(index);
+            ComScope scope(index);
+            *out = iid == IID_IUnknown ? static_cast<IUnknown*>(this) : Cast(iid);
+            if (!*out) {
+                RvkLog("%s::QueryInterface: no interface {%08lx-%04x-%04x}", B::kName, iid.Data1, iid.Data2, iid.Data3);
+                return E_NOINTERFACE;
+            }
+            if (*out == static_cast<IUnknown*>(this) || iid == IID_IUnknown)
+                AddRef();
+            return S_OK;
+        });
     }
     COM_DECLSPEC_NOTHROW ULONG STDMETHODCALLTYPE AddRef() final
     {
-        static const unsigned index = ComIndex((std::string(B::kName) + "::AddRef").c_str());
+        static const unsigned index = MethodIndex("::AddRef");
         CountComCall(index);
+        // An externally held mip interface must retain the shared root texture.
+        if(auto* owner=ReferenceOwner())owner->AddRef();
         return ++m_refs;
     }
     COM_DECLSPEC_NOTHROW ULONG STDMETHODCALLTYPE Release() final
     {
-        static const unsigned index = ComIndex((std::string(B::kName) + "::Release").c_str());
+        static const unsigned index = MethodIndex("::Release");
         CountComCall(index);
         ComScope scope(index);
+        IUnknown* const owner=ReferenceOwner();
         ULONG r = --m_refs;
         if (r == 0)
             delete this;
+        else if(owner&&owner->Release()==0)
+            r=0; // dropping the root's last lease also deletes its internal mip
         return r;
     }
 
 protected:
+    // IUnknown must not allocate merely to find a diagnostic counter, especially
+    // AddRef/Release which have no HRESULT with which to report allocation failure.
+    static unsigned MethodIndex(const char* suffix) noexcept {
+        char name[96];
+        size_t used = 0;
+        for (const char* part : {B::kName, suffix})
+            while (*part && used + 1 < sizeof(name)) name[used++] = *part++;
+        name[used] = 0;
+        return ComIndex(name);
+    }
     // Interface for iid. Return `this` (Com adds the reference) or another object with a reference added.
     virtual void* Cast(REFIID iid) = 0;
+    virtual IUnknown* ReferenceOwner() const { return nullptr; }
     std::atomic<ULONG> m_refs{1};
 };
 
@@ -213,6 +233,8 @@ class RPalette final : public Com<BaseIDirectDrawPalette> {
 public:
     explicit RPalette(DWORD caps) : m_caps(caps) {}
     PALETTEENTRY entries[256] = {};
+    DWORD EntryCount() const { return (m_caps & DDPCAPS_8BIT) ? 256 : (m_caps & DDPCAPS_4BIT) ? 16 :
+                                      (m_caps & DDPCAPS_2BIT) ? 4 : (m_caps & DDPCAPS_1BIT) ? 2 : 16; }
 
 protected:
     void* Cast(REFIID iid) override { return iid == IID_IDirectDrawPalette ? this : nullptr; }
@@ -229,10 +251,10 @@ class RSurface final : public Com<BaseIDirectDrawSurface7> {
 public:
     enum class Kind { Primary, Main, RenderTarget, Depth, Texture, Plain };
 
-    RSurface(Kind kind, const DDSURFACEDESC2& desc);
+    RSurface(Kind kind, const DDSURFACEDESC2& desc, RDirectDraw* owner = nullptr);
     ~RSurface() override;
     static HRESULT Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RSurface** out);
-    RDirectDraw* owner = nullptr;                  // weak; GetDDInterface
+    RDirectDraw* owner = nullptr;                  // retained until this surface is destroyed
 
     Kind kind;
     DDSURFACEDESC2 desc{};            // what GetSurfaceDesc reports (lpSurface/pitch filled by Lock)
@@ -269,6 +291,9 @@ public:
 
 protected:
     void* Cast(REFIID iid) override { return iid == IID_IDirectDrawSurface7 || iid == IID_RvkSurface ? this : nullptr; }
+    IUnknown* ReferenceOwner() const override {
+        return kind==Kind::Texture&&top&&top!=this ? static_cast<IDirectDrawSurface7*>(top):nullptr;
+    }
     HRESULT DoAddAttachedSurface(LPDIRECTDRAWSURFACE7 s) override;
     HRESULT DoDeleteAttachedSurface(DWORD, LPDIRECTDRAWSURFACE7 s) override;
     HRESULT DoBlt(LPRECT dst, LPDIRECTDRAWSURFACE7 src, LPRECT srcRect, DWORD flags, LPDDBLTFX fx) override;

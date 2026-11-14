@@ -73,6 +73,8 @@ foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag 
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/ffp_main.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/rock_objects.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/rock_shape.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain_rock.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/parallax.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/motion_common.glsl"
@@ -199,7 +201,7 @@ set_source_files_properties(${FFX_SOURCES} PROPERTIES
 set_source_files_properties(rvk/fsr3.cpp rvk/framegen.cpp PROPERTIES COMPILE_OPTIONS "/imsvc${FFX_SDK}/include")   # (its headers: AMD's warnings)
 
 add_library(rvk STATIC rvk/startup.cpp rvk/vk.cpp rvk/vma.cpp rvk/device.cpp rvk/resources.cpp rvk/draw.cpp rvk/objects.cpp rvk/diag.cpp rvk/shadow.cpp rvk/pointshadow.cpp rvk/hdr.cpp rvk/particles.cpp rvk/grading.cpp rvk/profile.cpp rvk/skin.cpp rvk/skin_gpu.cpp rvk/static_gpu.cpp rvk/prepass.cpp rvk/threaded.cpp rvk/interface.cpp rvk/grass.cpp rvk/leaves.cpp rvk/water.cpp rvk/rain.cpp rvk/smoke.cpp rvk/clouds.cpp rvk/meshids.cpp rvk/statels.cpp rvk/night.cpp rvk/darkness.cpp rvk/knobs.cpp rvk/sky.cpp rvk/atmosphere.cpp rvk/mist.cpp rvk/sun.cpp rvk/terrain_sun.cpp rvk/terrain.cpp rvk/native_ground.cpp rvk/ground_clutter.cpp rvk/ground_pebbles.cpp rvk/wind.cpp rvk/sand_map.cpp rvk/sand_prints.cpp rvk/fsr2.cpp rvk/fsr3.cpp rvk/framegen.cpp ${FSR2_SOURCES} ${FFX_SOURCES} "${FFX_HEADERS_DIR}/ffx_shaders.stamp.h" ${RVK_SHADER_INCS} ${RVK_ASSET_INCS})
-target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/optional_population.cpp)
+target_sources(rvk PRIVATE rvk/shared_terrain.cpp rvk/weathering.cpp rvk/optional_population.cpp rvk/rock_geometry.cpp)
 target_link_libraries(rvk PUBLIC bcrypt)
 add_executable(ao_vk_cache_warm tools/cache-warm.cpp proxy/native/stb_image.cpp)
 set_target_properties(ao_vk_cache_warm PROPERTIES OUTPUT_NAME "ao-vk-cache-warm")
@@ -259,6 +261,15 @@ target_compile_options(grass_coverage_check PRIVATE /UNDEBUG)
 add_executable(render_budget_check tests/render_budget_check.cpp)
 target_include_directories(render_budget_check PRIVATE rvk)
 target_compile_options(render_budget_check PRIVATE /UNDEBUG)
+add_executable(rock_topology_check tests/rock_topology_check.cpp)
+target_include_directories(rock_topology_check PRIVATE rvk)
+target_compile_options(rock_topology_check PRIVATE /UNDEBUG)
+add_executable(presentation_policy_check tests/presentation_policy_check.cpp)
+target_include_directories(presentation_policy_check PRIVATE rvk)
+target_compile_options(presentation_policy_check PRIVATE /UNDEBUG)
+add_executable(lightning_policy_check tests/lightning_policy_check.cpp)
+target_include_directories(lightning_policy_check PRIVATE rvk)
+target_compile_options(lightning_policy_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)
@@ -324,3 +335,51 @@ target_link_libraries(fullscreen_fallback_check PRIVATE user32 dxguid)
 
 add_executable(fsr_support_check tests/fsr_support_check.cpp)
 target_include_directories(fsr_support_check PRIVATE rvk)
+
+add_executable(rock_clusters_check tests/rock_clusters_check.cpp)
+target_include_directories(rock_clusters_check PRIVATE rvk)
+add_executable(occlusion_policy_check tests/occlusion_policy_check.cpp)
+target_include_directories(occlusion_policy_check PRIVATE proxy)
+if(MSVC)
+  target_compile_options(rock_clusters_check PRIVATE /UNDEBUG)
+  target_compile_options(occlusion_policy_check PRIVATE /UNDEBUG)
+else()
+  target_compile_options(rock_clusters_check PRIVATE -UNDEBUG)
+  target_compile_options(occlusion_policy_check PRIVATE -UNDEBUG)
+endif()
+
+add_executable(stability_audit_check tests/stability_audit_check.cpp proxy/native/stb_image.cpp)
+set_target_properties(stability_audit_check PROPERTIES OUTPUT_NAME stability_audit_current)
+target_include_directories(stability_audit_check PRIVATE third_party)
+target_link_libraries(stability_audit_check PRIVATE rvk)
+
+add_executable(stability_soak_check tests/stability_soak_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(stability_soak_check PRIVATE third_party)
+target_link_libraries(stability_soak_check PRIVATE rvk psapi)
+
+add_executable(skin_allocation_check tests/skin_allocation_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(skin_allocation_check PRIVATE third_party)
+target_link_libraries(skin_allocation_check PRIVATE rvk)
+
+add_executable(prepared_integrity_check tests/prepared_integrity_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(prepared_integrity_check PRIVATE third_party)
+target_link_libraries(prepared_integrity_check PRIVATE rvk cabinet)
+
+add_executable(vc10_bounds_check tests/vc10_bounds_check.cpp)
+target_include_directories(vc10_bounds_check PRIVATE proxy)
+add_executable(vc10_string_check tests/vc10_string_check.cpp proxy/native/vc10.cpp)
+target_include_directories(vc10_string_check PRIVATE proxy)
+
+add_executable(surface_lifetime_check tests/surface_lifetime_check.cpp)
+target_link_libraries(surface_lifetime_check PRIVATE user32 dxguid)
+
+add_executable(material_upload_failure_check tests/material_upload_failure_check.cpp)
+target_include_directories(material_upload_failure_check PRIVATE rvk third_party)
+target_link_libraries(material_upload_failure_check PRIVATE rvk)
+
+add_executable(stability_leak_check tests/stability_soak_check.cpp tests/test_heap_trace.cpp proxy/native/stb_image.cpp)
+target_compile_definitions(stability_leak_check PRIVATE AOVK_TEST_HEAP_TRACE=1)
+target_include_directories(stability_leak_check PRIVATE third_party)
+target_link_libraries(stability_leak_check PRIVATE rvk psapi)
+
+target_link_options(stability_leak_check PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/stability_leak_check.map")

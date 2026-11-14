@@ -306,6 +306,13 @@ VkResult Device::SubmitGpuWork(uint32_t count,const VkSubmitInfo* submits,VkFenc
     if(m_deviceLost)return VK_ERROR_DEVICE_LOST;
     const auto ready=FgWaitForPresentation();
     if(ready<0&&ready!=VK_ERROR_OUT_OF_DATE_KHR)return ready;
+    // VMA may choose host-visible memory without HOST_COHERENT. Make the
+    // frame's CPU writes visible before any upload, draw or readback submission.
+    auto& frame = m_frames[m_frameIndex];
+    if(frame.ringAllocation && frame.ringOffset)
+        vmaFlushAllocation(m_allocator,frame.ringAllocation,0,frame.ringOffset);
+    if(frame.postAllocation)
+        vmaFlushAllocation(m_allocator,frame.postAllocation,0,VK_WHOLE_SIZE);
     const auto result=vkQueueSubmit(m_queue,count,submits,fence);
     if(result!=VK_SUCCESS){Log("GPU submission failed (%d); rendering stops",int(result));m_deviceLost=true;}
     return result;

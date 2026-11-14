@@ -670,6 +670,7 @@ vec3 NormalMapNormalGrad(vec3 n, vec3 posW, vec2 uv, vec2 uvx, vec2 uvy)
 vec3 NormalMapNormal(vec3 n, vec3 posW, vec2 uv) { return NormalMapNormalGrad(n, posW, uv, dFdx(uv), dFdy(uv)); }
 
 #include "terrain.glsl"
+#include "rock_objects.glsl"
 
 float NativeTerrainAlpha()
 {
@@ -998,6 +999,7 @@ void main()
                 gLightmapRelief *= mix(1.0,ratio,visibility);
             }
         }
+        n = ObjectRockNormal(n);
         if (D.weather.x>0.0) n=WeatherNormal(n);
         // PBR material: its maps, and the specular lobe the lights below use (lighting.glsl gPbr*). The ground's
         // lighting pass takes its chunk's base texture's material (MAT_BASE), read with the base's coordinates.
@@ -1062,7 +1064,12 @@ void main()
                 gPbrRough = mix(gPbrRough,.075,glass*SurfaceStrength());
                 gPbrMetal = mix(gPbrMetal,0.0,glass);
             }
-            gPbrAlbedo = GlobalSurfaceColour(gPbrAlbedo);
+            gPbrAlbedo = ObjectRockColour(GlobalSurfaceColour(gPbrAlbedo));
+            if(gObjectRockAmount>.001){
+                gPbrRough=mix(gPbrRough,clamp(gObjectRockOrm.g,.78,.98),gObjectRockAmount*.8);
+                gPbrAo*=mix(1.0,gObjectRockOrm.r,gObjectRockAmount*.35);
+                gPbrMetal=0.0;
+            }
             if (D.icc.w > .5) {
                 gPbrRough = max(gPbrRough, terrainMapped ? .82 : .58);
                 gPbrMetal = min(gPbrMetal, terrainMapped ? 0.0 : .45);
@@ -1188,6 +1195,7 @@ void main()
             t0.rgb *= turn * mix(1.0, gParallaxSun, 0.75 * sunShare);
         }
     }
+    t0.rgb=ObjectRockColour(t0.rgb);
     vec4 t1 = C.stageA[0].x != 1u ? Sample(1u) : vec4(0.0);
     if ((D.mat.z & MAT_COMBINED) != 0u && terrainMapped) {
         if (groundOne) t1 = vec4(oneBase, 1.0);

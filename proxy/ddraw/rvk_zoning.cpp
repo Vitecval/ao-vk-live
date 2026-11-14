@@ -24,6 +24,8 @@ GetStatusFn getStatus = nullptr;
 std::atomic<HWND> owner{nullptr};
 std::atomic<bool> enabled{true}, stopping{false}, loading{false};
 std::atomic<bool> initialPicture{true};
+std::atomic<bool> waitForClick{false}, captureInput{false};
+std::atomic<uint64_t> readyGeneration{0}, continuedGeneration{0};
 std::atomic<uint64_t> generation{0}, resetSerial{0}, worlds{0}, loadedWorlds{0}, loadedGeneration{0};
 HANDLE thread = nullptr, painted = nullptr;
 std::string directory;
@@ -32,6 +34,26 @@ struct Picture { int width = 0, height = 0; std::string path; std::vector<uint32
 std::vector<Picture> pictures;
 size_t selected = 0;
 size_t selectedPhrase = rvk::zoning::kLoadingPhraseCount;
+bool showContinue = false;
+float continueOpacity = 1;
+uint64_t pictureSerial = 0;
+
+void PaintContinue(HDC dc, const RECT& art) {
+    if (!showContinue) return;
+    const int size = std::clamp(int(art.right-art.left)/64, 14, 28);
+    HFONT font = CreateFontW(-size,0,0,0,FW_MEDIUM,FALSE,FALSE,FALSE,DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,CLEARTYPE_QUALITY,DEFAULT_PITCH,L"Segoe UI");
+    HGDIOBJ old = SelectObject(dc,font);
+    RECT text{art.left,art.bottom-size-std::max(4L,(art.bottom-art.top)/65),art.right,art.bottom};
+    SetBkMode(dc,TRANSPARENT);
+    constexpr UINT flags=DT_CENTER|DT_TOP|DT_SINGLELINE|DT_NOPREFIX;
+    for(int y=-1;y<=1;++y)for(int x=-1;x<=1;++x)if(x||y){
+        RECT edge=text;OffsetRect(&edge,x,y);SetTextColor(dc,RGB(8,13,18));
+        DrawTextW(dc,L"Click to continue...",-1,&edge,flags);
+    }
+    SetTextColor(dc,RGB(242,242,236));DrawTextW(dc,L"Click to continue...",-1,&text,flags);
+    SelectObject(dc,old);DeleteObject(font);
+}
 
 // Phrase and artwork are painted on this same window, so both share the fade.
 // Keep the complete image; outline the phrase above its baked-in AO wordmark.
@@ -69,6 +91,7 @@ void BeginLoading() {
         ++resetSerial;
         if (!stopping && enabled.load()) {
             if (painted) ResetEvent(painted);
+            readyGeneration = 0;
             ++generation;
             // Give the independent window a bounded chance to paint before AO blocks.
             if (painted) WaitForSingleObject(painted, 50);
@@ -113,6 +136,7 @@ void LoadPictures() {
 
 void SelectPicture(size_t index) {
     if (pictures.empty()) return;
+    ++pictureSerial;
     selected = index % pictures.size();
     if (!pictures[selected].pixels.empty()) return;
     for (auto& picture : pictures) std::vector<uint32_t>().swap(picture.pixels);
@@ -127,7 +151,7 @@ void SelectPicture(size_t index) {
     stbi_image_free(rgba);
 }
 
-void PaintScreen(HDC dc, const RECT& r) {
+RECT PaintScreenBase(HDC dc, const RECT& r) {
     HBRUSH bg = CreateSolidBrush(RGB(18, 27, 34)); FillRect(dc, &r, bg); DeleteObject(bg);
     RECT art = r;
     if (!pictures.empty() && !pictures[selected].pixels.empty()) {
@@ -151,7 +175,59 @@ void PaintScreen(HDC dc, const RECT& r) {
         SelectObject(dc, old); DeleteObject(font);
     }
     PaintPhrase(dc, art, true);
+    return art;
 }
+
+// One retained DIB for the artwork and phrase. Only the small text strip is
+// blended after readiness; the picture is neither cleared nor reselected.
+struct ScreenCanvas {
+    HDC dc=nullptr;HBITMAP bitmap=nullptr;HGDIOBJ old=nullptr;uint32_t* pixels=nullptr;
+    LONG width=0,height=0;uint64_t serial=~0ull;size_t phrase=~size_t(0);
+    RECT prompt{};std::vector<uint32_t> baseText,fullText;
+    ~ScreenCanvas(){Reset();}
+    void Reset(){
+        if(dc){if(old)SelectObject(dc,old);if(bitmap)DeleteObject(bitmap);DeleteDC(dc);}
+        dc=nullptr;bitmap=nullptr;old=nullptr;pixels=nullptr;width=height=0;serial=~0ull;
+        std::vector<uint32_t>().swap(baseText);std::vector<uint32_t>().swap(fullText);
+    }
+    bool Prepare(HDC target,const RECT& r){
+        if(width!=r.right||height!=r.bottom){
+            Reset();dc=CreateCompatibleDC(target);if(!dc)return false;
+            BITMAPINFO info{};info.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+            info.bmiHeader.biWidth=r.right;info.bmiHeader.biHeight=-r.bottom;
+            info.bmiHeader.biPlanes=1;info.bmiHeader.biBitCount=32;info.bmiHeader.biCompression=BI_RGB;
+            void* data=nullptr;bitmap=CreateDIBSection(target,&info,DIB_RGB_COLORS,&data,nullptr,0);
+            if(!bitmap){Reset();return false;}
+            old=SelectObject(dc,bitmap);pixels=static_cast<uint32_t*>(data);width=r.right;height=r.bottom;
+        }
+        if(serial!=pictureSerial||phrase!=selectedPhrase){
+            const RECT art=PaintScreenBase(dc,r);GdiFlush();
+            const LONG size=std::clamp(int(art.right-art.left)/64,14,28);
+            prompt={0,std::max(0L,art.bottom-size-std::max(4L,(art.bottom-art.top)/65)-1),width,std::min(height,art.bottom)};
+            const size_t first=size_t(prompt.top)*width,count=size_t(prompt.bottom-prompt.top)*width;
+            baseText.assign(pixels+first,pixels+first+count);
+            const bool shown=showContinue;showContinue=true;PaintContinue(dc,art);showContinue=shown;GdiFlush();
+            fullText.assign(pixels+first,pixels+first+count);
+            serial=pictureSerial;phrase=selectedPhrase;
+        }
+        return true;
+    }
+    void Paint(HDC target,const RECT& r,const RECT* update){
+        if(!Prepare(target,r)){const RECT art=PaintScreenBase(target,r);PaintContinue(target,art);return;}
+        GdiFlush();
+        const unsigned alpha=showContinue?unsigned(std::clamp(continueOpacity,0.f,1.f)*255.f+.5f):0;
+        uint32_t* text=pixels+size_t(prompt.top)*width;
+        for(size_t i=0;i<baseText.size();++i){
+            const uint32_t a=baseText[i],b=fullText[i];uint32_t colour=a&0xFF000000u;
+            for(unsigned c=0;c<24;c+=8)colour|=((((a>>c)&255u)*(255-alpha)+((b>>c)&255u)*alpha+127)/255)<<c;
+            text[i]=colour;
+        }
+        const RECT& area=update?*update:r;
+        BitBlt(target,area.left,area.top,area.right-area.left,area.bottom-area.top,dc,area.left,area.top,SRCCOPY);
+    }
+} screenCanvas;
+
+void PaintScreen(HDC dc,const RECT& r,const RECT* update=nullptr){screenCanvas.Paint(dc,r,update);}
 
 LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM w, LPARAM l) {
     if (msg == WM_MOUSEACTIVATE) return MA_NOACTIVATE;
@@ -160,7 +236,7 @@ LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM w, LPARAM l) {
     if (msg == WM_PAINT) {
         PAINTSTRUCT ps{}; HDC dc = BeginPaint(h, &ps);
         RECT r{}; GetClientRect(h, &r);
-        PaintScreen(dc, r);
+        PaintScreen(dc, r, &ps.rcPaint);
         EndPaint(h, &ps);
         if (painted) SetEvent(painted);
         return 0;
@@ -180,6 +256,7 @@ DWORD WINAPI WindowMain(void*) {
     SetLayeredWindowAttributes(h, 0, 0, LWA_ALPHA);
     rvk::zoning::Reveal reveal;
     rvk::zoning::Fade fade;
+    rvk::zoning::ReadyFade readyFade;
     rvk::zoning::PhraseRotation phrases;
     LARGE_INTEGER seed{}; QueryPerformanceCounter(&seed);
     std::mt19937 random(uint32_t(seed.QuadPart) ^ uint32_t(seed.QuadPart >> 32) ^ GetCurrentProcessId());
@@ -189,6 +266,8 @@ DWORD WINAPI WindowMain(void*) {
         const uint64_t serial = generation.load();
         if (serial != seen) {
             seen = serial; reveal.Start(GetTickCount64());
+            showContinue = false; readyGeneration = 0;
+            continueOpacity=0;readyFade={};
             SelectPicture(initialPicture.load() ? 0 : size_t(serial-1));
             selectedPhrase = phrases.Next(random);
             InvalidateRect(h, nullptr, FALSE);
@@ -198,7 +277,19 @@ DWORD WINAPI WindowMain(void*) {
         HWND parent = owner.load();
         DWORD foregroundPid = 0; GetWindowThreadProcessId(GetForegroundWindow(), &foregroundPid);
         RECT r{};
-        const float opacity = fade.Step(GetTickCount64(), enabled.load() && reveal.Visible(GetTickCount64(), worlds.load()));
+        const bool wait = waitForClick.load();
+        const auto presented = worlds.load();
+        if (serial && continuedGeneration.load() == serial) reveal.Continue(presented);
+        const bool want = enabled.load() && reveal.Visible(GetTickCount64(),presented,wait);
+        if (!want) reveal.active = false; // Turning the option on later must not resurrect a finished screen.
+        const bool prompt = want && wait && reveal.Ready(presented);
+        const float nextText=readyFade.Step(GetTickCount64(),prompt);
+        const bool repaintText=int(nextText*255.f+.5f)!=int(continueOpacity*255.f+.5f);
+        continueOpacity=nextText;showContinue=readyFade.started;
+        if(repaintText)InvalidateRect(h,screenCanvas.dc?&screenCanvas.prompt:nullptr,FALSE);
+        readyGeneration = prompt ? serial : 0;
+        const float opacity = fade.Step(GetTickCount64(), want);
+        captureInput = wait && (want || opacity > 0);
         bool visible = enabled.load() && opacity > 0 && parent &&
             IsWindow(parent) && IsWindowVisible(parent) && !IsIconic(parent) && foregroundPid == GetCurrentProcessId() &&
             GetClientRect(parent, &r) && r.right > 0 && r.bottom > 0;
@@ -211,15 +302,38 @@ DWORD WINAPI WindowMain(void*) {
                 InvalidateRect(h, nullptr, FALSE);
             }
             if (serial != 0 && painted && WaitForSingleObject(painted, 0) != WAIT_OBJECT_0) InvalidateRect(h, nullptr, FALSE);
-        } else if (shown) ShowWindow(h, SW_HIDE);
+        } else if (shown) {
+            ShowWindow(h, SW_HIDE);
+            if(!want && opacity<=0)screenCanvas.Reset();
+        }
         shown = visible;
         MSG msg{};
         while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) { TranslateMessage(&msg); DispatchMessageW(&msg); }
         MsgWaitForMultipleObjects(0, nullptr, FALSE, 10, QS_ALLINPUT);
     }
-    DestroyWindow(h); pictures.clear();
+    readyGeneration = 0; captureInput = false;
+    screenCanvas.Reset();DestroyWindow(h); pictures.clear();
     return 0;
 }
+}
+
+static bool ZoningInput(HWND window, UINT message, WPARAM key, LPARAM data, bool focused) {
+    const uint64_t ready = readyGeneration.load();
+    if (!window || !IsWindow(window) || !ready || ready != generation.load() || !waitForClick.load() || !enabled.load() ||
+        window != owner.load() || !focused) return false;
+    const bool click = message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN ||
+        message == WM_MBUTTONDOWN || message == WM_XBUTTONDOWN;
+    // Ignore repeats and system shortcuts: holding a travel key through zoning,
+    // switching windows or closing AO must not dismiss the new picture.
+    const bool press = message == WM_KEYDOWN && !(data & (LPARAM(1) << 30)) &&
+        key != VK_SHIFT && key != VK_CONTROL && key != VK_MENU && key != VK_LWIN && key != VK_RWIN;
+    if (!click && !press) return false;
+    continuedGeneration = ready;
+    return true;
+}
+bool ZoningMessage(HWND window, UINT message, WPARAM key, LPARAM data) {
+    const HWND foreground=GetForegroundWindow();
+    return ZoningInput(window,message,key,data,foreground && foreground==GetAncestor(window,GA_ROOT));
 }
 
 #ifndef AOVK_ZONING_FIXTURE
@@ -227,6 +341,9 @@ void ZoningFrame() {
     if (!g_rvk.device || !g_rvk.window) return;
     owner = g_rvk.window;
     enabled = rvk_settings::Get("RVK_ZoneScreen") != 0;
+    waitForClick = rvk_settings::Get("RVK_ZoneClick") != 0;
+    InputBlock(kInputZoning, enabled.load() && waitForClick.load() && captureInput.load(),
+        enabled.load() && waitForClick.load() && captureInput.load());
     if (!loading.load()) initialPicture = g_rvk.device->WorldPresents() == 0;
     const uint64_t currentReset = resetSerial.load();
     worlds = g_rvk.device->TemporalEpoch() == currentReset ? g_rvk.device->FreshWorldPresents() : 0;
@@ -270,6 +387,7 @@ void ZoningFrame() {
 
 void ZoningStop() {
     stopping = true;
+    InputBlock(kInputZoning,false,false);
     owner = nullptr;
     if (thread && WaitForSingleObject(thread, 2000) == WAIT_OBJECT_0) {
         CloseHandle(thread); thread = nullptr;

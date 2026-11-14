@@ -22,7 +22,7 @@ def classify(name):
     if EXCLUDE.search(name): return None
     # Natural mineral surfaces must never inherit a metal or polished-window
     # guess. Shadowlands uses many shared rock and pale temple base atlases.
-    if re.search(r'(^|[_ -])(rock|cliff|boulder|lava|basalt|sandstone|limestone)|shadowlandrock|lavarock|crackedrock|mount\d',name,re.I):
+    if re.search(r'(^|[_ -])(rock|cliff|boulder|lava|basalt|sandstone|limestone)|shadowlandrock|lavarock|crackedrock|tilerock|mount\d',name,re.I):
         return 'mineral'
     if re.search(r'marble|redeemed.*base_texture|overgang_cracked|jobe.*(?:plaster|stone)|wh_tile\d+_white',name,re.I):
         return 'honed-stone'
@@ -62,7 +62,10 @@ def main():
         packed = round(rough * 255) | round(metal * 255) << 8 | kind << 24
         lines.append(f"    {{0x{(x['type'] << 32 | x['id']):016x}ull, 0x{packed:08x}u}},")
     (ROOT / 'rvk/world_material_catalog.inc').write_text('\n'.join(lines) + '\n')
+    rocks=sorted((x['type']<<32|x['id']) for x in catalog if x['profile']=='mineral' or classify(x['name'])=='mineral')
+    (ROOT/'rvk/rock_material_catalog.inc').write_text('// Generated natural rock identities; shared cliff material, no per-rock images.\n'+''.join(f'    0x{k:016x}ull,\n' for k in rocks))
     print(f'{len(catalog)} architecture material assignments; zero additional texture images')
+    print(f'{len(rocks)} natural rock surface identities')
 
 
 if __name__ == '__main__': main()

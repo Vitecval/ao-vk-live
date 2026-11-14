@@ -231,22 +231,42 @@ std::shared_ptr<Device::RockMaps> Device::DecodeRock()
 void Device::PollTerrainRock()
 {
     const bool stones = SharedGroundPlus() && m_native.pebbles > 0.0f;
-    if (m_rock.albedo || (!stones && (!m_terrainSettings.rock || m_terrainSettings.cliff <= 0.0f))) return;
+    if (m_rock.albedo || (!stones && m_enhancedRocks<=0 && (!m_terrainSettings.rock || m_terrainSettings.cliff <= 0.0f))) return;
     if (!m_rock.started) {
         m_rock.started = true;
-        m_rock.pending = std::async(std::launch::async, DecodeRock);
+        try { m_rock.pending = std::async(std::launch::async, DecodeRock); }
+        catch (const std::exception& e) { Log("terrain: rock decode unavailable; original materials retained: %s", e.what()); }
         return;
     }
     if (!m_rock.pending.valid() || m_rock.pending.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
         return;
-    std::shared_ptr<RockMaps> r = m_rock.pending.get();
+    std::shared_ptr<RockMaps> r;
+    try { r = m_rock.pending.get(); }
+    catch (const std::exception& e) {
+        Log("terrain: rock decode failed; original materials retained: %s", e.what());
+        return;
+    }
+    if (!r) return;
     if (!r->error.empty() || r->albedo.Empty()) {
         Log("terrain: the cliffs' rock couldn't be read: %s", r->error.c_str());
         return;
     }
-    m_rock.normal = maps::Upload(*this, r->normal);
-    m_rock.orm = maps::Upload(*this, r->orm);
-    m_rock.albedo = maps::Upload(*this, r->albedo);
+    Texture* normal = nullptr;
+    Texture* orm = nullptr;
+    Texture* albedo = nullptr;
+    try {
+        normal = maps::Upload(*this, r->normal);
+        orm = maps::Upload(*this, r->orm);
+        albedo = maps::Upload(*this, r->albedo);
+    } catch (const std::bad_alloc&) {}
+    if (!normal || !orm || !albedo) {
+        for (Texture* t : {normal, orm, albedo}) if (t) DestroyTexture(t);
+        Log("terrain: rock upload unavailable; original materials retained");
+        return;
+    }
+    m_rock.normal = normal;
+    m_rock.orm = orm;
+    m_rock.albedo = albedo;
     const uint32_t mean = r->albedo.levels.back()[0];   // (the 1 x 1 level)
     for (int c = 0; c < 3; ++c) m_rock.mean[c] = float(mean >> (16 - 8 * c) & 0xFFu) / 255.0f;
     m_frameLightsDirty = true;
@@ -260,11 +280,13 @@ void Device::FillTerrainRockLights(float rock[4], float rock2[4])
 {
     std::memset(rock, 0, 4 * sizeof(float));
     std::memset(rock2, 0, 4 * sizeof(float));
-    if (!m_rock.albedo || (!TerrainRockOn() && !SharedGroundPlus())) return;
+    if (!m_rock.albedo || (!TerrainRockOn() && !SharedGroundPlus() && m_enhancedRocks<=0)) return;
     const uint32_t slots[3] = {BindlessImage(m_rock.albedo) + 1, BindlessImage(m_rock.normal) + 1,
                                BindlessImage(m_rock.orm) + 1};
     std::memcpy(rock, slots, sizeof(slots));
-    rock[3] = kRockUnits;
+    // A negative span exposes shared images to object rocks while keeping the
+    // terrain's rock-off path unchanged (TerrainRockOn checks a positive span).
+    rock[3] = (TerrainRockOn() || SharedGroundPlus()) ? kRockUnits : -kRockUnits;
     for (int c = 0; c < 3; ++c) rock2[c] = m_rock.mean[c];
     rock2[3] = m_normalMaps ? m_normalStrength : 0.0f;
 }

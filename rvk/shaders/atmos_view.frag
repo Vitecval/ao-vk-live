@@ -10,7 +10,7 @@
 
 layout(set = 0, binding = 0) uniform sampler2D transmittance;
 layout(set = 0, binding = 1) uniform sampler2D multiScatter;
-layout(push_constant) uniform Push {
+layout(std140, set = 0, binding = 4) uniform Push {
     vec4 size;          // the table's width, height; z w: the air's tune (Mie, ozone)
     vec4 sun;           // towards the sun (world, below the horizon too); w the eye's height (km)
     vec4 moon;          // towards the moon; w its light (0: none)

@@ -18,6 +18,16 @@ int main() {
     if (!reveal.Visible(60002, 903) || reveal.Visible(60002, 904)) return 7;
     reveal.Start(70000);
     if (!reveal.Visible(159999, 0) || reveal.Visible(160000, 0)) return 8;
+    reveal.Start(200000);
+    if(reveal.Continue(100))return 16; // Input during loading cannot skip readiness.
+    reveal.Loaded(100);
+    if(reveal.Ready(103) || reveal.Continue(103))return 17;
+    if(!reveal.Ready(104) || !reveal.Visible(200001,104,true) || reveal.Visible(200001,104))return 18;
+    if(!reveal.Visible(600000,104,true))return 19; // An optional ready screen waits indefinitely.
+    if(!reveal.Continue(104) || reveal.Visible(600001,104,true))return 20;
+    reveal.Start(700000);reveal.Loaded(200);
+    if(reveal.dismissed || !reveal.Visible(700001,203,true) || !reveal.Visible(700002,204,true))return 21;
+    if(!reveal.Visible(700003,199,true))return 22; // A reset counter is not an unsigned-wrap ready signal.
     rvk::zoning::Fade fade;
     if (fade.Step(1000, true) != 0) return 9;
     const float halfIn = fade.Step(1090, true);
@@ -26,6 +36,11 @@ int main() {
     fade.Step(1500, true); fade.Step(1590, true);
     if (fade.Step(1590, false) != .5f || fade.Step(1590, true) != .5f) return 12;
     if (fade.Step(2000, true) != 1) return 13;
+    rvk::zoning::ReadyFade textFade;
+    if(textFade.Step(1000,false)!=0 || textFade.Step(2000,true)!=0)return 23;
+    if(textFade.Step(2450,true)!=.5f || textFade.Step(2900,true)!=1)return 24;
+    if(textFade.Step(3000,false)!=1)return 25; // Keep text while the whole screen fades out.
+    textFade={};if(textFade.Step(4000,false)!=0 || textFade.started)return 26;
     static_assert(rvk::zoning::kLoadingPhraseCount == 50);
     for (unsigned seed = 0; seed < 100; ++seed) {
         std::mt19937 random(seed);
@@ -44,4 +59,6 @@ int main() {
     std::puts("50 loading phrases shuffle without repeats, including across deck boundaries");
     std::puts("smooth 180ms fade-in and 320ms fade-out preserve opacity across reversals");
     std::puts("zoning reveal holds through stalls, waits for four fresh world presentations, restarts and times out");
+    std::puts("optional click-to-continue ignores early input, holds after readiness and resets on every transition");
+    std::puts("ready text alone fades in over 900ms and stays with the picture during dismissal");
 }

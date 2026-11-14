@@ -56,7 +56,7 @@ def stage(a):
    dst=folder/rel
    if dst.exists() and sha(dst)!=sha(p):dst.unlink()
    assets[rel]=put(p,rel)
-  for key in ['materialParts','materialDownload','materialSourceVersion','preparedMaterials','iccArtwork','candidateRevision','artworkRefinements']:
+  for key in ['materialParts','materialDownload','materialSourceVersion','preparedMaterials','iccArtwork','candidateRevision','artworkRefinements','enhancedRockSurfaces']:
    m.pop(key,None)
   if edition=='full':
    # Keep pinned license/provenance metadata, then use complete current pack

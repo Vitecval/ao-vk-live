@@ -175,6 +175,7 @@ private:
     uint32_t m_thumbW = 0, m_thumbH = 0;
     bool m_thumbValid = false;
     std::vector<uint8_t> m_grassMask;   // grass coverage: at most 2048 bytes; all-zero masks need no allocation
+    std::vector<uint8_t> m_oliveGrassMask; // extra olive-only bits; identity may be assigned after pixel upload
     uint32_t m_grassMaskSide = 0;
     float m_mean[3] = {-1.0f, -1.0f, -1.0f};   // its mean colour (0..1; from the grid above, -1 until then): the cliffs'
                                                // rock tinted to a ground cell's tile (terrain.cpp)
@@ -267,6 +268,8 @@ struct DeviceInfo {
     X(TerrainHD, m_terrainHD, C|L)                /* global original-mesh terrain detail, 0..1 */ \
     X(TerrainFar, m_terrainFar, C|L)              /* filtered distant land composition, 0..1 */ \
     X(BuildingHD, m_buildingHD, C|L)              /* global architecture material/detail pass, 0..1 */ \
+    X(EnhancedRocks, m_enhancedRocks, C|L)         /* shared photographic rock material on original rock meshes */ \
+    X(RockShape, m_rockShape, C|L)                /* bounded nearby stone geometry */ \
     X(FarHaze, m_farHaze, C|L)                   /* distant outdoor horizon veil, 0..1 */ \
     X(HazeStart, m_hazeStart, C|L)               /* nearby scenery stays clear */ \
     X(HazeEnd, m_hazeEnd, C|L)                   /* veil reaches its selected strength */ \
@@ -1089,6 +1092,7 @@ public:
 private:
     friend struct LivingRuntimeProbe;
     friend struct SkinLifetimeCheck;
+    friend struct StabilityAuditCheck;
     friend struct SmokeRingCheck;                 // regression fixture: force a flush at the smoke pass
     struct Frame {
         VkCommandBuffer upload = VK_NULL_HANDLE, main = VK_NULL_HANDLE;
@@ -1155,6 +1159,7 @@ private:
     bool CreateLogicalDevice(std::string* error);
     bool CreateMainTargets(std::string* error);
     void DestroyMainTargets();
+    bool RecreateMainTargets(uint32_t width,uint32_t height,uint32_t scale);
     bool CreateSceneTargets();                   // (RVK_RenderScale's size)
     void DestroySceneTargets();                  // ... and both depth images
     bool CreateSwapchain(std::string* error);
@@ -1193,6 +1198,8 @@ private:
     bool m_autoMaterials = false;
     float m_materialStrength = 1.0f;
     float m_terrainHD = 0.0f, m_buildingHD = 0.0f;
+    float m_enhancedRocks = 0.0f;
+    float m_rockShape = 0.0f;
     float m_farHaze=0.0f, m_hazeStart=400.0f, m_hazeEnd=1200.0f;
     float m_terrainFar=1.0f;
     float m_lightHeadroom = 1.0f;
@@ -2066,6 +2073,13 @@ private:
     std::vector<TessCharacter> m_tessChars, m_tessCharsPrev;   // animated characters' boxes: this / last frame
     bool SmoothNormals(const void* vertices, uint32_t vertexCount, const detail::FvfLayout& layout);
     std::vector<float> m_smoothNormals;          // the draw's averaged normals (binding 10)
+    struct RockTopology {std::vector<uint32_t> borders;uint64_t used=0;};
+    std::unordered_map<uint64_t,RockTopology> m_rockTopology;
+    uint64_t m_rockShapeFrame=~0ull;
+    uint32_t m_rockShapeDraws=0,m_rockShapeTriangles=0,m_rockShapeBound=0;
+    bool RockShapeDraw(uint32_t primitive,uint32_t fvf,const detail::FvfLayout& layout,const void* vertices,
+        uint32_t vertexCount,const uint16_t* indices,uint32_t indexCount,detail::DrawTransform& dt,
+        VkBuffer& buffer,VkDeviceSize& offset,VkDeviceSize& bytes);
     std::vector<int32_t> m_smoothTable;          // their position hash table
     // Skinned pieces: which vertices share a position (the first of each), found once per mesh in its rest pose.
     struct SmoothOwners { std::shared_ptr<const skin::Source> source; std::vector<int32_t> owner; uint64_t lastFrame = 0; };
@@ -2230,7 +2244,7 @@ private:
         uint64_t firstFrame, lastFrame;
         bool diffuseAlphaOne = true, specularAlphaOne = true;   // every vertex colour's alpha byte is 255 (pre-pass)
         mutable int8_t flatShape = -1;           // SwayParams: 1 = one plane (a sign, a card), 0 = not, -1 = not looked at
-        uint64_t geo = 0, raw = 0;               // mesh ids (meshids.cpp): its geometry's hashes (0: not a static piece)
+          uint64_t geo = 0, raw = 0;               // mesh ids (meshids.cpp): its geometry's hashes (0: not a static piece)
         uint32_t idCandidates = 0;               // ... the pieces in the table with its geometry
         bool rawSame = false;                    // ... one of them has its vertex bytes too
         bool skyScenery = false;                 // ... a mesh of the sky's scenery (the ships over the cities: mesh_id.h
@@ -2300,6 +2314,7 @@ private:
     // Static geometry on the GPU (static_gpu.cpp): shared vertex snapshots in a chunked arena (M0), so every one
     // has a stable (buffer, offset) an indirect draw can reference. Indices stay in the ring.
     struct ArenaChunk {
+        VkDeviceSize hostAtom = 1;              // isolate noncoherent CPU-written caster slots
         VkBuffer buffer = VK_NULL_HANDLE;
         VmaAllocation_T* allocation = nullptr;
         uint8_t* mapped = nullptr;               // the caster arena's (host memory); null for the static arena
@@ -2323,6 +2338,7 @@ private:
         std::shared_ptr<const std::vector<uint8_t>> vertices, indices;
         size_t byteOffset = 0;
         uint32_t primitive = 0, fvf = 0, vertexCount = 0, indexCount = 0;
+        uint64_t indexHash = 0;                 // immutable registered index range, not just its length
         uint64_t resolvedFrame = 0, generation = 0;
         StaticGeometry* vertexEntry = nullptr;
         StaticGeometry* indexEntry = nullptr;    // null: resolved, but not in the arena (drawn through the ring)
@@ -2473,7 +2489,7 @@ private:
     GrassTile* GrassTileAt(int32_t tx, int32_t tz) const;
     // The terrain chunks seen (by contents, pass and texture): their ground box and when they were last captured, so
     // an unchanged chunk over tiles that already have it is skipped whole.
-    struct GrassChunk { float box[4] = {}; bool boxed = false; uint64_t processed = 0, lastSeen = 0, firstSeen = 0; };
+    struct GrassChunk { float box[4] = {}; bool boxed = false; uint64_t processed = 0, lastSeen = 0, firstSeen = 0, surfaceStamp = 0; };
     std::unordered_map<uint64_t, GrassChunk> m_grassChunks;
     // Per-object frame cache (objects.cpp; docs/render-batching-plan.md P1): a static mesh drawn at a world matrix - one
     // of the game's objects - keeps what its draws work out from those two alone, so its next frames' draws look it up
@@ -2626,6 +2642,7 @@ private:
     bool EnsureGrassIndices(uint32_t blades);
     void UpdateGrassTiles();
     void DestroyGrassTiles();
+    uint32_t GrassTileBaseVertex(VkCommandBuffer cmd,VkPipelineLayout layout,const GrassTile& tile,uint32_t& boundFirst);
     void DrawGrassTiles(VkCommandBuffer cmd);      // the blades into the rendering already active on the scene
     void RenderGrassField(VkCommandBuffer cmd);    // ... on its own, at the end of the scene (nothing blended was drawn)
     // The blades into the sun's nearest cascade (RVK_GrassShadow), after its casters: lightViewProj its matrix, texel
@@ -2991,6 +3008,7 @@ private:
     float m_sheetTint[4] = {}, m_sheetSky[4] = {}, m_sheetAir[4] = {};
     bool m_cloudsDrawn = false;                  // drawn this frame (where the sky ended)
     bool m_drawIsCloudPuff = false;              // the current visual is a cloud puff (SetDrawVisual)
+    bool m_drawIsWeather = false;                // native clouds/bolts/glow never cast or receive world shadows
     bool m_cloudNoiseMade = false;
     VkImage m_cloudNoise = VK_NULL_HANDLE;
     VmaAllocation_T* m_cloudNoiseAllocation = nullptr;
@@ -3292,6 +3310,8 @@ private:
     // RVK_RenderScale: wanted, and what the scene's targets are made at now (100 without TAA). ApplyRenderScale (at
     // a frame's start) recreates them when the two differ.
     uint32_t m_renderScaleWanted = 100, m_renderScale = 100;
+    uint32_t m_renderScaleRejected = 0;
+    uint64_t m_renderScaleRetryFrame = 0;
     // Frames with no 3D at all (loading screens) are drawn at full size after a second of them: what is in them is
     // the interface and 2D pictures, which the upscaling would only soften. Scaled again at the first 3D frame.
     uint32_t RenderScaleNow() const { return TaaActive() && m_framesWithout3D < 60 ? m_renderScaleWanted : 100u; }

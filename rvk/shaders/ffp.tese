@@ -11,6 +11,7 @@
 #include "constants.glsl"
 #include "ffp_varyings.glsl"
 #include "terrain_rock.glsl"
+#include "rock_shape.glsl"
 
 invariant gl_Position;
 
@@ -27,6 +28,7 @@ FFP_VARYINGS(IN)
 FFP_VARYINGS(OUT)
 // The draw's record index: one patch value from the control stage, passed flat to the fragment shader.
 layout(location = 15) patch in uint tRecord;
+layout(location = 16) patch in uint tRockEdges;
 layout(location = 15) flat out uint vRecord;
 
 void main()
@@ -43,7 +45,26 @@ void main()
         pull += b[i] * weight * (-dot(p - t_vPosW[i], n) * n);   // towards corner i's tangent plane
     }
     vec3 posW;
-    if (floatBitsToUint(D.terrain.y) != 0u) {
+    vec3 previousDelta=vec3(0.0);
+    if((D.mat.z&MAT_ROCK_SHAPE)!=0u){
+        vec3 a=t_vPosW[0],c=t_vPosW[2],q=t_vPosW[1];
+        vec3 na=t_vNormalW[0].xyz,nb=t_vNormalW[1].xyz,nc=t_vNormalW[2].xyz;
+        posW=RockPoint(b,a,q,c,tRockEdges,C.eyePos.xyz,na,nb,nc);
+        // Finite differences use centimetres in world space: fixed tiny
+        // barycentric steps become noisy at AO's kilometre-scale coordinates.
+        float epsilon=clamp(.025/max(max(length(q-a),length(c-a)),.001),.0001,.05);
+        vec3 u=RockPoint(b+vec3(epsilon,-epsilon,0.0),a,q,c,tRockEdges,C.eyePos.xyz,na,nb,nc)-posW;
+        vec3 v=RockPoint(b+vec3(epsilon,0.0,-epsilon),a,q,c,tRockEdges,C.eyePos.xyz,na,nb,nc)-posW;
+        vec3 previousEye=-(transpose(mat3(FL.prevView))*FL.prevView[3].xyz);
+        previousDelta=RockPoint(b,a,q,c,tRockEdges,previousEye,na,nb,nc)-p;
+        vec3 faceNormal=cross(q-a,c-a),bent=cross(u,v);
+        if(dot(faceNormal,faceNormal)>1e-14 && dot(bent,bent)>1e-20){
+            faceNormal=normalize(faceNormal);bent=normalize(bent);
+            vec3 reference=dot(vNormalW.xyz,vNormalW.xyz)>1e-8?normalize(vNormalW.xyz):faceNormal;
+            if(dot(faceNormal,reference)<0.0){faceNormal=-faceNormal;bent=-bent;}
+            vNormalW=vec4(normalize(reference+bent-faceNormal),1.0);
+        }
+    }else if (floatBitsToUint(D.terrain.y) != 0u) {
         const float fade = 1.0 - smoothstep(0.5 * D.tess.z, D.tess.z, distance(p, C.eyePos.xyz));
         // A crease (a cliff's foot or rim: its ends' normals far apart) isn't rounded - Phong's shape overshoots there
         // into lips and spikes; gentle ground is. Per edge, from its ends alone (both triangles beside it agree), blended
@@ -69,6 +90,7 @@ void main()
         posW = p + D.tess.y * pull;
     }
     vec3 delta = posW - p;
+    if((D.mat.z&MAT_ROCK_SHAPE)==0u)previousDelta=delta;
     // vPosW (lighting, shadow lookups) stays on the flat triangles: the shadow maps hold the untessellated mesh, and a
     // rounded point pulled inside it would find itself shadowed by its own body. The light barely differs.
     vPosW = p;
@@ -77,6 +99,6 @@ void main()
     vClip = gl_Position;                         // motion vectors: without the jitter
     if ((C.flags.x & F_HDR) != 0u)
         gl_Position.xy += FL.taa.xy * gl_Position.w;
-    vPrevClip += FL.prevProj * (FL.prevView * vec4(delta, 0.0));
+    vPrevClip += FL.prevProj * (FL.prevView * vec4(previousDelta, 0.0));
     vFogDist = (C.flags.x & F_RANGEFOG) != 0u ? length(pv.xyz) : abs(pv.z);
 }

@@ -16,6 +16,17 @@ FFP_VARYINGS(OUT)
 // The draw's record index: the vertex shader's per-vertex flat output, handed to the eval stage as one patch value.
 layout(location = 15) flat in uint vRecord[];
 layout(location = 15) patch out uint tRecord;
+layout(location = 16) patch out uint tRockEdges;
+layout(set=0,binding=10,std430) readonly buffer RockBorders {uint edges[];} RB;
+
+float RockEdgeLevel(vec3 a,vec3 b)
+{
+    vec3 edge=b-a;float length2=dot(edge,edge);
+    float along=length2>1e-12?clamp(dot(C.eyePos.xyz-a,edge)/length2,0.0,1.0):0.0;
+    float d=distance(a+along*edge,C.eyePos.xyz);
+    float near=1.0-clamp(d/max(D.tess.z,1.0),0.0,1.0);
+    return clamp(1.0+(sqrt(length2)/(.45+.035*d)-1.0)*near,1.0,D.tess.x);
+}
 
 // The native ground: an edge's segments - about a third of a unit up close, longer further out, none (1) by the fade
 // distance (D.tess.z), none where both ends are gentle (ffp.tese leaves ground one can stand on flat: na, nb their
@@ -45,6 +56,17 @@ void main()
     tRecord = vRecord[0];
     FFP_VARYINGS(COPY)
     if (gl_InvocationID == 0) {
+        tRockEdges=0u;
+        if((D.mat.z&MAT_ROCK_SHAPE)!=0u){
+            tRockEdges=RB.edges[gl_PrimitiveID];
+            if(GroundOutOfView()){
+                gl_TessLevelOuter[0]=gl_TessLevelOuter[1]=gl_TessLevelOuter[2]=gl_TessLevelInner[0]=0.0;return;
+            }
+            gl_TessLevelOuter[0]=RockEdgeLevel(vPosW[1],vPosW[2]);
+            gl_TessLevelOuter[1]=RockEdgeLevel(vPosW[2],vPosW[0]);
+            gl_TessLevelOuter[2]=RockEdgeLevel(vPosW[0],vPosW[1]);
+            gl_TessLevelInner[0]=max(max(gl_TessLevelOuter[0],gl_TessLevelOuter[1]),gl_TessLevelOuter[2]);return;
+        }
         if (floatBitsToUint(D.terrain.y) != 0u) {
             if (GroundOutOfView()) {
                 gl_TessLevelOuter[0] = gl_TessLevelOuter[1] = gl_TessLevelOuter[2] = gl_TessLevelInner[0] = 0.0;

@@ -460,7 +460,9 @@ void main()
         vPosW = posW.xyz;
         vNormalW = vec4(normalW, length(normalW));
 #ifndef RVK_LEAF
-        if (D.tess.x > 0.5 && floatBitsToUint(D.terrain.y) != 0u) {
+        if(D.tess.x>.5 && (D.mat.z&MAT_ROCK_SHAPE)!=0u){
+            vSmoothN=normalW; // rock topology occupies binding 10, not character normals
+        }else if (D.tess.x > 0.5 && floatBitsToUint(D.terrain.y) != 0u) {
             vSmoothN = normalize(normalW);       // the native ground: its normals are the heights' own, smooth
         } else if (D.tess.x > 0.5) {
             // Direction: the averaged normal in the world; length: how smooth the surface is at this corner (the

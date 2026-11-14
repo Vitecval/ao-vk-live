@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
+#include <stdexcept>
 
 namespace rnative::vc10 {
 
@@ -26,8 +27,8 @@ struct Vector {
     T* last;
     T* end;
     uint32_t allocator;
-    size_t size() const { return size_t(last - first); }
-    size_t capacity() const { return size_t(end - first); }
+    size_t size() const { return first ? size_t(last - first) : 0; }
+    size_t capacity() const { return first ? size_t(end - first) : 0; }
     T& operator[](size_t i) { return first[i]; }
     const T& operator[](size_t i) const { return first[i]; }
     T* begin() { return first; }
@@ -35,6 +36,7 @@ struct Vector {
     // Trivially copyable elements only (the vectors handled here hold pointers and plain records).
     void reserve(size_t n)
     {
+        if(n>SIZE_MAX/sizeof(T))throw std::length_error("native vector capacity overflow");
         if (n <= capacity()) return;
         size_t count = size();
         T* p = static_cast<T*>(Allocate(n * sizeof(T)));
@@ -47,8 +49,16 @@ struct Vector {
     void push_back(const T& v)
     {
         if (last == end) {                          // VS2010's _Grow_to: half again, at least one more
-            size_t grown = capacity() + capacity() / 2;
-            reserve(grown < size() + 1 ? size() + 1 : grown);
+            const size_t limit=SIZE_MAX/sizeof(T), count=size(), cap=capacity();
+            if(count>=limit)throw std::length_error("native vector capacity overflow");
+            // v may refer to an element in this allocation, which reserve frees.
+            alignas(T) unsigned char value[sizeof(T)];
+            std::memcpy(value,&v,sizeof(T));
+            const size_t grown=cap>limit-cap/2 ? limit:cap+cap/2;
+            reserve(grown<count+1 ? count+1:grown);
+            std::memcpy(static_cast<void*>(last),value,sizeof(T));
+            ++last;
+            return;
         }
         std::memcpy(static_cast<void*>(last), &v, sizeof(T));
         ++last;

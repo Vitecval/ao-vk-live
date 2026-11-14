@@ -5,9 +5,9 @@
 // workgroup a volume; the result read by the CPU when this frame slot comes round again.
 layout(local_size_x = 16, local_size_y = 16) in;
 layout(push_constant) uniform Params {
-    vec4 info;          // xy: the scene's size
+    vec2 info;          // the scene's size
+    float nearest[6];  // each volume's nearest depth (0..1, as the depth buffer)
     vec4 rect[6];       // each volume's rectangle on the screen (pixels: x0 y0 x1 y1)
-    vec4 nearest[2];    // each volume's nearest depth (0..1, as the depth buffer), 6 of the 8
 } P;
 layout(binding = 0) uniform sampler2D sceneDepth;
 layout(binding = 1) buffer Out { uint shown[8]; } O;
@@ -22,7 +22,7 @@ void main()
     const vec4 r = P.rect[k];
     const vec2 p = mix(r.xy, r.zw, (vec2(gl_LocalInvocationID.xy) + 0.5) / 16.0);
     const ivec2 at = ivec2(clamp(p, vec2(0.0), P.info.xy - 1.0));
-    if (texelFetch(sceneDepth, at, 0).r > P.nearest[k / 4u][k % 4u])
+    if (texelFetch(sceneDepth, at, 0).r > P.nearest[k])
         atomicOr(s_shown, 1u);
     barrier();
     if (gl_LocalInvocationIndex == 0u)

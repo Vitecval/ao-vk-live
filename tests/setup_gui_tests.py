@@ -23,10 +23,13 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 def main():
+    global VERSION
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--release-version',choices=['0.6.0-preview.21','0.6.0-preview.23','0.6.0-preview.24'],default=VERSION)
     parser.add_argument('--tools', type=Path, default=ROOT / 'tools')
     args = parser.parse_args()
+    VERSION=args.release_version
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     run = output / ('run-' + uuid.uuid4().hex[:10])
@@ -67,7 +70,7 @@ def main():
         assets = {}
         # Exceed the exact 250-file preflight boundary which failed in Full HD.
         for index in range(260):
-            name = f'randy-vk/packs/ao-cyber-world/1010004_{index}_d.png'
+            name = (f'randy-vk/loading/gui-{index}.png' if edition=='lite' else f'randy-vk/packs/ao-cyber-world/1010004_{index}_d.png')
             target = package / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(f'dummy material {index}'.encode())

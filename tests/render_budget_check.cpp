@@ -1,10 +1,17 @@
 #include "render_budget.h"
+#include "material_profiles.h"
 #include "area_profiles.h"
 #include "ambient_policy.h"
 #include <cassert>
 #include <cstdio>
 int main() {
     using namespace rvk::budget;
+    for(uint32_t id:{5955u,9863u,205836u,214375u,205675u,205838u,202640u}) {
+        assert(rvk::materials::NaturalRock(1010004,id));
+        assert(rvk::materials::NaturalRock(1010016,id));
+        assert(!rvk::materials::NaturalRock(1010011,id));
+    }
+    assert(!rvk::materials::NaturalRock(1010004,0));
     assert(SmokeCells(128,0,8)==128);
     assert(SmokeCells(128,1.5f,8)==48);
     assert(SmokeCells(128,1.5f,50)==32);
@@ -20,6 +27,13 @@ int main() {
     assert(MaterialExcess(3465ull<<20,7221ull<<20)==0); // real frame: main heap healthy
     assert(MaterialExcess(214ull<<20,171ull<<20)>0);   // BAR pressure must not drive image eviction
     assert(MaterialExcess(7000ull<<20,7221ull<<20)>0);
+    assert(MaterialExcess(4977ull<<20,5691ull<<20)==0); // flying-session churn with >700 MiB headroom
+    assert(MaterialExcess(5300ull<<20,5691ull<<20)>0); // actual pressure still trims
+    assert(MaterialExcess(5364ull<<20,5674ull<<20,5295ull<<20,2597ull<<20)==0); // captured flight: reusable blocks
+    assert(MaterialExcess(5684ull<<20,5682ull<<20,5615ull<<20,3367ull<<20)==0); // looking-up capture
+    assert(MaterialExcess(7000ull<<20,7221ull<<20,6900ull<<20,6800ull<<20)>0); // actual live pressure
+    assert(MaterialExcess(100,100,1,2)==12); // inconsistent statistics cannot underflow
+    assert(MaterialExcess(100,0,200,0)==0);
     const uint64_t uma[]={16ull<<30};const bool unified[]={true};
     assert(MaterialHeap(uma,unified,1)==0);
     using namespace rvk::ambient;

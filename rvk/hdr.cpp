@@ -157,6 +157,7 @@ bool Device::CreateHdrResources(std::string* error)
         VkDescriptorSetLayoutBinding b[kTonemapInputs];
         for (uint32_t i = 0; i < kTonemapInputs; ++i)
             b[i] = {i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
+        b[4] = {4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
         VkDescriptorSetLayoutCreateInfo sl{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
         sl.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
         sl.bindingCount = count;
@@ -164,9 +165,9 @@ bool Device::CreateHdrResources(std::string* error)
         return Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, out), "post set layout", error);
     };
     auto pipelineLayout = [&](VkDescriptorSetLayout set, VkPipelineLayout* out) {
-        // (256: the tone mapping's air (RVK_Atmos), sand haze and gusts - past Vulkan's guaranteed 128; desktop GPUs
-        // give 256.)
-        VkPushConstantRange push{VK_SHADER_STAGE_FRAGMENT_BIT, 0, 256};   // (256: + the storm's distant gusts)
+        // All remaining post push blocks fit Vulkan's guaranteed 128 bytes.
+        // The larger tone-mapping parameters use a uniform-buffer slice.
+        VkPushConstantRange push{VK_SHADER_STAGE_FRAGMENT_BIT, 0, 128};
         VkPipelineLayoutCreateInfo pl{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
         pl.setLayoutCount = 1;
         pl.pSetLayouts = &set;
@@ -174,40 +175,39 @@ bool Device::CreateHdrResources(std::string* error)
         pl.pPushConstantRanges = &push;
         return Check(vkCreatePipelineLayout(m_device, &pl, nullptr, out), "post pipeline layout", error);
     };
-    if (m_props.limits.maxPushConstantsSize < 192)
-        Log("post: this GPU allows %u bytes of push constants, the tone mapping needs 192 (RVK_Atmos, sand): expect errors",
-            m_props.limits.maxPushConstantsSize);
     // (The tone mapping: its images and, at kTonemapInputs, the frame lights - the lightning's flash.)
     auto tonemapSetLayout = [&](VkDescriptorSetLayout* out) {
-        VkDescriptorSetLayoutBinding b[kTonemapInputs + 2];
+        VkDescriptorSetLayoutBinding b[kTonemapInputs + 3];
         for (uint32_t i = 0; i < kTonemapInputs; ++i)
             b[i] = {i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
         b[kTonemapInputs] = {kTonemapInputs, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
         // (16: the rain layer - rain.cpp m_rainNear.)
         b[kTonemapInputs + 1] = {kTonemapInputs + 1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
+        b[kTonemapInputs + 2] = {kTonemapInputs + 2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
         VkDescriptorSetLayoutCreateInfo sl{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
         sl.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-        sl.bindingCount = kTonemapInputs + 2;
+        sl.bindingCount = kTonemapInputs + 3;
         sl.pBindings = b;
         return Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, out), "tone mapping set layout", error);
     };
     if (!tonemapSetLayout(&m_tonemapSetLayout) || !pipelineLayout(m_tonemapSetLayout, &m_tonemapLayout) ||
-        !setLayout(4, &m_bloomSetLayout) || !pipelineLayout(m_bloomSetLayout, &m_bloomLayout))
+        !setLayout(5, &m_bloomSetLayout) || !pipelineLayout(m_bloomSetLayout, &m_bloomLayout))
         return false;
     {
         // Volumetric light: depth, the sun shadow cascades, the clouds' shadow map (clouds.cpp), the terrain's shade
         // from a low sun (terrain_sun.cpp), the frame lights (binding 4, as in the scene shaders); the sand fog's
         // shelter (binding 5, sand_map.cpp SandFogShelter).
-        VkDescriptorSetLayoutBinding b[6] = {
+        VkDescriptorSetLayoutBinding b[7] = {
             {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
             {1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
             {2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
             {3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
             {4, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
-            {5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
+            {5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+            {6, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
         VkDescriptorSetLayoutCreateInfo sl{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
         sl.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-        sl.bindingCount = 6;
+        sl.bindingCount = 7;
         sl.pBindings = b;
         if (!Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, &m_volumeSetLayout), "volume set layout", error) ||
             !pipelineLayout(m_volumeSetLayout, &m_volumeLayout))
@@ -706,6 +706,7 @@ void Device::MakeDepthReadable(VkCommandBuffer cmd)
 void Device::TonemapInputsPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pipeline, Texture* scene, bool bloom, bool ao,
                                bool gi, bool volume, const float params[16])
 {
+    EnsureRingSpace(256 + m_props.limits.minUniformBufferOffsetAlignment);
     Transition(cmd, dst, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     Transition(cmd, m_glow, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);   // (binding 12: the effects' share, for TAA)
     if (m_rainNear && m_rainNearFrame == m_frameNumber)
@@ -752,7 +753,7 @@ void Device::TonemapInputsPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pip
                                        {m_pointSampler, m_sandFogValid ? m_sandFogTex[1]->m_view : m_scene->m_view,
                                         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL}};
     static_assert(sizeof(images) / sizeof(images[0]) == kTonemapInputs, "occlusion.glsl bindings");
-    VkWriteDescriptorSet w[kTonemapInputs + 2] = {};
+    VkWriteDescriptorSet w[kTonemapInputs + 3] = {};
     for (uint32_t i = 0; i < kTonemapInputs; ++i) {
         w[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         w[i].dstBinding = i;
@@ -777,7 +778,6 @@ void Device::TonemapInputsPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pip
     w[kTonemapInputs + 1].descriptorCount = 1;
     w[kTonemapInputs + 1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     w[kTonemapInputs + 1].pImageInfo = &rainInfo;
-    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_tonemapLayout, 0, kTonemapInputs + 2, w);
     float push[64] = {};
     std::memcpy(push, params, 16 * sizeof(float));
     if (depthView == m_depthView && m_aoProjValid) {
@@ -786,7 +786,17 @@ void Device::TonemapInputsPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pip
     }
     SandHaze(push + 40);                         // (wind.cpp: a sand or ash storm's air)
     SandGusts(push + 48);                        // (... its distant gusts)
-    vkCmdPushConstants(cmd, m_tonemapLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), push);
+    void* parameterData;
+    const VkDeviceSize parameterOffset = Allocate(sizeof(push), std::max<VkDeviceSize>(16, m_props.limits.minUniformBufferOffsetAlignment), &parameterData);
+    std::memcpy(parameterData, push, sizeof(push));
+    vmaFlushAllocation(m_allocator, frame.ringAllocation, parameterOffset, sizeof(push));
+    VkDescriptorBufferInfo parameters{frame.ring, parameterOffset, sizeof(push)};
+    w[kTonemapInputs + 2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    w[kTonemapInputs + 2].dstBinding = kTonemapInputs + 2;
+    w[kTonemapInputs + 2].descriptorCount = 1;
+    w[kTonemapInputs + 2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    w[kTonemapInputs + 2].pBufferInfo = &parameters;
+    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_tonemapLayout, 0, kTonemapInputs + 3, w);
     vkCmdDraw(cmd, 3, 1, 0, 0);
     vkCmdEndRendering(cmd);
 }
@@ -956,6 +966,7 @@ void Device::FullscreenPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pipeli
                             VkSampler sampler, const float* params, uint32_t paramBytes, bool load, VkImageView src3,
                             VkImageView src4, const VkRect2D* scissorRect)
 {
+    if (paramBytes > 128) EnsureRingSpace(paramBytes + m_props.limits.minUniformBufferOffsetAlignment);
     Transition(cmd, dst, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     VkRenderingAttachmentInfo color{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
     color.imageView = dst->m_view;
@@ -976,7 +987,7 @@ void Device::FullscreenPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pipeli
     // Unused bindings get the first image (the layouts have four).
     VkImageView views[4] = {src, src2, src3 ? src3 : src, src4 ? src4 : src};
     VkDescriptorImageInfo images[4];
-    VkWriteDescriptorSet w[4] = {};
+    VkWriteDescriptorSet w[5] = {};
     for (uint32_t i = 0; i < 4; ++i) {
         images[i] = {sampler, views[i], VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         w[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -985,8 +996,19 @@ void Device::FullscreenPass(VkCommandBuffer cmd, Texture* dst, VkPipeline pipeli
         w[i].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         w[i].pImageInfo = &images[i];
     }
-    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bloomLayout, 0, 4, w);
-    vkCmdPushConstants(cmd, m_bloomLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, paramBytes, params);
+    if (paramBytes > 128) {
+        void* cpu;
+        const VkDeviceSize offset = Allocate(paramBytes, std::max<VkDeviceSize>(16, m_props.limits.minUniformBufferOffsetAlignment), &cpu);
+        std::memcpy(cpu, params, paramBytes);
+        VkDescriptorBufferInfo parameters{m_frames[m_frameIndex].ring, offset, paramBytes};
+        w[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        w[4].dstBinding = 4; w[4].descriptorCount = 1;
+        w[4].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; w[4].pBufferInfo = &parameters;
+        vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bloomLayout, 0, 5, w);
+    } else {
+        vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_bloomLayout, 0, 4, w);
+        vkCmdPushConstants(cmd, m_bloomLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, paramBytes, params);
+    }
     vkCmdDraw(cmd, 3, 1, 0, 0);
     vkCmdEndRendering(cmd);
 }
@@ -1242,6 +1264,7 @@ bool Device::RenderSandFog(VkCommandBuffer cmd)
         if (!m_sandFogTex[0] || !m_sandFogTex[1])
             return false;
     }
+    EnsureRingSpace(256 + m_props.limits.minUniformBufferOffsetAlignment);
     MakeDepthReadable(cmd);
     Frame& frame = m_frames[m_frameIndex];
     FillFrameLights(static_cast<FrameLights*>(frame.postData), false);
@@ -1372,7 +1395,7 @@ bool Device::RenderSandFog(VkCommandBuffer cmd)
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     VkDescriptorImageInfo shelter{m_linearSampler, shelterMap ? m_sandFogShelter->m_view : m_blackTexture->m_view,
                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
-    VkWriteDescriptorSet wr[6] = {};
+    VkWriteDescriptorSet wr[7] = {};
     for (auto& x : wr) { x.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET; x.descriptorCount = 1; }
     wr[0].dstBinding = 0; wr[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; wr[0].pImageInfo = &depth;
     wr[1].dstBinding = 1; wr[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; wr[1].pImageInfo = &shadow;
@@ -1380,8 +1403,12 @@ bool Device::RenderSandFog(VkCommandBuffer cmd)
     wr[3].dstBinding = 2; wr[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; wr[3].pImageInfo = &clouds;
     wr[4].dstBinding = 3; wr[4].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; wr[4].pImageInfo = &terrain;
     wr[5].dstBinding = 5; wr[5].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER; wr[5].pImageInfo = &shelter;
-    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_volumeLayout, 0, 6, wr);
-    vkCmdPushConstants(cmd, m_volumeLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
+    void* parameterData;
+    const VkDeviceSize parameterOffset = Allocate(sizeof(push), std::max<VkDeviceSize>(16, m_props.limits.minUniformBufferOffsetAlignment), &parameterData);
+    std::memcpy(parameterData, &push, sizeof(push));
+    VkDescriptorBufferInfo parameters{frame.ring, parameterOffset, sizeof(push)};
+    wr[6].dstBinding = 6; wr[6].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER; wr[6].pBufferInfo = &parameters;
+    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_volumeLayout, 0, 7, wr);
     vkCmdDraw(cmd, 3, 1, 0, 0);
     vkCmdEndRendering(cmd);
     ProfileMark("sand fog march");               // (the blur: the rest, "sand fog")
@@ -1604,8 +1631,10 @@ void Device::UpsampleDepth(VkCommandBuffer cmd)
         m_depthSwapped = false;
         return;
     }
-    ImageBarrier(cmd, m_depth, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-                 VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, 0,
+    // The output depth is reused across frames. Discarding its contents does
+    // not remove the dependency on the previous attachment store.
+    ImageBarrier(cmd, m_depth, VK_IMAGE_ASPECT_DEPTH_BIT, m_depthLayout, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
+                 VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, VK_ACCESS_2_MEMORY_WRITE_BIT,
                  VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
                  VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
     m_depthLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;

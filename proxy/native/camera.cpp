@@ -16,6 +16,7 @@
 #include "native/vc10.h"
 #include "native/xmath.h"
 #include "native/view_ranges.h"
+#include "native/occlusion_policy.h"
 
 #include <atomic>
 #include <cmath>
@@ -388,8 +389,13 @@ bool InsidePlanes(Frame* c, const float* center, float radius)
 // FUN_1002b2bb: the sphere's screen rectangle not hidden behind the terrain.
 bool NotOccluded(Frame* c, const float* center, float radius)
 {
+    const float* view=&Field<float>(c,kView);
+    const float depth=center[0]*view[2]+center[1]*view[6]+center[2]*view[10]+view[14];
+    const float scale=std::sqrt(view[2]*view[2]+view[6]*view[6]+view[10]*view[10]);
+    if(!SafeOcclusionProjection(depth,radius*scale,Field<float>(c,kFront)))return true;
     float p[3];
     xm::Transform(center, &Field<float>(c, kViewProjection), p);
+    if(!std::isfinite(p[0])||!std::isfinite(p[1])||!std::isfinite(p[2])||p[2]<=0)return true;
     const float aspect = Field<float>(c, kAspect);
     const float invZ = 1.0f / p[2];
     const float invA = 1.0f / aspect;

@@ -427,6 +427,9 @@ bool Device::EnsurePebbleTable()
 // as the eye comes near, dropped behind it.
 void Device::DrawNativePebbles(const d3d::Matrix& vp)
 {
+    // Loading the shared images for object rocks must not enable an otherwise
+    // disabled ground pass or add geometry to that mode.
+    if (!TerrainRockOn() && !SharedGroundPlus()) return;
     if (m_native.pebbles <= 0.0f || !m_rock.albedo || !m_native.ground || m_native.ground->types.empty()) return;
     if (!EnsurePebbleTable()) return;
     UpdateFrameEye();

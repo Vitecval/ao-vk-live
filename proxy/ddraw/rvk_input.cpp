@@ -15,6 +15,7 @@
 #include <cstring>
 
 #include "rvk_backend.h"
+#include "rvk_zoning.h"
 
 namespace rvkproxy {
 
@@ -168,7 +169,11 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
         BackendWindowResized(hwnd);
     if (msg == WM_DESTROY)
         BackendWindowDestroyed(hwnd);
-    if (ConsoleMessage(hwnd, msg, wp, lp))
+    // A confirmation screen may wait indefinitely. Keep the window-close
+    // shortcut available while its keyboard block is held.
+    if (msg == WM_SYSKEYDOWN && wp == VK_F4 && (g_blockKeys.load() & kInputZoning))
+        return CallWindowProcA(g_windowProc, hwnd, msg, wp, lp);
+    if (ZoningMessage(hwnd, msg, wp, lp) || ConsoleMessage(hwnd, msg, wp, lp))
         return 0;
     const unsigned keys = g_blockKeys, mouse = g_blockMouse;
     if (keys || mouse) {

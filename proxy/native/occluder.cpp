@@ -15,6 +15,7 @@
 #include "native/orig_api.gen.h"
 #include "native/vc10.h"
 #include "native/xmath.h"
+#include "native/occlusion_policy.h"
 
 #include <atomic>
 #include <cmath>
@@ -372,26 +373,21 @@ void __fastcall BuildHorizons(Occ* o, void*, uint8_t* vp)
                 sample[1] = float(int32_t(Heights(o)[Field<int32_t>(o, kWidth) * iz + ix])) * Field<float>(o, kHeightScale);
             float sp[3];
             xm::Transform(sample, &Field<float>(o, kViewProjection), sp);
-            if (-3.6893488147419103e+19f <= sp[2]) {
-                const float z = sp[2] + front;
-                const float sx = sp[0] / z;
-                auto screenY = [&] {
-                    const float y = (sp[1] / z) / aspect;
-                    return y <= 1.0f ? (-1.0f <= y ? y : -1.0f) : 1.0f;
-                };
-                if (count == 0) {
-                    points[0] = -1.0f;
-                    points[1] = screenY();
-                    count = 1;
-                } else if (sx != points[count * 2 - 2]) {
-                    points[count * 2] = sx;
-                    points[count * 2 + 1] = screenY();
-                    ++count;
-                }
-            } else if (count == 0) {
-                points[0] = -1.0f;
-                points[1] = -1.0f;
-                count = 1;
+            float sx,sy;
+            if(!ProjectHorizonSample(sp,front,aspect,sx,sy)) {
+                // kNoHorizon stays set: ignore the whole partially-built sweep.
+                // Joining across the camera plane would invent an occluder.
+                static std::atomic<unsigned> rejected{0};
+                const unsigned n=rejected.fetch_add(1,std::memory_order_relaxed)+1;
+                if(n<=3 || n%600==0)Log("occluder: unsafe terrain projection ignored (%u frames; clip depth %.3f, camera height %.2f)",n,sp[2],world[13]);
+                return;
+            }
+            if(count>=int(sizeof(points)/(2*sizeof(points[0]))))return;
+            const float screenY=std::fmax(-1.f,std::fmin(sy,1.f));
+            if (count == 0) {
+                points[0] = -1.0f;points[1] = screenY;count = 1;
+            } else if (sx != points[count * 2 - 2]) {
+                points[count * 2] = sx;points[count * 2 + 1] = screenY;++count;
             }
             p[0] = step[0] + p[0], p[1] = step[1] + p[1], p[2] = step[2] + p[2];
         }

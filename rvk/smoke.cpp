@@ -616,7 +616,7 @@ bool Device::CreateSmokeSeen()
     li.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
     li.bindingCount = 2;
     li.pBindings = b;
-    VkPushConstantRange push{comp, 0, 16 * 9};
+    VkPushConstantRange push{comp, 0, 128};
     VkPipelineLayoutCreateInfo pl{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
     pl.setLayoutCount = 1;
     pl.pSetLayouts = &m_smokeSeenSetLayout;
@@ -697,7 +697,8 @@ void Device::MeasureSmokeShown(VkCommandBuffer cmd, const std::vector<std::pair<
 {
     if (!m_smokeSeenPipeline || !m_smokeSeenCpu)
         return;
-    struct Push { float info[4], rect[6][4], nearest[2][4]; } push{};
+    struct Push { float info[2], nearest[6], rect[6][4]; } push{};
+    static_assert(sizeof(Push) == 128, "smoke visibility parameters");
     push.info[0] = float(sw);
     push.info[1] = float(sh);
     const d3d::Matrix vp = MulMatrix(m_view, m_proj);
@@ -728,7 +729,7 @@ void Device::MeasureSmokeShown(VkCommandBuffer cmd, const std::vector<std::pair<
         hi[0] = std::min(hi[0], float(sw)); hi[1] = std::min(hi[1], float(sh));
         if (lo[0] >= hi[0] || lo[1] >= hi[1]) continue;   // (off the screen: the frustum's test has it)
         push.rect[n][0] = lo[0]; push.rect[n][1] = lo[1]; push.rect[n][2] = hi[0]; push.rect[n][3] = hi[1];
-        push.nearest[n / 4][n % 4] = std::max(nearest, 0.0f);
+        push.nearest[n] = std::max(nearest, 0.0f);
         m_smokeSeenIndex[m_frameIndex][n] = uint32_t(v - m_smokeVolumes.data());
         m_smokeSeenKey[m_frameIndex][n] = v->key;
         ++n;
@@ -1114,6 +1115,7 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
     const float dt = m_smokeLastClock < 0.0 ? 0.0f : float(std::clamp(now - m_smokeLastClock, 0.0, 1.0 / 30.0));
     m_smokeLastClock = now;
     if (g_sandReadback.readAt && m_frameNumber >= g_sandReadback.readAt && g_sandReadback.cpu) {
+        vmaInvalidateAllocation(m_allocator, g_sandReadback.allocation, 0, VK_WHOLE_SIZE);
         const uint32_t n = g_sandReadback.n;
         const uint16_t* px = static_cast<const uint16_t*>(g_sandReadback.cpu);
         std::string bands;
@@ -1134,8 +1136,10 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
             double(most));
         g_sandReadback.readAt = 0;
     }
-    if (g_residual.readAt && m_frameNumber >= g_residual.readAt)
+    if (g_residual.readAt && m_frameNumber >= g_residual.readAt) {
+        vmaInvalidateAllocation(m_allocator, g_residual.allocation, 0, VK_WHOLE_SIZE);
         LogSmokeResidual();
+    }
     if (m_smokeSimPipeline && m_hdr)
         UpdateSandVolume(now, dt);
     const bool sandVolume = std::any_of(m_smokeVolumes.begin(), m_smokeVolumes.end(),
@@ -1299,12 +1303,16 @@ void Device::RenderSmoke(VkCommandBuffer cmd)
         vkCmdPipelineBarrier2(cmd, &dep);
     }
     if (!toClear.empty()) {
+        // A newly allocated volume is also fresh. Clear each image once;
+        // duplicate clears otherwise introduce unsynchronized transfer writes.
+        std::sort(toClear.begin(),toClear.end());
+        toClear.erase(std::unique(toClear.begin(),toClear.end()),toClear.end());
         VkClearColorValue zero{};
         VkImageSubresourceRange range{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
         for (VkImage i : toClear)
             vkCmdClearColorImage(cmd, i, VK_IMAGE_LAYOUT_GENERAL, &zero, 1, &range);
         memory(VK_PIPELINE_STAGE_2_TRANSFER_BIT, VK_ACCESS_2_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
-               VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
+               VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT | VK_ACCESS_2_SHADER_STORAGE_READ_BIT | VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
     }
 
     // The sun (towards it) and the wind (the rain's, from the game's weather; else none).

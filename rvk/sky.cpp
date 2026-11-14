@@ -592,7 +592,7 @@ void Device::DrawSkyGlow()
         d3d::Matrix invViewProj;
         float view[4], sky[16], star[3][4], night[4], meteor[2][4], aurora[4];
     } push{};
-    static_assert(sizeof(Push) == 256, "sky_glow.frag's push constants");
+    static_assert(sizeof(Push) == 256, "sky_glow.frag's parameters");
     // Sky rays need rotation only: world translation loses precision at AO coordinates.
     auto skyView=m_view,skyProj=m_proj;
     skyView.m[3][0]=skyView.m[3][1]=skyView.m[3][2]=0.0f;
@@ -643,6 +643,7 @@ void Device::DrawSkyGlow()
         if(m_dumpFile)std::fprintf(m_dumpFile,"# Sky enhancements: clouds %.0f; traffic %.0f; sky-only, no ground shadows or illumination changes\n",push.view[3],push.sky[11]);
     }
     FlushGroup();
+    EnsureRingSpace(sizeof(push) + m_props.limits.minUniformBufferOffsetAlignment);
     VkCommandBuffer cmd = m_frames[m_frameIndex].main;
     const VkViewport full{0.0f, 0.0f, float(m_scene->m_width), float(m_scene->m_height), 0.0f, 1.0f};
     const VkRect2D area{{0, 0}, {m_scene->m_width, m_scene->m_height}};
@@ -656,8 +657,18 @@ void Device::DrawSkyGlow()
     w.descriptorCount = 1;
     w.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     w.pImageInfo = &view;
-    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_skyGlowLayout, 0, 1, &w);
-    vkCmdPushConstants(cmd, m_skyGlowLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
+    void* parameterData;
+    const VkDeviceSize parameterOffset = Allocate(sizeof(push), std::max<VkDeviceSize>(16, m_props.limits.minUniformBufferOffsetAlignment), &parameterData);
+    std::memcpy(parameterData, &push, sizeof(push));
+    Frame& frame = m_frames[m_frameIndex];
+    vmaFlushAllocation(m_allocator, frame.ringAllocation, parameterOffset, sizeof(push));
+    VkDescriptorBufferInfo parameters{frame.ring, parameterOffset, sizeof(push)};
+    VkWriteDescriptorSet writes[2] = {w, {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET}};
+    writes[1].dstBinding = 1;
+    writes[1].descriptorCount = 1;
+    writes[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writes[1].pBufferInfo = &parameters;
+    vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_skyGlowLayout, 0, 2, writes);
     vkCmdDraw(cmd, 3, 1, 0, 0);
     m_cache = StateCache{};                      // (not the scene's pipeline: its state set again)
     m_arenaBound = m_bindlessBound = false;

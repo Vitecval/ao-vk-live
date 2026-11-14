@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <numeric>
 
 namespace rvk {
 
@@ -28,9 +29,10 @@ VkDeviceSize AlignUp(VkDeviceSize v, VkDeviceSize a) { return a ? (v + a - 1) / 
 Device::ArenaChunk* Device::ArenaPlace(VkDeviceSize bytes, VkDeviceSize align, VkDeviceSize* offset, bool casters)
 {
     auto& arena = casters ? m_casterArena : m_staticArena;
+    const auto alignment = [align](const auto& chunk) { return std::lcm(align, chunk->hostAtom); };
     for (auto& c : arena) {
         for (auto it = c->free.begin(); it != c->free.end(); ++it) {
-            VkDeviceSize at = AlignUp(it->first, align), end = it->first + it->second;
+            VkDeviceSize at = AlignUp(it->first, alignment(c)), end = it->first + it->second;
             if (at + bytes <= end) {
                 *offset = at;
                 VkDeviceSize rest = end - (at + bytes);
@@ -40,7 +42,7 @@ Device::ArenaChunk* Device::ArenaPlace(VkDeviceSize bytes, VkDeviceSize align, V
             }
         }
     }
-    if (arena.empty() || AlignUp(arena.back()->used, align) + bytes > arena.back()->size) {
+    if (arena.empty() || AlignUp(arena.back()->used, alignment(arena.back())) + bytes > arena.back()->size) {
         VkDeviceSize size = std::max(casters ? kCasterArenaChunk : kStaticArenaChunk, bytes);
         auto c = std::make_unique<ArenaChunk>();
         VkBufferCreateInfo bi{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
@@ -59,11 +61,17 @@ Device::ArenaChunk* Device::ArenaPlace(VkDeviceSize bytes, VkDeviceSize align, V
             return nullptr;
         c->size = size;
         c->mapped = casters ? static_cast<uint8_t*>(info.pMappedData) : nullptr;
+        if (casters) {
+            VkMemoryPropertyFlags properties;
+            vmaGetMemoryTypeProperties(m_allocator, info.memoryType, &properties);
+            if (!(properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+                c->hostAtom = m_props.limits.nonCoherentAtomSize;
+        }
         Log("%s arena: new chunk, %.1f MB", casters ? "shadow caster" : "static", double(size) / 1048576.0);
         arena.push_back(std::move(c));
     }
     ArenaChunk* c = arena.back().get();
-    *offset = AlignUp(c->used, align);
+    *offset = AlignUp(c->used, alignment(c));
     c->used = *offset + bytes;
     return c;
 }
@@ -235,6 +243,7 @@ void Device::RegisterMesh(uint32_t id, uint32_t primitive, uint32_t fvf,
     s.fvf = fvf;
     s.vertexCount = vertexCount;
     s.indexCount = indexCount;
+    s.indexHash = indexCount ? HashBytes(indices->data(),size_t(indexCount)*2,indexCount) : 0;
 }
 
 void Device::ReleaseMesh(uint32_t id)

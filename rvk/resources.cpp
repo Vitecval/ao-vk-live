@@ -572,12 +572,14 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
         // (A ground texture's old grid, to tell a new picture from the same one uploaded again.)
         std::vector<uint8_t> before;
         std::vector<uint8_t> beforeMask;
+        std::vector<uint8_t> beforeOliveMask;
         if (t->m_groundBase && t->m_thumbValid)
-            { before = t->m_thumb; beforeMask = t->m_grassMask; }
+            { before = t->m_thumb; beforeMask = t->m_grassMask; beforeOliveMask=t->m_oliveGrassMask; }
         if (x == 0 && y == 0 && width >= t->m_width && height >= t->m_height &&
             pitch >= FormatRowBytes(t->m_format, t->m_width)) {
             t->m_thumbValid = false;
             t->m_grassMask.clear();
+            t->m_oliveGrassMask.clear();
             t->m_grassMaskSide = 0;
             const bool whole = t->m_width <= 64 && t->m_height <= 64;
             t->m_thumbW = whole ? t->m_width : 16;
@@ -589,20 +591,24 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                 std::vector<uint8_t>().swap(t->m_thumb);
             if (t->m_thumbValid && t->m_width>=64 && t->m_height>=64) {
                 const uint32_t side=std::max(t->m_width,t->m_height)>512 ? 128 : 64;
-                std::array<uint8_t,2048> mask{};
-                bool any=false;
+                std::array<uint8_t,2048> mask{},oliveMask{};
+                bool any=false,anyOlive=false;
                 for (uint32_t j=0;j<side;++j) for (uint32_t i=0;i<side;++i) {
                     uint8_t rgb[3];
                     const uint32_t x=std::min((2*i+1)*t->m_width/(2*side),t->m_width-1);
                     const uint32_t y=std::min((2*j+1)*t->m_height/(2*side),t->m_height-1);
-                    if (TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,x,y,rgb) && grass::SurfaceTexel(rgb,t->m_rdbType,t->m_rdbId)) {
+                    if (!TexelRgb(t->m_format,static_cast<const uint8_t*>(data),pitch,x,y,rgb))continue;
+                    if (grass::Green(rgb)) {
                         const uint32_t bit=j*side+i;
                         mask[bit>>3]|=uint8_t(1u<<(bit&7));
                         any=true;
+                    } else if(grass::SurfaceTexel(rgb,1010004,207100)) {
+                        const uint32_t bit=j*side+i;oliveMask[bit>>3]|=uint8_t(1u<<(bit&7));anyOlive=true;
                     }
                 }
                 t->m_grassMaskSide=side;
                 if (any) t->m_grassMask.assign(mask.begin(),mask.begin()+side*side/8);
+                if(anyOlive)t->m_oliveGrassMask.assign(oliveMask.begin(),oliveMask.begin()+side*side/8);
             }
             // (Its mean colour, from that grid: the cliffs' rock is tinted to a ground cell's tile - terrain.cpp.)
             for (int c = 0; c < 3; ++c) {
@@ -617,7 +623,7 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                 t->m_line = t->m_edge = t->m_grain = -1.0f;
             // A ground texture with a new picture (a stand-in replaced as the area loads): the grass classified
             // from it is stale.
-            if (t->m_groundBase && m_grassOn && t->m_thumbValid && (before != t->m_thumb || beforeMask != t->m_grassMask))
+            if (t->m_groundBase && m_grassOn && t->m_thumbValid && (before != t->m_thumb || beforeMask != t->m_grassMask || beforeOliveMask!=t->m_oliveGrassMask))
                 m_groundTexUploaded.push_back(t);
             if (t->m_lightmap && m_grassOn)
                 m_lightmapsUploaded.push_back(t);   // the grass's light baked from it is stale
@@ -668,7 +674,9 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
             for (uint32_t j=0;j<side;++j) for (uint32_t i=0;i<side;++i) {
                 uint8_t rgb[3];
                 if (!sample(i,j,side,side,rgb)) continue;
-                const bool green=grass::SurfaceTexel(rgb,t->m_rdbType,t->m_rdbId);
+                const bool green=grass::Green(rgb);
+                const bool olive=!green&&grass::SurfaceTexel(rgb,1010004,207100);
+                if(olive&&t->m_oliveGrassMask.empty())t->m_oliveGrassMask.assign(side*side/8,0);
                 if (green && t->m_grassMask.empty()) t->m_grassMask.assign(side*side/8,0);
                 if (!t->m_grassMask.empty()) {
                     const uint32_t bit=j*side+i;
@@ -676,13 +684,17 @@ void Device::UpdateTexture(Texture* t, uint32_t level, uint32_t x, uint32_t y, u
                     if (green) t->m_grassMask[bit>>3]|=flag;
                     else t->m_grassMask[bit>>3]&=uint8_t(~flag);
                 }
+                if(!t->m_oliveGrassMask.empty()){
+                    const uint32_t bit=j*side+i;const uint8_t flag=uint8_t(1u<<(bit&7));
+                    if(olive)t->m_oliveGrassMask[bit>>3]|=flag;else t->m_oliveGrassMask[bit>>3]&=uint8_t(~flag);
+                }
             }
             for (int c=0;c<3;++c) {
                 double sum=0;
                 for (size_t i=c;i<t->m_thumb.size();i+=3) sum+=t->m_thumb[i];
                 t->m_mean[c]=float(sum/(255.0*double(t->m_thumb.size()/3)));
             }
-            if (t->m_groundBase && m_grassOn && (before!=t->m_thumb || beforeMask!=t->m_grassMask) &&
+            if (t->m_groundBase && m_grassOn && (before!=t->m_thumb || beforeMask!=t->m_grassMask || beforeOliveMask!=t->m_oliveGrassMask) &&
                 std::find(m_groundTexUploaded.begin(),m_groundTexUploaded.end(),t)==m_groundTexUploaded.end())
                 m_groundTexUploaded.push_back(t);
             if (t->m_lightmap && m_grassOn &&
@@ -754,10 +766,15 @@ void Device::DestroyTexture(Texture* texture)
 void Device::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour)
 {
     if (!texture) return;
+    const bool grassRuleChanged=grass::OliveMeadow(texture->m_rdbType,texture->m_rdbId)!=grass::OliveMeadow(type,id);
     texture->m_rdbId = id;
     texture->m_rdbType = type;
+    if(grassRuleChanged&&texture->m_groundBase&&m_grassOn&&
+       std::find(m_groundTexUploaded.begin(),m_groundTexUploaded.end(),texture)==m_groundTexUploaded.end())
+        m_groundTexUploaded.push_back(texture);
     texture->m_autoMaterial = materials::Lookup(type, id);
     texture->m_worldMaterial = materials::LookupWorld(type, id);
+    if(materials::NaturalRock(type,id))texture->m_worldMaterial=(7u<<24)|245u;
     texture->m_buildingFamily = buildingFamily < 64 ? buildingFamily : 0;
     texture->m_preserveGroundColour = preserveGroundColour;
     static uint32_t assigned = 0;
@@ -912,8 +929,13 @@ void Device::TrimMaterialCache()
             local[h]=(props->memoryHeaps[h].flags&VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)!=0;
         }
         const uint32_t heap=budget::MaterialHeap(sizes,local,props->memoryHeapCount);
-        if(heap<props->memoryHeapCount)
-            excess=budget::MaterialExcess(budgets[heap].usage,budgets[heap].budget);
+        if(heap<props->memoryHeapCount) {
+            const auto& b=budgets[heap];
+            excess=budget::MaterialExcess(b.usage,b.budget,b.statistics.blockBytes,b.statistics.allocationBytes);
+            if(!excess && m_frameNumber%600==0 && budget::MaterialExcess(b.usage,b.budget))
+                Log("materials: retained reusable residency (%.0f MB live in %.0f MB reserved; driver %.0f / %.0f MB)",
+                    double(b.statistics.allocationBytes)/(1<<20),double(b.statistics.blockBytes)/(1<<20),double(b.usage)/(1<<20),double(b.budget)/(1<<20));
+        }
     }
     // Isolated harnesses can exercise eviction without exhausting the GPU.
     const char* modules=std::getenv("RANDYVK_TEST_MODULES");

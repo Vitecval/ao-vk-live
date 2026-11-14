@@ -1,5 +1,6 @@
 // D3D7 state, Clear, and drawing.
 #include "internal.h"
+#include "lightning_policy.h"
 #include "building_weathering.h"
 #include "window_materials.h"
 #include "weather_options.h"
@@ -538,6 +539,8 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->desert[3] = m_aoProjValid ? m_aoProj.m[1][1] : 0.0f;
     FillNativeLights(fl);
     FillTerrainRockLights(fl->terrainRock, fl->terrainRock2);
+    fl->rockObjects[0]=std::clamp(m_enhancedRocks,0.f,1.f);
+    fl->rockObjects[1]=fl->rockObjects[2]=fl->rockObjects[3]=0;
     fl->dusk[0] = std::clamp(m_afterglow, 0.0f, 2.0f);
     fl->dusk[1] = m_hdr ? m_blueGrade : 0.0f;
     // (The sun on the world camera's screen, NDC - the sunset rays fan from it: volume.frag. Behind the camera: far off.)
@@ -1609,6 +1612,12 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
         m_drawMesh = info;
         return;
     }
+    // Equal-sized submeshes can share one vertex snapshot and world matrix.
+    // Their triangle ranges must remain separate in the mesh/object/shadow
+    // caches. Registered immutable ranges pay for this hash only at registration;
+    // shared vertices with changing CPU indices must fingerprint the current range.
+    const uint64_t indexFingerprint=indices && indexCount ?
+        (m_drawSlot ? m_drawSlot->indexHash : HashBytes(indices,size_t(indexCount)*2,indexCount)) : 0;
     uint64_t key;
     if (m_drawStaticBuffer) {
         // A static snapshot's vertices never change, so identify the sub-mesh by its snapshot and where it sits in
@@ -1623,6 +1632,7 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
         mixStatic(m_drawStaticOffset);
         mixStatic(vertexCount);
         mixStatic(indexCount);
+        mixStatic(indexFingerprint);
         mixStatic(fvf);
         mixStatic(stride);
     } else {
@@ -1643,11 +1653,7 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
         std::memcpy(last, v + size_t(vertexCount - 1) * stride, 12);
         mix(uint64_t(last[0]) | uint64_t(last[1]) << 32);
         mix(last[2]);
-        if (indices && indexCount) {
-            uint32_t istep = indexCount > 16 ? indexCount / 16 : 1;
-            for (uint32_t i = 0; i < indexCount; i += istep)
-                mix(indices[i] | uint64_t(i) << 16);
-        }
+        mix(indexFingerprint);
     }
     m_drawMeshKey = key;
     auto it = m_meshInfo.find(key);
@@ -1675,7 +1681,7 @@ void Device::DrawMeshInfo(uint32_t fvf, uint32_t stride, const void* vertices, u
         if (diffuseAlpha >= 0 && verts[size_t(i) * stride + diffuseAlpha] != 0xFF) info.diffuseAlphaOne = false;
         if (specularAlpha >= 0 && verts[size_t(i) * stride + specularAlpha] != 0xFF) info.specularAlphaOne = false;
     }
-    info.indexHash = indices && indexCount ? HashBytes(indices, size_t(indexCount) * 2, indexCount) : 0;
+    info.indexHash = indexFingerprint;
     info.firstFrame = info.lastFrame = m_frameNumber;
     HashMeshId(info, fvf, stride, vertices, vertexCount, indices, indexCount);   // (mesh ids: a static piece's)
     MeshInfo* placed = &m_meshInfo.emplace(key, info).first->second;
@@ -1780,6 +1786,7 @@ void Device::SetDrawVisual(uint32_t kind, const char* className, uint32_t owner,
     if (VisualKind(kind) == VisualKind::Terrain) {++m_frameTerrainVisuals;m_daylightWorldSeen=m_frameNumber;}
     else if (VisualKind(kind) == VisualKind::Room) ++m_frameRoomVisuals;
     m_drawVisualName = className ? className : "";
+    m_drawIsWeather = lightning::WeatherVisual(m_drawVisualName);
     // (A sky visual is named by its class chain, "VisualSingleCloud_t<...".)
     m_drawIsCloudPuff = className && std::strncmp(className, "VisualSingleCloud_t", 19) == 0 &&
                         (className[19] == 0 || className[19] == '<');
@@ -2658,7 +2665,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                     m_glowPos[k] = mid[0] * w[0][k] + mid[1] * w[1][k] + mid[2] * w[2][k] + w[3][k];
             }
         }
-        if (!m_stormFlash || m_weatherMode > 0.5f) {
+        if (lightning::SkipLegacyGlow(m_weatherParams.enable,m_lightning,m_stormFlash,m_weatherMode)) {
             ++m_stormFlashSkipped;
             return;
         }
@@ -2935,7 +2942,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     DrawMeshInfo(fvf, layout.stride, vertices, vertexCount, indices, indexCount);
     ProfileDrawSection("draw: setup (mesh info)", since);
-    NoteMeshPiece();                             // (mesh ids: which mesh the object drawing is)
+    NoteMeshPiece();
     // The object's entry in the per-object cache (objects.cpp): a static mesh at its world matrix.
     if (m_objectCache && m_drawMesh && m_drawMeshStatic && !m_external && !m_drawSkin && !m_drawGpu && !m_livingDrawing)
         m_drawObject = FindObject();
@@ -3773,7 +3780,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     VkDeviceSize smoothOffset = 0, smoothBytes = 0;
     VkBuffer smoothBuffer = f.ring;
     m_drawTess = false;
-    if (tessLevel > 0.0f && m_drawGpu) {
+    const bool rockShape=RockShapeDraw(primitive,fvf,layout,vertices,vertexCount,indices,indexCount,
+        dt,smoothBuffer,smoothOffset,smoothBytes);
+    if(rockShape){m_drawTess=true;}
+    else if (tessLevel > 0.0f && m_drawGpu) {
         if (SkinSmoothOnGpu(*m_drawSkin, *m_drawGpu)) {
             smoothBuffer = m_frames[m_frameIndex].skinArena;
             smoothOffset = m_drawGpu->smoothOffset;
@@ -4162,10 +4172,27 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // An explicit colour/normal/ORM pack still keeps the physical material of
     // a known rock or pale stone. Do not turn a white rock into polished metal.
     const Texture* mineralSurface = m_drawOrmBase && m_drawBumpBase ? m_drawBumpBase : m_textures[0];
-    if (mineralSurface && surfaceStage0 && !m_drawIsLabel && m_rs[d3d::RS_ZENABLE]) {
+    if (mineralSurface && !m_drawIsLabel && m_rs[d3d::RS_ZENABLE]) {
         const uint32_t kind = mineralSurface->m_worldMaterial >> 24;
-        if (kind == 7) dt.mat[2] |= kMatMineral;
-        if (kind == 8) dt.mat[2] |= kMatHonedStone;
+        if (kind == 7 && surfaceStage0) dt.mat[2] |= kMatMineral;
+        const bool rockColourStage=mineralSurface==m_textures[0] &&
+            m_tss[0][d3d::TSS_COLOROP]!=d3d::TOP_DISABLE &&
+            !(m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS]&256u) &&
+            (m_tss[0][d3d::TSS_TEXCOORDINDEX]&0xFFFF0000u)==0;
+        if (kind==7 && (surfaceStage0 || rockColourStage) && m_enhancedRocks>0 && !terrain && !m_native.clutter &&
+            !m_drawIsCharacter && !m_drawFoliage && !m_drawSkin &&
+            (!m_rs[d3d::RS_ALPHABLENDENABLE] || cutoutTexture)) {
+            dt.mat[2] |= kMatEnhancedRock|kMatMineral;
+            // Object rocks reuse the terrain tint slots only on this non-ground
+            // path. A material mean retains the biome hue without preserving
+            // every dark, painted crack of the low-resolution source image.
+            for(int c=0;c<3;++c)dt.terrainAt[c]=mineralSurface->m_mean[c]>=0 ? mineralSurface->m_mean[c]:.32f;
+            if (!(dt.mat[2]&kMatPbr) && surfaceStage0 && m_pbr.enabled && m_pixelLighting) {
+                dt.mat[0]=mineralSurface->m_worldMaterial | (255u<<16);
+                dt.mat[2]|=kMatPbr|kMatAuto|kMatWorld;
+            }
+        }
+        if (kind == 8 && surfaceStage0) dt.mat[2] |= kMatHonedStone;
     }
     // Authored ground already has its own surface detail. Do not stamp global
     // grain over painted paving, metal decks or other carefully masked materials.
@@ -4181,8 +4208,9 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[2] |= kMatPicked;                 // (texture picking: flashes)
     // A height in its normal map's alpha (_h.png): drawn with parallax, where the normal map is the surface's own.
     if (normalMap && normalMap->m_alphaHeight && m_textures[0] && normalMap == m_textures[0]->m_normalMap &&
-        m_terrainSettings.parallax > 0.0f && dt.icc[3]<0.5f)
+        m_terrainSettings.parallax > 0.0f && dt.icc[3]<0.5f && !(dt.mat[2]&kMatEnhancedRock))
         dt.mat[2] |= kMatHeight;
+    if(rockShape)dt.mat[2]|=kMatRockShape;
     if (VisualKind(m_drawVisualKind) == VisualKind::Sky || (m_drawMesh && m_drawMesh->skyScenery))
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
     if(m_immersiveShips>.5f) {

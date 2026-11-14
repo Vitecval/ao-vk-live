@@ -12,9 +12,17 @@ inline uint32_t MaterialHeap(const uint64_t* sizes,const bool* local,uint32_t co
         if(local[i] && (selected==count || sizes[i]>sizes[selected]))selected=i;
     return selected;
 }
-inline uint64_t MaterialExcess(uint64_t usage,uint64_t budget) {
-    const uint64_t target=budget*85/100;
-    return budget && usage>target ? usage-target:0;
+inline uint64_t MaterialExcess(uint64_t usage,uint64_t budget,uint64_t blockBytes=0,uint64_t allocationBytes=0) {
+    // Space already reserved by our allocator is reusable by new images. It
+    // does not require another driver allocation. Counting those free ranges
+    // as live images repeatedly evicts/reloads textures without freeing blocks.
+    const uint64_t reusable=blockBytes>allocationBytes ? blockBytes-allocationBytes:0;
+    usage-=std::min(usage,reusable);
+    // Do not churn cached maps merely because driver-owned VMA blocks keep
+    // usage around 85-90%. Leave useful flight/turnaround residency intact.
+    // Real pressure still retires cold sets in bounded batches.
+    const uint64_t trigger=budget*92/100, target=budget*88/100;
+    return budget && usage>trigger ? usage-target:0;
 }
 // Whole smoke steps cannot be interrupted. Bound their cubic grid cost first,
 // then spread due steps across frames instead of letting overdue work bypass it.

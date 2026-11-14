@@ -1,6 +1,7 @@
 // msvcr100's heap and VS2010 container helpers (vc10.h).
 #include "native/vc10.h"
 #include "native/native.h"
+#include <string>
 
 namespace rnative::vc10 {
 
@@ -63,6 +64,15 @@ void FreeArray(void* p)
 
 void String::assign(const char* s, size_t n)
 {
+    if(n==SIZE_MAX)throw std::length_error("native string size overflow");
+    const uintptr_t source=reinterpret_cast<uintptr_t>(s), current=reinterpret_cast<uintptr_t>(c_str());
+    if(n&&source>=current&&source-current<=capacity) {
+        // release resets even the inline buffer. Keep aliased input alive until
+        // its replacement is ready, including substring/self assignments.
+        const std::string copy(s,n);
+        assign(copy.data(),copy.size());
+        return;
+    }
     release();
     if (n <= 15) {
         std::memcpy(buffer, s, n);

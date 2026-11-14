@@ -4,6 +4,7 @@
 #include "window_global.h"
 #include "win32_wait.h"
 #include "fsr_support.h"
+#include "win32_path.h"
 
 #include <algorithm>
 #include <chrono>
@@ -12,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <tuple>
 
 namespace rvk {
 
@@ -225,6 +227,10 @@ Device::~Device()
 {
     if (startup::Active()) startup::Finish("device ended before first presentation");
     if (!m_device) {
+        // Device/feature rejection can happen after the instance and window
+        // surface were created. Those handles still belong to this attempt.
+        if(m_surface&&m_instance)vkDestroySurfaceKHR(m_instance,m_surface,nullptr);
+        if(m_instance)vkDestroyInstance(m_instance,nullptr);
         FgReleaseDispatcher();
         return;
     }
@@ -378,9 +384,8 @@ uint64_t CacheHash(const std::vector<uint8_t>& data) {
 // Where the cache lives: what the proxy set, else RANDYVK_PIPELINE_CACHE ("off" = none).
 std::string PipelineCacheFile()
 {
-    char path[32768] = {};
-    const DWORD n = GetEnvironmentVariableA("RANDYVK_PIPELINE_CACHE", path, sizeof(path));
-    if (n && n < sizeof(path)) return _stricmp(path,"off") == 0 ? "off" : std::string(path);
+    const std::string path=win32::EnvironmentUtf8(L"RANDYVK_PIPELINE_CACHE");
+    if(!path.empty())return _stricmp(path.c_str(),"off")==0 ? "off":path;
     return g_pipelineCachePath;
 }
 
@@ -396,11 +401,10 @@ void Device::CreatePipelineCache()
     bool wrapped=false;
     std::string base = PipelineCacheFile();
     if (base.empty()) {
-        char local[32768] = {};
-        const DWORD n = GetEnvironmentVariableA("LOCALAPPDATA", local, sizeof(local));
-        if (n && n < sizeof(local)) {
-            base = std::string(local) + "\\AO-VK"; CreateDirectoryA(base.c_str(), nullptr);
-            base += "\\pipelines-v1"; CreateDirectoryA(base.c_str(), nullptr);
+        const std::string local=win32::EnvironmentUtf8(L"LOCALAPPDATA");
+        if(!local.empty()) {
+            base=local+"\\AO-VK";CreateDirectoryW(win32::FilePath(base).c_str(),nullptr);
+            base+="\\pipelines-v1";CreateDirectoryW(win32::FilePath(base).c_str(),nullptr);
             char key[160];
             std::snprintf(key,sizeof(key),"\\%08x-%08x-%08x-",m_props.vendorID,m_props.deviceID,m_props.driverVersion);
             base += key;
@@ -411,7 +415,7 @@ void Device::CreatePipelineCache()
     m_pipelineCacheFile = base == "off" ? std::string() : base;
     const std::string file = m_pipelineCacheFile;
     if (!file.empty()) {
-        if (FILE* f = std::fopen(file.c_str(), "rb")) {
+        if (FILE* f = win32::OpenFile(file,L"rb")) {
             std::fseek(f, 0, SEEK_END);
             long size = std::ftell(f);
             std::fseek(f, 0, SEEK_SET);
@@ -481,20 +485,20 @@ void Device::SavePipelineCache(const char* why)
     const uint64_t hash = CacheHash(data);
     if (data.size() == m_pipelineCacheSaved && hash == m_pipelineCacheHash) return;
     const std::string temp = file + "." + std::to_string(GetCurrentProcessId()) + ".tmp";   // (two clients in one folder)
-    FILE* f = std::fopen(temp.c_str(), "wb");
+    FILE* f = win32::OpenFile(temp,L"wb");
     if (!f) { Log("pipeline cache: cannot write %s (errno %d); next launch may rebuild",temp.c_str(),errno); return; }
     uint32_t meta[8]={}; std::memcpy(meta,"AOVKPC23",8);
     meta[2]=uint32_t(data.size()); meta[3]=1; meta[4]=uint32_t(hash); meta[5]=uint32_t(hash>>32); meta[6]=m_props.driverVersion;
     const bool written = std::fwrite(meta,1,sizeof(meta),f)==sizeof(meta) && std::fwrite(data.data(), 1, data.size(), f) == data.size();
     const bool flushed = std::fflush(f) == 0;
     const bool closed = std::fclose(f) == 0;
-    if (written && flushed && closed && MoveFileExA(temp.c_str(), file.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+    if (written && flushed && closed && MoveFileExW(win32::FilePath(temp).c_str(),win32::FilePath(file).c_str(),MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
         m_pipelineCacheSaved = data.size();
         m_pipelineCacheHash = hash;
         Log("pipeline cache: %zu bytes saved (%s)", data.size(), why);
     } else {
         Log("pipeline cache: persistence failed for %s (Windows error %lu)",file.c_str(),GetLastError());
-        DeleteFileA(temp.c_str());
+        DeleteFileW(win32::FilePath(temp).c_str());
     }
 }
 
@@ -526,14 +530,57 @@ bool Device::CreateInstance(std::string* error)
     return true;
 }
 
+namespace {
+// Select among usable adapters before applying the discrete-GPU preference. On
+// hybrid systems the first/discrete adapter may lack a mandatory extension.
+std::string RequiredDeviceSupport(VkPhysicalDevice gpu,const VkPhysicalDeviceProperties& props,bool present,uint32_t imageSlots)
+{
+    uint32_t count=0;
+    if(vk::vkEnumerateDeviceExtensionProperties(gpu,nullptr,&count,nullptr)!=VK_SUCCESS)return "cannot query device extensions";
+    std::vector<VkExtensionProperties> extensions(count);
+    if(vk::vkEnumerateDeviceExtensionProperties(gpu,nullptr,&count,extensions.data())!=VK_SUCCESS)return "cannot query device extensions";
+    const auto has=[&](const char* name){return std::any_of(extensions.begin(),extensions.end(),[&](const auto& e){return std::strcmp(e.extensionName,name)==0;});};
+    for(const char* name:{VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME,
+                         VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,VK_EXT_ROBUSTNESS_2_EXTENSION_NAME})
+        if(!has(name))return std::string("device extension missing: ")+name;
+    if(present&&!has(VK_KHR_SWAPCHAIN_EXTENSION_NAME))return "device extension missing: " VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT vertex{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT};
+    VkPhysicalDeviceExtendedDynamicState3FeaturesEXT blend{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT};
+    VkPhysicalDeviceRobustness2FeaturesEXT robust{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT};
+    VkPhysicalDeviceDescriptorIndexingFeatures indexing{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES};
+    VkPhysicalDeviceVulkan13Features v13{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+    VkPhysicalDeviceFeatures2 features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    features.pNext=&v13;v13.pNext=&indexing;indexing.pNext=&robust;robust.pNext=&blend;blend.pNext=&vertex;
+    vk::vkGetPhysicalDeviceFeatures2(gpu,&features);
+    VkPhysicalDeviceVulkan11Properties p11{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES};
+    VkPhysicalDeviceVulkan12Properties p12{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES};
+    VkPhysicalDeviceProperties2 p2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};p2.pNext=&p11;p11.pNext=&p12;
+    vk::vkGetPhysicalDeviceProperties2(gpu,&p2);
+    if(!v13.dynamicRendering||!v13.synchronization2||!v13.shaderDemoteToHelperInvocation||
+       !blend.extendedDynamicState3ColorBlendEnable||!blend.extendedDynamicState3ColorBlendEquation||
+       !vertex.vertexInputDynamicState||!features.features.imageCubeArray||
+       !(p11.subgroupSupportedStages&VK_SHADER_STAGE_FRAGMENT_BIT)||!(p11.subgroupSupportedOperations&VK_SUBGROUP_FEATURE_QUAD_BIT))
+        return "required Vulkan rendering features missing";
+    if(!features.features.independentBlend)return "required Vulkan feature missing (independent attachment blending)";
+    if(props.limits.maxColorAttachments<5)return "required Vulkan limit missing (5 color attachments)";
+    if(!indexing.shaderSampledImageArrayNonUniformIndexing||!indexing.descriptorBindingSampledImageUpdateAfterBind||
+       !indexing.descriptorBindingPartiallyBound||!robust.nullDescriptor||
+       std::min(p12.maxPerStageDescriptorUpdateAfterBindSampledImages,p12.maxDescriptorSetUpdateAfterBindSampledImages)<imageSlots)
+        return "required Vulkan features/limits missing (descriptor indexing, robustness2 nullDescriptor)";
+    return {};
+}
+}
+
 bool Device::PickDevice(std::string* error)
 {
     uint32_t count = 0;
-    vkEnumeratePhysicalDevices(m_instance, &count, nullptr);
+    if(!Check(vkEnumeratePhysicalDevices(m_instance,&count,nullptr),"vkEnumeratePhysicalDevices",error))return false;
     std::vector<VkPhysicalDevice> devices(count);
-    vkEnumeratePhysicalDevices(m_instance, &count, devices.data());
+    if(count&&!Check(vkEnumeratePhysicalDevices(m_instance,&count,devices.data()),"vkEnumeratePhysicalDevices",error))return false;
+    devices.resize(count);
+    std::string rejection;
     // Prefer a discrete GPU with a graphics queue that can present.
-    int best = -1;
+    int best = -1, bestScore=-1;
     for (uint32_t i = 0; i < count; ++i) {
         VkPhysicalDeviceProperties p;
         vkGetPhysicalDeviceProperties(devices[i], &p);
@@ -549,9 +596,18 @@ bool Device::PickDevice(std::string* error)
                 vkGetPhysicalDeviceSurfaceSupportKHR(devices[i], q, m_surface, &present);
             if ((qf[q].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) != (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT) || !present)
                 continue;
-            bool discrete = p.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
-            if (best < 0 || discrete) {
+            const auto unsupported=RequiredDeviceSupport(devices[i],p,m_window!=nullptr,kMaxBindlessImages);
+            if(!unsupported.empty()) {
+                rejection=unsupported;
+                Log("GPU candidate %s skipped: %s",p.deviceName,unsupported.c_str());
+                break;
+            }
+            const int score=p.deviceType==VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU?3:
+                p.deviceType==VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU?2:
+                p.deviceType==VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU?1:0;
+            if (best < 0 || score>bestScore) {
                 best = static_cast<int>(i);
+                bestScore=score;
                 m_queueFamily = q;
                 m_queueFamilyCount = qf[q].queueCount;
             }
@@ -559,7 +615,7 @@ bool Device::PickDevice(std::string* error)
         }
     }
     if (best < 0) {
-        if (error) *error = "no Vulkan 1.3 GPU with a graphics queue";
+        if (error) *error = rejection.empty() ? "no Vulkan 1.3 GPU with a graphics/compute queue" : "no compatible Vulkan GPU: "+rejection;
         return false;
     }
     m_physical = devices[best];
@@ -642,6 +698,16 @@ bool Device::CreateLogicalDevice(std::string* error)
         !v13.shaderDemoteToHelperInvocation || !features.features.imageCubeArray) {
         if (error) *error = "required Vulkan features missing (dynamic rendering, sync2, dynamic blend/vertex input, "
                           "fragment quad operations)";
+        return false;
+    }
+    // The HDR scene uses five independently blended outputs. Drivers may
+    // accept the commands without this enable, but that is not valid Vulkan.
+    if (!features.features.independentBlend) {
+        if(error)*error="required Vulkan feature missing (independent attachment blending)";
+        return false;
+    }
+    if(m_props.limits.maxColorAttachments<5) {
+        if(error)*error="required Vulkan limit missing (5 color attachments)";
         return false;
     }
     // Bindless textures (M1): textures and samplers in descriptor arrays, indexed per draw.
@@ -732,6 +798,7 @@ bool Device::CreateLogicalDevice(std::string* error)
     enabled.features.shaderStorageImageReadWithoutFormat=features.features.shaderStorageImageReadWithoutFormat;
     enabled.features.shaderStorageImageWriteWithoutFormat=features.features.shaderStorageImageWriteWithoutFormat;
     Log("FSR Vulkan features: float16=%u int16=%u extended-storage=%u subgroup-control=%u full-subgroups=%u",enFp16.shaderFloat16,enabled.features.shaderInt16,enabled.features.shaderStorageImageExtendedFormats,enV13.subgroupSizeControl,enV13.computeFullSubgroups);
+    enabled.features.independentBlend = VK_TRUE;
     enabled.features.imageCubeArray = VK_TRUE;           // point light shadow maps
     enabled.features.tessellationShader = features.features.tessellationShader;   // characters' Phong tessellation
     m_tessSupported = features.features.tessellationShader;
@@ -865,16 +932,18 @@ void Device::ApplyRenderScale()
     const uint32_t want = RenderScaleNow();
     if (want == m_renderScale || !m_ldrMain || m_inFrame)
         return;
-    WaitIdle();
-    m_completed = m_submitted;
+    if(want==m_renderScaleRejected&&m_frameNumber<m_renderScaleRetryFrame)return;
     const bool wasScene = m_target == m_scene, wasMain = m_main == m_scene;
-    DestroySceneTargets();
-    m_renderScale = want;
-    if (!CreateSceneTargets() || !EnsureDepth(m_scene->m_width, m_scene->m_height)) {
-        Log("render scale %u%%: the scene's targets could not be made", want);
+    const bool wasLdr=m_target==m_ldrMain;
+    Texture* const oldTarget=m_target;
+    if(!RecreateMainTargets(m_width,m_height,want)) {
+        Log("render scale %u%%: replacement failed; keeping %u%%",want,m_renderScale);
+        m_renderScaleRejected=want;m_renderScaleRetryFrame=m_frameNumber+300;
         return;
     }
+    m_renderScaleRejected=0;
     if (wasScene) m_target = m_scene;
+    else if(!wasLdr)m_target=oldTarget;
     if (wasMain) m_main = m_scene;
     m_taaFrame = ~0ull;
     m_frameLightsDirty = true;
@@ -899,10 +968,9 @@ bool Device::EnsureDepth(uint32_t width, uint32_t height)
         return true;
     width = std::max(width, m_depthWidth);
     height = std::max(height, m_depthHeight);
-    if (m_depth)          // may still be in use by submitted or recorded work: free with this frame slot
-        m_deadImages.push_back({DeathTag(), {m_depth, m_depthView, m_depthAllocation}});
-    m_depth = VK_NULL_HANDLE;
-    m_depthView = VK_NULL_HANDLE;
+    VkImage image=VK_NULL_HANDLE;
+    VkImageView view=VK_NULL_HANDLE;
+    VmaAllocation allocation=nullptr;
     VkImageCreateInfo ci{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
     ci.imageType = VK_IMAGE_TYPE_2D;
     ci.format = kDepthFormat;
@@ -916,14 +984,21 @@ bool Device::EnsureDepth(uint32_t width, uint32_t height)
     VmaAllocationCreateInfo ac{};
     ac.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
     ac.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
-    if (vmaCreateImage(m_allocator, &ci, &ac, &m_depth, &m_depthAllocation, nullptr) != VK_SUCCESS)
+    if (vmaCreateImage(m_allocator, &ci, &ac, &image, &allocation, nullptr) != VK_SUCCESS)
         return false;
     VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-    vi.image = m_depth;
+    vi.image = image;
     vi.viewType = VK_IMAGE_VIEW_TYPE_2D;
     vi.format = kDepthFormat;
     vi.subresourceRange = {VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1};
-    vkCreateImageView(m_device, &vi, nullptr, &m_depthView);
+    if(vkCreateImageView(m_device,&vi,nullptr,&view)!=VK_SUCCESS) {
+        vmaDestroyImage(m_allocator,image,allocation);
+        return false;
+    }
+    // Replace only after both objects exist. Allocation/view failure must leave
+    // the previous depth usable, including during a render-target size change.
+    if(m_depth)m_deadImages.push_back({DeathTag(),{m_depth,m_depthView,m_depthAllocation}});
+    m_depth=image;m_depthView=view;m_depthAllocation=allocation;
     m_depthLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     m_depthWidth = width;
     m_depthHeight = height;
@@ -940,21 +1015,41 @@ void Device::DestroyMainTargets()
     if (m_readback) { vmaDestroyBuffer(m_allocator, m_readback, m_readbackAllocation); m_readback = VK_NULL_HANDLE; }
 }
 
+// All old targets stay owned until the complete replacement exists. A driver
+// allocation/view failure must not leave a dangling current target or half a
+// framebuffer. Resizing happens between frames, so old resources can then go.
+bool Device::RecreateMainTargets(uint32_t width,uint32_t height,uint32_t scale)
+{
+    WaitIdle();
+    m_completed=m_submitted;
+    const auto fields=[&]{return std::tie(m_width,m_height,m_renderScale,m_ldrMain,m_scene,m_glow,m_localFraction,
+        m_motionVectors,m_albedo,m_main,m_target,m_depth,m_depthView,m_depthAllocation,m_depthLayout,m_depthWidth,
+        m_depthHeight,m_otherDepth,m_depthSwapped,m_readback,m_readbackAllocation,m_readbackData);};
+    const auto copy=[](auto&... values){return std::make_tuple(values...);};
+    const auto previous=std::apply(copy,fields());
+    fields()=decltype(previous){};
+    m_width=width;m_height=height;m_renderScale=scale;
+    std::string error;
+    if(!CreateMainTargets(&error)) {
+        DestroyMainTargets();
+        fields()=previous;
+        Log("render targets: replacement failed (%s); previous targets retained",error.c_str());
+        return false;
+    }
+    const auto replacement=std::apply(copy,fields());
+    fields()=previous;
+    DestroyMainTargets();
+    fields()=replacement;
+    m_taaFrame=~0ull;
+    m_frameLightsDirty=true;
+    return true;
+}
+
 bool Device::Resize(uint32_t width, uint32_t height)
 {
     if (m_inFrame || !width || !height)
         return false;
-    WaitIdle();
-    m_completed = m_submitted;
-    bool wasMain = m_target == m_main;
-    DestroyMainTargets();
-    m_width = width;
-    m_height = height;
-    std::string error;
-    if (!CreateMainTargets(&error))
-        return false;
-    if (!wasMain)
-        m_target = m_main;          // the old target may be bigger than the new depth buffer
+    if(!RecreateMainTargets(width,height,m_renderScale))return false;
     m_viewport = {0, 0, width, height, 0.0f, 1.0f};
     if (m_swapchain)
         m_swapchainStale = true;
@@ -1105,7 +1200,7 @@ bool Device::CreatePipelines(std::string* error)
         {7, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
         {8, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},
         {9, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},   // shadow depths
-        {10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr},     // tessellation's normals
+        {10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, nullptr}, // normals or rock border flags
         {11, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},  // normal map
         {12, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, vsfstess, nullptr},  // the per-draw DrawRecords
         {13, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}, // reviewed global panes
@@ -1165,15 +1260,21 @@ bool Device::CreatePipelines(std::string* error)
         VkShaderModuleCreateInfo ci{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
         ci.codeSize = size;
         ci.pCode = code;
-        return Check(vkCreateShaderModule(m_device, &ci, nullptr, out), "vkCreateShaderModule", error);
+        const VkResult result=vkCreateShaderModule(m_device,&ci,nullptr,out);
+        if(result!=VK_SUCCESS)*out=VK_NULL_HANDLE; // failed outputs must never enter cleanup
+        return Check(result,"vkCreateShaderModule",error);
     };
     startup::Stage("Loading embedded SPIR-V shader modules");
-    VkShaderModule vert, frag, fragGlow, fragNoCut, fragGlowNoCut;
+    VkShaderModule vert=VK_NULL_HANDLE,frag=VK_NULL_HANDLE,fragGlow=VK_NULL_HANDLE,fragNoCut=VK_NULL_HANDLE,fragGlowNoCut=VK_NULL_HANDLE;
     if (!module(kVertSpirv, sizeof(kVertSpirv), &vert) || !module(kFragSpirv, sizeof(kFragSpirv), &frag) ||
         !module(kFragGlowSpirv, sizeof(kFragGlowSpirv), &fragGlow) ||
         !module(kFragNoCutSpirv, sizeof(kFragNoCutSpirv), &fragNoCut) ||
-        !module(kFragGlowNoCutSpirv, sizeof(kFragGlowNoCutSpirv), &fragGlowNoCut))
+        !module(kFragGlowNoCutSpirv, sizeof(kFragGlowNoCutSpirv), &fragGlowNoCut)) {
+        // Failed startup must release modules created before the failed stage.
+        for(auto shader:{vert,frag,fragGlow,fragNoCut,fragGlowNoCut})
+            if(shader)vkDestroyShaderModule(m_device,shader,nullptr);
         return false;
+    }
 
     VkPipelineShaderStageCreateInfo stages[2] = {
         {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_VERTEX_BIT, vert, "main", nullptr},
@@ -1382,6 +1483,7 @@ bool Device::CreatePipelines(std::string* error)
     if (!Check(vmaCreateBuffer(m_allocator, &bi, &ac, &m_nullBuffer, &m_nullAllocation, &info), "null buffer", error))
         return false;
     std::memset(info.pMappedData, 0, 64);
+    vmaFlushAllocation(m_allocator, m_nullAllocation, 0, 64);
     return true;
 }
 
@@ -2199,7 +2301,11 @@ void Device::EndFrame()
         VkResult r = m_fg ? FgPresent(&pi) : vkQueuePresentKHR(m_queue, &pi);
         if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) {
             startup::Finish();
-            if (m_sceneSaw3D) {
+            // Original has neither HDR nor Living camera capture. Its ordinary
+            // main-target 3D draws still make a world frame ready for zoning.
+            // The orphan-particle marker is collected for those draws in every
+            // preset; unlike m_sceneSaw3D it does not depend on enhancements.
+            if (m_sceneSaw3D || m_particleSaw3D) {
                 m_worldPresents.fetch_add(1, std::memory_order_release);
                 m_freshWorldPresents.fetch_add(1, std::memory_order_release);
             }
@@ -2312,6 +2418,7 @@ bool Device::ReadPixels(Texture* target, void* out)
         m_completed = m_submitted;
         vkFreeCommandBuffers(m_device, m_pool, 1, &cmd);
     }
+    vmaInvalidateAllocation(m_allocator, allocation, 0, bi.size);
     std::memcpy(out, info.pMappedData, size_t(bi.size));
     vmaDestroyBuffer(m_allocator, buffer, allocation);
     return true;
@@ -2339,6 +2446,7 @@ void Device::SaveScreenshot()
     header[28] = 24;
     put32(34, imageSize);
     std::fwrite(header, 1, 54, file);
+    vmaInvalidateAllocation(m_allocator, m_readbackAllocation, 0, VK_WHOLE_SIZE);
     const uint8_t* pixels = static_cast<const uint8_t*>(m_readbackData);
     std::vector<uint8_t> row(rowBytes + pad, 0);
     for (int32_t y = int32_t(m_height) - 1; y >= 0; --y) {      // BMP rows are bottom-up, BGR like the target

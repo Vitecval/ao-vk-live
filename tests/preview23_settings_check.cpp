@@ -78,14 +78,28 @@ int main(int argc,char** argv) {
         check(std::fabs(info("RVK_AmbientBright").value-std::atof(argv[2]))<.0001,"brightness migrates once and survives restart");
         std::puts("brightness migration passed");return 0;
     }
+    if(argc>1)check(info("RVK_EnhancedRocks").value==.4f,"rock strength survives restart");
+    if(argc>1)check(effective("RVK_RockShape")==0,"legacy rock shape stays disabled after restart");
     if(argc>1)check(info("RVK_ZoneScreen").value==0,"zoning toggle survives restart");
+    if(argc>1)check(info("RVK_ZoneClick").value==1,"click-to-continue survives restart");
     if(argc>1)check(std::fabs(info("RVK_TerraRough").value-.35f)<.001,"restart terrain roughness");
     if(argc>1){check(std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"restart gloss");check(info("RVK_ICCArtwork").value==1,"restart artwork");check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"restart manual clock");check(effective("RVK_FarScenery")==1 && effective("RVK_SceneryDist")==3 && effective("RVK_ViewRange")==3,"restart far scenery");check(info("RVK_ViewRange").value==1.5f,"restart stored ordinary view range");std::puts("saved selections, Far Scenery and manual time survived process restart");return 0;}
     check(info("RVK_TerraRough").defaultValue==.6f && info("RVK_TerraRough").min==0 &&
           info("RVK_TerraRough").max==1 && info("RVK_TerraRough").step==.05f,"terrain roughness schema");
     for(int i=0;i<=20;++i){set("RVK_TerraRough",i*.05f);check(std::fabs(info("RVK_TerraRough").value-i*.05f)<.001,"terrain roughness steps");}
     set("RVK_TerraRough",.35f);
+    check(info("RVK_EnhancedRocks").defaultValue==1 && info("RVK_EnhancedRocks").min==0 && info("RVK_EnhancedRocks").max==1,"rock strength schema");
+    set("RVK_RockShape",.3f);
+    check(effective("RVK_RockShape")==0,"legacy rock shape cannot enable geometry");
+    for(uint32_t i=0;i<count();++i){RvkSettingInfo item{};item.size=sizeof(item);get(i,&item);check(std::strcmp(item.name,"RVK_RockShape")!=0,"discontinued shape control hidden");}
+    set("RVK_Enhance",1);set("RVK_EnhancedRocks",.4f);
+    check(effective("RVK_EnhancedRocks")==.4f,"rock strength effective");
+    set("RVK_Enhance",0);check(effective("RVK_EnhancedRocks")==0,"original mode disables rock enhancement");
+    check(effective("RVK_RockShape")==0,"original mode disables rock geometry");
+    set("RVK_Enhance",1);check(effective("RVK_EnhancedRocks")==.4f,"original mode preserves rock preference");
     check(info("RVK_FarScenery").defaultValue==0,"far scenery opt-in default");
+    check(info("RVK_RenderBg").defaultValue==0,"background rendering remains off by default");
+    check(info("RVK_ZoneClick").defaultValue==0 && info("RVK_ZoneClick").value==0,"continue gate starts off on a fresh installation");
     check(info("RVK_SceneryDist").min==1 && info("RVK_SceneryDist").max==3 &&
           std::strcmp(info("RVK_SceneryDist").parent,"RVK_FarScenery")==0,"far distance schema");
     set("RVK_Enhance",1);set("RVK_ViewRange",1.5f);set("RVK_FarScenery",1);
@@ -108,7 +122,8 @@ int main(int argc,char** argv) {
     set("RVK_FarScenery",0);set("RVK_SceneryDist",1.5f);
     check(info("RVK_SkipHugeShadows").defaultValue==0 && std::strcmp(info("RVK_SkipHugeShadows").parent,"RVK_SunShadow")==0,"huge-shadow toggle defaults off under Sun shadows");
     check(info("RVK_ZoneScreen").defaultValue==1,"zoning enabled by default");
-    for(unsigned p=0;p<4;++p){set("RVK_ZoneScreen",0);set("RVK_SkipHugeShadows",1);preset(p);check(info("RVK_SkipHugeShadows").value==0,"every preset defaults huge-shadow skipping off");check(info("RVK_ZoneScreen").value==1,"every preset enables zoning");if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
+    set("RVK_ZoneClick",1);
+    for(unsigned p=0;p<4;++p){set("RVK_ZoneScreen",0);set("RVK_SkipHugeShadows",1);preset(p);check(info("RVK_SkipHugeShadows").value==0,"every preset defaults huge-shadow skipping off");check(info("RVK_ZoneScreen").value==1,"every preset enables zoning");check(info("RVK_ZoneClick").value==1,"presets preserve the optional continue preference");if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
     check(info("RVK_ICCArtwork").value==0 && info("RVK_ICCGlossiness").value==.7f && info("RVK_ImprovedTiles").value==0 && info("RVK_ImprovedTiles").defaultValue==0,"Ultra artwork/gloss/tiles off");
     check(current && current()==3,"Ultra reports Ultra before customization");
     set("RVK_ICCGlossiness",.6f);check(current()==-1,"customizing Ultra reports Custom");set("RVK_ICCGlossiness",.7f);
@@ -149,7 +164,9 @@ int main(int argc,char** argv) {
     check(info("RVK_InstantTime").value==0 && effective("RVK_TimeOfDay")==14,"custom clock independent of shortcut");
     set("RVK_InstantTime",0);
     check(effective("RVK_Pebbles")==.15f,"Shared Ground+ sparse pebble density");
-    set("RVK_ZoneScreen",0);check(info("RVK_ZoneScreen").value==0,"zoning can be disabled independently");
+    check(info("RVK_ZoneClick").defaultValue==0 && std::strcmp(info("RVK_ZoneClick").parent,"RVK_ZoneScreen")==0,"click-to-continue is optional and off by default");
+    set("RVK_ZoneClick",1);
+    set("RVK_ZoneScreen",0);check(info("RVK_ZoneScreen").value==0 && effective("RVK_ZoneClick")==0,"disabled zoning also disables the continue gate");
     check(effective("RVK_TimeOfDay")==-1 && effective("RVK_TimeSpeed")==1,"instant shortcut restores server/cycle clock");
     set("RVK_InstantTime",1);set("RVK_TimeOfDay",14);set("RVK_InstantTime",1);
     check(effective("RVK_TimeOfDay")==13.5f,"reselect day after manual console hour");
@@ -166,5 +183,7 @@ int main(int argc,char** argv) {
     for(int v=0;v<=20;++v){set("RVK_GlobalShiny",v/20.f);check(std::fabs(info("RVK_GlobalShiny").value-v/20.f)<.0001,"global shiny slider");}
     set("RVK_ICCArtwork",1);set("RVK_ICCGlossiness",.2f);
     set("RVK_TerraRough",.35f);
-    std::puts("settings passed: Ultra defaults, server clock default, manual override/reset/restart, gloss sliders and no Living controls");
+    set("RVK_EnhancedRocks",.4f);
+    set("RVK_RockShape",.3f);
+    std::puts("settings passed: Ultra defaults, server clock default, manual override/reset/restart, gloss sliders, Enhanced Rocks and no Living controls");
 }

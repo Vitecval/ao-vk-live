@@ -22,6 +22,9 @@ def main():
  p=package/cache;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/'build/preview23/atmosphere-r44/prepared-materials-final'/Path(cache).name,p);assets[cache]=sha(p)
  rel='randy-vk/cache/materials/recipes.tsv';put(package/rel,('RVK-RECIPES-1\n'+recipe+'\n').encode());assets[rel]=sha(package/rel)
  loading='randy-vk/loading/test.png';put(package/loading,b'loading');assets[loading]=sha(package/loading)
+ for name in ['rock_face_03_diff_2k.jpg','rock_face_03_nor_gl_2k.jpg','rock_face_03_arm_1k.jpg','rock-face-03-source.json']:
+  relative='randy-vk/packs/EnhancedRocks/'+name
+  put(package/relative,('owned surface fixture '+name).encode());assets[relative]=sha(package/relative)
  m=dict(product='AO-VK Live',version='0.6.0-preview.24',build='fixture24',edition='full',client={'randy31.dll':sha(client/'randy31.dll')},addon={n:sha(package/n) for n in ['ao-vk.dll','ddraw.dll']},assets=assets,preparedMaterials=dict(format=1,catalog=rel))
  def save():(package/'manifest.json').write_text(json.dumps(m))
  def run(tag,script,good=True):
@@ -54,10 +57,12 @@ def main():
  run('full-to-lite',invoke('-Upgrade'))
  assert not list((client/'randy-vk/cache/materials').glob('*.rvkm')) and not index.exists()
  assert not list((client/'randy-vk/packs/ao-cyber-world').glob('*.png'))
+ assert not any((client/'randy-vk/packs/EnhancedRocks').glob('*'))
  assert not (package/'.ao-vk-downloads').exists() and (client/loading).is_file()
  assert (client/'randy-vk.ini').read_bytes()==b'[Renderer]\r\nPersonal=17\r\n'
  m=full;save();run('lite-to-full',invoke('-Upgrade'));probe()
  run('uninstall',invoke('-Uninstall'));assert not index.exists() and not (client/'ao-vk.dll').exists()
+ assert not any((client/'randy-vk/packs/EnhancedRocks').glob('*'))
  assert (client/'randy-vk.ini').is_file() and (client/'randy-vk/packs/personal/keep.png').read_bytes()==b'personal'
  run('reset',f"& '{ROOT}/tools/reset-settings.ps1' -ClientDir '{client}'\n");run('reset-again',f"& '{ROOT}/tools/reset-settings.ps1' -ClientDir '{client}'\n")
  assert not (client/'randy-vk.ini').exists()

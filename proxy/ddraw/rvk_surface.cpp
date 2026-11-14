@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 
 namespace rvkproxy {
 
@@ -65,8 +66,9 @@ uint64_t g_shadowBytesSaved = 0;
 int GameTexturesAlive() { return g_gameTextures; }
 uint64_t TextureShadowBytesSaved() { return g_shadowBytesSaved; }
 
-RSurface::RSurface(Kind k, const DDSURFACEDESC2& d) : kind(k), desc(d)
+RSurface::RSurface(Kind k, const DDSURFACEDESC2& d, RDirectDraw* creator) : owner(creator), kind(k), desc(d)
 {
+    if(owner)owner->AddRef();
     top = this;
 }
 
@@ -85,10 +87,13 @@ RSurface::~RSurface()
         g_rvk.device->DestroyTexture(texture);
     if (g_rvk.mainSurface == this)
         g_rvk.mainSurface = nullptr;
+    if(owner)owner->Release();
 }
 
 HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RSurface** out)
 {
+    if(!out)return DDERR_INVALIDPARAMS;
+    *out=nullptr;
     DDSURFACEDESC2 d = requested;
     d.dwSize = sizeof(d);
     DWORD caps = (d.dwFlags & DDSD_CAPS) ? d.ddsCaps.dwCaps : 0;
@@ -132,13 +137,24 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
     } else {
         PixelFormatFor(format, &d.ddpfPixelFormat);
     }
+    // Surface dimensions are unsigned in the descriptor but rectangles and
+    // pitches are signed. Reject sizes that would wrap CPU row/byte counts.
+    if (!d.dwWidth || !d.dwHeight || d.dwWidth > LONG_MAX || d.dwHeight > LONG_MAX)
+        return DDERR_INVALIDPARAMS;
+    const uint64_t rowBytes = rvk::FormatIsCompressed(format)
+        ? uint64_t((d.dwWidth + 3) / 4) * rvk::FormatRowBytes(format, 4)
+        : uint64_t(d.dwWidth) * (palettized ? 1 : convert24 ? 3 : rvk::FormatRowBytes(format, 1));
+    if (rowBytes > LONG_MAX || rowBytes * rvk::FormatRows(format, d.dwHeight) > std::vector<uint8_t>().max_size())
+        return DDERR_OUTOFMEMORY;
     d.dwFlags |= DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
     if (kind != Kind::Plain && kind != Kind::Primary && !(caps & DDSCAPS_SYSTEMMEMORY) &&
         !(d.ddsCaps.dwCaps2 & (DDSCAPS2_TEXTUREMANAGE | DDSCAPS2_D3DTEXTUREMANAGE)))
         d.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
 
-    auto* s = new RSurface(kind, d);
-    s->owner = owner;
+    auto* s = new RSurface(kind, d, owner);
+    // A failure partway through an implicit mip/flip chain releases every
+    // surface and creator lease already acquired by this attempt.
+    std::unique_ptr<RSurface,void(*)(RSurface*)> pending(s,[](RSurface* p){p->Release();});
     s->format = format;
     s->convert24 = convert24;
     s->palettized = palettized;
@@ -146,7 +162,6 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
     switch (kind) {
     case Kind::Main:
         if (!g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
-            s->Release();
             return DDERR_GENERIC;
         }
         g_rvk.mainSurface = s;
@@ -159,11 +174,9 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
             bd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_3DDEVICE | DDSCAPS_FLIP | DDSCAPS_COMPLEX |
                                 DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
             if (!g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
-                s->Release();
                 return DDERR_GENERIC;
             }
-            auto* back = new RSurface(Kind::Main, bd);
-            back->owner = owner;
+            auto* back = new RSurface(Kind::Main, bd, owner);
             back->format = format;
             g_rvk.mainSurface = back;
             s->nextLevel = back;
@@ -186,8 +199,7 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
             ld.dwMipMapCount = levels - i;
             ld.ddsCaps.dwCaps |= DDSCAPS_MIPMAP;
             ld.ddsCaps.dwCaps2 |= DDSCAPS2_MIPMAPSUBLEVEL;
-            auto* l = new RSurface(Kind::Texture, ld);
-            l->owner = owner;
+            auto* l = new RSurface(Kind::Texture, ld, owner);
             l->format = format;
             l->convert24 = convert24;
             l->palettized = palettized;
@@ -202,7 +214,7 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
     default:
         break;
     }
-    *out = s;
+    *out = pending.release();
     return DD_OK;
 }
 
@@ -368,11 +380,15 @@ void RSurface::Upload()
 HRESULT RSurface::DoAddAttachedSurface(LPDIRECTDRAWSURFACE7 s)
 {
     auto* z = static_cast<RSurface*>(s);
-    if (!z || z->kind != Kind::Depth)
+    if (!z || z == this || kind == Kind::Depth || z->kind != Kind::Depth)
         return DDERR_CANNOTATTACHSURFACE;
+    if (depth == z)
+        return DDERR_SURFACEALREADYATTACHED;
+    // Acquire the replacement before releasing the old attachment. A caller
+    // can pass an interface whose only remaining reference is its attachment.
+    z->AddRef();
     if (depth) depth->Release();
     depth = z;
-    z->AddRef();
     return DD_OK;
 }
 
@@ -432,6 +448,22 @@ HRESULT RSurface::DoBlt(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcIface, LPRECT sr
     }
     RECT s = srcRect ? *srcRect : RECT{0, 0, LONG(src->desc.dwWidth), LONG(src->desc.dwHeight)};
     RECT d = dstRect ? *dstRect : RECT{0, 0, LONG(desc.dwWidth), LONG(desc.dwHeight)};
+    if (s.left < 0 || s.top < 0 || s.right <= s.left || s.bottom <= s.top ||
+        DWORD(s.right) > src->desc.dwWidth || DWORD(s.bottom) > src->desc.dwHeight ||
+        d.right <= d.left || d.bottom <= d.top ||
+        int64_t(d.right) - d.left > LONG_MAX || int64_t(d.bottom) - d.top > LONG_MAX)
+        return DDERR_INVALIDRECT;
+    if (rvk::FormatIsCompressed(format)) {
+        // Partial compressed blocks are valid only at the surface edge. CPU
+        // block copies cannot clip a negative or out-of-bounds destination.
+        auto blockRect = [](const RECT& r, const RSurface* surface) {
+            return r.left >= 0 && r.top >= 0 && DWORD(r.right) <= surface->desc.dwWidth &&
+                   DWORD(r.bottom) <= surface->desc.dwHeight && !(r.left % 4) && !(r.top % 4) &&
+                   (!(r.right % 4) || DWORD(r.right) == surface->desc.dwWidth) &&
+                   (!(r.bottom % 4) || DWORD(r.bottom) == surface->desc.dwHeight);
+        };
+        if (!blockRect(s, src) || !blockRect(d, this)) return DDERR_INVALIDRECT;
+    }
 
     if (IsGpu(this)) {
         if (!dev) return DDERR_GENERIC;
@@ -482,6 +514,13 @@ HRESULT RSurface::DoBlt(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcIface, LPRECT sr
         srcBpp = BytesPerPixel(src);
     }
     EnsureShadow();
+    std::vector<uint8_t> selfCopy;
+    if (src == this && d.left < s.right && d.right > s.left && d.top < s.bottom && d.bottom > s.top) {
+        // Stretching and either row direction can overlap. Preserve the source
+        // before the first write, including for compressed block copies.
+        selfCopy = shadow;
+        srcData = selfCopy.data();
+    }
     if (rvk::FormatIsCompressed(format)) {
         // Block copies only: same size, 4-aligned.
         if ((s.right - s.left) != (d.right - d.left) || (s.bottom - s.top) != (d.bottom - d.top)) return DDERR_UNSUPPORTED;
@@ -494,10 +533,10 @@ HRESULT RSurface::DoBlt(LPRECT dstRect, LPDIRECTDRAWSURFACE7 srcIface, LPRECT sr
         uint32_t bpp = BytesPerPixel(this);
         LONG dw = d.right - d.left, dh = d.bottom - d.top, sw = s.right - s.left, sh = s.bottom - s.top;
         for (LONG y = 0; y < dh; ++y) {
-            LONG dy = d.top + y, sy = s.top + y * sh / std::max(dh, 1L);
+            LONG dy = d.top + y, sy = s.top + LONG(int64_t(y) * sh / dh);
             if (dy < 0 || dy >= LONG(desc.dwHeight)) continue;
             for (LONG x = 0; x < dw; ++x) {
-                LONG dx = d.left + x, sx = s.left + x * sw / std::max(dw, 1L);
+                LONG dx = d.left + x, sx = s.left + LONG(int64_t(x) * sw / dw);
                 if (dx < 0 || dx >= LONG(desc.dwWidth)) continue;
                 std::memcpy(shadow.data() + size_t(dy) * Pitch() + size_t(dx) * bpp,
                             srcData + size_t(sy) * srcPitch + size_t(sx) * srcBpp, bpp);
@@ -513,7 +552,11 @@ HRESULT RSurface::DoBltFast(DWORD x, DWORD y, LPDIRECTDRAWSURFACE7 srcIface, LPR
     auto* src = static_cast<RSurface*>(srcIface);
     if (!src) return DDERR_INVALIDPARAMS;
     RECT s = srcRect ? *srcRect : RECT{0, 0, LONG(src->desc.dwWidth), LONG(src->desc.dwHeight)};
-    RECT d{LONG(x), LONG(y), LONG(x) + (s.right - s.left), LONG(y) + (s.bottom - s.top)};
+    const int64_t right = int64_t(x) + int64_t(s.right) - s.left;
+    const int64_t bottom = int64_t(y) + int64_t(s.bottom) - s.top;
+    if (x > LONG_MAX || y > LONG_MAX || right > LONG_MAX || bottom > LONG_MAX)
+        return DDERR_INVALIDRECT;
+    RECT d{LONG(x), LONG(y), LONG(right), LONG(bottom)};
     DWORD bltFlags = (flags & DDBLTFAST_SRCCOLORKEY) ? DDBLT_KEYSRC : 0;
     return DoBlt(&d, srcIface, &s, bltFlags, nullptr);
 }
@@ -641,6 +684,9 @@ HRESULT RSurface::DoLock(LPRECT rect, LPDDSURFACEDESC2 out, DWORD flags, HANDLE)
         return DDERR_UNSUPPORTED;
     }
     if (m_locked) return DDERR_SURFACEBUSY;
+    if (rect && (rect->left < 0 || rect->top < 0 || rect->right <= rect->left || rect->bottom <= rect->top ||
+                 DWORD(rect->right) > desc.dwWidth || DWORD(rect->bottom) > desc.dwHeight))
+        return DDERR_INVALIDPARAMS;
     uint32_t pitch;
     if (IsGpu(this)) {
         shadow.assign(size_t(desc.dwWidth) * desc.dwHeight * 4, 0);

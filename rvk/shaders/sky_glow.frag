@@ -8,7 +8,7 @@
 #include "sky_common.glsl"
 
 layout(set = 0, binding = 0) uniform sampler2D skyView;   // (atmos_view.frag; a black texture without it)
-layout(push_constant) uniform Params {
+layout(std140, set = 0, binding = 1) uniform Params {
     mat4 invViewProj;   // clip -> world, the sky's camera (raw D3DMATRIX memory, as sun.frag)
     vec4 view;          // xy: the target's size; z: 1 our own sky (the table), 0 the twilight over the game's
     vec4 sky0, sky1, sky2, sky3;   // the sky model (sky_common.glsl) - or, under our own sky, the shooting star's look:

@@ -190,6 +190,10 @@ void Device::EndFrameDump()
         DumpLightmaps(base + "-lightmaps.bin");
     }
     ReportWeatherStats(m_dumpFile);
+    std::fprintf(m_dumpFile,"# rigid rock clusters: draws 0; rocks 0; triangles 0; built 0; cached 0; CPU bytes 0; camera deformation 0\n");
+    std::fprintf(m_dumpFile,"# rock geometry: draws %u; source triangles %u; generated bound %u; topology entries %zu\n",
+        m_rockShapeFrame==m_frameNumber?m_rockShapeDraws:0,m_rockShapeFrame==m_frameNumber?m_rockShapeTriangles:0,
+        m_rockShapeFrame==m_frameNumber?m_rockShapeBound:0,m_rockTopology.size());
     std::fprintf(m_dumpFile, "# %s\n", GpuMemoryReport().c_str());
     std::fprintf(m_dumpFile,"# native terrain: shared-plus %u; enabled %u; patches %zu; patches/frame %.2f; rocks %u; pebbles %u; AO %.2f; sun %.2f\n",
         unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),
@@ -269,6 +273,10 @@ void Device::EndFrameDump()
     std::fprintf(m_dumpFile,"# retained shadow depth cache: %u cascades reused, %u refreshed; %s\n",
         m_shadowStaticReused,m_shadowStaticRefreshed,m_shadowStaticImage ? "available":"disabled or unavailable");
     std::fprintf(m_dumpFile,"# sun cascade cadence: updated %u of %u layers; close layers every frame\n",m_shadowCascadesUpdated,m_cascadeCount);
+    float flash[4],flashView[4],flashProj[4],flashWorld[4];Lightning(flash,flashView,flashProj,flashWorld);
+    std::fprintf(m_dumpFile,"# sun state: enabled %u; valid %u; direction %.6f %.6f %.6f; luminance %.3f; range %.1f; resolution %u; memory %u; storm %.3f; flash %.3f\n",
+        unsigned(m_shadows),unsigned(m_shadowValid),double(m_sunDir[0]),double(m_sunDir[1]),double(m_sunDir[2]),
+        double(m_sunLuminance),double(m_shadowRange),m_shadowSize,m_shadowMemory,double(m_storm),double(flash[3]));
     std::fprintf(m_dumpFile, "# instancing: %u runs of >=2 identical static draws; %u draws could merge away (longest run"
                              " %u)\n", m_batchRuns, m_batchMerged, m_batchMaxRun);
     std::fprintf(m_dumpFile, "# M3 batching: %u indirect calls for %u draws (%u single); %u indexed draws left direct\n",
@@ -708,6 +716,7 @@ void Device::DumpTargets(const std::string& base)
         return;
     SubmitAndWait();
     for (const Read& r : reads) {
+        vmaInvalidateAllocation(m_allocator, r.allocation, 0, VK_WHOLE_SIZE);
         const Texture* t = r.item->t;
         const uint32_t w = t->m_width, h = t->m_height;
         std::vector<uint8_t> rgb(size_t(w) * h * 3);

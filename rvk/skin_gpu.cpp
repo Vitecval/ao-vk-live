@@ -260,12 +260,20 @@ void Device::SkinDispatch(SkinMesh& mesh, const skin::Job& job, uint32_t flags, 
     if (!(flags & 2u)) prevBytes = boneBytes;
     Frame& f = m_frames[m_frameIndex];
     VkCommandBuffer cmd = UploadCommands();
+    // A frame's arena can be larger than maxStorageBufferRange. A dispatch
+    // touches only this piece's output; smooth-only jobs may be far from its
+    // original vertices. Bind that aligned region and rebase the shader offsets.
+    const bool smoothOnly=(flags&8u)!=0;
+    const VkDeviceSize outputBase=smoothOnly?out.smoothOffset:out.vertexOffset;
+    VkDeviceSize outputEnd=outputBase+VkDeviceSize(n)*(smoothOnly?12:sizeof(skin::Vertex));
+    if(flags&2u)outputEnd=std::max(outputEnd,out.prevOffset+VkDeviceSize(n)*12);
+    if(flags&4u)outputEnd=std::max(outputEnd,out.smoothOffset+VkDeviceSize(n)*12);
     VkDescriptorBufferInfo infos[5] = {
         {mesh.buffer, 0, mesh.groupsOffset},
         {mesh.buffer, mesh.groupsOffset, VkDeviceSize(n) * 3 * 4},
         {f.ring, boneOffset, boneBytes},
         {f.ring, prevOffset, prevBytes},
-        {f.skinArena, 0, VK_WHOLE_SIZE},
+        {f.skinArena, outputBase, outputEnd-outputBase},
     };
     VkWriteDescriptorSet writes[5] = {};
     for (uint32_t i = 0; i < 5; ++i) {
@@ -277,8 +285,8 @@ void Device::SkinDispatch(SkinMesh& mesh, const skin::Job& job, uint32_t flags, 
     }
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_skinPipeline);
     vkCmdPushDescriptorSetKHR(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, m_skinLayout, 0, 5, writes);
-    SkinPush push{n, job.bones->count, prev.count, flags | (job.rest ? 1u : 0u), uint32_t(out.vertexOffset / 4),
-                  uint32_t(out.prevOffset / 4), uint32_t(out.smoothOffset / 4), mesh.membersBase};
+    SkinPush push{n, job.bones->count, prev.count, flags | (job.rest ? 1u : 0u), smoothOnly?0u:uint32_t((out.vertexOffset-outputBase)/4),
+                  flags&2u?uint32_t((out.prevOffset-outputBase)/4):0u, flags&4u?uint32_t((out.smoothOffset-outputBase)/4):0u, mesh.membersBase};
     vkCmdPushConstants(cmd, m_skinLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push), &push);
     auto& timing=m_profile[m_frameIndex];const bool timed=m_livingDrawing&&m_livingGpuProfile&&timing.pool&&timing.livingSkinCount+2<=kLivingSkinQueries;
     const uint32_t query=kProfileMarks+2+timing.livingSkinCount;

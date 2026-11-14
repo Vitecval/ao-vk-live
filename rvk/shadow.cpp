@@ -332,11 +332,16 @@ bool Device::CreateShadowResources(std::string* error)
         VkShaderModuleCreateInfo mi{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
         mi.codeSize = size;
         mi.pCode = code;
-        return Check(vkCreateShaderModule(m_device, &mi, nullptr, out), "shadow shader module", error);
+        const VkResult result=vkCreateShaderModule(m_device,&mi,nullptr,out);
+        if(result!=VK_SUCCESS)*out=VK_NULL_HANDLE;
+        return Check(result,"shadow shader module",error);
     };
-    VkShaderModule vert, frag;
-    if (!module(kShadowVertSpirv, sizeof(kShadowVertSpirv), &vert) || !module(kShadowFragSpirv, sizeof(kShadowFragSpirv), &frag))
+    VkShaderModule vert=VK_NULL_HANDLE,frag=VK_NULL_HANDLE;
+    if (!module(kShadowVertSpirv, sizeof(kShadowVertSpirv), &vert) || !module(kShadowFragSpirv, sizeof(kShadowFragSpirv), &frag)) {
+        if(vert)vkDestroyShaderModule(m_device,vert,nullptr);
+        if(frag)vkDestroyShaderModule(m_device,frag,nullptr);
         return false;
+    }
     VkPipelineShaderStageCreateInfo stages[2] = {
         {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_VERTEX_BIT, vert, "main", nullptr},
         {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO, nullptr, 0, VK_SHADER_STAGE_FRAGMENT_BIT, frag, "main", nullptr},
@@ -474,7 +479,7 @@ bool Device::IsLabel(uint32_t primitive, uint32_t fvf, uint32_t vertexCount) con
 
 bool Device::IsShadowCaster(uint32_t primitive, uint32_t fvf) const
 {
-    if (m_drawIsLabel || VisualKind(m_drawVisualKind) == VisualKind::Sky)   // (placed around the camera)
+    if (m_drawIsLabel || m_drawIsWeather || VisualKind(m_drawVisualKind) == VisualKind::Sky)
         return false;
     if (!(m_shadows || m_pointShadows) || m_target != m_main || TopologyClassOf(primitive) != 2 ||
         (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ || !m_rs[d3d::RS_ZENABLE] || !m_rs[d3d::RS_ZWRITEENABLE])
@@ -896,6 +901,7 @@ void Device::CacheCaster(uint64_t key, const ShadowCaster& c, const void* vertic
     std::memcpy(dst, vertices, vbBytes);
     if (c.indexCount)
         std::memcpy(dst + indexAt, indices, size_t(c.indexCount) * 2);
+    vmaFlushAllocation(m_allocator, e.chunk->allocation, e.slot, e.slotBytes);
     m_casterCache.emplace(key, e);
     AddCoverMesh(key, e, vertices, indices);
     if (m_cacheTraceLines < 300 && m_frameNumber > 600) {   // (churn: see UpdateCasterCache)
@@ -1022,7 +1028,9 @@ bool Device::WorldCamera() const
 
 bool Device::ShadowReceiver(uint32_t fvf) const
 {
-    if (m_drawIsLabel || !WorldCamera() || !m_shadows || !ShadingOn() || m_target != m_main || (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ ||
+    // Native weather is classified as Other by older scene hooks. It must not
+    // sample world sun shadows, or be retained as scenery, even with depth writes.
+    if (m_drawIsLabel || m_drawIsWeather || !WorldCamera() || !m_shadows || !ShadingOn() || m_target != m_main || (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ ||
         !m_rs[d3d::RS_ZENABLE] || VisualKind(m_drawVisualKind) == VisualKind::Sky)   // the sky: no shadows on it
         return false;
     // SharedGround+'s opaque combined pass has its sun in the lightmap,
@@ -1065,7 +1073,7 @@ bool Device::IsCombinedTerrainPass() const
 // ground = base * min(1, lightmap * shadow + ambient + lights).
 bool Device::ShadowInLightmap(uint32_t fvf) const
 {
-    return !m_drawIsLabel && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main && m_rs[d3d::RS_ZENABLE] &&
+    return !m_drawIsLabel && !m_drawIsWeather && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main && m_rs[d3d::RS_ZENABLE] &&
            IsTerrain(fvf) && (IsMultiplyPass() ||
                (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsCombinedTerrainPass()));
 }
@@ -1117,7 +1125,7 @@ bool Device::BlobShadowShape(uint32_t primitive, uint32_t fvf, const void* verti
 // pass divides its local lights by the same shadow factor so only the (baked) sunlight ends up shadowed.
 bool Device::ShadowCompensated(uint32_t fvf) const
 {
-    return !m_drawIsLabel && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main &&
+    return !m_drawIsLabel && !m_drawIsWeather && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main &&
            (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZ && m_rs[d3d::RS_ZENABLE] && IsMultiplyPass() &&
            VisualKind(m_drawVisualKind) != VisualKind::Sky;
 }

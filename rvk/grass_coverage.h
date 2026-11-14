@@ -8,8 +8,11 @@ inline bool Green(const uint8_t* c) {
 }
 // This reviewed SL meadow is olive/yellow grass, not a path or a green prop.
 // Keep the wider colour test confined to its material; do not grass over sand.
+inline bool OliveMeadow(uint32_t type,uint32_t id) {
+    return (type==1010004 || type==1010016 || type==1010017) && id==207100;
+}
 inline bool SurfaceTexel(const uint8_t* c,uint32_t type,uint32_t id) {
-    const bool meadow=(type==1010004 || type==1010016 || type==1010017) && id==207100;
+    const bool meadow=OliveMeadow(type,id);
     return Green(c) || (meadow && c[1]>24 && int(c[1])*100>int(c[0])*88 &&
                        int(c[1])*100>int(c[2])*120);
 }

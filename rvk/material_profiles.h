@@ -14,6 +14,15 @@ inline constexpr Entry worldCatalog[] = {
 #include "world_material_catalog.inc"
 };
 
+inline constexpr uint64_t rockCatalog[] = {
+#include "rock_material_catalog.inc"
+};
+inline bool NaturalRock(uint32_t type,uint32_t id) {
+    if(type==1010016||type==1010017)type=1010004;
+    const uint64_t key=uint64_t(type)<<32|id;
+    return std::binary_search(std::begin(rockCatalog),std::end(rockCatalog),key);
+}
+
 inline uint32_t LookupWorld(uint32_t type, uint32_t id)
 {
     if (type == 1010016 || type == 1010017) type = 1010004;

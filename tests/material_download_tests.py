@@ -16,7 +16,7 @@ def sha(b):return hashlib.sha256(b).hexdigest()
 def main():
     global VERSION,BASE
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=ROOT/'build/material-download-tests')
-    parser.add_argument('--release-version',choices=['0.6.0-preview.21','0.6.0-preview.23'],default=VERSION)
+    parser.add_argument('--release-version',choices=['0.6.0-preview.21','0.6.0-preview.23','0.6.0-preview.24'],default=VERSION)
     args=parser.parse_args();VERSION=args.release_version;BASE=f'https://github.com/Vitecval/ao-vk-live/releases/download/v{VERSION}/'
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
     out=output/('run-'+uuid.uuid4().hex[:10]);out.mkdir()
@@ -138,7 +138,8 @@ if($script:events -lt 1){{throw 'Missing setup progress'}}
         results[-1]['case']='repair-corrupt-decoded-texture-from-verified-cache'
         run('offline',offline=True)
         run('preview22-frozen-materials',offline=True,frozen=True,expect=VERSION=='0.6.0-preview.21')
-        run('preview23-frozen-materials',offline=True,frozen='0.6.0-preview.23')
+        run('preview23-frozen-materials',offline=True,frozen='0.6.0-preview.23',expect=VERSION!='0.6.0-preview.24')
+        run('matching-frozen-materials',offline=True,frozen=VERSION)
         modes['interrupted']='interrupt';d,p=run('interrupted',expect=False)
         assert list((d/'.ao-vk-downloads').glob('*.partial')),'Interrupted bytes were not retained'
         modes['interrupted']='normal';start=len(requests);run('interrupted')

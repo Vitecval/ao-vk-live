@@ -7,6 +7,8 @@
 #include "native/ground.h"
 #include "native/rings.h"
 #include "native/scene.h"
+#include "native/client_build.h"
+#include "presentation_policy.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -69,8 +71,13 @@ ComScope::ComScope(unsigned methodIndex)
     if (tid != g_lastThread) {
         g_lastThread = tid;
         if (std::find(g_seenThreads.begin(), g_seenThreads.end(), tid) == g_seenThreads.end()) {
-            g_seenThreads.push_back(tid);
-            RvkLog("thread %lu calls DirectDraw/Direct3D (first call: %s)", tid, ComMethodName(methodIndex));
+            try {
+                g_seenThreads.push_back(tid);
+                RvkLog("thread %lu calls DirectDraw/Direct3D (first call: %s)", tid, ComMethodName(methodIndex));
+            } catch (...) {
+                // Diagnostics must never make this constructor throw after it
+                // acquired the recursive backend lock (its destructor would not run).
+            }
         }
     }
 }
@@ -291,13 +298,36 @@ bool RunAction(const char* name)
     return true;
 }
 
+namespace {
+bool CharacterLoggedInForRendering()
+{
+    using EngineFn=void*(__cdecl*)();
+    using CharacterFn=void*(__fastcall*)(const void*,void*);
+    static HMODULE resolved=nullptr;static EngineFn engine=nullptr;static CharacterFn character=nullptr;
+    HMODULE module=GetModuleHandleA("N3.dll");
+    if(!module){resolved=nullptr;engine=nullptr;character=nullptr;return false;}
+    if(module!=resolved){
+        resolved=module;engine=nullptr;character=nullptr;
+        if(rnative::IdentifyClientModule(module,rnative::ClientModule::N3)!=rnative::ClientBuild::Unknown){
+            engine=reinterpret_cast<EngineFn>(GetProcAddress(module,"?GetInstance@n3Engine_t@@SAPAV1@XZ"));
+            character=reinterpret_cast<CharacterFn>(GetProcAddress(module,"?GetClientControlDynel@n3EngineClient_t@@QBEPAVn3VisualDynel_t@@XZ"));
+        }
+    }
+    // This is the game's current local-player query, also used by AOSharp.
+    // No latched 'ever logged in' state: logout must immediately resume login.
+    if(!engine||!character)return false;
+    const void* current=engine();return current&&character(current,nullptr);
+}
+}
+
 bool RvkState::WindowDrawable()
 {
     RECT rect{};
     bool drawable = window && !IsIconic(window) && GetClientRect(window, &rect) &&
                     rect.right > rect.left && rect.bottom > rect.top;
     // Owned dialogs and child controls count as focused through their process.
-    const bool background = drawable && rvk_settings::Get("RVK_RenderBg") == 0 && !InputFocused();
+    const bool background = rvk::presentation::SuspendForFocus(drawable,InputFocused(),
+        rvk_settings::Get("RVK_RenderBg")!=0,CharacterLoggedInForRendering());
     drawable = drawable && !background;
     if (presentationSuspended != !drawable) {
         presentationSuspended = !drawable;
@@ -766,14 +796,14 @@ HRESULT RPalette::DoGetCaps(LPDWORD caps)
 
 HRESULT RPalette::DoGetEntries(DWORD, DWORD start, DWORD count, LPPALETTEENTRY out)
 {
-    if (!out || start + count > 256) return DDERR_INVALIDPARAMS;
+    if (!out || start > EntryCount() || count > EntryCount() - start) return DDERR_INVALIDPARAMS;
     std::memcpy(out, entries + start, count * sizeof(PALETTEENTRY));
     return DD_OK;
 }
 
 HRESULT RPalette::DoSetEntries(DWORD, DWORD start, DWORD count, LPPALETTEENTRY in)
 {
-    if (!in || start + count > 256) return DDERR_INVALIDPARAMS;
+    if (!in || start > EntryCount() || count > EntryCount() - start) return DDERR_INVALIDPARAMS;
     std::memcpy(entries + start, in, count * sizeof(PALETTEENTRY));
     return DD_OK;
 }
@@ -799,6 +829,7 @@ void* RDirectDraw::Cast(REFIID iid)
 HRESULT RDirectDraw::DoCreateClipper(DWORD, LPDIRECTDRAWCLIPPER* out, IUnknown*)
 {
     if (!out) return DDERR_INVALIDPARAMS;
+    *out = nullptr;
     *out = new RClipper;
     return DD_OK;
 }
@@ -806,16 +837,22 @@ HRESULT RDirectDraw::DoCreateClipper(DWORD, LPDIRECTDRAWCLIPPER* out, IUnknown*)
 HRESULT RDirectDraw::DoCreatePalette(DWORD flags, LPPALETTEENTRY entries, LPDIRECTDRAWPALETTE* out, IUnknown*)
 {
     if (!out) return DDERR_INVALIDPARAMS;
+    *out = nullptr;
+    // Indexed-to-indexed palettes have byte entries and no conversion path.
+    // Refuse them before reading a four-byte colour array from their input.
+    if (flags & DDPCAPS_8BITENTRIES) return DDERR_UNSUPPORTED;
     auto* p = new RPalette(flags);
     if (entries)
-        std::memcpy(p->entries, entries, ((flags & DDPCAPS_8BIT) ? 256 : 16) * sizeof(PALETTEENTRY));
+        std::memcpy(p->entries, entries, p->EntryCount() * sizeof(PALETTEENTRY));
     *out = p;
     return DD_OK;
 }
 
 HRESULT RDirectDraw::DoCreateSurface(LPDDSURFACEDESC2 desc, LPDIRECTDRAWSURFACE7* out, IUnknown*)
 {
-    if (!desc || !out) return DDERR_INVALIDPARAMS;
+    if (!out) return DDERR_INVALIDPARAMS;
+    *out=nullptr;
+    if (!desc) return DDERR_INVALIDPARAMS;
     RSurface* s = nullptr;
     HRESULT r = RSurface::Create(this, *desc, &s);
     *out = s;
@@ -1032,7 +1069,12 @@ HRESULT RDirect3D::DoCreateDevice(REFCLSID clsid, LPDIRECTDRAWSURFACE7 target, L
 
 HRESULT RDirect3D::DoCreateVertexBuffer(LPD3DVERTEXBUFFERDESC desc, LPDIRECT3DVERTEXBUFFER7* out, DWORD)
 {
-    if (!desc || !out) return DDERR_INVALIDPARAMS;
+    if (!out) return DDERR_INVALIDPARAMS;
+    *out = nullptr;
+    if (!desc) return DDERR_INVALIDPARAMS;
+    const size_t stride = rvk::Device::FvfStride(desc->dwFVF);
+    if (!stride || desc->dwNumVertices > std::vector<uint8_t>().max_size() / stride)
+        return DDERR_OUTOFMEMORY;
     *out = new RVertexBuffer(*desc);
     return D3D_OK;
 }
@@ -1060,14 +1102,17 @@ HRESULT RDirect3D::DoEnumZBufferFormats(REFCLSID, LPD3DENUMPIXELFORMATSCALLBACK 
 
 HRESULT WINAPI RvkDirectDrawCreateEx(GUID*, LPVOID* out, REFIID iid, IUnknown*)
 {
-    ComScope scope(ComMethodCount() - 2);
     if (!out) return DDERR_INVALIDPARAMS;
-    if (iid != IID_IDirectDraw7) {
-        RvkLog("DirectDrawCreateEx for a non-IDirectDraw7 interface");
-        return DDERR_UNSUPPORTED;
-    }
-    *out = static_cast<IDirectDraw7*>(new RDirectDraw);
-    return DD_OK;
+    *out = nullptr;
+    return ComHresult([&]() -> HRESULT {
+        ComScope scope(ComMethodCount() - 2);
+        if (iid != IID_IDirectDraw7) {
+            RvkLog("DirectDrawCreateEx for a non-IDirectDraw7 interface");
+            return DDERR_UNSUPPORTED;
+        }
+        *out = static_cast<IDirectDraw7*>(new RDirectDraw);
+        return DD_OK;
+    });
 }
 
 HRESULT WINAPI RvkDirectDrawEnumerateExA(LPDDENUMCALLBACKEXA cb, LPVOID ctx, DWORD)

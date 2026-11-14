@@ -29,10 +29,20 @@ Palette::~Palette()
 
 void Palette::Set(const Bone* source, uint32_t n)
 {
+    // A 32-bit client can exhaust contiguous address space before physical
+    // RAM. Reject overflow and keep the owned allocation on failure; zero
+    // active bones makes both skinning paths skip invalid bone references.
+    if((n&&!source)||n>UINT32_MAX-16u||size_t(n)>SIZE_MAX/sizeof(Columns)-16u) {
+        count=0;
+        return;
+    }
     if (n > capacity) {
+        const uint32_t wanted=n+16;
+        auto* replacement=static_cast<Columns*>(_aligned_malloc(sizeof(Columns)*size_t(wanted),16));
+        if(!replacement){count=0;return;}
         _aligned_free(bones);
-        capacity = n + 16;
-        bones = static_cast<Columns*>(_aligned_malloc(sizeof(Columns) * capacity, 16));
+        bones=replacement;
+        capacity=wanted;
     }
     count = n;
     for (uint32_t i = 0; i < n; ++i) {

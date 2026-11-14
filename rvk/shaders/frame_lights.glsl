@@ -120,6 +120,7 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 hdGround[5],hdGroundConfig;
     vec4 nativeHeight;
     vec4 shipLightPos[8],shipLightColour[8],shipLightConfig;
+    vec4 rockObjects;
     Light lights[64];
 } FL;
 

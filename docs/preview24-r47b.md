@@ -1,0 +1,7 @@
+# Preview 24 local r47b: render login screens in the background
+
+`RVK_RenderBg` remains off by default. Focus-based suspension is now conditional on the game's current local character. Login, character selection, absent N3/engine state and logout keep the window presenting while unfocused. Existing handling of minimized/zero-area windows is retained.
+
+The renderer resolves the verified classic N3 module's `n3Engine_t::GetInstance` and `n3EngineClient_t::GetClientControlDynel` exports, using the same local-player query as the local AOSharp source. Missing/unknown bindings keep rendering. State is queried on every presentation check, including while rendering is suspended; no sticky "ever logged in" flag can leave character selection frozen after logout. A module disappearing clears the cached bindings. Owned dialogs retain the existing process-focus handling.
+
+The policy checks cover pre-login, active character, explicit background opt-in, foreground, minimization ownership and logout/re-entry. Settings checks confirm the unchanged default and persistence. The renderer library and shaders match the already-tested r47 core. The isolated installer tests cover repeat install, modified-file refusal, preservation of preferences and exact revert. Installation/delivery records are in `build/preview24/background-r47b`; retail login/focus behavior still needs an in-game confirmation. The public release is unchanged.

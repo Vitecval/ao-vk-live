@@ -378,17 +378,18 @@ bool Device::CreateCloudResources(std::string* error)
                       sceneFormats, 5, kDepthFormat, &m_sunPipeline))
             return false;
         // The sky's twilight and glow (sky.cpp DrawSkyGlow): the same, its push constants the sky model too.
-        VkPushConstantRange skyPush{VK_SHADER_STAGE_FRAGMENT_BIT, 0, 256};   // (256: + our night sky)
         // (One image: our sky's view table - atmosphere.cpp.)
-        const VkDescriptorSetLayoutBinding skyBinding{0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
-                                                      VK_SHADER_STAGE_FRAGMENT_BIT, nullptr};
+        const VkDescriptorSetLayoutBinding skyBinding[2] = {
+            {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr},
+            {1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr}};
         VkDescriptorSetLayoutCreateInfo skySet{VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
         skySet.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR;
-        skySet.bindingCount = 1;
-        skySet.pBindings = &skyBinding;
+        skySet.bindingCount = 2;
+        skySet.pBindings = skyBinding;
         if (!Check(vkCreateDescriptorSetLayout(m_device, &skySet, nullptr, &m_skyGlowSetLayout), "sky set layout", error))
             return false;
-        pl.pPushConstantRanges = &skyPush;
+        pl.pushConstantRangeCount = 0;
+        pl.pPushConstantRanges = nullptr;
         pl.setLayoutCount = 1;
         pl.pSetLayouts = &m_skyGlowSetLayout;
         if (!Check(vkCreatePipelineLayout(m_device, &pl, nullptr, &m_skyGlowLayout), "sky glow layout", error) ||

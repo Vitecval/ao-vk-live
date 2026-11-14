@@ -1,0 +1,53 @@
+{
+  "asset": "Rock Face 03",
+  "page": "https://polyhaven.com/a/rock_face_03",
+  "license": "CC0-1.0",
+  "licensePage": "https://polyhaven.com/license",
+  "photography": "Dario Barresi",
+  "processing": "Rico Cilliers",
+  "physicalWidthMetres": 2.7,
+  "files": [
+    {
+      "name": "rock_face_03_diff_2k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_face_03/rock_face_03_diff_2k.jpg",
+      "bytes": 3814362,
+      "sha256": "644ee79df7ffbf5f6afc330b64dd3f33794bab8820915fe61ffe0c88ecfd7ece",
+      "usedByAngularPreview": true
+    },
+    {
+      "name": "rock_face_03_nor_gl_2k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_face_03/rock_face_03_nor_gl_2k.jpg",
+      "bytes": 4473242,
+      "sha256": "a498cef4ba6191f6959b6d03fb835263c77271948264a289af24497ab7111dec",
+      "usedByAngularPreview": true
+    },
+    {
+      "name": "rock_face_03_arm_2k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_face_03/rock_face_03_arm_2k.jpg",
+      "bytes": 3215097,
+      "sha256": "1921303981d12bccf72dd29d8a8daf823f1d9bb60400b447c64757203c1e2dad",
+      "usedByAngularPreview": false
+    },
+    {
+      "name": "rock_face_03_disp_2k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/rock_face_03/rock_face_03_disp_2k.jpg",
+      "bytes": 798149,
+      "sha256": "5d24ec5a7f4f7333bcf9c158f63d0059d9a3ba234eeff7570a5f6cf2f4522cd5",
+      "usedByAngularPreview": false
+    },
+    {
+      "name": "rock_face_03_arm_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_face_03/rock_face_03_arm_1k.jpg",
+      "bytes": 793241,
+      "sha256": "a1f8e60eaf4f119071840e36e165d3a9185be62bd3ac7068ab6d886aa639d29f",
+      "usedByAngularPreview": true
+    },
+    {
+      "name": "rock_face_03_disp_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/rock_face_03/rock_face_03_disp_1k.jpg",
+      "bytes": 264231,
+      "sha256": "fb053bfd46cef976da9cfee67f045367469cddd69469dcacd67d3fca4bd41545",
+      "usedByAngularPreview": false
+    }
+  ]
+}

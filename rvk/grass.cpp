@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <malloc.h>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -215,8 +216,12 @@ bool Texture::TexelRgbBilinear(float u, float v, uint8_t rgb[3], bool clamp) con
 
 float Texture::GrassCoverAt(float u,float v,bool clamp) const
 {
-    if (m_grassMaskSide) return m_grassMask.empty() ? 0.0f :
-        grass::Coverage(m_grassMask.data(),u,v,clamp,int(m_grassMaskSide));
+    if (m_grassMaskSide) {
+        float cover=m_grassMask.empty() ? 0.f:grass::Coverage(m_grassMask.data(),u,v,clamp,int(m_grassMaskSide));
+        if(grass::OliveMeadow(m_rdbType,m_rdbId)&&!m_oliveGrassMask.empty())
+            cover+=grass::Coverage(m_oliveGrassMask.data(),u,v,clamp,int(m_grassMaskSide));
+        return std::min(cover,1.f);
+    }
     uint8_t rgb[3];
     return TexelRgbBilinear(u,v,rgb,clamp) && grass::SurfaceTexel(rgb,m_rdbType,m_rdbId) ? 1.0f : 0.0f;
 }
@@ -591,7 +596,7 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
     // The object's record: with its entry in the per-object cache (objects.cpp), else by its mesh and matrix here - as
     // on its first frame, before its mesh counts as static and it has an entry: the entry then takes that record over.
     auto mapKey = [&] {
-        uint64_t key = uint64_t(reinterpret_cast<uintptr_t>(m_drawMesh)) * 0x9E3779B97F4A7C15ull;
+        uint64_t key = m_drawMeshKey * 0x9E3779B97F4A7C15ull;
         const uint32_t* wb = reinterpret_cast<const uint32_t*>(&m_world);
         for (int i = 0; i < 16; ++i)
             key = (key ^ wb[i]) * 0x100000001B3ull;
@@ -611,6 +616,10 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
         record = &m_grassCovers[mapKey()];
     }
     GrassChunk& seen = *record;
+    Texture* surfaceTexture=m_textures[0];
+    const uint64_t surfaceStamp=surfaceTexture ? uint64_t(reinterpret_cast<uintptr_t>(surfaceTexture)) ^
+        (uint64_t(surfaceTexture->m_uploads)<<32) ^ (uint64_t(surfaceTexture->m_rdbType)<<17) ^ surfaceTexture->m_rdbId:0;
+    if(seen.surfaceStamp!=surfaceStamp){seen.surfaceStamp=surfaceStamp;seen.processed=0;}
     if (seen.lastSeen + 1 < m_frameNumber)
         seen.firstSeen = m_frameNumber;          // new, or back after a gap: its still run starts again
     seen.lastSeen = m_frameNumber;
@@ -723,6 +732,7 @@ void Device::CaptureCover(uint32_t primitive, const FvfLayout& layout, const voi
             std::memset(t->blockRank,255,sizeof(t->blockRank));std::memset(t->blockLightRank,255,sizeof(t->blockLightRank));
             std::fill(&t->cover[0][0],&t->cover[0][0]+GrassTile::kCells*GrassTile::kCoverLayers,1e30f);
             t->created=m_frameNumber+1;t->lastChange=m_frameNumber;t->bases[0]=grassTex;
+            grassTex->m_groundBase=true;
             it=m_grassTiles.emplace(key,std::move(t)).first;
         }
         GrassTile& t=*it->second;
@@ -943,7 +953,7 @@ bool Device::CreateGrassResources(std::string* error)
     if (!Check(vkCreateDescriptorSetLayout(m_device, &sl, nullptr, &m_grassSetLayout),
                "vkCreateDescriptorSetLayout", error))
         return false;
-    VkPushConstantRange range{VK_SHADER_STAGE_VERTEX_BIT, 0, 8};   // the per-tile frame-light mask (uvec2)
+    VkPushConstantRange range{VK_SHADER_STAGE_VERTEX_BIT, 0, 12};  // lights plus conservative character mask
     VkPipelineLayoutCreateInfo pl{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
     pl.setLayoutCount = 1;
     pl.pSetLayouts = &m_grassSetLayout;
@@ -1734,6 +1744,7 @@ void Device::UpdateGrassTiles()
                 hit = hit || (p && std::find(m_groundTexUploaded.begin(), m_groundTexUploaded.end(), p) !=
                                        m_groundTexUploaded.end());
             if (hit) {                           // as a new tile (its blades stay until it is rebuilt)
+                if(tile.surface)FreeGrassBlades(tile); // an empty replacement must not leave old floating grass behind
                 std::memset(tile.rank, 255, sizeof(tile.rank));
                 std::memset(tile.blockRank, 255, sizeof(tile.blockRank));
                 std::memset(tile.bases, 0, sizeof(tile.bases));
@@ -1949,6 +1960,30 @@ uint64_t Device::GrassTilesWaiting() const
 // Draws the visible grass tiles into the scene rendering already active, building the tiles whose ground is ready.
 // Called from Draw at the game's first blended draw - the blades are opaque and write depth, so they must go in
 // before the game's blended grass/foliage (which writes no depth). Also from EndScene as a fallback, on its own.
+// A large grass pool can exceed maxStorageBufferRange on otherwise supported
+// GPUs. Bind overlapping, aligned windows only on those devices, and rebase
+// vertex indices into that window. The visible blades and their records stay
+// identical; adapters supporting the entire pool keep the single binding.
+uint32_t Device::GrassTileBaseVertex(VkCommandBuffer cmd,VkPipelineLayout layout,const GrassTile& tile,uint32_t& boundFirst)
+{
+    const uint64_t poolBytes=uint64_t(m_grassPoolBlades)*sizeof(GrassBlade);
+    const uint32_t maxBlades=m_props.limits.maxStorageBufferRange/sizeof(GrassBlade);
+    if(poolBytes<=m_props.limits.maxStorageBufferRange)return tile.first*8;
+    const uint32_t alignment=uint32_t(std::lcm<VkDeviceSize>(std::max<VkDeviceSize>(1,m_props.limits.minStorageBufferOffsetAlignment),sizeof(GrassBlade))/sizeof(GrassBlade));
+    const uint32_t step=std::max(alignment,(maxBlades/2/alignment)*alignment);
+    uint32_t first=tile.first/step*step;
+    if(uint64_t(tile.first-first)+tile.blades>maxBlades)first=tile.first/alignment*alignment;
+    if(uint64_t(tile.first-first)+tile.blades>maxBlades)return UINT32_MAX;
+    if(first!=boundFirst) {
+        VkDescriptorBufferInfo info{m_grassPool,VkDeviceSize(first)*sizeof(GrassBlade),VkDeviceSize(std::min(maxBlades,m_grassPoolBlades-first))*sizeof(GrassBlade)};
+        VkWriteDescriptorSet write{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+        write.dstBinding=2;write.descriptorCount=1;write.descriptorType=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;write.pBufferInfo=&info;
+        vkCmdPushDescriptorSetKHR(cmd,VK_PIPELINE_BIND_POINT_GRAPHICS,layout,0,1,&write);
+        boundFirst=first;
+    }
+    return (tile.first-first)*8;
+}
+
 void Device::DrawGrassTiles(VkCommandBuffer cmd)
 {
     if (!m_grassOn || !m_grassPipeline || !m_scene || !m_shadowView || !m_frameLightsOffset)
@@ -2103,7 +2138,7 @@ void Device::DrawGrassTiles(VkCommandBuffer cmd)
     vkCmdSetScissor(cmd, 0, 1, &scissor);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_grassPipeline);
     VkDescriptorBufferInfo frameInfo{f.ring, frameOffset, sizeof(GrassFrame)};
-    VkDescriptorBufferInfo bladeInfo{m_grassPool, 0, VK_WHOLE_SIZE};
+    VkDescriptorBufferInfo bladeInfo{m_grassPool,0,std::min<VkDeviceSize>(VkDeviceSize(m_grassPoolBlades)*sizeof(GrassBlade),m_props.limits.maxStorageBufferRange)};
     VkDescriptorBufferInfo trailInfo{f.ring, trailOffset, trailBytes};
     VkDescriptorBufferInfo lightsInfo{f.ring, m_frameLightsOffset, sizeof(FrameLights)};
     VkDescriptorImageInfo shadowInfo{m_shadowSampler, m_shadowView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
@@ -2147,7 +2182,10 @@ void Device::DrawGrassTiles(VkCommandBuffer cmd)
     // scene lights by too, so only with the light override on).
     const bool localLights = m_lightOverride && m_pixelLighting && !m_frameLightSpheres.empty();
     uint64_t drawn = 0;
-    uint32_t lastMask[2] = {~0u, ~0u};
+    uint32_t lastMask[3] = {~0u, ~0u, ~0u};
+    static const bool referencePushers=[](){const char* value=std::getenv("AOVK_TEST_GRASS_PUSHER_REFERENCE");return value&&std::strcmp(value,"1")==0;}();
+    unsigned pusherTests=0,pusherKept=0;
+    uint32_t boundFirst=0;
     for (const Visible& v : visible) {
         const GrassTile& t = *v.tile;
         uint64_t mask = 0;
@@ -2165,18 +2203,34 @@ void Device::DrawGrassTiles(VkCommandBuffer cmd)
                     mask |= uint64_t(1) << i;
             }
         }
-        const uint32_t mask2[2] = {uint32_t(mask), uint32_t(mask >> 32)};
-        if (mask2[0] != lastMask[0] || mask2[1] != lastMask[1]) {
-            vkCmdPushConstants(cmd, m_grassLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 8, mask2);
+        uint32_t pushMask=0;
+        // Packed blade height is at most 4 m and droop at most one height.
+        // Include both even on steep slopes; wind is applied after the pusher lookup.
+        const float margin=.7f*std::sqrt(std::max(m_grassPush,0.f))+8.f;
+        const float x0=float(t.tx)*kGrassTileSize,z0=float(t.tz)*kGrassTileSize;
+        for(size_t i=0;i<std::min<size_t>(m_framePushers.size(),16);++i){
+            const float* p=m_framePushers[i].p;++pusherTests;
+            const float dx=std::max({x0-p[0],0.f,p[0]-x0-kGrassTileSize});
+            const float dz=std::max({z0-p[2],0.f,p[2]-z0-kGrassTileSize});
+            if(referencePushers || (dx*dx+dz*dz<=margin*margin&&p[1]>=t.minY-3.f-margin&&p[1]<=t.maxY+tall+1.f+margin)){
+                pushMask|=1u<<i;++pusherKept;}
+        }
+        const uint32_t mask2[3] = {uint32_t(mask), uint32_t(mask >> 32),pushMask};
+        if (mask2[0] != lastMask[0] || mask2[1] != lastMask[1] || mask2[2]!=lastMask[2]) {
+            vkCmdPushConstants(cmd, m_grassLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, 12, mask2);
             lastMask[0] = mask2[0];
             lastMask[1] = mask2[1];
+            lastMask[2] = mask2[2];
         }
-        vkCmdDrawIndexed(cmd, v.indices, 1, v.firstIndex, int32_t(t.first * 8), 0);
+        const uint32_t vertex=GrassTileBaseVertex(cmd,m_grassLayout,t,boundFirst);
+        if(vertex==UINT32_MAX)continue;
+        vkCmdDrawIndexed(cmd, v.indices, 1, v.firstIndex, int32_t(vertex), 0);
         drawn += v.indices / (v.firstIndex ? kFarIndices : kNearIndices);
     }
     m_cache = StateCache{};                      // this pipeline and its vertex input are not the scene's
     m_arenaBound = m_bindlessBound = false;      // ... and its pushed set 0 replaced the scene's: rebind those too
     if(m_dumpFile) {
+        std::fprintf(m_dumpFile,"# Grass pusher culling: %u of %u tile-character pairs retained; reference %u; distance %.1f density %.1f\n",pusherKept,pusherTests,unsigned(referencePushers),m_grassDistance,m_grassDensity);
         unsigned tiles=0,blades=0;float low=1e30f,high=-1e30f;
         for(const auto& pair:m_grassTiles)if(pair.second->surface && pair.second->blades) {
             ++tiles;blades+=pair.second->blades;low=std::min(low,pair.second->minY);high=std::max(high,pair.second->maxY);
@@ -2197,7 +2251,7 @@ void Device::DrawGrassShadow(VkCommandBuffer cmd, const d3d::Matrix& lightViewPr
     if (!m_grassOn || !m_grassShadows || !m_grassShadowPipeline || !m_grassPool || !m_grassIndex || !m_frameEyeValid)
         return;
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_grassShadowPipeline);
-    VkDescriptorBufferInfo bladeInfo{m_grassPool, 0, VK_WHOLE_SIZE};
+    VkDescriptorBufferInfo bladeInfo{m_grassPool,0,std::min<VkDeviceSize>(VkDeviceSize(m_grassPoolBlades)*sizeof(GrassBlade),m_props.limits.maxStorageBufferRange)};
     VkWriteDescriptorSet w{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
     w.dstBinding = 2;
     w.descriptorCount = 1;
@@ -2230,6 +2284,7 @@ void Device::DrawGrassShadow(VkCommandBuffer cmd, const d3d::Matrix& lightViewPr
     vkCmdPushConstants(cmd, m_grassShadowLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(p), &p);
     const float tall = m_grassHeight * 1.7f + 1.0f;
     const float reach = m_grassDistance + kGrassTileSize * 0.7072f;
+    uint32_t boundFirst=0;
     for (const auto& [key, tp] : m_grassTiles) {
         const GrassTile& t = *tp;
         if (!t.built || !t.blades)
@@ -2247,7 +2302,9 @@ void Device::DrawGrassShadow(VkCommandBuffer cmd, const d3d::Matrix& lightViewPr
         const float nx = std::max({x0 - m_frameEye[0], 0.0f, m_frameEye[0] - x0 - kGrassTileSize});
         const float nz = std::max({z0 - m_frameEye[2], 0.0f, m_frameEye[2] - z0 - kGrassTileSize});
         const uint32_t n = nx * nx + nz * nz > 10.0f * 10.0f && t.sparse ? t.sparse : t.blades;
-        vkCmdDrawIndexed(cmd, n * kFarIndices, 1, m_grassIndexBlades * kNearIndices, int32_t(t.first * 8), 0);
+        const uint32_t vertex=GrassTileBaseVertex(cmd,m_grassShadowLayout,t,boundFirst);
+        if(vertex==UINT32_MAX)continue;
+        vkCmdDrawIndexed(cmd, n * kFarIndices, 1, m_grassIndexBlades * kNearIndices, int32_t(vertex), 0);
         m_grassShadowBlades += n;
     }
 }
@@ -2282,6 +2339,7 @@ bool Device::DrawGrassPointShadow(VkCommandBuffer cmd, const d3d::Matrix& faceVi
         return false;
     const float tall = m_grassHeight * 1.7f + 1.0f;
     bool bound = false;
+    uint32_t boundFirst=0;
     for (const auto& [key, tp] : m_grassTiles) {
         const GrassTile& t = *tp;
         if (!t.built || !t.blades)
@@ -2298,7 +2356,7 @@ bool Device::DrawGrassPointShadow(VkCommandBuffer cmd, const d3d::Matrix& faceVi
         if (!bound) {
             bound = true;
             vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_grassShadowPipeline);
-            VkDescriptorBufferInfo bladeInfo{m_grassPool, 0, VK_WHOLE_SIZE};
+            VkDescriptorBufferInfo bladeInfo{m_grassPool,0,std::min<VkDeviceSize>(VkDeviceSize(m_grassPoolBlades)*sizeof(GrassBlade),m_props.limits.maxStorageBufferRange)};
             VkWriteDescriptorSet w{VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
             w.dstBinding = 2;
             w.descriptorCount = 1;
@@ -2329,7 +2387,9 @@ bool Device::DrawGrassPointShadow(VkCommandBuffer cmd, const d3d::Matrix& faceVi
             vkCmdPushConstants(cmd, m_grassShadowLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(p), &p);
         }
         const uint32_t n = near2 > 6.0f * 6.0f && t.sparse ? t.sparse : t.blades;
-        vkCmdDrawIndexed(cmd, n * kFarIndices, 1, m_grassIndexBlades * kNearIndices, int32_t(t.first * 8), 0);
+        const uint32_t vertex=GrassTileBaseVertex(cmd,m_grassShadowLayout,t,boundFirst);
+        if(vertex==UINT32_MAX)continue;
+        vkCmdDrawIndexed(cmd, n * kFarIndices, 1, m_grassIndexBlades * kNearIndices, int32_t(vertex), 0);
         m_grassPointShadowBlades += n;
     }
     return bound;

@@ -1,6 +1,18 @@
 # AO-VK Live Preview 24
 
-## Revision 54 update
+## Revision 55 update
+
+- Fixed moving ships leaving retained copies of old shadow poses. Sky-only ships
+  do not cast ground shadows; nearby hulls keep their current moving shadows.
+- Very broad ship/environment lights keep their original illumination without
+  rendering an entire area into low-detail local shadow cubes. Nearby local
+  lights retain their shadows. Grass remains at the existing range and density.
+- Captures from Borealis showed three 1,041 m lights and thousands of point-shadow
+  caster draws. Targeted tests reproduced 1,200 retained ship poses before the fix
+  and zero after, with Immersive Ships both on and off. A normal structure still
+  retains one shadow pose; local light rendering remains pixel-identical.
+
+## Earlier Preview 24 updates
 
 - Expanded the loading-tip deck from 50 to **545 unique tips** using the supplied
   500-tip list. Complete-deck shuffling avoids repeats, including across decks.

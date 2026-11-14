@@ -6,6 +6,7 @@
 // around the camera, each three times as wide as the one before (the nearest sharpest, the last reaching the shadow
 // distance), oriented with the sun and snapped to whole texels so they don't shimmer while the camera moves.
 #include "internal.h"
+#include "ship_shadow_policy.h"
 #include "huge_shadow_policy.h"
 #include "shadow_camera.h"
 
@@ -479,7 +480,11 @@ bool Device::IsLabel(uint32_t primitive, uint32_t fvf, uint32_t vertexCount) con
 
 bool Device::IsShadowCaster(uint32_t primitive, uint32_t fvf) const
 {
-    if (m_drawIsLabel || m_drawIsWeather || VisualKind(m_drawVisualKind) == VisualKind::Sky)
+    // Mesh-id sky scenery uses Static visuals in N3. The main pass already
+    // treats those ships as sky; retaining each moving pose as a ground caster
+    // grows shadow work over time, independently of Immersive Ships.
+    if (m_drawIsLabel || m_drawIsWeather || VisualKind(m_drawVisualKind) == VisualKind::Sky ||
+        (m_drawMesh && m_drawMesh->skyScenery))
         return false;
     if (!(m_shadows || m_pointShadows) || m_target != m_main || TopologyClassOf(primitive) != 2 ||
         (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ || !m_rs[d3d::RS_ZENABLE] || !m_rs[d3d::RS_ZWRITEENABLE])
@@ -595,7 +600,8 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
     c.key = key;
     std::memcpy(c.sway, m_drawSway, sizeof(c.sway));
     c.draw = m_frameDraw;
-    c.animated = m_livingDrawing || (m_drawMesh && !m_drawMeshStatic);
+    const bool movingHull = m_textures[0] && ship::Hull(m_textures[0]->m_rdbType,m_textures[0]->m_rdbId);
+    c.animated = movingHull || m_livingDrawing || (m_drawMesh && !m_drawMeshStatic);
     c.owner = m_drawOwner;
     c.kind = m_drawVisualKind;
     c.leafKey = m_drawLeaves ? m_drawLeafKey : 0;
@@ -604,7 +610,7 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
     // casting ghost shadows. Observe movement by visual/mesh/placement before
     // the pose-dependent key, and retire the last retained pose when it moves.
     bool movingScenery=false;
-    if(m_drawVisual && VisualKind(c.kind)==VisualKind::Static && !c.owner && !c.texture && !c.leafKey && c.sway[3]<=.5f) {
+    if(!movingHull && m_drawVisual && VisualKind(c.kind)==VisualKind::Static && !c.owner && !c.texture && !c.leafKey && c.sway[3]<=.5f) {
         const uint64_t shape[]={m_drawVisual,uint64_t(primitive)<<32|fvf,uint64_t(vertexCount)<<32|indexCount,
             m_drawMesh ? m_drawMesh->indexHash:0};
         int32_t placement[3];for(int j=0;j<3;++j)placement[j]=int32_t(std::round(m_world.m[3][j]));
@@ -629,7 +635,9 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
         }
     }
     m_casters.push_back(c);
-    if(movingScenery){++m_cacheRefusedMoving;return;}
+    // Moving hulls keep their current sun/point shadow, never a frozen pose.
+    // N3's Static visual category is not evidence that a flying ship is static.
+    if(movingHull || movingScenery){++m_cacheRefusedMoving;return;}
     if (VisualKind(c.kind) == VisualKind::Static) {
         if (m_statelVerified[0] == 0 || m_statelVerified[1] == 0)
             CheckStatelDraw(m_world, vertexCount, indexCount);   // (statels.cpp: is our placement the game's?)
@@ -1031,7 +1039,8 @@ bool Device::ShadowReceiver(uint32_t fvf) const
     // Native weather is classified as Other by older scene hooks. It must not
     // sample world sun shadows, or be retained as scenery, even with depth writes.
     if (m_drawIsLabel || m_drawIsWeather || !WorldCamera() || !m_shadows || !ShadingOn() || m_target != m_main || (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZ ||
-        !m_rs[d3d::RS_ZENABLE] || VisualKind(m_drawVisualKind) == VisualKind::Sky)   // the sky: no shadows on it
+        !m_rs[d3d::RS_ZENABLE] || VisualKind(m_drawVisualKind) == VisualKind::Sky ||
+        (m_drawMesh && m_drawMesh->skyScenery))   // the sky: no shadows on it
         return false;
     // SharedGround+'s opaque combined pass has its sun in the lightmap,
     // not in C.lights. In sunny mode route shadows to that lightmap; treating
@@ -1074,7 +1083,7 @@ bool Device::IsCombinedTerrainPass() const
 bool Device::ShadowInLightmap(uint32_t fvf) const
 {
     return !m_drawIsLabel && !m_drawIsWeather && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main && m_rs[d3d::RS_ZENABLE] &&
-           IsTerrain(fvf) && (IsMultiplyPass() ||
+           !(m_drawMesh && m_drawMesh->skyScenery) && IsTerrain(fvf) && (IsMultiplyPass() ||
                (SharedGroundPlus() && EnhancedDaylight() > 0.0f && IsCombinedTerrainPass()));
 }
 
@@ -1127,7 +1136,7 @@ bool Device::ShadowCompensated(uint32_t fvf) const
 {
     return !m_drawIsLabel && !m_drawIsWeather && WorldCamera() && m_shadows && ShadingOn() && m_target == m_main &&
            (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZ && m_rs[d3d::RS_ZENABLE] && IsMultiplyPass() &&
-           VisualKind(m_drawVisualKind) != VisualKind::Sky;
+           VisualKind(m_drawVisualKind) != VisualKind::Sky && !(m_drawMesh && m_drawMesh->skyScenery);
 }
 
 // The sun for the next frame's shadows: the brightest directional light used during this frame.

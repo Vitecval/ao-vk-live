@@ -7,6 +7,7 @@
 // The depth stored is the perspective depth along the face's axis, near kPointShadowNear and far the light's range;
 // the shader recomputes it from the largest component of (point - light), which picks the same face.
 #include "internal.h"
+#include "ship_shadow_policy.h"
 
 #include <algorithm>
 #include <array>
@@ -522,10 +523,12 @@ void Device::RenderPointShadowMaps(VkCommandBuffer cmd)
     // nearer, so lights at similar distances don't swap cubes back and forth.
     struct Candidate { float key; uint32_t index; float fade; int slot; };
     std::vector<Candidate> candidates;
+    uint32_t broadLights=0;
     for (uint32_t i = 0; i < m_lightsCur.size(); ++i) {
         const d3d::Light& l = m_lightsCur[i].light;
         float lum = l.diffuse.r * 0.3f + l.diffuse.g * 0.59f + l.diffuse.b * 0.11f;
-        if (l.range < 1.0f || lum < 0.05f)
+        if (!ship::LocalCube(l.range,m_pointShadowSize)) { ++broadLights; continue; }
+        if (lum < 0.05f)
             continue;
         float mn[3] = {l.position.x - l.range, l.position.y - l.range, l.position.z - l.range};
         float mx[3] = {l.position.x + l.range, l.position.y + l.range, l.position.z + l.range};
@@ -546,6 +549,7 @@ void Device::RenderPointShadowMaps(VkCommandBuffer cmd)
         }
         candidates.push_back({key, i, fade, slot});
     }
+    if(m_dumpFile && broadLights)std::fprintf(m_dumpFile,"# point shadow range policy: %u broad/invalid ranges excluded from cubes; native illumination unchanged; %u-pixel faces, max local radius %.0f\n",broadLights,m_pointShadowSize,float(m_pointShadowSize)*.25f);
     // The cubes' lights: the nearest m_pointShadows candidates are wanted. A light keeps its cube (slot) while it has
     // one; one no longer wanted fades its shadow out (still rendered) before giving the cube up, and a newly wanted
     // light takes a free cube and fades in - a shadow never disappears from one frame to the next, as it did when

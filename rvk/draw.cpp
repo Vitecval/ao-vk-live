@@ -1,5 +1,6 @@
 // D3D7 state, Clear, and drawing.
 #include "internal.h"
+#include "ship_shadow_policy.h"
 #include "lightning_policy.h"
 #include "building_weathering.h"
 #include "window_materials.h"
@@ -4215,9 +4216,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
     if(m_immersiveShips>.5f) {
         const Texture* hull=m_textures[0];
-        bool knownHull=false;
-        if(hull && (hull->m_rdbType==1010004 || hull->m_rdbType==1010016 || hull->m_rdbType==1010017))
-            for(uint32_t id : {99841u,201230u,202773u,203102u,203531u,203532u}) knownHull |= hull->m_rdbId==id;
+        const bool knownHull=hull && ship::Hull(hull->m_rdbType,hull->m_rdbId);
         if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) {
             dt.mat[2] |= kMatImmersiveShip;
             if(m_drawMesh)CaptureShipBeacons(primitive,layout,vertices,vertexCount,indices,indexCount,

@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     DestroyWindow(inputOwner);
     std::puts("ready foreground zoning accepts fresh keys and clicks; early/repeated/stale/system/background input ignored");
     selectedPhrase = rvk::zoning::kLoadingPhraseCount;
-    std::puts("all 50 Unicode phrases paint and wrap at five aspect ratios over the complete uncropped image, above its untouched logo");
+    std::printf("all %zu Unicode phrases paint and wrap at five aspect ratios over the complete uncropped image, above its untouched logo\n", rvk::zoning::kLoadingPhraseCount);
     pictures.clear();
     HWND foreground = GetForegroundWindow();
     HWND parent = CreateWindowExW(WS_EX_NOACTIVATE, L"STATIC", L"AO-VK hidden zoning fixture", WS_POPUP,

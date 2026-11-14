@@ -1,6 +1,9 @@
 # AO-VK Live Preview 24
 
-## Revision 53 update
+## Revision 54 update
+
+- Expanded the loading-tip deck from 50 to **545 unique tips** using the supplied
+  500-tip list. Complete-deck shuffling avoids repeats, including across decks.
 
 - Fixed Original preset zoning screens remaining over a live game until their
   timeout. Readiness now follows actual world presentations with enhancements off.

@@ -28,6 +28,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--commit', required=True)
     parser.add_argument('--source-manifest', type=Path, required=True)
+    parser.add_argument('--candidate', type=Path, required=True)
     args = parser.parse_args()
     assert len(args.commit) == 40 and all(c in '0123456789abcdef' for c in args.commit)
     out = args.output.resolve()
@@ -39,13 +40,15 @@ def main():
     base = ROOT / 'dist/releases' / VERSION
     pinned = {x['name']: x['sha256'] for x in read(base / 'PACKAGE-AUDIT.json')['products']}
     r52 = ROOT / 'build/preview24/stability-r52'
-    r53 = ROOT / 'build/preview24/zoning-r53'
-    verified = read(r53 / 'VERIFIED.json')
-    renderer = r53 / 'candidate/ao-vk.dll'
+    candidate = args.candidate.resolve()
+    verified = read(candidate / 'VERIFIED.json')
+    revision = int(verified['revision'])
+    assert revision >= 53
+    renderer = candidate / 'candidate/ao-vk.dll'
     assert verified['result'] == 'passed' and sha(renderer) == verified['rendererSha256']
     binaries = {'ao-vk.dll': renderer, **{n: r52 / 'candidate' / n for n in ['ddraw.dll', 'ao-vk-cache-warm.exe']}}
     known = [read(r52 / 'F-BASELINE-RECEIPT.json')['addon']]
-    for folder in [r52, r53]:
+    for folder in [r52, candidate]:
         known.append({'ao-vk.dll': sha(folder / 'candidate/ao-vk.dll'), 'ddraw.dll': sha(binaries['ddraw.dll'])})
         known.append({'ao-vk.dll': sha(folder / 'candidate/ao-vk.dll'), 'ddraw.dll': known[0]['ddraw.dll']})
     # Recognize the earlier locally tested renderer revisions on update too.
@@ -86,8 +89,8 @@ def main():
             shutil.copy2(ROOT / 'tools' / name, folder / name)
         for name in ['README.md', 'RELEASE-NOTES.md', 'PLAYTEST.md', 'docs/preview24.md']:
             shutil.copy2(ROOT / 'docs/preview24.md', folder / name)
-        manifest.update(build='ao-vk-live-' + VERSION, setupRevision=10,
-                        candidateRevision=53, candidateStatus='release',
+        manifest.update(build='ao-vk-live-' + VERSION, setupRevision=revision-43,
+                        candidateRevision=revision, candidateStatus='release',
                         publicDistributionApproved=True, sourceCommit=args.commit,
                         sourceManifestSha256=source_hash)
         manifest.pop('setupSourceCommit', None)
@@ -131,7 +134,7 @@ def main():
     for record in read(base / 'PACKAGE-AUDIT.json')['products']:
         if '-full-materials-' in record['name']:
             products.append(record)
-    write(out / 'PACKAGE-AUDIT.json', {'result': 'passed', 'revision': 53,
+    write(out / 'PACKAGE-AUDIT.json', {'result': 'passed', 'revision': revision,
           'sourceCommit': args.commit, 'sourceManifestSha256': source_hash,
           'liteTextureDownloads': False, 'fullPreparedFiles': 14345,
           'unchangedMaterialParts': 19, 'products': products})

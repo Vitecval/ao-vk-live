@@ -41,7 +41,7 @@ int main() {
     if(textFade.Step(2450,true)!=.5f || textFade.Step(2900,true)!=1)return 24;
     if(textFade.Step(3000,false)!=1)return 25; // Keep text while the whole screen fades out.
     textFade={};if(textFade.Step(4000,false)!=0 || textFade.started)return 26;
-    static_assert(rvk::zoning::kLoadingPhraseCount == 50);
+    static_assert(rvk::zoning::kLoadingPhraseCount == 545);
     for (unsigned seed = 0; seed < 100; ++seed) {
         std::mt19937 random(seed);
         rvk::zoning::PhraseRotation phrases;
@@ -56,7 +56,7 @@ int main() {
             }
         }
     }
-    std::puts("50 loading phrases shuffle without repeats, including across deck boundaries");
+    std::printf("%zu loading phrases shuffle without repeats, including across deck boundaries\n", rvk::zoning::kLoadingPhraseCount);
     std::puts("smooth 180ms fade-in and 320ms fade-out preserve opacity across reversals");
     std::puts("zoning reveal holds through stalls, waits for four fresh world presentations, restarts and times out");
     std::puts("optional click-to-continue ignores early input, holds after readiness and resets on every transition");

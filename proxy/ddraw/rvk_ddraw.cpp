@@ -47,6 +47,7 @@ void BackendWindowDestroyed(HWND window)
     ComScope scope(ComMethodCount() - 2);
     if (g_rvk.window != window)
         return;
+    InputSetPresentationWindow(nullptr);
     ZoningStop();
     if (g_rvk.device) {
         RvkLog("shutdown: render window destroyed (%u graphics objects remain)", g_backendObjects.load());
@@ -171,6 +172,7 @@ bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
     RvkLog("rvk device %ux%u on %s (window %p, %s, %s lighting)", width, height, gpuName.c_str(), (void*)window,
            device->Threaded() ? "worker thread" : "calling thread", device->PixelLighting() ? "per-pixel" : "per-vertex");
     rvk_settings::LogAll();
+    InputSetPresentationWindow(window);
     return true;
 }
 
@@ -178,6 +180,7 @@ void RvkState::SetWindow(HWND hwnd)
 {
     if (!hwnd)
         return;
+    if (window != hwnd) InputSetPresentationWindow(nullptr);
     window = hwnd;
     if (device && device->Window() != hwnd) {
         if (device->InFrame())
@@ -185,6 +188,7 @@ void RvkState::SetWindow(HWND hwnd)
         if (device->SetWindow(hwnd))
             RvkLog("presenting to window %p", (void*)hwnd);
     }
+    if (device && device->Window() == hwnd) InputSetPresentationWindow(hwnd);
 }
 
 // Ctrl+Shift+O: what each enhancement costs here - every one switched off in turn (in effect only, not saved) for
@@ -621,6 +625,7 @@ void RvkState::Present()
     static unsigned frames;
     static DWORD lastTick = GetTickCount();
     if (++frames % 600 == 0) {
+        InputLogWindowEvents();
         DWORD now = GetTickCount();
         double frameMs = double(now - lastTick) / 600.0;
         RvkLog("presented %u frames: %.1f fps, %.2f ms/frame, %lld draws/frame; slowest %.0f ms, %u over 33 ms, "

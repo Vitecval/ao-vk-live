@@ -54,6 +54,8 @@ void FreeCamWheel(float notches);                 // the mouse wheel while it is
 // asks. InputAttach subclasses the game's window (once).
 enum InputOwner : unsigned { kInputFreeCam = 1, kInputConsole = 2, kInputZoning = 4 };
 void InputAttach(HWND window);
+void InputSetPresentationWindow(HWND window);       // initialized Vulkan client area; nullptr releases ownership
+void InputLogWindowEvents();                       // bounded diagnostics, outside the window procedure
 void InputBlock(unsigned owner, bool keys, bool mouse);
 bool InputFocused();                              // the game's window is the foreground one
 // The console (rvk_console.cpp, the key left of 1): the game window's messages, first (true: taken); each present.

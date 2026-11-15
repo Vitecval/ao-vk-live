@@ -9,6 +9,7 @@
 #include "skin.h"
 #include "optional_population.h"
 #include "huge_shadow_policy.h"
+#include "shadow_clusters.h"
 #include "vk.h"
 
 #include <array>
@@ -1479,6 +1480,7 @@ private:
     uint32_t m_shadowSizeWanted = 4096, m_pointShadowSizeWanted = 1024;   // SetShadowResolution: at the next frame
     bool CreateShadowMap(std::string* error);    // the sun's map image and views (m_shadowSize)
     void DestroyShadowMap();
+    bool CreateStaticShadowCache();           // lazy, optional, only when exact depth reuse is possible
     bool CreatePointShadowMaps(std::string* error);   // the cube array and views (m_pointShadowSize)
     void DestroyPointShadowMaps();
     void ApplyShadowResolution();                // at a frame's start: recreates maps whose size changed
@@ -1550,7 +1552,7 @@ private:
     };
     void CollectShadowItems();
     void GroupShadowItems(const std::vector<uint32_t>& drawOf);
-    void DrawShadowItem(VkCommandBuffer cmd, ShadowBind& bind, ShadowItem& item);
+    void DrawShadowItem(VkCommandBuffer cmd, ShadowBind& bind, ShadowItem& item, const d3d::Matrix* clip = nullptr);
     void ShadowPassMatrix(VkCommandBuffer cmd, const d3d::Matrix& lightViewProj);   // the cascade's / face's, pushed
     // M4: shadow casters are batched like the scene's draws - one record per caster (read by gl_InstanceIndex) and
     // one indirect call per group of casters that share their bindings.
@@ -1600,6 +1602,8 @@ private:
     // A reusable depth layer for retained, opaque scenery. Actors and foliage
     // are still drawn every frame over a depth copy of this layer.
     VkImage m_shadowStaticImage = VK_NULL_HANDLE;
+    bool m_shadowStaticAllowed = false;
+    uint64_t m_shadowStaticRetryFrame = 0;
     VmaAllocation_T* m_shadowStaticAllocation = nullptr;
     VkImageView m_shadowStaticViews[kShadowCascades] = {};
     VkImageLayout m_shadowStaticLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1909,6 +1913,7 @@ private:
     // sun shadow casters, not drawn (Draw). How many this frame (logged).
     struct ArenaChunk;
     struct CachedCaster {
+        std::vector<shadow::TriangleCluster> shadowClusters; // exact opaque terrain ranges, built once
         // Its vertices then indices in a slot of the caster arena (shared buffers: casters batch together).
         ArenaChunk* chunk;
         VkDeviceSize slot, slotBytes;            // the slot (freed with ArenaFree)
@@ -1989,6 +1994,8 @@ private:
     // VisualKind::Static and by the animated flag (a character's body changes vertices every frame).
     uint32_t m_shadowItemsCount = 0, m_shadowStaticItems = 0, m_shadowAnimatedItems = 0;
     uint32_t m_shadowDrawn = 0, m_shadowCulled = 0;
+    uint64_t m_shadowClusterIndicesTested = 0, m_shadowClusterIndicesSkipped = 0;
+    size_t m_shadowClusterBytes = 0;            // optional metadata capped at 8 MiB per playfield
     uint32_t m_shadowStaticDrawn = 0, m_shadowAnimatedDrawn = 0;
     double m_shadowCollectMs = 0.0, m_shadowCullMs = 0.0, m_shadowDrawMs = 0.0;   // last pass (frame dumps)
     std::vector<uint32_t> m_cascadeVisible;      // scratch: indices into m_shadowItems for one cascade

@@ -272,6 +272,8 @@ void Device::EndFrameDump()
                  m_shadowGroupCalls);
     std::fprintf(m_dumpFile,"# retained shadow depth cache: %u cascades reused, %u refreshed; %s\n",
         m_shadowStaticReused,m_shadowStaticRefreshed,m_shadowStaticImage ? "available":"disabled or unavailable");
+    std::fprintf(m_dumpFile,"# terrain shadow clusters: %llu triangles tested, %llu outside the map skipped; geometry unchanged\n",
+        (unsigned long long)(m_shadowClusterIndicesTested/3),(unsigned long long)(m_shadowClusterIndicesSkipped/3));
     std::fprintf(m_dumpFile,"# sun cascade cadence: updated %u of %u layers; close layers every frame\n",m_shadowCascadesUpdated,m_cascadeCount);
     float flash[4],flashView[4],flashProj[4],flashWorld[4];Lightning(flash,flashView,flashProj,flashWorld);
     std::fprintf(m_dumpFile,"# sun state: enabled %u; valid %u; direction %.6f %.6f %.6f; luminance %.3f; range %.1f; resolution %u; memory %u; storm %.3f; flash %.3f\n",

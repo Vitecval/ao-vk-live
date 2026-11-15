@@ -110,6 +110,26 @@ VKAPI_ATTR VkResult VKAPI_CALL GpuExtensions(VkPhysicalDevice gpu,const char* la
 }
 namespace rvk {
 struct StabilityAuditCheck {
+ static bool LazyStaticDepth(){
+  Device d;std::string error;if(!d.Init(nullptr,32,32,&error)){std::puts(error.c_str());return false;}
+  d.SetShadowResolution(2048,256);d.BeginFrame();d.EndFrame();
+  bool okay=d.m_shadowImage && !d.m_shadowStaticImage && d.m_shadowStaticAllowed;
+  // Test optional allocation failure without exhausting hardware. The normal
+  // shadow image must remain usable, and failed view creation must release all
+  // partial views and defer its next allocation attempt.
+  d.m_memoryBudget=false;realImageView=vk::vkCreateImageView;viewCalls=0;failViewAt=2;
+  vk::vkCreateImageView=FailImageView;
+  const bool failed=!d.CreateStaticShadowCache();
+  const unsigned attempts=viewCalls;
+  const bool deferred=!d.CreateStaticShadowCache() && viewCalls==attempts;
+  vk::vkCreateImageView=realImageView;
+  okay &=failed && deferred && !d.m_shadowStaticImage && !d.m_shadowStaticAllocation && d.m_shadowImage;
+  for(auto view:d.m_shadowStaticViews)okay &=!view;
+  d.m_frameNumber+=300;
+  okay &=d.CreateStaticShadowCache() && d.m_shadowStaticImage;
+  std::printf("lazy static-depth cache: no startup allocation, partial-view cleanup, bounded retry, recovery: %s\n",okay?"PASS":"FAIL");
+  return okay;
+ }
  static bool BroadShipLights(){
   bool okay=true;const auto realBarrier=vk::vkCmdPipelineBarrier2;
   for(float range:{1041.f,16.f,128.f,129.f,0.f,INFINITY,NAN}){
@@ -130,31 +150,38 @@ struct StabilityAuditCheck {
  }
  static bool SkyShipCache(){
   using namespace d3d;bool okay=true;
-  for(unsigned mode:{0u,1u,2u})for(bool immersive:{false,true}){
-   const bool sky=mode==0,movingHull=mode==2;
+  struct Part{uint32_t id,vertices,indices;};
+  constexpr Part parts[]={{295615,2353,4608},{297313,82,144},{275940,234,354},{296212,465,1164},{297811,34,102},{295916,1495,5184},{295915,1352,5142}};
+  for(unsigned mode=0;mode<17;++mode)for(bool immersive:{false,true}){
+   const bool sky=mode==0,movingHull=mode==2,mobilePart=mode>=3&&mode<=9,sharedStatic=mode>=10;
+   const Part part=parts[mobilePart?mode-3:sharedStatic?mode-10:0];
    Device d;std::string error;
    if(!d.CreateInstance(&error)||!d.PickDevice(&error)||!d.CreateLogicalDevice(&error))return false;
    d.m_shadows=true;d.m_shadowMemory=1;d.m_pixelLighting=true;d.m_lightOverride=true;
    d.m_immersiveShips=immersive?1.f:0.f;d.m_frameEyeValid=true;d.m_frameEye[0]=d.m_frameEye[1]=d.m_frameEye[2]=0;
    d.m_rs[RS_ZENABLE]=d.m_rs[RS_ZWRITEENABLE]=d.m_rs[RS_LIGHTING]=1;d.m_rs[RS_ZFUNC]=CMP_LESSEQUAL;
    d.m_drawVisualKind=uint32_t(VisualKind::Static);d.m_drawVisual=42;d.m_drawOwner=0;
-   Texture* hull=nullptr;if(movingHull){hull=Device::NewTexture(4,4,Format::A8R8G8B8,1,false);d.SetTextureRdbId(hull,201230,1010004,0);d.m_textures[0]=hull;}
+   d.m_drawVisualName=mobilePart?"GenericMeshObject_t":"RTriMesh_t";
+   Texture* hull=nullptr;if(movingHull||mobilePart||sharedStatic){hull=Device::NewTexture(4,4,Format::A8R8G8B8,1,false);d.SetTextureRdbId(hull,movingHull?201230:part.id,1010004,0);d.m_textures[0]=hull;}
    Device::MeshInfo mesh{};mesh.skyScenery=sky;mesh.boundsMin[0]=mesh.boundsMin[1]=mesh.boundsMin[2]=-10;
    mesh.boundsMax[0]=mesh.boundsMax[1]=mesh.boundsMax[2]=10;mesh.indexHash=12345;d.m_drawMesh=&mesh;d.m_drawMeshStatic=true;
    struct Vertex{float x,y,z,nx,ny,nz;};const Vertex vertices[]={{-10,-10,0,0,0,-1},{0,10,0,0,0,-1},{10,-10,0,0,0,-1}};
+   std::vector<Vertex> mobileVertices(part.vertices);std::copy(std::begin(vertices),std::end(vertices),mobileVertices.begin());
+   std::vector<uint16_t> mobileIndices(part.indices);for(size_t i=0;i<mobileIndices.size();++i)mobileIndices[i]=uint16_t(i%3);
    size_t early=0;
    // Accelerated flight crosses placement cells while remaining inside shadow
    // retention range. No GPU rendering or retail client is involved.
    for(unsigned frame=1;frame<=1200;++frame){
     d.m_frameNumber=frame;d.m_frameClock=double(frame)/30.;d.m_casters.clear();
     d.m_world=detail::Identity();
-    if(sky||movingHull){d.m_world.m[3][0]=float(frame%40)*2-40;d.m_world.m[3][1]=30;d.m_world.m[3][2]=20+float(frame/40)*2;}
-    d.RecordShadowCaster(TriangleList,FVF_XYZ|FVF_NORMAL,sizeof(Vertex),vertices,3,0,nullptr,0,0,VK_NULL_HANDLE,VK_NULL_HANDLE);
+    if(sky||movingHull||mobilePart){d.m_world.m[3][0]=float(frame%40)*2-40;d.m_world.m[3][1]=30;d.m_world.m[3][2]=20+float(frame/40)*2;}
+    if(mobilePart||sharedStatic)d.RecordShadowCaster(TriangleList,FVF_XYZ|FVF_NORMAL,sizeof(Vertex),mobileVertices.data(),part.vertices,0,mobileIndices.data(),part.indices,0,VK_NULL_HANDLE,VK_NULL_HANDLE);
+    else d.RecordShadowCaster(TriangleList,FVF_XYZ|FVF_NORMAL,sizeof(Vertex),vertices,3,0,nullptr,0,0,VK_NULL_HANDLE,VK_NULL_HANDLE);
     if(frame==300)early=d.m_casterCache.size();
    }
    const auto retained=d.m_casterCache.size();
-   const bool pass=sky ? retained==0&&d.m_casters.empty()&&d.m_casterMotion.empty() : movingHull ? retained==0&&!d.m_casters.empty()&&d.m_casters.front().animated : retained==1&&!d.m_casters.empty();
-   std::printf("%s, Immersive Ships %u: retained poses at 300 / 1200 frames = %zu / %zu; current casters %zu; %s\n",sky?"sky ship":movingHull?"moving hull":"stationary ground structure",unsigned(immersive),early,retained,d.m_casters.size(),pass?"PASS":"FAIL");
+   const bool pass=sky ? retained==0&&d.m_casters.empty()&&d.m_casterMotion.empty() : (movingHull||mobilePart) ? retained==0&&!d.m_casters.empty()&&d.m_casters.front().animated : retained==1&&!d.m_casters.empty();
+   std::printf("%s (texture %u), Immersive Ships %u: retained poses at 300 / 1200 frames = %zu / %zu; current casters %zu; %s\n",sky?"sky ship":movingHull?"moving hull":mobilePart?"ICC mobile part":sharedStatic?"static mesh sharing mobile texture":"stationary ground structure",part.id,unsigned(immersive),early,retained,d.m_casters.size(),pass?"PASS":"FAIL");
    d.m_drawMesh=nullptr;d.m_textures[0]=nullptr;delete hull;okay &=pass;
   }
   return okay;
@@ -455,4 +482,4 @@ struct StabilityAuditCheck {
  }
 };
 }
-int main(int argc,char**argv){SetErrorMode(SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);return (argc>1&&std::strcmp(argv[1],"--broad-ship-lights")==0 ? rvk::StabilityAuditCheck::BroadShipLights() : argc>1&&std::strcmp(argv[1],"--sky-ship-cache")==0 ? rvk::StabilityAuditCheck::SkyShipCache() : argc>1&&std::strcmp(argv[1],"--original-zoning")==0 ? rvk::StabilityAuditCheck::OriginalZoning() : argc>1&&std::strcmp(argv[1],"--host-memory")==0 ? rvk::StabilityAuditCheck::HostMemoryVisibility() : argc>1&&std::strcmp(argv[1],"--push-128")==0 ? rvk::StabilityAuditCheck::Push128() : argc>1&&std::strcmp(argv[1],"--rock-decode-failure")==0 ? rvk::StabilityAuditCheck::RockDecodeFailure() : argc>1&&std::strcmp(argv[1],"--skin-storage")==0 ? rvk::StabilityAuditCheck::SkinStorage() : argc>1&&std::strcmp(argv[1],"--grass-storage-limited")==0 ? rvk::StabilityAuditCheck::GrassStorage(true) : argc>1&&std::strcmp(argv[1],"--grass-storage-reference")==0 ? rvk::StabilityAuditCheck::GrassStorage(false) : argc>1&&std::strcmp(argv[1],"--target-failure")==0 ? rvk::StabilityAuditCheck::TargetFailure() : argc>1&&std::strcmp(argv[1],"--depth-failure")==0 ? rvk::StabilityAuditCheck::DepthFailure() : argc>1&&std::strcmp(argv[1],"--no-extended-storage")==0 ? rvk::StabilityAuditCheck::StorageFeatureLoss() : argc>1&&std::strcmp(argv[1],"--limits")==0 ? rvk::StabilityAuditCheck::Limits() : argc>1&&std::strcmp(argv[1],"--device-selection")==0 ? rvk::StabilityAuditCheck::DeviceSelection() : argc>1&&std::strcmp(argv[1],"--cache-roundtrip")==0 ? rvk::StabilityAuditCheck::CacheRoundTrip() : argc>1&&std::strcmp(argv[1],"--partial-init")==0 ? rvk::StabilityAuditCheck::PartialInit() : argc>1&&std::strcmp(argv[1],"--shader-failures")==0 ? rvk::StabilityAuditCheck::ShaderFailures():rvk::StabilityAuditCheck::DeviceFeatures())?0:1;}
+int main(int argc,char**argv){SetErrorMode(SEM_NOGPFAULTERRORBOX|SEM_FAILCRITICALERRORS);return (argc>1&&std::strcmp(argv[1],"--lazy-static-depth")==0 ? rvk::StabilityAuditCheck::LazyStaticDepth() : argc>1&&std::strcmp(argv[1],"--broad-ship-lights")==0 ? rvk::StabilityAuditCheck::BroadShipLights() : argc>1&&std::strcmp(argv[1],"--sky-ship-cache")==0 ? rvk::StabilityAuditCheck::SkyShipCache() : argc>1&&std::strcmp(argv[1],"--original-zoning")==0 ? rvk::StabilityAuditCheck::OriginalZoning() : argc>1&&std::strcmp(argv[1],"--host-memory")==0 ? rvk::StabilityAuditCheck::HostMemoryVisibility() : argc>1&&std::strcmp(argv[1],"--push-128")==0 ? rvk::StabilityAuditCheck::Push128() : argc>1&&std::strcmp(argv[1],"--rock-decode-failure")==0 ? rvk::StabilityAuditCheck::RockDecodeFailure() : argc>1&&std::strcmp(argv[1],"--skin-storage")==0 ? rvk::StabilityAuditCheck::SkinStorage() : argc>1&&std::strcmp(argv[1],"--grass-storage-limited")==0 ? rvk::StabilityAuditCheck::GrassStorage(true) : argc>1&&std::strcmp(argv[1],"--grass-storage-reference")==0 ? rvk::StabilityAuditCheck::GrassStorage(false) : argc>1&&std::strcmp(argv[1],"--target-failure")==0 ? rvk::StabilityAuditCheck::TargetFailure() : argc>1&&std::strcmp(argv[1],"--depth-failure")==0 ? rvk::StabilityAuditCheck::DepthFailure() : argc>1&&std::strcmp(argv[1],"--no-extended-storage")==0 ? rvk::StabilityAuditCheck::StorageFeatureLoss() : argc>1&&std::strcmp(argv[1],"--limits")==0 ? rvk::StabilityAuditCheck::Limits() : argc>1&&std::strcmp(argv[1],"--device-selection")==0 ? rvk::StabilityAuditCheck::DeviceSelection() : argc>1&&std::strcmp(argv[1],"--cache-roundtrip")==0 ? rvk::StabilityAuditCheck::CacheRoundTrip() : argc>1&&std::strcmp(argv[1],"--partial-init")==0 ? rvk::StabilityAuditCheck::PartialInit() : argc>1&&std::strcmp(argv[1],"--shader-failures")==0 ? rvk::StabilityAuditCheck::ShaderFailures():rvk::StabilityAuditCheck::DeviceFeatures())?0:1;}

@@ -1178,6 +1178,14 @@ void RunShadowStability(D& dev,int frames,const std::string& shot) {
             dev.RegisterMesh(41+i,TriangleList,kFvfMesh,sharedVertices,0,uint32_t(building[0].size()),sharedIndices[i],uint32_t(indices[i].size()));}
     }
     int gridSize=32;
+    std::vector<VtxMesh> terrainClusterVertices;std::vector<uint16_t> terrainClusterIndices;
+    if(g_visualToggle&262144) {
+        for(int z=0;z<=64;++z)for(int x=0;x<=64;++x){
+            const float px=float(x-32)*4,pz=float(z-32)*4;
+            terrainClusterVertices.push_back({px,4.f+2.f*std::sin(px*.06f)*std::cos(pz*.07f),pz,0,1,0,0xffffffff,0,0});
+        }
+        for(int z=0;z<64;++z)for(int x=0;x<64;++x){uint16_t a=uint16_t(z*65+x);terrainClusterIndices.insert(terrainClusterIndices.end(),{a,uint16_t(a+65),uint16_t(a+1),uint16_t(a+1),uint16_t(a+65),uint16_t(a+66)});}
+    }
     if(const char* grid=std::getenv("AOVK_FIXTURE_SHADOW_GRID"))gridSize=std::clamp(std::atoi(grid),8,64);
     std::vector<VtxMesh> gridCube;std::vector<uint16_t> gridIndices;
     if(g_visualToggle&2048)AddCube(gridCube,gridIndices,0,4,0,4);
@@ -1197,6 +1205,7 @@ void RunShadowStability(D& dev,int frames,const std::string& shot) {
         dev.SetRenderState(RS_DIFFUSEMATERIALSOURCE,MCS_MATERIAL);dev.SetRenderState(RS_AMBIENTMATERIALSOURCE,MCS_MATERIAL);
         Material material{{1,1,1,1},{1,1,1,1},{0,0,0,0},{0,0,0,0},0};dev.SetMaterial(material);
         Light sun{};sun.type=LIGHT_DIRECTIONAL;sun.direction={.6f,-.7f,.6f};sun.diffuse={.8f,.8f,.8f,1};
+        if(g_visualToggle&131072)sun.direction={.6f+.0002f*float(frame),-.7f,.6f};
         dev.SetLight(0,sun);dev.LightEnable(0,true);
         dev.SetTexture(0,ground);dev.SetTexture(1,lightmap);
         dev.SetTextureStageState(0,TSS_COLOROP,TOP_SELECTARG1);dev.SetTextureStageState(0,TSS_COLORARG1,TA_TEXTURE);dev.SetTextureStageState(0,TSS_COLORARG2,TA_DIFFUSE);
@@ -1231,6 +1240,12 @@ void RunShadowStability(D& dev,int frames,const std::string& shot) {
         if((g_visualToggle&2048)&&frame==0)for(int z=0;z<gridSize;++z)for(int x=0;x<gridSize;++x) {
             dev.SetTransform(World,Translate(float(x-gridSize/2)*7,0,float(z-gridSize/2)*7));
             dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,gridCube.data(),uint32_t(gridCube.size()),gridIndices.data(),uint32_t(gridIndices.size()));
+        }
+        if((g_visualToggle&262144) && frame<frames-30) {
+            auto placement=Identity();
+            if(g_visualToggle&524288){placement=RotateY(.37f);for(int j=0;j<3;++j)placement.m[0][j]=-placement.m[0][j];}
+            dev.SetTransform(World,placement);dev.SetDrawVisual(uint32_t(VisualKind::Terrain),"cluster-terrain-fixture");
+            dev.DrawIndexedPrimitive(TriangleList,kFvfMesh,terrainClusterVertices.data(),uint32_t(terrainClusterVertices.size()),terrainClusterIndices.data(),uint32_t(terrainClusterIndices.size()));
         }
         dev.SetDrawVisual(0,nullptr);dev.EndFrame();
     }

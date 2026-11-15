@@ -6,6 +6,11 @@
 #include <cstdio>
 int main() {
     using namespace rvk::budget;
+    assert(!OptionalImageFits(5457ull<<20,5450ull<<20,64ull<<20)); // ICC capture
+    assert(!OptionalImageFits(5400ull<<20,5500ull<<20,64ull<<20)); // leave headroom
+    assert(OptionalImageFits(5308ull<<20,5500ull<<20,64ull<<20)); // exact boundary
+    assert(OptionalImageFits(0,0,64ull<<20));
+    assert(!OptionalImageFits(UINT64_MAX,UINT64_MAX,64ull<<20));
     for(uint32_t id:{5955u,9863u,205836u,214375u,205675u,205838u,202640u}) {
         assert(rvk::materials::NaturalRock(1010004,id));
         assert(rvk::materials::NaturalRock(1010016,id));

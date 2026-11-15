@@ -1,5 +1,27 @@
 # AO-VK Live Preview 24
 
+## Revision 59 update
+
+- Prevented unnecessary background window clears after Vulkan initialization,
+  while preserving normal painting and window replacement handling.
+- Allocate the optional static sun-shadow depth cache only when it can be reused
+  and there is memory headroom. Moving views avoid an unused 64 MiB allocation;
+  partial allocation failures clean up and retry with a bounded delay.
+- Trim wholly off-map ends of large retained opaque terrain/rock shadow batches.
+  Original triangles and the remaining single draw are preserved.
+- Fixed seven captured ICC moving-scenery mesh parts leaving old shadow poses
+  behind. Current moving shadows remain; stationary structures sharing their
+  textures keep their retained shadows. A targeted fixture reproduced 1,200 old
+  positions before the fix and zero afterward, with Immersive Ships on or off.
+- Five 200 m shadow image comparisons are pixel-identical. Thirty-four mobile,
+  sky and stationary retention cases, 120 production-DLL repaint requests,
+  allocation recovery, Original zoning and installer rollback checks pass.
+  These isolated checks do not establish a particular retail ICC FPS gain.
+
+Lite still downloads no texture archives. Full retains the same 19 material
+archives and 14,345 portable prepared cache files. Settings are preserved;
+grass remains 80 m and the default sun-shadow range remains 200 m.
+
 ## Revision 55 update
 
 - Fixed moving ships leaving retained copies of old shadow poses. Sky-only ships

@@ -150,7 +150,10 @@ void PatchDirectInput()
 
 // ---------------------------------------------------------------- the window
 HWND g_window = nullptr;
-WNDPROC g_windowProc = nullptr;
+constexpr wchar_t kPreviousWindowProc[] = L"AO-VK.Input.PreviousWindowProc";
+std::atomic<HWND> g_presentationWindow{nullptr};
+std::atomic<unsigned> g_erasesPrevented{0}, g_paints{0}, g_sizes{0}, g_displayChanges{0};
+std::atomic<DWORD> g_lastEraseTick{0};
 
 // A raw input message's device kind (RIM_TYPEMOUSE / KEYBOARD / HID).
 DWORD RawInputType(LPARAM lp)
@@ -165,6 +168,31 @@ DWORD RawInputType(LPARAM lp)
 
 LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    // Keep the original procedure with its own HWND: replacing the render window
+    // must not send late messages from the old window to the new one's handler.
+    const auto previous = reinterpret_cast<WNDPROC>(GetPropW(hwnd, kPreviousWindowProc));
+    if (!previous) return DefWindowProcA(hwnd, msg, wp, lp);
+    if (msg == WM_NCDESTROY) {
+        HWND owned = hwnd;
+        g_presentationWindow.compare_exchange_strong(owned, nullptr);
+        if (g_window == hwnd) g_window = nullptr;
+        const LRESULT result = CallWindowProcA(previous, hwnd, msg, wp, lp);
+        RemovePropW(hwnd, kPreviousWindowProc);
+        return result;
+    }
+    if (hwnd == g_presentationWindow.load(std::memory_order_acquire)) {
+        // GDI must not replace a Vulkan-owned picture with the class background
+        // between presents. Forward WM_PAINT normally so AO validates its update
+        // region and keeps receiving its ordinary window notifications.
+        if (msg == WM_ERASEBKGND) {
+            ++g_erasesPrevented;
+            g_lastEraseTick = GetTickCount();
+            return 1;
+        }
+        if (msg == WM_PAINT) ++g_paints;
+        if (msg == WM_SIZE) ++g_sizes;
+        if (msg == WM_DISPLAYCHANGE) ++g_displayChanges;
+    }
     if (msg == WM_SIZE)
         BackendWindowResized(hwnd);
     if (msg == WM_DESTROY)
@@ -172,7 +200,7 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     // A confirmation screen may wait indefinitely. Keep the window-close
     // shortcut available while its keyboard block is held.
     if (msg == WM_SYSKEYDOWN && wp == VK_F4 && (g_blockKeys.load() & kInputZoning))
-        return CallWindowProcA(g_windowProc, hwnd, msg, wp, lp);
+        return CallWindowProcA(previous, hwnd, msg, wp, lp);
     if (ZoningMessage(hwnd, msg, wp, lp) || ConsoleMessage(hwnd, msg, wp, lp))
         return 0;
     const unsigned keys = g_blockKeys, mouse = g_blockMouse;
@@ -194,7 +222,7 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
                          (mouse && msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST)))
             return 0;
     }
-    return CallWindowProcA(g_windowProc, hwnd, msg, wp, lp);
+    return CallWindowProcA(previous, hwnd, msg, wp, lp);
 }
 
 }  // namespace
@@ -202,9 +230,34 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 void InputAttach(HWND window)
 {
     if (!window || g_window == window) return;
+    if (!GetPropW(window, kPreviousWindowProc)) {
+        const auto previous = reinterpret_cast<WNDPROC>(GetWindowLongPtrA(window, GWLP_WNDPROC));
+        if (!previous || !SetPropW(window, kPreviousWindowProc, reinterpret_cast<HANDLE>(previous))) return;
+        SetLastError(0);
+        const LONG_PTR replaced = SetWindowLongPtrA(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&InputWindowProc));
+        if (!replaced && GetLastError()) {
+            RemovePropW(window, kPreviousWindowProc);
+            return;
+        }
+    }
     g_window = window;
-    g_windowProc = reinterpret_cast<WNDPROC>(
-        SetWindowLongPtrA(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&InputWindowProc)));
+}
+
+void InputSetPresentationWindow(HWND window)
+{
+    // The window callback must never take the backend lock or wait for the GPU.
+    g_presentationWindow.store(window, std::memory_order_release);
+}
+
+void InputLogWindowEvents()
+{
+    const unsigned erases = g_erasesPrevented.exchange(0), paints = g_paints.exchange(0);
+    const unsigned sizes = g_sizes.exchange(0), displays = g_displayChanges.exchange(0);
+    if (!(erases || paints || sizes || displays)) return;
+    SYSTEMTIME t{}; GetLocalTime(&t);
+    RvkLog("window repaint: %u background clears prevented, %u paints, %u size events, %u display changes; "
+           "last erase tick %lu, logged %02d:%02d:%02d.%03d", erases, paints, sizes, displays,
+           g_lastEraseTick.load(), t.wHour, t.wMinute, t.wSecond, t.wMilliseconds);
 }
 
 void InputBlock(unsigned owner, bool keys, bool mouse)

@@ -9,6 +9,7 @@
 #include "ship_shadow_policy.h"
 #include "huge_shadow_policy.h"
 #include "shadow_camera.h"
+#include "render_budget.h"
 
 #include <algorithm>
 #include <bit>
@@ -36,6 +37,10 @@ const uint32_t kShadowFragSpirv[] = {
 };
 
 d3d::Matrix Mul(const d3d::Matrix& a, const d3d::Matrix& b) { return MulMatrix(a, b); }
+
+bool AffineClip(const d3d::Matrix& m) {
+    return m.m[0][3]==0.f && m.m[1][3]==0.f && m.m[2][3]==0.f && m.m[3][3]==1.f;
+}
 
 
 }  // namespace
@@ -216,30 +221,50 @@ bool Device::CreateShadowMap(std::string* error)
             return false;
     }
     m_shadowImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    // Optional optimization: failure to allocate this disposable depth cache
-    // falls back to the original complete shadow pass.
     const char* cacheSetting=std::getenv("RANDYVK_STATIC_SHADOW_CACHE");
-    // Bound the extra allocation to 64 MiB even with an 8K shadow setting.
-    if ((!cacheSetting || cacheSetting[0]!='0') && m_shadowSize<=2048) {
-        ci.arrayLayers=kShadowCascades;
-        ci.usage=VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        if (vmaCreateImage(m_allocator,&ci,&ac,&m_shadowStaticImage,&m_shadowStaticAllocation,nullptr)==VK_SUCCESS) {
-            vi.image=m_shadowStaticImage;
-            bool valid=true;
-            for(uint32_t i=0;i<kShadowCascades;++i) {
-                vi.subresourceRange={VK_IMAGE_ASPECT_DEPTH_BIT,0,1,i,1};
-                if(vkCreateImageView(m_device,&vi,nullptr,&m_shadowStaticViews[i])!=VK_SUCCESS){valid=false;break;}
-            }
-            if(!valid) {
-                for(auto& view:m_shadowStaticViews)if(view){vkDestroyImageView(m_device,view,nullptr);view=VK_NULL_HANDLE;}
-                vmaDestroyImage(m_allocator,m_shadowStaticImage,m_shadowStaticAllocation);
-                m_shadowStaticImage=VK_NULL_HANDLE;m_shadowStaticAllocation=nullptr;
-            }
-        }
-    }
+    // A moving sun changes the exact cache key every frame. Do not reserve
+    // another 64 MiB until a cascade actually has reusable depths.
+    m_shadowStaticAllowed=(!cacheSetting || cacheSetting[0]!='0') && m_shadowSize<=2048;
+    m_shadowStaticRetryFrame=0;
     m_shadowStaticLayout=VK_IMAGE_LAYOUT_UNDEFINED;
     std::fill(std::begin(m_shadowStaticKeys),std::end(m_shadowStaticKeys),0);
     std::fill(std::begin(m_shadowStaticCandidates),std::end(m_shadowStaticCandidates),0);
+    return true;
+}
+
+bool Device::CreateStaticShadowCache()
+{
+    if(m_shadowStaticImage)return true;
+    if(!m_shadowStaticAllowed || m_frameNumber<m_shadowStaticRetryFrame)return false;
+    m_shadowStaticRetryFrame=m_frameNumber+300; // no allocation retry loop on constrained hardware
+    if(m_memoryBudget) {
+        const VkPhysicalDeviceMemoryProperties* props=nullptr;vmaGetMemoryProperties(m_allocator,&props);
+        VmaBudget budgets[VK_MAX_MEMORY_HEAPS]{};vmaGetHeapBudgets(m_allocator,budgets);
+        uint64_t sizes[VK_MAX_MEMORY_HEAPS]{};bool local[VK_MAX_MEMORY_HEAPS]{};
+        for(uint32_t i=0;i<props->memoryHeapCount;++i){sizes[i]=props->memoryHeaps[i].size;local[i]=(props->memoryHeaps[i].flags&VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)!=0;}
+        const uint32_t heap=budget::MaterialHeap(sizes,local,props->memoryHeapCount);
+        const uint64_t bytes=uint64_t(m_shadowSize)*m_shadowSize*kShadowCascades*4;
+        if(heap<props->memoryHeapCount &&
+           !budget::OptionalImageFits(budgets[heap].usage,budgets[heap].budget,bytes))return false;
+    }
+    VkImageCreateInfo ci{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
+    ci.imageType=VK_IMAGE_TYPE_2D;ci.format=kDepthFormat;ci.extent={m_shadowSize,m_shadowSize,1};
+    ci.mipLevels=1;ci.arrayLayers=kShadowCascades;ci.samples=VK_SAMPLE_COUNT_1_BIT;
+    ci.tiling=VK_IMAGE_TILING_OPTIMAL;ci.usage=VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT|VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    VmaAllocationCreateInfo ac{};ac.usage=VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;ac.flags=VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    if(vmaCreateImage(m_allocator,&ci,&ac,&m_shadowStaticImage,&m_shadowStaticAllocation,nullptr)!=VK_SUCCESS)return false;
+    VkImageViewCreateInfo vi{VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
+    vi.image=m_shadowStaticImage;vi.viewType=VK_IMAGE_VIEW_TYPE_2D;vi.format=kDepthFormat;
+    for(uint32_t i=0;i<kShadowCascades;++i) {
+        vi.subresourceRange={VK_IMAGE_ASPECT_DEPTH_BIT,0,1,i,1};
+        if(vkCreateImageView(m_device,&vi,nullptr,&m_shadowStaticViews[i])!=VK_SUCCESS) {
+            for(auto& view:m_shadowStaticViews)if(view){vkDestroyImageView(m_device,view,nullptr);view=VK_NULL_HANDLE;}
+            vmaDestroyImage(m_allocator,m_shadowStaticImage,m_shadowStaticAllocation);
+            m_shadowStaticImage=VK_NULL_HANDLE;m_shadowStaticAllocation=nullptr;
+            return false;
+        }
+    }
+    m_shadowStaticLayout=VK_IMAGE_LAYOUT_UNDEFINED;
     return true;
 }
 
@@ -420,6 +445,7 @@ bool Device::CreateShadowResources(std::string* error)
 void Device::DestroyShadowResources()
 {
     m_casterCache.clear();                       // their arena goes with the static one (DestroyStaticGeometry)
+    m_shadowClusterBytes=0;
     m_hugeShadowGroups.Clear();
     ++m_casterCacheEpoch;
     for (auto& [tag, b] : m_deadBuffers) vmaDestroyBuffer(m_allocator, b.first, b.second);
@@ -600,7 +626,9 @@ void Device::RecordShadowCaster(uint32_t primitive, uint32_t fvf, uint32_t strid
     c.key = key;
     std::memcpy(c.sway, m_drawSway, sizeof(c.sway));
     c.draw = m_frameDraw;
-    const bool movingHull = m_textures[0] && ship::Hull(m_textures[0]->m_rdbType,m_textures[0]->m_rdbId);
+    const bool movingHull = m_textures[0] &&
+        (ship::Hull(m_textures[0]->m_rdbType,m_textures[0]->m_rdbId) ||
+         ship::CapturedMobilePart(m_drawVisualName,m_textures[0]->m_rdbType,m_textures[0]->m_rdbId,vertexCount,indexCount));
     c.animated = movingHull || m_livingDrawing || (m_drawMesh && !m_drawMeshStatic);
     c.owner = m_drawOwner;
     c.kind = m_drawVisualKind;
@@ -910,7 +938,23 @@ void Device::CacheCaster(uint64_t key, const ShadowCaster& c, const void* vertic
     if (c.indexCount)
         std::memcpy(dst + indexAt, indices, size_t(c.indexCount) * 2);
     vmaFlushAllocation(m_allocator, e.chunk->allocation, e.slot, e.slotBytes);
-    m_casterCache.emplace(key, e);
+    const auto added=m_casterCache.emplace(key, e);
+    const uint64_t metadata=((uint64_t(e.indexCount)+287)/288)*sizeof(shadow::TriangleCluster);
+    if(added.second && VisualKind(e.kind)==VisualKind::Terrain && e.primitive==d3d::TriangleList &&
+       !e.texture && !e.leafKey && e.plantSway[3]<=.5f && metadata<=(8ull<<20) &&
+       m_shadowClusterBytes<=(8ull<<20)-metadata) {
+        // Optional metadata only. Failure leaves the original complete draw.
+        try {
+            auto ranges=shadow::TerrainClusters(vertices,e.vertexCount,e.stride,indices,e.indexCount);
+            const size_t bytes=ranges.capacity()*sizeof(shadow::TriangleCluster);
+            if(bytes<=(8ull<<20)-m_shadowClusterBytes) {
+                added.first->second.shadowClusters=std::move(ranges);
+                m_shadowClusterBytes+=bytes;
+            }
+        }
+        catch(const std::bad_alloc&) {}
+        catch(const std::length_error&) {}
+    }
     AddCoverMesh(key, e, vertices, indices);
     if (m_cacheTraceLines < 300 && m_frameNumber > 600) {   // (churn: see UpdateCasterCache)
         ++m_cacheTraceLines;
@@ -922,6 +966,8 @@ void Device::CacheCaster(uint64_t key, const ShadowCaster& c, const void* vertic
 
 void Device::ForgetCachedCaster(std::unordered_map<uint64_t, CachedCaster>::iterator it)
 {
+    const size_t metadata=it->second.shadowClusters.capacity()*sizeof(shadow::TriangleCluster);
+    m_shadowClusterBytes-=std::min(m_shadowClusterBytes,metadata);
     ArenaFree(it->second.chunk, it->second.slot, it->second.slotBytes);   // reused once the GPU is done with it
     auto cover = m_coverMeshes.find(it->first);
     if (cover != m_coverMeshes.end()) {
@@ -1521,7 +1567,7 @@ void Device::ShadowPassMatrix(VkCommandBuffer cmd, const d3d::Matrix& lightViewP
 // Records one caster into the shadow map being rendered (the shadow pipelines, depth only). Its record and group key
 // are made at its first draw of the frame and reused by every later cascade and cube face: the per-pass work is the
 // bindings and one indirect command.
-void Device::DrawShadowItem(VkCommandBuffer cmd, ShadowBind& bind, ShadowItem& item)
+void Device::DrawShadowItem(VkCommandBuffer cmd, ShadowBind& bind, ShadowItem& item, const d3d::Matrix* clip)
 {
     if (!item.key)
         item.key = ShadowItemKey(item);
@@ -1587,6 +1633,35 @@ void Device::DrawShadowItem(VkCommandBuffer cmd, ShadowBind& bind, ShadowItem& i
             return;
         }
     }
+    static const bool clusters=[] {const char* v=std::getenv("RANDYVK_SHADOW_CLUSTERS");return !v || v[0]!='0';}();
+    if(clusters && clip && item.cached && item.ibBuffer && VisualKind(item.kind)==VisualKind::Terrain &&
+       !item.texture && !item.leafKey && item.sway[3]<=.5f) {
+        const auto found=m_casterCache.find(item.cacheKey);
+        if(found!=m_casterCache.end()) {
+            const auto& ranges=found->second.shadowClusters;
+            const d3d::Matrix localClip=Mul(item.world,*clip);
+            // Trim only the wholly off-map prefix/suffix. Keeping the middle
+            // in one original draw avoids extra driver work and command-arena
+            // pressure, even for very fragmented rock batches.
+            if(!ranges.empty() && AffineClip(localClip)) {
+                size_t begin=0,end=ranges.size();
+                auto outside=[&](const shadow::TriangleCluster& range) {
+                    m_shadowClusterIndicesTested+=range.count;
+                    if(!BoxOutsideAffine(range.lo,range.hi,localClip))return false;
+                    m_shadowClusterIndicesSkipped+=range.count;return true;
+                };
+                while(begin<end && outside(ranges[begin]))++begin;
+                while(end>begin && outside(ranges[end-1]))--end;
+                if(begin<end) {
+                    ShadowItem part=item;
+                    part.ibOffset+=VkDeviceSize(ranges[begin].first)*2;
+                    part.indexCount=ranges[end-1].first+ranges[end-1].count-ranges[begin].first;
+                    ShadowCommand(cmd,part,item.record,item.key);
+                }
+                return;
+            }
+        }
+    }
     ShadowCommand(cmd, item, item.record, item.key);
 }
 
@@ -1608,6 +1683,7 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
     m_shadowItemsCount = m_shadowStaticItems = m_shadowAnimatedItems = 0;
     m_shadowDrawn = m_shadowCulled = m_shadowStaticDrawn = m_shadowAnimatedDrawn = 0;
     m_shadowStaticReused=m_shadowStaticRefreshed=0;
+    m_shadowClusterIndicesTested=m_shadowClusterIndicesSkipped=0;
     m_shadowCascadesUpdated=0;
     m_shadowCollectMs = m_shadowCullMs = m_shadowDrawMs = 0.0;
     m_animatedItems.clear();
@@ -1761,8 +1837,7 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         ri.pDepthAttachment = &depthAtt;
         double cullStart = ProfileCpu();
         m_cascadeVisible.clear();
-        const bool affine = lightViewProj.m[0][3] == 0.0f && lightViewProj.m[1][3] == 0.0f &&
-                            lightViewProj.m[2][3] == 0.0f && lightViewProj.m[3][3] == 1.0f;
+        const bool affine = AffineClip(lightViewProj);
         // (Batch-key order, CollectShadowItems; the boxes and flags packed in that order - not the items themselves.)
         const size_t orderCount = std::min(m_shadowOrder.size(), m_shadowOrderCached.size());
         for (size_t k = 0; k < orderCount; ++k) {
@@ -1794,10 +1869,14 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         auto retained=[](const ShadowItem& item) {
             return item.cached && !item.texture && !item.leafKey && item.sway[3]<=.5f;
         };
+        // A changed projection cannot reuse any exact depth signature. Avoid
+        // hashing thousands of retained transforms while the camera/sun moves.
+        const bool probeStatic=m_shadowStaticAllowed && previousValid &&
+            std::memcmp(&m_cascadeViewProj[c],&lightViewProj,sizeof(lightViewProj))==0;
         uint64_t staticSum=0;uint32_t staticCount=0;
         for(uint32_t i:m_cascadeVisible) {
             auto& item=m_shadowItems[i];item.cascades|=1u<<c;
-            if(m_shadowStaticImage && retained(item)) {
+            if(probeStatic && retained(item)) {
                 uint64_t h=HashBytes(&item.world,sizeof(item.world),item.cacheKey);
                 const uint64_t location[]={uint64_t(item.buffer),uint64_t(item.ibBuffer),item.vbOffset,item.ibOffset};
                 staticSum+=HashBytes(location,sizeof(location),h);++staticCount;
@@ -1808,9 +1887,10 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
         // During continuous camera/light/geometry changes, use the ordinary
         // pass. Build a reusable layer only after its signature repeats, so
         // motion does not pay for an extra render pass and depth copy.
-        const bool useCache=m_shadowStaticImage && staticCount &&
+        const bool reusable=staticCount &&
             (m_shadowStaticKeys[c]==staticKey || m_shadowStaticCandidates[c]==staticKey);
-        m_shadowStaticCandidates[c]=staticKey;
+        const bool useCache=reusable && CreateStaticShadowCache();
+        m_shadowStaticCandidates[c]=probeStatic ? staticKey:0;
         auto beginPass=[&](bool staticPass) {
             depthAtt.imageView=staticPass ? m_shadowStaticViews[c] : m_shadowLayerViews[c];
             depthAtt.loadOp=staticPass||!useCache ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -1825,7 +1905,7 @@ void Device::RenderShadowMap(VkCommandBuffer cmd)
             ++m_shadowDrawn;
             if(uint32_t(item.kind)==uint32_t(VisualKind::Static))++m_shadowStaticDrawn;
             if(item.animated)++m_shadowAnimatedDrawn;
-            DrawShadowItem(cmd,bind,item);
+            DrawShadowItem(cmd,bind,item,&lightViewProj);
         };
         if(useCache) {
             if(m_shadowStaticKeys[c]!=staticKey) {

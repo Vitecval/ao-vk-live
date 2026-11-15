@@ -3,6 +3,11 @@
 #include <cmath>
 #include <cstdint>
 namespace rvk::budget {
+inline bool OptionalImageFits(uint64_t usage,uint64_t budget,uint64_t bytes) {
+    if(!budget)return true; // memory-budget extension supplied no limit
+    if(usage>budget || bytes>budget-usage)return false;
+    return budget-usage-bytes >= (128ull<<20);
+}
 // Device-local BAR/aperture heaps can be permanently over the driver's tiny
 // reported budget while the actual texture heap has gigabytes available.
 // Apply image pressure to the largest local heap, including a UMA single heap.

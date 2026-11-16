@@ -76,7 +76,9 @@ namespace Horizon {
    using(var first=startProbe(ownerRoot)){
     for(int i=0;i<100&&!File.Exists(Path.Combine(ownerRoot,"probe-ready.txt"));i++)await Task.Delay(50);
     Check(File.Exists(Path.Combine(ownerRoot,"probe-ready.txt")),"The first isolated process acquires the single-instance gate");
+    var parentWait=new Dictionary<string,object>{{"parentPid",first.Id},{"parentStartUtc",first.StartTime.ToUniversalTime().Ticks}};var waiting=Task.Run(()=>UpdateService.WaitForParent(parentWait));await Task.Delay(100);Check(!waiting.IsCompleted,"An update successor waits while its actual parent process is still alive");
     using(var second=startProbe(secondRoot)){bool secondExit=await Task.Run(()=>second.WaitForExit(10000));bool firstExit=await Task.Run(()=>first.WaitForExit(10000));Check(secondExit&&firstExit&&second.ExitCode==0&&first.ExitCode==0&&File.ReadAllText(Path.Combine(secondRoot,"probe-result.txt"))=="secondary:True"&&File.ReadAllText(Path.Combine(ownerRoot,"probe-result.txt"))=="owner:True","A second real process exits and activates the first without opening a second window");}
+    await waiting;Check(first.HasExited,"The installed app restart can proceed only after the updater parent has exited");
    }
    string oldLog=Path.Combine(clientDir,"randy-vk.log"),latestLog=Path.Combine(clientDir,"randy-vk.old.log");File.WriteAllText(oldLog,"OLD_UNSELECTED_LOG");File.SetLastWriteTimeUtc(oldLog,DateTime.UtcNow.AddHours(-2));File.WriteAllText(latestLog,"GPU timing 22 ms\npassword=do-not-send\nuser@example.test\n"+clientDir+"\\file\nLATEST_LOG_MARKER");File.SetLastWriteTimeUtc(latestLog,DateTime.UtcNow);
    File.WriteAllText(Path.Combine(clientDir,"chat.log"),"PRIVATE_CHAT_MUST_NOT_BE_READ");string oldHash=SetupService.Hash(latestLog);

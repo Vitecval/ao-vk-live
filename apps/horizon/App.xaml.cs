@@ -12,7 +12,7 @@ using System.Windows.Threading;
 [assembly: AssemblyTitle("Rubi-Ka Horizon")]
 [assembly: AssemblyProduct("Rubi-Ka Horizon")]
 [assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyFileVersion("0.7.1.0")]
+[assembly: AssemblyFileVersion("0.7.2.0")]
 namespace Horizon {
  public partial class App:Application {
   public static string StateRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"RubiKaHorizon");
@@ -45,6 +45,7 @@ namespace Horizon {
      // An update successor must wait for its parent before taking the same
      // product-wide lock; ordinary duplicate launches only activate the owner.
      if(UpdateTicket.Length>0)UpdateService.WaitForParent(UpdateService.ReadHandoff(UpdateTicket));
+     int wait=Array.IndexOf(e.Args,"--wait-horizon-parent");if(wait>=0){if(wait+2>=e.Args.Length)throw new IOException("Incomplete Horizon restart handoff.");UpdateService.WaitForParent(new System.Collections.Generic.Dictionary<string,object>{{"parentPid",int.Parse(e.Args[wait+1])},{"parentStartUtc",long.Parse(e.Args[wait+2])}});}
      instance=new SingleInstance(SingleInstance.ProductKey);
      if(!instance.Enter()){instance.Signal();instance.Dispose();instance=null;Shutdown(0);return;}
      if(SingleInstance.ActivateLegacy()){if(UpdateTicket.Length>0)MessageBox.Show("Another Horizon window is still open. Close the other copy, then retry the update. Your graphics have not changed.","Close the other Horizon copy");instance.Dispose();instance=null;Shutdown(0);return;}

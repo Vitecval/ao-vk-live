@@ -1,4 +1,4 @@
-# Rubi-Ka Horizon — 0.7.1
+# Rubi-Ka Horizon — 0.7.2
 
 `InstallDetection` separates the running version, owned installed app, actual
 renderer hash/revision, installation record and selected edition. File metadata

@@ -1,4 +1,4 @@
-# Rubi-Ka Horizon 0.7.1
+# Rubi-Ka Horizon 0.7.2
 
 - Detect installed Horizon independently of the running portable copy. Show the
   installed app version, actual graphics revision and Lite/Full HD edition.
@@ -11,6 +11,8 @@
   launches signal/activate the owner and exit. Update handoffs wait for the old
   parent before taking the lock. Close extra legacy 0.7.0 copies once when moving
   to this release; an older copy still open is preserved and brought forward.
+- Both updater handoffs wait for their parent, including the final restart into
+  the installed copy, so the one-instance guard cannot discard the successor.
 - Hide the empty report preview until generation, then label it Review report.
   Explain that full-log sending requires WordPress receiver 1.0.1 or newer.
 - The renderer stays r59. Preferences, Full cache and Lite texture behavior stay

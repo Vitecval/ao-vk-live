@@ -1,4 +1,4 @@
-# Rubi-Ka Horizon 0.7.1
+# Rubi-Ka Horizon 0.7.2
 
 Installation now shows the actual installed app version, graphics revision and
 Lite/Full HD edition separately from the running copy. Current installations

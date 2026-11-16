@@ -191,7 +191,7 @@ namespace Horizon {
     if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}
     SavePreferences();UpdateMessage.Text="Update finished.";UpdateDetail.Text=current?"The bundled graphics are already installed; no texture verification or download was needed.":"Horizon and the selected AO graphics are updated.";
     // Start the installed app, so future launches use the updated Start-menu copy.
-    Process.Start(new ProcessStartInfo(installed,"--state-root \""+App.StateRoot+"\" --client \""+target+"\""){UseShellExecute=true});busy=false;Close();
+    using(var parent=Process.GetCurrentProcess())Process.Start(new ProcessStartInfo(installed,"--state-root \""+App.StateRoot+"\" --client \""+target+"\" --wait-horizon-parent "+parent.Id+" "+parent.StartTime.ToUniversalTime().Ticks){UseShellExecute=true});busy=false;Close();
    }catch(Exception ex){UpdateMessage.Text="The update could not finish.";UpdateDetail.Text=ex.Message+" Any completed Horizon app update is kept; AO graphics use the installer's recovery checks.";App.Trace("Update failed: "+ex.Message);}
    finally{busy=false;UpdateProgress.IsIndeterminate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}
   }

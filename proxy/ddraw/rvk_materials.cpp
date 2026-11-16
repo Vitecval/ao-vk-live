@@ -166,6 +166,7 @@ std::atomic<unsigned> g_modernStyle{0};
 std::atomic<bool> g_sharedTerrainEnabled{false}, g_sharedTerrainChanged{false};
 std::atomic<bool> g_modernChanged{false};
 std::atomic<bool> g_characterPack{false}, g_characterChanged{false};
+std::atomic<unsigned> g_characterStyle{0};
 uint64_t g_buildingFamiliesAvailable = 0, g_buildingFamiliesReady = 0;
 void ScanBuildingFamilies();
 void PollBuildingFamilies();
@@ -239,7 +240,8 @@ void ScanPacks(const std::string& root)
         f.dir = root + name + "\\";
         f.world = Lower(name) == "ao-cyber-world";
         f.modern = Lower(name) == "ao-modern-icc" ? 1u : (Lower(name) == "ao-cyber-icc" || f.world) ? 2u :
-                   Lower(name) == "ao-cyber-characters" ? 3u : Lower(name)=="ao-icc-enhanced-original" ? 4u : 0u;
+                   Lower(name) == "ao-cyber-characters" ? 3u : Lower(name)=="ao-icc-enhanced-original" ? 4u :
+                   Lower(name) == "ao-reworked-characters" ? 5u : 0u;
         ScanFolder(f);
         RvkLog("materials: pack '%s', %u files", name.c_str(), unsigned(f.files.size()));
         if (!f.files.empty())
@@ -341,6 +343,12 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
     Scan();
     if (g_liveKeys.count(KeyOf(type, id)))
         return g_live;
+    // Reviewed reworks override the standard library only in the selected mode.
+    // A partial install keeps the existing Standard Enhanced material intact.
+    if (!HasAny(g_mat,type,id) && g_characterPack.load() && g_characterStyle.load()==1)
+        for (const Folder& pack:g_packs)
+            if (pack.modern==5 && !FindIn(pack,type,id,"_d.png").empty() &&
+                !FindIn(pack,type,id,"_n.png").empty() && !FindIn(pack,type,id,"_orm.png").empty()) return pack;
     if (!HasAny(g_mat,type,id) && g_iccZone.load() && g_iccArtwork.load()==1 && g_modernStyle.load()==2 && rvk::icc::Target(type,id))
         for (const Folder& pack:g_packs)
             if(pack.name=="ao-icc-enhanced-original" && !FindIn(pack,type,id,"_d.png").empty() &&
@@ -357,6 +365,7 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
         }
     if (!g_packs.empty() && !HasAny(g_mat, type, id))
         for (const Folder& pack : g_packs) {
+            if (pack.modern == 5) continue; // selected explicitly above, never by world style
             if (pack.modern == 3 ? !g_characterPack.load() : pack.modern && pack.modern != g_modernStyle.load()) continue;
             if (HasAny(pack, type, id)) {
                 // A matched family must use one authored set, even when an older
@@ -430,7 +439,7 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
         // A longest-edge-only cap discarded its narrow dimension's detail.
         f.maxAlbedoSize=2048;f.maxAlbedoPixels=1024u*1024u;
     }
-    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 ||
+    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 || folder.modern == 5 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
     f.height = FindMap(type, id, "_h.png");
@@ -678,9 +687,11 @@ void SetSharedTerrainSetting(bool enabled)
     if (g_sharedTerrainEnabled.exchange(enabled) != enabled) g_sharedTerrainChanged.store(true);
 }
 
-void SetCharacterMaterialPack(bool enabled)
+void SetCharacterMaterialPack(bool enabled, unsigned style)
 {
-    if (g_characterPack.exchange(enabled) != enabled)
+    const bool enabledChanged = g_characterPack.exchange(enabled) != enabled;
+    const bool styleChanged = g_characterStyle.exchange(style ? 1u : 0u) != (style ? 1u : 0u);
+    if (enabledChanged || styleChanged)
         g_characterChanged.store(true);
 }
 
@@ -1014,7 +1025,7 @@ void PollModernPack()
         if (terrainChanged && FullQualityType(top->rdbType) == 1010006)
             keys.insert(KeyOf(top->rdbType, top->rdbId));
         for (const Folder& pack : g_packs)
-            if ((pack.modern == 3 ? characterChanged : pack.modern && modernChanged) && HasAny(pack, top->rdbType, top->rdbId))
+            if (((pack.modern == 3 || pack.modern == 5) ? characterChanged : pack.modern && modernChanged) && HasAny(pack, top->rdbType, top->rdbId))
                 keys.insert(KeyOf(top->rdbType, top->rdbId));
     }
     for (uint64_t key : keys)
@@ -1022,7 +1033,8 @@ void PollModernPack()
     if (modernChanged)
         RvkLog("modern texture pack: style %u; %u texture id(s) refreshed", g_modernStyle.load(), unsigned(keys.size()));
     if (characterChanged)
-        RvkLog("character artwork pack: %s; %u texture id(s) refreshed", g_characterPack.load() ? "on" : "off", unsigned(keys.size()));
+        RvkLog("character artwork pack: %s; style %s; %u texture id(s) refreshed", g_characterPack.load() ? "on" : "off",
+               g_characterStyle.load() ? "Reworked" : "Standard Enhanced", unsigned(keys.size()));
     if (terrainChanged)
         RvkLog("shared terrain materials: %s; %u texture id(s) refreshed", g_sharedTerrainEnabled.load() ? "on" : "off", unsigned(keys.size()));
 }

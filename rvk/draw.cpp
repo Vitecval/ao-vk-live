@@ -3299,6 +3299,20 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             }
         }
     }
+    if (terrain && SharedGroundPlus() && !m_native.drawing && m_native.codes && m_native.ground &&
+        dt.terrainAt[3] > 0.0f) {
+        // Original positions/indices/alpha stay intact. Fetch HD tiles by world
+        // position, independently of each near tile or far composite's UVs.
+        dt.terrain[0] = 1.0f / m_native.ground->cellX;
+        const uint32_t codes = BindlessImage(m_native.codes) + 1;
+        const uint32_t maps = m_native.maps ? BindlessImage(m_native.maps) + 1 : 0;
+        const uint32_t means = m_native.means ? BindlessImage(m_native.means) + 1 : 0;
+        std::memcpy(&dt.terrain[1], &codes, 4);
+        std::memcpy(&dt.terrain[2], &maps, 4);
+        dt.terrain[3] = 0.0f;
+        std::memcpy(&dt.terrainAt[0], &means, 4);
+        dt.terrainAt[1] = 1.0f; // native materials on the original AO surface
+    }
     uint32_t carrier = m_external ? 0 : CarriedLight(fvf, m_drawGpu ? nullptr : vertices, vertexCount, layout.stride);
     // The texture's own normal map (F_NORMALMAP), when it is the surface (stage 0, plain coordinates) of a per-pixel
     // lit draw; for the ground's lightmap pass, the normal map of its chunk's base texture (as the generated normals).
@@ -3325,7 +3339,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     // The native ground's lighting pass: its cells' tiles' material maps (terrain.glsl NativeOrm, each cell's own from
     // the maps texture); one of them stands in for the record.
-    if (!m_drawOrm && m_native.drawing && (m_drawTerrainLight || m_groundOne) && m_native.anyOrm && m_native.maps && m_pbr.enabled &&
+    if (!m_drawOrm && (m_native.drawing || (terrain && SharedGroundPlus())) &&
+        (m_drawTerrainLight || m_groundOne || combinedTerrain) && m_native.anyOrm && m_native.maps && m_pbr.enabled &&
         m_pixelLighting) {
         m_drawOrm = m_native.anyOrm;
         m_drawOrmBase = true;
@@ -4175,7 +4190,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     const Texture* mineralSurface = m_drawOrmBase && m_drawBumpBase ? m_drawBumpBase : m_textures[0];
     if (mineralSurface && !m_drawIsLabel && m_rs[d3d::RS_ZENABLE]) {
         const uint32_t kind = mineralSurface->m_worldMaterial >> 24;
-        if (kind == 7 && surfaceStage0) dt.mat[2] |= kMatMineral;
+        if ((kind == 7 || kind == 9) && surfaceStage0) dt.mat[2] |= kMatMineral;
         const bool rockColourStage=mineralSurface==m_textures[0] &&
             m_tss[0][d3d::TSS_COLOROP]!=d3d::TOP_DISABLE &&
             !(m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS]&256u) &&

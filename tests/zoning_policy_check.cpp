@@ -15,14 +15,15 @@ int main() {
     reveal.Start(60000); // Consecutive transitions restart readiness.
     if (!reveal.Visible(60001, 900)) return 6;
     reveal.Loaded(900);
-    if (!reveal.Visible(60002, 903) || reveal.Visible(60002, 904)) return 7;
+    if (!reveal.Visible(60002, 903) || !reveal.Visible(60002, 904) || reveal.Visible(60650,904)) return 7;
     reveal.Start(70000);
     if (!reveal.Visible(159999, 0) || reveal.Visible(160000, 0)) return 8;
     reveal.Start(200000);
     if(reveal.Continue(100))return 16; // Input during loading cannot skip readiness.
     reveal.Loaded(100);
     if(reveal.Ready(103) || reveal.Continue(103))return 17;
-    if(!reveal.Ready(104) || !reveal.Visible(200001,104,true) || reveal.Visible(200001,104))return 18;
+    if(!reveal.Ready(104) || !reveal.Visible(200001,104,true) || !reveal.Visible(200001,104) ||
+       reveal.Visible(200650,104))return 18;
     if(!reveal.Visible(600000,104,true))return 19; // An optional ready screen waits indefinitely.
     if(!reveal.Continue(104) || reveal.Visible(600001,104,true))return 20;
     reveal.Start(700000);reveal.Loaded(200);

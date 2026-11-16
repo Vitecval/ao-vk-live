@@ -160,7 +160,7 @@ vec4 Sample(uint stage)
     // be an entirely transparent far patch; its alpha is not the coverage of
     // every patch in the playfield. Both cutout prepass and colour pass must
     // test the cell's own coverage instead.
-    if (floatBitsToUint(D.terrain.y) != 0u &&
+      if (floatBitsToUint(D.terrain.y) != 0u && !(D.terrainAt.y > 0.5 && D.terrainAt.y < 1.5) &&
         ((stage == 1u && (D.mat.z & MAT_COMBINED) != 0u) || (stage == 0u && D.terrainAt.w < 1.5)))
         result.a = NativeTerrainAlpha();
     return result;

@@ -20,6 +20,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include "weather_options.h"
+#include "setting_choices.h"
 
 #include <algorithm>
 #include <set>
@@ -381,6 +382,7 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
          std::strcmp(s.name,"RVK_WaterRipple")==0) &&
         rvk_settings::GetEffective("RVK_TerraBlend")>1) return "off (Shared Ground+)";
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0) return v>0 ? "Enhanced Original" : "AnarchyHD";
+    if (std::strcmp(s.name,"RVK_CharacterStyle")==0) return v>0 ? "Reworked" : "Standard Enhanced";
     if(std::strcmp(s.name,"RVK_AmbientMode")==0) {
         const char* names[]={"Off","Automatic (area and time)","Fireflies","Dust","Spores","Spirit motes","Snow crystals","Embers","Ash"};
         return names[std::clamp(int(std::lround(v)),0,8)];
@@ -1248,7 +1250,7 @@ std::vector<std::string> OptionSections()
 std::vector<SettingRef> OptionSettings()
 {
     static const std::vector<const char*> quick[] = {
-        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery", "RVK_ImmersiveShips",
+        {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_AutoMat", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery", "RVK_ImmersiveShips",
            "RVK_BuildWear", "RVK_ZoneScreen", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
          "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},
@@ -1318,10 +1320,7 @@ void OptionKey(const Event& e)
             std::vector<float> choices;
             for (const auto& word : Words(s.choices)) choices.push_back(float(std::atof(word.c_str())));
             if (!choices.empty()) {
-                size_t i = 0;
-                while (i + 1 < choices.size() && choices[i] < s.value) ++i;
-                const int next = std::clamp(int(i) + direction, 0, int(choices.size()) - 1);
-                value = choices[size_t(next)];
+                value = rvk::settings::StepChoice(choices,s.value,direction);
             }
         } else if (s.type != 4) value += direction * std::max(s.step, 0.01f) * (e.shift ? 10.0f : 1.0f);
         rvk_settings::Set(s.name, value);
@@ -1449,7 +1448,10 @@ void DrawOptions(uint32_t w, uint32_t h)
             bool children = false;
             for (const auto& child : AllSettings())
                 if (!child.hidden && OptionParent(child.info) && std::strcmp(OptionParent(child.info),r.info.name)==0) children=true;
-            label = (OptionParent(r.info) ? "    " : "") + std::string(children ? (g_optionExpanded.count(r.info.name) ? "[-] " : "[+] ") : "    ") + label;
+            const char* parent = OptionParent(r.info);
+            const bool nested = parent && std::any_of(settings.begin(), settings.begin() + (row - extra),
+                [&](const SettingRef& earlier) { return std::strcmp(earlier.info.name,parent)==0 && g_optionExpanded.count(parent); });
+            label = std::string(nested ? "    " : "") + (children ? (g_optionExpanded.count(r.info.name) ? "[-] " : "[+] ") : "    ") + label;
             value = FormatValue(r.info, r.info.value);
         }
         Text(left + pad, y, label, row == g_optionRow ? cName : cText, std::max(1, (valueX - left - pad) / cw - 2));

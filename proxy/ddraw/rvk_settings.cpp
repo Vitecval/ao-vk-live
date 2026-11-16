@@ -116,6 +116,7 @@ Setting g_settings[] = {
     {"RVK_EnhancedRocks", "Enhanced Rocks", "Materials", Float, 0, 1, .1f, 1, nullptr, 0},
     {"RVK_RockShape", "Legacy rock shape (disabled)", "Materials", Float, 0, 1, .1f, 0, nullptr, 0, "RVK_EnhancedRocks"},
     {"RVK_AutoMat", "Character & equipment materials", "Materials", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_CharacterStyle", "Artwork: Standard Enhanced / Reworked", "Materials", Choice, 0, 1, 1, 0, nullptr, 0, "RVK_AutoMat", "0 1"},
     {"RVK_MatStrength", "Material response strength", "Materials", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_AutoMat"},
     {"RVK_Albedo", "Enhanced textures", "Materials",     Bool,  0, 1, 1, 1, nullptr, 0},
 
@@ -911,6 +912,11 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
         d->SetKnob(rvk::Knob::ICCArtwork,V("RVK_ModernTex")==2 ? V(n) : 0.0f);
         return;
     }
+    if (is("RVK_CharacterStyle")) {
+        SetCharacterMaterialPack(V("RVK_AutoMat") != 0.0f && V("RVK_MatStrength") > 0.0f,
+                                 unsigned(V(n)));
+        return;
+    }
     // The plain settings (rvk.h RVK_FLOAT_KNOBS, RVK_BOOL_KNOBS): one value each, set by name.
     if (const int knob = rvk::KnobByName(n); knob >= 0) {
         d->SetKnob(rvk::Knob(knob), V(n));
@@ -931,7 +937,8 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
                    V(n),V("RVK_GroundOn"),V("RVK_Pebbles"),V("RVK_GroundRocks"),V("RVK_CliffTex"),V("RVK_GroundAo"),V("RVK_GroundSun"));
         }
         if (is("RVK_AutoMat") || is("RVK_MatStrength") || is("RVK_TerrainHD") || is("RVK_BuildingHD")) {
-            SetCharacterMaterialPack(V("RVK_AutoMat") != 0.0f && V("RVK_MatStrength") > 0.0f);
+            SetCharacterMaterialPack(V("RVK_AutoMat") != 0.0f && V("RVK_MatStrength") > 0.0f,
+                                     unsigned(V("RVK_CharacterStyle")));
             for (const char* dependent : {"RVK_PixelLight", "RVK_Pbr", "RVK_Hdr", "RVK_NormalMaps"})
                 if (const Setting* other = Find(dependent)) ApplyOne(*other, d);
             if (is("RVK_AutoMat"))
@@ -1590,7 +1597,7 @@ bool InPresets(const Setting& s, uint32_t preset)
         std::strcmp(s.name,"RVK_ShipLightPower")==0 || std::strcmp(s.name,"RVK_FullScenery")==0 ||
         std::strcmp(s.name,"RVK_SceneryFill")==0 || std::strcmp(s.name,"RVK_FarDetail")==0)) return true;
     if(std::strcmp(s.name,"RVK_InstantTime")==0 || std::strcmp(s.name,"RVK_AmbientMode")==0 ||
-       std::strcmp(s.name,"RVK_ZoneClick")==0)return false;
+       std::strcmp(s.name,"RVK_ZoneClick")==0 || std::strcmp(s.name,"RVK_CharacterStyle")==0)return false;
     if (std::strcmp(s.name,"RVK_DayCycle")==0 || std::strcmp(s.name,"RVK_ImprovedTiles")==0 ||
         std::strcmp(s.name,"RVK_TerraRough")==0) return false;
     if (std::strcmp(s.name,"RVK_ICCArtwork")==0 || std::strcmp(s.name,"RVK_ICCGlossiness")==0) return false;

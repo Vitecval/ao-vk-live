@@ -5,6 +5,7 @@
 namespace rvk::zoning {
 // The counter advances only for successfully presented world frames.
 struct Reveal {
+    static constexpr uint64_t minimumPictureMs = 650; // enough for the 180 ms fade-in even on an SSD-fast zone
     uint64_t baseline = 0, began = 0;
     bool active = false, settling = false, dismissed = false;
     void Start(uint64_t now) { began = now; active = true; settling = false; dismissed = false; }
@@ -15,7 +16,7 @@ struct Reveal {
         dismissed = true; return true;
     }
     bool Visible(uint64_t now, uint64_t worlds, bool waitForInput = false) const {
-        return active && !dismissed && (Ready(worlds) ? waitForInput : now - began < 90000);
+        return active && !dismissed && (Ready(worlds) ? waitForInput || now - began < minimumPictureMs : now - began < 90000);
     }
 };
 

@@ -206,6 +206,18 @@ try {
     Assert ((Hash $assetTarget) -eq $manifest.assets[$assetRelative]) 'Verified texture was changed during archive-free update'
     Move-Item -LiteralPath ($assetSource+'.saved') -Destination $assetSource
     $manifest.Remove('materialParts')
+    # A content-only release can retire an asset with identical renderer/build
+    # metadata. Remove the old owned file and allow it to be introduced again.
+    $retiredHash=$manifest.assets[$assetRelative]
+    $manifest.assets.Remove($assetRelative)
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert (!(Test-Path -LiteralPath $assetTarget)) 'Content-only update left a retired owned texture'
+    Assert ((Hash $cyberTarget) -eq $manifest.assets[$cyberRelative]) 'Retiring one texture changed an unrelated texture'
+    $manifest.assets[$assetRelative]=$retiredHash
+    Save-Manifest
+    & $installer @arguments | Out-Null
+    Assert ((Hash $assetTarget) -eq $retiredHash) 'Content-only update could not reintroduce a texture'
     $manifest.assets['../escape.png'] = Hash $assetSource
     Save-Manifest
     Reject $arguments 'Invalid optional material pack'

@@ -1639,6 +1639,7 @@ int main(int argc, char** argv)
     int terrainSettingsRestart=-1;
     std::vector<void*> pressureReservations;
     bool characterMaterialsTest = false;
+    bool reworkedMaterialsTest = false;
     bool surfaceMemoryTest = false;
     bool worldMaterialsTest = false;
     bool propsPackTest = false;
@@ -1685,6 +1686,7 @@ int main(int argc, char** argv)
         else if (a=="--terrain-settings-restart" && i+1<argc) terrainSettingsRestart=std::atoi(argv[++i]);
         else if (a == "--shared-terrain-loader-test") {sharedTerrainLoaderTest=true;frames=std::max(frames,700);}
         else if (a == "--character-materials-test") characterMaterialsTest = true;
+        else if (a == "--reworked-materials-test") reworkedMaterialsTest = characterMaterialsTest = true;
         else if (a == "--surface-memory-test") surfaceMemoryTest = true;
         else if (a == "--world-materials-test") worldMaterialsTest = true;
         else if (a == "--props-pack-test") propsPackTest = worldMaterialsTest = true;
@@ -2017,6 +2019,8 @@ int main(int argc, char** argv)
         set("RVK_PbrEnv", .4f);
         if (customEquipment) {
             for (unsigned id : customArtIds) TestTextureStream(id,customArtType);
+            if (reworkedMaterialsTest)
+                for (unsigned id : customArtIds) TestTextureStream(id,1010016);
         } else {
         for (unsigned id : {9622u, 8732u, 8736u, 8731u}) TestTextureStream(id);
         TestTextureStream(8763, 1010011);
@@ -2156,6 +2160,12 @@ int main(int argc, char** argv)
             if (frame == 140) set("RVK_Enhance", 1);
             if (frame == 180 || frame == 220) set("RVK_AutoMat", 0);
             if (frame == 400) set("RVK_AutoMat", 1);
+            if (reworkedMaterialsTest) {
+                if (frame == 250 || frame == 900) set("RVK_CharacterStyle",0);
+                if (frame == 300 || frame == 450 || frame == 1000) set("RVK_CharacterStyle",1);
+                if (frame == 500) set("RVK_ModernTex",2);
+                if (frame == 600) set("RVK_ModernTex",0);
+            }
             if (frame == 1100) set("RVK_AutoMat", 0);
         }
         // Reserve before the first style-on. Waiting until frame 60 can warm

@@ -559,6 +559,20 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     // Unknown passes, or an unavailable replacement, always retain AO's draw.
     if ((!base && !light && !combined) || (combined && !m_pixelLighting))
         return false;
+    if (SharedGroundPlus()) {
+        // A height grid cannot reproduce AO's adaptive cliff triangles, void
+        // edges and stitched LOD boundaries. Keep the submitted surface and
+        // apply the tile table in Draw instead. Only decorations are generated.
+        if ((combined || light) && m_native.drawnLight != m_frameNumber) {
+            EnsurePebbleTable();
+            if (NativeMapsSignature() != m_native.mapsSignature) MakeNativeCodes();
+            m_native.drawnLight = m_frameNumber;
+            m_native.baseRs = m_rs;
+            m_native.baseSampler = StageSamplerSlot(combined ? 1 : 0);
+            DrawNativeGroundOne();
+        }
+        return false;
+    }
     if (combined) {
         if (m_native.drawnLight == m_frameNumber)
             return true;
@@ -709,7 +723,7 @@ void Device::DrawNativeGround(bool lightPass)
     // In view: a patch's box against the camera's clip planes (all eight corners outside one: left out).
     const d3d::Matrix vp = MulMatrix(m_view, m_proj);
     uint32_t drawn = 0;
-    if (!m_native.pebblesOnly) for (const NativePatch& p : m_native.patches) {
+    if (!m_native.pebblesOnly && !SharedGroundPlus()) for (const NativePatch& p : m_native.patches) {
         if (p.indices->empty()) continue;
         bool outside[6] = {true, true, true, true, true, true};
         for (int k = 0; k < 8; ++k) {

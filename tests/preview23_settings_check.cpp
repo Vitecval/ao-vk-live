@@ -11,6 +11,7 @@
 #include "../rvk/area_profiles.h"
 #include "../rvk/ambient_policy.h"
 #include "../rvk/surface_attachment.h"
+#include "../rvk/setting_choices.h"
 #include <cstdlib>
 
 int main(int argc,char** argv) {
@@ -56,6 +57,10 @@ int main(int argc,char** argv) {
     std::puts("Far Scenery covers distant rock/building zones and stays inside the loaded world");
     float full[5];rnative::rings::ScaledFactors(original,.75f,2.f,1.15f,full,3.f,1.f);
     if(full[0]!=.4f || full[1]!=.6f || full[2]!=1.5f || full[3]!=1.5f || full[4]!=1.5f)return 12;
+    const std::vector<float> scales{100,85,75,67,50};
+    float scale=100;
+    for(float expected:{85.f,75.f,67.f,50.f,50.f}){scale=rvk::settings::StepChoice(scales,scale,1);if(scale!=expected)return 14;}
+    for(float expected:{67.f,75.f,85.f,100.f,100.f}){scale=rvk::settings::StepChoice(scales,scale,-1);if(scale!=expected)return 15;}
     HMODULE lib=LoadLibraryA("ao-vk.dll");
     for(float view:{1.f,1.5f,3.f})for(float scenery:{1.f,1.15f,3.f})
         if(rnative::camera::EffectiveRange(view,scenery)!=std::max(view,scenery) ||
@@ -79,6 +84,7 @@ int main(int argc,char** argv) {
         std::puts("brightness migration passed");return 0;
     }
     if(argc>1)check(info("RVK_EnhancedRocks").value==.4f,"rock strength survives restart");
+    if(argc>1)check(info("RVK_CharacterStyle").value==1,"Reworked artwork survives restart");
     if(argc>1)check(effective("RVK_RockShape")==0,"legacy rock shape stays disabled after restart");
     if(argc>1)check(info("RVK_ZoneScreen").value==0,"zoning toggle survives restart");
     if(argc>1)check(info("RVK_ZoneClick").value==1,"click-to-continue survives restart");
@@ -88,6 +94,10 @@ int main(int argc,char** argv) {
           info("RVK_TerraRough").max==1 && info("RVK_TerraRough").step==.05f,"terrain roughness schema");
     for(int i=0;i<=20;++i){set("RVK_TerraRough",i*.05f);check(std::fabs(info("RVK_TerraRough").value-i*.05f)<.001,"terrain roughness steps");}
     set("RVK_TerraRough",.35f);
+    check(info("RVK_AutoMat").type==0 && info("RVK_CharacterStyle").defaultValue==0 &&
+          info("RVK_CharacterStyle").min==0 && info("RVK_CharacterStyle").max==1 &&
+          std::strcmp(info("RVK_CharacterStyle").parent,"RVK_AutoMat")==0,"backward-compatible character artwork selector");
+    set("RVK_CharacterStyle",1);
     check(info("RVK_EnhancedRocks").defaultValue==1 && info("RVK_EnhancedRocks").min==0 && info("RVK_EnhancedRocks").max==1,"rock strength schema");
     set("RVK_RockShape",.3f);
     check(effective("RVK_RockShape")==0,"legacy rock shape cannot enable geometry");
@@ -123,7 +133,7 @@ int main(int argc,char** argv) {
     check(info("RVK_SkipHugeShadows").defaultValue==0 && std::strcmp(info("RVK_SkipHugeShadows").parent,"RVK_SunShadow")==0,"huge-shadow toggle defaults off under Sun shadows");
     check(info("RVK_ZoneScreen").defaultValue==1,"zoning enabled by default");
     set("RVK_ZoneClick",1);
-    for(unsigned p=0;p<4;++p){set("RVK_ZoneScreen",0);set("RVK_SkipHugeShadows",1);preset(p);check(info("RVK_SkipHugeShadows").value==0,"every preset defaults huge-shadow skipping off");check(info("RVK_ZoneScreen").value==1,"every preset enables zoning");check(info("RVK_ZoneClick").value==1,"presets preserve the optional continue preference");if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
+    for(unsigned p=0;p<4;++p){check(info("RVK_CharacterStyle").value==1,"presets preserve character artwork");set("RVK_ZoneScreen",0);set("RVK_SkipHugeShadows",1);preset(p);check(info("RVK_SkipHugeShadows").value==0,"every preset defaults huge-shadow skipping off");check(info("RVK_ZoneScreen").value==1,"every preset enables zoning");check(info("RVK_ZoneClick").value==1,"presets preserve the optional continue preference");if(p<3)check(info("RVK_ICCArtwork").value==1 && std::fabs(info("RVK_ICCGlossiness").value-.2f)<.001,"independent ICC preferences");for(const char* name:cosmetics)check(set(name,1)==0,"preset restored Living controls");check(info("RVK_CloudsOn").value==0,"preset clouds default off");}
     check(info("RVK_ICCArtwork").value==0 && info("RVK_ICCGlossiness").value==.7f && info("RVK_ImprovedTiles").value==0 && info("RVK_ImprovedTiles").defaultValue==0,"Ultra artwork/gloss/tiles off");
     check(current && current()==3,"Ultra reports Ultra before customization");
     set("RVK_ICCGlossiness",.6f);check(current()==-1,"customizing Ultra reports Custom");set("RVK_ICCGlossiness",.7f);

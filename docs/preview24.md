@@ -1,5 +1,13 @@
 # AO-VK Live Preview 24
 
+## Revision 60 / Horizon 0.7.3
+
+Shared Ground+ retains AO's original terrain topology while applying HD surface
+materials. Rough Adonis masonry, loading-screen visibility, all five render-scale
+choices, Quick Controls alignment and Horizon installation clarity are fixed.
+The new Reworked artwork pack is staged separately and is not included in this
+release. See [r60 details](preview24-r60.md) for validation and scope.
+
 ## Revision 59 update
 
 - Prevented unnecessary background window clears after Vulkan initialization,

@@ -21,6 +21,10 @@ int main()
     }
     const auto marble=rvk::materials::LookupWorld(1010004,209481);
     if (marble>>24!=8 || (marble>>8&255)!=0 || (marble&255)<220) return 11;
+    const auto battered=rvk::materials::LookupWorld(1010004,208052);
+    if (battered>>24!=9 || (battered>>8&255)!=0 || (battered&255)<245 ||
+        rvk::materials::NaturalRock(1010004,208052) ||
+        rvk::materials::LookupWorld(1010016,208052)!=battered) return 12;
     for (size_t i=1;i<std::size(world);++i) if (world[i-1].key >= world[i].key) return 9;
     for (size_t i = 1; i < std::size(c); ++i) if (c[i - 1].key >= c[i].key) return 6;
     std::printf("material catalog: %zu entries; quality aliases, type isolation and non-metal skin/cloth passed\n", std::size(c));

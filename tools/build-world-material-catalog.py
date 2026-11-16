@@ -13,13 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 PACK = ROOT / 'material-packs/ao-world-materials'
 PROFILES = {'stone': (1, .84, 0), 'metal': (2, .34, .78), 'window': (3, .42, .45),
             'painted-metal': (4, .48, .16), 'brick': (5, .88, 0), 'wood': (6, .76, 0),
-            'mineral': (7, .96, 0), 'honed-stone': (8, .88, 0)}
+            'mineral': (7, .96, 0), 'honed-stone': (8, .88, 0), 'rough-masonry': (9, .98, 0)}
 EXCLUDE = re.compile(r'armor|armour|helmet|head_|face|body|chest|pants|legs|boot|glove|sleeve|weapon|rifle|pistol|sword|skin|tree|leaf|leaves|bark|palm|flower|grass|particle|smoke|cloud|reflection|water|icon|symbol|cursor|fx_|effect|monster|creature', re.I)
 ARCH = re.compile(r'building|window|glass|wall|roof|facade|concrete|cement|brick|plaster|midtech|hitech|plateyell|neutral_newplate|tile|floor|door|ceiling|pillar|column|tower|bridge|shop|store|booth|station|railing|stairs|stair|girder|metal|vent|grille|pipe|cladding|beam|asphalt|paving|pavement|street|shed|hut_', re.I)
 
 
 def classify(name):
     if EXCLUDE.search(name): return None
+    if name.lower() == 'adonis_wall_basic.png': return 'rough-masonry'
     # Natural mineral surfaces must never inherit a metal or polished-window
     # guess. Shadowlands uses many shared rock and pale temple base atlases.
     if re.search(r'(^|[_ -])(rock|cliff|boulder|lava|basalt|sandstone|limestone)|shadowlandrock|lavarock|crackedrock|tilerock|mount\d',name,re.I):

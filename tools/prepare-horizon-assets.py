@@ -1,7 +1,9 @@
 """Freeze compact manifests and a code-drawn Horizon icon for the local app."""
 from pathlib import Path
 import gzip,hashlib,json,math,struct,zlib,zipfile
-ROOT=Path(__file__).resolve().parents[1];A=ROOT/'apps/horizon/Assets';BASE=ROOT/'build/preview24/release-r59'
+ROOT=Path(__file__).resolve().parents[1];A=ROOT/'apps/horizon/Assets'
+metadata=json.loads((A/'engine.json').read_text(encoding='utf8'))
+BASE=ROOT/('build/preview24/release-r'+str(metadata['revision']))
 def sha(p):
  with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 for edition in ['lite','full-setup']:
@@ -11,8 +13,7 @@ core=BASE/'ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
 if core.exists():
  # Fresh source builds need only the published bootstrap and the checked-in
  # pins, not a private packaging audit from the original build machine.
- metadata=json.loads((A/'engine.json').read_text(encoding='utf8'))
- assert sha(core)==metadata['fullSetupSha256'] and core.stat().st_size==metadata['fullSetupBytes'], 'The r59 bootstrap does not match its checked-in integrity pin.'
+ assert sha(core)==metadata['fullSetupSha256'] and core.stat().st_size==metadata['fullSetupBytes'], 'The graphics bootstrap does not match its checked-in integrity pin.'
  with zipfile.ZipFile(core) as archive:
   files={e.filename.split('/',1)[1]:hashlib.sha256(archive.read(e)).hexdigest() for e in archive.infolist() if not e.is_dir()}
  (A/'core-files.json').write_text(json.dumps(files,indent=2),encoding='utf8')

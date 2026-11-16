@@ -298,12 +298,14 @@ DWORD WINAPI WindowMain(void*) {
             POINT point{}; ClientToScreen(parent, &point);
             RECT old{}; GetWindowRect(h, &old);
             if (!shown || old.left != point.x || old.top != point.y || old.right-old.left != r.right || old.bottom-old.top != r.bottom) {
-                SetWindowPos(h, HWND_TOP, point.x, point.y, r.right, r.bottom, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                // Borderless/fullscreen game windows can be topmost. The
+                // non-activating loading popup must still sit above its owner.
+                SetWindowPos(h, HWND_TOPMOST, point.x, point.y, r.right, r.bottom, SWP_NOACTIVATE | SWP_SHOWWINDOW);
                 InvalidateRect(h, nullptr, FALSE);
             }
             if (serial != 0 && painted && WaitForSingleObject(painted, 0) != WAIT_OBJECT_0) InvalidateRect(h, nullptr, FALSE);
         } else if (shown) {
-            ShowWindow(h, SW_HIDE);
+            SetWindowPos(h, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_HIDEWINDOW);
             if(!want && opacity<=0)screenCanvas.Reset();
         }
         shown = visible;

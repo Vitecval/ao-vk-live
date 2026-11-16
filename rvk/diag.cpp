@@ -200,10 +200,10 @@ void Device::EndFrameDump()
         m_native.framesDrawn ? double(m_native.patchesDrawn)/m_native.framesDrawn : 0.0,
         m_native.rocksMade,m_native.pebblesMade,SharedGroundPlus() ? 0.0 : double(m_native.ao),SharedGroundPlus() ? 0.0 : double(m_native.sun));
     std::fprintf(m_dumpFile,"# terrain path: geometry=%s; lighting=%s; cliff-resources=%u; tessellation=%u; ripples=%s; original-terrain-consumed=%u\n",
-        (m_native.on || SharedGroundPlus()) && m_native.ground ? "native-patches" : "classic-submissions",
+        SharedGroundPlus() ? "classic-submissions-HD-materials" : m_native.on && m_native.ground ? "native-patches" : "classic-submissions",
         SharedGroundPlus() ? "classic-AO-baked-lightmap" : m_native.on ? "native-sun-AO" : "classic-AO",
         unsigned(m_rock.albedo && m_rock.normal && m_rock.orm),unsigned(m_tessSupported && m_terrainSettings.round>0),
-        SharedGroundPlus() ? "disabled" : "settings",unsigned((m_native.on || SharedGroundPlus()) && m_native.framesDrawn>0));
+        SharedGroundPlus() ? "disabled" : "settings",unsigned(m_native.on && m_native.framesDrawn>0));
     size_t nativeIndices = 0, hiddenCells = 0;
     for (const auto& p : m_native.patches) nativeIndices += p.indices->size() / 2;
     if (m_native.ground) for (uint8_t v : m_native.ground->hiddenCells) hiddenCells += v != 0;

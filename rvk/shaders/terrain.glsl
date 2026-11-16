@@ -77,6 +77,10 @@ float RetailHeight(ivec2 p) {
 // Where and how the ground's texture lies at this pixel. uv: the game's coordinates; n: the interpolated normal.
 TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 {
+    // Original AO terrain has tile-local or far-composite UVs. Native maps on
+    // that surface use world cell coordinates, preserving the source geometry.
+    if (floatBitsToUint(D.terrain.y) != 0u && D.terrainAt.y > 0.5 && D.terrainAt.y < 1.5)
+        uv = posW.xz * FL.nativeHeight.yz;
     TerrainMap m;
     m.posW = posW;
     m.px = dFdx(posW);

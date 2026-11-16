@@ -19,10 +19,14 @@ def digest(path):
  with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
 
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--manifest',type=Path,required=True);p.add_argument('--export',type=Path);a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--manifest',type=Path,required=True);p.add_argument('--export',type=Path)
+ p.add_argument('--exclude-prefix',action='append',default=[],help='Keep separately staged work out of this release snapshot.')
+ a=p.parse_args()
  paths={ROOT/name for name in ROOT_FILES if (ROOT/name).is_file()}
  for directory in DIRECTORIES:
   paths.update(f for f in (ROOT/directory).rglob('*') if f.is_file() and eligible(f))
+ prefixes=[v.replace('\\','/').strip('/') for v in a.exclude_prefix]
+ paths={f for f in paths if not any(f.relative_to(ROOT).as_posix()==v or f.relative_to(ROOT).as_posix().startswith(v+'/') for v in prefixes)}
  files=[]
  for path in sorted(paths):
   size=path.stat().st_size
@@ -30,7 +34,7 @@ def main():
   files.append({'path':path.relative_to(ROOT).as_posix(),'bytes':size,'sha256':digest(path)})
  result={'format':1,'files':files,'file_count':len(files),'bytes':sum(x['bytes'] for x in files),'large_review_items':[x for x in files if x['bytes']>=1024*1024],
   'excluded':'Builds/dist, optional material-packs/*/maps and source-art, binary/debug/temp files, private references. No workspace files removed.',
-  'essential_embedded_assets':[x for x in files if x['path'].startswith('rvk/assets/')]}
+  'essential_embedded_assets':[x for x in files if x['path'].startswith('rvk/assets/')], 'excluded_prefixes':prefixes}
  if a.export:
   if a.export.exists():raise RuntimeError('Choose a new source snapshot directory; existing snapshots are preserved.')
   for x in files:

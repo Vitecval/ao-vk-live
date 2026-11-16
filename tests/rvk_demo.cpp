@@ -2207,6 +2207,7 @@ bool g_nativeUnknownPass = false;
 bool g_nativeFirstTransparent = false, g_nativeCoverageTest = false, g_nativeVoidFixture = false;
 bool g_groundDetailFixture=false,g_groundModeCycle=false,g_grassLifetimeTest=false;
 bool g_groundFarView=false;
+bool g_retailCliffFixture=false;
 bool g_groundUntiled=false;
 std::string g_groundArtDir; // test-only: actual source-aligned terrain material fixture
 int g_groundArtMode=1;      // 0 original, 1 complete material, 2 albedo-only comparison
@@ -2348,6 +2349,9 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
                 for (uint32_t j = 0; j < kPatch; ++j)
                     for (uint32_t i = 0; i < kPatch; ++i) {
                         const uint32_t c = px * kPatch + i, r = pz * kPatch + j;
+                        // Deliberately retain AO-only cutouts, an overhang and
+                        // alternate diagonals absent from the height snapshot.
+                        if(g_retailCliffFixture && (r>43 || (c>=47 && c<53 && r>=37))) continue;
                         const uint16_t code = ground->codes[size_t(r) * kCells + c];
                         if ((code & 0x3FFFu) != t) continue;
                         const uint32_t turn = code >> 14;
@@ -2357,13 +2361,16 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
                             const float uv[4][2] = {{a, 1 - b}, {1 - b, 1 - a}, {1 - a, b}, {b, a}};
                             const float x = (c + a) * kCell, z = (r + b) * kCell;
                             VtxTerrain v{x, height(x, z), z, 0, 1, 0, uv[turn][0], uv[turn][1], (i + a) / kPatch, (j + b) / kPatch};
+                            if(g_retailCliffFixture && z>=152) v.z-=std::max(v.y-10.f,0.f)*.28f;
                             if(g_groundUntiled){v.u0*=1.0f+.04f*float((c+r)%3);v.v0*=.97f;}
                             normalAt(x, z, &v.nx);
                             ch.v.push_back(v);
                         }
                         const uint16_t q[6] = {base, uint16_t(base + 2), uint16_t(base + 1), uint16_t(base + 1),
                                                uint16_t(base + 2), uint16_t(base + 3)};
-                        ch.i.insert(ch.i.end(), q, q + 6);
+                        const uint16_t alternate[6]={base,uint16_t(base+2),uint16_t(base+3),base,uint16_t(base+3),uint16_t(base+1)};
+                        const auto* selected=g_retailCliffFixture && ((c+r)&1) ? alternate:q;
+                        ch.i.insert(ch.i.end(), selected, selected + 6);
                     }
                 if (!ch.v.empty()) gp.chunks.push_back(std::move(ch));
             }
@@ -2413,7 +2420,7 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetViewport({0, 0, g_width, g_height, 0.0f, 1.0f});
         dev.Clear(CLEAR_TARGET | CLEAR_ZBUFFER, 0xFF8098B8, 1.0f);
         const float ex=200.0f+(g_grassLifetimeTest ? 14.0f*std::sin(float(frame)*.01f) : 0.0f);
-        const Vector eye=g_groundFarView ? Vector{200.0f,160.0f,-420.0f} : Vector{ex, height(ex, 90.0f) + 14.0f, 90.0f};
+        const Vector eye=g_groundFarView ? Vector{200.0f,160.0f,-420.0f} : Vector{ex, height(ex, 90.0f) + (g_retailCliffFixture ? 38.0f : 14.0f), 90.0f};
         const float yaw = 1.5708f + g_terrainYaw + (g_grassLifetimeTest ? .2f*std::sin(float(frame)*.013f) : 0.0f);
         dev.SetTransform(View, LookAtLH(eye, {eye.x + std::cos(yaw), eye.y - 0.25f, eye.z + std::sin(yaw)}, {0, 1, 0}));
         dev.SetTransform(Projection, PerspectiveLH(kPi / 3, float(g_width) / g_height, 0.3f, g_groundFarView ? 2400.0f:600.0f));
@@ -5993,6 +6000,7 @@ int main(int argc, char** argv)
         else if (a == "--ground-untiled") g_groundUntiled=true;
         else if (a == "--ground-mode-cycle") g_groundModeCycle=true;
         else if (a == "--native-ground-test") g_nativeGroundTest = true;
+        else if (a == "--retail-cliff-fixture") g_retailCliffFixture = g_nativeGroundTest = g_groundDetailFixture = true;
         else if (a == "--ground-art-dir" && i+1<argc) {g_groundArtDir=argv[++i];g_nativeGroundTest=true;}
         else if (a == "--ground-art-mode" && i+1<argc) {
             g_groundArtMode=std::atoi(argv[++i]);

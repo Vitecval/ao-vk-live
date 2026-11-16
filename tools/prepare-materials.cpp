@@ -56,14 +56,14 @@ int main(int argc,char** argv) try {
         }
         const std::string name=folder.filename().string();
         const bool high=name=="ao-cyber-world"||name=="ao-cyber-icc"||name=="ao-icc-enhanced-original";
-        const bool modern=high||name=="ao-modern-icc"||name=="ao-cyber-characters";
+        const bool modern=high||name=="ao-modern-icc"||name=="ao-cyber-characters"||name=="ao-reworked-characters";
         for(auto& [id,files]:sets) {
             rvk::maps::MaterialFiles f;
             f.normal=files["n"];f.height=files["h"];f.packed=files["orm"];
             f.parts[0]=files["ao"];f.parts[1]=files["r"];f.parts[2]=files["m"];
             f.albedo=files["d"];f.emissive=files["e"];f.leaves=files["leaves"];f.leavesNormal=files["leaves_n"];
             f.maxSize=modern?512:2048;
-            f.preserveAlbedoAlpha=(high&&id.first!=1010006)||name=="ao-cyber-characters";
+            f.preserveAlbedoAlpha=(high&&id.first!=1010006)||name=="ao-cyber-characters"||name=="ao-reworked-characters";
             // Match FilesFor's eligibility rules. In particular, an unreviewed
             // ground repaint is never loaded by the game and needs no cache.
             const bool completedGround=name=="ao-cyber-world"&&rvk::materials::Preview23CompletedGround(id.first,id.second)&&

@@ -17,23 +17,23 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-363 settings, 192 of them in the settings window.
+392 settings, 220 of them in the settings window.
 
 ## Sections
 
-- [General](#general) (10)
-- [Lighting](#lighting) (17)
-- [Day/Night Cycle](#day/night-cycle) (1)
-- [Materials](#materials) (26)
+- [General](#general) (19)
+- [Lighting](#lighting) (21)
+- [Day/Night Cycle](#day/night-cycle) (2)
+- [Materials](#materials) (32)
 - [Debug](#debug) (8)
 - [Terrain](#terrain) (25)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
 - [Weather](#weather) (49)
 - [Smoke](#smoke) (12)
-- [Sky](#sky) (45)
-- [Shadows](#shadows) (16)
-- [Effects](#effects) (47)
+- [Sky](#sky) (48)
+- [Shadows](#shadows) (17)
+- [Effects](#effects) (52)
 - [Tone mapping](#tone-mapping) (2)
 - [Colour grading](#colour-grading) (11)
 - [Anti-aliasing](#anti-aliasing) (6)
@@ -49,14 +49,20 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_PrepassEq` | Depth pre-pass: what it covers shaded only where it is seen | on / off | on | ini only; switch `RVK_Prepass`; knob |
 | `RVK_UiRate` | Interface refresh rate (0 = every frame) | 0 / 30 / 60 / 90 / 120 | 60 | window |
 | `RVK_RenderBg` | Render in Background | on / off | off | window |
+| `RVK_ZoneScreen` | Zoning screen | on / off | on | window |
+| `RVK_ZoneClick` | Zoning screen: Click to continue... | on / off | off | window; switch `RVK_ZoneScreen` |
 | `RVK_PerfHud` | Performance readout in the top left: frames a second, the game's and the renderer's CPU time, the GPU's | on / off | off | window |
 | `RVK_AlienMap` | AI missions' PF map: rooms shown black on green (the game's is black on black) | on / off | on | window; knob |
 | `RVK_DetailRange` | How far out rocks and shrubs are shown, x the game's (1: the game's own; more draws) | 1 .. 4 | 2 | window |
 | `RVK_ViewRange` | How far you see, x the game's view distance - the far land and mountains fading into the sky by true distance, no popping as you turn (1: the game's own; more draws) | 1 .. 3 | 1.5 | window; game value 1 |
-| `RVK_FarScenery` | Far Scenery: extend loaded buildings, trees, rocks and shrubs; move to refresh the game's scenery rings | on / off | off | Main/General; opt-in, preserved by presets |
-| `RVK_SceneryDist` | Far Scenery distance multiplier; buildings/trees up to 3x, rocks/shrubs up to 2x, capped within loaded areas | 1 .. 3 | 2.5 | child of Far Scenery |
-| `RVK_TerraRough` | Shared Ground+ surface bumps/grit: 0 smooth, 1 previous detail; normal-map and procedural aggregate strength, not matte/gloss response | 0 .. 1, step .05 | .6 | child of Terrain Mode; preserved by presets |
-| `RVK_ImmersiveShips` | Immersive Ships: brighter navigation markings and clearer distant hulls; loaded buildings/trees reach up to 15% farther (camera and N3 rings, small-object detail unchanged) | on / off | off | window; game value off; knob |
+| `RVK_FarScenery` | Far Scenery: show buildings, trees and rocks farther away (more draws; move to refresh) | on / off | off | window; game value off |
+| `RVK_SceneryDist` | Scenery distance: up to 3x for buildings/trees, 2x for rocks/shrubs, within loaded areas | 1 .. 3 | 2.5 | window; switch `RVK_FarScenery`; game value 1 |
+| `RVK_FullScenery` | Fuller distant scenery (loaded areas) | on / off | off | window; switch `RVK_FarScenery` |
+| `RVK_SceneryFill` | Fullness: retain more distant building and tree groups | 0 .. 1 | 0.6 | window; switch `RVK_FullScenery`; game value 0 |
+| `RVK_FarDetail` | Distant detail saving (0 full, 1 balanced shading) | 0 .. 1 | 1 | window; switch `RVK_FullScenery`; game value 0; knob |
+| `RVK_ImmersiveShips` | Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas | on / off | off | window; game value off; knob |
+| `RVK_ShipLights` | Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas: ship navigation lights | on / off | on | window; switch `RVK_ImmersiveShips`; game value off; knob |
+| `RVK_ShipLightPower` | Ship navigation lights: nearby ship light strength | 0 .. 1 | 0.6 | window; switch `RVK_ShipLights`; game value 0; knob |
 
 ## Lighting
 
@@ -79,12 +85,17 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_TessDist` | Up to this distance (world units) | 5 .. 60 | 16 | ini only; switch `RVK_TessOn` |
 | `RVK_Aniso` | Texture filtering (anisotropic; 1 = off) | 1 / 2 / 4 / 8 / 16 | 16 | window; game value 1; was env `RANDYVK_ANISOTROPY` |
 | `RVK_HillShade` | The terrain's shade from a low sun (valleys under mountains) | on / off | on | ini only; knob |
+| `RVK_LightGlowOn` | Light source glow | on / off | off | window |
+| `RVK_AreaLightOn` | Area lighting: daylight colour and ground bounce | on / off | off | window |
+| `RVK_AreaLight` | Area lighting: daylight colour and ground bounce: area lighting strength | 0 .. 1 | 0.6 | window; switch `RVK_AreaLightOn`; game value 0; knob |
+| `RVK_LightGlow` | Light source glow: halo strength | 0 .. 2 | 0.6 | window; switch `RVK_LightGlowOn`; game value 0; knob |
 
 ## Day/Night Cycle
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_DayCycle` | Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+| `RVK_InstantTime` | Instant Day/Night: Server / Day (13.5) / Night (0) | 0 / 1 / 2 | 0 | window |
 
 ## Materials
 
@@ -109,11 +120,17 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_GlobalShiny` | Global Shiny | 0 .. 1 | 0.5 | window; game value 1; knob |
 | `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
 | `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
+| `RVK_TerraRough` | Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail) | 0 .. 1 | 0.6 | window; game value 1; knob |
+| `RVK_HDGround` | HD Ground Textures | on / off | off | window; game value off; knob |
+| `RVK_CliffJoin` | Terrain: Original / Shared Ground / Shared Ground+: cliff edge softness | 0 .. 1 | 1 | window; switch `RVK_TerraBlend`; game value 0; knob |
 | `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |
 | `RVK_WindowActivity` | Window lights: slow apartment activity (off uses static light states) | on / off | on | window; switch `RVK_WindowDepth`; game value on; knob |
 | `RVK_BuildWear` | Building Weathering: Off / Low / Medium / High | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
 | `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_EnhancedRocks` | Enhanced Rocks | 0 .. 1 | 1 | window; game value 0; knob |
+| `RVK_RockShape` | Enhanced Rocks: legacy rock shape (disabled) | 0 .. 1 | 0 | ini only; switch `RVK_EnhancedRocks`; game value 0; knob |
 | `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |
+| `RVK_CharacterStyle` | Artwork: Standard Enhanced / Reworked | 0 / 1 | 0 | window; switch `RVK_AutoMat` |
 | `RVK_MatStrength` | Character & equipment materials: material response strength | 0 .. 1 | 1 | window; switch `RVK_AutoMat`; knob |
 | `RVK_Albedo` | Enhanced textures | on / off | on | window; game value off |
 
@@ -137,7 +154,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_TerrainFar` | Distant terrain: broad rock/soil variation and slope definition | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_GroundOn` | Enhanced ground renderer (overrides Shared Ground and Shared Ground+) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
-| `RVK_ImprovedTiles` | Improved Tiles (ICC artwork; off uses Shared Ground+ terrain) | on / off | on | window; game value on; knob |
+| `RVK_ImprovedTiles` | ICC Tiles (off retains HD Ground artwork) | on / off | off | window; game value off; knob |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |
 | `RVK_GroundAo` | Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none) | 0 .. 1 | 0.6 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_GroundSun` | Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |
@@ -268,7 +285,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_RainFog` | Thunderstorms: the rain's mist - the distance grey, rain shafts hanging under the storm, lit by lightning (x; 0: none; with RVK_SandFog) | 0 .. 3 | 1 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_Lightning` | Lightning: each of the game's strikes lights the land and the clouds round it with a flash (x; 0: none) | 0 .. 3 | 1 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_HeatFlash` | Heat lightning: on some warm, dry nights silent flashes in far-off clouds (x; 0: none) | 0 .. 2 | 1 | window; switch `RVK_WeatherOn`; game value 0 |
-| `RVK_StormFlash` | The game's lightning glow: the sky flashing over the clouds in storms - it flickers (off: left out; the bolts stay) | on / off | on | ini only; switch `RVK_WeatherOn`; knob |
+| `RVK_StormFlash` | Original lightning glow (used when replacement lightning is disabled) | on / off | on | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_SandHaze` | Sand and ash storms: how thick the storm's air - the fog (or the flat haze), in place of the game's tint, x (0: none) | 0 .. 3 | 0.4 | ini only; switch `RVK_WeatherOn`; knob |
 | `RVK_SandForce` | Force a sandstorm (1 = full storm; 0 = the game's weather) | 0 .. 2 | 0 | window; switch `RVK_WeatherOn` |
 | `RVK_SandAsh` | Sand and ash storms: the forced one is an ash storm (grey) instead of sand | on / off | off | ini only; switch `RVK_WeatherOn` |
@@ -351,17 +368,21 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_CloudQual` | Clouds: quality - less noise, more cost (0 low .. 3 ultra) | 0 / 1 / 2 / 3 | 3 | window; switch `RVK_CloudsOn` |
 | `RVK_CloudMorph` | Clouds: how fast they churn and change shape, x (0 still) | 0 .. 3 | 1 | window; switch `RVK_CloudsOn` |
 | `RVK_CloudSheet` | Clouds: the game's flat sheets behind them, x (0 none) | 0 .. 2 | 1 | ini only; switch `RVK_CloudsOn` |
+| `RVK_SkyStyle` | Sky style | 0 / 1 | 0 | window; game value 0; knob |
+| `RVK_SkyClouds` | Enhanced sky clouds (no ground dimming) | on / off | off | window; switch `RVK_ProcSky`; game value off; knob |
+| `RVK_SkyTraffic` | Distant sky traffic: Off / Light / Busy | 0 / 1 / 2 | 0 | window; switch `RVK_ProcSky`; game value 0; knob |
 
 ## Shadows
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
+| `RVK_SkipHugeShadows` | Sun shadows: skip HUGE shadows | on / off | off | window; switch `RVK_SunShadow`; knob |
 | `RVK_ShadowMem` | Shadows of things out of view: what stood in view and stands still keeps casting | on / off | on | ini only; switch `RVK_SunShadow` |
 | `RVK_StaticShad` | Shadows of the playfield's placed objects from its own list - rocks, walls, trees, seen or not (ao-assets statels): 0 off, 1 once their placement is confirmed, 2 always | 0 .. 2 | 1 | ini only; switch `RVK_SunShadow` |
 | `RVK_SunShadow` | Sun shadows | on / off | on | window; game value off; was env `RANDYVK_SHADOWS` |
 | `RVK_SunRes` | Sun shadows: resolution | 1024 / 2048 / 4096 / 8192 | 2048 | window; switch `RVK_SunShadow` |
 | `RVK_SunStrength` | Sun shadows: darkness | 0 .. 1 | 0.75 | window; switch `RVK_SunShadow`; was env `RANDYVK_SHADOW_STRENGTH` |
-| `RVK_SunDist` | Sun shadows: distance (m) | 40 .. 1000 | 400 | window; switch `RVK_SunShadow` |
+| `RVK_SunDist` | Sun shadows: distance (m) | 40 .. 1000 | 200 | window; switch `RVK_SunShadow` |
 | `RVK_SunCascade` | Cascades (more = sharper near, same reach) | 1 .. 4 | 4 | ini only; switch `RVK_SunShadow` |
 | `RVK_SunSoft` | Sun shadows: softness (0 = hard) | 0 .. 4 | 1 | window; switch `RVK_SunShadow`; knob |
 | `RVK_GrassShadow` | Sun shadows: grass shadows | on / off | on | window; switch `RVK_SunShadow` |
@@ -378,6 +399,11 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_Hdr` | Off-screen scene for every effect (0: none - the game's own drawing) | on / off | on | ini only; game value off; was env `RANDYVK_HDR` |
+| `RVK_AmbientMode` | Ambient life | 0 / 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 | 0 | window |
+| `RVK_AmbientOn` | Ambient life enabled (compatibility) | on / off | off | window |
+| `RVK_AmbientMotes` | Ambient life: density | 0 .. 2 | 2 | window; switch `RVK_AmbientMode`; game value 0; knob |
+| `RVK_AmbientBright` | Ambient life: brightness | 0 .. 2 | 1.5 | window; switch `RVK_AmbientMode`; game value 0; knob |
+| `RVK_AmbientStyle` | Ambient life enabled: ambient style (compatibility) | 0 .. 7 | 0 | window; switch `RVK_AmbientOn`; knob; was env `0 1 2 3 4 5 6 7` |
 | `RVK_BloomOn` | Bloom | on / off | on | window |
 | `RVK_Bloom` | Bloom: strength | 0.25 .. 5 | 1 | window; switch `RVK_BloomOn`; game value 0; was env `RANDYVK_BLOOM` |
 | `RVK_BloomThr` | Threshold (1 = above white) | 0.5 .. 2 | 0.5 | ini only; switch `RVK_BloomOn`; was env `RANDYVK_BLOOM_THRESHOLD` |

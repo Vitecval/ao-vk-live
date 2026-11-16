@@ -16,6 +16,7 @@
 
 #include "rvk_backend.h"
 #include "rvk_zoning.h"
+#include "presentation_policy.h"
 
 namespace rvkproxy {
 
@@ -152,6 +153,7 @@ void PatchDirectInput()
 HWND g_window = nullptr;
 constexpr wchar_t kPreviousWindowProc[] = L"AO-VK.Input.PreviousWindowProc";
 std::atomic<HWND> g_presentationWindow{nullptr};
+std::atomic<bool> g_presentationMinimized{false};
 std::atomic<unsigned> g_erasesPrevented{0}, g_paints{0}, g_sizes{0}, g_displayChanges{0};
 std::atomic<DWORD> g_lastEraseTick{0};
 
@@ -190,7 +192,11 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
             return 1;
         }
         if (msg == WM_PAINT) ++g_paints;
-        if (msg == WM_SIZE) ++g_sizes;
+        if (msg == WM_SIZE) {
+            ++g_sizes;
+            if(wp==SIZE_MINIMIZED)g_presentationMinimized.store(true,std::memory_order_release);
+            else if(rvk::presentation::UsableClient(LOWORD(lp),HIWORD(lp)))g_presentationMinimized.store(false,std::memory_order_release);
+        }
         if (msg == WM_DISPLAYCHANGE) ++g_displayChanges;
     }
     if (msg == WM_SIZE)
@@ -246,8 +252,12 @@ void InputAttach(HWND window)
 void InputSetPresentationWindow(HWND window)
 {
     // The window callback must never take the backend lock or wait for the GPU.
+    if(g_presentationWindow.load(std::memory_order_acquire)!=window)
+        g_presentationMinimized.store(window&&IsIconic(window),std::memory_order_release);
     g_presentationWindow.store(window, std::memory_order_release);
 }
+
+bool InputWindowMinimized(HWND window){return g_presentationWindow.load(std::memory_order_acquire)==window&&g_presentationMinimized.load(std::memory_order_acquire);}
 
 void InputLogWindowEvents()
 {

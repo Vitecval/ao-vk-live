@@ -57,3 +57,11 @@ $caught=$false
 try{Wait-AoSetupHelper $p $p.Output '' 'Blocked GPU' $callback}catch{$caught=$_.Exception.Message -like '*stopped responding*'}
 Assert ($caught -and $p.killed -and $p.disposed) 'A helper with no CPU/log activity waited indefinitely'
 Write-Output 'PASS: an idle GPU helper cannot block setup indefinitely; only its own process is stopped.'
+
+function Start-Process { param($FilePath,$ArgumentList,$WindowStyle,[switch]$PassThru,$RedirectStandardOutput,$RedirectStandardError) throw 'Access denied by synthetic security rule' }
+$caught=$false
+try { Start-AoSetupHelper 'C:\fixture\ao-vk-cache-warm.exe' @('--fixture') 'unused.log' 'unused-error.log' $callback } catch {
+ $caught=$_.Exception.Message -like '*Could not start ao-vk-cache-warm.exe*security software*No game files*Access denied*'
+}
+Assert $caught 'Blocked helper startup did not provide an actionable message'
+Write-Output 'PASS: blocked helper startup identifies the executable and security notification without bypassing protection.'

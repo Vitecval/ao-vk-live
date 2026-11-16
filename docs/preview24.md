@@ -1,3 +1,7 @@
+# Horizon 0.7.4 / Preview 24 r61
+
+See [r61 changes](preview24-r61.md) for indexed updates, visible recovery progress, tray minimize, Keybinds, optional Vivid Tone, login/restore and matching shader-helper fixes.
+
 # AO-VK Live Preview 24
 
 ## Revision 60 / Horizon 0.7.3

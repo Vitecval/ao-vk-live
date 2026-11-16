@@ -59,7 +59,7 @@ find_program(GLSLC glslc HINTS "${VULKAN_SDK_DIR}/bin" REQUIRED)
 
 set(RVK_SHADER_OUT "${CMAKE_CURRENT_BINARY_DIR}/rvk-shaders")
 set(RVK_SHADER_INCS)
-foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag ffp_glow_nocut.frag prepass_cutout.frag shadow.vert shadow.frag fullscreen.vert tonemap.frag bloom_down.frag bloom_up.frag ao.frag ao_blur.frag gi.frag gi_blur.frag volume.frag volume_blur.frag sand_fog.frag sand_fog_blur.frag ssr.frag contact.frag taa.frag depth_up.frag motion_fill.frag reactive_mask.frag sharpen.frag fxaa.frag motion_blur.frag motion_tilemax.frag motion_neighbourmax.frag motion_object.frag dof_composite.frag dof_focus.frag dof_prefilter.frag dof_tiles.frag dof_gather.frag dof_final.frag ui_composite.frag grass.vert grass.frag grass_shadow.vert particles.comp skin.comp water.vert water.frag water_spray.vert water_spray.frag water_sim.comp rain.vert rain.frag ambient.vert ambient.frag splash.vert splash.frag bolt.vert bolt.frag debris.vert debris.frag smoke_sim.comp smoke.vert smoke.frag smoke_up.frag cloud.vert cloud.frag cloud_up.frag cloud_shadow.frag cloud_noise.comp cloud_layer_noise.comp cloud_weather.frag cloud_layer.frag cloud_resolve.frag sun.frag sky_glow.frag atmos_transmittance.frag atmos_multi.frag atmos_view.frag sun_vis.comp scene_luma.comp smoke_seen.comp terrain_sun.frag sand_prints.frag env_accum.frag env_filter.frag)
+foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag ffp_glow_nocut.frag prepass_cutout.frag shadow.vert shadow.frag fullscreen.vert tonemap.frag vivid_luma.frag vivid_tone.frag bloom_down.frag bloom_up.frag ao.frag ao_blur.frag gi.frag gi_blur.frag volume.frag volume_blur.frag sand_fog.frag sand_fog_blur.frag ssr.frag contact.frag taa.frag depth_up.frag motion_fill.frag reactive_mask.frag sharpen.frag fxaa.frag motion_blur.frag motion_tilemax.frag motion_neighbourmax.frag motion_object.frag dof_composite.frag dof_focus.frag dof_prefilter.frag dof_tiles.frag dof_gather.frag dof_final.frag ui_composite.frag grass.vert grass.frag grass_shadow.vert particles.comp skin.comp water.vert water.frag water_spray.vert water_spray.frag water_sim.comp rain.vert rain.frag ambient.vert ambient.frag splash.vert splash.frag bolt.vert bolt.frag debris.vert debris.frag smoke_sim.comp smoke.vert smoke.frag smoke_up.frag cloud.vert cloud.frag cloud_up.frag cloud_shadow.frag cloud_noise.comp cloud_layer_noise.comp cloud_weather.frag cloud_layer.frag cloud_resolve.frag sun.frag sky_glow.frag atmos_transmittance.frag atmos_multi.frag atmos_view.frag sun_vis.comp scene_luma.comp smoke_seen.comp terrain_sun.frag sand_prints.frag env_accum.frag env_filter.frag)
     set(src "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/${shader}")
     set(out "${RVK_SHADER_OUT}/${shader}.inc")
     set(sky_enhance_deps)
@@ -299,6 +299,9 @@ target_link_libraries(skin_lifetime_check PRIVATE rvk)
 
 # Preview 23 isolated regression programs (no AO process is created).
 add_executable(startup_progress_check tests/startup_progress_check.cpp proxy/native/stb_image.cpp)
+add_executable(vivid_tone_check tests/vivid_tone_check.cpp proxy/native/stb_image.cpp)
+target_link_libraries(vivid_tone_check PRIVATE rvk)
+target_include_directories(vivid_tone_check PRIVATE third_party)
 target_link_libraries(startup_progress_check PRIVATE rvk user32 gdi32)
 target_include_directories(startup_progress_check PRIVATE third_party)
 add_executable(preview23_settings_check tests/preview23_settings_check.cpp)

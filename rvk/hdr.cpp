@@ -23,6 +23,12 @@ const uint32_t kFullscreenVertSpirv[] = {
 const uint32_t kTonemapFragSpirv[] = {
 #include "tonemap.frag.inc"
 };
+const uint32_t kVividLumaSpirv[]={
+#include "vivid_luma.frag.inc"
+};
+const uint32_t kVividToneSpirv[]={
+#include "vivid_tone.frag.inc"
+};
 const uint32_t kBloomDownSpirv[] = {
 #include "bloom_down.frag.inc"
 };
@@ -302,6 +308,8 @@ bool Device::CreateHdrResources(std::string* error)
     };
     VkFormat hdrFormat = GetFormatInfo(Format::RGBA16F).vk;
     bool ok = fullscreen(kTonemapFragSpirv, sizeof(kTonemapFragSpirv), kColorFormat, false, m_tonemapLayout, &m_tonemapPipeline) &&
+              fullscreen(kVividLumaSpirv,sizeof(kVividLumaSpirv),hdrFormat,false,m_bloomLayout,&m_vividLumaPipeline) &&
+              fullscreen(kVividToneSpirv,sizeof(kVividToneSpirv),kColorFormat,false,m_bloomLayout,&m_vividPipeline) &&
               fullscreen(kBloomDownSpirv, sizeof(kBloomDownSpirv), hdrFormat, false, m_bloomLayout, &m_bloomDown) &&
               fullscreen(kBloomUpSpirv, sizeof(kBloomUpSpirv), hdrFormat, true, m_bloomLayout, &m_bloomUp) &&
               fullscreen(kAoSpirv, sizeof(kAoSpirv), GetFormatInfo(Format::RG16F).vk, false, m_bloomLayout, &m_aoPipeline) &&
@@ -385,6 +393,9 @@ void Device::DestroyHdrResources()
     for (Texture*& t : m_contactTex)
         if (t) { DestroyTextureNow(t); t = nullptr; }
     if (m_tonemapped) { DestroyTextureNow(m_tonemapped); m_tonemapped = nullptr; }
+    for(Texture*& t:m_vividLuma)if(t){DestroyTextureNow(t);t=nullptr;}
+    if(m_vividOut){DestroyTextureNow(m_vividOut);m_vividOut=nullptr;}
+    m_vividHistoryValid=false;
     if (m_fxaaOut) { DestroyTextureNow(m_fxaaOut); m_fxaaOut = nullptr; }
     if (m_taaOut) { DestroyTextureNow(m_taaOut); m_taaOut = nullptr; }
     if (m_uiLayer) { DestroyTextureNow(m_uiLayer); m_uiLayer = nullptr; }
@@ -406,7 +417,7 @@ void Device::DestroyHdrResources()
                           &m_tileMaxPipeline, &m_neighbourMaxPipeline, &m_objectBlurPipeline, &m_dofCompositePipeline,
                           &m_dofFocusPipeline, &m_dofPrefilterPipeline, &m_dofTilesPipeline, &m_dofGatherPipeline,
                           &m_dofFinalPipeline, &m_depthUpPipeline, &m_motionFillPipeline,
-                          &m_reactiveMaskPipeline})
+                          &m_reactiveMaskPipeline,&m_vividLumaPipeline,&m_vividPipeline})
         if (*p) { vkDestroyPipeline(m_device, *p, nullptr); *p = VK_NULL_HANDLE; }
     if (m_bloomLayout) vkDestroyPipelineLayout(m_device, m_bloomLayout, nullptr);
     if (m_volumeLayout) vkDestroyPipelineLayout(m_device, m_volumeLayout, nullptr);
@@ -542,6 +553,7 @@ void Device::EndScene()
                         gi ? m_giStrength : 0.0f,
                         float((volume ? 1 : 0) | (ssr ? 2 : 0) | (ao ? 4 : 0) | (contact ? 8 : 0))};
     GradingParams(params + 8);
+    params[15]=m_loginScene>.5f ? 1.f:0.f;
     // Depth of field blurs the scene with its ambient occlusion, indirect and volumetric light applied; the tone
     // mapping then leaves them out.
     bool dof = RenderDof(cmd, bloom, ao, gi, volume, params);
@@ -620,6 +632,8 @@ void Device::EndScene()
                            sizeof(motion), false);
     }
     ProfileMark("motion blur");
+    RenderVividTone(cmd);                        // optional world-only treatment, before labels/UI
+    if(m_vividTone>.5f&&m_vividAmount>0.f)ProfileMark("vivid tone");
     // (A frame dump: the in-between images too - not every frame of a run.)
     if (m_dumpFile && m_dumpBurstIndex == 0 && !m_dumpOpenPath.empty())
         DumpTargets(m_dumpOpenPath.substr(0, m_dumpOpenPath.rfind('.')));
@@ -645,6 +659,33 @@ void Device::EndScene()
         }
     }
     m_heldLabels.clear();                        // (the scene ended elsewhere: not drawn this frame)
+}
+
+void Device::RenderVividTone(VkCommandBuffer cmd)
+{
+    if(m_vividTone<.5f||m_vividAmount<=0.f||!m_vividPipeline||!m_vividLumaPipeline){m_vividHistoryValid=false;return;}
+    if(!m_vividOut||m_vividOut->m_width!=m_ldrMain->m_width||m_vividOut->m_height!=m_ldrMain->m_height){
+        if(m_vividOut)DestroyTexture(m_vividOut);
+        m_vividOut=CreateImage(m_ldrMain->m_width,m_ldrMain->m_height,Format::A8R8G8B8,1,true);m_vividHistoryValid=false;
+    }
+    for(Texture*& t:m_vividLuma)if(!t)t=CreateImage(1,1,Format::RGBA16F,1,true);
+    if(!m_vividOut||!m_vividLuma[0]||!m_vividLuma[1]){m_vividHistoryValid=false;return;}
+    Transition(cmd,m_ldrMain,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    const unsigned next=1-m_vividHistory;
+    Texture* previous=m_vividHistoryValid?m_vividLuma[m_vividHistory]:m_ldrMain;
+    Transition(cmd,previous,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    const float adaptation[4]={m_frameDt,std::clamp(m_vividRate,0.f,1.f),m_vividHistoryValid?1.f:0.f,m_vividStatic};
+    FullscreenPass(cmd,m_vividLuma[next],m_vividLumaPipeline,m_ldrMain->m_view,previous->m_view,m_linearSampler,adaptation,sizeof(adaptation),false);
+    Transition(cmd,m_vividLuma[next],VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    const float tone[8]={std::clamp(m_vividAmount,0.f,1.f),std::clamp(m_vividHdr,0.f,1.f),std::clamp(m_vividExposure,0.f,1.f),
+        std::clamp(m_vividShadows,0.f,1.f),std::clamp(m_vividContrast,0.f,1.f),0,0,0};
+    FullscreenPass(cmd,m_vividOut,m_vividPipeline,m_ldrMain->m_view,m_vividLuma[next]->m_view,m_pointSampler,tone,sizeof(tone),false);
+    // Keep the main image's identity stable for frame generation and cached UI.
+    Transition(cmd,m_vividOut,VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);Transition(cmd,m_ldrMain,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    VkImageCopy copy{};copy.srcSubresource={VK_IMAGE_ASPECT_COLOR_BIT,0,0,1};copy.dstSubresource=copy.srcSubresource;
+    copy.extent={m_ldrMain->m_width,m_ldrMain->m_height,1};
+    vkCmdCopyImage(cmd,m_vividOut->m_image,VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,m_ldrMain->m_image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&copy);
+    m_vividHistory=next;m_vividHistoryValid=true;
 }
 
 // The name labels held back during the scene (Draw), onto the final picture: each drawn as the game drew it - its

@@ -1252,7 +1252,7 @@ std::vector<SettingRef> OptionSettings()
     static const std::vector<const char*> quick[] = {
         {"RVK_Enhance", "RVK_DayCycle", "RVK_InstantTime", "RVK_AreaLightOn", "RVK_SkyStyle", "RVK_LightGlowOn", "RVK_AmbientMode", "RVK_ModernTex", "RVK_AutoMat", "RVK_WindowDepth", "RVK_LivePeople", "RVK_TerraBlend", "RVK_FarScenery", "RVK_ImmersiveShips",
            "RVK_BuildWear", "RVK_ZoneScreen", "RVK_RenderScale", "RVK_Taa", "RVK_GrassOn", "RVK_SunShadow", "RVK_AoOn",
-         "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_NormalMaps", "RVK_Pbr"},
+         "RVK_WaterOn", "RVK_WeatherOn", "RVK_GradeOn", "RVK_VividTone", "RVK_NormalMaps", "RVK_Pbr"},
         {"RVK_RenderBg", "RVK_PerfHud", "RVK_UiRate", "RVK_RenderScale", "RVK_FrameGen"},
         {"RVK_WeatherMode", "RVK_WeatherAmt", "RVK_WeatherOn", "RVK_RainAmount", "RVK_RainBright", "RVK_RainWet",
          "RVK_WindStorm", "RVK_StrikeRate", "RVK_FogMode", "RVK_FogRange"}

@@ -308,6 +308,14 @@ vec4 SceneAt(vec2 pos)
 
 void main()
 {
+    // The authored login hall is not a live outdoor zone. Its own baked/local
+    // lighting must not receive world night compensation, haze or exposure lift.
+    // The interface is drawn later, and saved world preferences remain intact.
+    if(P.grade2.w>.5){
+        vec4 base=texelFetch(scene,ivec2(gl_FragCoord.xy),0);
+        outColor=vec4(Dither8(clamp(base.rgb,0.0,1.0),gl_FragCoord.xy,FL.taa.z),base.a);
+        return;
+    }
     // How far the pixel is: its view depth over the far clip's (the sky: wholly).
     float d = texelFetch(depthTex, ivec2(gl_FragCoord.xy), 0).r;
     vec2 shimmer = FL.desert.y > 0.0 && d < 1.0 && (int(P.proj.w) & 16) != 0 ? HeatShimmer(d) : vec2(0.0);

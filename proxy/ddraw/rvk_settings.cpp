@@ -418,6 +418,14 @@ Setting g_settings[] = {
     {"RVK_Fxaa",       "FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer)", "Anti-aliasing", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_GradeOn",    "Colour grading",                                           "Colour grading",   Bool,  0, 1, 1, 0, nullptr, 0},
+    {"RVK_VividTone", "Vivid Tone: adaptive colour enhancement (Barbatos)", "Vivid Tone", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_VividAmt", "Vivid Tone: overall strength", "Vivid Tone", Float, 0, 1, .05f, .9f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividHDR", "Vivid Tone: contrast depth (gamma, not display HDR)", "Vivid Tone", Float, 0, 1, .01f, .15f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividExp", "Vivid Tone: added exposure", "Vivid Tone", Float, 0, 1, .01f, .1f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividLift", "Vivid Tone: shadow lift", "Vivid Tone", Float, 0, 1, .01f, .2f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividCtr", "Vivid Tone: adaptive contrast", "Vivid Tone", Float, 0, 1, .01f, .6f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividStatic", "Vivid Tone: freeze brightness adaptation", "Vivid Tone", Bool, 0, 1, 1, 0, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividRate", "Vivid Tone: brightness adaptation speed", "Vivid Tone", Float, 0, 1, .01f, .25f, nullptr, 0, "RVK_VividTone"},
     {"RVK_Saturation", "Saturation",                                               "Colour grading",   Float, 0, 2, 0.05f, 1, nullptr, 0, "RVK_GradeOn"},
     {"RVK_Contrast",   "Contrast",                                                 "Colour grading",   Float, 0.5f, 1.5f, 0.05f, 1, nullptr, 0, "RVK_GradeOn"},
     {"RVK_Warmth",     "Warmth (- cooler, + warmer)",                              "Colour grading",   Float, -1, 1, 0.05f, 0.75f, nullptr, 0, "RVK_GradeOn"},
@@ -483,6 +491,7 @@ Setting* Find(const char* name)
 // so switching it back on restores them). Settings not listed here only tune something these switch off.
 struct Vanilla { const char* name; float value; };
 const Vanilla kVanilla[] = {
+    {"RVK_VividTone",0},
     {"RVK_AreaLight",0},{"RVK_HDGround",0},{"RVK_SceneryFill",0},{"RVK_FarDetail",0},{"RVK_SkyStyle",0},
     {"RVK_ShipLights",0},{"RVK_ShipLightPower",0},{"RVK_SkyClouds",0},{"RVK_SkyTraffic",0},
     {"RVK_CliffJoin",0},
@@ -670,6 +679,7 @@ float V(const char* name)
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
     auto minimum = [&](const char* n) {
         float value = cyber ? CyberMinimum(n) : -1e30f;
+        if(Stored("RVK_Enhance")!=0 && Stored("RVK_VividTone")!=0 && std::strcmp(n,"RVK_Hdr")==0)value=std::max(value,1.f);
         // Far props must not be clipped/fogged at the old shorter view range.
         // Keep the saved ordinary view preference so switching off restores it.
         if(Stored("RVK_Enhance")!=0 && Stored("RVK_FarScenery")!=0 &&
@@ -962,6 +972,10 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
     }
     else if (is("RVK_UiRate")) SetInterfaceRate(V(n));
     else if (is("RVK_PixelLight")) d->SetPixelLighting(V(n) != 0.0f);
+    else if (is("RVK_VividTone")) {
+        d->SetKnob(rvk::Knob::VividTone,V(n));
+        if(const Setting* hdr=Find("RVK_Hdr"))ApplyOne(*hdr,d);
+    }
     else if (is("RVK_LightOver")) d->SetLightOverride(V(n) != 0.0f);
     else if (is("RVK_Bump")) d->SetBump(V(n));
     else if (is("RVK_NormalMaps") || is("RVK_NormalStr")) d->SetNormalMaps(V("RVK_NormalMaps") != 0.0f, V("RVK_NormalStr"));
@@ -1589,6 +1603,7 @@ constexpr uint32_t kPresetCount = 4;
 
 bool InPresets(const Setting& s, uint32_t preset)
 {
+    if(std::strcmp(s.section,"Vivid Tone")==0)return false;
     if(preset==3 && (std::strcmp(s.name,"RVK_ModernTex")==0 || std::strcmp(s.name,"RVK_ICCArtwork")==0 ||
         std::strcmp(s.name,"RVK_ICCGlossiness")==0 || std::strcmp(s.name,"RVK_DayCycle")==0 ||
         std::strcmp(s.name,"RVK_ImmersiveShips")==0 || std::strcmp(s.name,"RVK_FarScenery")==0 ||

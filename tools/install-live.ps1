@@ -4,6 +4,7 @@ param(
     [string]$LoaderDir = '',
     [switch]$Upgrade,
     [switch]$Uninstall,
+    [switch]$VerifyAllAssets,
     [switch]$DisableLargeAddressAware,
     [scriptblock]$ProgressCallback
 )
@@ -168,12 +169,51 @@ function Test-OwnedHash($Target, $Hash) {
 $unchangedTargets = New-Object 'Collections.Generic.List[string]'
 $changingTargets = New-Object 'Collections.Generic.List[string]'
 $preservedTargets = New-Object 'Collections.Generic.List[string]'
+$assetIndex = $null
+$assetVerified = $null
+$assetSnapshot = $null
+$indexHits = 0
+$assetReads = 0
+if (!$Uninstall) {
+    try {
+        if ($ProgressCallback) { & $ProgressCallback 'Reading the asset verification index...' -1 }
+        . (Join-Path $PSScriptRoot 'asset-index.ps1')
+        Initialize-AoAssetIndex
+        $assetVerified = [AoVk.AssetIndexV1]::Empty()
+        if ($Upgrade -and !$VerifyAllAssets -and $receiptObserved) {
+            $assetIndex = [AoVk.AssetIndexV1]::Load($client, $receiptObserved)
+            if ($null -ne $assetIndex) {
+                if ($ProgressCallback) { & $ProgressCallback 'Checking the asset index and file information...' -1 }
+                $assetSnapshot = [AoVk.AssetIndexV1]::Snapshot($client, [string[]]@($assetHashes.Keys))
+            }
+        }
+    } catch {
+        # Missing, unreadable, or unsupported indexes only lose acceleration.
+        $assetIndex = $null
+        $assetVerified = $null
+        Write-Warning 'The asset index is unavailable. Files will be checked in full.'
+    }
+}
 $checkedTargets = 0
 foreach ($target in $targets) {
     $checkedTargets++
-    if ($ProgressCallback -and $checkedTargets % 250 -eq 0) { & $ProgressCallback "Checking existing files: $checkedTargets / $($targets.Count)" -1 }
+    if ($ProgressCallback -and $checkedTargets % 250 -eq 0) { & $ProgressCallback "Checking existing files: $checkedTargets / $($targets.Count) ($indexHits reused from the asset index)" ([int](100.0*$checkedTargets/$targets.Count)) }
     $name = Split-Path -Leaf $target
-    try { $observed = Get-AoSetupHash $target }
+    try {
+        $spec = $fileSpecs[$target]
+        $cached = if ($null -ne $assetIndex) { $assetIndex[$spec.relative] } else { $null }
+        if ($spec.asset -and !$spec.retire -and !$spec.generated -and $spec.hash -and
+            $spec.oldHash -ieq $spec.hash -and $cached -and $cached.Matches($spec.hash, $assetSnapshot[$spec.relative])) {
+            # This hint can only skip an unchanged file. Any replacement,
+            # retirement, uninstall, or Repair always reads the actual bytes.
+            $observed = $spec.hash
+            $assetVerified[$spec.relative] = $cached
+            $indexHits++
+        } elseif ($spec.asset -and $null -ne $assetVerified) {
+            $observed = Get-AoIndexedAssetHash $target $spec.relative $assetVerified
+            $assetReads++
+        } else { $observed = Get-AoSetupHash $target }
+    }
     catch {
         if (!$Uninstall) { throw }
         # An unreadable/replaced path is not proof of ownership. Leave it alone.
@@ -187,6 +227,7 @@ foreach ($target in $targets) {
         $unchangedTargets.Add($target)
     } else { $changingTargets.Add($target) }
 }
+if ($ProgressCallback -and $null -ne $assetVerified) { & $ProgressCallback "Asset check: $indexHits unchanged files reused; $assetReads files checked in full." -1 }
 $changingTargetSet = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
 foreach ($target in $changingTargets) { $null=$changingTargetSet.Add($target) }
 function Assert-AoClientClosed {
@@ -341,7 +382,7 @@ if ($manifest.cacheWarmup) {
     $warmLog=Join-Path $warmFolder ('gpu-'+$warmToken+'.log')
     $warmError=Join-Path $warmFolder ('gpu-'+$warmToken+'.error.log')
     $warmArgs='--cache "'+($cacheArgument -replace '(\\+)$','$1$1')+'"'
-    $warmProcess=Start-Process -FilePath $helper -ArgumentList $warmArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput $warmLog -RedirectStandardError $warmError
+    $warmProcess=Start-AoSetupHelper $helper $warmArgs $warmLog $warmError $ProgressCallback
     Wait-AoSetupHelper $warmProcess $warmLog $warmError 'Preparing graphics pipelines on this GPU' $ProgressCallback
 }
 Assert-AoClientClosed
@@ -392,7 +433,9 @@ try {
             if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Executable memory-patch staging verification failed.' }
         } else {
             Copy-Item -LiteralPath (Join-Path $package $fileSpecs[$target].relative) -Destination $temp
-            $preparedHash = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
+            $preparedHash = if ($fileSpecs[$target].asset -and $null -ne $assetVerified) {
+                Get-AoIndexedAssetHash $temp $fileSpecs[$target].relative $assetVerified
+            } else { (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash }
             if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
         }
         # Reuse this just-verified staged hash instead of rereading the entire
@@ -404,8 +447,10 @@ try {
         . (Join-Path $PSScriptRoot 'material-cache.ps1')
         $catalogRelative = [string]$manifest.preparedMaterials.catalog
         $catalogPath = if ($stageSources.ContainsKey($catalogRelative)) { $stageSources[$catalogRelative] } else { Join-Path $client $catalogRelative }
-        Write-AoMaterialBindings $catalogPath $stageSources[$bindingsRelative] $client $stageSources $manifest
-        $stageHashes[$bindingsTarget] = Get-AoSetupHash $stageSources[$bindingsRelative]
+        Write-AoMaterialBindings $catalogPath $stageSources[$bindingsRelative] $client $stageSources $manifest $ProgressCallback
+        $stageHashes[$bindingsTarget] = if ($null -ne $assetVerified) {
+            Get-AoIndexedAssetHash $stageSources[$bindingsRelative] $bindingsRelative $assetVerified
+        } else { Get-AoSetupHash $stageSources[$bindingsRelative] }
         $recordAssets = [ordered]@{}
         foreach ($item in $manifest.assets.PSObject.Properties) { if (!$preserveMeshIndex -or $item.Name -cne $meshRelative) { $recordAssets[$item.Name] = $item.Value } }
         $recordAssets[$bindingsRelative] = $stageHashes[$bindingsTarget]
@@ -422,13 +467,20 @@ try {
         $entries.Add(@{target=$target;stage=$staged[$i];before=$before;after=$stageHashes[$target]})
     }
     Invoke-AoSetupTransaction $client $loader ($entries.ToArray()) $ProgressCallback
+    if ($null -ne $assetVerified) {
+        try {
+            if ($ProgressCallback) { & $ProgressCallback 'Updating the asset index for the next quick update...' -1 }
+            Save-AoAssetIndex $client (Get-AoSetupHash $receiptPath) $record.assets $assetVerified
+        }
+        catch { Write-Warning 'Installation completed. The asset index could not be saved; the next update will check files in full.' }
+    }
 } finally {
     if (!(Test-Path -LiteralPath (Join-Path $client '.ao-vk-setup-transaction.json'))) {
         foreach ($temp in $staged) { if ($temp -and (Test-Path -LiteralPath $temp)) { try { Remove-Item -LiteralPath $temp } catch { Write-Warning "Temporary setup file retained: $temp" } } }
     }
 }
 Write-Output 'Installed the classic live addon. Start AO with the normal launcher; randy31.dll is unchanged.'
-Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings) })
+Write-Output ([pscustomobject]@{ AoVkSetupResult=$true; memoryStatus=$memoryPlan.status; memoryWarnings=@($memoryPlan.warnings); indexedAssetsReused=$indexHits; assetsReadInFull=$assetReads })
 
 } catch {
     $failureLog = Write-AoSetupFailure $_

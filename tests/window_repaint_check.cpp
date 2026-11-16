@@ -5,6 +5,7 @@
 #include <ddraw.h>
 #include <cstdio>
 #include <cstdint>
+#include <thread>
 
 namespace {
 unsigned erases = 0, paints = 0, destroys = 0, keyReleases = 0;
@@ -77,6 +78,22 @@ int main() {
     desc.ddsCaps.dwCaps=DDSCAPS_PRIMARYSURFACE;
     if(FAILED(dd->CreateSurface(&desc,&primary,nullptr)))return 7;
     if(FAILED(primary->Flip(nullptr,0)))return 8;
+    // Hold the backend lock on a worker through its real EnumDisplayModes
+    // callback. WM_SIZE on the window thread must not wait for that lock.
+    HANDLE entered=CreateEventW(nullptr,TRUE,FALSE,nullptr),release=CreateEventW(nullptr,TRUE,FALSE,nullptr);
+    struct LockProbe{HANDLE entered,release;} probe{entered,release};
+    std::thread backend([&]{dd->EnumDisplayModes(0,nullptr,&probe,[](DDSURFACEDESC2*,void* context)->HRESULT {
+        auto& p=*static_cast<LockProbe*>(context);SetEvent(p.entered);WaitForSingleObject(p.release,2000);return DDENUMRET_CANCEL;
+    });});
+    if(WaitForSingleObject(entered,3000)!=WAIT_OBJECT_0){SetEvent(release);backend.join();return 12;}
+    std::thread safety([&]{Sleep(600);SetEvent(release);});
+    const ULONGLONG beforeSize=GetTickCount64();SendMessageW(window,WM_SIZE,SIZE_RESTORED,MAKELPARAM(80,57));
+    const ULONGLONG sizeMs=GetTickCount64()-beforeSize;
+    good &=sizeMs<300;backend.join();safety.join();CloseHandle(entered);CloseHandle(release);
+    SendMessageW(window,WM_SIZE,SIZE_MINIMIZED,0);good &=SUCCEEDED(primary->Flip(nullptr,0));
+    SendMessageW(window,WM_SIZE,SIZE_RESTORED,MAKELPARAM(154,10));good &=SUCCEEDED(primary->Flip(nullptr,0));
+    SendMessageW(window,WM_SIZE,SIZE_RESTORED,MAKELPARAM(80,57));good &=SUCCEEDED(primary->Flip(nullptr,0));
+    std::printf("WM_SIZE while backend is locked: %llu ms; minimized/icon-sized/real-restore sequence exercised\n",static_cast<unsigned long long>(sizeMs));
     unsigned passed=0;
     for(unsigned i=0;i<120;++i)passed+=ProbeErase(window,true);
     good &=passed==120 && ProbeErase(unrelated,false);

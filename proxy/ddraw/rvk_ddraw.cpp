@@ -31,15 +31,16 @@ DWORD g_lastThread = 0;
 std::vector<DWORD> g_seenThreads;
 int64_t g_drawCalls = 0;
 std::atomic<unsigned> g_backendObjects{0};
+std::atomic<HWND> g_resizePending{nullptr};
 }
 
 void BackendObjectCreated() { ++g_backendObjects; }
 
 void BackendWindowResized(HWND window)
 {
-    ComScope scope(ComMethodCount() - 2);
-    if (g_rvk.device && g_rvk.window == window)
-        g_rvk.WindowDrawable();
+    // WM_SIZE can be dispatched while the game thread waits for the render
+    // worker. Taking its COM lock or flushing Vulkan here can deadlock restore.
+    g_resizePending.store(window,std::memory_order_release);
 }
 
 void BackendWindowDestroyed(HWND window)
@@ -180,6 +181,7 @@ void RvkState::SetWindow(HWND hwnd)
 {
     if (!hwnd)
         return;
+    InputAttach(hwnd); // observe minimize/restore before the first presented frame
     if (window != hwnd) InputSetPresentationWindow(nullptr);
     window = hwnd;
     if (device && device->Window() != hwnd) {
@@ -303,13 +305,13 @@ bool RunAction(const char* name)
 }
 
 namespace {
-bool CharacterLoggedInForRendering()
+int RenderingSessionState()
 {
     using EngineFn=void*(__cdecl*)();
     using CharacterFn=void*(__fastcall*)(const void*,void*);
     static HMODULE resolved=nullptr;static EngineFn engine=nullptr;static CharacterFn character=nullptr;
     HMODULE module=GetModuleHandleA("N3.dll");
-    if(!module){resolved=nullptr;engine=nullptr;character=nullptr;return false;}
+    if(!module){resolved=nullptr;engine=nullptr;character=nullptr;return 0;}
     if(module!=resolved){
         resolved=module;engine=nullptr;character=nullptr;
         if(rnative::IdentifyClientModule(module,rnative::ClientModule::N3)!=rnative::ClientBuild::Unknown){
@@ -319,20 +321,26 @@ bool CharacterLoggedInForRendering()
     }
     // This is the game's current local-player query, also used by AOSharp.
     // No latched 'ever logged in' state: logout must immediately resume login.
-    if(!engine||!character)return false;
-    const void* current=engine();return current&&character(current,nullptr);
+    if(!engine||!character)return 0;
+    const void* current=engine();return !current ? 0 : character(current,nullptr) ? 2:1;
 }
 }
 
 bool RvkState::WindowDrawable()
 {
     RECT rect{};
-    bool drawable = window && !IsIconic(window) && GetClientRect(window, &rect) &&
-                    rect.right > rect.left && rect.bottom > rect.top;
+    WINDOWPLACEMENT placement{sizeof(placement)};
+    const bool minimized=window&&(IsIconic(window)||InputWindowMinimized(window)||
+        (GetWindowPlacement(window,&placement)&&(placement.showCmd==SW_SHOWMINIMIZED||placement.showCmd==SW_MINIMIZE||placement.showCmd==SW_SHOWMINNOACTIVE)));
+    bool drawable = window && !minimized && GetClientRect(window, &rect) &&
+                    rvk::presentation::UsableClient(unsigned(std::max(0L,rect.right-rect.left)),unsigned(std::max(0L,rect.bottom-rect.top)));
     // Owned dialogs and child controls count as focused through their process.
     const bool background = rvk::presentation::SuspendForFocus(drawable,InputFocused(),
-        rvk_settings::Get("RVK_RenderBg")!=0,CharacterLoggedInForRendering());
+        rvk_settings::Get("RVK_RenderBg")!=0,RenderingSessionState()==2);
     drawable = drawable && !background;
+    HWND pending=window;
+    const bool refresh=drawable&&g_resizePending.compare_exchange_strong(pending,nullptr,std::memory_order_acq_rel);
+    if(refresh&&device&&!presentationSuspended)device->RefreshPresentation();
     if (presentationSuspended != !drawable) {
         presentationSuspended = !drawable;
         if (drawable) {
@@ -352,6 +360,12 @@ bool RvkState::Frame()
 {
     if (device && window && !device->InFrame() && WindowDrawable())
     {
+        static uint64_t contextSerial=0;static int previousContext=-1;
+        const int context=RenderingSessionState();
+        if(contextSerial!=deviceSerial||context!=previousContext){
+            contextSerial=deviceSerial;previousContext=context;device->SetKnob(rvk::Knob::LoginScene,context==1?1.f:0.f);
+            RvkLog("presentation context: %s; saved graphics preferences unchanged",context==1?"login/character selection":context==2?"live world":"unknown");
+        }
         ZoningFrame();
         // Cosmetic context must precede this frame's queued draws; a post-present update is a frame late on zoning.
         if(rvk_settings::GetEffective("RVK_LivePeople")>=1||rvk_settings::GetEffective("RVK_LiveDrones")>=1||

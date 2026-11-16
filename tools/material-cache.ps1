@@ -1,5 +1,5 @@
 # Bind portable payloads to the source timestamps in the install transaction.
-function Write-AoMaterialBindings([string]$Catalog, [string]$Output, [string]$Client, $Sources, $Manifest) {
+function Write-AoMaterialBindings([string]$Catalog, [string]$Output, [string]$Client, $Sources, $Manifest, [scriptblock]$ProgressCallback) {
     if ((Get-Item -LiteralPath $Catalog).Length -gt 16MB) { throw 'Prepared-material catalogue is too large.' }
     $lines = [IO.File]::ReadAllLines($Catalog)
     if ($lines.Count -lt 2 -or $lines.Count -gt 30001 -or $lines[0] -cne 'RVK-RECIPES-1') { throw 'Invalid prepared-material catalogue.' }
@@ -10,7 +10,9 @@ function Write-AoMaterialBindings([string]$Catalog, [string]$Output, [string]$Cl
     $writer.NewLine = "`n"
     try {
         $writer.WriteLine('RVK-BINDINGS-1')
+        $bound=0
         foreach ($line in $lines[1..($lines.Count-1)]) {
+            if ($ProgressCallback -and $bound % 128 -eq 0) { & $ProgressCallback "Connecting prepared textures to this installation: $bound / $($lines.Count-1)" ([int](100.0*$bound/($lines.Count-1))) }; $bound++
             $fields = $line.Split([char]9)
             if ($fields.Count -ne 11 -or $fields[0] -cnotmatch '^[a-f0-9]{16}$') { throw 'Invalid prepared-material recipe.' }
             $cache = 'randy-vk/cache/materials/' + $fields[0] + '.rvkm'

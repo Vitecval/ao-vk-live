@@ -58,6 +58,7 @@ void InputSetPresentationWindow(HWND window);       // initialized Vulkan client
 void InputLogWindowEvents();                       // bounded diagnostics, outside the window procedure
 void InputBlock(unsigned owner, bool keys, bool mouse);
 bool InputFocused();                              // the game's window is the foreground one
+  bool InputWindowMinimized(HWND window);
 // The console (rvk_console.cpp, the key left of 1): the game window's messages, first (true: taken); each present.
 bool ConsoleMessage(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 void ConsoleFrame(rvk::ThreadedDevice* device, HWND window);

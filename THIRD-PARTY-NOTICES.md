@@ -30,3 +30,7 @@ an AO resource provider. No Funcom code, DLL, model, animation, texture, terrain
 or converted cache is included in that helper. Generated AO-derived files must
 remain inside the selected AO installation and must never be redistributed.
 Local-only copying and user authorization do not establish Funcom permission.
+# Barbatos VividTone
+
+Native Vulkan adaptation of VividTone 1.2.1 by Barbatos, licensed under MIT as
+identified by the supplied shader. See licenses/Barbatos-VividTone.txt.

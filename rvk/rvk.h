@@ -275,6 +275,15 @@ struct DeviceInfo {
     X(HazeStart, m_hazeStart, C|L)               /* nearby scenery stays clear */ \
     X(HazeEnd, m_hazeEnd, C|L)                   /* veil reaches its selected strength */ \
     X(MatStrength, m_materialStrength, 0)          /* character/equipment material response, 0..1 */ \
+    X(LoginScene, m_loginScene, 0)               /* transient native login/character-selection presentation */ \
+    X(VividTone, m_vividTone, 0) \
+    X(VividAmt, m_vividAmount, 0) \
+    X(VividHDR, m_vividHdr, 0) \
+    X(VividExp, m_vividExposure, 0) \
+    X(VividLift, m_vividShadows, 0) \
+    X(VividCtr, m_vividContrast, 0) \
+    X(VividStatic, m_vividStatic, 0) \
+    X(VividRate, m_vividRate, 0) \
     X(WeatherMode, m_weatherMode, L)                /* 0 automatic, 1 clear, 2 overcast, 3 rain, 4 thunderstorm */ \
     X(WeatherAmt, m_weatherAmount, L)               /* selected rain/storm strength */ \
     X(FogMode, m_userFogMode, L)                    /* 0 automatic, 1 Halloween, 2 mist, 3 custom */ \
@@ -2095,6 +2104,14 @@ private:
     VkDescriptorSetLayout m_tonemapSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_tonemapLayout = VK_NULL_HANDLE;
     VkPipeline m_tonemapPipeline = VK_NULL_HANDLE;
+    float m_loginScene=0.f, m_vividTone=0.f, m_vividAmount=.9f, m_vividHdr=.15f, m_vividExposure=.1f;
+    float m_vividShadows=.2f, m_vividContrast=.6f, m_vividStatic=0.f, m_vividRate=.25f;
+    Texture* m_vividLuma[2]={};
+    Texture* m_vividOut=nullptr;
+    VkPipeline m_vividLumaPipeline=VK_NULL_HANDLE,m_vividPipeline=VK_NULL_HANDLE;
+    unsigned m_vividHistory=0;
+    bool m_vividHistoryValid=false;
+    void RenderVividTone(VkCommandBuffer cmd);
     VkSampler m_pointSampler = VK_NULL_HANDLE, m_linearSampler = VK_NULL_HANDLE;
     float m_bloomStrength = 1.5f, m_bloomThreshold = 1.0f;
     float m_lightGlow = 0.0f;

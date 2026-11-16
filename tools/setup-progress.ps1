@@ -1,6 +1,12 @@
 # Native preparation remains outside the UI thread. Observe activity, never kill
 # a working helper merely because a fixed wall-clock deadline has elapsed.
 function New-AoSetupClock { return [Diagnostics.Stopwatch]::StartNew() }
+function Start-AoSetupHelper([string]$Helper, $Arguments, [string]$OutputLog, [string]$ErrorLog, [scriptblock]$ProgressCallback) {
+    $name=[IO.Path]::GetFileName($Helper)
+    if ($ProgressCallback) { & $ProgressCallback "Starting $name for graphics preparation..." -1 }
+    try { return Start-Process -FilePath $Helper -ArgumentList $Arguments -WindowStyle Hidden -PassThru -RedirectStandardOutput $OutputLog -RedirectStandardError $ErrorLog }
+    catch { throw "Could not start $name. Windows or security software may have blocked or quarantined this helper. Check the security notification, then retry with the verified Horizon installer. No game files have been changed. Details: $($_.Exception.Message)" }
+}
 function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [string]$Label, [scriptblock]$ProgressCallback) {
     $null = $Process.Handle
     $timer = New-AoSetupClock
@@ -46,7 +52,8 @@ function Wait-AoSetupHelper($Process, [string]$OutputLog, [string]$ErrorLog, [st
                 throw "$Label stopped responding: no CPU or log activity for five minutes. Setup has not changed your game files. See $OutputLog and $ErrorLog."
             }
             $detail = @{ elapsedSeconds=$timer.Elapsed.TotalSeconds; idleSeconds=($timer.Elapsed.TotalSeconds-$activityAt); logPath=$OutputLog }
-            if ($ProgressCallback) { & $ProgressCallback $message -1 $detail }
+            $visibleMessage=if($idle -ge 15) { $message+" - waiting: no CPU or log activity for $([int]$idle) seconds. Check any Windows or security prompt." } else { $message }
+            if ($ProgressCallback) { & $ProgressCallback $visibleMessage -1 $detail }
             else { Write-Progress -Activity $Label -Status ($message + (' ({0:m\:ss})' -f $timer.Elapsed)) -PercentComplete -1 }
             if ($finished) { break }
             Start-Sleep -Milliseconds 300

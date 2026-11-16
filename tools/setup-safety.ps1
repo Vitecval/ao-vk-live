@@ -171,12 +171,14 @@ function Recover-AoSetupTransaction([string]$Client, [scriptblock]$ProgressCallb
     $path=Join-Path $Client '.ao-vk-setup-transaction.json'
     Assert-AoSetupPath $path
     if (!(Test-Path -LiteralPath $path)) { return }
+    if ($ProgressCallback) { & $ProgressCallback 'Reading the interrupted update record before recovery...' -1 }
     $journal=Read-AoSetupJson $path 134217728
     Assert-AoTransaction $journal $Client $ProgressCallback
     $loaderLock=$null
     try {
         if ($journal.loader -and $journal.loader -ine $Client) { $loaderLock=Enter-AoSetupLock $journal.loader }
         Repair-AoTransaction $journal $path $ProgressCallback
+        if ($ProgressCallback) { & $ProgressCallback 'Interrupted update recovered. Continuing with the requested operation...' -1 }
     } finally { if ($loaderLock) { $loaderLock.ReleaseMutex();$loaderLock.Dispose() } }
 }
 function Invoke-AoSetupTransaction([string]$Client,[string]$Loader,$Entries,[scriptblock]$ProgressCallback) {

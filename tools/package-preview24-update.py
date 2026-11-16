@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = '0.6.0-preview.24'
-SCRIPTS = ['setup-safety.ps1', 'install-live.ps1', 'setup-live.ps1',
+SCRIPTS = ['setup-safety.ps1', 'install-live.ps1', 'asset-index.ps1', 'setup-live.ps1',
            'reset-settings.ps1', 'setup-progress.ps1', 'material-download.ps1',
            'material-parts.ps1', 'material-cache.ps1', 'large-address-aware.ps1',
            'mesh-index.ps1', 'startup-report.ps1']
@@ -46,7 +46,9 @@ def main():
     assert revision >= 53
     renderer = candidate / 'candidate/ao-vk.dll'
     assert verified['result'] == 'passed' and sha(renderer) == verified['rendererSha256']
-    binaries = {'ao-vk.dll': renderer, **{n: r52 / 'candidate' / n for n in ['ddraw.dll', 'ao-vk-cache-warm.exe']}}
+    warmer = candidate / 'candidate/ao-vk-cache-warm.exe'
+    assert warmer.is_file() and verified.get('cacheWarmSha256') == sha(warmer), 'Ship the verified helper built with this renderer, never a historical shader warmer.'
+    binaries = {'ao-vk.dll': renderer, 'ddraw.dll': r52 / 'candidate/ddraw.dll', 'ao-vk-cache-warm.exe': warmer}
     known = [read(r52 / 'F-BASELINE-RECEIPT.json')['addon']]
     for folder in [r52, candidate]:
         known.append({'ao-vk.dll': sha(folder / 'candidate/ao-vk.dll'), 'ddraw.dll': sha(binaries['ddraw.dll'])})
@@ -87,6 +89,12 @@ def main():
             shutil.copy2(file, folder / name)
         for name in SCRIPTS:
             shutil.copy2(ROOT / 'tools' / name, folder / name)
+            if name == 'asset-index.ps1':
+                manifest['payload'][name] = sha(folder / name)
+        notice='licenses/Barbatos-VividTone.txt'
+        (folder/'licenses').mkdir(exist_ok=True)
+        shutil.copy2(ROOT/notice,folder/notice)
+        manifest['payload'][notice]=sha(folder/notice)
         for name in ['README.md', 'RELEASE-NOTES.md', 'PLAYTEST.md', 'docs/preview24.md']:
             shutil.copy2(ROOT / 'docs/preview24.md', folder / name)
         manifest.update(build='ao-vk-live-' + VERSION, setupRevision=revision-43,

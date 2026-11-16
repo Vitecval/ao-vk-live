@@ -3,6 +3,9 @@
 #include <cstdio>
 int main(){
     using rvk::presentation::SuspendForFocus;
+    assert(!rvk::presentation::UsableClient(154,10));
+    assert(!rvk::presentation::UsableClient(0,0));
+    assert(rvk::presentation::UsableClient(640,480));
     assert(!SuspendForFocus(true,false,false,false)); // launcher, login, character selection
     assert(SuspendForFocus(true,false,false,true));   // logged-in alt account
     assert(!SuspendForFocus(true,true,false,true));  // active character

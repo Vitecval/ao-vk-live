@@ -26,21 +26,25 @@ LRESULT CALLBACK WindowProc(HWND h, UINT msg, WPARAM w, LPARAM l) {
         HFONT font = CreateFontW(-18, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
             OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
         HGDIOBJ old = SelectObject(dc, font);
-        RECT title{24, 22, 530, 58}; DrawTextW(dc, L"AO-VK Live - Preparing Vulkan Renderer", -1, &title, DT_LEFT);
+        RECT title{24, 20, 530, 48}; DrawTextW(dc, L"Rubi-Ka Horizon - Preparing AO graphics", -1, &title, DT_LEFT);
         char status[1024];
         AcquireSRWLockShared(&lock);
         std::snprintf(status, sizeof(status), "%s", failure[0] ? failure : operation);
         const bool failed = failure[0] != 0;
         ReleaseSRWLockShared(&lock);
-        RECT body{24, 70, 526, 145}; DrawTextA(dc, status, -1, &body, DT_LEFT | DT_WORDBREAK);
+        RECT explanation{24, 53, 526, 94}; DrawTextW(dc, failed ? L"Graphics preparation could not finish. See details below." : L"AO will open when graphics preparation finishes.", -1, &explanation, DT_LEFT | DT_WORDBREAK);
+        RECT body{24, 104, 526, 174}; DrawTextA(dc, status, -1, &body, DT_LEFT | DT_WORDBREAK);
         if (!failed) {
             // Indeterminate by design: the driver does not report remaining compilation work.
-            RECT track{24, 152, 526, 156}; HBRUSH dim = CreateSolidBrush(RGB(38, 57, 68));
+            RECT track{24, 184, 526, 188}; HBRUSH dim = CreateSolidBrush(RGB(38, 57, 68));
             FillRect(dc, &track, dim); DeleteObject(dim);
             int x = 24 + int((GetTickCount64() / 12) % 442);
-            RECT pulse{x, 152, x + 60, 156}; HBRUSH accent = CreateSolidBrush(RGB(79, 191, 205));
+            RECT pulse{x, 184, x + 60, 188}; HBRUSH accent = CreateSolidBrush(RGB(79, 191, 205));
             FillRect(dc, &pulse, accent); DeleteObject(accent);
         }
+        const auto elapsed=Micros(Now()-began)/1000000;
+        char timing[96];std::snprintf(timing,sizeof(timing),"Elapsed %llu:%02llu",static_cast<unsigned long long>(elapsed/60),static_cast<unsigned long long>(elapsed%60));
+        RECT timeRect{24,196,526,220};DrawTextA(dc,timing,-1,&timeRect,DT_LEFT);
         SelectObject(dc, old); DeleteObject(font); EndPaint(h, &ps); return 0;
     }
     return DefWindowProcW(h, msg, w, l);
@@ -54,11 +58,17 @@ DWORD WINAPI UiMain(void*) {
     RegisterClassW(&wc);
     HWND h = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, wc.lpszClassName, L"AO-VK Live",
         WS_CAPTION | WS_SYSMENU, (GetSystemMetrics(SM_CXSCREEN)-560)/2,
-        (GetSystemMetrics(SM_CYSCREEN)-220)/2, 560, 220, nullptr, nullptr, module, nullptr);
+        (GetSystemMetrics(SM_CYSCREEN)-250)/2, 560, 250, nullptr, nullptr, module, nullptr);
     if (!h) return 0;
+    // A non-activating tool window can otherwise sit behind AO's black startup
+    // window for the entire driver compile. Keep it above our client only.
     ShowWindow(h, SW_SHOWNOACTIVATE);
-    bool done = false;
+    bool done = false, followedClient=false;
     while (!done && !stopRequested.load()) {
+        DWORD foregroundPid=0;GetWindowThreadProcessId(GetForegroundWindow(),&foregroundPid);
+        const bool ownForeground=foregroundPid==GetCurrentProcessId();
+        if(ownForeground){followedClient=true;SetWindowPos(h,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE|SWP_SHOWWINDOW);}
+        else if(followedClient&&IsWindowVisible(h))SetWindowPos(h,HWND_NOTOPMOST,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE|SWP_HIDEWINDOW);
         DWORD wait = MsgWaitForMultipleObjects(1, &stopEvent, FALSE, 80, QS_ALLINPUT);
         if (wait == WAIT_OBJECT_0) break;
         MSG msg;

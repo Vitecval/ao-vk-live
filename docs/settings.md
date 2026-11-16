@@ -17,7 +17,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-392 settings, 220 of them in the settings window.
+400 settings, 228 of them in the settings window.
 
 ## Sections
 
@@ -37,6 +37,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - [Tone mapping](#tone-mapping) (2)
 - [Colour grading](#colour-grading) (11)
 - [Anti-aliasing](#anti-aliasing) (6)
+- [Vivid Tone](#vivid-tone) (8)
 - [Depth of field](#depth-of-field) (9)
 - [Particles](#particles) (18)
 
@@ -484,6 +485,19 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_FrameGen` | Experimental frame generation (AMD FSR 3.1): adds intermediate frames; may add latency | on / off | off | window; switch `RVK_Taa` |
 | `RVK_Upscaler` | Upscaler for the render scale (0: ao-vk's own TAA, 1: AMD FSR 2.2, 2: AMD FSR 3.1) | 0 / 1 / 2 | 0 | window; switch `RVK_Taa` |
 | `RVK_Fxaa` | FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer) | on / off | off | window; game value off; knob |
+
+## Vivid Tone
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_VividTone` | Vivid Tone: adaptive colour enhancement (Barbatos) | on / off | off | window; game value off; knob |
+| `RVK_VividAmt` | Vivid Tone: overall strength | 0 .. 1 | 0.9 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividHDR` | Vivid Tone: contrast depth (gamma, not display HDR) | 0 .. 1 | 0.15 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividExp` | Vivid Tone: added exposure | 0 .. 1 | 0.1 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividLift` | Vivid Tone: shadow lift | 0 .. 1 | 0.2 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividCtr` | Vivid Tone: adaptive contrast | 0 .. 1 | 0.6 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividStatic` | Vivid Tone: freeze brightness adaptation | on / off | off | window; switch `RVK_VividTone`; knob |
+| `RVK_VividRate` | Vivid Tone: brightness adaptation speed | 0 .. 1 | 0.25 | window; switch `RVK_VividTone`; knob |
 
 ## Depth of field
 

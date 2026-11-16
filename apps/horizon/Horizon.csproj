@@ -14,9 +14,12 @@
     <Reference Include="WindowsBase"/><Reference Include="PresentationCore"/><Reference Include="PresentationFramework"/>
     <Reference Include="System.Web.Extensions"/><Reference Include="System.IO.Compression"/><Reference Include="System.IO.Compression.FileSystem"/>
     <Reference Include="System.Windows.Forms"/><Reference Include="Microsoft.CSharp"/>
+    <Reference Include="System.Net.Http"/>
     <ApplicationDefinition Include="App.xaml"/><Page Include="MainWindow.xaml"/>
     <Compile Include="App.xaml.cs"/><Compile Include="MainWindow.xaml.cs"/><Compile Include="Models.cs"/>
     <Compile Include="SettingsStore.cs"/><Compile Include="SetupService.cs"/><Compile Include="SettingRow.cs"/><Compile Include="SelfTests.cs"/>
+    <Compile Include="UpdateService.cs"/><Compile Include="IssueReports.cs"/>
+    <Compile Include="UpdateTests.cs"/>
     <Resource Include="Assets\landscape.png"/><Resource Include="Assets\settings.json"/>
     <Resource Include="Assets\lite-manifest.json.gz"/><Resource Include="Assets\full-manifest.json.gz"/>
     <Resource Include="Assets\engine.json"/><Resource Include="Assets\horizon.ico"/>

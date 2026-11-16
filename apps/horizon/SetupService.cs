@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Horizon {
  public static class SetupService {
-  public const string Version="0.7.0 Preview 1";
+  public const string Version="0.7.0";
   public static string PackageRoot=Path.Combine(App.StateRoot,"packages");
   static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=32000000};}
   public static string ExePath{get{return Assembly.GetExecutingAssembly().Location;}}
@@ -47,7 +47,7 @@ namespace Horizon {
    }
    foreach(string name in new[]{"ao-vk.dll","ddraw.dll","install-live.ps1","setup-safety.ps1","reset-settings.ps1","material-download.ps1"})if(!File.Exists(Path.Combine(directory,name)))throw new IOException("A required setup file is missing: "+name);
   }
-  static string EnsureCore(Action<string,int> progress){
+  internal static string EnsureCore(Action<string,int> progress){
    using(var f=File.OpenRead(ExePath)){
     if(f.Length<56)throw new IOException("The setup payload is missing.");
     f.Position=f.Length-56;var reader=new BinaryReader(f,Encoding.UTF8,true);
@@ -171,6 +171,7 @@ namespace Horizon {
    Dictionary<string,object> old=null;
    if(File.Exists(record)){old=ReadObject(record);if(!old.ContainsKey("product")||(string)old["product"]!="Rubi-Ka Horizon")throw new IOException("An unrecognized installation record was preserved.");if(old.ContainsKey("previousFile")){previous=(string)old["previousFile"];previousHash=(string)old["previousSha256"];}}
    if(File.Exists(target)&&Hash(target)!=sourceHash&&(old==null||!old.ContainsKey("sha256")||Hash(target)!=(string)old["sha256"]))throw new IOException("A different or modified application already uses this file name. It was preserved.");
+   System.Version currentFile,newFile;if(File.Exists(target)&&System.Version.TryParse(FileVersionInfo.GetVersionInfo(target).FileVersion,out currentFile)&&System.Version.TryParse(FileVersionInfo.GetVersionInfo(ExePath).FileVersion,out newFile)&&currentFile>newFile)throw new IOException("A newer Horizon application is already installed. It was preserved.");
    if(!string.Equals(Path.GetFullPath(ExePath),Path.GetFullPath(target),StringComparison.OrdinalIgnoreCase)&&(!File.Exists(target)||Hash(target)!=sourceHash)){
     string stage=Path.Combine(directory,"Horizon-"+Guid.NewGuid().ToString("N")+".installing");File.Copy(ExePath,stage);
     try{if(Hash(stage)!=sourceHash)throw new IOException("The application copy could not be verified.");if(File.Exists(target)){previous="Horizon-previous-"+Guid.NewGuid().ToString("N")+".exe";previousHash=Hash(target);File.Replace(stage,target,Path.Combine(directory,previous));}else File.Move(stage,target);}finally{if(File.Exists(stage))File.Delete(stage);}
@@ -183,7 +184,7 @@ namespace Horizon {
    if(old!=null&&old.ContainsKey("previousFile")){string oldName=(string)old["previousFile"];if(oldName.Length>0&&oldName!=previous&&oldName==Path.GetFileName(oldName)&&oldName.StartsWith("Horizon-previous-",StringComparison.Ordinal)){string oldPath=GuardUnder(directory,Path.Combine(directory,oldName));if(File.Exists(oldPath)&&Hash(oldPath)==(string)old["previousSha256"])File.Delete(oldPath);}}
    if(register)
    using(var key=Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\RubiKaHorizon")){
-    key.SetValue("DisplayName","Rubi-Ka Horizon");key.SetValue("DisplayVersion","0.7.0 Preview 1");key.SetValue("Publisher","AsyncStuff");key.SetValue("InstallLocation",directory);key.SetValue("DisplayIcon",target);key.SetValue("UninstallString","\""+target+"\" --uninstall-app");key.SetValue("NoModify",1);key.SetValue("NoRepair",1);
+    key.SetValue("DisplayName","Rubi-Ka Horizon");key.SetValue("DisplayVersion",Version);key.SetValue("Publisher","AsyncStuff");key.SetValue("InstallLocation",directory);key.SetValue("DisplayIcon",target);key.SetValue("UninstallString","\""+target+"\" --uninstall-app");key.SetValue("NoModify",1);key.SetValue("NoRepair",1);
    }return target;
   }
   static bool? installedCurrent;

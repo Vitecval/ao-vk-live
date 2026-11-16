@@ -1,7 +1,26 @@
-# Rubi-Ka Horizon — 0.7.0 Preview 1
+# Rubi-Ka Horizon — 0.7.0
 
 Companion application and installer built around the verified Preview 24 r59 engine.
-The application release keeps the existing renderer and material archive hashes.
+The application keeps the existing r59 renderer and material archive hashes.
+
+Updates are checked from GitHub's latest stable release endpoint. A dedicated
+Updates page checks without installing or downloading texture packs. Verified app
+downloads use the asset size and SHA-256 supplied by GitHub over HTTPS; untrusted
+redirects, altered bytes and expired handoffs are refused. Applying restarts
+Horizon from its owned per-user installation and updates the selected AO only
+when the bundled engine/edition differs. App-only updates skip the full texture
+check. Startup checks are optional, non-modal, and disabled in offscreen tests.
+The permanent download is `/releases/latest/download/Rubi-Ka-Horizon-Setup.exe`;
+keep that filename and mark stable publications as Latest.
+
+Report issue reads the newest whitelisted renderer log in the selected folder,
+plus Horizon diagnostics, into bounded, scrubbed text (full normal logs, with the middle of very large
+logs explicitly omitted). Players review the
+report before compressing and posting it anonymously to the fixed asyncstuff.com WordPress
+endpoint. No SMTP password or GitHub token is bundled. A local ZIP is kept as a
+fallback. `apps/wordpress/horizon-reports` supplies the disabled-by-default mail
+receiver; the site owner must install, enable and verify WordPress mail delivery.
+No raw logs are published or emailed by automated tests.
 
 Build using `tools/build-horizon.ps1 -Tests`. Output:
 `build/horizon-preview/minimal/Rubi-Ka Horizon Setup.exe`. The WPF app targets x64 Windows

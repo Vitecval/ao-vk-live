@@ -1,4 +1,15 @@
-# Rubi-Ka Horizon 0.7.0 Preview 1
+# Rubi-Ka Horizon 0.7.0
+
+[Download the latest stable Horizon installer](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe).
+Horizon checks for new stable releases on startup and has a dedicated **Updates**
+page. Checks do not install anything or download texture packs. Verified app
+updates preserve settings and reuse existing artwork/cache. App-only updates
+skip texture verification when the bundled graphics are already current.
+
+**Report issue** prepares a reviewed, compressed diagnostic report for private
+email through asyncstuff.com. The site's disabled-by-default WordPress receiver
+is in [apps/wordpress/horizon-reports](apps/wordpress/horizon-reports). Players
+need no GitHub account; a local report ZIP is available if the service is offline.
 
 The new Windows application combines installation, repair, removal and live AO
 graphics settings. Choose Lite (no texture downloads) or Full HD (the existing

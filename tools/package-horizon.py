@@ -1,5 +1,5 @@
 """Build the single-EXE Horizon preview; no network or publication performed."""
-import argparse,hashlib,json,struct,shutil
+import argparse,hashlib,json,struct,shutil,re
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):
@@ -16,7 +16,8 @@ def main():
  with a.output.open('wb') as out,source.open('rb') as app,core.open('rb') as payload:
   shutil.copyfileobj(app,out);offset=out.tell();shutil.copyfileobj(payload,out)
   out.write(b'RKHCORE1'+struct.pack('<qq',offset,core.stat().st_size)+bytes.fromhex(pin['sha256']))
- report=dict(product='Rubi-Ka Horizon',version='0.7.0-preview.1',state='release-candidate',published=False,
+ version=re.search(r'public const string VersionTag="v([^"]+)"',(ROOT/'apps/horizon/UpdateService.cs').read_text(encoding='utf8')).group(1)
+ report=dict(product='Rubi-Ka Horizon',version=version,state='release-candidate',published=False,
   executable=str(a.output.resolve()),sha256=sha(a.output),bytes=a.output.stat().st_size,
   engineRevision=59,engineSha256=pin['sha256'],liteTextureDownloads=False,fullPreparedCacheFiles=14345,
   requires='Windows 10/11 x64 with .NET Framework 4.8')

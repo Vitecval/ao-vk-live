@@ -12,12 +12,13 @@ using System.Windows.Threading;
 [assembly: AssemblyTitle("Rubi-Ka Horizon")]
 [assembly: AssemblyProduct("Rubi-Ka Horizon")]
 [assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyFileVersion("0.7.0.2")]
+[assembly: AssemblyFileVersion("0.7.0.4")]
 namespace Horizon {
  public partial class App:Application {
   public static string StateRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"RubiKaHorizon");
   public static string ClientArgument="";
   public static bool RenderingPreview;
+  public static string UpdateTicket="";
   protected override void OnStartup(StartupEventArgs e){
    base.OnStartup(e);
    // A static companion should not compete with the game's GPU.
@@ -25,6 +26,7 @@ namespace Horizon {
    for(int i=0;i<e.Args.Length;i++){
     if(e.Args[i]=="--state-root"&&i+1<e.Args.Length)StateRoot=Path.GetFullPath(e.Args[++i]);
     else if(e.Args[i]=="--client"&&i+1<e.Args.Length)ClientArgument=e.Args[++i];
+    else if(e.Args[i]=="--finish-update"&&i+1<e.Args.Length)UpdateTicket=e.Args[++i];
    }
    try{SetupService.CheckDirectorySafety(StateRoot);Directory.CreateDirectory(StateRoot);}catch(Exception ex){MessageBox.Show(ex.Message,"Horizon data folder");Shutdown(1);return;}
    Trace("Starting "+SetupService.Version);
@@ -33,6 +35,7 @@ namespace Horizon {
    if(Array.IndexOf(e.Args,"--self-test-setup")>=0&&fixture>=0&&fixture+1<e.Args.Length){RunSetupTests(e.Args[fixture+1]);return;}
    if(Array.IndexOf(e.Args,"--uninstall-app")>=0){try{if(MessageBox.Show("Remove the Horizon application? AO graphics, preferences and downloaded files will stay in place. Use Installation → Remove graphics first if you also want to remove the graphics add-on.","Uninstall Rubi-Ka Horizon",MessageBoxButton.OKCancel,MessageBoxImage.Question)==MessageBoxResult.OK)SetupService.RemoveApp();Shutdown(0);}catch(Exception ex){MessageBox.Show(ex.Message,"Rubi-Ka Horizon");Shutdown(1);}return;}
    if(Array.IndexOf(e.Args,"--self-test")>=0){try{SelfTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}return;}
+   if(Array.IndexOf(e.Args,"--self-test-updates")>=0){RunUpdateTests();return;}
    int render=Array.IndexOf(e.Args,"--render-preview");
    RenderingPreview=render>=0;
    Trace("Opening main window");var w=new MainWindow();MainWindow=w;Trace("Main window constructed");
@@ -44,6 +47,7 @@ namespace Horizon {
   }
   public static string ResourceText(string name){bool compressed=name.EndsWith("-manifest.json",StringComparison.Ordinal)||name=="temporary-assets.txt";using(var source=GetResourceStream(new Uri("/Rubi-Ka Horizon;component/Assets/"+name+(compressed?".gz":""),UriKind.Relative)).Stream){using(Stream data=compressed?(Stream)new GZipStream(source,CompressionMode.Decompress,true):source)using(var r=new StreamReader(data,Encoding.UTF8))return r.ReadToEnd();}}
   async void RunSetupTests(string stock){try{await SelfTests.Setup(StateRoot,stock);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"SETUP-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
+  async void RunUpdateTests(){try{await UpdateTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"UPDATE-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   public static void Trace(string text){try{File.AppendAllText(Path.Combine(StateRoot,"startup.log"),DateTime.UtcNow.ToString("o")+" "+text+Environment.NewLine);}catch{}}
  }
 }

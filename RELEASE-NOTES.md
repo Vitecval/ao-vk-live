@@ -1,4 +1,23 @@
-# Rubi-Ka Horizon 0.7.0 Preview 1
+# Rubi-Ka Horizon 0.7.0
+
+- First stable application release. The permanent installer link uses GitHub's
+  Latest stable release and the fixed name `Rubi-Ka-Horizon-Setup.exe`.
+- Added automatic startup checks (optional) and a dedicated **Check for updates**
+  button. Checking is separate from downloading and applying an update.
+- Updates check the published size/SHA-256, refuse untrusted redirects and changed
+  installers, and hand over after the old app exits. The previous owned app is
+  backed up; settings and cached textures remain. Matching graphics skip a full
+  texture check during app-only updates.
+- Added **Report issue**: latest selected-client log and Horizon diagnostics,
+  common personal details removed, player review, compressed anonymous upload
+  for private email to dev@asyncstuff.com, with a saved local ZIP fallback.
+- The WordPress receiver requires installation/enabling by the site owner.
+  It bounds requests/decompression, limits spam, deduplicates accepted reports
+  and creates no public report files. Live inbox delivery depends on site mail.
+- The renderer and all 19 texture archives remain the verified r59/Preview 24
+  assets. This application release does not claim a new retail FPS improvement.
+
+## Application foundation
 
 - One Windows EXE for installation and live graphics settings. Minimal interface
   with existing AO landscape artwork, search, presets and guarded Undo.

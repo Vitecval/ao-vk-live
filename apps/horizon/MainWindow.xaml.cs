@@ -39,6 +39,7 @@ namespace Horizon {
    if(File.Exists(preferences)){try{var p=new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(File.ReadAllText(preferences));if(chosen.Length==0&&p.ContainsKey("client"))chosen=p["client"];if(p.ContainsKey("work"))SetupService.PackageRoot=p["work"];if(p.ContainsKey("autoUpdates"))AutoUpdates.IsChecked=p["autoUpdates"]!="false";}catch{}}
    WorkFolder.Text=SetupService.PackageRoot;
    MemoryOption.Click+=(s,e)=>{memoryEdited=true;UpdateState();};
+   LiteChoice.Checked+=Edition_Changed;FullChoice.Checked+=Edition_Changed;
    ready=true;App.Trace("Reading selected AO folder");if(chosen.Length>0)Choose(chosen,false);else UpdateState();App.Trace("AO folder ready");
    ShowPage(chosen.Length==0?"Installation":"Graphics");Filter();refreshTimer.Start();
    if(store==null){var ignored=RefreshInstalled(true);}
@@ -57,7 +58,7 @@ namespace Horizon {
    UpdatesPage.Visibility=page=="Updates"?Visibility.Visible:Visibility.Collapsed;ReportPage.Visibility=page=="Report issue"?Visibility.Visible:Visibility.Collapsed;
    foreach(var b in nav)b.Value.Background=b.Key==page?new SolidColorBrush(Color.FromRgb(37,58,65)):Brushes.Transparent;
    PageTitle.Text=page;
-   PageSubtitle.Text=page=="Graphics"?"Changes apply while AO is running.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
+   PageSubtitle.Text=page=="Graphics"?"Settings are also available in game with Ctrl+Shift+F12.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
   }
   public void PreviewPage(string page){if(nav.ContainsKey(page))ShowPage(page);}
   public void PreviewBusy(){busy=true;UpdateState();Status("Checking installed files…","Full HD repair verifies the artwork and cache. This can take several minutes.");}
@@ -71,8 +72,12 @@ namespace Horizon {
     AppInstallStatus.Text=info.AppPresent?"Installed app: "+info.AppVersion+(info.AppManaged?"":" (unverified)"):"Horizon is running as a portable copy; the app is not installed in the Start menu.";
     if(!memoryEdited&&info.GraphicsManaged&&info.MemoryEnabled.HasValue)MemoryOption.IsChecked=info.MemoryEnabled.Value;
     if(info.Warning.Length>0)AppInstallStatus.Text+="\n"+info.Warning;
-    AppInstallButton.Content=info.AppPresent?(info.AppCurrent?"Horizon app is installed":"Update Horizon app"):"Install Horizon app";AppInstallButton.IsEnabled=!info.AppCurrent;
+    AppInstallButton.Content=info.AppPresent?(info.AppCurrent?"Start-menu app is installed":"Update Start-menu app"):"Install app only (Start menu)";AppInstallButton.IsEnabled=!info.AppCurrent;
     DetectedVersionsText.Text="Installed Horizon app: "+info.AppVersion+"\nSelected AO graphics: "+(target.Length==0?"No AO folder selected":graphics);
+    if(graphicsUpdate&&info.AppCurrent){
+     if(!info.GraphicsPresent||info.GraphicsCurrent){graphicsUpdate=false;ApplyUpdateButton.Visibility=Visibility.Collapsed;UpdateMessage.Text=info.GraphicsPresent?"Horizon app and selected graphics are up to date.":"Horizon app is installed and up to date.";}
+     else ApplyUpdateButton.Content="Update graphics";
+    }
    }catch(Exception ex){GraphicsInstallDetail.Text="Could not read installation details: "+ex.Message;}
    finally{detecting=false;UpdateState();}
   }
@@ -84,7 +89,8 @@ namespace Horizon {
     if(save)SavePreferences();
     FolderPath.Text=client;SidebarClient.Text=client;
     RefreshSettings(true);Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
-    var receipt=Path.Combine(client,"ao-vk-live.install.json");if(File.Exists(receipt)){try{var m=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(File.ReadAllText(receipt));if(m.ContainsKey("edition")&&(string)m["edition"]=="full")FullChoice.IsChecked=true;}catch{}}
+    LiteChoice.IsChecked=false;FullChoice.IsChecked=false;
+    var receipt=Path.Combine(client,"ao-vk-live.install.json");if(File.Exists(receipt)){try{var m=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(File.ReadAllText(receipt));if(m.ContainsKey("edition")){FullChoice.IsChecked=(string)m["edition"]=="full";LiteChoice.IsChecked=(string)m["edition"]=="lite";}}catch{}}
    }catch(Exception ex){Status("Could not open this AO installation.",ex.Message);}
    UpdateState();var ignored=RefreshInstalled(true);
   }
@@ -92,10 +98,13 @@ namespace Horizon {
    bool has=store!=null,installed=has&&File.Exists(Path.Combine(client,"ao-vk.dll"));
    GraphicsPage.IsEnabled=installed&&!busy;InstallationPage.IsEnabled=!busy;LaunchButton.IsEnabled=has&&!busy;InstallButton.IsEnabled=has&&!busy;
    InstallButton.Content=detected==null?"Checking installation…":MemoryChanged&&detected.GraphicsCurrent&&detected.AppCurrent?"Apply memory setting":detected.PrimaryAction;InstallButton.IsEnabled=has&&!busy&&detected!=null&&(!(detected.AppCurrent&&detected.GraphicsCurrent)||MemoryChanged);
+   if(LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){InstallButton.Content="Choose Lite or Full HD above";InstallButton.IsEnabled=false;}
+   RemoveFullHdButton.IsEnabled=!busy&&detected!=null&&detected.Edition=="full";
    UndoButton.IsEnabled=store!=null&&store.CanUndo&&!busy;
    CheckUpdatesButton.IsEnabled=!busy&&!checkingUpdate&&!downloadingUpdate;ApplyUpdateButton.IsEnabled=!busy&&!checkingUpdate&&!downloadingUpdate;
    if(has&&!installed&&!busy)SaveDetail.Text="Install graphics from the Installation page to use live settings.";
   }
+  async void Edition_Changed(object sender,RoutedEventArgs e){if(!ready||busy)return;UpdateState();await RefreshInstalled(true);}
   void RefreshSettings(bool force){
    if(store==null)return;
    try{var values=store.Read();foreach(var setting in catalog.settings){if(pending.ContainsKey(setting.key))continue;string v;double n=setting.defaultValue;if(values.TryGetValue(setting.key,out v)){try{n=setting.Normalize(setting.Parse(v));}catch{}}
@@ -128,6 +137,7 @@ namespace Horizon {
   void Undo_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;try{store.Undo();RefreshSettings(true);Status("Previous settings restored.","AO will pick up the restored values automatically.");UpdateState();}catch(Exception ex){Status("Undo paused to preserve newer settings.",ex.Message);}}
   async Task Operation(string action){
    if(busy)return;if(store==null){Status("Choose an AO folder first.","Use Change folder or Browse on the Installation page.");return;}if(!SavePending())return;
+   if((action=="Install"||action=="Update"||action=="Repair")&&LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){ShowPage("Installation");Status("Choose Lite or Full HD first.","Lite keeps the original textures. Full HD installs the new artwork.");return;}
    try{SetupService.AssertSelectedClientClosed(client);}catch(Exception ex){Status("Close this AO client before setup.",ex.Message);return;}
    if((action=="Uninstall"||action=="Reset settings")&&MessageBox.Show(this,action=="Uninstall"?"Remove the graphics add-on from this AO folder? Personal files and preferences are kept.":"Reset graphics preferences to their defaults? The current settings file is backed up first. Close AO and its launcher before continuing.",action=="Uninstall"?"Remove graphics":"Reset settings",MessageBoxButton.OKCancel,MessageBoxImage.Question)!=MessageBoxResult.OK)return;
    busy=true;ShowPage("Installation");SetupProgress.Visibility=Visibility.Visible;SetupProgress.IsIndeterminate=true;UpdateState();
@@ -143,6 +153,11 @@ namespace Horizon {
    finally{busy=false;memoryEdited=false;SetupProgress.IsIndeterminate=false;SetupProgress.Visibility=Visibility.Collapsed;await RefreshInstalled(true);UpdateState();}
   }
   async void Install_Click(object s,RoutedEventArgs e){await RefreshInstalled(true);if(detected!=null&&detected.GraphicsCurrent&&!MemoryChanged){await InstallAppOnly();return;}await Operation(File.Exists(Path.Combine(client,"ao-vk-live.install.json"))?"Update":"Install");await RefreshInstalled(true);}
+  async void RemoveFullHd_Click(object s,RoutedEventArgs e){
+   if(busy||detected==null||detected.Edition!="full")return;
+   if(MessageBox.Show(this,"Remove the Full HD artwork and keep the Lite graphics engine, Horizon app and your settings? Close AO and its launcher first.","Remove Full HD",MessageBoxButton.OKCancel,MessageBoxImage.Question)!=MessageBoxResult.OK)return;
+   LiteChoice.IsChecked=true;await Operation("Update");
+  }
   async void Repair_Click(object s,RoutedEventArgs e){await Operation("Repair");}async void Reset_Click(object s,RoutedEventArgs e){await Operation("Reset settings");}async void Uninstall_Click(object s,RoutedEventArgs e){await Operation("Uninstall");}
   async void InstallApp_Click(object s,RoutedEventArgs e){await InstallAppOnly();}
   async Task InstallAppOnly(){if(busy)return;busy=true;UpdateState();try{SavePreferences();var target=await Task.Run(()=>SetupService.InstallApp());Status("Horizon installed in your Start menu.",target);}catch(Exception ex){Status("The app could not be installed.",ex.Message);}finally{busy=false;await RefreshInstalled(true);UpdateState();}}
@@ -185,7 +200,7 @@ namespace Horizon {
   async Task FinishDownloadedUpdate(){
    ShowPage("Updates");busy=true;UpdateState();UpdateProgress.Visibility=Visibility.Visible;UpdateProgress.IsIndeterminate=true;UpdateMessage.Text="Applying the verified Horizon update…";
    try{
-    var ticket=await Task.Run(()=>UpdateService.ReadHandoff(App.UpdateTicket));string target=(string)ticket["client"],edition=(string)ticket["edition"];Choose(target,false);FullChoice.IsChecked=edition=="full";MemoryOption.IsChecked=!Convert.ToBoolean(ticket["skipMemoryChange"]);
+    var ticket=await Task.Run(()=>UpdateService.ReadHandoff(App.UpdateTicket));string target=(string)ticket["client"],edition=(string)ticket["edition"];Choose(target,false);FullChoice.IsChecked=edition=="full";LiteChoice.IsChecked=edition=="lite";MemoryOption.IsChecked=!Convert.ToBoolean(ticket["skipMemoryChange"]);
     string installed=await Task.Run(()=>{SetupService.AssertSelectedClientClosed(target);return SetupService.InstallApp();});
     bool current=await Task.Run(()=>UpdateService.GraphicsCurrent(target,edition));
     if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}

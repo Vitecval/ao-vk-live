@@ -2,6 +2,7 @@
  <Application.Resources>
   <SolidColorBrush x:Key="Ink" Color="#E7EBEB"/><SolidColorBrush x:Key="Muted" Color="#9DADB1"/>
   <SolidColorBrush x:Key="Accent" Color="#D9B881"/><SolidColorBrush x:Key="Line" Color="#33454B"/>
+  <Style TargetType="ToolTip"><Setter Property="Background" Value="#17282F"/><Setter Property="Foreground" Value="#E7EBEB"/><Setter Property="BorderBrush" Value="#647B84"/><Setter Property="Padding" Value="10,8"/><Setter Property="MaxWidth" Value="480"/></Style>
   <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{StaticResource Ink}"/><Setter Property="TextWrapping" Value="Wrap"/></Style>
   <Style TargetType="Button">
    <Setter Property="Foreground" Value="#E7EBEB"/><Setter Property="Background" Value="#25383E"/><Setter Property="BorderBrush" Value="#40565D"/>

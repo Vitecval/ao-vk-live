@@ -16,8 +16,15 @@ namespace Horizon {
    foreach(var s in catalog.settings){s.Normalize(s.defaultValue);if(s.type==3)Check(s.Options().Count>0,"Choices: "+s.key);}
    Check(catalog.presets.Count==4&&catalog.presets[0].values["RVK_Enhance"]==0,"Original preset disables enhancements");
    Check(catalog.presets.All(p=>!p.values.ContainsKey("RVK_ZoneClick")),"Presets preserve the click-to-continue preference");
+   var art=catalog.settings.Single(s=>s.key=="RVK_CharacterStyle");
+   Check(art.Quick&&catalog.settings.Single(s=>s.key=="RVK_AutoMat").Quick,"Character materials and artwork appear in common settings");
+   Check(art.defaultValue==0&&art.Options().Select(o=>o.Label).SequenceEqual(new[]{"Standard Enhanced","Reworked"}),"Artwork labels preserve the standard default");
+   Check(catalog.presets.All(p=>!p.values.ContainsKey("RVK_CharacterStyle")),"Presets preserve the character artwork preference");
    string client=Path.Combine(root,"AO [personal] O'Brien 测试");Directory.CreateDirectory(client);File.WriteAllText(Path.Combine(client,"randy31.dll"),"dummy never loaded");File.WriteAllText(Path.Combine(client,"AnarchyOnline.exe"),"dummy never executed");
    var store=new SettingsStore(client,catalog.settings);string ini=store.IniPath;
+   var beforeFirstLaunch=new SettingsStore(client,catalog.settings);
+   beforeFirstLaunch.Save(new Dictionary<string,double>{{"RVK_ZoneScreen",1},{"RVK_ZoneClick",0}});
+   Check(beforeFirstLaunch.Read()["RVK_ZoneScreen"]=="1"&&beforeFirstLaunch.Read()["RVK_ZoneClick"]=="0","Zoning enabled before the first AO launch is saved in the Renderer section");
    string original="; personal café 测试\r\n[Renderer]\r\nRVK_GrassDist=80\r\nRVK_ZoneClick=1\r\nPersonalUnknown=17\r\n[Particles]\r\nTemplates=1,2,3\r\n[Personal]\r\nName=客户\r\n";File.WriteAllText(ini,original,Encoding.Unicode);
    store.Save(new Dictionary<string,double>{{"RVK_GrassDist",73}});
    Check(store.Read()["RVK_GrassDist"]=="73","Writes survive literal and Unicode paths");
@@ -49,7 +56,12 @@ namespace Horizon {
    foreach(var p in (Dictionary<string,object>)lite["client"]){string source=Path.Combine(stock,p.Key);if(SetupService.Hash(source)!=(string)p.Value)throw new Exception("Stock fixture differs: "+p.Key);File.Copy(source,Path.Combine(client,p.Key),true);}
    File.WriteAllText(Path.Combine(client,"AnarchyOnline.exe"),"dummy never executed");File.WriteAllText(Path.Combine(client,"Anarchy.exe"),"dummy never executed");File.WriteAllText(Path.Combine(client,"randy-vk.ini"),"Personal=73");File.WriteAllText(Path.Combine(client,"personal.txt"),"preserve");
    Action<string,int> report=(m,p)=>File.AppendAllText(Path.Combine(root,"setup-test.log"),m+Environment.NewLine);
-   foreach(string action in new[]{"Install","Update","Repair","Uninstall"})await SetupService.Run(action,client,"lite",report,true);
+   string litePackage=Path.Combine(SetupService.PackageRoot,"Rubi-Ka Horizon r59 lite"),cachedScript=Path.Combine(litePackage,"install-live.ps1");
+   foreach(string action in new[]{"Install","Update","Repair","Uninstall"}){
+    if(action=="Update")File.WriteAllText(cachedScript,"old cached installer fixture; never execute");
+    await SetupService.Run(action,client,"lite",report,true);
+    if(action=="Update"&&!Directory.GetFiles(litePackage,"install-live.ps1.previous-*").Any(p=>File.ReadAllText(p)=="old cached installer fixture; never execute"))throw new Exception("Update did not refresh and preserve the older cached installer.");
+   }
    if(File.Exists(Path.Combine(client,"ao-vk.dll"))||File.ReadAllText(Path.Combine(client,"randy-vk.ini"))!="Personal=73"||File.ReadAllText(Path.Combine(client,"personal.txt"))!="preserve")throw new Exception("Uninstall or personal file preservation failed.");
    await SetupService.Run("Reset settings",client,"lite",report,true);
    if(File.Exists(Path.Combine(client,"randy-vk.ini")))throw new Exception("Settings reset failed.");

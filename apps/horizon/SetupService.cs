@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Horizon {
  public static class SetupService {
-  public const string Version="0.7.2";
+  public const string Version="0.7.3";
   public static string PackageRoot=Path.Combine(App.StateRoot,"packages");
   static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=32000000};}
   public static string ExePath{get{return Assembly.GetExecutingAssembly().Location;}}
@@ -54,7 +54,7 @@ namespace Horizon {
     if(Encoding.ASCII.GetString(reader.ReadBytes(8))!="RKHCORE1")throw new IOException("Use the bundled Rubi-Ka Horizon Setup.exe to install or repair graphics.");
     long offset=reader.ReadInt64(),length=reader.ReadInt64();string expected=BitConverter.ToString(reader.ReadBytes(32)).Replace("-","").ToLowerInvariant();
     var pin=Json().Deserialize<Dictionary<string,object>>(App.ResourceText("engine.json"));
-    if(expected!=(string)pin["fullSetupSha256"]||length!=Convert.ToInt64(pin["fullSetupBytes"]))throw new IOException("The bundled engine differs from the approved r59 package.");
+    if(expected!=(string)pin["fullSetupSha256"]||length!=Convert.ToInt64(pin["fullSetupBytes"]))throw new IOException("The bundled engine differs from the approved graphics package.");
     if(offset<1024||length<1024||offset>f.Length-56||length!=f.Length-56-offset)throw new IOException("The setup payload is incomplete. Download a fresh installer.");
     string engineRoot=Path.Combine(App.StateRoot,"engine");CheckDirectorySafety(engineRoot);string engine=GuardUnder(engineRoot,Path.Combine(engineRoot,"r59-"+expected.Substring(0,16)));
     if(Directory.Exists(engine)){VerifyCore(engine);return engine;}
@@ -76,6 +76,13 @@ namespace Horizon {
    }
   }
   static string PS(string text){return "'"+text.Replace("'","''")+"'";}
+  internal static void RefreshCachedFile(string root,string target,string expected,Action<string> write){
+   target=GuardUnder(root,target);Directory.CreateDirectory(Path.GetDirectoryName(target));if(File.Exists(target)&&Hash(target)==expected)return;
+   string stage=GuardUnder(root,Path.Combine(Path.GetDirectoryName(target),".horizon-"+Guid.NewGuid().ToString("N")+".staging"));
+   try{write(stage);if(Hash(stage)!=expected)throw new IOException("The refreshed setup file failed verification: "+Path.GetFileName(target));
+    if(File.Exists(target)){string backup=GuardUnder(root,target+".previous-"+Guid.NewGuid().ToString("N"));File.Replace(stage,target,backup);}else File.Move(stage,target);
+   }finally{if(File.Exists(stage))File.Delete(GuardUnder(root,stage));}
+  }
   [DllImport("kernel32.dll",SetLastError=true)]static extern IntPtr OpenProcess(uint access,bool inherit,int pid);
   [DllImport("kernel32.dll",CharSet=CharSet.Unicode,SetLastError=true)]static extern bool QueryFullProcessImageName(IntPtr process,int flags,StringBuilder name,ref int size);
   [DllImport("kernel32.dll")]static extern bool CloseHandle(IntPtr handle);
@@ -105,23 +112,24 @@ namespace Horizon {
      if(Directory.Exists(package)&&(!File.Exists(marker)||File.ReadAllText(marker)!="Rubi-Ka Horizon r59 "+edition))throw new IOException("The work folder already contains unrecognized files. Choose another download/work folder.");
      Directory.CreateDirectory(package);File.WriteAllText(marker,"Rubi-Ka Horizon r59 "+edition);
      progress("Preparing "+(edition=="lite"?"Lite — no texture downloads":"Full HD — existing downloads will be reused"),-1);
+     var coreHashes=Json().Deserialize<Dictionary<string,string>>(App.ResourceText("core-files.json"));
      foreach(string file in Directory.GetFiles(core,"*",SearchOption.AllDirectories)){
       string rel=file.Substring(core.Length+1),target=GuardUnder(package,Path.Combine(package,rel));Directory.CreateDirectory(Path.GetDirectoryName(target));
+      if(rel.Equals("manifest.json",StringComparison.OrdinalIgnoreCase)){
+       byte[] manifestBytes=new UTF8Encoding(false).GetBytes(App.ResourceText(edition+"-manifest.json"));using(var manifestStream=new MemoryStream(manifestBytes)){string pin=Hash(manifestStream,manifestStream.Length);RefreshCachedFile(package,target,pin,p=>File.WriteAllBytes(p,manifestBytes));}continue;
+      }
       string resource=rel.Equals("install-live.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.InstallLive.ps1":rel.Equals("material-cache.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.MaterialCache.ps1":null;
       if(resource!=null){
-       // The renderer/bootstrap remains pinned to r59; this application ships
-       // its tested file-list optimization as a compiled installer resource.
+       // Installer resources are independently verified against the bundled
+       // bootstrap. The legacy work bucket keeps existing ZIPs reusable.
        using(var source=Assembly.GetExecutingAssembly().GetManifestResourceStream(resource)){
         using(var data=new MemoryStream()){source.CopyTo(data);byte[] bytes=data.ToArray();data.Position=0;string expected=Hash(data,data.Length);
-         if(File.Exists(target)&&Hash(target)!=expected&&Hash(target)!=Hash(file))throw new IOException("A cached installer changed. Choose a fresh work folder.");
-         File.WriteAllBytes(target,bytes);
+         RefreshCachedFile(package,target,expected,p=>File.WriteAllBytes(p,bytes));
         }
        }continue;
       }
-      if(File.Exists(target)&&rel!="manifest.json"&&Hash(target)!=Hash(file))throw new IOException("A cached setup file changed: "+rel+". Choose a fresh work folder.");
-      File.Copy(file,target,true);
+      string expectedCore=coreHashes[rel.Replace('\\','/')];RefreshCachedFile(package,target,expectedCore,p=>File.Copy(file,p));
      }
-     if(edition=="lite")File.WriteAllText(Path.Combine(package,"manifest.json"),App.ResourceText("lite-manifest.json"),new UTF8Encoding(false));
      string script=Path.Combine(task,"operation.ps1"),installer=Path.Combine(package,action=="Reset settings"?"reset-settings.ps1":"install-live.ps1");
      string args=" -ClientDir "+PS(Path.GetFullPath(client));
      if(action!="Reset settings")args+=" -PackageDir "+PS(package)+(action=="Uninstall"?" -Uninstall":action=="Update"||action=="Repair"?" -Upgrade":"")+(skipMemoryChange?" -DisableLargeAddressAware":"");

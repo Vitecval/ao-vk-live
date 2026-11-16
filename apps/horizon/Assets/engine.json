@@ -1,7 +1,7 @@
 {
-  "revision": 59,
-  "fullSetupSha256": "0b9cd09e7111cb6e42f5534bc297708b5c731c1ff21f486ef6a611b87e49f860",
-  "fullSetupBytes": 94514071,
-  "sourceCommit": "0b1eb59c82ab1cbf8e469151287a018f3b3661e8",
-  "rendererSha256": "c8133283bcc40882eef34ae770f8407be7a5a379e081b60f550885775d04f755"
+  "revision": 60,
+  "fullSetupSha256": "7a52309b103196c2bc2f7bd9dc28da6dd2f37c068e2196d2e96cf594cec8229a",
+  "fullSetupBytes": 94519200,
+  "sourceCommit": "27ef17cee485eba9f47368b3507b23d222649f3d",
+  "rendererSha256": "0438ce338b8d907a11960878a1c6333a5fd00856e3dcfedd1e15639df0420aa7"
 }

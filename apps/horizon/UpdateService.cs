@@ -18,7 +18,7 @@ namespace Horizon {
   public string Tag,Name,Url,DownloadUrl,Sha256;public long Bytes;
  }
  public static class UpdateService {
-  public const string VersionTag="v0.7.2";
+  public const string VersionTag="v0.7.3";
   public const string Repository="https://github.com/Vitecval/ao-vk-live";
   public const string DownloadName="Rubi-Ka-Horizon-Setup.exe";
   public const string PermanentDownload=Repository+"/releases/latest/download/"+DownloadName;
@@ -89,7 +89,10 @@ namespace Horizon {
     var manifest=json.Deserialize<Dictionary<string,object>>(App.ResourceText(edition+"-manifest.json"));var receipt=json.Deserialize<Dictionary<string,object>>(File.ReadAllText(path));
     if((string)receipt["edition"]!=edition||Convert.ToString(receipt["build"])!=Convert.ToString(manifest["build"]))return false;
     foreach(var p in (Dictionary<string,object>)manifest["addon"])if(SetupService.Hash(Path.Combine(client,p.Key))!=(string)p.Value)return false;
-    var owned=(Dictionary<string,object>)receipt["assets"];foreach(var p in (Dictionary<string,object>)manifest["assets"]){if(p.Key=="randy-vk/mesh-ids.bin"&&!owned.ContainsKey(p.Key))continue;if(!owned.ContainsKey(p.Key)||Convert.ToString(owned[p.Key])!=Convert.ToString(p.Value))return false;}
+    var expected=(Dictionary<string,object>)manifest["assets"];var owned=(Dictionary<string,object>)receipt["assets"];foreach(var p in expected){if(p.Key=="randy-vk/mesh-ids.bin"&&!owned.ContainsKey(p.Key))continue;if(!owned.ContainsKey(p.Key)||Convert.ToString(owned[p.Key])!=Convert.ToString(p.Value))return false;}
+    // A removed texture/cache entry also requires the install transaction to
+    // retire the owned old file. Only the generated bindings index is extra.
+    foreach(var p in owned)if(!(p.Key=="randy-vk/cache/materials/bindings.tsv"&&manifest.ContainsKey("preparedMaterials"))&&!expected.ContainsKey(p.Key))return false;
     return true;
    }catch{return false;}
   }

@@ -1,4 +1,15 @@
-# Rubi-Ka Horizon — 0.7.2
+# Rubi-Ka Horizon — 0.7.3
+
+Preview 24 r60 retains AO's submitted terrain topology in Shared Ground+, keeps
+Adonis wall 208052 rough and non-metal, restores all five render-scale choices,
+and makes fast zoning artwork visible. Quick Controls includes character
+materials; Reworked artwork is held separately for approval and missing reworks
+fall back to Standard Enhanced.
+
+New installations require a Lite/Full HD choice. Folder switching, app-only
+installation, Full HD removal, tooltip contrast, the in-game shortcut and
+post-install update state are clearer. A Full HD removal keeps the Lite engine;
+the separate graphics uninstall retains its existing ownership checks.
 
 `InstallDetection` separates the running version, owned installed app, actual
 renderer hash/revision, installation record and selected edition. File metadata
@@ -9,8 +20,9 @@ interactive gate; updater successors wait for their parent before acquiring it.
 Headless two-process tests verify ownership and activation signaling without
 bringing any real app/game window forward.
 
-Companion application and installer built around the verified Preview 24 r59 engine.
-The application keeps the existing r59 renderer and material archive hashes.
+Companion application and installer built around the verified Preview 24 r60 engine.
+The existing 19 material archive hashes stay pinned. Legacy r59 download buckets
+remain reusable; the changed bootstrap is verified and refreshed independently.
 
 Updates are checked from GitHub's latest stable release endpoint. A dedicated
 Updates page checks without installing or downloading texture packs. Verified app
@@ -82,6 +94,24 @@ The background is the existing Frontier Bridge loading artwork; its original
 artwork terms remain in force. Renderer/app source licensing and artwork licensing
 remain separate. Internal AO-VK ownership records and file names are preserved for
 compatibility with existing installations.
+
+Texture-release rules:
+- Bump Horizon's release version for content changes; never replace a published
+  texture ZIP with different bytes at an existing pinned URL. Keep old material
+  releases available for clients whose manifests still reference them.
+- The current r59 bootstrap and companions are frozen. A new artwork release
+  needs a matching new bootstrap, embedded Full manifest, hashes and versioned
+  material source. Update the downloader's explicit source/version pins when
+  introducing that source; the app cannot invent a new texture catalogue.
+- Rebuild affected prepared mip chains into a fresh preparation output. Do not
+  trust an older cache merely because paths, file sizes or timestamps match.
+  Check rebuilt sets against fresh source decoding before packaging them.
+- Check added, replaced and removed assets with the same renderer version.
+  The update decision compares ownership in both directions, so retiring an old
+  asset still runs the transaction. Only valid generated bindings are extra.
+- The app's Full catalogue must match the Full manifest actually embedded in the
+  bootstrap. Packaging refuses mismatches. Downloads reuse verified unchanged
+  archives; a changed archive is downloaded as a whole ZIP, not a binary delta.
 
 The current design is the minimal revision requested during the first preview:
 Graphics / Installation / About navigation, compact settings rows, no status

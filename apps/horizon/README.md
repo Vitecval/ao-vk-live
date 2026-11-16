@@ -1,4 +1,10 @@
-# Rubi-Ka Horizon — 0.7.3
+# Rubi-Ka Horizon — 0.7.4
+
+0.7.4 adds indexed quick updates, visible recovery/setup progress, tray minimize,
+searchable Graphics → Keybinds, and optional Vivid Tone (off by default).
+Preview 24 r61 also corrects login tone mapping, defers resize work out of window
+callbacks, and bundles a matching current shader-preparation helper.
+See [r61 release details](../../docs/preview24-r61.md).
 
 Preview 24 r60 retains AO's submitted terrain topology in Shared Ground+, keeps
 Adonis wall 208052 rough and non-metal, restores all five render-scale choices,

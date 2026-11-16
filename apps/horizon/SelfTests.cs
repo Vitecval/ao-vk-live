@@ -10,8 +10,28 @@ namespace Horizon {
  public static class SelfTests {
   static readonly List<string> Passed=new List<string>();
   static void Check(bool value,string message){if(!value)throw new Exception(message);Passed.Add(message);}
+  public static async Task Tray(string root){
+   App.RenderingPreview=true;var w=new MainWindow{Left=-3000,Top=-3000,ShowActivated=false,ShowInTaskbar=false};
+   try{w.Show();await Task.Delay(100);for(int i=0;i<3;i++){
+    w.WindowState=System.Windows.WindowState.Minimized;await Task.Delay(100);
+    if(w.IsVisible||!w.TrayVisible)throw new Exception("Minimize did not hide the window and register the tray icon.");
+    w.RestoreFromTray();await Task.Delay(100);
+    if(!w.IsVisible||w.WindowState!=System.Windows.WindowState.Normal||w.TrayVisible)throw new Exception("Tray restore did not restore the existing window.");
+   }File.WriteAllText(Path.Combine(root,"TRAY-TEST-RESULTS.json"),"{\"result\":\"passed\",\"minimizeRestoreCycles\":3,\"retailClientsChanged\":false}");}
+   finally{w.Close();}
+  }
   public static void Run(string root){
+   var activity=new SetupActivity();var start=new DateTime(2026,11,16,0,0,0,DateTimeKind.Utc);
+   activity.Start("Reading interrupted update record",start);
+   Check(activity.Timing(start.AddSeconds(12)).Contains("No new progress report for 0:12"),"Setup elapsed time remains visible without worker output");
+   activity.Report("Restoring previous installation: 20 / 80",25,start.AddSeconds(13));
+   Check(activity.Message.Contains("20 / 80")&&activity.Percent==25&&!activity.Timing(start.AddSeconds(14)).Contains("No new"),"Recovery reports retain real counts and reset waiting feedback");
+   Check(activity.Timing(start.AddSeconds(45)).Contains("security prompt"),"A silent wait suggests checking Windows prompts without claiming progress");
+   activity.Stop(start.AddSeconds(50));Check(activity.Timing(start.AddMinutes(5))=="Elapsed 0:50","Completed setup timing stops advancing");
+   activity.Start("Checking saved setup files",start.AddMinutes(6));Check(activity.Timing(start.AddMinutes(6))=="Elapsed 0:00","Retry clears the previous attempt's elapsed and waiting state");
    var catalog=Catalog.Load();Check(catalog.settings.Count>=200,"Catalog exports every visible renderer setting");
+   Check(KeybindHelp.All.Length>=45&&KeybindHelp.All.All(k=>k.Keys.Length>0&&k.Title.Length>0&&k.Description.Length>0),"Keybinds provide searchable explanations for graphics, options, diagnostics, camera and console controls");
+   Check(catalog.settings.Single(s=>s.key=="RVK_VividTone").defaultValue==0&&catalog.presets.All(p=>!p.values.ContainsKey("RVK_VividTone")),"Vivid Tone is off by default and presets preserve the user's choice");
    Check(catalog.settings.Select(x=>x.key).Distinct().Count()==catalog.settings.Count,"Settings keys are unique");
    foreach(var s in catalog.settings){s.Normalize(s.defaultValue);if(s.type==3)Check(s.Options().Count>0,"Choices: "+s.key);}
    Check(catalog.presets.Count==4&&catalog.presets[0].values["RVK_Enhance"]==0,"Original preset disables enhancements");

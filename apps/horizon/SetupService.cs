@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Horizon {
  public static class SetupService {
-  public const string Version="0.7.3";
+  public const string Version="0.7.4";
   public static string PackageRoot=Path.Combine(App.StateRoot,"packages");
   static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=32000000};}
   public static string ExePath{get{return Assembly.GetExecutingAssembly().Location;}}
@@ -37,11 +37,12 @@ namespace Horizon {
    foreach(string d in Directory.GetDirectories(full))DeleteOwned(root,d);
    Directory.Delete(full);
   }
-  static void VerifyCore(string directory){
+  static void VerifyCore(string directory,Action<string,int> progress){
    // The index is compiled from the pinned archive. Only bootstrap files
    // belong here; companion-only assets are verified by the existing backend.
    var files=Json().Deserialize<Dictionary<string,string>>(App.ResourceText("core-files.json"));
-   foreach(var p in files){
+   int checkedFiles=0;foreach(var p in files){
+    if(checkedFiles%16==0)progress("Checking saved setup files: "+checkedFiles+" / "+files.Count,100*checkedFiles/Math.Max(1,files.Count));checkedFiles++;
     string path=GuardUnder(directory,Path.Combine(directory,p.Key.Replace('/',Path.DirectorySeparatorChar)));
     if(!File.Exists(path)||Hash(path)!=p.Value)throw new IOException("A setup file changed or is missing: "+p.Key+". Keep the original Horizon installer and try a fresh copy.");
    }
@@ -57,7 +58,7 @@ namespace Horizon {
     if(expected!=(string)pin["fullSetupSha256"]||length!=Convert.ToInt64(pin["fullSetupBytes"]))throw new IOException("The bundled engine differs from the approved graphics package.");
     if(offset<1024||length<1024||offset>f.Length-56||length!=f.Length-56-offset)throw new IOException("The setup payload is incomplete. Download a fresh installer.");
     string engineRoot=Path.Combine(App.StateRoot,"engine");CheckDirectorySafety(engineRoot);string engine=GuardUnder(engineRoot,Path.Combine(engineRoot,"r59-"+expected.Substring(0,16)));
-    if(Directory.Exists(engine)){VerifyCore(engine);return engine;}
+    if(Directory.Exists(engine)){VerifyCore(engine,progress);return engine;}
     progress("Checking the bundled graphics files…",-1);f.Position=offset;if(Hash(f,length)!=expected)throw new IOException("The installer payload failed its integrity check.");
     Directory.CreateDirectory(engineRoot);string stage=GuardUnder(engineRoot,Path.Combine(engineRoot,"staging-"+Guid.NewGuid().ToString("N")));Directory.CreateDirectory(stage);
     try{
@@ -69,8 +70,8 @@ namespace Horizon {
        string rel=string.Join("/",parts.Skip(1));if(rel.Length==0)continue;string target=GuardUnder(stage,Path.Combine(stage,rel.Replace('/',Path.DirectorySeparatorChar)));Directory.CreateDirectory(Path.GetDirectoryName(target));
        using(var input=e.Open())using(var output=File.Create(target))input.CopyTo(output);
       }
-     }File.Delete(zip);VerifyCore(stage);
-     try{Directory.Move(stage,engine);}catch(IOException){if(!Directory.Exists(engine))throw;VerifyCore(engine);DeleteOwned(engineRoot,stage);}
+     }File.Delete(zip);VerifyCore(stage,progress);
+     try{Directory.Move(stage,engine);}catch(IOException){if(!Directory.Exists(engine))throw;VerifyCore(engine,progress);DeleteOwned(engineRoot,stage);}
      return engine;
     }catch{if(Directory.Exists(stage))DeleteOwned(engineRoot,stage);throw;}
    }
@@ -100,8 +101,15 @@ namespace Horizon {
    if(!new[]{"Install","Update","Repair","Uninstall","Reset settings"}.Contains(action))throw new ArgumentException("Unknown setup action.");
    if(edition!="lite"&&edition!="full")throw new ArgumentException("Choose Lite or Full HD.");
    await Task.Run(()=>{
+    string report=GuardUnder(App.StateRoot,Path.Combine(App.StateRoot,"last-setup.log"));
+    CheckDirectorySafety(App.StateRoot);
+    if(File.Exists(report))File.Copy(report,GuardUnder(App.StateRoot,Path.Combine(App.StateRoot,"previous-setup.log")),true);
+    File.WriteAllText(report,DateTime.UtcNow.ToString("o")+" Starting "+action+" "+edition+" "+client+Environment.NewLine,Encoding.UTF8);
+    Action<string,int> preparation=(message,percent)=>{File.AppendAllText(report,DateTime.UtcNow.ToString("o")+" "+message+Environment.NewLine);progress(message,percent);};
+    try{
+    preparation("Checking saved setup files…",-1);
     AssertSelectedClientClosed(client);
-    string core=EnsureCore(progress),taskRoot=Path.Combine(App.StateRoot,"tasks");Directory.CreateDirectory(taskRoot);
+    string core=EnsureCore(preparation),taskRoot=Path.Combine(App.StateRoot,"tasks");Directory.CreateDirectory(taskRoot);
     string task=GuardUnder(taskRoot,Path.Combine(taskRoot,Guid.NewGuid().ToString("N")));Directory.CreateDirectory(task);
     CheckDirectorySafety(PackageRoot);Directory.CreateDirectory(PackageRoot);
     string package=GuardUnder(PackageRoot,Path.Combine(PackageRoot,"Rubi-Ka Horizon r59 "+edition));
@@ -111,9 +119,11 @@ namespace Horizon {
      string marker=GuardUnder(package,Path.Combine(package,".horizon-owned"));
      if(Directory.Exists(package)&&(!File.Exists(marker)||File.ReadAllText(marker)!="Rubi-Ka Horizon r59 "+edition))throw new IOException("The work folder already contains unrecognized files. Choose another download/work folder.");
      Directory.CreateDirectory(package);File.WriteAllText(marker,"Rubi-Ka Horizon r59 "+edition);
-     progress("Preparing "+(edition=="lite"?"Lite — no texture downloads":"Full HD — existing downloads will be reused"),-1);
+     preparation("Preparing "+(edition=="lite"?"Lite — no texture downloads":"Full HD — existing downloads will be reused"),-1);
      var coreHashes=Json().Deserialize<Dictionary<string,string>>(App.ResourceText("core-files.json"));
-     foreach(string file in Directory.GetFiles(core,"*",SearchOption.AllDirectories)){
+     string[] coreFiles=Directory.GetFiles(core,"*",SearchOption.AllDirectories);int preparedFiles=0;
+     foreach(string file in coreFiles){
+      if(preparedFiles%16==0)preparation("Preparing saved setup files: "+preparedFiles+" / "+coreFiles.Length,100*preparedFiles/Math.Max(1,coreFiles.Length));preparedFiles++;
       string rel=file.Substring(core.Length+1),target=GuardUnder(package,Path.Combine(package,rel));Directory.CreateDirectory(Path.GetDirectoryName(target));
       if(rel.Equals("manifest.json",StringComparison.OrdinalIgnoreCase)){
        byte[] manifestBytes=new UTF8Encoding(false).GetBytes(App.ResourceText(edition+"-manifest.json"));using(var manifestStream=new MemoryStream(manifestBytes)){string pin=Hash(manifestStream,manifestStream.Length);RefreshCachedFile(package,target,pin,p=>File.WriteAllBytes(p,manifestBytes));}continue;
@@ -132,21 +142,21 @@ namespace Horizon {
      }
      string script=Path.Combine(task,"operation.ps1"),installer=Path.Combine(package,action=="Reset settings"?"reset-settings.ps1":"install-live.ps1");
      string args=" -ClientDir "+PS(Path.GetFullPath(client));
-     if(action!="Reset settings")args+=" -PackageDir "+PS(package)+(action=="Uninstall"?" -Uninstall":action=="Update"||action=="Repair"?" -Upgrade":"")+(skipMemoryChange?" -DisableLargeAddressAware":"");
+     if(action!="Reset settings")args+=" -PackageDir "+PS(package)+(action=="Uninstall"?" -Uninstall":action=="Update"||action=="Repair"?" -Upgrade":"")+(action=="Repair"?" -VerifyAllAssets":"")+(skipMemoryChange?" -DisableLargeAddressAware":"");
      string body="$ErrorActionPreference='Stop'\r\n$ProgressPreference='SilentlyContinue'\r\ntry {\r\n$cb={param($message,$percent=-1,$detail=$null) [Console]::WriteLine('HORIZON|'+(@{message=[string]$message;percent=[int]$percent}|ConvertTo-Json -Compress))}\r\n& "+PS(installer)+args+" -ProgressCallback $cb | Out-Null\r\n[Console]::WriteLine('HORIZON_DONE')\r\nexit 0\r\n} catch {[Console]::Error.WriteLine($_.Exception.Message);exit 1}\r\n";
      File.WriteAllText(script,body,new UTF8Encoding(true));
      string host=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"SysWOW64","WindowsPowerShell","v1.0","powershell.exe");
      if(!File.Exists(host))throw new IOException("Horizon setup requires 64-bit Windows with Windows PowerShell.");
      var info=new ProcessStartInfo(host,"-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \""+script+"\""){CreateNoWindow=true,UseShellExecute=false,WindowStyle=ProcessWindowStyle.Hidden,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=package};
      bool complete=false;var errors=new StringBuilder();var logLock=new object();string lastMessage="Starting setup…";int lastPercent=-1;DateTime lastUpdate=DateTime.UtcNow;
-     string report=Path.Combine(App.StateRoot,"last-setup.log");
-     using(var log=new StreamWriter(report,false,Encoding.UTF8){AutoFlush=true}){
+     preparation("Starting the installation worker…",-1);
+     using(var log=new StreamWriter(report,true,Encoding.UTF8){AutoFlush=true}){
      log.WriteLine(DateTime.UtcNow.ToString("o")+" "+action+" "+edition+" "+client);
      using(var process=new Process{StartInfo=info}){
       process.OutputDataReceived+=(s,e)=>{if(e.Data==null)return;lock(logLock){log.WriteLine(DateTime.UtcNow.ToString("o")+" "+e.Data);if(e.Data=="HORIZON_DONE")complete=true;else if(e.Data.StartsWith("HORIZON|")){try{var v=Json().Deserialize<Dictionary<string,object>>(e.Data.Substring(8));lastMessage=(string)v["message"];lastPercent=Convert.ToInt32(v["percent"]);lastUpdate=DateTime.UtcNow;progress(lastMessage,lastPercent);}catch{}}}};
       process.ErrorDataReceived+=(s,e)=>{if(e.Data!=null)lock(logLock){if(errors.Length<65536)errors.AppendLine(e.Data);log.WriteLine(DateTime.UtcNow.ToString("o")+" ERROR "+e.Data);}};
       process.Start();process.BeginOutputReadLine();process.BeginErrorReadLine();
-      while(!process.WaitForExit(10000))lock(logLock){int seconds=(int)(DateTime.UtcNow-lastUpdate).TotalSeconds;if(seconds>=10){string heartbeat=lastMessage+" Still checking ("+seconds+" s in this step).";log.WriteLine(DateTime.UtcNow.ToString("o")+" "+heartbeat);progress(heartbeat,lastPercent);}}
+      while(!process.WaitForExit(10000))lock(logLock){int seconds=(int)(DateTime.UtcNow-lastUpdate).TotalSeconds;if(seconds>=10)log.WriteLine(DateTime.UtcNow.ToString("o")+" Waiting for worker output: "+seconds+" seconds. Last step: "+lastMessage);}
       process.WaitForExit(); // Drain redirected output before checking completion.
       log.WriteLine(DateTime.UtcNow.ToString("o")+" Worker exit: "+process.ExitCode);
       if(process.ExitCode!=0||!complete)throw new IOException(errors.Length>0?errors.ToString().Trim():"Setup did not complete. See last-setup.log in Horizon's data folder.");
@@ -158,7 +168,9 @@ namespace Horizon {
       // expanded assets absent from the bundled core are temporary duplicates.
       if(edition=="full"&&Directory.Exists(package)){
        try{
-        foreach(var p in App.ResourceText("temporary-assets.txt").Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries)){
+        string[] temporary=App.ResourceText("temporary-assets.txt").Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries);int checkedTemporary=0;
+        foreach(var p in temporary){
+         if(checkedTemporary%512==0)preparation("Cleaning temporary setup files: "+checkedTemporary+" / "+temporary.Length+" (downloads kept)",100*checkedTemporary/Math.Max(1,temporary.Length));checkedTemporary++;
          string rel=p.Replace('/',Path.DirectorySeparatorChar);
          string file=Path.Combine(package,rel);if(File.Exists(file)){file=GuardUnder(package,file);File.Delete(file);}
         }
@@ -166,6 +178,7 @@ namespace Horizon {
       }setupLock.Dispose();
      }DeleteOwned(taskRoot,task);
     }
+    }catch(Exception ex){File.AppendAllText(report,DateTime.UtcNow.ToString("o")+" ERROR "+ex.Message+Environment.NewLine);throw;}
    });
   }
   public static string InstallApp(){

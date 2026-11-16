@@ -58,6 +58,7 @@ namespace Horizon {
    {"RVK_GrassBlades","Grass density"},{"RVK_WaterOn","Enhanced water"},{"RVK_WaterQual","Water quality"},
    {"RVK_ModernTex","World textures"},{"RVK_EnhancedRocks","Enhanced rocks"},{"RVK_Hdr","HDR lighting"},
    {"RVK_AutoMat","Character & equipment materials"},{"RVK_CharacterStyle","Character & equipment artwork"},
+   {"RVK_VividTone","Vivid Tone (optional colour enhancement)"},
    {"RVK_Exposure","Exposure"},{"RVK_Bloom","Bloom"},{"RVK_Sharpen","Sharpening"},{"RVK_Taa","Anti-aliasing"},
    {"RVK_RenderScale","Render resolution"},{"RVK_FrameGen","Frame generation"},{"RVK_AmbientMotes","Ambient life density"},
    {"RVK_FarScenery","Distant scenery"},{"RVK_ImmersiveShips","Immersive ships"},{"RVK_DayCycle","Day and night cycle"}

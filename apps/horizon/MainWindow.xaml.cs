@@ -19,6 +19,11 @@ namespace Horizon {
   readonly Dictionary<string,double> pending=new Dictionary<string,double>(StringComparer.OrdinalIgnoreCase);
   readonly DispatcherTimer saveTimer=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(350)};
   readonly DispatcherTimer refreshTimer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(2)};
+  readonly DispatcherTimer activityTimer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(1)};
+  readonly SetupActivity activity=new SetupActivity();
+  System.Windows.Forms.NotifyIcon trayIcon;
+  System.Drawing.Icon trayImage;
+  WindowState trayRestoreState=WindowState.Normal;
   readonly Dictionary<string,Button> nav=new Dictionary<string,Button>();
   string client="";bool busy,ready;
   bool checkingUpdate,downloadingUpdate,graphicsUpdate,sendingReport;HorizonRelease availableUpdate;string downloadedUpdate="";IssueReport preparedReport;
@@ -31,10 +36,11 @@ namespace Horizon {
    foreach(var s in catalog.settings)s.Value=s.defaultValue;
    AddNav("Graphics","\uE713");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
    SidebarVersion.Text=SetupService.Version;AboutVersion.Text=SetupService.Version+" · Stable release";CurrentVersionText.Text="Running Horizon: "+SetupService.Version;
-   SectionFilter.Items.Add("Common settings");SectionFilter.Items.Add("All settings");foreach(var section in catalog.settings.Select(x=>x.section).Distinct().OrderBy(x=>x))SectionFilter.Items.Add(section);SectionFilter.SelectedIndex=0;
+   SectionFilter.Items.Add("Common settings");SectionFilter.Items.Add("All settings");SectionFilter.Items.Add("Keybinds");foreach(var section in catalog.settings.Select(x=>x.section).Distinct().OrderBy(x=>x))SectionFilter.Items.Add(section);SectionFilter.SelectedIndex=0;
    PresetPicker.ItemsSource=catalog.presets;PresetPicker.SelectedIndex=-1;
    Search.ToolTip="Search "+catalog.settings.Count+" graphics settings";
    saveTimer.Tick+=(s,e)=>{saveTimer.Stop();SavePending();};refreshTimer.Tick+=async(s,e)=>{if(!busy){RefreshSettings(false);await RefreshInstalled(false);UpdateState();}};
+   activityTimer.Tick+=(s,e)=>OperationTiming.Text=activity.Timing(DateTime.UtcNow);
    string chosen=App.ClientArgument;
    if(File.Exists(preferences)){try{var p=new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(File.ReadAllText(preferences));if(chosen.Length==0&&p.ContainsKey("client"))chosen=p["client"];if(p.ContainsKey("work"))SetupService.PackageRoot=p["work"];if(p.ContainsKey("autoUpdates"))AutoUpdates.IsChecked=p["autoUpdates"]!="false";}catch{}}
    WorkFolder.Text=SetupService.PackageRoot;
@@ -44,13 +50,33 @@ namespace Horizon {
    ShowPage(chosen.Length==0?"Installation":"Graphics");Filter();refreshTimer.Start();
    if(store==null){var ignored=RefreshInstalled(true);}
    Closing+=(s,e)=>{if(App.RenderingPreview)return;if(busy){e.Cancel=true;MessageBox.Show(this,"Setup is still working. Keep Horizon open until it finishes so it can verify or recover the operation.","Setup in progress",MessageBoxButton.OK,MessageBoxImage.Information);}else if(!SavePending()){e.Cancel=MessageBox.Show(this,"The last changes could not be saved. Close and discard only those unsaved changes?","Unsaved changes",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes;if(!e.Cancel)pending.Clear();}};
-   Closed+=(s,e)=>{saveTimer.Stop();refreshTimer.Stop();lifetime.Cancel();};
+   StateChanged+=(s,e)=>{if(WindowState==WindowState.Minimized)HideInTray();else{trayRestoreState=WindowState;if(trayIcon!=null)trayIcon.Visible=false;}};
+   Closed+=(s,e)=>{saveTimer.Stop();refreshTimer.Stop();activityTimer.Stop();lifetime.Cancel();if(trayIcon!=null){trayIcon.Visible=false;trayIcon.Dispose();}if(trayImage!=null)trayImage.Dispose();};
    Loaded+=async(s,e)=>{if(App.RenderingPreview)return;if(App.UpdateTicket.Length>0){await FinishDownloadedUpdate();return;}if(AutoUpdates.IsChecked==true){try{await Task.Delay(1500,lifetime.Token);await CheckForUpdates(false);}catch(OperationCanceledException){}}};
   }
   void AddNav(string title,string icon){
    var line=new StackPanel{Orientation=Orientation.Horizontal};line.Children.Add(new TextBlock{Text=icon,FontFamily=new FontFamily("Segoe MDL2 Assets"),FontSize=15,Width=30,VerticalAlignment=VerticalAlignment.Center});line.Children.Add(new TextBlock{Text=title,FontSize=13});
    var button=new Button{Content=line,HorizontalContentAlignment=HorizontalAlignment.Left,Padding=new Thickness(12,11,12,11),Margin=new Thickness(0,0,0,7),BorderBrush=Brushes.Transparent,Background=Brushes.Transparent};button.Click+=(s,e)=>ShowPage(title);Navigation.Children.Add(button);nav.Add(title,button);
   }
+  void StartSetupActivity(string message){activity.Start(message,DateTime.UtcNow);SetupActivityPanel.Visibility=Visibility.Visible;DismissSetupButton.IsEnabled=false;SetupProgress.Visibility=Visibility.Visible;ReportSetupActivity(message,-1);activityTimer.Start();}
+  void ReportSetupActivity(string message,int percent){activity.Report(message,percent,DateTime.UtcNow);OperationText.Text=message;OperationTiming.Text=activity.Timing(DateTime.UtcNow);SetupProgress.IsIndeterminate=percent<0;if(percent>=0)SetupProgress.Value=Math.Max(0,Math.Min(100,percent));if(trayIcon!=null){string label="Rubi-Ka Horizon: "+message.Replace('\r',' ').Replace('\n',' ');trayIcon.Text=label.Substring(0,Math.Min(63,label.Length));}}
+  void StopSetupActivity(){activity.Stop(DateTime.UtcNow);activityTimer.Stop();OperationTiming.Text=activity.Timing(DateTime.UtcNow);DismissSetupButton.IsEnabled=true;SetupProgress.IsIndeterminate=false;SetupProgress.Visibility=Visibility.Collapsed;}
+  void DismissSetup_Click(object s,RoutedEventArgs e){if(!busy)SetupActivityPanel.Visibility=Visibility.Collapsed;}
+  void OpenSetupLog_Click(object s,RoutedEventArgs e){try{string path=Path.Combine(App.StateRoot,"last-setup.log");if(File.Exists(path))Process.Start(new ProcessStartInfo(path){UseShellExecute=true});else OpenData_Click(s,e);}catch(Exception ex){MessageBox.Show(this,ex.Message,"Setup log",MessageBoxButton.OK,MessageBoxImage.Information);}}
+  internal bool TrayVisible{get{return trayIcon!=null&&trayIcon.Visible;}}
+  internal void RestoreFromTray(){var restore=trayRestoreState;Show();WindowState=restore;if(trayIcon!=null)trayIcon.Visible=false;if(!App.RenderingPreview)Activate();}
+  void HideInTray(){
+   try{
+    if(trayIcon==null){
+     trayImage=System.Drawing.Icon.ExtractAssociatedIcon(SetupService.ExePath)??(System.Drawing.Icon)System.Drawing.SystemIcons.Application.Clone();
+     trayIcon=new System.Windows.Forms.NotifyIcon{Icon=trayImage,Text="Rubi-Ka Horizon"};
+     var menu=new System.Windows.Forms.ContextMenuStrip();menu.Items.Add("Open Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(RestoreFromTray)));menu.Items.Add("Open setup log",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>OpenSetupLog_Click(null,null))));menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());menu.Items.Add("Exit Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>{RestoreFromTray();Close();})));trayIcon.ContextMenuStrip=menu;
+     trayIcon.MouseClick+=(s,e)=>{if(e.Button==System.Windows.Forms.MouseButtons.Left)Dispatcher.BeginInvoke(new Action(RestoreFromTray));};
+    }
+    trayIcon.Visible=true;Hide();
+   }catch(Exception ex){App.Trace("Tray icon unavailable; using taskbar minimization: "+ex.Message);}
+  }
+  internal void PreviewSetupActivity(){var now=DateTime.UtcNow;StartSetupActivity("Restoring previous installation: 14,345 / 58,475 files");activity.Start(OperationText.Text,now.AddSeconds(-85));activity.Report(OperationText.Text,24,now.AddSeconds(-12));SetupProgress.IsIndeterminate=false;SetupProgress.Value=24;OperationTiming.Text=activity.Timing(now);}
   void ShowPage(string page){
    GraphicsPage.Visibility=page=="Graphics"?Visibility.Visible:Visibility.Collapsed;
    InstallationPage.Visibility=page=="Installation"?Visibility.Visible:Visibility.Collapsed;
@@ -96,7 +122,7 @@ namespace Horizon {
   }
   void UpdateState(){
    bool has=store!=null,installed=has&&File.Exists(Path.Combine(client,"ao-vk.dll"));
-   GraphicsPage.IsEnabled=installed&&!busy;InstallationPage.IsEnabled=!busy;LaunchButton.IsEnabled=has&&!busy;InstallButton.IsEnabled=has&&!busy;
+   SettingsList.IsEnabled=installed&&!busy;PresetControls.IsEnabled=installed&&!busy;InstallationPage.IsEnabled=!busy;LaunchButton.IsEnabled=has&&!busy;InstallButton.IsEnabled=has&&!busy;
    InstallButton.Content=detected==null?"Checking installation…":MemoryChanged&&detected.GraphicsCurrent&&detected.AppCurrent?"Apply memory setting":detected.PrimaryAction;InstallButton.IsEnabled=has&&!busy&&detected!=null&&(!(detected.AppCurrent&&detected.GraphicsCurrent)||MemoryChanged);
    if(LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){InstallButton.Content="Choose Lite or Full HD above";InstallButton.IsEnabled=false;}
    RemoveFullHdButton.IsEnabled=!busy&&detected!=null&&detected.Edition=="full";
@@ -123,6 +149,8 @@ namespace Horizon {
   }
   public void Status(string title,string detail){SaveStatus.Text=title;SaveDetail.Text=detail;}
   void Filter(){if(!ready||catalog==null)return;string text=Search.Text.Trim(),section=SectionFilter.SelectedItem as string??"Common settings";
+   bool keybinds=section=="Keybinds";KeybindsView.Visibility=keybinds?Visibility.Visible:Visibility.Collapsed;SettingsList.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;PresetControls.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;
+   if(keybinds){var rows=KeybindHelp.All.Where(x=>text.Length==0||x.SearchText.IndexOf(text,StringComparison.OrdinalIgnoreCase)>=0).ToList();var view=new System.Windows.Data.ListCollectionView(rows);view.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Group"));KeybindsList.ItemsSource=view;return;}
    var result=catalog.settings.Where(x=>(section=="Common settings"?x.Quick:section=="All settings"||x.section==section)&&
     (text.Length==0||(x.Title+" "+x.label+" "+x.section+" "+x.key).IndexOf(text,StringComparison.OrdinalIgnoreCase)>=0)).ToList();
    // Searching always reaches every setting, independent of the recommended list.
@@ -130,9 +158,11 @@ namespace Horizon {
    SettingsList.ItemsSource=result;
   }
   void Filter_Changed(object sender,TextChangedEventArgs e){Filter();}void Section_Changed(object sender,SelectionChangedEventArgs e){Filter();}
+  void Keybinds_Click(object sender,RoutedEventArgs e){Search.Text="";SectionFilter.SelectedItem="Keybinds";}
+  internal void PreviewKeybinds(){ShowPage("Graphics");Keybinds_Click(null,null);}
   void Graphics_Click(object s,RoutedEventArgs e){ShowPage("Graphics");}void Installation_Click(object s,RoutedEventArgs e){ShowPage("Installation");}
   void Browse_Click(object s,RoutedEventArgs e){if(busy)return;using(var dialog=new System.Windows.Forms.FolderBrowserDialog{Description="Choose the classic Anarchy Online folder",SelectedPath=client,ShowNewFolderButton=false})if(dialog.ShowDialog()==System.Windows.Forms.DialogResult.OK)Choose(dialog.SelectedPath,true);}
-  void Refresh_Click(object s,RoutedEventArgs e){if(SavePending()){RefreshSettings(true);Status("Settings refreshed.","Changes made in the game are shown here too.");}}
+  void Refresh_Click(object s,RoutedEventArgs e){if(store==null||busy)return;if(SavePending()){RefreshSettings(true);Status("Settings refreshed.","Changes made in the game are shown here too.");}}
   void Preset_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;var p=PresetPicker.SelectedItem as Preset;if(p==null)return;try{store.Save(p.values);RefreshSettings(true);Status(p.name+" preset saved.","Personal options excluded by this preset are preserved.");UpdateState();}catch(Exception ex){Status("Preset could not be saved.",ex.Message);}}
   void Undo_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;try{store.Undo();RefreshSettings(true);Status("Previous settings restored.","AO will pick up the restored values automatically.");UpdateState();}catch(Exception ex){Status("Undo paused to preserve newer settings.",ex.Message);}}
   async Task Operation(string action){
@@ -140,17 +170,17 @@ namespace Horizon {
    if((action=="Install"||action=="Update"||action=="Repair")&&LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){ShowPage("Installation");Status("Choose Lite or Full HD first.","Lite keeps the original textures. Full HD installs the new artwork.");return;}
    try{SetupService.AssertSelectedClientClosed(client);}catch(Exception ex){Status("Close this AO client before setup.",ex.Message);return;}
    if((action=="Uninstall"||action=="Reset settings")&&MessageBox.Show(this,action=="Uninstall"?"Remove the graphics add-on from this AO folder? Personal files and preferences are kept.":"Reset graphics preferences to their defaults? The current settings file is backed up first. Close AO and its launcher before continuing.",action=="Uninstall"?"Remove graphics":"Reset settings",MessageBoxButton.OKCancel,MessageBoxImage.Question)!=MessageBoxResult.OK)return;
-   busy=true;ShowPage("Installation");SetupProgress.Visibility=Visibility.Visible;SetupProgress.IsIndeterminate=true;UpdateState();
+   busy=true;ShowPage("Installation");StartSetupActivity("Checking saved setup files before "+action.ToLowerInvariant()+"…");UpdateState();
    OperationText.Text=action=="Repair"?"Checking the installed files. Full HD includes the artwork and prepared cache; this can take several minutes.":"Preparing setup…";
    Status(action=="Repair"?"Repair in progress…":"Setup in progress…","Settings are temporarily locked while setup checks this installation.");
    try{
     SavePreferences();
     if((action=="Install"||action=="Update")&&!SetupService.AppInstalled){OperationText.Text="Installing the Horizon application…";await Task.Run(()=>SetupService.InstallApp());}
-    await SetupService.Run(action,client,FullChoice.IsChecked==true?"full":"lite",(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{OperationText.Text=message;SetupProgress.IsIndeterminate=percent<0;if(percent>=0)SetupProgress.Value=Math.Max(0,Math.Min(100,percent));})),MemoryOption.IsChecked!=true);
+    await SetupService.Run(action,client,FullChoice.IsChecked==true?"full":"lite",(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>ReportSetupActivity(message,percent))),MemoryOption.IsChecked!=true);
     OperationText.Text=action=="Uninstall"?"Graphics removed. Your preferences and personal files were preserved.":action=="Reset settings"?"Settings reset. Defaults will be created when AO starts again.":"Installation finished. You can launch AO from the sidebar.";
     if(action=="Reset settings")store=new SettingsStore(client,catalog.settings);RefreshSettings(true);Status("Finished.",OperationText.Text);
-   }catch(Exception ex){OperationText.Text=ex.Message;Status("Setup did not finish.","Your installation remains protected by the existing recovery checks. See the setup log for details.");MessageBox.Show(this,ex.Message,"Horizon setup",MessageBoxButton.OK,MessageBoxImage.Information);}
-   finally{busy=false;memoryEdited=false;SetupProgress.IsIndeterminate=false;SetupProgress.Visibility=Visibility.Collapsed;await RefreshInstalled(true);UpdateState();}
+   }catch(Exception ex){OperationText.Text=ex.Message;StopSetupActivity();Status("Setup did not finish.","Your installation remains protected by the existing recovery checks. See the setup log for details.");MessageBox.Show(this,ex.Message,"Horizon setup",MessageBoxButton.OK,MessageBoxImage.Information);}
+   finally{StopSetupActivity();busy=false;memoryEdited=false;await RefreshInstalled(true);UpdateState();}
   }
   async void Install_Click(object s,RoutedEventArgs e){await RefreshInstalled(true);if(detected!=null&&detected.GraphicsCurrent&&!MemoryChanged){await InstallAppOnly();return;}await Operation(File.Exists(Path.Combine(client,"ao-vk-live.install.json"))?"Update":"Install");await RefreshInstalled(true);}
   async void RemoveFullHd_Click(object s,RoutedEventArgs e){
@@ -198,17 +228,17 @@ namespace Horizon {
    catch(Exception ex){UpdateMessage.Text="Could not apply the update.";UpdateDetail.Text=ex.Message;}
   }
   async Task FinishDownloadedUpdate(){
-   ShowPage("Updates");busy=true;UpdateState();UpdateProgress.Visibility=Visibility.Visible;UpdateProgress.IsIndeterminate=true;UpdateMessage.Text="Applying the verified Horizon update…";
+   ShowPage("Updates");busy=true;StartSetupActivity("Applying the verified Horizon update…");UpdateState();UpdateProgress.Visibility=Visibility.Visible;UpdateProgress.IsIndeterminate=true;UpdateMessage.Text="Applying the verified Horizon update…";
    try{
     var ticket=await Task.Run(()=>UpdateService.ReadHandoff(App.UpdateTicket));string target=(string)ticket["client"],edition=(string)ticket["edition"];Choose(target,false);FullChoice.IsChecked=edition=="full";LiteChoice.IsChecked=edition=="lite";MemoryOption.IsChecked=!Convert.ToBoolean(ticket["skipMemoryChange"]);
     string installed=await Task.Run(()=>{SetupService.AssertSelectedClientClosed(target);return SetupService.InstallApp();});
     bool current=await Task.Run(()=>UpdateService.GraphicsCurrent(target,edition));
-    if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}
+    if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{ReportSetupActivity(message,percent);UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}
     SavePreferences();UpdateMessage.Text="Update finished.";UpdateDetail.Text=current?"The bundled graphics are already installed; no texture verification or download was needed.":"Horizon and the selected AO graphics are updated.";
     // Start the installed app, so future launches use the updated Start-menu copy.
     using(var parent=Process.GetCurrentProcess())Process.Start(new ProcessStartInfo(installed,"--state-root \""+App.StateRoot+"\" --client \""+target+"\" --wait-horizon-parent "+parent.Id+" "+parent.StartTime.ToUniversalTime().Ticks){UseShellExecute=true});busy=false;Close();
-   }catch(Exception ex){UpdateMessage.Text="The update could not finish.";UpdateDetail.Text=ex.Message+" Any completed Horizon app update is kept; AO graphics use the installer's recovery checks.";App.Trace("Update failed: "+ex.Message);}
-   finally{busy=false;UpdateProgress.IsIndeterminate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}
+   }catch(Exception ex){ReportSetupActivity(ex.Message,-1);UpdateMessage.Text="The update could not finish.";UpdateDetail.Text=ex.Message+" Any completed Horizon app update is kept; AO graphics use the installer's recovery checks.";App.Trace("Update failed: "+ex.Message);}
+   finally{StopSetupActivity();busy=false;UpdateProgress.IsIndeterminate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}
   }
   void PrepareReport_Click(object s,RoutedEventArgs e){
    if(sendingReport)return;try{preparedReport=IssueReports.Prepare(client,IssueTitle.Text,IssueDescription.Text,IncludeLogs.IsChecked==true);ReportPreview.Text=preparedReport.Body;ReportReviewBlock.Visibility=Visibility.Visible;SendReportButton.IsEnabled=true;OpenReportButton.IsEnabled=true;ReportMessage.Text="Review the report below. Send report emails these excerpts to dev@asyncstuff.com through asyncstuff.com. A ZIP is also saved locally.";}

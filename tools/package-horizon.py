@@ -1,5 +1,5 @@
 """Build the single-EXE Horizon preview; no network or publication performed."""
-import argparse,hashlib,json,struct,shutil,re
+import argparse,hashlib,json,struct,shutil,re,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):
@@ -22,4 +22,12 @@ def main():
   engineRevision=59,engineSha256=pin['sha256'],liteTextureDownloads=False,fullPreparedCacheFiles=14345,
   requires='Windows 10/11 x64 with .NET Framework 4.8')
  (a.output.parent/'BUILD.json').write_text(json.dumps(report,indent=2),encoding='utf8');print(json.dumps(report,indent=2))
+ # Carry every permanent website/admin download in each stable release.
+ plugin=a.output.parent/'rubika-horizon-reports-wordpress.zip'
+ with zipfile.ZipFile(plugin,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as archive:
+  for file in sorted((ROOT/'apps/wordpress/horizon-reports').glob('*')):
+   if file.is_file():
+    entry=zipfile.ZipInfo('rubika-horizon-reports/'+file.name,date_time=(2026,1,1,0,0,0));entry.compress_type=zipfile.ZIP_DEFLATED;entry.external_attr=0o644<<16;archive.writestr(entry,file.read_bytes())
+ setup=a.output.parent/'WORDPRESS-SETUP.txt';shutil.copyfile(ROOT/'apps/wordpress/horizon-reports/README.txt',setup)
+ (a.output.parent/'SHA256SUMS.txt').write_text(''.join(f'{sha(p)}  {p.name}\n' for p in [a.output,plugin,setup]),encoding='ascii')
 if __name__=='__main__':main()

@@ -59,7 +59,7 @@ namespace Horizon {
    using(var request=new HttpRequestMessage(HttpMethod.Get,Endpoint+"/status"))using(var status=await client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,cancel)){
     if(!status.IsSuccessStatusCode)throw new IOException("The reporting service is not available. Your report ZIP is saved.");
     var state=await ReadReply(status,cancel);if(!state.ContainsKey("enabled")||!(state["enabled"] is bool)||!(bool)state["enabled"])throw new IOException("The site owner has not enabled reporting yet. Your report ZIP is saved.");
-    if(!state.ContainsKey("schema")||Convert.ToInt32(state["schema"])!=1||!state.ContainsKey("encoding")||(state["encoding"] as string)!="gzip-base64")throw new IOException("The WordPress reporting plugin needs updating before it can receive full logs. Your report ZIP is saved.");
+    if(!state.ContainsKey("schema")||Convert.ToInt32(state["schema"])!=1||!state.ContainsKey("encoding")||(state["encoding"] as string)!="gzip-base64")throw new IOException("The WordPress receiver needs Horizon Reports 1.0.1 or newer for full logs. Replace the older plugin; your report ZIP is saved.");
    }
    using(var request=new HttpRequestMessage(HttpMethod.Post,Endpoint){Content=new StringContent(body,Encoding.UTF8,"application/json")})using(var response=await client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead,cancel)){
     int status=(int)response.StatusCode;if(status==404||status==503)throw new IOException("The reporting service is not available. Your report ZIP is saved and can be emailed to dev@asyncstuff.com.");

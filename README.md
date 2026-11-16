@@ -1,4 +1,10 @@
-# Rubi-Ka Horizon 0.7.0
+# Rubi-Ka Horizon 0.7.1
+
+Installation now shows the actual installed app version, graphics revision and
+Lite/Full HD edition separately from the running copy. Current installations
+offer app-only or graphics-only updates as needed. One interactive Horizon copy
+is allowed per user desktop; another launch activates the existing window.
+The report review appears only after Prepare report has generated it.
 
 [Download the latest stable Horizon installer](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe).
 Horizon checks for new stable releases on startup and has a dedicated **Updates**

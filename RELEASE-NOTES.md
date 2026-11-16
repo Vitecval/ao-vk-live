@@ -1,4 +1,22 @@
-# Rubi-Ka Horizon 0.7.0
+# Rubi-Ka Horizon 0.7.1
+
+- Detect installed Horizon independently of the running portable copy. Show the
+  installed app version, actual graphics revision and Lite/Full HD edition.
+- Choose Install, Update app, Update graphics or Up to date from those separate
+  states. Unchanged file metadata avoids repeated app/renderer hashing during
+  the UI refresh timer. App-only installation leaves graphics/cache alone.
+- Updates now clearly names the running app, installed app and selected graphics;
+  its result distinguishes missing components from current ones.
+- Limit the interactive app to one copy per Windows user desktop. Duplicate
+  launches signal/activate the owner and exit. Update handoffs wait for the old
+  parent before taking the lock. Close extra legacy 0.7.0 copies once when moving
+  to this release; an older copy still open is preserved and brought forward.
+- Hide the empty report preview until generation, then label it Review report.
+  Explain that full-log sending requires WordPress receiver 1.0.1 or newer.
+- The renderer stays r59. Preferences, Full cache and Lite texture behavior stay
+  unchanged. The permanent installer URL continues to work.
+
+## 0.7.0
 
 - First stable application release. The permanent installer link uses GitHub's
   Latest stable release and the fixed name `Rubi-Ka-Horizon-Setup.exe`.

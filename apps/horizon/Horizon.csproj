@@ -20,9 +20,11 @@
     <Compile Include="SettingsStore.cs"/><Compile Include="SetupService.cs"/><Compile Include="SettingRow.cs"/><Compile Include="SelfTests.cs"/>
     <Compile Include="UpdateService.cs"/><Compile Include="IssueReports.cs"/>
     <Compile Include="UpdateTests.cs"/>
+    <Compile Include="SingleInstance.cs"/><Compile Include="InstallDetection.cs"/>
     <Resource Include="Assets\landscape.png"/><Resource Include="Assets\settings.json"/>
     <Resource Include="Assets\lite-manifest.json.gz"/><Resource Include="Assets\full-manifest.json.gz"/>
     <Resource Include="Assets\engine.json"/><Resource Include="Assets\horizon.ico"/>
+    <Resource Include="Assets\graphics-versions.json"/>
     <Resource Include="Assets\core-files.json"/><Resource Include="Assets\temporary-assets.txt.gz"/>
     <EmbeddedResource Include="..\..\tools\install-live.ps1"><LogicalName>Horizon.InstallLive.ps1</LogicalName></EmbeddedResource>
     <EmbeddedResource Include="..\..\tools\material-cache.ps1"><LogicalName>Horizon.MaterialCache.ps1</LogicalName></EmbeddedResource>

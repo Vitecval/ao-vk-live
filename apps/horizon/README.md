@@ -1,4 +1,13 @@
-# Rubi-Ka Horizon — 0.7.0
+# Rubi-Ka Horizon — 0.7.1
+
+`InstallDetection` separates the running version, owned installed app, actual
+renderer hash/revision, installation record and selected edition. File metadata
+keys limit expensive verification to changed states and explicit checks. The
+interactive app uses a per-user desktop mutex and activation event, independent
+of portable path/version/state folder. Only isolated diagnostics bypass the
+interactive gate; updater successors wait for their parent before acquiring it.
+Headless two-process tests verify ownership and activation signaling without
+bringing any real app/game window forward.
 
 Companion application and installer built around the verified Preview 24 r59 engine.
 The application keeps the existing r59 renderer and material archive hashes.

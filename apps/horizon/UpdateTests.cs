@@ -64,6 +64,20 @@ namespace Horizon {
    Check(UpdateService.GraphicsCurrent(clientDir,"full"),"A full-sized matching receipt skips texture verification during app-only updates");
    Check(!UpdateService.GraphicsCurrent(clientDir,"lite"),"Changing edition still requests a graphics update");
    File.WriteAllText(Path.Combine(clientDir,"ao-vk.dll"),"changed renderer");Check(!UpdateService.GraphicsCurrent(clientDir,"full"),"A changed renderer cannot be treated as already current");File.Copy(Path.Combine(core,"ao-vk.dll"),Path.Combine(clientDir,"ao-vk.dll"),true);
+   full["clientDirectory"]=clientDir;File.WriteAllText(receipt,json.Serialize(full));
+   var installedState=InstallDetection.Read(clientDir,"full",appDir);Check(installedState.AppPresent&&installedState.AppManaged&&installedState.AppCurrent&&installedState.AppVersion==SetupService.Version,"Installation detection recognizes the owned app independently of the running copy's location");
+   Check(installedState.GraphicsManaged&&installedState.GraphicsCurrent&&installedState.GraphicsVersion=="r59"&&installedState.Edition=="full","Installation detection identifies r59 Full HD from the actual renderer hash and matching receipt");
+   Check(installedState.PrimaryAction.Contains("up to date"),"A fully current app and graphics are not offered another installation");
+   var noApp=InstallDetection.Read(clientDir,"full",Path.Combine(root,"no-app"));Check(noApp.GraphicsCurrent&&!noApp.AppPresent&&noApp.PrimaryAction=="Install Horizon app","Existing graphics without a Start-menu app offer an app-only install");
+   record["version"]="0.7.0";File.WriteAllText(ownership,json.Serialize(record));var older=InstallDetection.Read(clientDir,"full",appDir);Check(older.AppPresent&&!older.AppCurrent&&older.AppVersion=="0.7.0"&&older.PrimaryAction=="Update Horizon app","An older installed app is shown as installed and offers an update rather than a fresh combined install");
+   var missing=InstallDetection.Read(Path.Combine(root,"no-game"),"lite",Path.Combine(root,"no-app"));Check(!missing.GraphicsPresent&&!missing.AppPresent&&missing.PrimaryAction=="Install Horizon + graphics","A genuinely missing installation offers installation of both components");
+   string scope=Guid.NewGuid().ToString("N"),ownerRoot=Path.Combine(root,"singleton-owner"),secondRoot=Path.Combine(root,"singleton-secondary");Directory.CreateDirectory(ownerRoot);Directory.CreateDirectory(secondRoot);
+   Func<string,System.Diagnostics.Process> startProbe=dir=>System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(SetupService.ExePath,"--singleton-probe "+scope+" --state-root \""+dir+"\""){UseShellExecute=false,CreateNoWindow=true,WindowStyle=System.Diagnostics.ProcessWindowStyle.Hidden});
+   using(var first=startProbe(ownerRoot)){
+    for(int i=0;i<100&&!File.Exists(Path.Combine(ownerRoot,"probe-ready.txt"));i++)await Task.Delay(50);
+    Check(File.Exists(Path.Combine(ownerRoot,"probe-ready.txt")),"The first isolated process acquires the single-instance gate");
+    using(var second=startProbe(secondRoot)){bool secondExit=await Task.Run(()=>second.WaitForExit(10000));bool firstExit=await Task.Run(()=>first.WaitForExit(10000));Check(secondExit&&firstExit&&second.ExitCode==0&&first.ExitCode==0&&File.ReadAllText(Path.Combine(secondRoot,"probe-result.txt"))=="secondary:True"&&File.ReadAllText(Path.Combine(ownerRoot,"probe-result.txt"))=="owner:True","A second real process exits and activates the first without opening a second window");}
+   }
    string oldLog=Path.Combine(clientDir,"randy-vk.log"),latestLog=Path.Combine(clientDir,"randy-vk.old.log");File.WriteAllText(oldLog,"OLD_UNSELECTED_LOG");File.SetLastWriteTimeUtc(oldLog,DateTime.UtcNow.AddHours(-2));File.WriteAllText(latestLog,"GPU timing 22 ms\npassword=do-not-send\nuser@example.test\n"+clientDir+"\\file\nLATEST_LOG_MARKER");File.SetLastWriteTimeUtc(latestLog,DateTime.UtcNow);
    File.WriteAllText(Path.Combine(clientDir,"chat.log"),"PRIVATE_CHAT_MUST_NOT_BE_READ");string oldHash=SetupService.Hash(latestLog);
    var report=IssueReports.Prepare(clientDir,"Performance issue","Looking up flickers",true);

@@ -308,6 +308,8 @@ add_executable(preview23_settings_check tests/preview23_settings_check.cpp)
   target_include_directories(zoning_window_check PRIVATE proxy third_party rvk)
   target_link_libraries(zoning_window_check PRIVATE rvk user32 gdi32)
 target_include_directories(preview23_settings_check PRIVATE proxy)
+add_executable(horizon_catalog_export apps/horizon/native/catalog_export.cpp)
+target_include_directories(horizon_catalog_export PRIVATE proxy)
 
 
 add_executable(fsr_lifecycle_check tests/fsr_lifecycle_check.cpp proxy/native/stb_image.cpp)

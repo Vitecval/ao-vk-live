@@ -1,4 +1,23 @@
-# AO-VK Live Preview 24
+# Rubi-Ka Horizon 0.7.0 Preview 1
+
+- One Windows EXE for installation and live graphics settings. Minimal interface
+  with existing AO landscape artwork, search, presets and guarded Undo.
+- Lite retains the original world textures and downloads no texture packs.
+  Full HD reuses the 19 pinned Preview 24 companions and 14,345 prepared cache
+  files. The bundled renderer is unchanged r59.
+- Install, update, repair, reset settings and remove graphics from the app.
+  Install the app to the current user's Start menu or use the portable EXE.
+- Fixed the white disabled settings list while setup is busy. Setup status and
+  a continuously flushed log now explain lengthy Full HD verification.
+- Removed quadratic Full HD receipt-list updates, replaced repeated scans of
+  changed file paths with hashed lookups, and removed duplicate reads of each
+  verified staged file. All integrity and transaction recovery checks remain.
+- A selected-client check blocks setup before expensive preparation if that
+  client is running; shared loader checks remain in the 32-bit installer.
+- Preview limitations: a new online 28.2 GB Full installation and retail live
+  setting changes have not been revalidated end-to-end on other hardware.
+
+## AO-VK Live Preview 24 engine
 
 ## Revision 59 update
 

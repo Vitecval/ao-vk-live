@@ -103,7 +103,10 @@ foreach ($target in $targets) {
 }
 # Asset paths are restricted to the reserved packs and the exact model-index file.
 # Never trust a manifest or install record to write/remove an arbitrary path.
-$assetHashes = [ordered]@{}
+# OrderedDictionary updates scan its key array. Replacing tens of thousands of
+# existing receipt entries made Full HD repair quadratic before hashing began.
+# No transaction depends on asset iteration order; keyed hashes stay identical.
+$assetHashes = @{}
 $newAssetHashes = @{}
 $oldAssetHashes = @{}
 if ($receipt -and $receipt.assets) {
@@ -114,9 +117,12 @@ if ($receipt -and $receipt.assets) {
 }
 if ($manifest.assets) {
     if ($ProgressCallback) { & $ProgressCallback 'Building the list of files to check...' -1 }
+    $listedAssets = 0
     foreach ($item in $manifest.assets.PSObject.Properties) {
         $newAssetHashes[$item.Name] = [string]$item.Value
         $assetHashes[$item.Name] = [string]$item.Value
+        $listedAssets++
+        if ($ProgressCallback -and $listedAssets % 5000 -eq 0) { & $ProgressCallback "Listing installed assets: $listedAssets" -1 }
     }
 }
 foreach ($relative in $assetHashes.Keys) {
@@ -181,6 +187,8 @@ foreach ($target in $targets) {
         $unchangedTargets.Add($target)
     } else { $changingTargets.Add($target) }
 }
+$changingTargetSet = New-Object 'Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+foreach ($target in $changingTargets) { $null=$changingTargetSet.Add($target) }
 function Assert-AoClientClosed {
 foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness')) {
     # Windows can keep terminated processes in its list while another program holds a handle.
@@ -197,7 +205,7 @@ foreach ($name in @('AnarchyOnline', 'Anarchy', 'AnarchyPatcher', 'randy_harness
         foreach ($modulePath in $modulePaths) {
             if (!$modulePath) { continue }
             if ($modulePath.StartsWith($client + '\', [StringComparison]::OrdinalIgnoreCase)) { $usesClient = $true }
-            elseif ($changingTargets -icontains $modulePath) {
+            elseif ($changingTargetSet.Contains($modulePath)) {
                 if ($Uninstall) {
                     if (!$preservedTargets.Contains($modulePath)) {
                         $preservedTargets.Add($modulePath)
@@ -373,18 +381,23 @@ try {
         $temp = Join-Path (Split-Path -Parent $target) ('.' + $name + '.installing-' + [guid]::NewGuid().ToString('N'))
         if ($fileSpecs[$target].retire) { $staged.Add($null); continue }
         $staged.Add($temp)
+        $preparedHash = $null
         if ($target -ieq $receiptPath) {
             [IO.File]::WriteAllText($temp, ($record | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
         } elseif ($fileSpecs[$target].generated) {
             [IO.File]::WriteAllText($temp, '') # Filled after all source stages exist.
         } elseif ($fileSpecs[$target].special) {
             [IO.File]::WriteAllBytes($temp, $fileSpecs[$target].bytes)
-            if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Executable memory-patch staging verification failed.' }
+            $preparedHash = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
+            if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Executable memory-patch staging verification failed.' }
         } else {
             Copy-Item -LiteralPath (Join-Path $package $fileSpecs[$target].relative) -Destination $temp
-            if ((Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
+            $preparedHash = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
+            if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
         }
-        $stageHashes[$target] = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
+        # Reuse this just-verified staged hash instead of rereading the entire
+        # Full HD artwork a second time. Commit still rechecks original files.
+        $stageHashes[$target] = if ($preparedHash) { $preparedHash } else { (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash }
         if ($fileSpecs[$target].relative) { $stageSources[$fileSpecs[$target].relative] = $temp }
     }
     if ($manifest.preparedMaterials) {

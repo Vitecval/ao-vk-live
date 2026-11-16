@@ -1,4 +1,15 @@
-# AO-VK Live Preview 24
+# Rubi-Ka Horizon 0.7.0 Preview 1
+
+The new Windows application combines installation, repair, removal and live AO
+graphics settings. Choose Lite (no texture downloads) or Full HD (the existing
+texture packs and 14,345 prepared cache files) inside the same EXE. The graphics
+engine remains Preview 24 r59. [Application details and build](apps/horizon/README.md).
+
+This preview fixes disabled settings turning white during setup, reports repair
+progress continuously, and reduces large Full HD file-list and staging overhead.
+Existing settings, personal files and resumable Full downloads are preserved.
+
+## AO-VK Live Preview 24 engine
 
 ## Revision 55 update
 

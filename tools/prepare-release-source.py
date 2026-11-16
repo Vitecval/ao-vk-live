@@ -4,8 +4,8 @@ import argparse,hashlib,json,shutil
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-DIRECTORIES=['cmake','docs','ghidra-scripts','interface','proxy','rvk','tests','third_party','tools','release','licenses','material-packs','.github']
-ROOT_FILES=['.gitignore','.gitattributes','README.md','CHANGELOG.md','CMakeLists.txt','CMakePresets.json','LICENSE','THIRD-PARTY-NOTICES.md','RELEASE-NOTES.md']
+DIRECTORIES=['apps','cmake','docs','ghidra-scripts','interface','proxy','rvk','tests','third_party','tools','release','licenses','material-packs','.github']
+ROOT_FILES=['.gitignore','.gitattributes','README.md','CHANGELOG.md','CMakeLists.txt','CMakePresets.json','LICENSE','LICENSE-TEXTURES.md','THIRD-PARTY-NOTICES.md','RELEASE-NOTES.md']
 EXCLUDED_PARTS={'.git','.codex','.agents','.aws','__pycache__','private'}
 EXCLUDED_SUFFIXES={'.dll','.exe','.lib','.obj','.pdb','.pyc','.zip','.7z','.log','.dmp','.cache','.tmp','.bak','.bmp'}
 

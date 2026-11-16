@@ -1,0 +1,24 @@
+"""Build the single-EXE Horizon preview; no network or publication performed."""
+import argparse,hashlib,json,struct,shutil
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+def sha(p):
+ with p.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'build/horizon-preview/minimal/Rubi-Ka Horizon Setup.exe');a=p.parse_args()
+ source=ROOT/'build/horizon-preview/app/Rubi-Ka Horizon.exe'
+ core=ROOT/'build/preview24/release-r59/ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
+ metadata=json.loads((ROOT/'apps/horizon/Assets/engine.json').read_text(encoding='utf8'))
+ pin={'sha256':metadata['fullSetupSha256']}
+ assert metadata['revision']==59 and sha(core)==pin['sha256']
+ assert source.read_bytes()[:2]==b'MZ'
+ a.output.parent.mkdir(parents=True,exist_ok=True)
+ with a.output.open('wb') as out,source.open('rb') as app,core.open('rb') as payload:
+  shutil.copyfileobj(app,out);offset=out.tell();shutil.copyfileobj(payload,out)
+  out.write(b'RKHCORE1'+struct.pack('<qq',offset,core.stat().st_size)+bytes.fromhex(pin['sha256']))
+ report=dict(product='Rubi-Ka Horizon',version='0.7.0-preview.1',state='release-candidate',published=False,
+  executable=str(a.output.resolve()),sha256=sha(a.output),bytes=a.output.stat().st_size,
+  engineRevision=59,engineSha256=pin['sha256'],liteTextureDownloads=False,fullPreparedCacheFiles=14345,
+  requires='Windows 10/11 x64 with .NET Framework 4.8')
+ (a.output.parent/'BUILD.json').write_text(json.dumps(report,indent=2),encoding='utf8');print(json.dumps(report,indent=2))
+if __name__=='__main__':main()

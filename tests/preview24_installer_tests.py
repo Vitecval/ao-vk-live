@@ -1,5 +1,5 @@
 """Actual setup, portable payload and edition-switch checks in disposable clients."""
-import hashlib,json,os,shutil,subprocess,uuid
+import gzip,hashlib,json,os,subprocess,uuid,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):
@@ -7,7 +7,15 @@ def sha(p):
 def main():
  out=ROOT/'build/preview24'/('installer-'+uuid.uuid4().hex[:8]);out.mkdir()
  host=Path(os.environ['WINDIR'])/'SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
- catalog=(ROOT/'build/preview24/recipes.tsv').read_text().splitlines()
+ bootstrap=ROOT/'build/preview24/release-r59/ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
+ with zipfile.ZipFile(bootstrap) as archive:
+  catalog=archive.read(next(n for n in archive.namelist() if n.endswith('/randy-vk/cache/materials/recipes.tsv'))).decode('utf8').splitlines()
+ public=json.loads(gzip.decompress((ROOT/'apps/horizon/Assets/full-manifest.json.gz').read_bytes()))
+ part_for={relative:part['name'] for part in public['materialParts'] for relative in part['files']}
+ def published_asset(relative):
+  with zipfile.ZipFile(ROOT/'dist/releases/0.6.0-preview.24'/part_for[relative]) as archive:data=archive.read(relative)
+  assert hashlib.sha256(data).hexdigest()==public['assets'][relative],relative
+  return data
  recipe=next(x for x in catalog[1:] if '/1010004_200348_n.png' in x)
  fields=recipe.split('\t');cache='randy-vk/cache/materials/'+fields[0]+'.rvkm'
  package=out/'Full setup';client=out/'AO [personal]';package.mkdir();client.mkdir()
@@ -16,10 +24,10 @@ def main():
  for n in ['ao-vk.dll','ddraw.dll']:put(package/n,('fixture '+n).encode())
  assets={}
  for relative in set(filter(None,fields[1:])):
-  src=Path(r'F:\AO_SInstall\Anarchy Online')/relative;dst=package/relative;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dst)
+  dst=package/relative;put(dst,published_asset(relative))
   os.utime(dst,(1700000000,1700000000)) # Deliberately unlike the prepared source stamps.
   assets[relative]=sha(dst)
- p=package/cache;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/'build/preview23/atmosphere-r44/prepared-materials-final'/Path(cache).name,p);assets[cache]=sha(p)
+ p=package/cache;put(p,published_asset(cache));assets[cache]=sha(p)
  rel='randy-vk/cache/materials/recipes.tsv';put(package/rel,('RVK-RECIPES-1\n'+recipe+'\n').encode());assets[rel]=sha(package/rel)
  loading='randy-vk/loading/test.png';put(package/loading,b'loading');assets[loading]=sha(package/loading)
  for name in ['rock_face_03_diff_2k.jpg','rock_face_03_nor_gl_2k.jpg','rock_face_03_arm_1k.jpg','rock-face-03-source.json']:

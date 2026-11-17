@@ -21,6 +21,7 @@ namespace Horizon {
    finally{w.Close();}
   }
   public static void Run(string root){
+   PresetTests.Run(root);
    var activity=new SetupActivity();var start=new DateTime(2026,11,16,0,0,0,DateTimeKind.Utc);
    activity.Start("Reading interrupted update record",start);
    Check(activity.Timing(start.AddSeconds(12)).Contains("No new progress report for 0:12"),"Setup elapsed time remains visible without worker output");

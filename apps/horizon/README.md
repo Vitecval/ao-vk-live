@@ -1,4 +1,19 @@
-# Rubi-Ka Horizon — 0.7.4
+# Rubi-Ka Horizon — 0.7.5
+
+0.7.5 adds a persistent update notice with a link to Updates, Patch notes and
+Suggestions pages, tray launch for the selected AO folder, and named custom
+graphics presets. Suggestions use the existing reviewed anonymous report service
+without reading logs. Automated checks never send a suggestion or launch AO.
+
+Custom presets are stored atomically in Horizon's per-user `presets.json`, with
+a previous-file backup. Their active selection is tracked separately for each
+AO folder. New catalog keys remain red until explicitly changed or confirmed
+with Keep current value; saving under another name preserves pending choices.
+Built-in presets apply only new keys' preset/default values on catalog upgrade,
+leaving existing personal values intact. Older installations' graphics settings
+are preserved; custom-preset tracking begins when a preset is selected or saved.
+F10 integration is deferred. This release reuses the verified r61 graphics and
+existing Full HD library; the private Reworked artwork is not published.
 
 0.7.4 adds indexed quick updates, visible recovery/setup progress, tray minimize,
 searchable Graphics → Keybinds, and optional Vivid Tone (off by default).

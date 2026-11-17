@@ -14,13 +14,15 @@ namespace Horizon {
   public int rendererRevision{get;set;} public List<Setting> settings{get;set;} public List<Preset> presets{get;set;}
   public static Catalog Load(){return new JavaScriptSerializer{MaxJsonLength=4000000}.Deserialize<Catalog>(App.ResourceText("settings.json"));}
  }
- public class Preset {public string name{get;set;}public Dictionary<string,double> values{get;set;}public override string ToString(){return name;}}
+ public class Preset {public string name{get;set;}public string customId{get;set;}public Dictionary<string,double> values{get;set;}public override string ToString(){return name+(string.IsNullOrEmpty(customId)?"":" (Custom)");}}
  public class Choice {public double Value{get;set;} public string Label{get;set;}public override string ToString(){return Label;}}
  public class Setting:INotifyPropertyChanged {
   public string key{get;set;}public string label{get;set;}public string section{get;set;}public int type{get;set;}
   public double min{get;set;}public double max{get;set;}public double step{get;set;}public double defaultValue{get;set;}
   public string parent{get;set;}public string choices{get;set;}
   double current;
+  bool needsReview;
+  public bool NeedsReview{get{return needsReview;}set{if(needsReview==value)return;needsReview=value;Notify("NeedsReview");}}
   public double Value{get{return current;}set{if(Math.Abs(current-value)<.00000001)return;current=value;Notify("Value");Notify("DisplayValue");}}
   public string DisplayValue{get{return type==4?((int)Value).ToString("X6"):Value.ToString("0.###",CultureInfo.InvariantCulture);}}
   public string Title{get{string v;return Titles.TryGetValue(key,out v)?v:label;}}

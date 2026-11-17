@@ -1,4 +1,20 @@
-# Rubi-Ka Horizon 0.7.2
+# Rubi-Ka Horizon 0.7.5
+
+- Available startup updates now show a persistent notice on every page with
+  a View updates button.
+- Added Patch notes and Suggestions pages. Suggestions are prepared and reviewed
+  before sending through the existing private service; no logs are collected.
+- The system tray menu can launch Anarchy Online from the selected folder.
+- Named custom graphics presets save atomically with a previous-file backup.
+  Active selection is tracked per AO folder. New options stay red until explicitly
+  chosen or confirmed; saving as another name retains outstanding decisions.
+- Built-in presets apply defaults only for newly introduced options, preserving
+  existing settings and personal preferences. F10 integration is deferred.
+- Reuses r61 graphics and the existing Full HD library. App-only updates from
+  a current 0.7.4 installation skip texture verification. Private Reworked
+  artwork is excluded from this publication.
+
+## Rubi-Ka Horizon 0.7.2
 
 - Detect installed Horizon independently of the running portable copy. Show the
   installed app version, actual graphics revision and Lite/Full HD edition.

@@ -1,0 +1,19 @@
+0.7.5
+
+• Update notices appear above every page, with a View updates button. Startup checks no longer leave available updates hidden on another tab.
+• Patch notes and Suggestions have their own pages. Suggestions can be prepared, reviewed, saved locally and sent without collecting logs.
+• Right-click the system tray icon to launch Anarchy Online from the selected AO folder.
+• Save custom graphics presets by name. Changes save automatically to the active custom preset.
+• When a new graphics option is added, custom presets mark it red until you choose a value or select Keep current value. Built-in presets receive the new option's default automatically.
+• The in-game F10 interface is unchanged. Horizon's graphics remain available with Ctrl+Shift+F12.
+
+0.7.4
+
+• Faster repeat updates through the asset index; Repair retains a full file check.
+• Visible setup and interrupted-update recovery feedback, including elapsed time and a link to the setup log.
+• Minimize and restore Horizon through the system tray.
+• Graphics keybind explanations and clearer AO startup feedback.
+• Optional Vivid Tone colour enhancement, off by default.
+• Bundled graphics fixes for terrain cliffs, zoning screens, login lighting and restoring AO after switching windows.
+
+0.7.5 uses the same r61 graphics and Full HD library as 0.7.4. The private Reworked artwork is still being prepared and is not included in this release.

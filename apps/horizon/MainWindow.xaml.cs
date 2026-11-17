@@ -34,10 +34,10 @@ namespace Horizon {
   public MainWindow(){
    InitializeComponent();App.Trace("Interface loaded");catalog=Catalog.Load();App.Trace("Settings catalogue loaded");
    foreach(var s in catalog.settings)s.Value=s.defaultValue;
-   AddNav("Graphics","\uE713");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
+   AddNav("Graphics","\uE713");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Patch notes","\uE8A5");AddNav("Suggestions","\uE82F");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
    SidebarVersion.Text=SetupService.Version;AboutVersion.Text=SetupService.Version+" · Stable release";CurrentVersionText.Text="Running Horizon: "+SetupService.Version;
    SectionFilter.Items.Add("Common settings");SectionFilter.Items.Add("All settings");SectionFilter.Items.Add("Keybinds");foreach(var section in catalog.settings.Select(x=>x.section).Distinct().OrderBy(x=>x))SectionFilter.Items.Add(section);SectionFilter.SelectedIndex=0;
-   PresetPicker.ItemsSource=catalog.presets;PresetPicker.SelectedIndex=-1;
+   InitializePresets();PatchNotesText.Text=App.ResourceText("patch-notes.txt");
    Search.ToolTip="Search "+catalog.settings.Count+" graphics settings";
    saveTimer.Tick+=(s,e)=>{saveTimer.Stop();SavePending();};refreshTimer.Tick+=async(s,e)=>{if(!busy){RefreshSettings(false);await RefreshInstalled(false);UpdateState();}};
    activityTimer.Tick+=(s,e)=>OperationTiming.Text=activity.Timing(DateTime.UtcNow);
@@ -70,7 +70,7 @@ namespace Horizon {
     if(trayIcon==null){
      trayImage=System.Drawing.Icon.ExtractAssociatedIcon(SetupService.ExePath)??(System.Drawing.Icon)System.Drawing.SystemIcons.Application.Clone();
      trayIcon=new System.Windows.Forms.NotifyIcon{Icon=trayImage,Text="Rubi-Ka Horizon"};
-     var menu=new System.Windows.Forms.ContextMenuStrip();menu.Items.Add("Open Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(RestoreFromTray)));menu.Items.Add("Open setup log",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>OpenSetupLog_Click(null,null))));menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());menu.Items.Add("Exit Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>{RestoreFromTray();Close();})));trayIcon.ContextMenuStrip=menu;
+     var menu=new System.Windows.Forms.ContextMenuStrip();menu.Items.Add("Open Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(RestoreFromTray)));trayLaunch=menu.Items.Add("Launch Anarchy Online",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>Launch_Click(null,null))));menu.Items.Add("Open setup log",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>OpenSetupLog_Click(null,null))));menu.Items.Add(new System.Windows.Forms.ToolStripSeparator());menu.Items.Add("Exit Horizon",null,(s,e)=>Dispatcher.BeginInvoke(new Action(()=>{RestoreFromTray();Close();})));trayIcon.ContextMenuStrip=menu;UpdateState();
      trayIcon.MouseClick+=(s,e)=>{if(e.Button==System.Windows.Forms.MouseButtons.Left)Dispatcher.BeginInvoke(new Action(RestoreFromTray));};
     }
     trayIcon.Visible=true;Hide();
@@ -82,9 +82,10 @@ namespace Horizon {
    InstallationPage.Visibility=page=="Installation"?Visibility.Visible:Visibility.Collapsed;
    AboutPage.Visibility=page=="About"?Visibility.Visible:Visibility.Collapsed;
    UpdatesPage.Visibility=page=="Updates"?Visibility.Visible:Visibility.Collapsed;ReportPage.Visibility=page=="Report issue"?Visibility.Visible:Visibility.Collapsed;
+   PatchNotesPage.Visibility=page=="Patch notes"?Visibility.Visible:Visibility.Collapsed;SuggestionsPage.Visibility=page=="Suggestions"?Visibility.Visible:Visibility.Collapsed;
    foreach(var b in nav)b.Value.Background=b.Key==page?new SolidColorBrush(Color.FromRgb(37,58,65)):Brushes.Transparent;
    PageTitle.Text=page;
-   PageSubtitle.Text=page=="Graphics"?"Settings are also available in game with Ctrl+Shift+F12.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
+   PageSubtitle.Text=page=="Graphics"?"Settings are also available in game with Ctrl+Shift+F12.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Patch notes"?"What's new in Horizon.":page=="Suggestions"?"Help shape the next version.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
   }
   public void PreviewPage(string page){if(nav.ContainsKey(page))ShowPage(page);}
   public void PreviewBusy(){busy=true;UpdateState();Status("Checking installed files…","Full HD repair verifies the artwork and cache. This can take several minutes.");}
@@ -100,6 +101,7 @@ namespace Horizon {
     if(info.Warning.Length>0)AppInstallStatus.Text+="\n"+info.Warning;
     AppInstallButton.Content=info.AppPresent?(info.AppCurrent?"Start-menu app is installed":"Update Start-menu app"):"Install app only (Start menu)";AppInstallButton.IsEnabled=!info.AppCurrent;
     DetectedVersionsText.Text="Installed Horizon app: "+info.AppVersion+"\nSelected AO graphics: "+(target.Length==0?"No AO folder selected":graphics);
+    if(availableUpdate!=null&&UpdateService.Compare(availableUpdate.Tag,UpdateService.VersionTag)<=0&&info.AppCurrent&&(!info.GraphicsPresent||info.GraphicsCurrent))SetUpdateNotice(false,"");
     if(graphicsUpdate&&info.AppCurrent){
      if(!info.GraphicsPresent||info.GraphicsCurrent){graphicsUpdate=false;ApplyUpdateButton.Visibility=Visibility.Collapsed;UpdateMessage.Text=info.GraphicsPresent?"Horizon app and selected graphics are up to date.":"Horizon app is installed and up to date.";}
      else ApplyUpdateButton.Content="Update graphics";
@@ -114,7 +116,7 @@ namespace Horizon {
     graphicsUpdate=false;preparedReport=null;SendReportButton.IsEnabled=false;OpenReportButton.IsEnabled=false;ReportPreview.Clear();ReportReviewBlock.Visibility=Visibility.Collapsed;detected=null;detectedKey="";memoryEdited=false;
     if(save)SavePreferences();
     FolderPath.Text=client;SidebarClient.Text=client;
-    RefreshSettings(true);Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
+    RefreshSettings(true);LoadPresetSelection();Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
     LiteChoice.IsChecked=false;FullChoice.IsChecked=false;
     var receipt=Path.Combine(client,"ao-vk-live.install.json");if(File.Exists(receipt)){try{var m=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(File.ReadAllText(receipt));if(m.ContainsKey("edition")){FullChoice.IsChecked=(string)m["edition"]=="full";LiteChoice.IsChecked=(string)m["edition"]=="lite";}}catch{}}
    }catch(Exception ex){Status("Could not open this AO installation.",ex.Message);}
@@ -128,6 +130,7 @@ namespace Horizon {
    RemoveFullHdButton.IsEnabled=!busy&&detected!=null&&detected.Edition=="full";
    UndoButton.IsEnabled=store!=null&&store.CanUndo&&!busy;
    CheckUpdatesButton.IsEnabled=!busy&&!checkingUpdate&&!downloadingUpdate;ApplyUpdateButton.IsEnabled=!busy&&!checkingUpdate&&!downloadingUpdate;
+   if(trayLaunch!=null)trayLaunch.Enabled=has&&!busy&&File.Exists(Path.Combine(client,"Anarchy.exe"));
    if(has&&!installed&&!busy)SaveDetail.Text="Install graphics from the Installation page to use live settings.";
   }
   async void Edition_Changed(object sender,RoutedEventArgs e){if(!ready||busy)return;UpdateState();await RefreshInstalled(true);}
@@ -144,14 +147,14 @@ namespace Horizon {
   }
   bool SavePending(){
    if(pending.Count==0||store==null)return true;
-   try{store.Save(pending);int count=pending.Count;pending.Clear();Status(count==1?"Setting saved.":count+" settings saved.","AO reads saved changes automatically, including while it's in the background.");UpdateState();return true;}
+   try{store.Save(pending);presets?.RecordEdits(client,pending);int count=pending.Count;pending.Clear();RefreshPresetReview();Status(count==1?"Setting saved.":count+" settings saved.","AO reads saved changes automatically, including while it's in the background.");UpdateState();return true;}
    catch(Exception ex){Status("The change could not be saved.",ex.Message+" Your other settings are preserved.");return false;}
   }
   public void Status(string title,string detail){SaveStatus.Text=title;SaveDetail.Text=detail;}
   void Filter(){if(!ready||catalog==null)return;string text=Search.Text.Trim(),section=SectionFilter.SelectedItem as string??"Common settings";
    bool keybinds=section=="Keybinds";KeybindsView.Visibility=keybinds?Visibility.Visible:Visibility.Collapsed;SettingsList.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;PresetControls.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;
    if(keybinds){var rows=KeybindHelp.All.Where(x=>text.Length==0||x.SearchText.IndexOf(text,StringComparison.OrdinalIgnoreCase)>=0).ToList();var view=new System.Windows.Data.ListCollectionView(rows);view.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Group"));KeybindsList.ItemsSource=view;return;}
-   var result=catalog.settings.Where(x=>(section=="Common settings"?x.Quick:section=="All settings"||x.section==section)&&
+   var result=catalog.settings.Where(x=>(section=="New options"?x.NeedsReview:section=="Common settings"?x.Quick||x.NeedsReview:section=="All settings"||x.section==section)&&
     (text.Length==0||(x.Title+" "+x.label+" "+x.section+" "+x.key).IndexOf(text,StringComparison.OrdinalIgnoreCase)>=0)).ToList();
    // Searching always reaches every setting, independent of the recommended list.
    if(text.Length>0&&section=="Common settings")result=catalog.settings.Where(x=>(x.Title+" "+x.label+" "+x.section+" "+x.key).IndexOf(text,StringComparison.OrdinalIgnoreCase)>=0).ToList();
@@ -163,8 +166,8 @@ namespace Horizon {
   void Graphics_Click(object s,RoutedEventArgs e){ShowPage("Graphics");}void Installation_Click(object s,RoutedEventArgs e){ShowPage("Installation");}
   void Browse_Click(object s,RoutedEventArgs e){if(busy)return;using(var dialog=new System.Windows.Forms.FolderBrowserDialog{Description="Choose the classic Anarchy Online folder",SelectedPath=client,ShowNewFolderButton=false})if(dialog.ShowDialog()==System.Windows.Forms.DialogResult.OK)Choose(dialog.SelectedPath,true);}
   void Refresh_Click(object s,RoutedEventArgs e){if(store==null||busy)return;if(SavePending()){RefreshSettings(true);Status("Settings refreshed.","Changes made in the game are shown here too.");}}
-  void Preset_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;var p=PresetPicker.SelectedItem as Preset;if(p==null)return;try{store.Save(p.values);RefreshSettings(true);Status(p.name+" preset saved.","Personal options excluded by this preset are preserved.");UpdateState();}catch(Exception ex){Status("Preset could not be saved.",ex.Message);}}
-  void Undo_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;try{store.Undo();RefreshSettings(true);Status("Previous settings restored.","AO will pick up the restored values automatically.");UpdateState();}catch(Exception ex){Status("Undo paused to preserve newer settings.",ex.Message);}}
+  void Preset_Click(object s,RoutedEventArgs e){ApplySelectedPreset();}
+  void Undo_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;try{store.Undo();RefreshSettings(true);if(presets?.ActiveCustom(client)!=null)presets.RecordEdits(client,catalog.settings.Where(x=>!x.NeedsReview).ToDictionary(x=>x.key,x=>x.Value));RefreshPresetReview();Status("Previous settings restored.","AO will pick up the restored values automatically.");UpdateState();}catch(Exception ex){Status("Undo paused to preserve newer settings.",ex.Message);}}
   async Task Operation(string action){
    if(busy)return;if(store==null){Status("Choose an AO folder first.","Use Change folder or Browse on the Installation page.");return;}if(!SavePending())return;
    if((action=="Install"||action=="Update"||action=="Repair")&&LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){ShowPage("Installation");Status("Choose Lite or Full HD first.","Lite keeps the original textures. Full HD installs the new artwork.");return;}
@@ -191,7 +194,7 @@ namespace Horizon {
   async void Repair_Click(object s,RoutedEventArgs e){await Operation("Repair");}async void Reset_Click(object s,RoutedEventArgs e){await Operation("Reset settings");}async void Uninstall_Click(object s,RoutedEventArgs e){await Operation("Uninstall");}
   async void InstallApp_Click(object s,RoutedEventArgs e){await InstallAppOnly();}
   async Task InstallAppOnly(){if(busy)return;busy=true;UpdateState();try{SavePreferences();var target=await Task.Run(()=>SetupService.InstallApp());Status("Horizon installed in your Start menu.",target);}catch(Exception ex){Status("The app could not be installed.",ex.Message);}finally{busy=false;await RefreshInstalled(true);UpdateState();}}
-  void Launch_Click(object s,RoutedEventArgs e){if(store==null||busy||!SavePending())return;try{Process.Start(new ProcessStartInfo(Path.Combine(client,"Anarchy.exe")){WorkingDirectory=client,UseShellExecute=true});}catch(Exception ex){Status("AO could not be launched.",ex.Message);}}
+  void Launch_Click(object s,RoutedEventArgs e){if(store==null||busy)return;if(!SavePending()){RestoreFromTray();return;}try{Process.Start(new ProcessStartInfo(Path.Combine(client,"Anarchy.exe")){WorkingDirectory=client,UseShellExecute=true});}catch(Exception ex){RestoreFromTray();Status("AO could not be launched.",ex.Message);}}
   void OpenData_Click(object s,RoutedEventArgs e){Process.Start(new ProcessStartInfo("explorer.exe","\""+App.StateRoot+"\""){UseShellExecute=true});}
   void SavePreferences(){File.WriteAllText(preferences,new JavaScriptSerializer().Serialize(new Dictionary<string,string>{{"client",client},{"work",SetupService.PackageRoot},{"autoUpdates",AutoUpdates.IsChecked==true?"true":"false"}}));}
   void AutoUpdates_Click(object s,RoutedEventArgs e){try{SavePreferences();}catch(Exception ex){Status("Could not save the update preference.",ex.Message);}}
@@ -207,7 +210,8 @@ namespace Horizon {
     ApplyUpdateButton.Visibility=newer||graphicsUpdate?Visibility.Visible:Visibility.Collapsed;ApplyUpdateButton.Content=newer?(downloadedUpdate.Length>0?"Apply update":"Download update"):needsGraphics?(needsApp?"Update app + graphics":"Update graphics"):detected!=null&&detected.AppPresent?"Update installed app":"Install Horizon app";
     UpdateMessage.Text=newer?"Horizon "+release.Tag.TrimStart('v')+" is available.":needsGraphics?"The running app is up to date. The selected graphics need an update.":needsApp?"The running app is up to date; install or update its Start-menu copy.":selected.Length==0?"Horizon is up to date. No AO folder is selected.":detected!=null&&!detected.GraphicsPresent?"Horizon is up to date. Graphics are not installed in this AO folder.":"Horizon app and selected graphics are up to date.";
     UpdateDetail.Text=newer?"Download: "+(release.Bytes/1000000.0).ToString("0.0",CultureInfo.InvariantCulture)+" MB. The app verifies the download before you apply it.":"Checked GitHub's latest stable app and this installation against the bundled graphics. No texture packs were downloaded.";
-    if(!manual&&newer)Status("A Horizon update is available.","Open Updates to download it. Your game continues running.");
+    SetUpdateNotice(newer||needsGraphics||(needsApp&&detected!=null&&detected.AppPresent),newer?"Horizon "+release.Tag.TrimStart('v')+" is available.":needsGraphics?"An update is available for your selected AO graphics.":"An update is available for the installed Horizon app.");
+    if(!manual&&(newer||needsGraphics))Status("A Horizon update is available.","Use View updates above to open the Updates page. Your game continues running.");
    }catch(OperationCanceledException){if(!lifetime.IsCancellationRequested){UpdateMessage.Text="The update check timed out.";UpdateDetail.Text="Try again when the connection is available. AO is unchanged.";}}
    catch(Exception ex){UpdateMessage.Text="Could not check for updates.";UpdateDetail.Text=ex.Message;}
    finally{checkingUpdate=false;UpdateState();}
@@ -234,7 +238,7 @@ namespace Horizon {
     string installed=await Task.Run(()=>{SetupService.AssertSelectedClientClosed(target);return SetupService.InstallApp();});
     bool current=await Task.Run(()=>UpdateService.GraphicsCurrent(target,edition));
     if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{ReportSetupActivity(message,percent);UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}
-    SavePreferences();UpdateMessage.Text="Update finished.";UpdateDetail.Text=current?"The bundled graphics are already installed; no texture verification or download was needed.":"Horizon and the selected AO graphics are updated.";
+    SavePreferences();SetUpdateNotice(false,"");UpdateMessage.Text="Update finished.";UpdateDetail.Text=current?"The bundled graphics are already installed; no texture verification or download was needed.":"Horizon and the selected AO graphics are updated.";
     // Start the installed app, so future launches use the updated Start-menu copy.
     using(var parent=Process.GetCurrentProcess())Process.Start(new ProcessStartInfo(installed,"--state-root \""+App.StateRoot+"\" --client \""+target+"\" --wait-horizon-parent "+parent.Id+" "+parent.StartTime.ToUniversalTime().Ticks){UseShellExecute=true});busy=false;Close();
    }catch(Exception ex){ReportSetupActivity(ex.Message,-1);UpdateMessage.Text="The update could not finish.";UpdateDetail.Text=ex.Message+" Any completed Horizon app update is kept; AO graphics use the installer's recovery checks.";App.Trace("Update failed: "+ex.Message);}

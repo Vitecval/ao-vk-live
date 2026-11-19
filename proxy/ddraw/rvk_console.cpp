@@ -389,8 +389,8 @@ std::string FormatValue(const RvkSettingInfo& s, float v)
     }
     if(std::strcmp(s.name,"RVK_SkyStyle")==0)return v>.5f ? "Soft skies and starry nights":"Current / custom sky";
     if (std::strcmp(s.name,"RVK_DayCycle")==0) {
-        const char* names[]={"Rely on Server Sided day/night", "Longer Day / Shorter Night", "Enhanced Daylights (happier)"};
-        return names[std::clamp(int(std::lround(v)),0,2)];
+        const char* names[]={"Rely on Server Sided day/night", "Longer Day / Shorter Night", "Enhanced Daylights (happier)", "PermaDay", "PermaNight"};
+        return names[std::clamp(int(std::lround(v)),0,4)];
     }
     if(std::strcmp(s.name,"RVK_InstantTime")==0) {
         if(v==1)return "Day (13.5)";

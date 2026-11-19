@@ -497,8 +497,9 @@ void main()
                 }
                 diff += diffL;
                 spec += specL;
-                diffuse = vec4(mEmissive.rgb + mAmbient.rgb * ambient + mDiffuse.rgb * diff, mDiffuse.a);
+                diffuse = vec4(TempleDiffuseLight(TempleBakedLight(mEmissive.rgb) + mAmbient.rgb * ambient + mDiffuse.rgb * diff), mDiffuse.a);
                 specular = vec4(mSpecular.rgb * spec, specular.a);
+                if((D.mat.z & MAT_MATTE_TEMPLE)!=0u)specular.rgb=vec3(0.0);
             }
         }
         diffuse.rgb *= crownShade * treeTint;

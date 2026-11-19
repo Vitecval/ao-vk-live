@@ -39,6 +39,8 @@ const uint MAT_WORLD = 4096u, MAT_TERRAIN_HD = 8192u;
 const uint MAT_MINERAL = 16384u, MAT_HONED_STONE = 32768u;
 const uint MAT_ENHANCED_ROCK = 1048576u;
 const uint MAT_ROCK_SHAPE = 2097152u;
+const uint MAT_TEMPLE_BAKE = 4194304u;
+const uint MAT_MATTE_TEMPLE = 8388608u;
 const uint MAT_AUTHORED_GROUND = 65536u, MAT_ASPHALT = 131072u;
 const uint MAT_IMMERSIVE_SHIP = 262144u;
 const uint MAT_DISTANT_SCENERY = 524288u;
@@ -83,6 +85,25 @@ layout(set = 0, binding = 0, std430) readonly buffer DrawConstantArray { DrawCon
 uint gRecord;
 #define D (gRecords.records[gRecord].d)
 #define C (gConsts.consts[gRecords.records[gRecord].constIndex])
+
+// The Redeemed temple bakes illumination into vertex emissive colours.
+// Keep the floor's low values exactly; roll only the overbright stone bake
+// into the same range, preserving hue and the original texture pattern.
+vec3 TempleBakedLight(vec3 light)
+{
+    if ((D.mat.z & MAT_TEMPLE_BAKE) == 0u) return light;
+    float peak = max(light.r,max(light.g,light.b));
+    if (peak <= .24) return light;
+    float shoulder = .24 + .04 * (1.0-exp(-(peak-.24)/.04));
+    return light * (shoulder/peak);
+}
+vec3 TempleDiffuseLight(vec3 light)
+{
+    if ((D.mat.z & MAT_MATTE_TEMPLE) == 0u) return light;
+    float peak=max(light.r,max(light.g,light.b));
+    if(peak<=.70)return light;
+    return light*((.70+.10*(1.0-exp(-(peak-.70)/.10)))/peak);
+}
 
 // Bindless textures (M1): one array of every texture and one of every sampler; a draw names the four it uses by
 // index. TEX0/TEX1 are the game's two texture stages, BUMPTEX the ground's base texture, NORMALTEX its normal map.

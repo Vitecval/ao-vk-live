@@ -69,8 +69,8 @@ void TimeFrame()
 {
     if (g_gaveUp)
         return;
-    // Manual time controls override the automatic cycle without disabling its
-    // lighting. The defaults (-1, 1) leave Enhanced Daylights on server time.
+    // Effective clock controls include PermaDay/PermaNight's fixed hour and
+    // zero speed. Defaults (-1, 1) leave automatic modes on server time.
     const float hour = rvk_settings::GetEffective("RVK_TimeOfDay");
     const float speed = rvk_settings::GetEffective("RVK_TimeSpeed");
     const bool testing = hour >= 0.0f || std::fabs(speed - 1.0f) > 1e-4f;

@@ -103,6 +103,7 @@ void Device::SetSkyPlayfield(uint32_t playfield)
     m_cascadeCount = 0;
     if(m_living || m_livingAttempt) DestroyLiving();
     m_skyPlayfield = playfield;
+    m_constantsDirty=m_frameLightsDirty=true; // zone-specific authored light response
     for(auto& beacons:m_shipBeacons)beacons=ShipBeaconSet{};
     m_ambientOriginCount=0;m_ambientRefresh=-1.0;m_ambientPlayfield=~0u;
     m_grassGroundReset=true;

@@ -1,5 +1,10 @@
 #pragma once
 namespace rvk::presentation {
+// A fresh device starts in the login hall before the engine query is ready.
+// Unknown is not a transition: retain a confirmed context on the same device.
+constexpr int LightingContext(int reported,int previous,bool sameDevice){
+    return reported ? reported : sameDevice && previous==2 ? 2:1;
+}
 // Windows can report the minimized icon's 154x10 client rectangle while AO is
 // changing styles. Neither that rectangle nor SIZE_MINIMIZED is a restore.
 constexpr bool UsableClient(unsigned width,unsigned height){return width>=32&&height>=32;}

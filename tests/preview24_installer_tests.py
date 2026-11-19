@@ -7,7 +7,8 @@ def sha(p):
 def main():
  out=ROOT/'build/preview24'/('installer-'+uuid.uuid4().hex[:8]);out.mkdir()
  host=Path(os.environ['WINDIR'])/'SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
- bootstrap=ROOT/'build/preview24/release-r59/ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
+ revision=json.loads((ROOT/'apps/horizon/Assets/engine.json').read_text())['revision']
+ bootstrap=ROOT/f'build/preview24/release-r{revision}/ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
  with zipfile.ZipFile(bootstrap) as archive:
   catalog=archive.read(next(n for n in archive.namelist() if n.endswith('/randy-vk/cache/materials/recipes.tsv'))).decode('utf8').splitlines()
  public=json.loads(gzip.decompress((ROOT/'apps/horizon/Assets/full-manifest.json.gz').read_bytes()))

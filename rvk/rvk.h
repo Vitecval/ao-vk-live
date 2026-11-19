@@ -275,7 +275,7 @@ struct DeviceInfo {
     X(HazeStart, m_hazeStart, C|L)               /* nearby scenery stays clear */ \
     X(HazeEnd, m_hazeEnd, C|L)                   /* veil reaches its selected strength */ \
     X(MatStrength, m_materialStrength, 0)          /* character/equipment material response, 0..1 */ \
-    X(LoginScene, m_loginScene, 0)               /* transient native login/character-selection presentation */ \
+    X(LoginScene, m_loginScene, C|L)             /* transient native login/character-selection presentation */ \
     X(VividTone, m_vividTone, 0) \
     X(VividAmt, m_vividAmount, 0) \
     X(VividHDR, m_vividHdr, 0) \
@@ -299,7 +299,7 @@ struct DeviceInfo {
     X(NeonSat, m_neonSat, L)                          /* coloured light keeps its colour (0: to white) */ \
     X(SoftHi, m_softHi, L)                            /* gentler bright world surfaces */ \
     X(DayLook, m_dayLook, L)                          /* brighter, neutral daylight presentation */ \
-    X(DayCycle, m_dayCycle, C|L)                      /* server cycle, longer days, enhanced daylight */ \
+    X(DayCycle, m_dayCycle, C|L)                      /* server, longer days, enhanced daylight, permanent day/night */ \
     X(ImprovedTiles, m_improvedTiles, C|L)            /* ICC tile artwork in Shared Ground+ */ \
     X(TerraBlend, m_sharedTerrain, L)                 /* continuous terrain masters, original transition masks */ \
     X(TerraRough, m_terrainRoughness, C|L)            /* Shared Ground+ surface bumps/grit, not gloss */ \
@@ -1392,7 +1392,7 @@ private:
     bool ImprovedTile(const Texture* tile) const;
     // Outdoor proof survives camera culling; reset on playfield/indoor entry.
     uint64_t m_daylightWorldSeen = ~0ull;
-    float EnhancedDaylight() const { return m_dayCycle > 1.5f && m_skyPlayfield && !m_indoors && SunKnown() &&
+    float EnhancedDaylight() const { return m_dayCycle == 2.f && m_skyPlayfield && !m_indoors && SunKnown() &&
         m_daylightWorldSeen != ~0ull
         ? std::clamp((SunUp() - 0.02f) / 0.28f, 0.0f, 1.0f) : 0.0f; }
     bool TerrainRockOn() const { return m_terrainSettings.rock && m_terrainSettings.cliff > 0.0f && m_rock.albedo; }
@@ -3440,7 +3440,7 @@ private:
     bool SurfaceSheen(uint32_t fvf) const;   // an added layer on a surface (depth EQUAL): not an effect
     bool GlowDraw(uint32_t fvf) const;
     bool GlowOccluder(uint32_t fvf) const;
-    bool IsInterfaceDraw(uint32_t fvf) const;
+    bool IsInterfaceDraw(uint32_t fvf,uint32_t primitive,const void* vertices,uint32_t vertexCount) const;
     // The scene's pre-transformed draws (FVF 0x1C4, out of ProcessVertices: the game's water, floating text) - not
     // the game's screen sprites in the same format (the timer bars): the proxy says which (SetDrawProcessed).
     bool IsWater(uint32_t fvf) const;

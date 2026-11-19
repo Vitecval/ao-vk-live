@@ -75,6 +75,18 @@ int main(int argc,char** argv) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc>2 && (std::strcmp(argv[1],"--save-perma")==0 || std::strcmp(argv[1],"--check-perma")==0)) {
+        const int mode=std::atoi(argv[2]);check(mode==3 || mode==4,"permanent mode argument");
+        if(std::strcmp(argv[1],"--save-perma")==0) {
+            set("RVK_Enhance",1);set("RVK_TimeOfDay",14);set("RVK_TimeSpeed",20);set("RVK_DayCycle",float(mode));
+        }
+        check(info("RVK_DayCycle").max==4 && std::strcmp(info("RVK_DayCycle").choices,"0 1 2 3 4")==0,"five cycle options");
+        check(info("RVK_DayCycle").value==mode && effective("RVK_TimeOfDay")== (mode==3 ? 13.5f:0.f) && effective("RVK_TimeSpeed")==0,"permanent clock survives process restart");
+        set("RVK_DayCycle",0);
+        check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"permanent mode preserves manual clock preferences");
+        set("RVK_DayCycle",float(mode));
+        std::puts("permanent day/night mode persisted and holds the effective clock");return 0;
+    }
     if(argc>2 && std::strcmp(argv[1],"--check-density")==0) {
         check(std::fabs(info("RVK_AmbientMotes").value-std::atof(argv[2]))<.0001,"density migrates once and survives restart");
         std::puts("density migration passed");return 0;
@@ -188,6 +200,14 @@ int main(int argc,char** argv) {
     check(effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==20,"manual clock must override Enhanced Daylights");
     check(info("RVK_DayCycle").value==2 && effective("RVK_Hdr")==1 && effective("RVK_PixelLight")==1,"manual clock must retain daylight lighting");
     set("RVK_TimeSpeed",1);set("RVK_TimeOfDay",14);
+    set("RVK_DayCycle",3);
+    check(effective("RVK_TimeOfDay")==13.5f && effective("RVK_TimeSpeed")==0,"PermaDay freezes noon");
+    set("RVK_DayCycle",4);
+    check(effective("RVK_TimeOfDay")==0 && effective("RVK_TimeSpeed")==0,"PermaNight freezes midnight");
+    set("RVK_Enhance",0);check(effective("RVK_DayCycle")==0 && effective("RVK_TimeOfDay")==14 && effective("RVK_TimeSpeed")==1,"enhancements off suspends the permanent cycle");
+    set("RVK_Enhance",1);check(effective("RVK_TimeOfDay")==0 && effective("RVK_TimeSpeed")==0,"enhancements on restores PermaNight");
+    set("RVK_InstantTime",1);check(info("RVK_DayCycle").value==0 && effective("RVK_TimeOfDay")==13.5f && effective("RVK_TimeSpeed")==1,"instant shortcut releases the permanent clock");
+    set("RVK_TimeOfDay",14);
     set("RVK_DayCycle",0);set("RVK_DayCycle",2);
     check(effective("RVK_TimeOfDay")==14,"lighting selection must retain manual hour");
     set("RVK_TimeOfDay",-1);

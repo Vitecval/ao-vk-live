@@ -95,7 +95,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `RVK_DayCycle` | Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) | 0 / 1 / 2 | 0 | window; game value 0; knob |
+| `RVK_DayCycle` | Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) / PermaDay / PermaNight | 0 / 1 / 2 / 3 / 4 | 0 | window; game value 0; knob |
 | `RVK_InstantTime` | Instant Day/Night: Server / Day (13.5) / Night (0) | 0 / 1 / 2 | 0 | window |
 
 ## Materials

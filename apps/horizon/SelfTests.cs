@@ -31,6 +31,9 @@ namespace Horizon {
    activity.Stop(start.AddSeconds(50));Check(activity.Timing(start.AddMinutes(5))=="Elapsed 0:50","Completed setup timing stops advancing");
    activity.Start("Checking saved setup files",start.AddMinutes(6));Check(activity.Timing(start.AddMinutes(6))=="Elapsed 0:00","Retry clears the previous attempt's elapsed and waiting state");
    var catalog=Catalog.Load();Check(catalog.settings.Count>=200,"Catalog exports every visible renderer setting");
+   var dayCycle=catalog.settings.Single(s=>s.key=="RVK_DayCycle");
+   Check(dayCycle.Options().Count==5&&dayCycle.Options().Single(o=>o.Value==3).Label=="PermaDay"&&dayCycle.Options().Single(o=>o.Value==4).Label=="PermaNight","Day/Night Cycle includes permanent day and night");
+   Check(dayCycle.Normalize(3)==3&&dayCycle.Normalize(4)==4,"Permanent cycle selections serialize without clamping");
    Check(KeybindHelp.All.Length>=45&&KeybindHelp.All.All(k=>k.Keys.Length>0&&k.Title.Length>0&&k.Description.Length>0),"Keybinds provide searchable explanations for graphics, options, diagnostics, camera and console controls");
    Check(catalog.settings.Single(s=>s.key=="RVK_VividTone").defaultValue==0&&catalog.presets.All(p=>!p.values.ContainsKey("RVK_VividTone")),"Vivid Tone is off by default and presets preserve the user's choice");
    Check(catalog.settings.Single(s=>s.key=="RVK_VividAmt").defaultValue==.5,"Vivid Tone overall strength defaults to 0.5");

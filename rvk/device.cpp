@@ -322,7 +322,7 @@ void Device::StopPresentation()
 
 bool Device::Init(HWND window, uint32_t width, uint32_t height, std::string* error)
 {
-    startup::Begin(false);
+    startup::Begin(window != nullptr);
     m_window = window;
     FgInitDispatcher(window);
     m_width = width;

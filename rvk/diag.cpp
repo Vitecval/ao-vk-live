@@ -52,6 +52,7 @@ void Device::BeginFrameDump()
                              "# L index: type position direction range atten0/1/2 diffuse ambient\n",
                  eye[0], eye[1], eye[2], m_pixelLighting ? 1 : 0, m_renderScale, m_scene ? m_scene->m_width : 0u,
                  m_scene ? m_scene->m_height : 0u);
+    std::fprintf(m_dumpFile,"# presentation lighting: login studio %u; authored vertex lights %u; saved pixel-lighting preference %u\n",unsigned(m_loginScene>.5f),unsigned(m_loginScene>.5f),unsigned(m_pixelLighting));
 }
 
 // GPU memory in one line: each memory heap's usage against the driver's budget for it (with VK_EXT_memory_budget the
@@ -466,6 +467,12 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
                          m_tss[0][d3d::TSS_ALPHAOP], m_tss[0][d3d::TSS_ALPHAARG1], m_tss[0][d3d::TSS_ALPHAARG2],
                          m_rs[d3d::RS_ZENABLE], m_rs[d3d::RS_ZWRITEENABLE], m_rs[d3d::RS_ZFUNC],
                          m_target == m_scene ? "scene" : m_target == m_main ? "main" : "other");
+            if(vertices && vertexCount) {
+                const uint32_t stride=FvfStride(fvf);
+                float lo[2]={1e30f,1e30f},hi[2]={-1e30f,-1e30f};
+                for(uint32_t i=0;i<vertexCount;++i){float xy[2];std::memcpy(xy,static_cast<const uint8_t*>(vertices)+size_t(i)*stride,8);for(int k=0;k<2;++k){lo[k]=std::min(lo[k],xy[k]);hi[k]=std::max(hi[k],xy[k]);}}
+                std::fprintf(m_dumpFile,"  screen bounds %.2f %.2f - %.2f %.2f; visual %s (%u); viewport %u %u %u %u\n",lo[0],lo[1],hi[0],hi[1],m_drawVisualName,m_drawVisualKind,m_viewport.x,m_viewport.y,m_viewport.width,m_viewport.height);
+            }
         }
         return;
     }

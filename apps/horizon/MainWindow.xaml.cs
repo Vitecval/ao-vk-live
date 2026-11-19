@@ -26,7 +26,8 @@ namespace Horizon {
   WindowState trayRestoreState=WindowState.Normal;
   readonly Dictionary<string,Button> nav=new Dictionary<string,Button>();
   string client="";bool busy,ready;
-  bool checkingUpdate,downloadingUpdate,graphicsUpdate,sendingReport;HorizonRelease availableUpdate;string downloadedUpdate="";IssueReport preparedReport;
+  bool checkingUpdate,downloadingUpdate,graphicsUpdate,sendingReport,reportAccepted;HorizonRelease availableUpdate;string downloadedUpdate="";IssueReport preparedReport;
+  internal Func<IssueReport,CancellationToken,Task<string>> ReportSender=IssueReports.Send;
   readonly CancellationTokenSource lifetime=new CancellationTokenSource();
   InstalledState detected;string detectedKey="";bool detecting,memoryEdited;
   bool MemoryChanged{get{return memoryEdited&&(detected==null||!detected.MemoryEnabled.HasValue||detected.MemoryEnabled.Value!=(MemoryOption.IsChecked==true));}}
@@ -113,7 +114,7 @@ namespace Horizon {
    if(!SavePending())return;
    try{
     var next=new SettingsStore(folder,catalog.settings);client=next.DirectoryPath;store=next;pending.Clear();
-    graphicsUpdate=false;preparedReport=null;SendReportButton.IsEnabled=false;OpenReportButton.IsEnabled=false;ReportPreview.Clear();ReportReviewBlock.Visibility=Visibility.Collapsed;detected=null;detectedKey="";memoryEdited=false;
+    graphicsUpdate=false;if(!sendingReport)ResetReport(false);detected=null;detectedKey="";memoryEdited=false;
     if(save)SavePreferences();
     FolderPath.Text=client;SidebarClient.Text=client;
     RefreshSettings(true);LoadPresetSelection();Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
@@ -245,10 +246,28 @@ namespace Horizon {
    finally{StopSetupActivity();busy=false;UpdateProgress.IsIndeterminate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}
   }
   void PrepareReport_Click(object s,RoutedEventArgs e){
-   if(sendingReport)return;try{preparedReport=IssueReports.Prepare(client,IssueTitle.Text,IssueDescription.Text,IncludeLogs.IsChecked==true);ReportPreview.Text=preparedReport.Body;ReportReviewBlock.Visibility=Visibility.Visible;SendReportButton.IsEnabled=true;OpenReportButton.IsEnabled=true;ReportMessage.Text="Review the report below. Send report emails these excerpts to dev@asyncstuff.com through asyncstuff.com. A ZIP is also saved locally.";}
+   if(sendingReport||reportAccepted)return;SetReportAccepted(false);try{preparedReport=IssueReports.Prepare(client,IssueTitle.Text,IssueDescription.Text,IncludeLogs.IsChecked==true);ReportPreview.Text=preparedReport.Body;ReportReviewBlock.Visibility=Visibility.Visible;SendReportButton.IsEnabled=true;OpenReportButton.IsEnabled=true;ReportMessage.Text="Review the report below. Send report emails these excerpts to dev@asyncstuff.com through asyncstuff.com. A ZIP is also saved locally.";}
    catch(Exception ex){ReportMessage.Text=ex.Message;preparedReport=null;ReportReviewBlock.Visibility=Visibility.Collapsed;SendReportButton.IsEnabled=false;OpenReportButton.IsEnabled=false;}
   }
-  async void SendReport_Click(object s,RoutedEventArgs e){if(preparedReport==null||sendingReport)return;if(preparedReport.Description!=IssueDescription.Text||preparedReport.RawTitle!=IssueTitle.Text||preparedReport.IncludesLogs!=(IncludeLogs.IsChecked==true)){ReportMessage.Text="Your report options changed. Prepare and review the report again before sending.";return;}sendingReport=true;SendReportButton.IsEnabled=false;try{ReportMessage.Text="Sending the reviewed report…";ReportMessage.Text=await IssueReports.Send(preparedReport,lifetime.Token);}catch(OperationCanceledException){if(!lifetime.IsCancellationRequested)ReportMessage.Text="The confirmation timed out. You can retry this report; the service uses its ID to avoid duplicate mail.";}catch(Exception ex){ReportMessage.Text=ex.Message;}finally{sendingReport=false;SendReportButton.IsEnabled=true;}}
+  void SetReportAccepted(bool accepted){
+   reportAccepted=accepted;SendReportButton.Content=accepted?"Send a New Report":"Send report";
+   PrepareReportButton.IsEnabled=!accepted&&!sendingReport;IssueTitle.IsEnabled=IssueDescription.IsEnabled=IncludeLogs.IsEnabled=!accepted&&!sendingReport;
+   ReportMessagePanel.Background=accepted?new SolidColorBrush(Color.FromRgb(65,30,36)):Brushes.Transparent;
+   ReportMessage.Foreground=accepted?Brushes.LightCoral:new SolidColorBrush(Color.FromRgb(158,178,186));ReportMessage.FontWeight=accepted?FontWeights.Bold:FontWeights.Normal;
+  }
+  void ResetReport(bool clearFields){
+   preparedReport=null;SetReportAccepted(false);SendReportButton.IsEnabled=OpenReportButton.IsEnabled=false;ReportPreview.Clear();ReportReviewBlock.Visibility=Visibility.Collapsed;ReportMessage.Text="";
+   if(clearFields){IssueTitle.Clear();IssueDescription.Clear();IncludeLogs.IsChecked=true;IssueTitle.Focus();}
+  }
+  async void SendReport_Click(object s,RoutedEventArgs e){
+   if(sendingReport)return;if(reportAccepted){ResetReport(true);return;}if(preparedReport==null)return;
+   if(preparedReport.Description!=IssueDescription.Text||preparedReport.RawTitle!=IssueTitle.Text||preparedReport.IncludesLogs!=(IncludeLogs.IsChecked==true)){ReportMessage.Text="Your report options changed. Prepare and review the report again before sending.";return;}
+   sendingReport=true;SendReportButton.IsEnabled=false;SetReportAccepted(false);
+   try{ReportMessage.Text="Sending the reviewed report…";string accepted=await ReportSender(preparedReport,lifetime.Token);ReportMessage.Text="✓ "+accepted+" Your report has been sent. Choose Send a New Report to clear this form and start again.";SetReportAccepted(true);}
+   catch(OperationCanceledException){if(!lifetime.IsCancellationRequested)ReportMessage.Text="The confirmation timed out. You can retry this report; the service uses its ID to avoid duplicate mail.";}
+   catch(Exception ex){ReportMessage.Text=ex.Message;}
+   finally{sendingReport=false;SetReportAccepted(reportAccepted);SendReportButton.IsEnabled=true;}
+  }
   void OpenReport_Click(object s,RoutedEventArgs e){if(preparedReport!=null)try{Process.Start(new ProcessStartInfo("explorer.exe","/select,\""+preparedReport.Archive+"\""){UseShellExecute=true});}catch(Exception ex){ReportMessage.Text=ex.Message;}}
   void WorkFolder_Click(object s,RoutedEventArgs e){if(busy)return;using(var dialog=new System.Windows.Forms.FolderBrowserDialog{Description="Choose a folder for resumable Full HD downloads and temporary setup files. Existing Preview 24 material ZIPs in this folder can be reused.",SelectedPath=SetupService.PackageRoot})if(dialog.ShowDialog()==System.Windows.Forms.DialogResult.OK){SetupService.PackageRoot=Path.GetFullPath(dialog.SelectedPath);WorkFolder.Text=SetupService.PackageRoot;SavePreferences();}}
   void Minimize_Click(object s,RoutedEventArgs e){WindowState=WindowState.Minimized;}void Maximize_Click(object s,RoutedEventArgs e){WindowState=WindowState==WindowState.Maximized?WindowState.Normal:WindowState.Maximized;}void Close_Click(object s,RoutedEventArgs e){Close();}

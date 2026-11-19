@@ -273,6 +273,9 @@ target_compile_options(presentation_policy_check PRIVATE /UNDEBUG)
 add_executable(lightning_policy_check tests/lightning_policy_check.cpp)
 target_include_directories(lightning_policy_check PRIVATE rvk)
 target_compile_options(lightning_policy_check PRIVATE /UNDEBUG)
+add_executable(interior_lighting_check tests/interior_lighting_check.cpp)
+target_include_directories(interior_lighting_check PRIVATE rvk)
+target_compile_options(interior_lighting_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)

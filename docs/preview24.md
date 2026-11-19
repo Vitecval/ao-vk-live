@@ -1,8 +1,10 @@
-# Horizon 0.7.6 / Preview 24 r62
+# Horizon 0.7.7 / Preview 24 r63
 
-See [r62 changes](preview24-r62.md) for the Vivid Tone 0.5 strength default and
-UI naming cleanup. Existing choices are preserved. The armor rework is reserved
-for 0.7.7; this patch reuses the current Full HD library.
+See [r63 changes](preview24-r63.md) for consistent fresh-start login lighting,
+reduced shimmer, matte temple stone, ground-rock visibility, visible graphics
+preparation, permanent day/night options and clearer accepted issue reports.
+Existing choices are preserved. The armor rework is reserved for 0.7.8 and is
+not included; this patch reuses the current Full HD library.
 
 See [r61 changes](preview24-r61.md) for indexed updates, visible recovery progress, tray minimize, Keybinds, optional Vivid Tone, login/restore and matching shader-helper fixes.
 

@@ -4,10 +4,12 @@
 
 int main() {
     using namespace rvk::startup;
-    Begin(true); Stage("Loading cached pipelines (controlled slow-driver fixture)");
+    Begin(false); Stage("Loading cached pipelines (controlled slow-driver fixture)");
+    Begin(true); // the real device path must promote a prior headless Begin
     Sleep(3000);
     HWND h=FindWindowW(L"AOVKPreview23Startup",nullptr);
     if(!h || !IsWindowVisible(h)) { std::puts("delayed window missing"); return 1; }
+    if(!(GetWindowLongPtrW(h,GWL_EXSTYLE)&WS_EX_APPWINDOW))return 6;
     for(int i=0;i<10;++i) {
         DWORD_PTR reply;
         if(!SendMessageTimeoutW(h,WM_NULL,0,0,SMTO_ABORTIFHUNG,200,&reply)) { std::puts("message pump frozen"); return 2; }

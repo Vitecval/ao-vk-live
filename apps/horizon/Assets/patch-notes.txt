@@ -1,3 +1,13 @@
+0.7.7
+
+• Fresh starts use the same corrected login lighting as returning from the game. Login smoothing reduces shimmer without treating opaque scenery as animated effects.
+• Temple stone is matte with controlled brightness. Ground rocks remain visible as the camera angle changes.
+• Slow graphics preparation shows responsive progress and elapsed time.
+• Day/Night Cycle adds PermaDay and PermaNight, saved across restarts.
+• Accepted issue reports lock their completed form and switch to Send a New Report, with a prominent confirmation message.
+• Includes Preview 24 r63 and its matching shader-preparation helper. Full reuses the existing HD library; Lite downloads no textures.
+• The pending armor and creature rework is reserved for 0.7.8 and is not included.
+
 0.7.6
 
 • Vivid Tone overall strength now defaults to 0.5. Existing saved values are preserved; the optional effect remains off by default.

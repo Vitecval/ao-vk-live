@@ -65,7 +65,7 @@ Setting g_settings[] = {
     {"RVK_ShipLightPower","Nearby ship light strength","General",Float,0,1,.1f,.6f,nullptr,0,"RVK_ShipLights"},
 
     {"RVK_Darkness",   "Darkness: how dark nights, storms and dim places get (0 lightest, as the blue hour after sunset; 1 ao-vk's earlier nights; 2 very dark)", "Lighting", Float, 0, 2, 0.05f, 0, nullptr, 0, "RVK_Hdr"},
-    {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
+    {"RVK_DayCycle", "Day/Night Cycle: Server / Longer Day, Shorter Night / Enhanced Daylights (happier) / PermaDay / PermaNight", "Day/Night Cycle", Choice, 0, 4, 1, 0, nullptr, 0, nullptr, "0 1 2 3 4"},
     {"RVK_InstantTime", "Instant Day/Night: Server / Day (13.5) / Night (0)", "Day/Night Cycle", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_DarkFloor",  "Darkness: the floor under the land's brightness, x (the exposure raised in the darkest places, as eyes adapt; 0 none)", "Lighting", Float, 0, 2, 0.1f, 1, nullptr, 0, "RVK_Hdr"},
     {"RVK_PixelLight", "Per-pixel lighting",                                       "Lighting",         Bool,  0, 1, 1, 1, "RANDYVK_PIXEL_LIGHTING", 0},
@@ -659,8 +659,12 @@ float V(const char* name)
     if(std::strcmp(name,"RVK_HDGround")==0)return plus ? s->value:0.f;
     if(std::strcmp(name,"RVK_CliffJoin")==0)return plus ? s->value:0.f;
     if(std::strcmp(name,"RVK_FarDetail")==0 && Stored("RVK_FarScenery")==0)return 0.f;
-    // DayCycle selects the automatic cycle and lighting profile. Explicit
-    // console/INI clock controls remain independent and take priority.
+    // Permanent modes hold the clock without overwriting saved manual values.
+    // Leaving the mode restores those values; automatic cycles allow overrides.
+    if(Stored("RVK_Enhance")!=0 && (Stored("RVK_DayCycle")==3 || Stored("RVK_DayCycle")==4)) {
+        if(std::strcmp(name,"RVK_TimeOfDay")==0)return Stored("RVK_DayCycle")==3 ? 13.5f:0.f;
+        if(std::strcmp(name,"RVK_TimeSpeed")==0)return 0.f;
+    }
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
     // Shared Ground+ keeps the retail surface boundaries; geometric rounding
@@ -934,7 +938,7 @@ void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
             ApplyScenery(d);
         }
         if (is("RVK_DayCycle"))
-            for (const char* dependent : {"RVK_Hdr","RVK_PixelLight","RVK_TimeOfDay"})
+            for (const char* dependent : {"RVK_Hdr","RVK_PixelLight","RVK_TimeOfDay","RVK_TimeSpeed"})
                 if (const Setting* other=Find(dependent)) ApplyOne(*other,d);
         if (is("RVK_TerraBlend")) {
             SetSharedTerrainSetting(V(n) > 0.0f);
@@ -1394,6 +1398,7 @@ void Set(const char* name, float value)
     }
     if(std::strcmp(name,"RVK_InstantTime")==0) {
         const int choice=int(Clamp(*s,value));
+        if(Stored("RVK_DayCycle")==3 || Stored("RVK_DayCycle")==4)Set("RVK_DayCycle",0.f);
         Set("RVK_TimeSpeed",1.f);
         Set("RVK_TimeOfDay",choice==1 ? 13.5f:choice==2 ? 0.f:-1.f);
         return;

@@ -56,13 +56,14 @@ DWORD WINAPI UiMain(void*) {
     WNDCLASSW wc{}; wc.lpfnWndProc = WindowProc; wc.hInstance = module;
     wc.lpszClassName = L"AOVKPreview23Startup"; wc.hCursor = LoadCursorW(nullptr, MAKEINTRESOURCEW(32512));
     RegisterClassW(&wc);
-    HWND h = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, wc.lpszClassName, L"AO-VK Live",
+    HWND h = CreateWindowExW(WS_EX_APPWINDOW | WS_EX_NOACTIVATE, wc.lpszClassName, L"Rubi-Ka Horizon - Preparing graphics",
         WS_CAPTION | WS_SYSMENU, (GetSystemMetrics(SM_CXSCREEN)-560)/2,
         (GetSystemMetrics(SM_CYSCREEN)-250)/2, 560, 250, nullptr, nullptr, module, nullptr);
-    if (!h) return 0;
+    if (!h) {Log("startup-ui: window creation failed (%lu)",GetLastError());return 0;}
     // A non-activating tool window can otherwise sit behind AO's black startup
     // window for the entire driver compile. Keep it above our client only.
     ShowWindow(h, SW_SHOWNOACTIVATE);
+    Log("startup-ui: preparation window shown; independent message pump active");
     bool done = false, followedClient=false;
     while (!done && !stopRequested.load()) {
         DWORD foregroundPid=0;GetWindowThreadProcessId(GetForegroundWindow(),&foregroundPid);
@@ -86,14 +87,19 @@ DWORD WINAPI UiMain(void*) {
 bool Active() { return active.load(std::memory_order_relaxed); }
 uint64_t DriverMicroseconds() { return driverUs.load(); }
 void Begin(bool progressWindow) {
-    if (active.exchange(true)) return;
-    began = Now(); driverUs = 0; pipelines = 0; stopRequested=false;
-    AcquireSRWLockExclusive(&lock); failure[0]=0; std::strcpy(operation,"Preparing renderer..."); ReleaseSRWLockExclusive(&lock);
-    Log("startup-event: renderer entry pid=%lu tid=%lu", GetCurrentProcessId(), GetCurrentThreadId());
+    const bool first=!active.exchange(true);
+    if(first){
+        began = Now(); driverUs = 0; pipelines = 0; stopRequested=false;
+        AcquireSRWLockExclusive(&lock); failure[0]=0; std::strcpy(operation,"Preparing renderer..."); ReleaseSRWLockExclusive(&lock);
+        Log("startup-event: renderer entry pid=%lu tid=%lu", GetCurrentProcessId(), GetCurrentThreadId());
+    }
+    // The common device path can promote an earlier headless preparation to
+    // visible progress. Do not reset timing or lose the current stage.
     if (progressWindow && !uiThread) {
         stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
         if (stopEvent) uiThread = CreateThread(nullptr, 0, UiMain, nullptr, 0, nullptr);
         if (!uiThread && stopEvent) { CloseHandle(stopEvent); stopEvent = nullptr; }
+        Log("startup-ui: progress requested; thread %s",uiThread?"started":"unavailable");
     }
 }
 void Stage(const char* value) {

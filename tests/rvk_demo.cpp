@@ -2206,6 +2206,8 @@ bool g_nativeOn = false;
 bool g_nativeUnknownPass = false;
 bool g_nativeFirstTransparent = false, g_nativeCoverageTest = false, g_nativeVoidFixture = false;
 bool g_groundDetailFixture=false,g_groundModeCycle=false,g_grassLifetimeTest=false;
+bool g_groundDecorationFixture=false;
+extern float g_eye[3],g_viewYaw,g_viewPitch;
 bool g_groundFarView=false;
 bool g_retailCliffFixture=false;
 bool g_groundUntiled=false;
@@ -2420,9 +2422,10 @@ void RunNativeGroundTest(D& dev, int frames, const std::string& shot)
         dev.SetViewport({0, 0, g_width, g_height, 0.0f, 1.0f});
         dev.Clear(CLEAR_TARGET | CLEAR_ZBUFFER, 0xFF8098B8, 1.0f);
         const float ex=200.0f+(g_grassLifetimeTest ? 14.0f*std::sin(float(frame)*.01f) : 0.0f);
-        const Vector eye=g_groundFarView ? Vector{200.0f,160.0f,-420.0f} : Vector{ex, height(ex, 90.0f) + (g_retailCliffFixture ? 38.0f : 14.0f), 90.0f};
+        const Vector eye=g_groundDecorationFixture ? Vector{g_eye[0],g_eye[1],g_eye[2]} : g_groundFarView ? Vector{200.0f,160.0f,-420.0f} : Vector{ex, height(ex, 90.0f) + (g_retailCliffFixture ? 38.0f : 14.0f), 90.0f};
         const float yaw = 1.5708f + g_terrainYaw + (g_grassLifetimeTest ? .2f*std::sin(float(frame)*.013f) : 0.0f);
-        dev.SetTransform(View, LookAtLH(eye, {eye.x + std::cos(yaw), eye.y - 0.25f, eye.z + std::sin(yaw)}, {0, 1, 0}));
+        const Vector at=g_groundDecorationFixture ? Vector{eye.x+std::cos(g_viewYaw)*std::cos(g_viewPitch),eye.y-std::sin(g_viewPitch),eye.z+std::sin(g_viewYaw)*std::cos(g_viewPitch)} : Vector{eye.x + std::cos(yaw), eye.y - 0.25f, eye.z + std::sin(yaw)};
+        dev.SetTransform(View, LookAtLH(eye, at, {0, 1, 0}));
         dev.SetTransform(Projection, PerspectiveLH(kPi / 3, float(g_width) / g_height, 0.3f, g_groundFarView ? 2400.0f:600.0f));
         dev.SetTransform(World, Identity());
         dev.SetRenderState(RS_ZENABLE, 1);
@@ -5807,6 +5810,8 @@ LONG WINAPI Crashed(EXCEPTION_POINTERS* e)
 }
 
 #include "weathering_fixture.inc"
+#include "temple_lighting_scene.h"
+#include "login_studio_scene.h"
 
 int main(int argc, char** argv)
 {
@@ -5833,6 +5838,7 @@ int main(int argc, char** argv)
     int upscaler = 0;                            // --upscaler N: RVK_Upscaler (1: FSR 2, 2: FSR 3)
     bool frameGen = false;                       // --frame-gen: RVK_FrameGen (needs --window)
     bool normalMapTest = false, pbrTest = false, glowOccludeTest = false;
+    bool templeLightingFixture=false,templeMarker=false,templeBaked=false,templeClear=false,templeMatte=false;int loginStudioFixture=-1;
     uint32_t anisotropy = 1;
     float motionBlur = 0.0f, dof = 0.0f, dofFocus = 0.0f;
     bool dofBokeh = true, dofFar = true;
@@ -5847,6 +5853,12 @@ int main(int argc, char** argv)
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
         if (a == "--window") windowed = true;
+        else if (a == "--temple-lighting-fixture") templeLightingFixture=true;
+        else if (a == "--temple-marker") templeMarker=true;
+        else if (a == "--temple-baked") templeBaked=true;
+        else if (a == "--temple-clear") templeClear=true;
+        else if (a == "--temple-matte") templeMatte=true;
+        else if (a == "--login-studio-fixture" && i+1<argc) loginStudioFixture=std::atoi(argv[++i]);
         else if (a == "--stress") stress = true;
         else if (a == "--threaded") threaded = true;
         else if (a == "--pixel-lighting") pixelLighting = true;
@@ -5996,6 +6008,7 @@ int main(int argc, char** argv)
         else if (a == "--global-terrain-test") { g_globalTerrainTest = g_grassBench = g_grassBenchStill = g_grassCombined = true; hdr = true; }
         else if (a == "--terrain-test") g_terrainTest = true;
         else if (a == "--ground-detail-fixture") g_groundDetailFixture=true;
+        else if (a == "--ground-decoration-fixture") g_groundDecorationFixture=g_nativeGroundTest=g_groundDetailFixture=true;
         else if (a == "--ground-far-view") g_groundFarView=true;
         else if (a == "--ground-untiled") g_groundUntiled=true;
         else if (a == "--ground-mode-cycle") g_groundModeCycle=true;
@@ -6770,6 +6783,8 @@ int main(int argc, char** argv)
         }else RunWeatheringFixture(dev,frames,shot);
         return 0;
     }
+    if(loginStudioFixture>=0){RunLoginStudioFixture(dev,frames,shot,loginStudioFixture);return 0;}
+    if(templeLightingFixture){RunTempleLightingFixture(dev,frames,shot,templeMarker,templeBaked,templeClear,templeMatte,g_pbrOff);return 0;}
     if (glowOccludeTest) {
         RunGlowOccludeTest(dev, frames, shot);
         std::printf("rendered; screenshot %s\n", shot.c_str());

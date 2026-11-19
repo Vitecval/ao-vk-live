@@ -1,10 +1,12 @@
-# Rubi-Ka Horizon 0.7.6
+# Rubi-Ka Horizon 0.7.7
 
-Vivid Tone now defaults to 0.5 overall strength, with existing saved values
-preserved. App and in-game descriptions use the simple Vivid Tone name, with
-attribution retained in the bundled licenses. This patch includes Preview 24
-r62 and reuses the current Full HD library. The HD armor and creature rework
-is reserved for 0.7.7.
+Fresh starts and returning to login now use the same restrained lighting and
+stable anti-aliasing. Temple stone has a matte response, ground rocks retain
+their visibility, and slow graphics preparation shows progress. Day/Night
+Cycle adds PermaDay and PermaNight. Accepted issue reports clearly switch to
+Send a New Report. This patch includes Preview 24 r63 and reuses the current
+Full HD library. The HD armor and creature rework is reserved for 0.7.8 and is
+not included.
 
 Horizon now shows an update notice with a direct link to Updates, includes
 Patch notes and Suggestions pages, and launches the selected AO client from
@@ -32,7 +34,7 @@ need no GitHub account; a local report ZIP is available if the service is offlin
 The new Windows application combines installation, repair, removal and live AO
 graphics settings. Choose Lite (no texture downloads) or Full HD (the existing
 texture packs and 14,345 prepared cache files) inside the same EXE. The graphics
-engine is Preview 24 r62. [Application details and build](apps/horizon/README.md).
+engine is Preview 24 r63. [Application details and build](apps/horizon/README.md).
 
 This preview fixes disabled settings turning white during setup, reports repair
 progress continuously, and reduces large Full HD file-list and staging overhead.

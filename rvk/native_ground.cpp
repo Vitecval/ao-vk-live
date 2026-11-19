@@ -569,7 +569,27 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
             m_native.drawnLight = m_frameNumber;
             m_native.baseRs = m_rs;
             m_native.baseSampler = StageSamplerSlot(combined ? 1 : 0);
+            // Decorations are opaque meshes with their own tile-table material.
+            // Retail's first visible chunk may use a transparent far texture,
+            // a second texture stage, or an equal-depth multiplying light pass.
+            // None of those describe the new rocks above the submitted ground.
+            const auto rs=m_rs;
+            const auto tss=m_tss;
+            Texture* tex1=m_textures[1];
+            m_rs[d3d::RS_ALPHABLENDENABLE]=0;
+            m_rs[d3d::RS_ALPHATESTENABLE]=0;
+            m_rs[d3d::RS_ZENABLE]=1;
+            m_rs[d3d::RS_ZWRITEENABLE]=1;
+            m_rs[d3d::RS_ZFUNC]=d3d::CMP_LESSEQUAL;
+            m_rs[d3d::RS_CULLMODE]=d3d::CULL_CCW;
+            m_tss[1][d3d::TSS_COLOROP]=d3d::TOP_DISABLE;
+            m_textures[1]=nullptr;
+            // DrawNativeGroundOne reads these three states from baseRs.
+            m_native.baseRs[d3d::RS_ALPHABLENDENABLE]=0;
+            m_native.baseRs[d3d::RS_ZWRITEENABLE]=1;
+            m_native.baseRs[d3d::RS_ZFUNC]=d3d::CMP_LESSEQUAL;
             DrawNativeGroundOne();
+            m_rs=rs;m_tss=tss;m_textures[1]=tex1;m_constantsDirty=true;
         }
         return false;
     }

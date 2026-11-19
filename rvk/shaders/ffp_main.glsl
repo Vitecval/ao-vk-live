@@ -1037,6 +1037,7 @@ void main()
                 gPbrRough=mix(corrected,max(corrected,0.90),pow(amount,0.65));
             }
             gPbrMetal = clamp(orm.b, 0.0, 1.0);
+            if((D.mat.z & MAT_MATTE_TEMPLE)!=0u){gPbrRough=1.0;gPbrMetal=0.0;}
             if(iccTarget && gPbrBase && terrainMapped && TerrainNative() && NativeCellRefined(terrain.uv[0])) {
                 gPbrRough=max(gPbrRough,.58);gPbrMetal=0.;
             }
@@ -1101,7 +1102,7 @@ void main()
         float kd = gPbrOn ? 1.0 - gPbrMetal : 1.0, kAmb = gPbrOn ? kd * gPbrAo : 1.0;
         // The ground's lighting pass (F_SHADOWTEX): the shadow takes the global ambient and emissive part along
         // with the lightmap, leaving only the lights' own contribution: (lightmap + ambient) * shadow + lights.
-        vec3 base = (vMatEmissive + vMatAmbient * C.ambient.rgb * kAmb) * texShade;
+        vec3 base = (TempleBakedLight(vMatEmissive) + vMatAmbient * C.ambient.rgb * kAmb) * texShade;
         vec3 lit = base + vMatAmbient * ambient * kAmb + vDiffuse.rgb * diff * kd, litSpec = vSpecular.rgb * spec;
         vec3 local = vDiffuse.rgb * diffL * kd, localSpec = vSpecular.rgb * specL;
         terrainAmbient = base + vMatAmbient * ambient * kAmb;
@@ -1139,7 +1140,11 @@ void main()
                 gSunShare = clamp(sunPart * (1.0 - FL.windFrame.z) * (1.0 - kStormSunTaken * FL.rainNear.y) / max(dot(lit + local, kLuma), 1e-3), 0.0, 1.0);
             }
         }
-        if ((C.flags.x & F_OVERBRIGHT) != 0u) {
+        if((D.mat.z & MAT_MATTE_TEMPLE)!=0u){
+            gDiffuse=vec4(TempleDiffuseLight(max(lit+local,vec3(0.0))),vDiffuse.a);
+            gSpecular=vec4(0.0);gLocalDiffuse=gLocalSpecular=vec3(0.0);
+            gPbrSpec=gPbrEnv=vec3(0.0);
+        } else if ((C.flags.x & F_OVERBRIGHT) != 0u) {
             // The game's lighting is clamped as D3D does; the frame lights add on top, up to the headroom. Under a
             // bright sun a surface is already near 1, and a light (and its shadow) would otherwise barely show on
             // surfaces facing the sun while those facing away light up a lot.
@@ -1329,7 +1334,8 @@ void main()
     // made a lit sign ~3x its colour and bloomed its letters away - user, 2026-10-20.) Elsewhere the emissive map
     // (D.mat.z & MAT_EMISSIVE) adds the light the surface gives off, whatever lights it, x RVK_PbrGlow (FL.pbr2.z) -
     // beyond white with HDR, for the bloom.
-    const bool selfLit = (C.flags.x & F_EMISSIVE) != 0u, hasMap = (D.mat.z & MAT_EMISSIVE) != 0u;
+    const bool selfLit = (C.flags.x & F_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u,
+               hasMap = (D.mat.z & MAT_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u;
     vec3 emitted = vec3(0.0), map = vec3(0.0);
     if((D.mat.z & MAT_IMMERSIVE_SHIP)!=0u) {
         // Emissive treatment of existing coloured navigation/engine markings;
@@ -1422,6 +1428,7 @@ void main()
     if (gPbrOn)
         reflectivity = max(reflectivity, FL.pbr.z * (1.0 - smoothstep(0.1, 0.55, gPbrRough)) * mix(0.12, 0.9, gPbrMetal));
     reflectivity *= gIccReflection * FL.windowLife.w;
+    if((D.mat.z & MAT_MATTE_TEMPLE)!=0u)reflectivity=0.0;
     // ... and their albedo for indirect light is the diffuse part: none on metal, less in occluded creases.
     if (gPbrOn && !gPbrBase)
         albedo *= (1.0 - gPbrMetal) * gPbrAo;

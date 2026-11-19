@@ -361,7 +361,7 @@ bool RvkState::Frame()
     if (device && window && !device->InFrame() && WindowDrawable())
     {
         static uint64_t contextSerial=0;static int previousContext=-1;
-        const int context=RenderingSessionState();
+        const int context=rvk::presentation::LightingContext(RenderingSessionState(),previousContext,contextSerial==deviceSerial);
         if(contextSerial!=deviceSerial||context!=previousContext){
             contextSerial=deviceSerial;previousContext=context;device->SetKnob(rvk::Knob::LoginScene,context==1?1.f:0.f);
             RvkLog("presentation context: %s; saved graphics preferences unchanged",context==1?"login/character selection":context==2?"live world":"unknown");

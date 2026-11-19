@@ -313,7 +313,22 @@ void main()
     // The interface is drawn later, and saved world preferences remain intact.
     if(P.grade2.w>.5){
         vec4 base=texelFetch(scene,ivec2(gl_FragCoord.xy),0);
-        outColor=vec4(Dither8(clamp(base.rgb,0.0,1.0),gl_FragCoord.xy,FL.taa.z),base.a);
+        vec3 shown=max(base.rgb,vec3(0.0));
+        // A small studio white-balance correction, followed by a gentle
+        // highlight shoulder, keeps pale display surrounds from looking icy.
+        float cool=max(0.0,min(shown.g,shown.b)-shown.r);
+        shown.gb-=vec2(cool*.15);
+        float peak=max(shown.r,max(shown.g,shown.b));
+        if(peak>.85)shown*=(.85+.15*(1.0-exp(-(peak-.85)/.15)))/peak;
+        // Scene alpha is coverage (usually one), not temporal reactivity.
+        // Mark only additive magic/energy as reactive; treating the entire
+        // hall as an effect discarded its history and exposed Halton jitter.
+        float alpha=clamp(base.a,0.0,1.0);
+        if((int(P.proj.w)&16)!=0){
+            vec3 effect=texelFetch(glowRaw,ivec2(gl_FragCoord.xy),0).rgb;
+            alpha=smoothstep(.01,.25,dot(effect,vec3(.3,.59,.11)));
+        }
+        outColor=vec4(Dither8(clamp(shown,0.0,1.0),gl_FragCoord.xy,FL.taa.z),alpha);
         return;
     }
     // How far the pixel is: its view depth over the far clip's (the sky: wholly).

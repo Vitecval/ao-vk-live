@@ -7,6 +7,7 @@
 #include "weather_options.h"
 #include "terrain_materials.h"
 #include "area_profiles.h"
+#include "interior_lighting.h"
 
 #include <algorithm>
 #include <bit>
@@ -372,7 +373,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     // Night: the sun's light on flat ground (smoothed) below a tenth of full day; lifted by the game's dawn ambient.
     float night = NightAmount();
     fl->effects[0] = m_leafLight;
-    fl->effects[1] = m_hdr ? m_nightGlow * night : 0.0f;
+    fl->effects[1] = m_hdr && m_loginScene<.5f ? m_nightGlow * night : 0.0f;
     fl->effects[2] = m_sunSoftness;
     fl->effects[3] = m_grassPush;
     Wind(fl->wind);
@@ -446,7 +447,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     // The sun the shadow map was drawn with (shadows lag a frame), or without shadows this frame's.
     const float* sunDir = m_shadowValid ? m_shadowSunDir : m_frameSunDir;
     fl->sunDir[0] = sunDir[0]; fl->sunDir[1] = sunDir[1]; fl->sunDir[2] = sunDir[2];
-    fl->sunDir[3] = m_hdr ? m_hdrHeadroom : m_lightHeadroom;
+    fl->sunDir[3] = m_loginScene>.5f ? 1.f : m_hdr ? m_hdrHeadroom : m_lightHeadroom;
     for (int i = 0; i < 3; ++i) fl->sunColor[i] = m_shadowValid ? m_shadowSunColor[i] : m_frameSunColor[i];
     fl->sunColor[3] = m_frameSunLuma;            // (the clouds' light: not dimmed by the clouds hiding the sun)
     // A thunderstorm's deck hides the sun: its light on the grass, the clouds, the air and the water mostly gone
@@ -567,7 +568,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     fl->pbr[2] = m_ssr > 0.0f ? m_pbr.reflections : 0.0f;
     fl->pbr[3] = m_pbr.occlusion;
     fl->pbr2[0] = float(m_pbr.debug);
-    fl->pbr2[1] = m_pbr.enabled ? 1.0f : 0.0f;
+    fl->pbr2[1] = m_pbr.enabled && m_loginScene<.5f ? 1.0f : 0.0f;
     fl->pbr2[2] = m_pbr.enabled ? m_pbr.emissive : 0.0f;
     // The environment probe's atlas (hdr.cpp RenderEnvProbe): bindless image slot + 1 (0 = none) in bits 0-19, the
     // linear sampler's slot in 20-27, its strength (0..1, 1/15 steps) in 28-31 - as the float's bits.
@@ -615,7 +616,8 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
         m_frameLightIndices.push_back(candidates[k].index);
         m_frameLightSpheres.push_back({c.light.position.x, c.light.position.y, c.light.position.z, c.light.range * c.light.range});
         FillGpuLight(c.light, c.cosHalfTheta, c.cosHalfPhi, fl->lights[k],
-                     m_pointLightScale + (m_charLightScale - m_pointLightScale) * c.carried);
+                     (m_pointLightScale + (m_charLightScale - m_pointLightScale) * c.carried) *
+                     lighting::InteriorScale(m_skyPlayfield,uint32_t(c.light.type),c.light.range,c.light.attenuation0,c.light.attenuation2));
         fl->lights[k].ambient[3] = c.carried > 0.5f ? 1.0f : 0.0f;   // carried by a character (F_CHARACTER draws)
         uint32_t cube = PointShadowLayer(c.light);
         fl->lights[k].spot[2] = float(cube);                        // its cube shadow map + 1, 0 = none
@@ -750,9 +752,24 @@ uint64_t Device::MotionKey(uint32_t primitive, uint32_t fvf, uint32_t vertexCoun
 // A pre-transformed draw that belongs to the interface, not the 3D scene. The water (VisualLiquid_t) is drawn from
 // vertices the game transforms with ProcessVertices: pre-transformed too, but with a specular colour (FVF 0x1C4), in the
 // middle of the scene - taking it for the interface ended the scene early wherever water was in view.
-bool Device::IsInterfaceDraw(uint32_t fvf) const
+bool Device::IsInterfaceDraw(uint32_t fvf,uint32_t primitive,const void* vertices,uint32_t vertexCount) const
 {
-    return (fvf & d3d::FVF_POSITION_MASK) == d3d::FVF_XYZRHW && !IsWater(fvf);
+    if((fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW || IsWater(fvf))return false;
+    // This full-screen draw clears an indoor world's background before its
+    // rooms, not the interface. Confirmed by the retail Q41 diagnostics.
+    if(m_drawVisualName && std::strcmp(m_drawVisualName,"VisualClearScreen_t")==0)return false;
+    // Screen-space probes can occur between sky and rooms. A quad wholly
+    // outside the viewport contributes no interface pixels and must not end
+    // HDR before the world has been drawn. Keep actual UI and processed water
+    // on their existing paths; do not infer UI from a texture ID or zone.
+    if(vertices && vertexCount>=3 && (primitive==d3d::TriangleList || primitive==d3d::TriangleStrip || primitive==d3d::TriangleFan)) {
+        float lo[2]={1e30f,1e30f},hi[2]={-1e30f,-1e30f};
+        const uint32_t stride=FvfStride(fvf);
+        for(uint32_t i=0;i<vertexCount;++i){float xy[2];std::memcpy(xy,static_cast<const uint8_t*>(vertices)+size_t(i)*stride,8);for(int k=0;k<2;++k){if(!std::isfinite(xy[k]))return true;lo[k]=std::min(lo[k],xy[k]);hi[k]=std::max(hi[k],xy[k]);}}
+        if(hi[0]<float(m_viewport.x)-1.f || hi[1]<float(m_viewport.y)-1.f ||
+           lo[0]>float(m_viewport.x)+m_viewport.width || lo[1]>float(m_viewport.y)+m_viewport.height)return false;
+    }
+    return true;
 }
 
 // Whether a mesh is one plane: 95% of its triangles' area faces one way (either side) and its vertices lie within 6%
@@ -885,15 +902,16 @@ float Device::LightScale(const d3d::Light& l) const
 {
     if (l.type == d3d::LIGHT_DIRECTIONAL)
         return 1.0f;
+    const float interior=lighting::InteriorScale(m_skyPlayfield,uint32_t(l.type),l.range,l.attenuation0,l.attenuation2);
     if (m_charLightScale != m_pointLightScale)
         for (const CapturedLight& c : m_lightsPrev) {
             if (c.carried <= 0.0f || c.light.range != l.range) continue;
             float dx = c.light.position.x - l.position.x, dy = c.light.position.y - l.position.y,
                   dz = c.light.position.z - l.position.z;
             if (dx * dx + dy * dy + dz * dz < 1.0f)
-                return m_pointLightScale + (m_charLightScale - m_pointLightScale) * c.carried;
+                return (m_pointLightScale + (m_charLightScale - m_pointLightScale) * c.carried)*interior;
         }
-    return m_pointLightScale;
+    return m_pointLightScale*interior;
 }
 
 // Phong tessellation of characters (RVK_Tess): the level for this draw, 0 for none. Characters are drawn as
@@ -2574,6 +2592,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
 {
     if (!m_inFrame || !vertexCount)
         return;
+    const bool interfaceDraw=IsInterfaceDraw(fvf,primitive,vertices,vertexCount);
     if(primitive==d3d::TriangleList && SuppressLivingOriginal(fvf,vertices,vertexCount,indices,indexCount))return;
     // The game's ground, drawn by rvk from the playfield's data instead (native_ground.cpp): its own draws skipped.
     // (Its base pass deferred to the lighting pass - RVK_GroundOne - but something else came first: drawn now.)
@@ -2586,7 +2605,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // Family ownership is artwork metadata, not a cross-resource draw gate.
     // RVK_FrameGen: a 2D draw on the frame after the interface (the mouse pointer) goes on top of the overlay.
     if (m_fgUiLayer && m_target == m_main && !m_fgTopActive && !m_uiLayerActive && !m_external &&
-        m_interfaceEndFrame == m_frameNumber && IsInterfaceDraw(fvf))
+        m_interfaceEndFrame == m_frameNumber && interfaceDraw)
         FgTopBegin();
     m_drawObject = nullptr;                      // (found below for a static mesh)
     struct ObjectScope {                         // ... and none once the draw is done (DrawWorldBox, FrameLightMask
@@ -2711,7 +2730,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (!m_external && m_target == m_main) {
         if ((fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW)
             m_particleSaw3D = true;
-        else if (IsInterfaceDraw(fvf) && m_particleSaw3D && !m_particleOrphansDone) {
+        else if (interfaceDraw && m_particleSaw3D && !m_particleOrphansDone) {
             m_particleOrphanTrigger = "end of the 3D scene";
             DrawOrphanParticles();
         }
@@ -2744,7 +2763,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE] && VisualKind(m_drawVisualKind)!=VisualKind::Sky) {
             m_sceneSaw3D=true;
             if(!m_aoProjValid){m_aoProj=m_proj;m_aoView=m_view;m_aoProjValid=true;m_aoCameraGen=0;}
-        } else if(m_sceneSaw3D && IsInterfaceDraw(fvf)) EndScene();
+        } else if(m_sceneSaw3D && interfaceDraw) EndScene();
     }
     // HDR: the frame's first interface draw after its 3D ends the scene phase - the scene is tone mapped and the
     // interface drawn over it into the 8-bit target. (Not every pre-transformed draw is interface: IsInterfaceDraw.)
@@ -2757,7 +2776,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                 m_aoProjValid = true;
                 m_aoCameraGen = 0;               // (AoCamera: asked again)
             }
-        } else if (m_sceneSaw3D && IsInterfaceDraw(fvf)) {
+        } else if (m_sceneSaw3D && interfaceDraw) {
             m_sceneEndDraw = m_dumpDraw;
             m_sceneEndFvf = fvf;
             EndScene();
@@ -2857,7 +2876,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // The interface hidden (screenshots): its draws - pre-transformed, onto the frame or into the interface layer,
     // not while the 3D scene is still being drawn - and the names over characters.
     if (m_hideInterface && !m_external &&
-        (m_drawIsLabel || (IsInterfaceDraw(fvf) && (m_target == m_main || m_target == m_uiLayer || m_target == m_fgTop) &&
+        (m_drawIsLabel || (interfaceDraw && (m_target == m_main || m_target == m_uiLayer || m_target == m_fgTop) &&
                            !(m_scenePhase && m_target == m_scene))))
         return;
     // A name label in the scene: held back, drawn after the post passes (DrawHeldLabels).
@@ -3504,7 +3523,9 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     std::memcpy(&c.vtx[3], &wet, 4);
     uint32_t flags = 0;
     if (m_rs[d3d::RS_LIGHTING] && (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW) flags |= F_LIGHTING;
-    if ((flags & F_LIGHTING) && m_pixelLighting) flags |= F_PERPIXEL;
+    // The authored login studio was baked/tuned for D3D's vertex lighting.
+    // Keep its original light interpolation and colour balance with HD art.
+    if ((flags & F_LIGHTING) && m_pixelLighting && m_loginScene<.5f) flags |= F_PERPIXEL;
     if (m_lightingDebug) flags |= F_DEBUGLIGHT;
     // Login/creation scenes use a separate camera and local studio lights.
     // Their own D3D lights must not be replaced by the previous world frame's
@@ -4227,6 +4248,24 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         m_terrainSettings.parallax > 0.0f && dt.icc[3]<0.5f && !(dt.mat[2]&kMatEnhancedRock))
         dt.mat[2] |= kMatHeight;
     if(rockShape)dt.mat[2]|=kMatRockShape;
+    const auto bakedKind=VisualKind(m_drawVisualKind);
+    const auto* templeTexture=m_textures[0];
+    const uint32_t templeMaterial=templeTexture ? templeTexture->m_worldMaterial>>24:0;
+    const bool templeStone=templeMaterial==1 || templeMaterial==7 || templeMaterial==8 || templeMaterial==9 ||
+        (templeTexture && templeTexture->m_rdbId>=209475u && templeTexture->m_rdbId<=209484u);
+    if(m_skyPlayfield==4625u && (bakedKind==VisualKind::Static || bakedKind==VisualKind::Room) &&
+       templeTexture && templeTexture->m_rdbType==1010004u && templeStone &&
+       !m_drawIsCharacter && !m_drawSkin && !m_native.drawing && m_rs[d3d::RS_LIGHTING] &&
+       !(m_rs[d3d::RS_ALPHABLENDENABLE] && m_rs[d3d::RS_DESTBLEND]==d3d::BLEND_ONE))
+        dt.mat[2]|=kMatMatteTemple;
+    // The room mesh supplies the reference floor. Correct only its separate
+    // static props (the captured pillar is RTriMesh_t), never that room bake.
+    if(m_skyPlayfield==4625u && bakedKind==VisualKind::Static &&
+       !m_drawIsCharacter && !m_drawSkin && !m_native.drawing && (fvf&d3d::FVF_DIFFUSE) &&
+       m_rs[d3d::RS_LIGHTING] && m_rs[d3d::RS_COLORVERTEX] &&
+       m_rs[d3d::RS_EMISSIVEMATERIALSOURCE]==d3d::MCS_COLOR1 &&
+       !(m_rs[d3d::RS_ALPHABLENDENABLE] && m_rs[d3d::RS_DESTBLEND]==d3d::BLEND_ONE))
+        dt.mat[2]|=kMatTempleBake;
     if (VisualKind(m_drawVisualKind) == VisualKind::Sky || (m_drawMesh && m_drawMesh->skyScenery))
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
     if(m_immersiveShips>.5f) {
@@ -4248,6 +4287,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     // GPU-driven M2: this draw's record, and the frame's two arrays (bindings 0 = constants, 12 = records) pushed
     // once per frame's command buffer. The record index travels in firstInstance (gl_InstanceIndex).
+    if(m_dumpFile && (dt.mat[2]&kMatTempleBake))
+        std::fprintf(m_dumpFile,"  temple baked light: vertex emissive shoulder 0.24-0.28; low floor values retained; material %u:%u\n",m_textures[0]?m_textures[0]->m_rdbType:0,m_textures[0]?m_textures[0]->m_rdbId:0);
+    if(m_dumpFile && (dt.mat[2]&kMatMatteTemple))
+        std::fprintf(m_dumpFile,"  temple matte stone: specular 0; environment 0; SSR 0; diffuse highlight shoulder 0.70-0.80\n");
     if (m_dumpFile && terrain && m_native.drawing) {
         uint32_t codes = 0;
         std::memcpy(&codes, &dt.terrain[1], sizeof(codes));

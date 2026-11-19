@@ -83,7 +83,7 @@ enum : uint32_t { kMatPbr = 1, kMatBase = 2, kMatAlbedo = 4, kMatEmissive = 8, k
                   kMatWorld = 4096, kMatTerrainHD = 8192,
                   kMatMineral = 16384, kMatHonedStone = 32768,
                   kMatAuthoredGround = 65536, kMatAsphalt = 131072, kMatImmersiveShip = 262144, kMatDistantScenery=524288,
-                  kMatEnhancedRock=1048576, kMatRockShape=2097152 };   // DrawTransform
+                  kMatEnhancedRock=1048576, kMatRockShape=2097152, kMatTempleBake=4194304, kMatMatteTemple=8388608 };   // DrawTransform
                                                  // mat[2]: has an ORM map; it is the ground base's; stage 0 draws an
                                                  // albedo map; has an emissive map; its texture was picked
 // GPU-driven M2: one record a draw (binding 12). `constIndex` selects the shared DrawConstants it draws with; the

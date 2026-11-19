@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
-p=ROOT/'build/horizon-0.7.4/vivid-check'
+p=ROOT/'build/horizon-0.7.6/vivid-check'
 names=['off','zero','on','off-again','static','static-bright','adapt-bright']
 a={n:np.asarray(Image.open(p/(n+'.bmp'))).astype(float) for n in names}
 base=np.array([[0,0,0],[32,32,32],[96,96,96],[160,160,160],[238,238,238],[204,51,51],[51,187,85],[68,102,204]],float)/255

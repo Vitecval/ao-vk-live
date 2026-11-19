@@ -12,7 +12,7 @@ using System.Windows.Threading;
 [assembly: AssemblyTitle("Rubi-Ka Horizon")]
 [assembly: AssemblyProduct("Rubi-Ka Horizon")]
 [assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyFileVersion("0.7.6.0")]
+[assembly: AssemblyFileVersion("0.7.7.0")]
 namespace Horizon {
  public partial class App:Application {
   public static string StateRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"RubiKaHorizon");

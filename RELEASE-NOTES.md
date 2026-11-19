@@ -1,4 +1,20 @@
-# Rubi-Ka Horizon 0.7.6
+# Rubi-Ka Horizon 0.7.7
+
+- Fixed fresh starts bypassing the login lighting correction. Fresh and returned
+  login scenes now use the same authored studio lighting and temporal smoothing.
+- Reduced login shimmer by identifying additive effects correctly; softened
+  excess studio tint and bright highlights.
+- Made clan-temple stone matte and corrected its excessive lighting. Fixed
+  ground-rock visibility at changing camera angles.
+- Slow graphics preparation shows responsive progress and elapsed time.
+- Added PermaDay and PermaNight to Day/Night Cycle, saved across restarts.
+- Successful issue reports show a prominent acceptance state, lock completed
+  fields and switch to Send a New Report to avoid accidental repeated sends.
+- Includes Preview 24 r63 and its matching shader-preparation helper. Full
+  reuses the current texture companions; Lite downloads no texture archives.
+- Armor and creature rework is pending for 0.7.8 and is not included.
+
+## Rubi-Ka Horizon 0.7.6
 
 - Vivid Tone overall strength defaults to 0.5. Existing saved values are preserved;
   the effect remains optional and off by default.

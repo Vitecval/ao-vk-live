@@ -2104,7 +2104,7 @@ private:
     VkDescriptorSetLayout m_tonemapSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout m_tonemapLayout = VK_NULL_HANDLE;
     VkPipeline m_tonemapPipeline = VK_NULL_HANDLE;
-    float m_loginScene=0.f, m_vividTone=0.f, m_vividAmount=.9f, m_vividHdr=.15f, m_vividExposure=.1f;
+    float m_loginScene=0.f, m_vividTone=0.f, m_vividAmount=.5f, m_vividHdr=.15f, m_vividExposure=.1f;
     float m_vividShadows=.2f, m_vividContrast=.6f, m_vividStatic=0.f, m_vividRate=.25f;
     Texture* m_vividLuma[2]={};
     Texture* m_vividOut=nullptr;

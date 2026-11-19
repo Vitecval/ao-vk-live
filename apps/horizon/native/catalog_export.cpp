@@ -25,7 +25,7 @@ int main(int argc,char**argv){
     std::vector<RvkSettingInfo> settings(count());
     for(uint32_t i=0;i<settings.size();++i){settings[i].size=sizeof(RvkSettingInfo);if(!get(i,&settings[i]))return 5;}
     FILE* f=std::fopen(argv[1],"wb");if(!f)return 6;
-    std::fprintf(f,"{\"rendererRevision\":61,\"settings\":[\n");
+    std::fprintf(f,"{\"rendererRevision\":62,\"settings\":[\n");
     for(size_t i=0;i<settings.size();++i){auto& s=settings[i];if(i)std::fputc(',',f);
         std::fputs("{\"key\":",f);quoted(f,s.name);std::fputs(",\"label\":",f);quoted(f,s.label);
         std::fputs(",\"section\":",f);quoted(f,s.section);

@@ -418,8 +418,8 @@ Setting g_settings[] = {
     {"RVK_Fxaa",       "FXAA: fast anti-aliasing, used when TAA is off (no smearing, a little softer)", "Anti-aliasing", Bool, 0, 1, 1, 0, nullptr, 0},
 
     {"RVK_GradeOn",    "Colour grading",                                           "Colour grading",   Bool,  0, 1, 1, 0, nullptr, 0},
-    {"RVK_VividTone", "Vivid Tone: adaptive colour enhancement (Barbatos)", "Vivid Tone", Bool, 0, 1, 1, 0, nullptr, 0},
-    {"RVK_VividAmt", "Vivid Tone: overall strength", "Vivid Tone", Float, 0, 1, .05f, .9f, nullptr, 0, "RVK_VividTone"},
+    {"RVK_VividTone", "Vivid Tone: adaptive colour enhancement", "Vivid Tone", Bool, 0, 1, 1, 0, nullptr, 0},
+    {"RVK_VividAmt", "Vivid Tone: overall strength", "Vivid Tone", Float, 0, 1, .05f, .5f, nullptr, 0, "RVK_VividTone"},
     {"RVK_VividHDR", "Vivid Tone: contrast depth (gamma, not display HDR)", "Vivid Tone", Float, 0, 1, .01f, .15f, nullptr, 0, "RVK_VividTone"},
     {"RVK_VividExp", "Vivid Tone: added exposure", "Vivid Tone", Float, 0, 1, .01f, .1f, nullptr, 0, "RVK_VividTone"},
     {"RVK_VividLift", "Vivid Tone: shadow lift", "Vivid Tone", Float, 0, 1, .01f, .2f, nullptr, 0, "RVK_VividTone"},

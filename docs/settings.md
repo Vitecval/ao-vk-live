@@ -490,8 +490,8 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `RVK_VividTone` | Vivid Tone: adaptive colour enhancement (Barbatos) | on / off | off | window; game value off; knob |
-| `RVK_VividAmt` | Vivid Tone: overall strength | 0 .. 1 | 0.9 | window; switch `RVK_VividTone`; knob |
+| `RVK_VividTone` | Vivid Tone: adaptive colour enhancement | on / off | off | window; game value off; knob |
+| `RVK_VividAmt` | Vivid Tone: overall strength | 0 .. 1 | 0.5 | window; switch `RVK_VividTone`; knob |
 | `RVK_VividHDR` | Vivid Tone: contrast depth (gamma, not display HDR) | 0 .. 1 | 0.15 | window; switch `RVK_VividTone`; knob |
 | `RVK_VividExp` | Vivid Tone: added exposure | 0 .. 1 | 0.1 | window; switch `RVK_VividTone`; knob |
 | `RVK_VividLift` | Vivid Tone: shadow lift | 0 .. 1 | 0.2 | window; switch `RVK_VividTone`; knob |

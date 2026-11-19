@@ -4,6 +4,7 @@
 • App and in-game descriptions use the simple Vivid Tone name. Attribution remains in the bundled license notices.
 • Includes Preview 24 r62 with a matching graphics-preparation helper. Full reuses the existing HD library; Lite downloads no textures.
 • HD armor and creature rework is reserved for 0.7.7 and is not included in this patch.
+• Setup briefly retries transient file locks when saving its recovery record; persistent failures still restore the previous installation safely.
 
 0.7.5
 

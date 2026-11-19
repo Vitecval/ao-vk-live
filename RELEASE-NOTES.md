@@ -7,6 +7,8 @@
 - Includes Preview 24 r62 and its matching shader-preparation helper. Full reuses
   the existing HD texture companions; Lite still downloads no texture archives.
 - HD armor and creature rework is reserved for 0.7.7 and excluded from this patch.
+- Installer journal writes briefly retry transient file locks while keeping
+  atomic replacement and the existing rollback behavior.
 
 ## Rubi-Ka Horizon 0.7.5
 

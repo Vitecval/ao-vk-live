@@ -128,7 +128,19 @@ function Save-AoTransaction([string]$Path, $Journal) {
     $temp=$Path+'.writing-'+$Journal.token
     try {
         [IO.File]::WriteAllText($temp,($Journal|ConvertTo-Json -Depth 6),(New-Object Text.UTF8Encoding($false)))
-        if (Test-Path -LiteralPath $Path) { [IO.File]::Replace($temp,$Path,[System.Management.Automation.Language.NullString]::Value) }
+        if (Test-Path -LiteralPath $Path) {
+            for ($attempt=0; ; $attempt++) {
+                try { [IO.File]::Replace($temp,$Path,[System.Management.Automation.Language.NullString]::Value); break }
+                catch {
+                    $failure=$_.Exception
+                    while ($failure.InnerException) { $failure=$failure.InnerException }
+                    # Short-lived file scanners can deny replacement of the
+                    # journal. Keep its atomic write and bounded failure path.
+                    if ($attempt -ge 4 -or $failure -isnot [IO.IOException] -or ![IO.File]::Exists($temp)) { throw }
+                    Start-Sleep -Milliseconds (50*($attempt+1))
+                }
+            }
+        }
         else { Move-Item -LiteralPath $temp -Destination $Path }
     } finally { if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp } }
 }

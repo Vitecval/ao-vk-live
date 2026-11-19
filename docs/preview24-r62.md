@@ -12,3 +12,6 @@ shader-preparation helper. Full reuses the existing 19 texture companions and
 
 The HD armor and creature rework is reserved for 0.7.7 and is not included here.
 Standard Enhanced remains the default character artwork.
+
+Installer journal writes briefly retry a transient file lock while retaining
+atomic replacement. A persistent failure still triggers the existing rollback.

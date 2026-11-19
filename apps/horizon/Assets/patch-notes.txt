@@ -1,3 +1,10 @@
+0.7.6
+
+• Vivid Tone overall strength now defaults to 0.5. Existing saved values are preserved; the optional effect remains off by default.
+• App and in-game descriptions use the simple Vivid Tone name. Attribution remains in the bundled license notices.
+• Includes Preview 24 r62 with a matching graphics-preparation helper. Full reuses the existing HD library; Lite downloads no textures.
+• HD armor and creature rework is reserved for 0.7.7 and is not included in this patch.
+
 0.7.5
 
 • Update notices appear above every page, with a View updates button. Startup checks no longer leave available updates hidden on another tab.

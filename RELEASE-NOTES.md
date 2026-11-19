@@ -1,4 +1,14 @@
-# Rubi-Ka Horizon 0.7.5
+# Rubi-Ka Horizon 0.7.6
+
+- Vivid Tone overall strength defaults to 0.5. Existing saved values are preserved;
+  the effect remains optional and off by default.
+- App and in-game descriptions use Vivid Tone without author branding. License
+  attribution remains in the bundled notices.
+- Includes Preview 24 r62 and its matching shader-preparation helper. Full reuses
+  the existing HD texture companions; Lite still downloads no texture archives.
+- HD armor and creature rework is reserved for 0.7.7 and excluded from this patch.
+
+## Rubi-Ka Horizon 0.7.5
 
 - Available startup updates now show a persistent notice on every page with
   a View updates button.

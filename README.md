@@ -1,11 +1,16 @@
-# Rubi-Ka Horizon 0.7.5
+# Rubi-Ka Horizon 0.7.6
+
+Vivid Tone now defaults to 0.5 overall strength, with existing saved values
+preserved. App and in-game descriptions use the simple Vivid Tone name, with
+attribution retained in the bundled licenses. This patch includes Preview 24
+r62 and reuses the current Full HD library. The HD armor and creature rework
+is reserved for 0.7.7.
 
 Horizon now shows an update notice with a direct link to Updates, includes
 Patch notes and Suggestions pages, and launches the selected AO client from
 the system tray menu. Save custom graphics presets by name; newly added
 options stay red until reviewed, while built-in presets receive new defaults.
-The graphics remain Preview 24 r61, so current 0.7.4 installations need only
-the app update. Private Reworked artwork remains separate and unpublished.
+The update-notice and named-preset features from 0.7.5 remain included.
 
 Installation now shows the actual installed app version, graphics revision and
 Lite/Full HD edition separately from the running copy. Current installations
@@ -27,7 +32,7 @@ need no GitHub account; a local report ZIP is available if the service is offlin
 The new Windows application combines installation, repair, removal and live AO
 graphics settings. Choose Lite (no texture downloads) or Full HD (the existing
 texture packs and 14,345 prepared cache files) inside the same EXE. The graphics
-engine remains Preview 24 r61. [Application details and build](apps/horizon/README.md).
+engine is Preview 24 r62. [Application details and build](apps/horizon/README.md).
 
 This preview fixes disabled settings turning white during setup, reports repair
 progress continuously, and reduces large Full HD file-list and staging overhead.

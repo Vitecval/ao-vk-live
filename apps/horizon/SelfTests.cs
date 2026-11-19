@@ -33,6 +33,7 @@ namespace Horizon {
    var catalog=Catalog.Load();Check(catalog.settings.Count>=200,"Catalog exports every visible renderer setting");
    Check(KeybindHelp.All.Length>=45&&KeybindHelp.All.All(k=>k.Keys.Length>0&&k.Title.Length>0&&k.Description.Length>0),"Keybinds provide searchable explanations for graphics, options, diagnostics, camera and console controls");
    Check(catalog.settings.Single(s=>s.key=="RVK_VividTone").defaultValue==0&&catalog.presets.All(p=>!p.values.ContainsKey("RVK_VividTone")),"Vivid Tone is off by default and presets preserve the user's choice");
+   Check(catalog.settings.Single(s=>s.key=="RVK_VividAmt").defaultValue==.5,"Vivid Tone overall strength defaults to 0.5");
    Check(catalog.settings.Select(x=>x.key).Distinct().Count()==catalog.settings.Count,"Settings keys are unique");
    foreach(var s in catalog.settings){s.Normalize(s.defaultValue);if(s.type==3)Check(s.Options().Count>0,"Choices: "+s.key);}
    Check(catalog.presets.Count==4&&catalog.presets[0].values["RVK_Enhance"]==0,"Original preset disables enhancements");

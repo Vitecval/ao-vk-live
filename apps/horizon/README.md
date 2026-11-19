@@ -1,4 +1,10 @@
-# Rubi-Ka Horizon — 0.7.5
+# Rubi-Ka Horizon — 0.7.6
+
+0.7.6 lowers Vivid Tone's default overall strength to 0.5 while preserving saved
+values. App and in-game descriptions use Vivid Tone; bundled license notices
+retain the original attribution. The matching Preview 24 r62 renderer and
+shader helper reuse the existing Full HD library. HD armor and creature
+rework remains separate for 0.7.7.
 
 0.7.5 adds a persistent update notice with a link to Updates, Patch notes and
 Suggestions pages, tray launch for the selected AO folder, and named custom

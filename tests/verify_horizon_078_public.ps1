@@ -36,16 +36,16 @@ if($Phase -eq 'LegacyPrepare'){
  $repo=[string]$update.GetField('Repository').GetRawConstantValue()
  $asset=[ordered]@{name='Rubi-Ka-Horizon-Setup.exe';state='uploaded';size=(Get-Item -LiteralPath $Candidate).Length;digest=('sha256:'+$ExpectedSha256.ToLowerInvariant());browser_download_url=($repo+'/releases/download/v0.7.8/Rubi-Ka-Horizon-Setup.exe')}
  $metadata=ConvertTo-Json -InputObject @([ordered]@{tag_name='v0.7.8';draft=$false;prerelease=$false;name='Rubi-Ka Horizon0.7.8';assets=@($asset)}) -Depth 8 -Compress
- $release=$update.GetMethod('Select',$flags).Invoke($null,@($metadata))
+ $release=$update.GetMethod('Select',$flags).Invoke($null,@([string]$metadata))
  Check ($release.Tag -ceq 'v0.7.8') 'Actual old updater did not select the real candidate metadata.'
  Check ([int]$update.GetMethod('Compare',$flags).Invoke($null,@('v0.7.8','v0.7.7')) -gt 0) 'Old updater does not consider0.7.8 newer.'
  $downloads=Join-Path $legacyRoot 'updates\v0.7.8';New-Item -ItemType Directory -Path $downloads -Force | Out-Null
  $download=Join-Path $downloads 'Rubi-Ka-Horizon-Setup.exe';Copy-Item -LiteralPath $Candidate -Destination $download
- $update.GetMethod('ValidateBundle',$flags).Invoke($null,@($download))
+ $update.GetMethod('ValidateBundle',$flags).Invoke($null,@([string]$download))
  $client=Join-Path $legacyRoot 'AO dummy client';New-Item -ItemType Directory -Path $client -Force | Out-Null
  [IO.File]::WriteAllText((Join-Path $client 'AnarchyOnline.exe'),'dummy never executed')
  [IO.File]::WriteAllText((Join-Path $client 'randy31.dll'),'dummy never loaded')
- $ticket=[string]$update.GetMethod('PrepareHandoff').Invoke($null,@($download,$release,$client,'lite',$true))
+ $ticket=[string]$update.GetMethod('PrepareHandoff').Invoke($null,@([string]$download,$release,[string]$client,'lite',$true))
  $report=[ordered]@{result='passed';oldVersion='0.7.7';oldExecutable=$OldExe;oldSha256=(Sha $OldExe);candidate=$Candidate;candidateSha256=(Sha $Candidate);candidateBytes=(Get-Item -LiteralPath $Candidate).Length;selectedTag=$release.Tag;bundleAccepted=$true;ticket=$ticket;download=$download;client=$client;metadata=$metadata;networkContacted=$false;gameLaunched=$false;retailClientsChanged=$false}
  Write-Json $report (Join-Path $StateRoot 'LEGACY-PREPARE.json');exit 0
 }

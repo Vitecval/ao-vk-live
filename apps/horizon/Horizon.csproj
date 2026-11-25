@@ -27,6 +27,7 @@
     <Compile Include="PresetStore.cs"/>
     <Compile Include="PresetControls.cs"/><Compile Include="Suggestions.cs"/>
     <Compile Include="PresetTests.cs"/>
+    <Compile Include="DisplaySettings.cs"/><Compile Include="DisplayControls.cs"/><Compile Include="DisplayTests.cs"/>
     <Resource Include="Assets\patch-notes.txt"/>
     <Resource Include="Assets\landscape.png"/><Resource Include="Assets\settings.json"/>
     <Resource Include="Assets\lite-manifest.json.gz"/><Resource Include="Assets\full-manifest.json.gz"/>

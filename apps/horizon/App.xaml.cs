@@ -12,7 +12,7 @@ using System.Windows.Threading;
 [assembly: AssemblyTitle("Rubi-Ka Horizon")]
 [assembly: AssemblyProduct("Rubi-Ka Horizon")]
 [assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyFileVersion("0.7.7.0")]
+[assembly: AssemblyFileVersion("0.7.8.0")]
 namespace Horizon {
  public partial class App:Application {
   public static string StateRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"RubiKaHorizon");
@@ -39,6 +39,8 @@ namespace Horizon {
    if(Array.IndexOf(e.Args,"--self-test-updates")>=0){RunUpdateTests();return;}
    if(Array.IndexOf(e.Args,"--self-test-tray")>=0){RunTrayTests();return;}
    if(Array.IndexOf(e.Args,"--self-test-feature-ui")>=0){RunFeatureUiTests();return;}
+   if(Array.IndexOf(e.Args,"--self-test-tooltips-ui")>=0){RunTooltipUiTests();return;}
+   if(Array.IndexOf(e.Args,"--self-test-display-ui")>=0){RunDisplayUiTests();return;}
    int probe=Array.IndexOf(e.Args,"--singleton-probe");if(probe>=0&&probe+1<e.Args.Length){try{Guid scope;if(!Guid.TryParseExact(e.Args[probe+1],"N",out scope))throw new IOException("Invalid probe scope.");using(var gate=new SingleInstance(SingleInstance.ProductKey+"-test-"+scope.ToString("N")))using(var signal=new System.Threading.ManualResetEvent(false)){bool owner=gate.Enter();if(owner)gate.Listen(()=>signal.Set());File.WriteAllText(Path.Combine(StateRoot,"probe-ready.txt"),owner?"owner":"secondary");bool activated=owner?signal.WaitOne(10000):gate.Signal();File.WriteAllText(Path.Combine(StateRoot,"probe-result.txt"),(owner?"owner":"secondary")+":"+activated);}Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"probe-failure.txt"),ex.ToString());Shutdown(1);}return;}
    int render=Array.IndexOf(e.Args,"--render-preview");
    RenderingPreview=render>=0;
@@ -66,6 +68,8 @@ namespace Horizon {
   async void RunUpdateTests(){try{await UpdateTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"UPDATE-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunTrayTests(){try{await SelfTests.Tray(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TRAY-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunFeatureUiTests(){try{await PresetTests.Ui(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"FEATURE-UI-FAILURE.txt"),ex.ToString());Shutdown(1);}}
+  async void RunTooltipUiTests(){try{await PresetTests.TooltipUi(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TOOLTIP-UI-FAILURE.txt"),ex.ToString());Shutdown(1);}}
+  async void RunDisplayUiTests(){try{await DisplayTests.Ui(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"DISPLAY-UI-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   public static void Trace(string text){try{File.AppendAllText(Path.Combine(StateRoot,"startup.log"),DateTime.UtcNow.ToString("o")+" "+text+Environment.NewLine);}catch{}}
   protected override void OnExit(ExitEventArgs e){if(instance!=null){instance.Dispose();instance=null;}base.OnExit(e);}
  }

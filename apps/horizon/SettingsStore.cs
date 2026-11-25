@@ -27,11 +27,12 @@ namespace Horizon {
    definitions=settings.ToDictionary(x=>x.key,StringComparer.OrdinalIgnoreCase);
   }
   static void CheckLinks(string path){for(var d=new DirectoryInfo(path);d!=null;d=d.Parent)if((d.Attributes&FileAttributes.ReparsePoint)!=0)throw new IOException("The selected folder passes through a link. Choose the actual AO folder.");}
-  public Dictionary<string,string> Read(){
+  public Dictionary<string,string> Read(){return ReadSection("Renderer");}
+  public Dictionary<string,string> ReadSection(string section){
    lock(readLock){
    if(File.Exists(IniPath))using(var check=new FileStream(IniPath,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete)){}
-   var buffer=profileBuffer;uint n=GetPrivateProfileSection("Renderer",buffer,(uint)buffer.Length,IniPath);
-   if(n>=buffer.Length-2)throw new IOException("The renderer settings section is too large to read safely.");
+   var buffer=profileBuffer;uint n=GetPrivateProfileSection(section,buffer,(uint)buffer.Length,IniPath);
+   if(n>=buffer.Length-2)throw new IOException("The settings section is too large to read safely.");
    var result=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);
    foreach(var line in new string(buffer,0,(int)n).Split('\0')){int at=line.IndexOf('=');if(at<1)continue;string key=line.Substring(0,at).Trim();if(!result.ContainsKey(key))result[key]=line.Substring(at+1).Trim();}
    return result;
@@ -43,26 +44,27 @@ namespace Horizon {
    foreach(var p in changes){Setting s;if(!definitions.TryGetValue(p.Key,out s))throw new ArgumentException("Unknown graphics option.");values.Add(s.key,s.Serialize(p.Value));}
    Write(values,true);
   }
+  public void SaveDisplay(DisplayPreferences value){value.Validate();Write(value.Values(),false,null,"Display");}
   string MutexName(){using(var h=SHA256.Create())return "Local\\RubiKaHorizon.Settings."+BitConverter.ToString(h.ComputeHash(Encoding.UTF8.GetBytes(IniPath.ToUpperInvariant()))).Replace("-","");}
-  void Write(Dictionary<string,string> values,bool remember,Dictionary<string,string> expected=null){
+  void Write(Dictionary<string,string> values,bool remember,Dictionary<string,string> expected=null,string section="Renderer"){
    using(var mutex=new Mutex(false,MutexName())){
     bool held=false;
     try{
      try{held=mutex.WaitOne(3000);}catch(AbandonedMutexException){held=true;}
      if(!held)throw new IOException("Another Horizon window is saving settings. Try again shortly.");
      CheckLinks(DirectoryPath);
-     var current=Read();var before=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);var done=new List<string>();
+     var current=ReadSection(section);var before=new Dictionary<string,string>(StringComparer.OrdinalIgnoreCase);var done=new List<string>();
      if(expected!=null)foreach(var p in expected){string now;current.TryGetValue(p.Key,out now);if(now!=p.Value)throw new IOException("These options were changed elsewhere. Refresh before undoing to preserve the newer settings.");}
      foreach(var p in values){string old;before[p.Key]=current.TryGetValue(p.Key,out old)?old:null;}
      try{
       foreach(var p in values){
-       if(!WritePrivateProfileString("Renderer",p.Key,p.Value,IniPath))throw new IOException("Windows could not save "+definitions[p.Key].Title+". Check access to the AO folder.",new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()));
+       if(!WritePrivateProfileString(section,p.Key,p.Value,IniPath))throw new IOException("Windows could not save "+p.Key+". Check access to the AO folder.",new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()));
        done.Add(p.Key);
       }
-      var after=Read();foreach(var p in values){string actual;if(p.Value==null){if(after.ContainsKey(p.Key))throw new IOException("Windows could not remove the setting.");}else if(!after.TryGetValue(p.Key,out actual)||!string.Equals(actual,p.Value,StringComparison.Ordinal))throw new IOException("The setting changed while it was being saved. Refresh and try again.");}
+      var after=ReadSection(section);foreach(var p in values){string actual;if(p.Value==null){if(after.ContainsKey(p.Key))throw new IOException("Windows could not remove the setting.");}else if(!after.TryGetValue(p.Key,out actual)||!string.Equals(actual,p.Value,StringComparison.Ordinal))throw new IOException("The setting changed while it was being saved. Refresh and try again.");}
      }catch{
       // Restore only our successful writes, never another writer's newer value.
-      var latest=Read();foreach(var key in done){string now;latest.TryGetValue(key,out now);if(now==values[key])WritePrivateProfileString("Renderer",key,before[key],IniPath);}throw;
+      var latest=ReadSection(section);foreach(var key in done){string now;latest.TryGetValue(key,out now);if(now==values[key])WritePrivateProfileString(section,key,before[key],IniPath);}throw;
      }
      if(remember){history.Push(new Change{Before=before,After=values});while(history.Count>100){var keep=history.Take(100).Reverse().ToArray();history.Clear();foreach(var x in keep)history.Push(x);}}
     }finally{if(held)mutex.ReleaseMutex();}

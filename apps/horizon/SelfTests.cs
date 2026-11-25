@@ -31,6 +31,9 @@ namespace Horizon {
    activity.Stop(start.AddSeconds(50));Check(activity.Timing(start.AddMinutes(5))=="Elapsed 0:50","Completed setup timing stops advancing");
    activity.Start("Checking saved setup files",start.AddMinutes(6));Check(activity.Timing(start.AddMinutes(6))=="Elapsed 0:00","Retry clears the previous attempt's elapsed and waiting state");
    var catalog=Catalog.Load();Check(catalog.settings.Count>=200,"Catalog exports every visible renderer setting");
+   var tips=catalog.settings.Single(s=>s.key=="RVK_InstantTips");
+   Check(tips.type==0&&tips.defaultValue==0&&tips.section=="General"&&tips.Title=="Instant tooltips"&&tips.Quick&&tips.help=="Show item and interface tooltips without the usual hover delay.","Instant tooltips is a visible default-off General checkbox with exact native-interface help");
+   Check(catalog.presets.All(p=>!p.values.ContainsKey(tips.key)),"Graphics presets preserve the tooltip preference");
    var dayCycle=catalog.settings.Single(s=>s.key=="RVK_DayCycle");
    Check(dayCycle.Options().Count==5&&dayCycle.Options().Single(o=>o.Value==3).Label=="PermaDay"&&dayCycle.Options().Single(o=>o.Value==4).Label=="PermaNight","Day/Night Cycle includes permanent day and night");
    Check(dayCycle.Normalize(3)==3&&dayCycle.Normalize(4)==4,"Permanent cycle selections serialize without clamping");
@@ -48,6 +51,10 @@ namespace Horizon {
    string client=Path.Combine(root,"AO [personal] O'Brien 测试");Directory.CreateDirectory(client);File.WriteAllText(Path.Combine(client,"randy31.dll"),"dummy never loaded");File.WriteAllText(Path.Combine(client,"AnarchyOnline.exe"),"dummy never executed");
    var store=new SettingsStore(client,catalog.settings);string ini=store.IniPath;
    var beforeFirstLaunch=new SettingsStore(client,catalog.settings);
+   beforeFirstLaunch.Save(new Dictionary<string,double>{{"RVK_InstantTips",1}});
+   Check(new SettingsStore(client,catalog.settings).Read()["RVK_InstantTips"]=="1","Instant tooltips survives reopening Horizon settings");
+   beforeFirstLaunch.Save(new Dictionary<string,double>{{"RVK_InstantTips",0}});
+   Check(new SettingsStore(client,catalog.settings).Read()["RVK_InstantTips"]=="0","Normal tooltip delay can be restored and saved");
    beforeFirstLaunch.Save(new Dictionary<string,double>{{"RVK_ZoneScreen",1},{"RVK_ZoneClick",0}});
    Check(beforeFirstLaunch.Read()["RVK_ZoneScreen"]=="1"&&beforeFirstLaunch.Read()["RVK_ZoneClick"]=="0","Zoning enabled before the first AO launch is saved in the Renderer section");
    string original="; personal café 测试\r\n[Renderer]\r\nRVK_GrassDist=80\r\nRVK_ZoneClick=1\r\nPersonalUnknown=17\r\n[Particles]\r\nTemplates=1,2,3\r\n[Personal]\r\nName=客户\r\n";File.WriteAllText(ini,original,Encoding.Unicode);
@@ -67,7 +74,12 @@ namespace Horizon {
    var lite=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(App.ResourceText("lite-manifest.json"));
    Check(!lite.ContainsKey("materialDownload")&&!lite.ContainsKey("preparedMaterials")&&!lite.ContainsKey("materialParts"),"Lite has no texture download or prepared-cache metadata");
    var full=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(App.ResourceText("full-manifest.json"));
-   Check(((System.Collections.IList)full["materialParts"]).Count==19,"Full retains all 19 verified companions");
+   var parts=((System.Collections.IList)full["materialParts"]).Cast<Dictionary<string,object>>().ToList();
+   Check(parts.Count==21&&parts.Count(p=>!p.ContainsKey("sourceVersion"))==19,"Full retains all 19 verified companions and adds two texture downloads");
+   Check(parts.Count(p=>p.ContainsKey("sourceVersion")&&(string)p["sourceVersion"]=="0.7.8")==2,"New texture downloads belong to 0.7.8");
+   Check(parts.Single(p=>(string)p["name"]=="ao-vk-live-0.7.8-materials-environment-001.zip")["files"] is System.Collections.IList&&
+    ((System.Collections.IList)parts.Single(p=>(string)p["name"]=="ao-vk-live-0.7.8-materials-environment-001.zip")["files"]).Count==3516&&
+    ((System.Collections.IList)parts.Single(p=>(string)p["name"]=="ao-vk-live-0.7.8-materials-characters-001.zip")["files"]).Count==1940,"Full includes every reviewed world and character texture map");
    Check(Convert.ToInt32(((Dictionary<string,object>)full["preparedMaterials"])["files"])==14345,"Full retains 14,345 prepared cache files");
    string appDir=Path.Combine(root,"Installed Horizon"),shortcut=Path.Combine(root,"Horizon test.lnk");
    string installed=SetupService.InstallAppAt(appDir,shortcut,false);Check(SetupService.Hash(installed)==SetupService.Hash(SetupService.ExePath),"App installation preserves every bundled EXE byte");

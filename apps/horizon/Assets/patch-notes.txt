@@ -1,37 +1,15 @@
-0.7.7
+Rubi-Ka Horizon 0.7.8
 
-• Fresh starts use the same corrected login lighting as returning from the game. Login smoothing reduces shimmer without treating opaque scenery as animated effects.
-• Temple stone is matte with controlled brightness. Ground rocks remain visible as the camera angle changes.
-• Slow graphics preparation shows responsive progress and elapsed time.
-• Day/Night Cycle adds PermaDay and PermaNight, saved across restarts.
-• Accepted issue reports lock their completed form and switch to Send a New Report, with a prominent confirmation message.
-• Includes Preview 24 r63 and its matching shader-preparation helper. Full reuses the existing HD library; Lite downloads no textures.
-• The pending armor and creature rework is reserved for 0.7.8 and is not included.
+A brighter, more detailed Rubi-Ka and Shadowlands.
 
-0.7.6
+• Expanded HD artwork for buildings, scenery, armor and creatures. All finished, reviewed textures are included with Full graphics.
+• Shared Terrain+ keeps the familiar look from 0.7.7, with smoother hills, cliffs and ground transitions. Snow has more depth, clearer footprints and better-looking distant hills.
+• Penumbra feels brighter and snowier while keeping its shadows. Inferno has softer lighting and a gentle sense of heat, with less red glare and a calmer lava glow.
+• Grid destination signs are easier to read. Billboards and screens are steadier, and underwater lighting looks more natural.
+• Optional Reworked Sound adds birds, gentler wind, regional ambience and underwater bubbles. It starts off, and your saved choice is kept.
+• New Display controls offer supported resolutions, a monitor choice, and windowed or borderless play. Restart the game after changing these settings. Higher resolutions keep the game's usual interface sizing.
+• Rocks and Scree starts at 0.5 for new settings. Your existing preferences are preserved.
 
-• Vivid Tone overall strength now defaults to 0.5. Existing saved values are preserved; the optional effect remains off by default.
-• App and in-game descriptions use the simple Vivid Tone name. Attribution remains in the bundled license notices.
-• Includes Preview 24 r62 with a matching graphics-preparation helper. Full reuses the existing HD library; Lite downloads no textures.
-• HD armor and creature rework is reserved for 0.7.7 and is not included in this patch.
-• Setup briefly retries transient file locks when saving its recovery record; persistent failures still restore the previous installation safely.
+Choose Full graphics to download the complete texture collection. Select AnarchyHD for the new world artwork, and Reworked under character artwork for the new armor and creatures. Existing verified texture downloads can be reused, and interrupted downloads can resume. Lite remains available without the large texture downloads.
 
-0.7.5
-
-• Update notices appear above every page, with a View updates button. Startup checks no longer leave available updates hidden on another tab.
-• Patch notes and Suggestions have their own pages. Suggestions can be prepared, reviewed, saved locally and sent without collecting logs.
-• Right-click the system tray icon to launch Anarchy Online from the selected AO folder.
-• Save custom graphics presets by name. Changes save automatically to the active custom preset.
-• When a new graphics option is added, custom presets mark it red until you choose a value or select Keep current value. Built-in presets receive the new option's default automatically.
-• The in-game F10 interface is unchanged. Horizon's graphics remain available with Ctrl+Shift+F12.
-
-0.7.4
-
-• Faster repeat updates through the asset index; Repair retains a full file check.
-• Visible setup and interrupted-update recovery feedback, including elapsed time and a link to the setup log.
-• Minimize and restore Horizon through the system tray.
-• Graphics keybind explanations and clearer AO startup feedback.
-• Optional Vivid Tone colour enhancement, off by default.
-• Bundled graphics fixes for terrain cliffs, zoning screens, login lighting and restoring AO after switching windows.
-
-0.7.5 uses the same r61 graphics and Full HD library as 0.7.4. The private Reworked artwork is still being prepared and is not included in this release.
+Close the game before applying the update. Your saved settings and personal files are preserved.

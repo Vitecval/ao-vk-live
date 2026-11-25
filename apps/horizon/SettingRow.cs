@@ -16,7 +16,9 @@ namespace Horizon {
    syncing=true;toggle=null;choice=null;slider=null;number=null;readout=null;
    var grid=new Grid();grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(1,GridUnitType.Star)});grid.ColumnDefinitions.Add(new ColumnDefinition{Width=new GridLength(245)});
    var labels=new StackPanel{Margin=new Thickness(0,0,18,0),VerticalAlignment=VerticalAlignment.Center};
+   if(!string.IsNullOrEmpty(setting.help))grid.ToolTip=setting.help;
    title=new TextBlock{Text=setting.Title,FontSize=13,TextTrimming=TextTrimming.CharacterEllipsis,TextWrapping=TextWrapping.NoWrap,ToolTip=setting.section+" · "+setting.label};labels.Children.Add(title);review=new TextBlock{Text="New option · Choose a value or confirm the current value",Foreground=Brushes.Salmon,FontSize=10,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,5,0,0)};labels.Children.Add(review);grid.Children.Add(labels);
+   if(!string.IsNullOrEmpty(setting.help)){title.ToolTip=setting.help;labels.Children.Insert(1,new TextBlock{Text=setting.help,FontSize=11,TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,4,0,0),Opacity=.8});}
    var controls=new StackPanel{VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(10,0,0,0)};Grid.SetColumn(controls,1);grid.Children.Add(controls);
    if(setting.type==0){toggle=new CheckBox{Style=(Style)FindResource("Toggle"),HorizontalAlignment=HorizontalAlignment.Right};toggle.Checked+=(s,e)=>Send(1);toggle.Unchecked+=(s,e)=>Send(0);controls.Children.Add(toggle);}
    else if(setting.type==3){choice=new ComboBox{ItemsSource=setting.Options(),MinWidth=210,HorizontalAlignment=HorizontalAlignment.Right};choice.SelectionChanged+=(s,e)=>{if(choice.SelectedItem is Choice item)Send(item.Value);};controls.Children.Add(choice);}

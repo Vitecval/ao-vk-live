@@ -14,6 +14,9 @@ namespace Horizon {
   static Setting Option(string key,double value=0){return new Setting{key=key,label=key,section="Test",type=0,min=0,max=1,defaultValue=value,Value=value};}
   static Catalog Definitions(params Setting[] settings){return new Catalog{settings=settings.ToList(),presets=new List<Preset>{new Preset{name="Balanced",values=new Dictionary<string,double>{{"A",1}}}}};}
   public static void Run(string root){
+   var soundCatalog=Catalog.Load();var sound=soundCatalog.settings.Single(s=>s.key=="RVK_ReworkSound");
+   if(sound.type!=0||sound.defaultValue!=0||sound.min!=0||sound.max!=1||sound.Title!="Reworked Sound"||!sound.Quick)throw new Exception("Reworked Sound must be a visible default-off toggle.");
+   if(soundCatalog.presets.Any(p=>!p.values.ContainsKey("RVK_ReworkSound")||p.values["RVK_ReworkSound"]!=0))throw new Exception("A shipped preset enables Reworked Sound without an explicit choice.");
    var checks=new List<string>();var old=Definitions(Option("A",1),Option("Personal",1));var current=Definitions(Option("A",1),Option("Personal",1),Option("New",1),Option("Another"));string directory=Path.Combine(root,"named-presets"),client=Path.Combine(root,"client-one"),second=Path.Combine(root,"client-two");Directory.CreateDirectory(directory);
    var store=new PresetStore(directory);var custom=store.SaveNamed(client,"Night play",old);Check(custom.values.Count==2&&custom.values["A"]==1,"Named preset captures the current catalog values",checks);
    var reopened=new PresetStore(directory);Check(reopened.ActiveCustom(client).Name=="Night play"&&reopened.ActiveCustom(second)==null,"Named presets and selected client survive restart without selecting another client",checks);
@@ -34,11 +37,47 @@ namespace Horizon {
   }
   static IEnumerable<DependencyObject> Descendants(DependencyObject root){for(int i=0;i<VisualTreeHelper.GetChildrenCount(root);i++){var child=VisualTreeHelper.GetChild(root,i);yield return child;foreach(var nested in Descendants(child))yield return nested;}}
   static void Capture(MainWindow window,string path){var visual=(FrameworkElement)window.Content;visual.Measure(new Size(window.Width,window.Height));visual.Arrange(new Rect(0,0,window.Width,window.Height));visual.UpdateLayout();var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)window.Width,(int)window.Height,96,96,PixelFormats.Pbgra32);bitmap.Render(visual);var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));using(var file=File.Create(path))encoder.Save(file);}
+  public static async Task TooltipUi(string root){
+   var checks=new List<string>();App.RenderingPreview=true;
+   string client=Path.Combine(root,"AO tooltip UI fixture");Directory.CreateDirectory(client);
+   foreach(var name in new[]{"AnarchyOnline.exe","Anarchy.exe","randy31.dll","ao-vk.dll"})File.WriteAllText(Path.Combine(client,name),"dummy never loaded");
+   App.ClientArgument=client;
+   var window=new MainWindow{Left=-3000,Top=-3000,ShowActivated=false,ShowInTaskbar=false};
+   try{
+    window.Show();await Task.Delay(150);window.PreviewPage("Graphics");
+    ((ComboBox)window.FindName("SectionFilter")).SelectedItem="General";
+    window.UpdateLayout();await Task.Delay(50);
+    var row=Descendants(window).OfType<SettingRow>().Single(r=>(r.DataContext as Setting)?.key=="RVK_InstantTips");
+    var toggle=Descendants(row).OfType<CheckBox>().Single();
+    Check(toggle.IsChecked==false,"General checkbox starts off",checks);
+    Check(Descendants(row).OfType<TextBlock>().Any(t=>t.Text=="Instant tooltips")&&Descendants(row).OfType<TextBlock>().Any(t=>t.Text=="Show item and interface tooltips without the usual hover delay."),"Exact label and help are displayed",checks);
+    toggle.IsChecked=true;await Task.Delay(700);
+    var store=new SettingsStore(client,Catalog.Load().settings);
+    Check(store.Read()["RVK_InstantTips"]=="1","Checking the real control saves enabled",checks);
+    Capture(window,Path.Combine(root,"instant-tooltips-on.png"));
+    toggle.IsChecked=false;await Task.Delay(700);
+    Check(store.Read()["RVK_InstantTips"]=="0","Unchecking the real control saves disabled",checks);
+    Capture(window,Path.Combine(root,"instant-tooltips-off.png"));
+    File.WriteAllText(Path.Combine(root,"TOOLTIP-UI-RESULTS.json"),new JavaScriptSerializer().Serialize(new{result="passed",checks,retailClientsChanged=false}));
+   }finally{window.Close();}
+  }
   public static async Task Ui(string root){
    var checks=new List<string>();App.RenderingPreview=true;string client=Path.Combine(root,"AO preset UI fixture");Directory.CreateDirectory(client);foreach(var name in new[]{"AnarchyOnline.exe","Anarchy.exe","randy31.dll","ao-vk.dll"})File.WriteAllText(Path.Combine(client,name),"dummy never loaded");App.ClientArgument=client;
    var catalog=Catalog.Load();foreach(var s in catalog.settings)s.Value=s.defaultValue;var old=new Catalog{settings=catalog.settings.Where(s=>s.key!="RVK_VividTone").ToList(),presets=catalog.presets};new PresetStore(App.StateRoot).SaveNamed(client,"UI custom",old);
    var window=new MainWindow{Left=-3000,Top=-3000,ShowActivated=false,ShowInTaskbar=false};try{window.Show();await Task.Delay(150);window.PreviewPage("Graphics");var filter=(ComboBox)window.FindName("SectionFilter");filter.SelectedItem="New options";window.UpdateLayout();await Task.Delay(50);var rows=Descendants(window).OfType<SettingRow>().ToList();var vivid=rows.FirstOrDefault(r=>(r.DataContext as Setting)?.key=="RVK_VividTone");Check(vivid!=null,"New options filter realizes the pending graphics row",checks);Check(((Setting)vivid.DataContext).NeedsReview&&Descendants(vivid).OfType<TextBlock>().Any(t=>t.Foreground==System.Windows.Media.Brushes.Salmon),"New option is visible and marked red in the real graphics row",checks);
     Capture(window,Path.Combine(root,"new-options.png"));var keep=Descendants(vivid).OfType<Button>().Single(b=>Convert.ToString(b.Content)=="Keep current value");keep.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(600);Check(!((Setting)vivid.DataContext).NeedsReview&&!new PresetStore(App.StateRoot).Missing(client,catalog).Contains("RVK_VividTone"),"Keep current value saves and clears the red mark in the real UI",checks);Check(Descendants(vivid).OfType<TextBlock>().Any(t=>t.Text==((Setting)vivid.DataContext).Title&&((SolidColorBrush)t.Foreground).Color==Color.FromRgb(231,235,235)),"Reviewed option restores the readable normal text colour",checks);
+    filter.SelectedItem="Audio";window.UpdateLayout();await Task.Delay(100);
+    var soundRow=Descendants(window).OfType<SettingRow>().Single(r=>(r.DataContext as Setting)?.key=="RVK_ReworkSound");
+    var soundToggle=Descendants(soundRow).OfType<CheckBox>().Single();
+    var volumeRow=Descendants(window).OfType<SettingRow>().Single(r=>(r.DataContext as Setting)?.key=="RVK_SoundVol");
+    var volume=Descendants(volumeRow).OfType<Slider>().Single();
+    Check(Math.Abs(volume.Value-.6)<.001,"Ambience volume starts at its conservative default in the actual Audio control",checks);
+    volume.Value=.25;await Task.Delay(600);
+    Check(Math.Abs(((Setting)volumeRow.DataContext).Value-.25)<.001,"Ambience volume can be adjusted independently",checks);
+    Check(soundToggle.IsChecked==false&&Convert.ToString(soundToggle.Content)=="Off","Reworked Sound is visible and starts Off in the actual Audio control",checks);
+    Capture(window,Path.Combine(root,"reworked-sound-off.png"));
+    soundToggle.IsChecked=true;await Task.Delay(600);Check(((Setting)soundRow.DataContext).Value==1&&Convert.ToString(soundToggle.Content)=="On","Reworked Sound supports an explicit On choice",checks);
+    soundToggle.IsChecked=false;await Task.Delay(600);Check(((Setting)soundRow.DataContext).Value==0&&Convert.ToString(soundToggle.Content)=="Off","Reworked Sound returns to Off",checks);
     window.SetUpdateNotice(true,"Horizon test update is available.");window.UpdateLayout();Check(((FrameworkElement)window.FindName("UpdateNotice")).Visibility==Visibility.Visible,"Available update notice is visible on Graphics",checks);var updateLink=Descendants(window.FindName("UpdateNotice") as DependencyObject).OfType<Button>().Single();updateLink.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));Check(((FrameworkElement)window.FindName("UpdatesPage")).Visibility==Visibility.Visible,"Update notice link opens Updates",checks);
     Capture(window,Path.Combine(root,"updates-notice.png"));window.PreviewPage("Patch notes");Check(((FrameworkElement)window.FindName("PatchNotesPage")).Visibility==Visibility.Visible&&((TextBlock)window.FindName("PatchNotesText")).Text.Contains(SetupService.Version),"Patch notes page contains this release",checks);Capture(window,Path.Combine(root,"patch-notes.png"));
     window.PreviewPage("Suggestions");window.UpdateLayout();await Task.Delay(50);((TextBox)window.FindName("SuggestionTitle")).Text="Test feature idea";((TextBox)window.FindName("SuggestionDescription")).Text="A prepared suggestion, never transmitted.";var prepare=Descendants(window.FindName("SuggestionsPage") as DependencyObject).OfType<Button>().Single(b=>Convert.ToString(b.Content)=="Prepare suggestion");prepare.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));string preview=((TextBox)window.FindName("SuggestionPreview")).Text;Check(preview.Contains("never transmitted")&&!preview.Contains("--- horizon-")&&((Button)window.FindName("SendSuggestionButton")).IsEnabled,"Suggestions prepare reviewable text without collecting logs or sending it",checks);

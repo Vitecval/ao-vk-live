@@ -1,5 +1,55 @@
 # Rubi-Ka Horizon — 0.7.7
 
+The planned Display page stores startup window preferences separately for each
+selected AO installation in its `randy-vk.ini` `[Display]` section. The default,
+**Use game setting**, leaves AO in control. **Windowed** offers pixel sizes that
+Windows reports for the selected attached monitor; duplicate refresh-rate modes
+are shown once. **Borderless** fills that monitor at its existing desktop size.
+There is no desktop resolution or refresh-rate change. Save explicitly, then
+fully close and restart AO and its launcher. An unavailable saved monitor or
+resolution is shown as unavailable rather than silently written over; select
+Use game setting to recover. Refresh monitors rereads saved choices.
+
+These choices are connected to AO's native framebuffer and full main viewport;
+they do not merely stretch the final image. Modes are discovered from the chosen
+monitor, with duplicate refresh variants removed. A mode still has to fit the
+renderer/GPU limits and allocate successfully. Unsupported sizes, disconnected
+monitors or failed window/allocation changes fall back to the working game
+configuration for that run without erasing the saved preference.
+
+Mixed Windows display scaling needs special care with AO's legacy windows.
+The native override is applied only when physical pixel coordinates can be
+confirmed. A bitmap-scaled legacy window, incompatible monitor DPI or unknown
+DPI state keeps the working game path instead; changing monitors can disable
+the override for that run. Horizon does not change the game's process DPI
+awareness or your Windows scaling. Restart on the intended monitor after
+changing Display choices. Independent game-interface scaling remains unsupported.
+
+The native contract is `Mode=Game|Windowed|Borderless`, `Width`/`Height` both zero
+for game sizing or both positive, and `Monitor` a Win32 display device name
+(empty means automatic). These are output-window preferences, outside graphics
+presets. `RVK_RenderScale` independently controls the 3D scene's internal render
+resolution. Interface scaling is separate and is not offered by this page;
+AO's text and controls may look smaller at higher output resolutions. Actual
+framebuffer, input, projection and temporal-rendering verification belongs to
+the native renderer's high-resolution checks, not the Horizon UI fixture.
+
+The graphics layer is AO-specific Vulkan support, not universal dgVoodoo
+compatibility. Do not stack competing `ddraw` wrappers in the AO folder.
+Changing Display preferences never installs/replaces wrappers or rewrites
+unknown wrapper sections, sound options or named custom presets.
+
+The isolated `--self-test-display-ui --state-root <empty test folder>` check
+operates actual WPF controls and two dummy client folders. It verifies mode and
+monitor choices, 1080p/1440p/4K/ultrawide persistence, disconnected-monitor
+recovery, restart notices and preservation of unrelated preferences, without
+launching AO or changing Windows display settings. Real read-only monitor
+enumeration is checked separately from the deterministic UI inventory.
+
+See [the native display guide](../../docs/native-high-resolution-display.md)
+for setup, recovery and the distinction between isolated checks and live AO
+framebuffer, text, tooltip, label and mouse-picking verification.
+
 0.7.7 includes matching Preview 24 r63 graphics and shader preparation: consistent
 fresh/returned login lighting, reduced temporal shimmer, matte temple stone,
 ground-rock visibility and visible startup progress. Day/Night Cycle adds

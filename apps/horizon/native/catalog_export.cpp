@@ -30,7 +30,8 @@ int main(int argc,char**argv){
         std::fputs("{\"key\":",f);quoted(f,s.name);std::fputs(",\"label\":",f);quoted(f,s.label);
         std::fputs(",\"section\":",f);quoted(f,s.section);
         std::fprintf(f,",\"type\":%u,\"min\":%.9g,\"max\":%.9g,\"step\":%.9g,\"defaultValue\":%.9g,\"parent\":",s.type,s.min,s.max,s.step,s.defaultValue);
-        quoted(f,s.parent);std::fputs(",\"choices\":",f);quoted(f,s.choices);std::fputc('}',f);
+        quoted(f,s.parent);std::fputs(",\"choices\":",f);quoted(f,s.choices);
+        std::fputs(",\"help\":",f);quoted(f,s.help);std::fputc('}',f);
     }
     // Determine the preset's exact write set using two distinct initial states.
     // Settings excluded by the renderer retain different values in the two runs.

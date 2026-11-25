@@ -35,10 +35,10 @@ namespace Horizon {
   public MainWindow(){
    InitializeComponent();App.Trace("Interface loaded");catalog=Catalog.Load();App.Trace("Settings catalogue loaded");
    foreach(var s in catalog.settings)s.Value=s.defaultValue;
-   AddNav("Graphics","\uE713");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Patch notes","\uE8A5");AddNav("Suggestions","\uE82F");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
+   AddNav("Graphics","\uE713");AddNav("Display","\uE7F4");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Patch notes","\uE8A5");AddNav("Suggestions","\uE82F");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
    SidebarVersion.Text=SetupService.Version;AboutVersion.Text=SetupService.Version+" · Stable release";CurrentVersionText.Text="Running Horizon: "+SetupService.Version;
    SectionFilter.Items.Add("Common settings");SectionFilter.Items.Add("All settings");SectionFilter.Items.Add("Keybinds");foreach(var section in catalog.settings.Select(x=>x.section).Distinct().OrderBy(x=>x))SectionFilter.Items.Add(section);SectionFilter.SelectedIndex=0;
-   InitializePresets();PatchNotesText.Text=App.ResourceText("patch-notes.txt");
+   InitializePresets();InitializeDisplay();PatchNotesText.Text=App.ResourceText("patch-notes.txt");
    Search.ToolTip="Search "+catalog.settings.Count+" graphics settings";
    saveTimer.Tick+=(s,e)=>{saveTimer.Stop();SavePending();};refreshTimer.Tick+=async(s,e)=>{if(!busy){RefreshSettings(false);await RefreshInstalled(false);UpdateState();}};
    activityTimer.Tick+=(s,e)=>OperationTiming.Text=activity.Timing(DateTime.UtcNow);
@@ -80,13 +80,14 @@ namespace Horizon {
   internal void PreviewSetupActivity(){var now=DateTime.UtcNow;StartSetupActivity("Restoring previous installation: 14,345 / 58,475 files");activity.Start(OperationText.Text,now.AddSeconds(-85));activity.Report(OperationText.Text,24,now.AddSeconds(-12));SetupProgress.IsIndeterminate=false;SetupProgress.Value=24;OperationTiming.Text=activity.Timing(now);}
   void ShowPage(string page){
    GraphicsPage.Visibility=page=="Graphics"?Visibility.Visible:Visibility.Collapsed;
+   DisplayPage.Visibility=page=="Display"?Visibility.Visible:Visibility.Collapsed;
    InstallationPage.Visibility=page=="Installation"?Visibility.Visible:Visibility.Collapsed;
    AboutPage.Visibility=page=="About"?Visibility.Visible:Visibility.Collapsed;
    UpdatesPage.Visibility=page=="Updates"?Visibility.Visible:Visibility.Collapsed;ReportPage.Visibility=page=="Report issue"?Visibility.Visible:Visibility.Collapsed;
    PatchNotesPage.Visibility=page=="Patch notes"?Visibility.Visible:Visibility.Collapsed;SuggestionsPage.Visibility=page=="Suggestions"?Visibility.Visible:Visibility.Collapsed;
    foreach(var b in nav)b.Value.Background=b.Key==page?new SolidColorBrush(Color.FromRgb(37,58,65)):Brushes.Transparent;
    PageTitle.Text=page;
-   PageSubtitle.Text=page=="Graphics"?"Settings are also available in game with Ctrl+Shift+F12.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Patch notes"?"What's new in Horizon.":page=="Suggestions"?"Help shape the next version.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
+   PageSubtitle.Text=page=="Display"?"Per-installation window settings. Restart AO after saving.":page=="Graphics"?"Settings are also available in game with Ctrl+Shift+F12.":page=="Installation"?"Manage the selected AO installation.":page=="Updates"?"Keep Horizon and its graphics up to date.":page=="Patch notes"?"What's new in Horizon.":page=="Suggestions"?"Help shape the next version.":page=="Report issue"?"Prepare a diagnostic report.":"Application details.";
   }
   public void PreviewPage(string page){if(nav.ContainsKey(page))ShowPage(page);}
   public void PreviewBusy(){busy=true;UpdateState();Status("Checking installed files…","Full HD repair verifies the artwork and cache. This can take several minutes.");}
@@ -117,13 +118,14 @@ namespace Horizon {
     graphicsUpdate=false;if(!sendingReport)ResetReport(false);detected=null;detectedKey="";memoryEdited=false;
     if(save)SavePreferences();
     FolderPath.Text=client;SidebarClient.Text=client;
-    RefreshSettings(true);LoadPresetSelection();Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
+    RefreshSettings(true);RefreshDisplayPreferences();LoadPresetSelection();Status("Settings ready.","Saved changes are picked up by AO, usually within half a second.");
     LiteChoice.IsChecked=false;FullChoice.IsChecked=false;
     var receipt=Path.Combine(client,"ao-vk-live.install.json");if(File.Exists(receipt)){try{var m=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(File.ReadAllText(receipt));if(m.ContainsKey("edition")){FullChoice.IsChecked=(string)m["edition"]=="full";LiteChoice.IsChecked=(string)m["edition"]=="lite";}}catch{}}
    }catch(Exception ex){Status("Could not open this AO installation.",ex.Message);}
    UpdateState();var ignored=RefreshInstalled(true);
   }
   void UpdateState(){
+   UpdateDisplayState();
    bool has=store!=null,installed=has&&File.Exists(Path.Combine(client,"ao-vk.dll"));
    SettingsList.IsEnabled=installed&&!busy;PresetControls.IsEnabled=installed&&!busy;InstallationPage.IsEnabled=!busy;LaunchButton.IsEnabled=has&&!busy;InstallButton.IsEnabled=has&&!busy;
    InstallButton.Content=detected==null?"Checking installation…":MemoryChanged&&detected.GraphicsCurrent&&detected.AppCurrent?"Apply memory setting":detected.PrimaryAction;InstallButton.IsEnabled=has&&!busy&&detected!=null&&(!(detected.AppCurrent&&detected.GraphicsCurrent)||MemoryChanged);

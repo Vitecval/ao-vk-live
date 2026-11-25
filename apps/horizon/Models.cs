@@ -19,7 +19,7 @@ namespace Horizon {
  public class Setting:INotifyPropertyChanged {
   public string key{get;set;}public string label{get;set;}public string section{get;set;}public int type{get;set;}
   public double min{get;set;}public double max{get;set;}public double step{get;set;}public double defaultValue{get;set;}
-  public string parent{get;set;}public string choices{get;set;}
+  public string parent{get;set;}public string choices{get;set;}public string help{get;set;}
   double current;
   bool needsReview;
   public bool NeedsReview{get{return needsReview;}set{if(needsReview==value)return;needsReview=value;Notify("NeedsReview");}}
@@ -54,7 +54,7 @@ namespace Horizon {
   public event PropertyChangedEventHandler PropertyChanged;
   void Notify(string name){PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(name));}
   static readonly Dictionary<string,string> Titles=new Dictionary<string,string>{
-   {"RVK_Enhance","Graphics enhancements"},{"RVK_ZoneScreen","Zoning screens"},{"RVK_ZoneClick","Click to continue after zoning"},
+   {"RVK_Enhance","Graphics enhancements"},{"RVK_ReworkSound","Reworked Sound"},{"RVK_InstantTips","Instant tooltips"},{"RVK_ZoneScreen","Zoning screens"},{"RVK_ZoneClick","Click to continue after zoning"},
    {"RVK_RenderBg","Render while AO is in the background"},{"RVK_SunShadow","Sun shadows"},{"RVK_SunDist","Sun-shadow distance"},
    {"RVK_SunRes","Sun-shadow resolution"},{"RVK_GrassOn","Ground grass"},{"RVK_GrassDist","Grass distance"},
    {"RVK_GrassBlades","Grass density"},{"RVK_WaterOn","Enhanced water"},{"RVK_WaterQual","Water quality"},

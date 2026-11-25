@@ -77,6 +77,7 @@ float gSunShare = 0.0;                          // how much of the colour is dir
 // added after the texture stages (unclamped in the HDR scene).
 bool gPbrOn = false, gPbrBase = false;
 vec3 gPbrAlbedo = vec3(0.0), gPbrNormal = vec3(0.0, 0.0, 1.0), gPbrSpec = vec3(0.0);
+vec3 gLightingNormal=vec3(0.,1.,0.); // final normal after material perturbation (debug26)
 float gPbrAo = 1.0, gPbrRough = 1.0, gPbrMetal = 0.0;
 float gIccReflection = 1.0; // verified ICC targets only; direct physical highlights stay enabled
 
@@ -860,6 +861,8 @@ void main()
     }
     TerrainMap terrain;
     GroundRelief ground;
+    ground.snow = 0.0;
+    ground.prints = 0.0;
     ground.sand = 0.0;
     ground.fade = vec2(0.0);
     ground.tiles = false;
@@ -871,8 +874,10 @@ void main()
                                  gRecords.records[gRecord].pad[2]);
     const bool groundOne = oneSlots.x != 0u && terrainMapped && D.terrainAt.w > 1.5;
     vec3 oneBase = vec3(1.0);
+    vec4 lightingNormal=vNormalW;
     if (terrainMapped) {
         terrain = TerrainMapAt(vPosW, vSet0, vNormalW.xyz);
+        if(terrain.smoothLighting)lightingNormal.xyz=terrain.lightN;
         // The native ground's relief in depth up close - its tiles' heights, the sand's ripples - in both passes alike
         // (parallax.glsl): its cells' coordinates moved to where the eye's ray meets it.
         if (TerrainNative() || FL.sharedGroundConfig.z>.5) {
@@ -909,7 +914,9 @@ void main()
     // Shadow: lit draws scale the sunlight (per-pixel lighting), others darken their final colour.
     float shade = 1.0, localScale = 1.0, texShade = 1.0, flatShade = 1.0;
     if ((C.flags.x & (F_SHADOW | F_SHADOWCOMP | F_SHADOWTEX)) != 0u) {
-        gSunVisibility = SunVisibility(vPosW, vNormalW.xyz);
+        // Use the same unperturbed fragment base for lighting and shadow bias/
+        // facing. Material normal maps perturb it later, never the caster bias.
+        gSunVisibility = SunVisibility(vPosW, lightingNormal.xyz);
         gSunVisibilityValid = true;
         shade = min(1.0 - (1.0 - gSunVisibility) * ShadowStrength(length(vPosW - C.eyePos.xyz)), TerrainShade());
         flatShade = FlatShade();                  // (all of the light: the clouds' only in part)
@@ -928,6 +935,7 @@ void main()
             texShade = flatShade;
         shade = 1.0;
     }
+    gLightingNormal=lightingNormal.xyz;
     bool shadeSun = (C.flags.x & (F_PERPIXEL | F_LIGHTING)) == (F_PERPIXEL | F_LIGHTING);
     if ((C.flags.x & F_VERTEXSUN) != 0u) {             // far plant lit per vertex: only its sunlight is shadowed
         gDiffuse.rgb = clamp(vDiffuse.rgb + vMatAmbient * shade, 0.0, 1.0);
@@ -936,9 +944,9 @@ void main()
     if ((C.flags.x & F_PERPIXEL) != 0u) {
         // Interpolated normals shrink between vertices; restore the length the vertex path lights with
         // (1 with NORMALIZENORMALS, otherwise whatever the world matrix made of the vertex normal).
-        vec3 n = vNormalW.xyz;
+        vec3 n = lightingNormal.xyz;
         float len2 = dot(n, n);
-        n = len2 > 0.0 ? n * (vNormalW.w * inversesqrt(len2)) : vec3(0.0);
+        n = len2 > 0.0 ? n * (lightingNormal.w * inversesqrt(len2)) : vec3(0.0);
         // The ground's lighting pass draws the lightmap; its relief comes from the base pass's texture (F_BUMPBASE):
         // that texture's normal map, else its generated normals - laid by terrain.glsl, with the cliffs' rock's on
         // their faces (then a base without a normal map of its own has the flat one, and no relief from above).
@@ -1001,6 +1009,7 @@ void main()
         }
         n = ObjectRockNormal(n);
         if (D.weather.x>0.0) n=WeatherNormal(n);
+        gLightingNormal=n;
         // PBR material: its maps, and the specular lobe the lights below use (lighting.glsl gPbr*). The ground's
         // lighting pass takes its chunk's base texture's material (MAT_BASE), read with the base's coordinates.
         gPbrOn = (D.mat.z & MAT_PBR) != 0u && FL.pbr2.y > 0.5 && (C.flags.x & F_SHADOWCHEAP) == 0u;
@@ -1091,6 +1100,7 @@ void main()
             gPbrAlpha = sqrt(a2);
             gPbrF0 = mix(vec3(0.04), gPbrAlbedo, gPbrMetal);
             if ((D.mat.z & MAT_MINERAL) != 0u) gPbrF0 = vec3(.025);
+            if ((D.mat.z & MAT_ICE_SURFACE) != 0u) gPbrF0 = vec3(.018);
             gPbrSunVisibility = gSunVisibilityValid ? gSunVisibility : 1.0;
             gPbr = true;
         }
@@ -1102,7 +1112,7 @@ void main()
         float kd = gPbrOn ? 1.0 - gPbrMetal : 1.0, kAmb = gPbrOn ? kd * gPbrAo : 1.0;
         // The ground's lighting pass (F_SHADOWTEX): the shadow takes the global ambient and emissive part along
         // with the lightmap, leaving only the lights' own contribution: (lightmap + ambient) * shadow + lights.
-        vec3 base = (TempleBakedLight(vMatEmissive) + vMatAmbient * C.ambient.rgb * kAmb) * texShade;
+        vec3 base = (TempleBakedLight(vMatEmissive) + vMatAmbient * C.ambient.rgb * kAmb) * mix(texShade,1.0,RegionalLighting());
         vec3 lit = base + vMatAmbient * ambient * kAmb + vDiffuse.rgb * diff * kd, litSpec = vSpecular.rgb * spec;
         vec3 local = vDiffuse.rgb * diffL * kd, localSpec = vSpecular.rgb * specL;
         terrainAmbient = base + vMatAmbient * ambient * kAmb;
@@ -1207,6 +1217,10 @@ void main()
         else if (FL.sharedGroundConfig.x > 0.0) {
             t1 = TerrainBase(D.texIdx.y, bindlessSamplers[D.sampIdx.y], terrain);
             t1.rgb = TerrainVariation(t1.rgb, vPosW, terrain);
+            // The classic combined pass stores its painting in stage 1. Apply
+            // impressions there too; toning only stage 0 changed the lightmap
+            // and left snow footprints almost invisible.
+            if(TerrainNative())t1.rgb=SandRippleTone(t1.rgb,ground,terrain.uv[0]);
         }
     }
     if (GlobalTerrain()) {
@@ -1245,7 +1259,7 @@ void main()
     // the live caster/terrain shadows below, and all base texture patterns.
     if (FL.windowLife.z > 0.0 && ((C.flags.x & F_NOALBEDO) != 0u ||
         (terrainMapped && D.terrainAt.w > 1.5))) {
-        vec3 n = dot(vNormalW.xyz,vNormalW.xyz)>1e-8 ? normalize(vNormalW.xyz) : vec3(0,1,0);
+        vec3 n = dot(lightingNormal.xyz,lightingNormal.xyz)>1e-8 ? normalize(lightingNormal.xyz) : vec3(0,1,0);
         float facing = max(dot(n,FL.sunTrue.xyz),0.0);
         float bakedEnergy = dot(t0.rgb,vec3(.3,.59,.11));
         float baked = smoothstep(.015,.12,bakedEnergy);
@@ -1253,14 +1267,20 @@ void main()
         float missingSun = max(.70*facing-bakedEnergy,0.0);
         t0.rgb += mix(vec3(1.025,1.0,.96),FL.areaSun.rgb,FL.areaSky.w)*(missingSun*baked*sunny);
     }
-    t0.rgb *= texShade * gLightmapRelief;
+    if(terrainMapped && D.terrainAt.w>1.5 && !terrain.clutter && RegionalLighting()>0.) {
+        // The lightmap combines baked sun and ambient. Separate the two before
+        // shadowing: open-sky diffuse light and snow bounce survive a sun shadow.
+        vec3 sky=RegionalIrradiance(lightingNormal.xyz);
+        vec3 direct=max(t0.rgb-sky,vec3(0.));
+        t0.rgb=mix(t0.rgb*texShade,sky+direct*texShade,RegionalLighting())*gLightmapRelief;
+    } else t0.rgb *= texShade * gLightmapRelief;
     if (terrainMapped && D.terrainAt.w > 1.5) t0.rgb *= NativeSky(vPosW);   // (the native ground's lightmap: less sky, darker)
     vec4 current = Cascade(t0, t1, 1.0);
     // A low sun's light (rvk sky.cpp, RVK_DawnLight): the ground's lightmap holds the sun's and the sky's light
     // together - warm where the sun reaches, cool where the ground faces away or lies in shade. (The ground's light
     // pass by F_NOALBEDO: with the sun's shadows off too.)
     if ((C.flags.x & F_NOALBEDO) != 0u && FL.dawn[0].w > 0.0)
-        current.rgb *= DawnTint(vNormalW.xyz, texShade);
+        current.rgb *= DawnTint(lightingNormal.xyz, texShade);
 #ifdef RVK_GLOW
     if (wantAlbedo && (C.flags.x & F_LIGHTING) == 0u)
         albedo = current.rgb;
@@ -1301,7 +1321,7 @@ void main()
         current.rgb += sandGlint * glintSun / max(NativeMean(terrain.uv[0]), vec3(0.08));
         if ((C.flags.x & F_HDR) == 0u) current.rgb = min(current.rgb, vec3(1.0));
     }
-    if (!shadeSun)
+    if (!shadeSun && !((C.flags.x & F_SHADOWTEX)!=0u && RegionalLighting()>0.))
         // (By night the moon's: unlit, half of it - and a storm's dimming kept, as FlatShade has it by day: without,
         // the stormy land brightened the moment the moon took over at dusk.)
         current.rgb *= FL.moon.w > 0.5 ? mix(1.0, shade, 0.5) * (1.0 - kCloudSunShare * FL.rainNear.y) * (1.0 - 0.5 * FL.rainNear.y)
@@ -1334,8 +1354,13 @@ void main()
     // made a lit sign ~3x its colour and bloomed its letters away - user, 2026-10-20.) Elsewhere the emissive map
     // (D.mat.z & MAT_EMISSIVE) adds the light the surface gives off, whatever lights it, x RVK_PbrGlow (FL.pbr2.z) -
     // beyond white with HDR, for the bloom.
-    const bool selfLit = (C.flags.x & F_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u,
-               hasMap = (D.mat.z & MAT_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u;
+    const bool readableSign = (D.mat.z & MAT_READABLE_SIGN)!=0u;
+    // These two authored labels are already legible in their diffuse maps.
+    // A bounded self-lit face keeps the original dark glyphs on their light
+    // panel below the default bloom threshold, without dimming nearby lamps.
+    if (readableSign) current.rgb = t0.rgb * 0.45;
+    const bool selfLit = !readableSign && (C.flags.x & F_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u,
+               hasMap = !readableSign && (D.mat.z & MAT_EMISSIVE) != 0u && (D.mat.z & MAT_MATTE_TEMPLE)==0u;
     vec3 emitted = vec3(0.0), map = vec3(0.0);
     if((D.mat.z & MAT_IMMERSIVE_SHIP)!=0u) {
         // Emissive treatment of existing coloured navigation/engine markings;
@@ -1428,7 +1453,7 @@ void main()
     if (gPbrOn)
         reflectivity = max(reflectivity, FL.pbr.z * (1.0 - smoothstep(0.1, 0.55, gPbrRough)) * mix(0.12, 0.9, gPbrMetal));
     reflectivity *= gIccReflection * FL.windowLife.w;
-    if((D.mat.z & MAT_MATTE_TEMPLE)!=0u)reflectivity=0.0;
+    if((D.mat.z & (MAT_MATTE_TEMPLE|MAT_READABLE_SIGN))!=0u)reflectivity=0.0;
     // ... and their albedo for indirect light is the diffuse part: none on metal, less in occluded creases.
     if (gPbrOn && !gPbrBase)
         albedo *= (1.0 - gPbrMetal) * gPbrAo;
@@ -1490,7 +1515,7 @@ void main()
     // or, where it hasn't seen, the analytic sky), at their roughness. 10: two-pass foliage's soft edges (magenta) and
     // cores (green). 11: the frame lights tested and reaching per pixel.
     uint pbrDebug = uint(FL.pbr2.x + 0.5);
-    if (pbrDebug >= 12u && pbrDebug <= 22u && terrainMapped) {
+    if (pbrDebug >= 12u && pbrDebug <= 26u && terrainMapped) {
         // 12 raw material sample, 13 material/vertex diffuse, 14 ambient,
         // 15 directional/local diffuse, 16 shadow attenuation, 17 raw lightmap,
         // 18 final linear RGB, 19 lightmap modulation / 2, 20 lit diffuse.
@@ -1507,6 +1532,14 @@ void main()
         else if (pbrDebug == 20u) current.rgb = gDiffuse.rgb;
         else if (pbrDebug == 21u) current.rgb = vec3(gSunVisibilityValid ? gSunVisibility : 1.0);
         else if (pbrDebug == 22u) current.rgb = vec3(terrain.side); // cliff projection footprint
+        else if (pbrDebug == 23u) {
+            TerrainMap painted=terrain;
+            current.rgb=groundOne ? oneBase:TerrainBase((D.mat.z & MAT_COMBINED)!=0u ? D.texIdx.y:D.texIdx.z,
+                bindlessSamplers[D.sampIdx.y],painted).rgb;
+        } else if (pbrDebug == 24u) current.rgb=vec3(FL.hdGroundConfig.x,FL.sharedGroundConfig.x*terrain.w.x,
+            (D.mat.z&MAT_AUTHORED_GROUND)!=0u ? 1.:TerrainNative() && NativeCellAuthored(terrain.uv[0]) ? .5:0.);
+        else if(pbrDebug==25u)current.rgb=normalize(lightingNormal.xyz+vec3(0.,1e-8,0.))*.5+.5;
+        else if(pbrDebug==26u)current.rgb=normalize(gLightingNormal+vec3(0.,1e-8,0.))*.5+.5;
     } else if (pbrDebug == 7u && (C.vtx.x & 0xEu) != 4u) {
         vec3 tint = gPbrOn ? vec3(0.1, 1.0, 0.2) : (C.flags.x & F_NORMALMAP) != 0u ? vec3(0.15, 0.4, 1.0)
                   : (D.mat.z & MAT_ALBEDO) != 0u ? vec3(1.0, 0.15, 0.9) : vec3(-1.0);

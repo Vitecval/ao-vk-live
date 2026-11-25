@@ -1,0 +1,5 @@
+AO-VK Live HD artwork collection / Rubi-Ka Horizon 0.7.8
+Original contributions: AsyncStuff, to the extent such rights are held.
+New texture paintings were generated with OpenAI image generation and individually reviewed against privately held source-layout references. Existing reviewed material zoning and original alpha/functional masks remain separate inputs where recorded.
+Anarchy Online and its original assets belong to their respective rights holders. Original game reference images are not included in this payload. Software and third-party assets retain their separate licenses and notices.
+Distribution/use terms: LICENSE-TEXTURES.md. Official AO-VK Live distribution only under that license; no new permissions for third-party mirrors are implied.

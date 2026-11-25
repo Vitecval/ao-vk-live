@@ -7,6 +7,20 @@ function Test-AoMaterialNeeded([string]$Relative,[string]$Package,$RequiredAsset
     if ($null -ne $RequiredAssets -and !$RequiredAssets.Contains($Relative)) { return $false }
     return (Get-AoSetupHash (Join-Path $Package $Relative)) -ine $PinnedHashes[$Relative]
 }
+function Test-AoMaterialMember($Part, [string]$Relative) {
+    if (Test-AoPublicMaterialPart $Part) {
+        # Public overlays contain PNGs only. Manifests/licenses remain in the
+        # small bootstrap; neither another pack nor a cache payload is allowed.
+        if ($Part.name -cmatch '^ao-vk-live-0\.7\.8-materials-environment-[0-9]{3}\.zip$') {
+            return ($Relative -cmatch '^randy-vk/packs/ao-penumbra-078/[A-Za-z0-9_-]+\.png$')
+        }
+        if ($Part.name -cmatch '^ao-vk-live-0\.7\.8-materials-characters-[0-9]{3}\.zip$') {
+            return ($Relative -cmatch '^randy-vk/packs/ao-reworked-characters/[A-Za-z0-9_-]+\.png$')
+        }
+        return $false
+    }
+    return ($Relative -match '^randy-vk/(packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png|cache/materials/[a-f0-9]{16}\.rvkm)$')
+}
 function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scriptblock]$ProgressCallback, $RequiredAssets = $null) {
     if (!$Manifest.materialParts) { return }
     Assert-AoSetupPath $Package
@@ -30,18 +44,21 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
     $members = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
     $checkedMembers = 0
     foreach ($part in $Manifest.materialParts) {
-        if ($part.name -notmatch '^ao-vk-live-[A-Za-z0-9.-]+-materials-[0-9]+\.zip$' -or $part.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'Invalid material package descriptor.' }
+        if ($part.sha256 -notmatch '^[a-f0-9]{64}$') { throw 'Invalid material package descriptor.' }
         Assert-AoMaterialRelease $Manifest $part
+        if ((Test-AoPublicMaterialPart $part) -and !$Manifest.artworkLicense) { throw 'Public material overlays require the pinned Setup artwork license.' }
+        if (!(Test-AoPublicMaterialPart $part) -and $part.name -notmatch '^ao-vk-live-[A-Za-z0-9.-]+-materials-[0-9]+\.zip$') { throw 'Invalid material package descriptor.' }
         if (!$identities.Add([string]$part.name)) { throw 'Duplicate material package descriptor.' }
+        if ((Test-AoPublicMaterialPart $part) -and @($part.notices.PSObject.Properties | Where-Object { $null -ne $_ }).Count) { throw 'Public material archives contain PNG files only; their license belongs in Setup.' }
         foreach ($notice in @($part.notices.PSObject.Properties)) {
             if (!$notice) { continue }
             if ($notice.Name -cne 'LICENSE-TEXTURES.md' -or $notice.Value -cnotmatch '^[a-f0-9]{64}$' -or $notice.Value -cne $Manifest.artworkLicense.sha256) { throw 'Invalid companion artwork-license descriptor.' }
         }
-        if ($Manifest.artworkLicense -and !$part.notices.'LICENSE-TEXTURES.md') { throw 'Companion is missing the pinned artwork license.' }
+        if (!(Test-AoPublicMaterialPart $part) -and $Manifest.artworkLicense -and !$part.notices.'LICENSE-TEXTURES.md') { throw 'Companion is missing the pinned artwork license.' }
         foreach ($relative in $part.files) {
             $checkedMembers++
             if ($checkedMembers % 256 -eq 1) { Write-AoMaterialProgress "Checking HD texture list: $checkedMembers files ($($part.name))" -1 $ProgressCallback }
-            if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png|cache/materials/[a-f0-9]{16}\.rvkm)$' -or !$members.Add([string]$relative) -or $pinnedHashes[$relative] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
+            if (!(Test-AoMaterialMember $part ([string]$relative)) -or !$members.Add([string]$relative) -or $pinnedHashes[$relative] -notmatch '^[a-f0-9]{64}$') { throw 'Invalid or duplicate pinned material member.' }
         }
         if (!@($part.files | Where-Object { Test-AoMaterialNeeded ([string]$_) $Package $RequiredAssets $pinnedHashes }).Count) { continue }
         $pending += $part
@@ -70,7 +87,7 @@ function Expand-AoMaterialParts($Package, $Manifest, [string]$Client = '', [scri
     foreach ($part in $pending) {
         $allowed = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
         foreach ($relative in $part.files) {
-            if ($relative -notmatch '^randy-vk/(packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png|cache/materials/[a-f0-9]{16}\.rvkm)$' -or !$allowed.Add($relative)) { throw 'Invalid or duplicate material member.' }
+            if (!(Test-AoMaterialMember $part ([string]$relative)) -or !$allowed.Add($relative)) { throw 'Invalid or duplicate material member.' }
         }
         $needed = @($part.files | Where-Object { Test-AoMaterialNeeded ([string]$_) $Package $RequiredAssets $pinnedHashes })
         foreach ($notice in @($part.notices.PSObject.Properties)) { if ($notice) { $null = $allowed.Add($notice.Name) } }

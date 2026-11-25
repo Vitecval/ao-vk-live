@@ -27,12 +27,17 @@ const float kTerrainBase = 1.0, kTerrainLight = 2.0;
 bool TerrainMapped() { return D.terrainAt.w > 0.5; }
 
 #include "terrain_rock.glsl"
+#include "snow_surface.glsl"
 
 struct TerrainMap {
     vec3 posW;
     vec2 uv[3];         // the game's (from above), a face along x (it faces z: x and the height), along z (faces x)
     vec2 dx[3], dy[3];  // ... their screen derivatives
     vec3 w;             // ... their weights
+    vec3 detailW;       // projection before the soft cliff join changes the material mix
+    vec3 lightN;        // unperturbed fragment lighting base; original AO magnitude
+    bool smoothSnow;
+    bool smoothLighting;
     vec2 hexOff[9];     // each face's three hexagons' offsets into the texture (3 i + cell; none from above)
     vec3 hexW[3];       // ... their weights (TerrainSettle adds the texture's brightness)
     float hex;          // how much of the hexagons (0: the faces' coordinates as they are)
@@ -74,6 +79,28 @@ float RetailHeight(ivec2 p) {
     return uintBitsToFloat((b.a<<24)|(b.r<<16)|(b.g<<8)|b.b);
 }
 
+// Interpolate gradients rather than replacing AO's vertex normals. This field
+// is continuous across both cell edges and AO's adaptive triangle diagonals;
+// it controls material blending and eligible fragment lighting, never positions.
+vec3 SharedMaterialNormal(vec3 world)
+{
+    vec2 cell=world.xz*FL.nativeHeight.yz;
+    ivec2 at=ivec2(floor(cell));
+    vec2 t=fract(cell);
+    vec2 gradient=vec2(0.);
+    for(int z=0;z<2;++z)for(int x=0;x<2;++x) {
+        ivec2 p=at+ivec2(x,z);
+        vec2 g=vec2(RetailHeight(p+ivec2(1,0))-RetailHeight(p-ivec2(1,0)),
+                    RetailHeight(p+ivec2(0,1))-RetailHeight(p-ivec2(0,1)))*.5*FL.nativeHeight.yz;
+        gradient+=g*(x==0 ? 1.-t.x:t.x)*(z==0 ? 1.-t.y:t.y);
+    }
+    return normalize(vec3(-gradient.x,1.,-gradient.y));
+}
+
+bool NativeCellSnow(vec2 cell);
+bool NativeCellManufactured(vec2 cell);
+bool NativeCellIce(vec2 cell);
+
 // Where and how the ground's texture lies at this pixel. uv: the game's coordinates; n: the interpolated normal.
 TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
 {
@@ -111,11 +138,43 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
     // Steeper than ~32 degrees starts the faces (the texture from above already a fifth longer down the slope); past
     // ~57 they have it all.
     const float faceSide = 1.0 - smoothstep(0.55, 0.85, abs(nu.y));
+    float detailSide = faceSide;
     m.side = faceSide * clamp(FL.terrain.x, 0.0, 1.0);
     // Which way it faces (the lay along x or along z): the interpolated normal, smooth from one triangle to the next -
     // each triangle's own made the lays change at its edges, seams across a wall at an angle. (Its own where the
     // interpolated one has no length.)
     vec3 nf = dot(n, n) > 0.0 ? normalize(n) : nu;
+    bool sharedSurface=FL.sharedGroundConfig.w>.5 && floatBitsToUint(FL.nativeHeight.x)!=0u &&
+        floatBitsToUint(D.terrain.y)!=0u && D.terrainAt.y>.5 && D.terrainAt.y<1.5;
+    bool classicShared=FL.sharedGroundConfig.w>.5 && !NativeCellSnow(uv);
+    m.smoothSnow=sharedSurface && NativeCellSnow(uv);
+    bool naturalShared=sharedSurface && !m.smoothSnow && !NativeCellManufactured(uv) && !NativeCellIce(uv);
+    m.smoothLighting=m.smoothSnow || naturalShared;
+    m.lightN=n;
+    // Natural cells can contain a flat triangle beside a steep one. Their
+    // material and lighting eligibility must never depend on either triangle.
+    if(naturalShared || (sharedSurface && !classicShared && (abs(nu.y)<.9995 || m.smoothSnow)))nf=SharedMaterialNormal(posW);
+    float fieldHeight=posW.y;
+    if(naturalShared) {
+        vec2 cell=posW.xz*FL.nativeHeight.yz;
+        ivec2 at=ivec2(floor(cell));vec2 t=fract(cell);
+        vec4 h=vec4(RetailHeight(at),RetailHeight(at+ivec2(1,0)),RetailHeight(at+ivec2(0,1)),RetailHeight(at+ivec2(1,1)));
+        fieldHeight=mix(mix(h.x,h.y,t.x),mix(h.z,h.w,t.x),t.y);
+        // Analytic derivatives of the same bilinear material height. Neither
+        // the UV footprint nor its tangent basis can inherit triangle-flat Y.
+        vec2 gradient=vec2(mix(h.y-h.x,h.w-h.z,t.y),mix(h.z-h.x,h.w-h.y,t.x))*FL.nativeHeight.yz;
+        float fieldDx=dot(gradient,m.px.xz),fieldDy=dot(gradient,m.py.xz);
+        // Retain TerrainRockLays' X/Z strata noise; replace only its height.
+        m.uv[1].y+=s*(posW.y-fieldHeight);m.uv[2].y+=s*(posW.y-fieldHeight);
+        m.dx[1].y=m.dx[2].y=-s*fieldDx;
+        m.dy[1].y=m.dy[2].y=-s*fieldDy;
+        m.px.y=fieldDx;m.py.y=fieldDy;
+    }
+    // Snow hills share one continuous lighting field even when AO submits
+    // coarse/far normals. Keep its original normal magnitude; normal maps and
+    // PBR relief perturb this base later, rather than being overwritten here.
+    if(m.smoothSnow)m.lightN=nf*max(length(n),1e-6);
+    else if(naturalShared)m.lightN=nf*length(n);
     // Smooth normals soften the transition on an actual slope. They also lean
     // across a whole cell of flat floor next to a cliff. Never project a face
     // onto that floor: its vertical UV derivative collapses into long streaks.
@@ -127,12 +186,41 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
         const float wander = 0.09 * (TerrainNoise(posW.xz * 0.35 + vec2(4.3, 1.9)) - 0.5)
                            + 0.05 * (TerrainNoise(posW.xz * 1.3 + vec2(8.7, 2.6)) - 0.5);
         const float smoothSide = 1.0 - smoothstep(0.7, 0.92, abs(nf.y) + wander);
-        const float support = 1.0 - smoothstep(0.70, 0.88, abs(nu.y));
-        m.side = max(faceSide, smoothSide * support) * clamp(FL.terrain.x, 0.0, 1.0);
+        if(naturalShared) {
+            // Only field slope supplies support. Geometric support would
+            // differ across a shared diagonal, even with a continuous normal.
+            const float support=1.-smoothstep(.97,.9995,abs(nf.y));
+            m.side=smoothSide*support*clamp(FL.terrain.x,0.,1.);
+            detailSide=m.side;
+        } else if(classicShared) {
+            // Preserve0.7.7 on functional surfaces and while the verified
+            // height grid is unavailable. A genuinely flat field has zero
+            // weight in the natural branch too, preserving its original paint.
+            const float support = 1.0 - smoothstep(0.70, 0.88, abs(nu.y));
+            m.side = max(faceSide, smoothSide * support) * clamp(FL.terrain.x, 0.0, 1.0);
+            detailSide=m.side;
+        } else {
+            // The old max(faceSide,...) retained a triangle-constant floor under
+            // the blend. Continuous snow and natural Shared+ slopes use the
+            // world field instead; texture selection and 0.7.7 palette stay intact.
+            // Keep the material weight interpolated; only genuinely flat geometry
+            // suppresses side projection to avoid collapsed vertical derivatives.
+            const float support = 1.0 - smoothstep(0.97, 0.9995, abs(nu.y));
+            // Truly steep faces must reach side projection even if coarse vertex
+            // normals still lean upward. Keep the soft normal-driven transition
+            // on gentler slopes, and retain zero projection on a horizontal floor.
+            float projected=mix(smoothSide,1.,faceSide*faceSide);
+            // Keep the colour/material transition independent of triangle slope.
+            // Projection still follows a steep face even at a soft crest/toe, so
+            // the incoming HD soil and snow never revert to stretched top UVs.
+            detailSide = (sharedSurface ? max(smoothSide,faceSide):projected) * support;
+            m.side = (sharedSurface ? smoothSide*support:detailSide) * clamp(FL.terrain.x, 0.0, 1.0);
+        }
     }
     vec2 across = pow(abs(nf.zx) + 1e-4, vec2(4.0));
     across /= across.x + across.y;
     m.w = vec3(1.0 - m.side, m.side * across);
+    m.detailW = vec3(1.0-detailSide,detailSide*across);
     if(FL.nativeHeight.w>.001 && floatBitsToUint(D.terrain.y)!=0u && D.terrainAt.y<1.5 && m.side>.001) {
         // Blend inside the slope, never out onto the horizontal floor. Smooth
         // vertex normals alone cannot identify the crest of a one-cell cliff.
@@ -140,7 +228,8 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
         vec4 h=vec4(RetailHeight(cell),RetailHeight(cell+ivec2(1,0)),RetailHeight(cell+ivec2(0,1)),RetailHeight(cell+ivec2(1,1)));
         float low=min(min(h.x,h.y),min(h.z,h.w)),high=max(max(h.x,h.y),max(h.z,h.w));
         if(high-low>.5) {
-            float at=clamp((posW.y-low)/(high-low),0.,1.);
+            float joinedHeight=naturalShared ? fieldHeight:posW.y;
+            float at=clamp((joinedHeight-low)/(high-low),0.,1.);
             float gx=(h.y+h.w)-(h.x+h.z),gz=(h.z+h.w)-(h.x+h.y);
             bool alongX=abs(gx)>=abs(gz),positive=alongX ? gx>0.:gz>0.;
             ivec2 axis=alongX ? ivec2(1,0):ivec2(0,1),crossAxis=alongX ? ivec2(0,1):ivec2(1,0);
@@ -155,6 +244,7 @@ TerrainMap TerrainMapAt(vec3 posW, vec2 uv, vec3 n)
             m.side*=mix(1.,edge,FL.nativeHeight.w);m.w=vec3(1.-m.side,m.side*across);
         }
     }
+    if(classicShared)m.detailW=m.w;
     m.hex = clamp(FL.terrain.y, 0.0, 1.0);
     // The native ground's rocks (rvk ground_clutter.cpp; D.terrainAt.y 2): the rock from every side, from above too
     // (at its own size: top), by the interpolated normal (they are shaded smooth: by each face's own, the lays changed
@@ -219,6 +309,59 @@ bool NativeCellAuthored(vec2 cell)
     return (attributes & 64u) == 0u;
 }
 
+bool NativeCellAttribute(vec2 cell,uint bit)
+{
+    uint codes=floatBitsToUint(D.terrain.y)-1u;
+    ivec2 size=textureSize(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),0);
+    uint attributes=uint(texelFetch(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)),ivec2(0),size-1),0).a*255.+.5);
+    return (attributes & bit)==0u;
+}
+bool NativeCellManufactured(vec2 cell) {return NativeCellAttribute(cell,4u);}
+bool NativeCellIce(vec2 cell) {return NativeCellAttribute(cell,2u);}
+
+bool NativeCellSnow(vec2 cell)
+{
+    if(!TerrainNative())return false;
+    uint codes=floatBitsToUint(D.terrain.y)-1u;
+    ivec2 size=textureSize(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),0);
+    uint attributes=uint(texelFetch(sampler2D(texImages[codes],bindlessSamplers[D.sampIdx.w]),
+        clamp(ivec2(floor(cell)),ivec2(0),size-1),0).a*255.0+.5);
+    return (attributes & 8u)==0u;
+}
+
+float SnowPaintingMask(TerrainMap m,vec3 painting)
+{
+    if(m.clutter || !NativeCellSnow(m.uv[0]))return 0.;
+    // The original painting encodes trodden paths and exposed ground. Pale
+    // snow accepts powder; darker walkway pixels retain their authored shape.
+    float light=dot(painting,vec3(.3,.59,.11));
+    return smoothstep(.46,.78,light)*m.w.x;
+}
+
+vec3 SnowDetail(TerrainMap m)
+{
+    uint slot=floatBitsToUint(FL.hdGround[5].x);
+    if(slot==0u)return vec3(1.);
+    vec3 powder=vec3(0.);
+    for(int i=0;i<3;++i) {
+        if(m.detailW[i]<=.001)continue;
+        vec2 world=(i==0 ? m.posW.xz:i==1 ? vec2(m.posW.x,-m.posW.y):vec2(m.posW.z,-m.posW.y))*.5;
+        vec2 dx=(i==0 ? m.px.xz:i==1 ? vec2(m.px.x,-m.px.y):vec2(m.px.z,-m.px.y))*.5;
+        vec2 dy=(i==0 ? m.py.xz:i==1 ? vec2(m.py.x,-m.py.y):vec2(m.py.z,-m.py.y))*.5;
+        vec2 mirrored=1.-abs(fract(world*.5)*2.-1.);
+        vec2 turn=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(world*.5)));
+        powder+=m.detailW[i]*textureGrad(sampler2D(texImages[slot-1u],bindlessSamplers[D.sampIdx.w]),mirrored,dx*turn,dy*turn).rgb;
+    }
+    return clamp(powder/max(FL.hdGround[5].yzw,vec3(.05)),vec3(.90),vec3(1.08));
+}
+vec3 PowderSnow(vec3 painting,TerrainMap m)
+{
+    float cover=SnowPaintingMask(m,painting)*FL.snow.x;
+    if(cover<=.001 || floatBitsToUint(FL.hdGround[5].x)==0u)return painting;
+    return mix(painting,max(painting,vec3(.88,.91,.94))*SnowDetail(m),cover);
+}
+
 // Bit 5 cleared only for the two verified ICC tiles in playfield 655.
 bool NativeCellIcc(vec2 cell) {
     const uint codes=floatBitsToUint(D.terrain.y)-1u;
@@ -273,11 +416,24 @@ float NativeEdgeOff(uvec2 a, uvec2 b, bool alongZ, sampler smp)
     return smoothstep(0.05, 0.15, length(ca - cb));
 }
 
-vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
+vec4 NativeTileRead(uvec2 tile,vec2 uv,vec2 dx,vec2 dy,sampler smp,bool maskOnly)
+{
+    uv=NativeTurn(uv,tile.y);dx=NativeTurnStep(dx,tile.y);dy=NativeTurnStep(dy,tile.y);
+    // Every source contributes the same physical mask resolution, whether its
+    // current colour image is 128px, 512px or an independently painted 1K tile.
+    // Fine grain is supplied by the continuous HD material, never an old tile.
+    if(maskOnly) {
+        vec2 size=vec2(textureSize(sampler2D(texImages[nonuniformEXT(tile.x)],smp),0));
+        float lod=max(log2(max(size.x,size.y)/32.),.5*log2(max(max(dot(dx*size,dx*size),dot(dy*size,dy*size)),1e-8)));
+        return textureLod(sampler2D(texImages[nonuniformEXT(tile.x)],smp),uv,max(lod,0.));
+    }
+    return textureGrad(sampler2D(texImages[nonuniformEXT(tile.x)],smp),uv,dx,dy);
+}
+
+vec4 NativeTopFiltered(vec2 cell, vec2 dx, vec2 dy, sampler smp,bool maskOnly)
 {
     const uvec2 c = NativeCell(cell);
-    const vec4 own = textureGrad(sampler2D(texImages[nonuniformEXT(c.x)], smp), NativeTurn(fract(cell), c.y),
-                                 NativeTurnStep(dx, c.y), NativeTurnStep(dy, c.y));
+    const vec4 own = NativeTileRead(c,fract(cell),dx,dy,smp,maskOnly);
     if(NativeCellRefined(cell)) {
         vec2 uv=NativeTurn(fract(cell),c.y);
         vec3 detail=textureGrad(sampler2D(texImages[nonuniformEXT(c.x)],smp),.035+uv*.93,
@@ -288,11 +444,18 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
         float slab=.97+.04*float(TerrainHash(uvec2(ivec2(floor(cell))+0x4000))&255u)/255.;
         return vec4(mix(mean,detail,.25)*seam*slab,own.a);
     }
-    // Shared Ground+ preserves AO's authored tile joints and transition tiles.
-    // Neighbour synthesis belongs only to GroundOn, regardless of material ID.
-    if (FL.sharedGroundConfig.w > 0.5) return own;
+    // Shared+ non-snow preserves 0.7.7's original cell painting and tile joints
+    // for both HD settings. Enhanced neighbour synthesis remains snow-only.
+    if(FL.sharedGroundConfig.w>.5 && !NativeCellSnow(cell))return own;
+    // Natural HD transitions share one material field across the grid. Only
+    // manufactured paving keeps exact hard joints; a repainted soil tile is
+    // not manufactured merely because its artwork is independently painted.
+    bool snowSeam=NativeCellSnow(cell) && FL.snow.x>0.;
+    bool hdSeam=FL.hdGroundConfig.x>.5 && !NativeCellManufactured(cell);
+    if (FL.sharedGroundConfig.w > 0.5 && !snowSeam && !hdSeam) return own;
+    if(NativeCellManufactured(cell))return own;
     if (NativeCellIcc(cell)) return own; // explicit manufactured ICC artwork keeps its designed tile joints
-    const float blend = 0.3 * clamp(FL.terrain3.x, 0.0, 1.0);
+    const float blend = hdSeam ? .28 : snowSeam ? .22 : 0.3 * clamp(FL.terrain3.x, 0.0, 1.0);
     if (blend <= 0.0) return own;
     // The 2 x 2 cells about the nearest corner: t 0.5 on the edge between base and base + 1, wandered by noise (at most
     // 0.16; band + it stays inside 0..1, so the weights are whole one cell's well before t wraps at a cell's middle).
@@ -302,7 +465,7 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
     uvec2 n[4];
     for (int k = 0; k < 4; ++k) n[k] = NativeCell(base + vec2(k & 1, k >> 1) + 0.5);
     // Each direction's band: its two edges' disagreement, the larger.
-    const vec2 band = blend * vec2(max(NativeEdgeOff(n[0], n[1], false, smp), NativeEdgeOff(n[2], n[3], false, smp)),
+    const vec2 band = maskOnly ? vec2(blend) : blend * vec2(max(NativeEdgeOff(n[0], n[1], false, smp), NativeEdgeOff(n[2], n[3], false, smp)),
                                    max(NativeEdgeOff(n[0], n[2], true, smp), NativeEdgeOff(n[1], n[3], true, smp)));
     if (max(band.x, band.y) <= 0.0) return own;
     t += 0.22 * (vec2(TerrainNoise(cell * 0.9 + vec2(3.1, 7.7)), TerrainNoise(cell * 0.9 + vec2(11.3, 5.9))) - 0.5)
@@ -318,8 +481,7 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
         col[k] = own;
         if (o == mine || w[k] <= 0.002) continue;
         const vec2 f = 1.0 - abs(1.0 - abs(cell - base - vec2(o)));   // (mirrored into the cell about its edge)
-        col[k] = textureGrad(sampler2D(texImages[nonuniformEXT(n[k].x)], smp), NativeTurn(f, n[k].y),
-                             NativeTurnStep(dx, n[k].y), NativeTurnStep(dy, n[k].y));
+        col[k] = NativeTileRead(n[k],f,dx,dy,smp,maskOnly);
     }
     for (int k = 0; k < 4; ++k) top = max(top, w[k] + 0.6 * Luma(col[k].rgb));
     vec4 sum = vec4(0.0);
@@ -329,7 +491,13 @@ vec4 NativeTop(vec2 cell, vec2 dx, vec2 dy, sampler smp)
         sum += col[k] * h;
         total += h;
     }
-    return total > 0.0 ? sum / total : own;
+    // Colour transitions never change the original cell's coverage/cutouts.
+    return total > 0.0 ? vec4(sum.rgb / total,own.a) : own;
+}
+
+vec4 NativeTop(vec2 cell,vec2 dx,vec2 dy,sampler smp)
+{
+    return NativeTopFiltered(cell,dx,dy,smp,false);
 }
 
 // The lighting pass: the cells' tiles' normal maps (D.terrain.z: their texture's bindless image + 1; R, G each cell's
@@ -494,7 +662,15 @@ vec4 TerrainBaseRaw(uint image, sampler smp, inout TerrainMap m)
                 if (m.w[i] > 0.002) faces += TerrainLay(texImages[image], smp, texImages[TerrainRockImage(0)], m, i) * m.w[i];
             const float side = m.w.y + m.w.z;
             faces.rgb = mix(FL.terrainRock2.rgb * side, faces.rgb, 0.75);
-            return top + faces * TerrainRockTint(m);
+            vec4 tinted=faces*TerrainRockTint(m);
+            if(NativeCellSnow(m.uv[0])){
+                // Snow-covered terrain must not inherit the warm rock master's
+                // orange hue or over-bright tint ratio on its exposed cliffs.
+                float grain=clamp(dot(faces.rgb,vec3(.3,.59,.11))/
+                    max(dot(FL.terrainRock2.rgb,vec3(.3,.59,.11))*side,.01),.76,1.16);
+                tinted.rgb=mix(vec3(.54,.63,.73),NativeMean(m.uv[0]),.5)*grain*side;
+            }
+            return top+tinted;
         }
         const uvec2 c = NativeCell(m.uv[0]);
         vec4 faces = vec4(0.0);
@@ -514,10 +690,45 @@ vec4 TerrainBaseRaw(uint image, sampler smp, inout TerrainMap m)
     return top + faces * TerrainRockTint(m);
 }
 
+// Mirrored HD grain at its physical scale on one projection plane.
+vec3 TerrainHDPlane(uint slot,vec3 mean,vec2 world,vec2 dx,vec2 dy,float nearDetail)
+{
+    vec2 mirrored=1.-abs(fract(world*.5)*2.-1.);
+    vec2 direction=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(world*.5)));
+    vec3 colour=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),mirrored,dx*direction,dy*direction).rgb;
+    if(nearDetail>.001) {
+        vec2 fineWorld=world*3.+vec2(.173,.417);
+        vec2 fine=1.-abs(fract(fineWorld*.5)*2.-1.);
+        vec2 fineDirection=mix(vec2(1.),vec2(-1.),step(vec2(.5),fract(fineWorld*.5)));
+        vec3 grain=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),fine,dx*3.*fineDirection,dy*3.*fineDirection).rgb;
+        vec3 micro=clamp(grain/max(mean,vec3(.04)),vec3(.65),vec3(1.5));
+        colour*=mix(vec3(1.),micro,.5*nearDetail);
+    }
+    return colour;
+}
+
+float TerrainHDFeatureScale(int material)
+{
+    // These photographs cover different physical areas. Giving fine grass
+    // blades and gravel the rock photograph's 4m width reduces their authored
+    // shapes to subpixel grain. Resolve the actual photographed structures;
+    // do not sharpen mip levels or recover grain from the old AO mask.
+    return material==2 ? .25 : material==0 || material==1 ? .5 : 1.;
+}
+
+vec3 TerrainHDBlend(vec3 value,vec3 mean,float squaredWeights)
+{
+    // Independent projection/material phases lose variance when averaged.
+    // Preserve their photographic contrast about the same material mean.
+    // This changes neither UVs nor mip footprints and creates no new detail.
+    float gain=min(1.5,inversesqrt(max(squaredWeights,1e-5)));
+    return clamp(mean+(value-mean)*gain,vec3(0.),vec3(1.));
+}
+
 // Original tiles contain prepainted transitions, not independent grass/dirt
 // layers. Keep their low-frequency colour/shape as a soft mask and tint. Only
 // the fine material comes from shared masters, in continuous world coordinates.
-vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
+vec4 TerrainBase077(uint image, sampler smp, inout TerrainMap m)
 {
     vec4 original=TerrainBaseRaw(image,smp,m);
     float amount=FL.sharedGroundConfig.x*m.w.x;
@@ -621,6 +832,146 @@ vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
     return original;
 }
 
+vec4 TerrainBase(uint image, sampler smp, inout TerrainMap m)
+{
+    if(FL.sharedGroundConfig.w>.5 && !NativeCellSnow(m.uv[0]))return TerrainBase077(image,smp,m);
+    vec4 original=TerrainBaseRaw(image,smp,m);
+    float amount=FL.sharedGroundConfig.x*m.w.x;
+    if (amount<=0.0 || m.clutter) return original;
+    bool continuousHD=TerrainNative() && FL.hdGroundConfig.x>.5 && !NativeCellManufactured(m.uv[0]) &&
+        !(NativeCellIce(m.uv[0]) && NativeCellAuthored(m.uv[0]));
+    if(!continuousHD && ((D.mat.z & MAT_AUTHORED_GROUND)!=0u || (TerrainNative() && NativeCellAuthored(m.uv[0])))) {
+        // Reviewed snow paintings retain their paths and original UV layout,
+        // while still accepting the optional powder coat. Manufactured paving
+        // returns unchanged because SnowPaintingMask is zero there.
+        original.rgb=PowderSnow(original.rgb,m);
+        return original;
+    }
+    vec2 uv=m.uv[0],dx=m.dx[0],dy=m.dy[0];
+    uint source=image;
+    if (TerrainNative()) {
+        uvec2 cell=NativeCell(m.uv[0]); source=cell.x;
+        uv=NativeTurn(fract(uv),cell.y);
+        dx=NativeTurnStep(dx,cell.y);dy=NativeTurnStep(dy,cell.y);
+    }
+    vec2 size=vec2(textureSize(sampler2D(texImages[nonuniformEXT(source)],smp),0));
+    float lod=max(2.0,0.5*log2(max(max(dot(dx*size,dx*size),dot(dy*size,dy*size)),1e-8)));
+    vec3 mask=textureLod(sampler2D(texImages[nonuniformEXT(source)],smp),uv,lod).rgb;
+    if(continuousHD)mask=NativeTopFiltered(m.uv[0],m.dx[0],m.dy[0],smp,true).rgb;
+    float lum=dot(mask,vec3(.3,.59,.11));
+    float green=smoothstep(.04,.18,(mask.g-max(mask.r,mask.b))/max(lum,.04));
+    float warm=smoothstep(.12,.50,(mask.r-mask.b)/max(lum,.04));
+    float sand=(1.0-green)*warm*smoothstep(.30,.55,lum);
+    float neutral=(1.0-green)*(1.0-warm);
+    float gravel=neutral*smoothstep(.14,.38,lum);
+    float rock=neutral-gravel;
+    float weights[5]=float[5](green,max(0.0,1.0-green-sand-neutral),gravel,sand,rock);
+    // City roads use the same neutral fine aggregate across their original
+    // transition masks, rather than different new paintings for each tile.
+    if ((D.mat.z & MAT_ASPHALT) != 0u) {
+        float road=(1.0-green)*(1.0-warm)*(1.0-smoothstep(.25,.43,lum));
+        weights[2]+=road*weights[4]; weights[4]*=1.0-road;
+    }
+    vec2 world=m.posW.xz*FL.sharedGroundConfig.y;
+    vec2 wx=m.px.xz*FL.sharedGroundConfig.y,wy=m.py.xz*FL.sharedGroundConfig.y;
+    if(FL.hdGroundConfig.x>.5) {
+        // Full material albedo replaces the old texel grain. Native low-frequency
+        // colour remains the blend mask/palette only; alpha, overlap ownership,
+        // validated cliff footprint and original geometry are unchanged.
+        // Softly averaging five unrelated paintings erased their fine structure.
+        // Sharpen the material weights, retaining continuous native transition masks.
+        float blendTotal=0.;
+        for(int i=0;i<5;++i){weights[i]=pow(max(weights[i],0.),4.);blendTotal+=weights[i];}
+        if(blendTotal>.00001)for(int i=0;i<5;++i)weights[i]/=blendTotal;
+        vec3 modern=vec3(0.),mean=vec3(0.);float total=0.,squaredWeights=0.;
+        float nearDetail=1.-smoothstep(35.,90.,distance(m.posW,C.eyePos.xyz));
+        for(int i=0;i<5;++i) {
+            if(weights[i]<.001)continue;
+            uint slot=floatBitsToUint(FL.hdGround[i].x)-1u;
+            // A soft material join must not bring back top-down stretching on
+            // the cliff. Lay the incoming soil/snow detail on the actual face,
+            // using weights from before the join reduced the rock contribution.
+            vec3 projection=continuousHD ? m.detailW:vec3(1.,0.,0.);
+            float featureScale=TerrainHDFeatureScale(i);
+            vec3 broad=vec3(0.);
+            if(projection.x>.001)broad+=projection.x*TerrainHDPlane(slot,FL.hdGround[i].yzw,world*featureScale,wx*featureScale,wy*featureScale,nearDetail);
+            if(projection.y>.001)broad+=projection.y*TerrainHDPlane(slot,FL.hdGround[i].yzw,
+                vec2(m.posW.x,-m.posW.y)*FL.sharedGroundConfig.y*featureScale,
+                vec2(m.px.x,-m.px.y)*FL.sharedGroundConfig.y*featureScale,
+                vec2(m.py.x,-m.py.y)*FL.sharedGroundConfig.y*featureScale,nearDetail);
+            if(projection.z>.001)broad+=projection.z*TerrainHDPlane(slot,FL.hdGround[i].yzw,
+                vec2(m.posW.z,-m.posW.y)*FL.sharedGroundConfig.y*featureScale,
+                vec2(m.px.z,-m.px.y)*FL.sharedGroundConfig.y*featureScale,
+                vec2(m.py.z,-m.py.y)*FL.sharedGroundConfig.y*featureScale,nearDetail);
+            broad=TerrainHDBlend(broad,FL.hdGround[i].yzw,dot(projection,projection));
+            modern+=weights[i]*broad;
+            mean+=weights[i]*FL.hdGround[i].yzw;total+=weights[i];squaredWeights+=weights[i]*weights[i];
+        }
+        if(total>.01) {
+            modern/=total;mean/=total;
+            modern=TerrainHDBlend(modern,mean,squaredWeights/(total*total));
+            // Shared masters supply new detail, while original paint supplies
+            // full-range colour and route contrast. Clamping the old palette
+            // ratio erased dark walkways and turned white snow into gravel.
+            float marking=smoothstep(.05,.18,length(original.rgb-mask));
+            vec3 authored=mix(mask,original.rgb,marking);
+            if(ClassicNativeLighting() && !continuousHD)authored=original.rgb;
+            if(continuousHD)authored=mask;
+            // This is the HD colour painting, not a bounded microdetail layer
+            // over the old texel grain. The original supplies broad palette and
+            // transition masks only. Snow keeps its separate path-aware coat.
+            vec3 replacement=modern*clamp(mask/max(mean,vec3(.04)),vec3(.15),vec3(4.));
+            float snowMask=SnowPaintingMask(m,authored);
+            if(snowMask>.001)replacement=mix(replacement,authored*SnowDetail(m),snowMask);
+            if(continuousHD) {
+                // Replace the top material's contribution, preserving the
+                // separately projected HD cliff faces. Mixing the whole
+                // composed surface by top weight retained old grain on slopes
+                // and faded the cliff material a second time at its joins.
+                vec3 oldTop=NativeTop(m.uv[0],m.dx[0],m.dy[0],smp).rgb;
+                original.rgb+=(replacement-oldTop)*amount;
+            } else original.rgb=mix(original.rgb,replacement,amount);
+        }
+        original.rgb=PowderSnow(original.rgb,m);
+        return original;
+    }
+    vec3 detail=vec3(1.0);
+    for (int i=0;i<5;++i) {
+        if (weights[i]<.01) continue;
+        uint slot=floatBitsToUint(FL.sharedGround[i].x)-1u;
+        vec3 master=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),world,wx,wy).rgb;
+        detail+=weights[i]*(clamp(master/max(FL.sharedGround[i].yzw,vec3(.025)),vec3(.55),vec3(1.65))-1.0);
+    }
+    float farMix=FL.terrainFar.x*smoothstep(65.0,260.0,length(m.posW-C.eyePos.xyz));
+    if (farMix>.001 && (D.mat.z & MAT_ASPHALT)==0u) {
+        // Two coarse material reads replace disappearing fine aggregate. Soil
+        // and exposed rock mix by slope; the original biome/transition tint stays.
+        vec3 coarse=vec3(0.0);
+        float slope=1.0-clamp(abs(normalize((m.smoothSnow ? m.lightN:vNormalW.xyz)+vec3(0,1e-6,0)).y),0.0,1.0);
+        float exposed=smoothstep(.05,.42,slope)*(1.0-.65*green);
+        for (int j=0;j<2;++j) {
+            int material=j==0 ? 1:4;
+            uint slot=floatBitsToUint(FL.sharedGround[material].x)-1u;
+            float scale=j==0 ? 1.0/65.0:1.0/43.0;
+            vec3 master=textureGrad(sampler2D(texImages[nonuniformEXT(slot)],bindlessSamplers[D.sampIdx.w]),
+                m.posW.xz*scale,m.px.xz*scale,m.py.xz*scale).rgb;
+            coarse+=clamp(master/max(FL.sharedGround[material].yzw,vec3(.025)),vec3(.70),vec3(1.35))*(j==0 ? 1.0-exposed:exposed);
+        }
+        detail=mix(detail,coarse,farMix*.38);
+    }
+    // Strong original markings/joints keep their shape; noisy old texels are
+    // softened before the new filtered detail. Alpha is always AO's original.
+    float marking=smoothstep(.07,.22,length(original.rgb-mask));
+    // Shared Ground+ preserves AO's overlap painting at full source precision;
+    // the blurred colour sample classifies materials but never replaces it.
+    vec3 base=FL.sharedGroundConfig.w>.5 ? original.rgb : mix(mask,original.rgb,marking);
+    float snowMask=SnowPaintingMask(m,base);
+    if(snowMask>.001)detail=mix(detail,SnowDetail(m),snowMask);
+    original.rgb=mix(original.rgb,base*mix(vec3(1.0),detail,.65*FL.terrainFar.y),amount);
+    original.rgb=PowderSnow(original.rgb,m);
+    return original;
+}
+
 // The relief of normal maps laid like the texture: from above the base's (top, strength), on the faces the rock's
 // (or the base's), each lay's relief through its own coordinates' derivatives (as NormalMapNormal), blended.
 vec3 TerrainNormalMap(vec3 n, texture2D top, float topStrength, texture2D face, float faceStrength, TerrainMap m)
@@ -710,7 +1061,7 @@ vec3 TerrainVariation(vec3 c, vec3 posW, TerrainMap m)
         vec3 mineral=vec3(1.0)+formation*vec3(.16,.12,.07);
         float saturation=1.0-.10*distant*(.5+broad);
         c=mix(vec3(Luma(c)),c,saturation)*mix(vec3(1.0),mineral,distant);
-        vec3 n=normalize(vNormalW.xyz+vec3(0.0,1e-6,0.0));
+        vec3 n=normalize((m.smoothLighting ? m.lightN:vNormalW.xyz)+vec3(0.0,1e-6,0.0));
         vec3 sun=-normalize(FL.sunDir.xyz+vec3(0.0,-1e-6,0.0));
         float sunUp=smoothstep(.02,.20,sun.y);
         float turn=clamp(dot(n,sun)-sun.y,-.5,.5);
@@ -883,6 +1234,15 @@ float SharedSand(TerrainMap m)
     float lum=dot(c,vec3(.3,.59,.11));
     float green=smoothstep(.04,.18,(c.g-max(c.r,c.b))/max(lum,.04));
     return (1.0-green)*smoothstep(.12,.50,(c.r-c.b)/max(lum,.04))*smoothstep(.30,.55,lum);
+}
+
+float SharedSnow(TerrainMap m)
+{
+    if(!TerrainNative() || !NativeCellSnow(m.uv[0]) || m.clutter)return 0.;
+    uvec2 cell=NativeCell(m.uv[0]);
+    vec3 paint=textureLod(sampler2D(texImages[cell.x],bindlessSamplers[D.sampIdx.w]),
+        NativeTurn(fract(m.uv[0]),cell.y),2.).rgb;
+    return SnowPaintingMask(m,paint);
 }
 
 #include "parallax.glsl"

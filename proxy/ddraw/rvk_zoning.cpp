@@ -118,7 +118,12 @@ void __fastcall Teleport(void* self, void* edx, bool value) {
 void LoadPictures() {
     WIN32_FIND_DATAA data{};
     HANDLE find = FindFirstFileA((directory + "*.png").c_str(), &data);
-    if (find == INVALID_HANDLE_VALUE) return;
+    if (find == INVALID_HANDLE_VALUE) {
+#ifndef AOVK_ZONING_FIXTURE
+        RvkLog("zoning: no PNG artwork found in %s (Windows error %lu); using built-in text fallback",directory.c_str(),GetLastError());
+#endif
+        return;
+    }
     std::vector<std::string> paths;
     do { if (!(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) paths.push_back(directory + data.cFileName); }
     while (FindNextFileA(find, &data));
@@ -143,7 +148,12 @@ void SelectPicture(size_t index) {
     Picture& image = pictures[selected];
     int w = 0, h = 0, channels = 0;
     unsigned char* rgba = stbi_load(image.path.c_str(), &w, &h, &channels, 4);
-    if (!rgba) return;
+    if (!rgba) {
+#ifndef AOVK_ZONING_FIXTURE
+        RvkLog("zoning: artwork decode failed: %s (%s); using text fallback",image.path.c_str(),stbi_failure_reason());
+#endif
+        return;
+    }
     if (w != image.width || h != image.height) { stbi_image_free(rgba); return; }
     image.pixels.resize(size_t(w)*h);
     for (size_t i = 0; i < image.pixels.size(); ++i)
@@ -252,7 +262,15 @@ DWORD WINAPI WindowMain(void*) {
     RegisterClassW(&wc);
     HWND h = CreateWindowExW(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT | WS_EX_LAYERED, wc.lpszClassName,
         L"AO-VK Zoning", WS_POPUP, 0, 0, 1, 1, owner.load(), nullptr, module, nullptr);
-    if (!h) return 0;
+    if (!h) {
+#ifndef AOVK_ZONING_FIXTURE
+        RvkLog("zoning: loading window could not be created (Windows error %lu)",GetLastError());
+#endif
+        return 0;
+    }
+#ifndef AOVK_ZONING_FIXTURE
+    RvkLog("zoning: loading window ready; %zu valid artwork files%s",pictures.size(),pictures.empty()?"; text fallback active":"");
+#endif
     SetLayeredWindowAttributes(h, 0, 0, LWA_ALPHA);
     rvk::zoning::Reveal reveal;
     rvk::zoning::Fade fade;
@@ -317,6 +335,20 @@ DWORD WINAPI WindowMain(void*) {
     screenCanvas.Reset();DestroyWindow(h); pictures.clear();
     return 0;
 }
+bool EnsureWindowWorker() {
+    if(thread && WaitForSingleObject(thread,0)==WAIT_OBJECT_0){CloseHandle(thread);thread=nullptr;}
+    if(thread)return !stopping.load();
+    static ULONGLONG retryAt=0;
+    const ULONGLONG now=GetTickCount64();if(now<retryAt)return false;
+    retryAt=now+1000;
+    if(!painted)painted=CreateEventW(nullptr,TRUE,FALSE,nullptr);
+    stopping=false;
+    thread=CreateThread(nullptr,0,WindowMain,nullptr,0,nullptr);
+#ifndef AOVK_ZONING_FIXTURE
+    if(!thread)RvkLog("zoning: loading worker could not start (Windows error %lu); will retry",GetLastError());
+#endif
+    return thread!=nullptr;
+}
 }
 
 static bool ZoningInput(HWND window, UINT message, WPARAM key, LPARAM data, bool focused) {
@@ -357,14 +389,11 @@ void ZoningFrame() {
         const uint8_t expected[] = {0x55, 0x8b, 0xec, 0x8a, 0x45, 0x08};
         if (rnative::IdentifyClientModule(n3, rnative::ClientModule::N3) == rnative::ClientBuild::Unknown ||
             !at || std::memcmp(at, expected, sizeof(expected)) != 0) {
-            RvkLog("zoning: unsupported N3 teleport entry; screen disabled"); return;
+            RvkLog("zoning: unsupported N3 teleport entry; screen disabled (module %p, export %p)",n3,at); return;
         }
         directory = rvk_settings::IniPath();
         const size_t slash = directory.find_last_of("\\/");
         directory = (slash == std::string::npos ? "" : directory.substr(0, slash+1)) + "randy-vk\\loading\\";
-        painted = CreateEventW(nullptr, TRUE, FALSE, nullptr);
-        stopping = false;
-        thread = CreateThread(nullptr, 0, WindowMain, nullptr, 0, nullptr);
         original = reinterpret_cast<TeleportFn>(rnative::HookAt(at, sizeof(expected), nullptr, 0,
             reinterpret_cast<void*>(Teleport), "zoning teleport status"));
         getEngine = reinterpret_cast<GetEngineFn>(GetProcAddress(n3, "?GetInstance@n3EngineClient_t@@SAPAV1@XZ"));
@@ -372,7 +401,12 @@ void ZoningFrame() {
         const uint8_t getBytes[] = {0x8a, 0x41, 0x58, 0xc3};
         if (getter && std::memcmp(getter, getBytes, sizeof(getBytes)) == 0) getStatus = reinterpret_cast<GetStatusFn>(getter);
         RvkLog("zoning: teleport hook %s; loading pictures from %s", original ? "installed" : "unavailable", directory.c_str());
+        if(!getEngine || !getStatus)RvkLog("zoning: initial-login polling unavailable; subsequent screens require the teleport hook");
     }
+    // AO can replace its render window without unloading the addon. The old
+    // worker was stopped on WM_DESTROY, while the hook remains installed.
+    // Restart only the window worker; never patch the same entry twice.
+    if((original || (getEngine && getStatus)) && !EnsureWindowWorker())return;
     // Initial login can set the flag before the first renderer frame installs the hook.
     if (getEngine && getStatus) if (void* engine = getEngine()) {
         if (getStatus(engine, nullptr)) BeginLoading(); else EndLoading();
@@ -391,6 +425,8 @@ void ZoningStop() {
     stopping = true;
     InputBlock(kInputZoning,false,false);
     owner = nullptr;
+    loading=false;generation=0;loadedGeneration=0;worlds=0;loadedWorlds=0;
+    readyGeneration=0;continuedGeneration=0;captureInput=false;
     if (thread && WaitForSingleObject(thread, 2000) == WAIT_OBJECT_0) {
         CloseHandle(thread); thread = nullptr;
         if (painted) { CloseHandle(painted); painted = nullptr; }

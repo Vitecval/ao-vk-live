@@ -284,6 +284,35 @@ void main()
     vec3 toEye = eye - vPos;
     float dist = length(toEye);
     vec3 V = toEye / max(dist, 1e-4);
+    if(W.mapInfo.w>.5){
+        // Molten liquid emits light. It has neither water reflection nor foam.
+        vec2 q=vRest.xz*.28+vec2(t*.009,-t*.006);
+        vec2 flow=vec2(ValueNoise(q*.7),ValueNoise(q*.7+9.7))-.5;
+        float crust=ValueNoise(q+flow*.8)*.65+ValueNoise(q*2.7+flow)*.35;
+        float hot=1.-smoothstep(.39,.58,crust);
+        vec3 coal=vec3(.065,.034,.026)*(.65+.6*ValueNoise(q*8.));
+        vec3 emission=mix(vec3(2.2,.20,.012),vec3(3.4,1.05,.08),hot)*hot;
+        if(W.mapInfo.w>1.5){
+            vec2 world=vRest.xz*.16+vec2(t*.003,-t*.002);
+            vec2 uv=1.-abs(fract(world*.5)*2.-1.);
+            vec3 paint=texture(gameTexture,uv).rgb;
+            hot=smoothstep(.12,.55,paint.r-max(paint.g*.55,paint.b));
+            coal=paint*(1.-hot)*.55;
+            emission=paint*(2.4*hot);
+        }
+        emission*=.82;
+        float fog=FogFactor(dist);
+        float edge=mesh ? clamp(vAlpha/max(W.tint.a,.05),0.,1.):1.;
+        vec3 behind=texture(sceneCopy,gl_FragCoord.xy*W.viewport.zw).rgb;
+        vec3 colour=mix(W.fogColour.rgb,coal+emission,fog);
+        outScene=vec4(mix(behind,colour,edge),1.);
+        outGlow=vec4(emission*fog*edge*.75,dot(emission,kLuma)*gl_FragCoord.w*edge*.75);
+        outLocal=vec4(hot,0.,0.,1.);
+        vec2 now=vClip.xy/max(vClip.w,1e-6),before=vPrevClip.xy/max(vPrevClip.w,1e-6);
+        outMotion=vec4(vPrevClip.w>1e-6 ? (now-before)*.5*W.viewport.xy*vec2(1.,-1.):vec2(0.),0.,1.);
+        outAlbedo=vec4(coal,1.);
+        return;
+    }
 
     // The normal: the waves', plus ripples (fading out with distance, where they would only shimmer).
     // (A fall: the sheet's smooth normal - its triangles' own lean every way. A shore step: the triangle's.)

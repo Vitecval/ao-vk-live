@@ -404,6 +404,8 @@ void main()
 #endif
         vec4 pv = C.view * posW;
         gl_Position = C.proj * pv;
+        if((D.mat.z & MAT_CAUSTIC_LIGHT)!=0u)
+            gl_Position=CausticReceiverClip(gl_Position,C.proj,D.tess.w);
         // The sky's meshes (its cloud puffs, hundreds of units across, 1-3 km out) can reach past the far plane: kept
         // just inside it rather than cut off along a straight line (the game's own renderer didn't cut them).
         if ((D.mat.z & MAT_SKY) != 0u)
@@ -458,12 +460,14 @@ void main()
         normalV = mat3(C.view) * normalW;
 
         vPosW = posW.xyz;
+        // Shared+ retains AO's normals for lighting. Continuous height-field
+        // directions are used only for material projection in TerrainMapAt.
         vNormalW = vec4(normalW, length(normalW));
 #ifndef RVK_LEAF
         if(D.tess.x>.5 && (D.mat.z&MAT_ROCK_SHAPE)!=0u){
             vSmoothN=normalW; // rock topology occupies binding 10, not character normals
         }else if (D.tess.x > 0.5 && floatBitsToUint(D.terrain.y) != 0u) {
-            vSmoothN = normalize(normalW);       // the native ground: its normals are the heights' own, smooth
+            vSmoothN = dot(normalW,normalW)>1e-8 ? normalize(normalW):vec3(0.,1.,0.);
         } else if (D.tess.x > 0.5) {
             // Direction: the averaged normal in the world; length: how smooth the surface is at this corner (the
             // model-space mean of the unit normals here: 1 where they agree, ~0.58 at a box's corner) as a weight.

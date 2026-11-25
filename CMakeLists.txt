@@ -4,6 +4,12 @@ project(randy-vk LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")   # static CRT: no extra runtime DLL next to the game
+add_executable(sound_policy_check tests/sound_policy_check.cpp)
+target_include_directories(sound_policy_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+add_executable(caustic_policy_check tests/caustic_policy_check.cpp)
+target_include_directories(caustic_policy_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+add_executable(underwater_policy_check tests/underwater_policy_check.cpp)
+target_include_directories(underwater_policy_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Native Randy: our implementations of randy31_orig's code (proxy/native, docs/native.md), shared with the tests.
 add_library(randy_native STATIC proxy/native/stb_image.cpp proxy/native/hook.cpp proxy/native/crash.cpp proxy/native/gui.cpp proxy/native/rings.cpp proxy/native/ground.cpp proxy/native/native.cpp proxy/native/cat_skin.cpp proxy/native/cat_anim.cpp proxy/native/scene.cpp proxy/native/popin.cpp
@@ -14,14 +20,16 @@ target_include_directories(randy_native PUBLIC proxy third_party)
 target_link_libraries(randy_native PUBLIC rvk)
 target_compile_definitions(randy_native PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_sources(randy_native PRIVATE proxy/native/client_build.cpp)
+target_sources(randy_native PRIVATE proxy/native/tooltip_delay.cpp)
 
 # Drop-in randy31.dll. Exports not implemented here forward to the original, renamed randy31_orig.dll.
 add_library(randy31 SHARED proxy/dllmain.cpp proxy/trace.cpp proxy/ddraw/com_trace.cpp proxy/ddraw/com_trace_detail.cpp
             proxy/ddraw/rvk_ddraw.cpp proxy/ddraw/rvk_surface.cpp proxy/ddraw/rvk_device.cpp proxy/ddraw/rvk_settings.cpp proxy/ddraw/rvk_particles.cpp proxy/ddraw/rvk_weather.cpp proxy/ddraw/rvk_smoke.cpp proxy/ddraw/rvk_time.cpp proxy/ddraw/rvk_statels.cpp proxy/ddraw/rvk_ground.cpp proxy/ddraw/rvk_freecam.cpp proxy/ddraw/rvk_input.cpp proxy/ddraw/rvk_console.cpp
             proxy/ddraw/rvk_materials.cpp proxy/ddraw/rvk_zoning.cpp proxy/exports.gen.cpp proxy/randy31.def)
 target_include_directories(randy31 PRIVATE proxy third_party)
+target_sources(randy31 PRIVATE proxy/ddraw/rvk_sound.cpp)
 target_compile_definitions(randy31 PRIVATE _CRT_SECURE_NO_WARNINGS)
-  target_link_libraries(randy31 PRIVATE randy_native rvk user32 gdi32 cabinet)
+  target_link_libraries(randy31 PRIVATE randy_native rvk user32 gdi32 cabinet winmm)
 set_target_properties(randy31 PROPERTIES OUTPUT_NAME randy31 PREFIX "")
 target_link_options(randy31 PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/randy31.map")   # for profiling: function addresses
 
@@ -36,7 +44,7 @@ file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def" CONTENT "${LIVE_DEF
 add_library(ao_vk_live SHARED ${RANDY_SOURCES} proxy/live/live.cpp "${CMAKE_CURRENT_BINARY_DIR}/ao-vk.def")
 target_include_directories(ao_vk_live PRIVATE proxy third_party)
 target_compile_definitions(ao_vk_live PRIVATE _CRT_SECURE_NO_WARNINGS RANDYVK_ADDON)
-  target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32 gdi32 cabinet)
+  target_link_libraries(ao_vk_live PRIVATE randy_native rvk user32 gdi32 cabinet winmm)
 set_target_properties(ao_vk_live PROPERTIES OUTPUT_NAME ao-vk PREFIX "")
 target_link_options(ao_vk_live PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/ao-vk.map")
 add_library(ao_vk_loader SHARED proxy/live/ddraw.cpp proxy/live/ddraw.def)
@@ -73,6 +81,7 @@ foreach(shader ffp.vert ffp.tesc ffp.tese ffp.frag ffp_glow.frag ffp_nocut.frag 
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/lighting.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/ffp_main.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain.glsl"
+                "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/snow_surface.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/rock_objects.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/rock_shape.glsl"
                 "${CMAKE_CURRENT_SOURCE_DIR}/rvk/shaders/terrain_rock.glsl"
@@ -132,7 +141,8 @@ foreach(entry "cliff_side_diff_1k.jpg|kRockAlbedo" "cliff_side_nor_gl_1k.jpg|kRo
               "shared-grass.png|kSharedGrass" "shared-dirt.png|kSharedDirt" "shared-gravel.png|kSharedGravel"
               "shared-sand.png|kSharedSand" "shared-rock.png|kSharedRock"
               "shared-hd-grass.png|kHdGrass" "shared-hd-dirt.png|kHdDirt" "shared-hd-gravel.png|kHdGravel"
-              "shared-hd-sand.png|kHdSand" "shared-hd-rock.png|kHdRock")
+              "shared-hd-sand.png|kHdSand" "shared-hd-rock.png|kHdRock" "shared-hd-snow.png|kHdSnow"
+              "lava-surface.png|kLavaSurface")
     string(REPLACE "|" ";" asset "${entry}")
     list(GET asset 0 file)
     list(GET asset 1 name)
@@ -252,6 +262,8 @@ target_include_directories(shadow_cache_check PRIVATE proxy)
 target_link_libraries(shadow_cache_check PRIVATE cabinet)
 add_executable(diagnostic_walk_check tests/diagnostic_walk_check.cpp)
 target_include_directories(diagnostic_walk_check PRIVATE proxy)
+add_executable(attachment_index_check tests/attachment_index_check.cpp)
+target_include_directories(attachment_index_check PRIVATE proxy)
 add_executable(object_cache_check tests/object_cache_check.cpp)
 target_include_directories(object_cache_check PRIVATE rvk)
 target_compile_options(object_cache_check PRIVATE /UNDEBUG)
@@ -265,6 +277,34 @@ add_executable(rock_topology_check tests/rock_topology_check.cpp)
 target_include_directories(rock_topology_check PRIVATE rvk)
 target_compile_options(rock_topology_check PRIVATE /UNDEBUG)
 add_executable(presentation_policy_check tests/presentation_policy_check.cpp)
+add_executable(inferno_warmth_check tests/inferno_warmth_check.cpp)
+target_include_directories(inferno_warmth_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_options(inferno_warmth_check PRIVATE /UNDEBUG)
+add_executable(display_dpi_policy_check tests/display_dpi_policy_check.cpp)
+target_include_directories(display_dpi_policy_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_options(display_dpi_policy_check PRIVATE /UNDEBUG)
+add_executable(display_dpi_window_check tests/display_dpi_window_check.cpp)
+target_include_directories(display_dpi_window_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_options(display_dpi_window_check PRIVATE /UNDEBUG)
+target_link_libraries(display_dpi_window_check PRIVATE user32)
+add_executable(display_mode_policy_check tests/display_mode_policy_check.cpp)
+add_executable(framebuffer_transaction_check tests/framebuffer_transaction_check.cpp)
+add_executable(target_resize_failure_check tests/target_resize_failure_check.cpp proxy/native/stb_image.cpp)
+target_include_directories(target_resize_failure_check PRIVATE third_party)
+target_link_libraries(target_resize_failure_check PRIVATE rvk)
+target_compile_options(target_resize_failure_check PRIVATE /UNDEBUG)
+add_executable(native_display_layout_check tests/native_display_layout_check.cpp)
+add_executable(native_resize_integration_check tests/native_resize_integration_check.cpp)
+target_include_directories(native_resize_integration_check PRIVATE proxy)
+target_compile_options(native_resize_integration_check PRIVATE /UNDEBUG)
+target_include_directories(native_display_layout_check PRIVATE proxy)
+target_compile_options(native_display_layout_check PRIVATE /UNDEBUG)
+target_include_directories(framebuffer_transaction_check PRIVATE proxy)
+target_compile_options(framebuffer_transaction_check PRIVATE /UNDEBUG)
+target_include_directories(display_mode_policy_check PRIVATE proxy)
+target_link_libraries(display_mode_policy_check PRIVATE user32)
+target_compile_options(display_mode_policy_check PRIVATE /UNDEBUG)
+target_compile_definitions(display_mode_policy_check PRIVATE DISPLAY_MODE_CASES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/tests/display-mode-options-cases.tsv")
 add_executable(shadow_clusters_check tests/shadow_clusters_check.cpp)
 target_include_directories(shadow_clusters_check PRIVATE rvk)
 target_compile_options(shadow_clusters_check PRIVATE /UNDEBUG)
@@ -276,6 +316,9 @@ target_compile_options(lightning_policy_check PRIVATE /UNDEBUG)
 add_executable(interior_lighting_check tests/interior_lighting_check.cpp)
 target_include_directories(interior_lighting_check PRIVATE rvk)
 target_compile_options(interior_lighting_check PRIVATE /UNDEBUG)
+add_executable(foliage_alpha_check tests/foliage_alpha_check.cpp)
+target_include_directories(foliage_alpha_check PRIVATE rvk)
+target_compile_options(foliage_alpha_check PRIVATE /UNDEBUG)
 
 # Native replacements against the original code they replace (run with tools/native-check.sh).
 add_executable(native_check tests/native_check.cpp)
@@ -309,7 +352,11 @@ target_link_libraries(startup_progress_check PRIVATE rvk user32 gdi32)
 target_include_directories(startup_progress_check PRIVATE third_party)
 add_executable(preview23_settings_check tests/preview23_settings_check.cpp)
   add_executable(zoning_policy_check tests/zoning_policy_check.cpp)
+  add_executable(tooltip_delay_check tests/tooltip_delay_check.cpp proxy/native/tooltip_delay.cpp proxy/native/client_build.cpp)
+  target_include_directories(tooltip_delay_check PRIVATE proxy third_party)
   add_executable(huge_shadow_policy_check tests/huge_shadow_policy_check.cpp)
+  add_executable(lava_lighting_check tests/lava_lighting_check.cpp)
+  target_include_directories(lava_lighting_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   add_executable(zoning_window_check tests/zoning_window_check.cpp proxy/native/stb_image.cpp)
   target_include_directories(zoning_window_check PRIVATE proxy third_party rvk)
   target_link_libraries(zoning_window_check PRIVATE rvk user32 gdi32)

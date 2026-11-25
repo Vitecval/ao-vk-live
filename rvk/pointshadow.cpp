@@ -8,6 +8,7 @@
 // the shader recomputes it from the largest component of (point - light), which picks the same face.
 #include "internal.h"
 #include "ship_shadow_policy.h"
+#include "lava_lighting.h"
 
 #include <algorithm>
 #include <array>
@@ -293,7 +294,7 @@ void Device::FindCarriers()
 
     const bool exact = m_sceneLightsFrame == m_frameNumber;   // the game's own lights with their carriers
     for (CapturedLight& c : m_lightsCur) {
-        if(c.cosmeticGroup<6){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
+        if(c.cosmeticGroup<6 || c.lava){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
         c.hasCarrier = false;
         c.owner = 0;
         c.carrierGroup = ~0u;
@@ -433,7 +434,7 @@ void Device::FindCarriers()
     // a frame in a crowd, and a light jumping between the two intensities for a frame flickers. It becomes a
     // character's within a few frames and stops being one over ~20. The same light last frame: same range, nearest.
     for (CapturedLight& c : m_lightsCur) {
-        if(c.cosmeticGroup<6){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
+        if(c.cosmeticGroup<6 || c.lava){c.hasCarrier=false;c.carried=0;c.owner=0;c.carrierGroups.clear();continue;}
         const CapturedLight* prev = nullptr;
         float prevBest = 1.0f;
         for (const CapturedLight& q : m_lightsPrev) {
@@ -548,6 +549,13 @@ void Device::RenderPointShadowMaps(VkCommandBuffer cmd)
             }
         }
         candidates.push_back({key, i, fade, slot});
+    }
+    if(std::any_of(candidates.begin(),candidates.end(),[&](const Candidate& c){return m_lightsCur[c.index].lava;})){
+        std::stable_sort(candidates.begin(),candidates.end(),[](const Candidate& a,const Candidate& b){return a.key<b.key;});
+        uint32_t molten=0;
+        candidates.erase(std::remove_if(candidates.begin(),candidates.end(),[&](const Candidate& c){
+            return m_lightsCur[c.index].lava && ++molten>lava::MaxShadowLights;
+        }),candidates.end());
     }
     if(m_dumpFile && broadLights)std::fprintf(m_dumpFile,"# point shadow range policy: %u broad/invalid ranges excluded from cubes; native illumination unchanged; %u-pixel faces, max local radius %.0f\n",broadLights,m_pointShadowSize,float(m_pointShadowSize)*.25f);
     // The cubes' lights: the nearest m_pointShadows candidates are wanted. A light keeps its cube (slot) while it has

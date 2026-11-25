@@ -58,6 +58,17 @@ DETAIL = {
     "IDirect3DVertexBuffer7": {"Lock", "ProcessVertices"},
 }
 
+# These methods can be re-entered by AO's display/window callbacks while a
+# different thread holds the backend lock. Reject before locking; do not bypass
+# locking for arbitrary COM methods. CreateDevice already has the same native
+# callback rejection, so it belongs to this allocation/display mutation family.
+CALLBACK_MUTATIONS = {
+    "IDirectDraw7": {"CreateSurface", "SetCooperativeLevel", "SetDisplayMode", "RestoreDisplayMode"},
+    "IDirectDrawClipper": {"SetHWnd"},
+    "IDirect3D7": {"CreateDevice"},
+    "IDirect3DDevice7": {"SetRenderTarget"},
+}
+
 
 def parse(header, name):
     text = (SDK / header).read_text(errors="replace")
@@ -198,7 +209,12 @@ def write_stubs():
             args = ", ".join(n for _, n in params)
             lines.append(f"    COM_DECLSPEC_NOTHROW {ret} STDMETHODCALLTYPE {mname}({sig}) final")
             if ret == "HRESULT":
-                lines.append(f"    {{ return ComHresult([&]() -> HRESULT {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}); }}")
+                guard = ""
+                if mname in CALLBACK_MUTATIONS.get(iface, set()):
+                    clear = "if (a1) *a1 = nullptr; " if mname == "CreateSurface" else \
+                            "if (a2) *a2 = nullptr; " if mname == "CreateDevice" else ""
+                    guard = f"if (BackendCallbackMutationBlocked()) {{ {clear}return DDERR_SURFACEBUSY; }} "
+                lines.append(f"    {{ {guard}return ComHresult([&]() -> HRESULT {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}); }}")
             else:
                 lines.append(f"    {{ CountComCall({idx}); ComScope scope({idx}); return Do{mname}({args}); }}")
             unused = "".join(f"(void){n}; " for _, n in params)

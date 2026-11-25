@@ -1,6 +1,9 @@
 // Frame dump: one line per 3D draw of a frame with the state that decides how it is lit, its world
 // position and its screen rectangle, plus the lights it uses. For finding out why a surface is (not) lit.
 #include "internal.h"
+#include "terrain_materials.h"
+#include "foliage_alpha.h"
+#include "caustic_policy.h"
 
 #include <algorithm>
 #include <cmath>
@@ -53,6 +56,8 @@ void Device::BeginFrameDump()
                  eye[0], eye[1], eye[2], m_pixelLighting ? 1 : 0, m_renderScale, m_scene ? m_scene->m_width : 0u,
                  m_scene ? m_scene->m_height : 0u);
     std::fprintf(m_dumpFile,"# presentation lighting: login studio %u; authored vertex lights %u; saved pixel-lighting preference %u\n",unsigned(m_loginScene>.5f),unsigned(m_loginScene>.5f),unsigned(m_pixelLighting));
+    std::fprintf(m_dumpFile,"# framebuffer: output %ux%u; scene %ux%u; surface %ux%u; framegen active %u\n",
+        m_width,m_height,SceneWidth(),SceneHeight(),m_swapExtent.width,m_swapExtent.height,unsigned(m_fg!=nullptr));
 }
 
 // GPU memory in one line: each memory heap's usage against the driver's budget for it (with VK_EXT_memory_budget the
@@ -200,11 +205,29 @@ void Device::EndFrameDump()
         unsigned(SharedGroundPlus()),unsigned(m_native.on || SharedGroundPlus()),m_native.patches.size(),
         m_native.framesDrawn ? double(m_native.patchesDrawn)/m_native.framesDrawn : 0.0,
         m_native.rocksMade,m_native.pebblesMade,SharedGroundPlus() ? 0.0 : double(m_native.ao),SharedGroundPlus() ? 0.0 : double(m_native.sun));
+    std::fprintf(m_dumpFile,"# snow: tiles=%u; powder=%.2f; prints=%.2f; stamped=%llu; map=%u; detail-masters=%u; hd-masters=%u\n",
+        unsigned(m_native.hasSnow),double(m_snowPowder),double(m_snowPrints),static_cast<unsigned long long>(m_printsStamped),
+        unsigned(m_printValid),m_sharedGround.uploaded,m_hdGroundState.uploaded);
+    if(m_native.ground)for(size_t i=0;i<m_native.ground->tiles.size();++i) {
+        const Texture* t=m_native.ground->tiles[i];if(!t)continue;
+        const Texture* painting=ImprovedTile(t) && m_pbr.albedoMaps && !t->m_preserveGroundColour && t->m_albedoMap ? t->m_albedoMap:t;
+          const bool classic=SharedGroundPlus() && !materials::SnowGround(t->m_rdbType,t->m_rdbId);
+        std::fprintf(m_dumpFile,"# native ground tile %zu: %u:%u; original %ux%u; selected %ux%u; replacement=%u; independent-painting=%u; HD-master-available=%u; state=%u; last-sampled=%llu; preserve-colour=%u; final-colour=%s\n",
+            i,t->m_rdbType,t->m_rdbId,t->Width(),t->Height(),painting->Width(),painting->Height(),unsigned(painting!=t),
+            unsigned(t->m_independentGroundPainting),
+            unsigned(SharedGroundPlus() && m_hdGroundMode>.5f && m_hdGroundState.uploaded==6),
+            unsigned(t->MaterialsState()),static_cast<unsigned long long>(t->MaterialDrawFrame()),unsigned(t->m_preserveGroundColour),
+              classic ? ((painting!=t || materials::ClassicAuthoredGround(t->m_rdbType,t->m_rdbId)) ?
+                  "shared077-authored-layout" : m_hdGroundMode>.5f ? "shared077-HD-master/native-transition" : "shared077-detail/native-transition"):
+              SharedGroundPlus() && m_hdGroundMode>.5f && !materials::AuthoredGround(t->m_rdbType,t->m_rdbId) &&
+                !(painting!=t && t->m_independentGroundPainting && materials::IceGround(t->m_rdbType,t->m_rdbId)) ?
+                "continuous-HD-material/native-transition-mask" : painting!=t ? "individual-HD-painting" : "original-colour");
+    }
     std::fprintf(m_dumpFile,"# terrain path: geometry=%s; lighting=%s; cliff-resources=%u; tessellation=%u; ripples=%s; original-terrain-consumed=%u\n",
-        SharedGroundPlus() ? "classic-submissions-HD-materials" : m_native.on && m_native.ground ? "native-patches" : "classic-submissions",
+        (SharedTerrainPatches() || m_native.on) && m_native.ground ? "native-patches" : SharedGroundPlus() ? "classic-submissions-HD-materials" : "classic-submissions",
         SharedGroundPlus() ? "classic-AO-baked-lightmap" : m_native.on ? "native-sun-AO" : "classic-AO",
         unsigned(m_rock.albedo && m_rock.normal && m_rock.orm),unsigned(m_tessSupported && m_terrainSettings.round>0),
-        SharedGroundPlus() ? "disabled" : "settings",unsigned(m_native.on && m_native.framesDrawn>0));
+        SharedGroundPlus() ? "disabled" : "settings",unsigned((m_native.on || SharedTerrainPatches()) && m_native.framesDrawn>0));
     size_t nativeIndices = 0, hiddenCells = 0;
     for (const auto& p : m_native.patches) nativeIndices += p.indices->size() / 2;
     if (m_native.ground) for (uint8_t v : m_native.ground->hiddenCells) hiddenCells += v != 0;
@@ -410,7 +433,7 @@ void Device::DumpTerrainMapping(FILE* f, const void* vertices, uint32_t vertexCo
             std::fprintf(f, "%s(%.2f %.2f %.2f | %.3f %.3f)", k % 6 == 0 ? " | " : " ", pos[0], pos[1], pos[2], uv[0], uv[1]);
         }
         std::fprintf(f, "\n");
-    } else if (m_rs[d3d::RS_LIGHTING] && tex && tex->m_thumbValid && tex->m_thumbW == tex->Width() &&
+    } else if (m_rs[d3d::RS_LIGHTING] && tex && !caustics::Texture(tex->m_rdbType,tex->m_rdbId) && tex->m_thumbValid && tex->m_thumbW == tex->Width() &&
                m_dumpLightmaps.size() < 512) {
         bool seen = false;
         for (const DumpedLightmap& l : m_dumpLightmaps) seen = seen || l.texture == tex;
@@ -565,10 +588,16 @@ void Device::DumpDraw(uint32_t primitive, uint32_t fvf, const void* vertices, ui
             if(t->m_albedoMap)
                 std::fprintf(f," resident-albedo:%ux%u/%u-levels native-min-mip:%u",t->m_albedoMap->Width(),
                     t->m_albedoMap->Height(),t->m_albedoMap->Levels(),m_tss[s][d3d::TSS_MAXMIPLEVEL]);
+            if (foliage::AuthoredScreen(t->m_rdbType,t->m_rdbId))
+                std::fprintf(f," screen-native-levels:%u filtered-levels:%u refreshes:%u legacy-mipfilter:%u",
+                    t->m_levels,t->m_screenMipReference ? t->m_screenMipReference->m_levels:0,
+                    t->m_screenMipBuilds,m_tss[s][d3d::TSS_MIPFILTER]);
             if (!t->m_alphaMask.empty())         // (its alpha: hard edges, soft share - two-pass foliage, its dither)
                 std::fprintf(f, " alpha edges %.3f soft %.2f", double(t->m_alphaHardEdges), double(t->m_alphaSoftShare));
         }
     if (m_rs[d3d::RS_ALPHABLENDENABLE]) std::fprintf(f, " | blend %u/%u", m_rs[d3d::RS_SRCBLEND], m_rs[d3d::RS_DESTBLEND]);
+    if(CausticOverlay(fvf))std::fprintf(f," | caustic-light gain %.2f effective-depth LEQUAL/decal; native animation retained",
+        caustics::Gain(m_hdr,m_waterParams.enable,m_waterParams.caustics));
     if (IsTerrain(fvf)) std::fprintf(f, " | terrain-alpha %u/%u/%u stages %u/%u/%u %u/%u/%u cull %u",
         m_rs[d3d::RS_ALPHATESTENABLE], m_rs[d3d::RS_ALPHAFUNC], m_rs[d3d::RS_ALPHAREF],
         m_tss[0][d3d::TSS_ALPHAOP], m_tss[0][d3d::TSS_ALPHAARG1], m_tss[0][d3d::TSS_ALPHAARG2],

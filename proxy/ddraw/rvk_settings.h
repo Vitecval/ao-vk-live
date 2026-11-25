@@ -28,6 +28,7 @@ struct RvkSettingInfo {
     float value, defaultValue;
     const char* parent;         // the bool switching the feature this belongs to (null: none)
     const char* choices;        // choice: the allowed values separated by spaces
+    const char* help;           // optional trailing extension; checked by caller-supplied size
 };
 uint32_t RvkSettings_Version();
 uint32_t RvkSettings_Count();

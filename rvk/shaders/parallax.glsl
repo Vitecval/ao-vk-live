@@ -249,6 +249,7 @@ float SandPrintHeight(vec2 p)
 
 // What the ground march needs, worked out once per pixel.
 struct GroundRelief {
+    float snow;
     float sand;       // NativeSand here (0..1) x RVK_SandRipple, slip faces (past about 32 degrees) left smooth
     vec2 fade;        // SandRippleFade, across the crests
     bool tiles;       // any of the playfield's tiles has a height (FL.terrain3.w)
@@ -268,6 +269,7 @@ GroundRelief GroundReliefAt(TerrainMap m, vec3 posW, vec3 n)
     const float ny = dot(n, n) > 1e-8 ? normalize(n).y : 1.0;
     // (Not on the rocks and pebbles lying on it: their base pass has the cells' sand too.)
     r.sand = m.clutter ? 0.0 : SharedSand(m) * clamp(FL.sand.x, 0.0, 1.0) * smoothstep(0.82, 0.87, ny) * m.w.x;
+    r.snow=SharedSnow(m)*smoothstep(.75,.95,ny)*clamp(FL.snow.y,0.,1.);
     r.fade = vec2(0.0);
     r.tiles = FL.sharedGroundConfig.w < .5 && FL.terrain3.y > 0.0 && FL.terrain3.w > 0.5 && TerrainNativeMaps();
     r.cell = m.uv[0];
@@ -279,7 +281,7 @@ GroundRelief GroundReliefAt(TerrainMap m, vec3 posW, vec3 n)
     // seen, the steps being centimetres.)
     if (r.tiles && (r.tileImg == 0xFFFFu || !NativeCellHeight(m.uv[0]))) r.tiles = false;
     r.xz = posW.xz;
-    r.prints = r.sand > 0.0 && SandPrintsAt(posW.xz) ? smoothstep(0.1, 0.5, r.sand) : 0.0;
+    r.prints = SandPrintsAt(posW.xz) ? max(smoothstep(.1,.5,r.sand),r.snow):0.;
     r.rip.smallDepth = r.rip.bigDepth = 0.0;
     // (Past where even the big ones are a few pixels apart across the pixel's short side, there is nothing to read.)
     if (r.sand > 0.0 && min(length(m.px), length(m.py)) < kRippleBig / 3.0)
@@ -323,14 +325,14 @@ float GroundDepth(GroundRelief r, vec2 c, vec2 dx, vec2 dy, float tileDepthW, fl
 // in game the ripples showed no depth at all (the user's rvk-frame-153557).
 float GroundParallax(inout TerrainMap m, GroundRelief r, vec3 posW, vec3 n)
 {
-    if (m.clutter || (!r.tiles && r.sand <= 0.0) || dot(n, n) <= 1e-8) return 1.0;
+    if (m.clutter || (!r.tiles && r.sand <= 0.0 && r.prints <= 0.0) || dot(n, n) <= 1e-8) return 1.0;
     const float dist = length(posW - C.eyePos.xyz);
     const float near = r.tiles ? 1.0 - smoothstep(kParallaxNear, kParallaxFar, dist) : 0.0;
     const float ripNear = r.rip.smallDepth > 0.0 || r.prints > 0.0 ? 1.0 - smoothstep(kRippleParallaxNear, kRippleParallaxFar, dist)
                                                                      : 0.0;
     // (x RVK_RippleDepth, FL.sand3.x - their own, not RVK_Parallax's: textures' height maps drawn shallow left the
     // dunes flat, the user, 2026-10-19.)
-    const float ripW = ripNear * FL.sand3.x;
+    const float ripW = ripNear * (r.snow>0.0 ? 1.0:FL.sand3.x);
     if (near <= 0.0 && ripW <= 0.0) return 1.0;
     n = normalize(n);
     const float cellSize = 1.0 / max(D.terrain.x, 1e-6);
@@ -403,11 +405,17 @@ vec3 SandRippleTone(vec3 c, GroundRelief r, vec2 cell)
 // shaded by the sun - until they are a few pixels apart.)
 vec3 SandRippleNormal(vec3 n, GroundRelief r, vec2 cell)
 {
-    if ((r.rip.smallDepth <= 0.0 && r.rip.bigDepth <= 0.0 && r.prints <= 0.0) || dot(n, n) <= 1e-8) return n;
+    if ((r.rip.smallDepth <= 0.0 && r.rip.bigDepth <= 0.0 && r.prints <= 0.0 && r.snow<=0.0) || dot(n, n) <= 1e-8) return n;
     // The height is minus the depth: its slope laid onto n (near enough flat: the dunes' faces where there are ripples
     // are under ~35 degrees); a little steeper than the parallax's - the tile's own mottling is strong.
     const vec2 d = (cell - r.cell) / max(D.terrain.x, 1e-6);
     vec2 slope = r.rip.smallDepth > 0.0 || r.rip.bigDepth > 0.0 ? -SandRippleSlope(r.rip, d) * 1.6 : vec2(0.0);
+    if(r.snow>0. && FL.snow.x>0.){
+        vec2 q=r.xz+d,e=vec2(.035,0.);
+        float fade=1.-smoothstep(25.,65.,distance(vPosW,C.eyePos.xyz));
+        slope+=vec2(PowderHeight(q+e.xy)-PowderHeight(q-e.xy),PowderHeight(q+e.yx)-PowderHeight(q-e.yx))
+            *(r.snow*FL.snow.x*fade/(2.*e.x));
+    }
     // A print's: the ripples flattened in it, its own walls and rim (across a texel each way).
     if (r.prints > 0.0) {
         const vec2 xz = r.xz + d, e = vec2(kPrintCell, 0.0);

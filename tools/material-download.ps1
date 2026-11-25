@@ -4,7 +4,22 @@ function Write-AoMaterialProgress([string]$Message, [int]$Percent = -1, [scriptb
     if ($ProgressCallback) { & $ProgressCallback $Message $Percent }
 }
 
+function Test-AoPublicMaterialPart($Part) {
+    return ($null -ne $Part.sourceVersion -or $null -ne $Part.baseUrl)
+}
 function Assert-AoMaterialRelease($Manifest, $Part) {
+    if (Test-AoPublicMaterialPart $Part) {
+        # Per-part pins add the reviewed public078 overlays without moving or
+        # renaming the nineteen immutable preview24 baseline companions.
+        if ($Part.sourceVersion -cne '0.7.8' -or
+            $Part.baseUrl -cne 'https://github.com/Vitecval/ao-vk-live/releases/download/v0.7.8' -or
+            $Part.name -cnotmatch '^ao-vk-live-0\.7\.8-materials-(environment|characters)-[0-9]{3}\.zip$' -or
+            $Part.sha256 -cnotmatch '^[a-f0-9]{64}$' -or
+            [long]$Part.bytes -le 0 -or [long]$Part.unpackedBytes -le 0) {
+            throw 'Invalid pinned public material download descriptor.'
+        }
+        return
+    }
     $sourceVersion = [string]$Manifest.version
     if ($Manifest.materialSourceVersion) {
         if ($Manifest.version -cnotin @('0.6.0-preview.22','0.6.0-preview.23','0.6.0-preview.24') -or
@@ -26,6 +41,13 @@ function Assert-AoMaterialRelease($Manifest, $Part) {
         [long]$Part.bytes -le 0 -or [long]$Part.unpackedBytes -le 0) {
         throw 'Invalid pinned material download manifest. Extract a fresh copy of Full HD Setup.'
     }
+}
+
+function Get-AoMaterialDownloadUrl($Manifest, $Part) {
+    Assert-AoMaterialRelease $Manifest $Part
+    if (Test-AoPublicMaterialPart $Part) { return ([string]$Part.baseUrl + '/' + [string]$Part.name) }
+    if (!$Manifest.materialDownload) { throw "Missing offline archive $($Part.name). Use the matching Full HD Setup for automatic downloads." }
+    return ([string]$Manifest.materialDownload.baseUrl + [string]$Part.name)
 }
 
 function Open-AoMaterialResponse([string]$Url, [long]$Offset) {
@@ -72,6 +94,7 @@ function Assert-AoMaterialSpace([string]$Package, [string]$Client, [long]$Packag
 
 function Test-AoMaterialArchive([string]$Path, $Part) {
     if (!(Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+    if ((Get-Item -LiteralPath $Path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) { return $false }
     if ($Part.bytes -and (Get-Item -LiteralPath $Path).Length -ne [long]$Part.bytes) { return $false }
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -ieq $Part.sha256
 }
@@ -106,8 +129,7 @@ function Receive-AoMaterialArchive([string]$Cache, $Manifest, $Part, [string]$La
 
 function Receive-AoMaterialArchiveUnderLock([string]$Cache, $Manifest, $Part, [string]$Label, [scriptblock]$ProgressCallback) {
     Assert-AoMaterialRelease $Manifest $Part
-    if (!$Manifest.materialDownload) { throw "Missing offline archive $($Part.name). Use the matching Full HD Setup for automatic downloads." }
-    $url = [string]$Manifest.materialDownload.baseUrl + [string]$Part.name
+    $url = Get-AoMaterialDownloadUrl $Manifest $Part
     $final = Join-Path $Cache $Part.name
     $partial = $final + '.partial'; $metadata = $partial + '.json'
     foreach ($path in @($final, $partial, $metadata)) {

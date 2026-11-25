@@ -4,7 +4,7 @@ float FairDensity(vec3 p) {
     vec3 q=p*vec3(1.,1.2,1.);
     float mass=Noise3(q*.85)*.65+Noise3(q*1.9+7.1)*.35;
     float billow=.65*Noise3(q*5.4+13.7)+.35*Noise3(q*11.1+31.4);
-    return max(mass-.49-(1.-height)*.25-(1.-billow)*.14,0.)*height*7.;
+    return max(mass-mix(.49,.43,P.auroraColour.w)-(1.-height)*.25-(1.-billow)*.14,0.)*height*7.;
 }
 
 vec4 FairClouds(vec3 ray) {
@@ -17,7 +17,7 @@ vec4 FairClouds(vec3 ray) {
     float start=-up+sqrt(up*up+2.*radius*base+base*base);
     float end=-up+sqrt(up*up+2.*radius*top+top*top),stepLength=(end-start)/48.;
     vec3 sun=normalize(P.sky2.xyz),lightDir=normalize(vec3(sun.x,max(sun.y,.18),sun.z));
-    float day=1.-P.sky3.y,sunset=(1.-smoothstep(.03,.32,abs(sun.y)))*day;
+    float day=max(1.-P.sky3.y,.82*P.auroraColour.w),sunset=(1.-smoothstep(.03,.32,abs(sun.y)))*day;
     vec3 ambient=mix(vec3(.055,.085,.15),vec3(.38,.49,.66),day);
     vec3 sunlight=mix(vec3(.27,.36,.54),mix(vec3(1.12,1.10,1.04),vec3(1.25,.74,.44),sunset*.8),day);
     float silver=pow(max(dot(ray,sun),0.),12.);

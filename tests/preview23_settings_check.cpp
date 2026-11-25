@@ -75,6 +75,30 @@ int main(int argc,char** argv) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc>1&&(std::strcmp(argv[1],"--save-sound")==0||std::strcmp(argv[1],"--check-sound")==0)) {
+        auto s=info("RVK_ReworkSound");check(s.type==0&&s.defaultValue==0&&s.min==0&&s.max==1&&!s.parent&&std::strcmp(s.label,"Reworked Sound")==0,"default-off independent audio toggle");
+        auto volume=info("RVK_SoundVol");check(volume.type==2&&std::abs(volume.defaultValue-.6f)<.001f&&volume.min==0&&volume.max==1&&!volume.parent,"independent ambience volume metadata");
+        if(std::strcmp(argv[1],"--check-sound")==0){check(s.value==1,"sound choice persisted across process restart");check(std::abs(volume.value-.25f)<.001f,"ambience volume persisted across process restart");set(s.name,0);std::puts("PASS sound persistence/off and volume");return 0;}
+        check(s.value==0,"fresh sound choice starts off");set(s.name,1);set("RVK_Enhance",0);check(effective(s.name)==1,"audio independent of graphics master");
+        for(unsigned i=0;i<4;++i){set(s.name,1);check(preset(i)!=0&&info(s.name).value==0,"all built-in presets leave sound off");}
+        set(s.name,1);set(volume.name,.25f);check(std::abs(effective(volume.name)-.25f)<.001f,"ambience volume independent of graphics master");std::puts("PASS sound metadata/defaults/presets; saved explicit On and volume without opening audio device");return 0;
+    }
+    if(argc>2 && (std::strcmp(argv[1],"--save-tooltips")==0 || std::strcmp(argv[1],"--check-tooltips")==0)) {
+        const float wanted=float(std::atoi(argv[2]));check(wanted==0 || wanted==1,"tooltip argument");
+        if(std::strcmp(argv[1],"--save-tooltips")==0)set("RVK_InstantTips",wanted);
+        const auto s=info("RVK_InstantTips");
+        check(s.type==0 && s.defaultValue==0 && !s.parent && std::strcmp(s.section,"General")==0,"default-off independent General checkbox");
+        check(std::strcmp(s.label,"Instant tooltips")==0 && s.help && std::strcmp(s.help,"Show item and interface tooltips without the usual hover delay.")==0,"exact tooltip label/help");
+        check(s.value==wanted && effective(s.name)==wanted,"tooltip choice survives process restart");
+        std::puts("PASS: Instant tooltips metadata, default and persisted value");return 0;
+    }
+    if(argc>2 && std::strcmp(argv[1],"--tooltip-live")==0) {
+        HMODULE gui=LoadLibraryExA(argv[2],nullptr,DONT_RESOLVE_DLL_REFERENCES);check(gui!=nullptr,"load non-executed GUI image");
+        auto* operand=reinterpret_cast<const uint32_t*>(reinterpret_cast<const uint8_t*>(gui)+0x157C7C);
+        check(*operand==500,"original tooltip delay");set("RVK_InstantTips",0);
+        for(int i=0;i<10;++i){set("RVK_InstantTips",1);check(*operand==0,"settings API applies immediately without a render-device restart");set("RVK_InstantTips",0);check(*operand==500,"settings API restores immediately");}
+        FreeLibrary(gui);std::puts("PASS: persisted settings API applies zero/500 delay immediately in ten cycles");return 0;
+    }
     if(argc>2 && (std::strcmp(argv[1],"--save-perma")==0 || std::strcmp(argv[1],"--check-perma")==0)) {
         const int mode=std::atoi(argv[2]);check(mode==3 || mode==4,"permanent mode argument");
         if(std::strcmp(argv[1],"--save-perma")==0) {

@@ -5,6 +5,7 @@
 #include "win32_wait.h"
 #include "fsr_support.h"
 #include "win32_path.h"
+#include "presentation_policy.h"
 
 #include <algorithm>
 #include <chrono>
@@ -622,6 +623,11 @@ bool Device::PickDevice(std::string* error)
     vkGetPhysicalDeviceProperties(m_physical, &m_props);
     m_info.gpu = m_props.deviceName;
     m_info.apiVersion = m_props.apiVersion;
+    m_info.maxImageDimension2D=m_props.limits.maxImageDimension2D;
+    m_info.maxViewportWidth=std::min(m_props.limits.maxViewportDimensions[0],uint32_t(std::max(0.f,m_props.limits.viewportBoundsRange[1])));
+    m_info.maxViewportHeight=std::min(m_props.limits.maxViewportDimensions[1],uint32_t(std::max(0.f,m_props.limits.viewportBoundsRange[1])));
+    m_info.maxFramebufferWidth=m_props.limits.maxFramebufferWidth;
+    m_info.maxFramebufferHeight=m_props.limits.maxFramebufferHeight;
     VkPhysicalDeviceDriverProperties driver{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES};
     VkPhysicalDeviceProperties2 p2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
     p2.pNext = &driver;
@@ -864,6 +870,11 @@ bool Device::CreateLogicalDevice(std::string* error)
 
 bool Device::CreateMainTargets(std::string* error)
 {
+    if(!presentation::Targets(m_width,m_height,m_renderScale,m_info.maxImageDimension2D,
+                              std::min(m_info.maxFramebufferWidth,m_info.maxViewportWidth),std::min(m_info.maxFramebufferHeight,m_info.maxViewportHeight)).valid) {
+        if(error)*error="output or scene dimensions exceed GPU framebuffer/image limits";
+        return false;
+    }
     m_ldrMain = CreateImage(m_width, m_height, Format::A8R8G8B8, 1, true);
     if (!m_ldrMain || !CreateSceneTargets()) {
         if (error) *error = "main colour target";
@@ -897,8 +908,10 @@ bool Device::CreateMainTargets(std::string* error)
 // The scene's targets: the float scene and its further attachments, at RVK_RenderScale's share of the output size.
 bool Device::CreateSceneTargets()
 {
-    const uint32_t w = std::max(1u, (m_width * m_renderScale + 50) / 100);
-    const uint32_t h = std::max(1u, (m_height * m_renderScale + 50) / 100);
+    const auto sizes=presentation::Targets(m_width,m_height,m_renderScale,m_info.maxImageDimension2D,
+                                           std::min(m_info.maxFramebufferWidth,m_info.maxViewportWidth),std::min(m_info.maxFramebufferHeight,m_info.maxViewportHeight));
+    if(!sizes.valid)return false;
+    const uint32_t w=sizes.sceneW,h=sizes.sceneH;
     m_scene = CreateImage(w, h, Format::RGBA16F, 1, true);
     m_glow = CreateImage(w, h, Format::RGBA16F, 1, true);
     m_localFraction = CreateImage(w, h, Format::RGBA8, 1, true);
@@ -1020,6 +1033,11 @@ void Device::DestroyMainTargets()
 // framebuffer. Resizing happens between frames, so old resources can then go.
 bool Device::RecreateMainTargets(uint32_t width,uint32_t height,uint32_t scale)
 {
+    if(!presentation::Targets(width,height,scale,m_info.maxImageDimension2D,
+                              std::min(m_info.maxFramebufferWidth,m_info.maxViewportWidth),std::min(m_info.maxFramebufferHeight,m_info.maxViewportHeight)).valid) {
+        Log("render targets: rejected %ux%u at %u%%; previous targets retained",width,height,scale);
+        return false;
+    }
     WaitIdle();
     m_completed=m_submitted;
     const auto fields=[&]{return std::tie(m_width,m_height,m_renderScale,m_ldrMain,m_scene,m_glow,m_localFraction,
@@ -1030,17 +1048,28 @@ bool Device::RecreateMainTargets(uint32_t width,uint32_t height,uint32_t scale)
     fields()=decltype(previous){};
     m_width=width;m_height=height;m_renderScale=scale;
     std::string error;
-    if(!CreateMainTargets(&error)) {
+    bool created=false;
+    const char* exceptionReason=nullptr;
+    try {created=CreateMainTargets(&error);}
+    catch(const std::bad_alloc&) {exceptionReason="host allocation failed";}
+    catch(...) {exceptionReason="exception while creating replacement";}
+    if(!created) {
+        // Cleanup cannot allocate bindless free-list storage: registration
+        // reserves that capacity before publishing each new image slot.
         DestroyMainTargets();
         fields()=previous;
-        Log("render targets: replacement failed (%s); previous targets retained",error.c_str());
+        Log("render targets: replacement failed (%s); previous targets retained",exceptionReason ? exceptionReason:error.c_str());
         return false;
     }
     const auto replacement=std::apply(copy,fields());
     fields()=previous;
     DestroyMainTargets();
     fields()=replacement;
-    m_taaFrame=~0ull;
+    // A different framebuffer/aspect or render scale invalidates both SDK and
+    // internal reprojection, even if an old output-sized history still exists.
+    ResetTemporalHistory(TemporalEpoch());
+    m_vividHistoryValid=false;
+    m_constantsDirty=true;
     m_frameLightsDirty=true;
     return true;
 }
@@ -1049,6 +1078,7 @@ bool Device::Resize(uint32_t width, uint32_t height)
 {
     if (m_inFrame || !width || !height)
         return false;
+    if(width==m_width && height==m_height)return true;
     if(!RecreateMainTargets(width,height,m_renderScale))return false;
     m_viewport = {0, 0, width, height, 0.0f, 1.0f};
     if (m_swapchain)
@@ -1113,7 +1143,8 @@ bool Device::CreateSwapchain(std::string* error)
     ci.surface = m_surface;
     ci.minImageCount = std::max(caps.minImageCount, 2u);
     if (caps.maxImageCount) ci.minImageCount = std::min(ci.minImageCount + 1, caps.maxImageCount);
-    if (m_frameGenWanted && !m_frameGenFailed) {
+    const bool frameGenSizeMatches=m_width==m_swapExtent.width && m_height==m_swapExtent.height;
+    if (m_frameGenWanted && !m_frameGenFailed && frameGenSizeMatches) {
         // Two real images must be acquirable before the first present. The WSI
         // guarantee is imageCount - surface.minImageCount + 1; request one extra.
         const uint32_t pairedCount = caps.minImageCount + 1;
@@ -1145,7 +1176,10 @@ bool Device::CreateSwapchain(std::string* error)
     ci.clipped = VK_TRUE;
     // RVK_FrameGen: the frame interpolation swapchain (framegen.cpp); a plain one if it can't be made.
     bool fg = false;
-    if (m_frameGenWanted && !m_frameGenFailed) {
+    if(m_frameGenWanted && !frameGenSizeMatches)
+        Log("frame generation: output %ux%u differs from surface %ux%u; using aspect-fit normal presentation",
+            m_width,m_height,m_swapExtent.width,m_swapExtent.height);
+    if (m_frameGenWanted && !m_frameGenFailed && frameGenSizeMatches) {
         std::string why;
         fg = FgCreateSwapchain(ci, &why);
         if (!fg) {
@@ -1923,7 +1957,6 @@ void Device::BeginFrame()
         }
         m_frameRoomVisuals = m_frameTerrainVisuals = 0;
     }
-    m_fgUiLayer = m_fg != nullptr;               // (RVK_FrameGen: the interface's layer to the swapchain, framegen.cpp)
     m_pickActive = m_pickArmed;                  // texture picking (RequestPick): this frame's draws
     m_pickArmed = false;
     m_pickBest = nullptr;
@@ -1938,7 +1971,8 @@ void Device::BeginFrame()
     m_bindlessBound = false;                     // the frame's command buffer starts with set 1 unbound
     m_arenaBound = false;                        // ... and with the draw arenas unbound
     m_shadowArenaBound = false;                  // ... and the shadow record array unbound
-    if (m_swapchain && m_frameGenWanted != (m_fg != nullptr) && !(m_frameGenWanted && m_frameGenFailed))
+    const bool frameGenForSize=m_frameGenWanted && m_width==m_swapExtent.width && m_height==m_swapExtent.height;
+    if (m_swapchain && frameGenForSize != (m_fg != nullptr) && !(m_frameGenWanted && m_frameGenFailed))
         m_swapchainStale = true;                 // (RVK_FrameGen switched: the swapchain made again)
     if (m_surface && !m_swapchain && !IsIconic(m_window))
         m_swapchainStale = true;                 // retry creation when a zero-area window has been restored
@@ -1950,6 +1984,7 @@ void Device::BeginFrame()
             Log("swapchain recreation failed: %s\n", error.c_str());
         m_swapchainStale = !m_swapchain;          // keep retrying if creation was deferred or failed
     }
+    m_fgUiLayer = m_fg != nullptr;               // use the newly recreated presentation path this very frame
     Frame& f = m_frames[m_frameIndex];
     bool uploadsPending = f.uploadsRecorded;          // recorded between frames, already waited for
     double waitStart = ProfileCpu();
@@ -2144,6 +2179,7 @@ void Device::EndFrame()
         m_inFrame = false;
         return;
     }
+    UpdateUnderwaterScene(); // publish physical camera/water context even when ambient particles are disabled
     if (m_pickActive) {                          // texture picking: the nearest draw's texture, for LastPick
         m_pickActive = false;
         // The ground drawn natively: its draws' stage 0 is a stand-in or the lightmap - the cell's own tile instead.
@@ -2247,7 +2283,18 @@ void Device::EndFrame()
         VkImageBlit blit{};
         blit.srcSubresource = blit.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
         blit.srcOffsets[1] = {int32_t(m_width), int32_t(m_height), 1};
-        blit.dstOffsets[1] = {int32_t(m_swapExtent.width), int32_t(m_swapExtent.height), 1};
+        const auto fit=presentation::AspectFit(m_width,m_height,m_swapExtent.width,m_swapExtent.height);
+        if(fit.width!=m_swapExtent.width || fit.height!=m_swapExtent.height) {
+            const VkClearColorValue black{{0.f,0.f,0.f,1.f}};
+            const VkImageSubresourceRange range{VK_IMAGE_ASPECT_COLOR_BIT,0,1,0,1};
+            vkCmdClearColorImage(f.main,dst,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,&black,1,&range);
+            // Clear and blit both write the image: order overlapping transfer writes.
+            ImageBarrier(f.main,dst,VK_IMAGE_ASPECT_COLOR_BIT,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_PIPELINE_STAGE_2_TRANSFER_BIT,VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                         VK_PIPELINE_STAGE_2_TRANSFER_BIT,VK_ACCESS_2_TRANSFER_WRITE_BIT);
+        }
+        blit.dstOffsets[0]={int32_t(fit.x),int32_t(fit.y),0};
+        blit.dstOffsets[1]={int32_t(fit.x+fit.width),int32_t(fit.y+fit.height),1};
         vkCmdBlitImage(f.main, m_main->m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dst,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
         // (The frame interpolation swapchain's images are read by its passes - optical flow, interpolation, the

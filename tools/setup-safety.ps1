@@ -90,8 +90,9 @@ function Write-AoSetupFailure($ErrorRecord) {
 }
 
 function Test-AoSetupAssetPath([string]$Relative) {
+    if($Relative -cmatch '^randy-vk/audio/ambience/((grid|city|desert|forest|cold|inferno|underwater)\.wav|manifest\.json|CREDITS\.txt)$'){return $true}
     if($Relative -cmatch '^randy-vk/packs/EnhancedRocks/(rock_face_03_(diff_2k|nor_gl_2k|arm_1k)\.jpg|rock-face-03-source\.json)$'){return $true}
-    return $Relative -cmatch '^randy-vk/(mesh-ids\.bin|cache/materials/([a-f0-9]{16}\.rvkm|recipes\.tsv|bindings\.tsv)|loading/[A-Za-z0-9_-]+\.png|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$'
+    return $Relative -cmatch '^randy-vk/(mesh-ids\.bin|cache/materials/([a-f0-9]{16}\.rvkm|recipes\.tsv|bindings\.tsv)|loading/[A-Za-z0-9_-]+\.png|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world|penumbra-078)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$'
 }
 function Assert-AoTransaction($Journal, [string]$Client, [scriptblock]$ProgressCallback) {
     if ($Journal.version -ne 1 -or $Journal.client -ine $Client -or $Journal.token -cnotmatch '^[a-f0-9]{32}$' -or !@($Journal.entries).Count) { throw 'Invalid interrupted setup record. Preserve it for diagnosis.' }

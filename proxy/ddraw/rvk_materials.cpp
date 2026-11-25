@@ -59,6 +59,7 @@
 #include "material_cache.h"
 #include "material_cache_legacy.h"
 #include "terrain_materials.h"
+#include "environment_materials.h"
 #include "building_families.h"
 #include "preview23_artwork.h"
 
@@ -241,7 +242,7 @@ void ScanPacks(const std::string& root)
         f.world = Lower(name) == "ao-cyber-world";
         f.modern = Lower(name) == "ao-modern-icc" ? 1u : (Lower(name) == "ao-cyber-icc" || f.world) ? 2u :
                    Lower(name) == "ao-cyber-characters" ? 3u : Lower(name)=="ao-icc-enhanced-original" ? 4u :
-                   Lower(name) == "ao-reworked-characters" ? 5u : 0u;
+                   Lower(name) == "ao-reworked-characters" ? 5u : Lower(name)=="ao-penumbra-078" ? 6u : 0u;
         ScanFolder(f);
         RvkLog("materials: pack '%s', %u files", name.c_str(), unsigned(f.files.size()));
         if (!f.files.empty())
@@ -343,6 +344,9 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
     Scan();
     if (g_liveKeys.count(KeyOf(type, id)))
         return g_live;
+    if (!HasAny(g_mat,type,id) && g_modernStyle.load()==2)
+        for (const Folder& pack:g_packs)
+            if(pack.modern==6 && CompleteMaterialSet(pack,type,id)) return pack;
     // Reviewed reworks override the standard library only in the selected mode.
     // A partial install keeps the existing Standard Enhanced material intact.
     if (!HasAny(g_mat,type,id) && g_characterPack.load() && g_characterStyle.load()==1)
@@ -365,7 +369,7 @@ const Folder& FolderFor(uint32_t type, uint32_t id)
         }
     if (!g_packs.empty() && !HasAny(g_mat, type, id))
         for (const Folder& pack : g_packs) {
-            if (pack.modern == 5) continue; // selected explicitly above, never by world style
+            if (pack.modern == 5 || pack.modern==6) continue; // explicitly selected, never by fallback
             if (pack.modern == 3 ? !g_characterPack.load() : pack.modern && pack.modern != g_modernStyle.load()) continue;
             if (HasAny(pack, type, id)) {
                 // A matched family must use one authored set, even when an older
@@ -404,6 +408,8 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
 {
     rvk::maps::MaterialFiles f;
     const Folder& folder = FolderFor(type, id);
+    if(folder.name=="ao-cyber-world" && rvk::environment::RetainLegacyFunctionalOriginal(type,id))return f;
+    if(folder.modern==6 && !CompleteMaterialSet(folder,type,id)) return f;
     const bool completedGround=CompletedGroundSet(folder,type,id);
     if (folder.modern==2 && folder.name=="ao-cyber-world" &&
         rvk::materials::Preview23CompletedGround(type,id) &&
@@ -428,18 +434,19 @@ rvk::maps::MaterialFiles FilesFor(uint32_t type, uint32_t id)
     // the old manufactured-ground set. Unreviewed and partial per-tile
     // repaints still retain the original road/biome transition painting.
     if (folder.modern && rvk::materials::IsGroundType(type) &&
-        !rvk::materials::AuthoredGround(type, id) && !completedGround) return f;
+        !rvk::materials::AuthoredGround(type, id) && !completedGround && folder.modern!=6) return f;
     if (folder.modern) f.maxSize = 512; // bounded built-in artwork in the 2 GB retail process
     // Large world atlases lost lettering and edge detail when their colour
     // map was capped with the normal/ORM maps. Keep one extra colour mip when
     // address space permits; staging, cache and auxiliary-map budgets stay bounded.
-    if ((folder.modern==2 || folder.modern==4) && !rvk::materials::IsGroundType(type) &&
+    if ((folder.modern==2 || folder.modern==4 || folder.modern==6) &&
+        (!rvk::materials::IsGroundType(type) || folder.modern==6) &&
         FreeMaterialAddressSpace() > (768ull<<20)) {
         // A 2048x512 strip costs exactly the old 1024x1024 square budget.
         // A longest-edge-only cap discarded its narrow dimension's detail.
         f.maxAlbedoSize=2048;f.maxAlbedoPixels=1024u*1024u;
     }
-    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2) && FullQualityType(type)!=1010006) || folder.modern == 3 || folder.modern == 5 ||
+    f.preserveAlbedoAlpha = ((folder.modern==4 || folder.modern==2 || folder.modern==6) && FullQualityType(type)!=1010006) || folder.modern == 3 || folder.modern == 5 ||
         ((folder.world || (folder.modern==2 && rvk::buildings::FamilyOf(type,id))) && FullQualityType(type) != 1010006);
     f.normal = FindMap(type, id, "_n.png");
     f.height = FindMap(type, id, "_h.png");
@@ -609,9 +616,9 @@ void Upload(const Waiter& w, const rvk::maps::Decoded& d)
     const bool completedWorld=folder.modern==2 && rvk::materials::Preview23CompletedWorld(w.top->rdbType,w.top->rdbId);
     const bool completedGround=folder.modern==2 && folder.name=="ao-cyber-world" &&
         rvk::materials::Preview23CompletedGround(w.top->rdbType,w.top->rdbId);
-    uint32_t required=resource ? resource->maps : completedWorld || completedGround ? 7u : 0u;
+    uint32_t required=folder.modern==6 ? 7u : resource ? resource->maps : completedWorld || completedGround ? 7u : 0u;
     if (completedGround && rvk::materials::DeckGround(w.top->rdbType,w.top->rdbId)) required&=~2u;
-    if ((w.top->buildingFamily || completedWorld || completedGround) && (d.decodeFailed ||
+    if ((w.top->buildingFamily || completedWorld || completedGround || folder.modern==6) && (d.decodeFailed ||
         ((required&1u) && d.albedo.Empty()) || ((required&2u) && d.normal.Empty()) ||
         ((required&4u) && d.orm.Empty()) || ((required&8u) && d.emissive.Empty()) || ((required&16u) && !d.height))) {
         g_failed.insert(KeyOf(w.top->rdbType,w.top->rdbId));
@@ -878,7 +885,9 @@ std::string DescribeTexture(const rvk::Texture* texture, std::string* reference)
         const uint64_t key=KeyOf(top->rdbType,top->rdbId);
         const Folder& folder=FolderFor(top->rdbType,top->rdbId);
         const char* state="replacement artwork missing";
-        if (folder.modern==2 && rvk::buildings::Managed(top->rdbType,top->rdbId) && !top->buildingFamily)
+        if(folder.name=="ao-cyber-world" && rvk::environment::RetainLegacyFunctionalOriginal(top->rdbType,top->rdbId))
+            state="original retained intentionally (functional texture; legacy replacement changes its role)";
+        else if (folder.modern==2 && rvk::buildings::Managed(top->rdbType,top->rdbId) && !top->buildingFamily)
             state="original retained intentionally (unapproved artwork)";
         else if (folder.modern && rvk::materials::IsGroundType(top->rdbType) && !rvk::materials::AuthoredGround(top->rdbType,top->rdbId))
             state="original retained intentionally (ground colour/blend policy)";
@@ -924,8 +933,9 @@ void AttachMaterialMaps(RSurface* top)
     const Folder& folder=FolderFor(top->rdbType,top->rdbId);
     top->buildingFamily=folder.modern==2 ? rvk::buildings::FamilyOf(top->rdbType,top->rdbId) : 0;
     g_rvk.device->SetTextureRdbId(top->texture, top->rdbId, top->rdbType, top->buildingFamily,
-        folder.modern && rvk::materials::AuthoredGround(top->rdbType,top->rdbId) &&
-        !CompletedGroundSet(folder,top->rdbType,top->rdbId));
+        folder.modern && folder.modern!=6 && rvk::materials::AuthoredGround(top->rdbType,top->rdbId) &&
+        !CompletedGroundSet(folder,top->rdbType,top->rdbId),
+        folder.modern==6 || folder.modern==0);
     uint64_t key = KeyOf(top->rdbType, top->rdbId);
     Waiter waiter{top, top->texture};
     // A warm hit only shares existing objects, never changes family visibility.

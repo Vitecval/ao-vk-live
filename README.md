@@ -1,44 +1,10 @@
-# Rubi-Ka Horizon 0.7.7
+# Rubi-Ka Horizon 0.7.8
 
-Fresh starts and returning to login now use the same restrained lighting and
-stable anti-aliasing. Temple stone has a matte response, ground rocks retain
-their visibility, and slow graphics preparation shows progress. Day/Night
-Cycle adds PermaDay and PermaNight. Accepted issue reports clearly switch to
-Send a New Report. This patch includes Preview 24 r63 and reuses the current
-Full HD library. The HD armor and creature rework is reserved for 0.7.8 and is
-not included.
+Clearer world, armor and creature artwork, smoother Shared Terrain+ hills and cliffs, enhanced snow, gentler Penumbra and Inferno lighting, and optional natural ambience. Display controls offer monitor, resolution and windowed or borderless choices. Existing preferences are preserved.
 
-Horizon now shows an update notice with a direct link to Updates, includes
-Patch notes and Suggestions pages, and launches the selected AO client from
-the system tray menu. Save custom graphics presets by name; newly added
-options stay red until reviewed, while built-in presets receive new defaults.
-The update-notice and named-preset features from 0.7.5 remain included.
+Choose Full graphics for the complete reviewed texture collection. Choose AnarchyHD world artwork and Reworked character artwork to use the new paintings; Lite avoids the large texture downloads.
 
-Installation now shows the actual installed app version, graphics revision and
-Lite/Full HD edition separately from the running copy. Current installations
-offer app-only or graphics-only updates as needed. One interactive Horizon copy
-is allowed per user desktop; another launch activates the existing window.
-The report review appears only after Prepare report has generated it.
-
-[Download the latest stable Horizon installer](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe).
-Horizon checks for new stable releases on startup and has a dedicated **Updates**
-page. Checks do not install anything or download texture packs. Verified app
-updates preserve settings and reuse existing artwork/cache. App-only updates
-skip texture verification when the bundled graphics are already current.
-
-**Report issue** prepares a reviewed, compressed diagnostic report for private
-email through asyncstuff.com. The site's disabled-by-default WordPress receiver
-is in [apps/wordpress/horizon-reports](apps/wordpress/horizon-reports). Players
-need no GitHub account; a local report ZIP is available if the service is offline.
-
-The new Windows application combines installation, repair, removal and live AO
-graphics settings. Choose Lite (no texture downloads) or Full HD (the existing
-texture packs and 14,345 prepared cache files) inside the same EXE. The graphics
-engine is Preview 24 r63. [Application details and build](apps/horizon/README.md).
-
-This preview fixes disabled settings turning white during setup, reports repair
-progress continuously, and reduces large Full HD file-list and staging overhead.
-Existing settings, personal files and resumable Full downloads are preserved.
+[Download Rubi-Ka Horizon](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe) · [Player patch notes](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.7.8)
 
 ## AO-VK Live Preview 24 engine
 

@@ -11,6 +11,7 @@
 // 0x1008A000, DirectDrawCreateEx at 0x1008A004.
 #include "native/devices.h"
 #include "native/vc10.h"
+#include "display_mode_win32.h"
 
 #include <ddraw.h>
 
@@ -22,6 +23,7 @@ namespace rnative::devices {
 namespace {
 
 HMODULE g_orig;
+thread_local rvk::display::Mode g_currentMode;
 
 struct Mode {
     uint16_t width, height;
@@ -96,19 +98,16 @@ void Destroy(DeviceDesc& d)                         // FUN_10044594
 // FUN_10041693: display modes but 8 and 24 bits, at most 128.
 HRESULT __stdcall EnumMode(const DDSURFACEDESC2* mode, DeviceDesc* d)
 {
-    const uint32_t bits = mode->ddpfPixelFormat.dwRGBBitCount;
-    if (bits != 8 && bits != 24 && d->modeCount < 0x80) {
-        Mode& m = d->modes[d->modeCount++];
-        m.width = uint16_t(mode->dwWidth);
-        m.height = uint16_t(mode->dwHeight);
-        m.bits = uint8_t(bits);
-    }
+    if(!mode || !d)return DDENUMRET_CANCEL;
+    rvk::display::InsertNative(d->modes,d->modeCount,
+        {mode->dwWidth,mode->dwHeight,mode->ddpfPixelFormat.dwRGBBitCount,mode->dwRefreshRate},g_currentMode);
     return DDENUMRET_OK;
 }
 
 // FUN_10043545: a Direct3D device (no limit, as the original: DirectDraw has at most a few).
 HRESULT __stdcall EnumD3dDevice(const char* description, const char* name, const uint8_t* desc7, DeviceDesc* d)
 {
+    if(!d || !desc7 || d->deviceCount>=8)return 0; // fixed DeviceDesc ABI; never overwrite the mode/device arrays
     D3dDevice& dev = d->devices[d->deviceCount++];
     Assign(dev.description, description);
     Assign(dev.name, name);
@@ -141,13 +140,18 @@ BOOL __stdcall EnumAdapter(GUID* guid, char* description, char* driver, vc10::Ve
             if (id.szDriver[0]) Assign(d.driver, id.szDriver);
         }
         d.canRenderWindowed = (*reinterpret_cast<const uint32_t*>(d.caps + 8) >> 19) & 1;   // dwCaps2
-        d.windowedPrimary = !monitor && d.canRenderWindowed;
+        d.windowedPrimary = d.primary && d.canRenderWindowed;
         d.modeCount = 0;
+        const auto previousMode=g_currentMode;
+        g_currentMode=rvk::display::CurrentMode(monitor ? monitor:MonitorFromPoint(POINT{0,0},MONITOR_DEFAULTTOPRIMARY));
         Com(dd, 0x20, DWORD(0), static_cast<void*>(nullptr), static_cast<void*>(&d),
             reinterpret_cast<void*>(&EnumMode));   // EnumDisplayModes
+        g_currentMode=previousMode;
         d.deviceCount = 0;
         void* d3d = nullptr;
-        Com(dd, 0x00, &kDirect3D7, &d3d);           // QueryInterface (not checked, as the original)
+        if(Com(dd,0x00,&kDirect3D7,&d3d)!=0 || !d3d) {
+            Com(dd,0x08);Destroy(d);return DDENUMRET_OK;
+        }
         Com(d3d, 0x0C, reinterpret_cast<void*>(&EnumD3dDevice), static_cast<void*>(&d));   // EnumDevices
         Com(d3d, 0x08);                             // Release
         Com(dd, 0x08);

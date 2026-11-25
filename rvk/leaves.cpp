@@ -12,6 +12,7 @@
 // them through the canopy's own vertex path. The canopy's cards and its leaves sway together with the branches
 // (ffp.vert BranchSway, D.leaf), and each leaf flutters on its own.
 #include "internal.h"
+#include "foliage_alpha.h"
 
 #include <algorithm>
 #include <cmath>
@@ -126,8 +127,6 @@ float MaskAlpha(const std::vector<uint8_t>& mask, uint32_t w, uint32_t h, float 
 
 }  // namespace
 
-constexpr float kSoftCard = 0.002f;   // Texture::m_alphaHardEdges under this: a soft glow / beam / smoke card
-
 // Whether the current draw is a canopy, and which kind: lit, static vertices, drawn into the scene with depth writes and
 // a texture that is mostly holes (its mean alpha well under the walls' and signs'), standing upright (the model axis
 // most aligned with the world's up), not one flat plane (a sign, a poster). Shrubs are plant-sized (the plants that
@@ -151,7 +150,7 @@ Device::Canopy Device::CanopyKind(uint32_t primitive, uint32_t fvf, uint32_t str
     // A soft card - a lamp's glow or beam, smoke, a halo - has no hard edges between leaf and hole: crossed glow
     // stripes under a billboard's lamps took leaves and swayed as a tree (dump 225132; over the game's textures the
     // glows score 0, foliage from ~0.004).
-    if (tex->m_alphaHardEdges < kSoftCard)
+    if (!foliage::HasFoliageEdges(tex->m_rdbType, tex->m_rdbId, tex->m_opaque, tex->m_alphaHardEdges))
         return Canopy::None;
     const auto& w = m_world.m;
     int axis = 0;

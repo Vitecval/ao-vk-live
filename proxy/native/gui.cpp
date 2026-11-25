@@ -8,10 +8,13 @@
 // work still runs every frame. Layout a view does while drawing (ViewSurface_c::_LayoutSelf) waits for the next
 // drawn frame.
 #include "native/gui.h"
+#include "native/randy_init.h"
+#include "display_dpi_win32.h"
 
 #include "native/device.h"
 #include "native/native.h"
 #include "native/client_build.h"
+#include "native/tooltip_delay.h"
 
 #include <cstring>
 
@@ -30,6 +33,7 @@ bool g_skip;                                        // this frame's interface is
 // WindowController_c::Render (thiscall: this in ecx, two stack arguments).
 void __fastcall RenderHook(void* self, void* edx, void* viewport, uint32_t time)
 {
+    rvk::display::dpi::WindowContext windowCoordinates(randyinit::DisplayWindow());
     g_skip = !device::InterfaceBegin();
     g_depth = 0;
     g_render(self, edx, viewport, time);
@@ -74,6 +78,7 @@ uint8_t* CheckedEntry(HMODULE gui, const char* name, const char* what)
 
 void Install()
 {
+    tooltips::Poll(); // stays live even after the interface drawing hooks exist
     static int attempts;
     if (g_render || attempts >= 600)
         return;

@@ -117,12 +117,29 @@ layout(set = 0, binding = FL_BINDING, std140) uniform FrameLights {
     vec4 terrainFar;             // x macro composition, y Shared Ground+ grit, z light source halo strength
     vec4 windowLife;            // UTC window clock, activity enabled, outdoor sunny lighting amount, global shiny
     vec4 areaSky,areaGround,areaSun;
-    vec4 hdGround[5],hdGroundConfig;
+    vec4 hdGround[6],hdGroundConfig;
+    vec4 snow;
     vec4 nativeHeight;
     vec4 shipLightPos[8],shipLightColour[8],shipLightConfig;
     vec4 rockObjects;
     Light lights[64];
 } FL;
+
+// Regional art direction supplies diffuse sky/bounce energy, before material
+// response. The sun's visibility still controls its direct lobe independently.
+float RegionalLighting()
+{
+    return (abs(FL.areaSun.w-7.)<.1 || abs(FL.areaSun.w-8.)<.1) ? FL.areaSky.w : 0.;
+}
+vec3 RegionalIrradiance(vec3 normal)
+{
+    float up=dot(normal,normal)>1e-8 ? normalize(normal).y : 1.;
+    bool snow=abs(FL.areaSun.w-7.)<.1;
+    float sky=mix(snow ? .30:.22,snow ? .52:.36,clamp(up*.5+.5,0.,1.));
+    vec3 colour=snow ? vec3(.88,.98,1.10):vec3(.98,.96,1.02);
+    vec3 bounce=snow ? vec3(.13,.15,.17):vec3(.065,.065,.067);
+    return (colour*sky+bounce*(1.-max(up,0.)))*(1.-.65*FL.rainNear.y);
+}
 
 // How much of the sun's direct light a thunderstorm's deck takes at its fullest (FL.rainNear.y 1; rvk draw.cpp the
 // same): a tenth or so left, the rest of it soft (lighting.glsl). (0.65 left rocks facing the hidden sun light under a

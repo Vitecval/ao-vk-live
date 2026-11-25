@@ -15,6 +15,11 @@
 // so the scene's colour and depth are copied first (once a frame) and the water drawn opaque over them (water.frag:
 // refraction, absorption, caustics, reflections, foam, fog), writing depth as a surface does.
 #include "internal.h"
+#include "area_profiles.h"
+#include "lava_lighting.h"
+#include "material_maps.h"
+#include "underwater_policy.h"
+#include <limits>
 
 #include <algorithm>
 #include <unordered_map>
@@ -32,6 +37,7 @@ using namespace vk;
 using namespace detail;
 
 namespace {
+#include "lava-surface.png.inc"
 
 // Whether any part of a world-space triangle lies in a view-projection's frustum (D3D clip space, depth 0..w): the
 // triangle clipped against each plane in turn - exact, where the corners-outside-one-plane test keeps every large
@@ -422,6 +428,12 @@ bool Device::CreateWaterResources(std::string* error)
         UpdateTexture(m_waterDetail, l, 0, 0, s, s, levels[l].data(), s * 4);
     }
     std::string simError;
+    try {
+        maps::Image lava;maps::MipChain chain;std::string note;
+        if(maps::LoadImageFromMemory(kLavaSurface,sizeof(kLavaSurface),&lava,&note)){
+            maps::MakeAlbedoChain(lava,&chain);m_lavaDetail=maps::Upload(*this,chain);
+        }
+    } catch(const std::bad_alloc&) {Log("lava: material unavailable; procedural surface retained");}
     if (!CreateWaterSim(&simError))              // (the water works without it, only the characters' ripples are lost)
         Log("water disturbance field unavailable: %s\n", simError.c_str());
     return true;
@@ -436,6 +448,7 @@ void Device::DestroyWaterResources()
     m_waterFalls.clear();
     m_waterFoot.clear();
     if (m_waterDetail) { DestroyTextureNow(m_waterDetail); m_waterDetail = nullptr; }
+    if (m_lavaDetail) { DestroyTextureNow(m_lavaDetail); m_lavaDetail = nullptr; }
     if (m_waterSceneCopy) { DestroyTextureNow(m_waterSceneCopy); m_waterSceneCopy = nullptr; }
     if (m_waterDepthCopy) {
         vkDestroyImageView(m_device, m_waterDepthCopyView, nullptr);
@@ -619,7 +632,7 @@ Device::WaterMap* Device::WaterMapFor(const WaterVertex* v, uint32_t count, cons
         return nullptr;
     const uint64_t key = HashWater(v, count, idx, icount);
     for (WaterMap& m : m_waterMaps)
-        if (m.key == key) {
+        if (m.key == key && m.contextZone == m_skyPlayfield) {
             m.lastFrame = m_frameNumber;
             return &m;
         }
@@ -631,6 +644,7 @@ Device::WaterMap* Device::WaterMapFor(const WaterVertex* v, uint32_t count, cons
         m_waterMaps.erase(oldest);
     }
     WaterMap m;
+    m.contextZone=m_skyPlayfield;
     m.key = key;
     m.lastFrame = m_frameNumber;
     m.base = float(heightSum / double(flat.size()));
@@ -759,9 +773,12 @@ Device::WaterMap* Device::WaterMapFor(const WaterVertex* v, uint32_t count, cons
     float minLevel = 0.0f;
     if (!bodyLevel.empty())
         minLevel = *std::min_element(bodyLevel.begin(), bodyLevel.end());
+    m.levelWidth=w;m.levelHeight=h;
+    m.surfaceLevels.assign(heights.size(),std::numeric_limits<float>::quiet_NaN());
     for (size_t i = 0; i < heights.size(); ++i) {
         if (!pixels[i * 4 + 1])
             continue;
+        m.surfaceLevels[i]=m.base+(bodyKeep[size_t(body[i])] ? heights[i]:bodyLevel[size_t(body[i])]);
         pixels[i * 4 + 0] = ToHalf((bodyKeep[size_t(body[i])] ? heights[i] : bodyLevel[size_t(body[i])]) - minLevel);
     }
     m.base += minLevel;
@@ -769,7 +786,7 @@ Device::WaterMap* Device::WaterMapFor(const WaterVertex* v, uint32_t count, cons
     if (!m.texture)
         return nullptr;
     UpdateTexture(m.texture, 0, 0, 0, w, h, pixels.data(), w * 8);
-    m_waterMaps.push_back(m);
+    m_waterMaps.push_back(std::move(m));
     // (The vertex alphas, flat and steep: the game fades its water's shore edges out by them.)
     uint32_t flatLo = 255, flatHi = 0, steepLo = 255, steepHi = 0;
     for (const Tri& t : flat)
@@ -1505,8 +1522,26 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     ++m_frameDraw;
     std::vector<uint32_t>& steep = m_waterSteep;
     WaterMap* map = WaterMapFor(vertices, vertexCount, indices, indexCount, steep);
-    if (!map && steep.empty())
-        return;
+    if (!map && steep.empty()) return;
+    const bool molten=areas::For(m_skyPlayfield)==areas::Biome::Volcanic && !m_indoors;
+    if(molten && m_areaLight>0.f && m_frameEyeValid && map){
+        int32_t cell[3];bool changed=false;
+        for(unsigned i=0;i<3;++i){cell[i]=int32_t(std::floor(m_frameEye[i]/12.f));changed|=cell[i]!=map->lavaCell[i];}
+        if(changed){map->lavaPoints=lava::Samples(vertices,vertexCount,indices,indexCount,m_frameEye);std::copy(cell,cell+3,map->lavaCell);}
+        unsigned added=0;
+        for(const auto& p:map->lavaPoints){
+            unsigned total=0;bool duplicate=false;
+            for(const auto& l:m_lightsCur)if(l.lava){++total;if(l.light.position.x==p[0] && l.light.position.z==p[2])duplicate=true;}
+            if(duplicate || total>=lava::MaxSurfaceLights || m_lightsCur.size()>=512)continue;
+            CapturedLight light{};light.lava=true;light.light.type=d3d::LIGHT_POINT;
+            light.light.position={p[0],p[1],p[2]};light.light.range=24.f;
+            light.light.diffuse={.58f*m_areaLight,.20f*m_areaLight,.045f*m_areaLight,1.f};
+            light.light.specular=light.light.diffuse;
+            light.light.attenuation0=1.f;light.light.attenuation2=.008f;
+            m_lightsCur.push_back(std::move(light));++added;
+        }
+        if(m_dumpFile)std::fprintf(m_dumpFile,"# lava: %u local surface lights; lamp grid / point shadows; playfield %u\n",added,m_skyPlayfield);
+    }
     // None of it in view - each of the game's triangles, raised and lowered by the tallest waves, outside the camera's
     // frustum: nothing is drawn, and the scene's copy, the disturbance's step and the grid's draw go unpaid (a lake
     // behind the camera cost ~1.6 ms a frame: the user's profiling sweep, 2026-10-20).
@@ -1547,6 +1582,7 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     for (int i = 0; i < 3; ++i)
         eye[i] = -(vm[3][0] * vm[i][0] + vm[3][1] * vm[i][1] + vm[3][2] * vm[i][2]);
     WaterFrame wf{};
+    wf.mapInfo[3]=molten ? (m_lavaDetail ? 2.f:1.f):0.f;
     wf.viewProj = MulMatrix(m_view, m_proj);
     wf.prevViewProj = m_prevViewProjValid ? MulMatrix(m_prevView, m_prevProj) : wf.viewProj;
     wf.view = m_view;
@@ -1576,6 +1612,7 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     // (A storm: rough water - the waves up to 1.8x taller (more washed over the shore), as much on a pond: choppy.)
     const float stormy = std::clamp(m_storm * std::max(m_windStormScale, 0.0f), 0.0f, 1.5f);
     wf.wind[2] = P.waves * (0.12f + 0.88f * body * body) * (1.0f + 0.8f * stormy);
+    if(molten)wf.wind[2]*=.08f;
     wf.storm[0] = stormy;
     wf.storm[1] = Gusts();
     {
@@ -1809,7 +1846,7 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
         VkDescriptorImageInfo depthInfo{m_pointSampler, m_waterDepthCopyView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo sceneInfo{m_linearSampler, m_waterSceneCopy->m_view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo detailInfo{m_waterRepeatSampler, m_waterDetail->m_view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
-        VkDescriptorImageInfo gameInfo{m_waterRepeatSampler, gameTex->m_view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+        VkDescriptorImageInfo gameInfo{m_waterRepeatSampler, molten && m_lavaDetail ? m_lavaDetail->m_view:gameTex->m_view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo envInfo{m_linearSampler, (env ? m_envAtlas : m_waterDetail)->m_view,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
         VkDescriptorImageInfo simInfo{m_waterRepeatSampler, m_waterSimLive ? m_waterSimView[m_waterSimCur] : m_waterDetail->m_view,
@@ -1870,7 +1907,7 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
         draw(1, at, bytes, w->indices.data(), uint32_t(w->indices.size()));
     }
     // The spray and mist at the falls' feet: soft particles over everything drawn (water_spray.*).
-    if (footCount && P.fallSpray > 0.0f && m_waterSprayPipeline) {
+    if (footCount && P.fallSpray > 0.0f && m_waterSprayPipeline && !molten) {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_waterSprayPipeline);
         draw(2, footOffset, footBytes, nullptr, footCount * kSprayPerFoot * 6);
     }
@@ -1878,6 +1915,38 @@ void Device::DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const 
     m_arenaBound = m_bindlessBound = false;      // ... and its pushed set 0 replaced the scene's: rebind those too
     ProfileMark("water");
     ++m_waterDraws;
+}
+
+bool Device::WaterSurfaceHeight(float x,float z,float& height) const
+{
+    bool found=false;float highest=-std::numeric_limits<float>::infinity();
+    if(areas::For(m_skyPlayfield)==areas::Biome::Volcanic)return false;
+    for(const auto& map:m_waterMaps) {
+        if(map.contextZone!=m_skyPlayfield)continue;
+        float level=0;
+        if(underwater::Surface(map.surfaceLevels,map.levelWidth,map.levelHeight,map.origin[0],map.origin[1],map.texel,x,z,level)) {
+            highest=std::max(highest,level);found=true;
+        }
+    }
+    if(found)height=highest;
+    return found;
+}
+
+void Device::UpdateUnderwaterScene()
+{
+    m_underwaterScene=false;
+    float surface=0;
+    if(m_skyPlayfield&&m_frameEyeValid&&WaterSurfaceHeight(m_frameEye[0],m_frameEye[2],surface))
+        m_underwaterScene=underwater::Below(m_frameEye[1],surface);
+    const uint64_t now=uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
+    m_underwaterState.store((uint64_t(m_skyPlayfield)<<1)|uint64_t(m_underwaterScene),std::memory_order_release);
+    m_underwaterStamp.store(now,std::memory_order_release);
+}
+
+bool Device::UnderwaterLive(uint32_t zone) const
+{
+    const uint64_t now=uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
+    return underwater::Fresh(m_underwaterState.load(std::memory_order_acquire),m_underwaterStamp.load(std::memory_order_acquire),now,zone);
 }
 
 }  // namespace rvk

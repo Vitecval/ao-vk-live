@@ -15,8 +15,15 @@ layout(location=4) out vec4 outAlbedo;
 void main() {
     vec2 uv=vCorner;
     float mask=1.-dot(uv,uv);
-    if(vShape>.5 && vShape<1.5)mask=1.-dot(uv*vec2(2.8,1.0),uv*vec2(2.8,1.0));
+    if(vShape>4.5){
+        float r=length(uv);
+        float rim=smoothstep(.55,.76,r)*(1.-smoothstep(.87,1.,r));
+        float highlight=.25+.75*smoothstep(-.3,.75,dot(uv,vec2(-.6,.8)));
+        mask=rim*highlight+.025*max(0.,1.-r);
+    }
+    else if(vShape>.5 && vShape<1.5)mask=1.-dot(uv*vec2(2.8,1.0),uv*vec2(2.8,1.0));
     else if(vShape>1.5 && vShape<2.5)mask=1.-max(abs(uv.x)*1.6+abs(uv.y)*.45,abs(uv.y)*1.2);
+    else if(vShape>3.5)mask=1.-max(abs(uv.y),abs(uv.x)*.866025+abs(uv.y)*.5);
     else if(vShape>2.5)mask=(1.-dot(uv,uv))*(.55+.45*cos(uv.x*4.+uv.y*2.));
     float coverage=pow(max(0.,mask),2.)*vAlpha;
     if(coverage<.001)discard;

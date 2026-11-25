@@ -915,9 +915,9 @@ void ThreadedDevice::SetMaterialMaps(Texture* texture, Texture* orm, Texture* al
     Enqueue([this, texture, orm, albedo, preserveAlpha](const uint8_t*) { m_device.SetMaterialMaps(texture, orm, albedo, preserveAlpha); });
 }
 
-void ThreadedDevice::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour)
+void ThreadedDevice::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour, bool independentGroundPainting)
 {
-    Enqueue([this, texture, id, type, buildingFamily, preserveGroundColour](const uint8_t*) { m_device.SetTextureRdbId(texture, id, type, buildingFamily, preserveGroundColour); });
+    Enqueue([this, texture, id, type, buildingFamily, preserveGroundColour, independentGroundPainting](const uint8_t*) { m_device.SetTextureRdbId(texture, id, type, buildingFamily, preserveGroundColour, independentGroundPainting); });
 }
 
 void ThreadedDevice::SetBuildingFamilyReady(uint32_t family, bool ready)

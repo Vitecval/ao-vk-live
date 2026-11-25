@@ -3,6 +3,7 @@
 #include "grass_coverage.h"
 #include "material_profiles.h"
 #include "render_budget.h"
+#include "foliage_alpha.h"
 
 #include <algorithm>
 #include <array>
@@ -135,6 +136,7 @@ Texture* Device::NewTexture(uint32_t width, uint32_t height, Format format, uint
 
 bool Device::RealizeTexture(Texture* t)
 {
+    try {
     const FormatInfo& info = kFormats[size_t(t->m_format)];
     VkImageCreateInfo ci{VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO};
     ci.imageType = VK_IMAGE_TYPE_2D;
@@ -145,6 +147,11 @@ bool Device::RealizeTexture(Texture* t)
     ci.samples = VK_SAMPLE_COUNT_1_BIT;
     ci.tiling = VK_IMAGE_TILING_OPTIMAL;
     ci.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    // RDB identity arrives after allocation. These ordinary RGBA images may
+    // later supply a live native screen mip chain; unrelated draws never copy
+    // or sample them differently merely because this capability is present.
+    if (t->m_format == Format::A8R8G8B8)
+        ci.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (t->m_renderTarget)
         ci.usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (t->m_storage)
@@ -165,6 +172,7 @@ bool Device::RealizeTexture(Texture* t)
     vi.components = info.swizzle;
     vi.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, t->m_levels, 0, 1};
     if (vkCreateImageView(m_device, &vi, nullptr, &t->m_view) != VK_SUCCESS) {
+        t->m_view=VK_NULL_HANDLE;
         vmaDestroyImage(m_allocator, t->m_image, t->m_allocation);
         t->m_image = VK_NULL_HANDLE;
         t->m_allocation = nullptr;
@@ -178,16 +186,25 @@ bool Device::RealizeTexture(Texture* t)
     m_textureBytes[t->m_renderTarget ? 1 : 0] += t->m_bytes;
     ++m_textureCount[t->m_renderTarget ? 1 : 0];
     return true;
+    }catch(...) {
+        // The Texture may be metadata already handed to the threaded device;
+        // leave it empty, while reclaiming every unpublished GPU object. Image
+        // accounting happens only after the last potentially throwing step.
+        UnregisterBindlessTexture(t);
+        if(t->m_view)vkDestroyImageView(m_device,t->m_view,nullptr);
+        if(t->m_image)vmaDestroyImage(m_allocator,t->m_image,t->m_allocation);
+        t->m_view=VK_NULL_HANDLE;t->m_image=VK_NULL_HANDLE;t->m_allocation=nullptr;t->m_bytes=0;
+        throw;
+    }
 }
 
 Texture* Device::CreateImage(uint32_t width, uint32_t height, Format format, uint32_t levels, bool renderTarget, bool storage)
 {
     Texture* t = NewTexture(width, height, format, levels, renderTarget);
-    if (t) t->m_storage = storage;
-    if (t && !RealizeTexture(t)) {
-        delete t;
-        return nullptr;
-    }
+    try {
+        if (t) t->m_storage = storage;
+        if (t && !RealizeTexture(t)) {delete t;return nullptr;}
+    }catch(...) {delete t;throw;}
     return t;
 }
 
@@ -753,7 +770,7 @@ void Device::DestroyTexture(Texture* texture)
     for (const CloudPuff& p : m_cloudPuffsLast)
         if (p.texture == texture) { m_cloudPuffsLast.clear(); break; }   // (kept for frames without the sky's puffs)
     for (Texture** map : {&texture->m_normalMap, &texture->m_ormMap, &texture->m_albedoMap, &texture->m_emissiveMap,
-                          &texture->m_leafArt, &texture->m_leafArtNormal})
+                          &texture->m_leafArt, &texture->m_leafArtNormal, &texture->m_screenMipReference})
         if (*map) {
             DestroyTexture(*map);
             *map = nullptr;
@@ -763,9 +780,14 @@ void Device::DestroyTexture(Texture* texture)
     m_deadTextures.push_back({DeathTag(), texture});   // freed once every submission that may use it is done
 }
 
-void Device::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour)
+void Device::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint32_t buildingFamily, bool preserveGroundColour, bool independentGroundPainting)
 {
     if (!texture) return;
+    if (texture->m_screenMipReference && !foliage::AuthoredScreen(type, id)) {
+        DestroyTexture(texture->m_screenMipReference);
+        texture->m_screenMipReference = nullptr;
+        texture->m_screenMipUpload = ~0u;
+    }
     const bool grassRuleChanged=grass::OliveMeadow(texture->m_rdbType,texture->m_rdbId)!=grass::OliveMeadow(type,id);
     texture->m_rdbId = id;
     texture->m_rdbType = type;
@@ -777,10 +799,83 @@ void Device::SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type, uint3
     if(materials::NaturalRock(type,id))texture->m_worldMaterial=(7u<<24)|245u;
     texture->m_buildingFamily = buildingFamily < 64 ? buildingFamily : 0;
     texture->m_preserveGroundColour = preserveGroundColour;
+    texture->m_independentGroundPainting = independentGroundPainting;
     static uint32_t assigned = 0;
     if (texture->m_autoMaterial && (++assigned <= 8 || (assigned & (assigned - 1)) == 0))
         Log("material catalog: texture %u:%u roughness %.2f metallic %.2f (%u identified)", type, id,
             float(texture->m_autoMaterial & 255u) / 255.0f, float((texture->m_autoMaterial >> 8) & 255u) / 255.0f, assigned);
+}
+
+// Preserve the actual native coverage/animation, rather than borrowing frozen
+// replacement alpha. Upload commands run before scene draws and outside their
+// render pass. Only the three captured screen roles can allocate this reference.
+Texture* Device::ScreenMipReference(Texture* source)
+{
+    if (!source || !foliage::AuthoredScreen(source->m_rdbType, source->m_rdbId) ||
+        source->m_renderTarget || source->m_format != Format::A8R8G8B8 ||
+        !source->m_image || !source->m_uploads || source->m_layout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ||
+        uint64_t(source->m_width) * source->m_height > 1024u * 1024u)
+        return source;
+    if (source->m_screenMipReference && source->m_screenMipUpload == source->m_uploads)
+        return source->m_screenMipReference;
+    VkFormatProperties properties{};
+    vkGetPhysicalDeviceFormatProperties(m_physical, GetFormatInfo(source->m_format).vk, &properties);
+    const VkFormatFeatureFlags required = VK_FORMAT_FEATURE_BLIT_SRC_BIT | VK_FORMAT_FEATURE_BLIT_DST_BIT |
+                                          VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+    if ((properties.optimalTilingFeatures & required) != required) return source;
+    if (!source->m_screenMipReference) {
+        uint32_t levels = 1;
+        for (uint32_t size = std::max(source->m_width, source->m_height); size > 1; size >>= 1) ++levels;
+        source->m_screenMipReference = CreateImage(source->m_width, source->m_height, source->m_format, levels, false);
+        if (!source->m_screenMipReference) return source;
+    }
+    Texture* mip = source->m_screenMipReference;
+    VkCommandBuffer cmd = UploadCommands();
+    ImageBarrier(cmd, source->m_image, VK_IMAGE_ASPECT_COLOR_BIT, source->m_layout, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT,
+        VK_PIPELINE_STAGE_2_TRANSFER_BIT, VK_ACCESS_2_TRANSFER_READ_BIT);
+    ImageBarrier(cmd, mip->m_image, VK_IMAGE_ASPECT_COLOR_BIT, mip->m_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, mip->m_layout == VK_IMAGE_LAYOUT_UNDEFINED ? 0 : VK_ACCESS_2_MEMORY_READ_BIT,
+        VK_PIPELINE_STAGE_2_TRANSFER_BIT, VK_ACCESS_2_TRANSFER_WRITE_BIT);
+    VkImageCopy copy{};
+    copy.srcSubresource = copy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+    copy.extent = {source->m_width, source->m_height, 1};
+    vkCmdCopyImage(cmd, source->m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        mip->m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
+    auto levelBarrier = [&](uint32_t level, VkImageLayout from, VkImageLayout to, VkAccessFlags2 access,
+                            VkPipelineStageFlags2 destinationStage, VkAccessFlags2 destinationAccess) {
+        VkImageMemoryBarrier2 barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2};
+        barrier.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT; barrier.srcAccessMask = access;
+        barrier.dstStageMask = destinationStage; barrier.dstAccessMask = destinationAccess;
+        barrier.oldLayout = from; barrier.newLayout = to;
+        barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.image = mip->m_image; barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, level, 1, 0, 1};
+        VkDependencyInfo dependency{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+        dependency.imageMemoryBarrierCount = 1; dependency.pImageMemoryBarriers = &barrier;
+        vkCmdPipelineBarrier2(cmd, &dependency);
+    };
+    for (uint32_t level = 1; level < mip->m_levels; ++level) {
+        levelBarrier(level - 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            VK_ACCESS_2_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_2_TRANSFER_BIT, VK_ACCESS_2_TRANSFER_READ_BIT);
+        VkImageBlit blit{};
+        blit.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, level - 1, 0, 1};
+        blit.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, level, 0, 1};
+        blit.srcOffsets[1] = {int32_t(std::max(1u, mip->m_width >> (level - 1))), int32_t(std::max(1u, mip->m_height >> (level - 1))), 1};
+        blit.dstOffsets[1] = {int32_t(std::max(1u, mip->m_width >> level)), int32_t(std::max(1u, mip->m_height >> level)), 1};
+        vkCmdBlitImage(cmd, mip->m_image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            mip->m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+        levelBarrier(level - 1, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_2_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
+    }
+    levelBarrier(mip->m_levels - 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        VK_ACCESS_2_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
+    ImageBarrier(cmd, source->m_image, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_PIPELINE_STAGE_2_TRANSFER_BIT, VK_ACCESS_2_TRANSFER_READ_BIT,
+        VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
+    mip->m_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    source->m_screenMipUpload = source->m_uploads;
+    ++source->m_screenMipBuilds;
+    return mip;
 }
 
 void Device::SetBuildingFamilyReady(uint32_t family, bool ready)
@@ -955,6 +1050,12 @@ void Device::TrimMaterialCache()
         if(retired>=excess || retired>=(256ull<<20) || count>=256)break;
         for(Texture* map:{t->m_normalMap,t->m_ormMap,t->m_albedoMap,t->m_emissiveMap,t->m_leafArt,t->m_leafArtNormal})
             if(map && map->m_materialRefs==1)retired+=map->m_bytes;
+        if (t->m_screenMipReference) {
+            retired += t->m_screenMipReference->m_bytes;
+            DestroyTexture(t->m_screenMipReference);
+            t->m_screenMipReference = nullptr;
+            t->m_screenMipUpload = ~0u;
+        }
         PublishMaterialMaps(t,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,false,true);
         t->m_materialState.store(Texture::MaterialState::Evicted,std::memory_order_release);
         ++count;
@@ -992,6 +1093,12 @@ void Device::RegisterBindlessTexture(Texture* t)
         index = m_freeBindlessImages.back();
         m_freeBindlessImages.pop_back();
     } else if (m_nextBindlessImage < kMaxBindlessImages) {
+        // Every published index may later enter the free list, including during
+        // OOM rollback. Reserve first, before claiming an index or descriptor,
+        // so unregister/destruction never needs a host allocation.
+        if(m_freeBindlessImages.capacity()<=m_nextBindlessImage)
+            m_freeBindlessImages.reserve(std::min<size_t>(kMaxBindlessImages,
+                std::max<size_t>(size_t(m_nextBindlessImage)+1,std::max<size_t>(64,m_freeBindlessImages.capacity()*2))));
         index = m_nextBindlessImage++;
     } else {
         static bool logged;
@@ -1081,7 +1188,7 @@ uint32_t Device::RegisterBindlessSampler(VkSampler s)
     return index;
 }
 
-uint64_t Device::SamplerKey(uint32_t stage, bool material) const
+uint64_t Device::SamplerKey(uint32_t stage, bool material, bool screen) const
 {
     const auto& t = m_tss[stage];
     return uint64_t(t[d3d::TSS_MAGFILTER] & 7) | uint64_t(t[d3d::TSS_MINFILTER] & 7) << 3 |
@@ -1090,7 +1197,7 @@ uint64_t Device::SamplerKey(uint32_t stage, bool material) const
            uint64_t(t[d3d::TSS_BORDERCOLOR] >> 24 ? 1 : 0) << 19 |
            uint64_t(m_anisotropy) << 20 |      // samplers made at another level stay valid for work in flight
            uint64_t(SceneMipBias() ? 100 - m_renderScale : 0) << 26 |
-           uint64_t(material) << 40;
+           uint64_t(material) << 40 | uint64_t(screen) << 41;
 }
 
 // RVK_RenderScale: the scene's textures sample a finer mip level by log2(scale), as sharp as at the output's size
@@ -1099,14 +1206,14 @@ bool Device::SceneMipBias() const { return m_target == m_scene && SceneScaled();
 
 // Samplers are never destroyed while the device lives (SamplerFor's map owns them), so a stage whose sampler state
 // is unchanged keeps its slot. Only a successful registration is remembered.
-uint32_t Device::StageSamplerSlot(uint32_t stage, bool material)
+uint32_t Device::StageSamplerSlot(uint32_t stage, bool material, bool screen)
 {
     if (!m_bindless)
         return 0;
-    uint64_t key = SamplerKey(stage, material);
+    uint64_t key = SamplerKey(stage, material, screen);
     if (key == m_stageSamplerKey[stage])
         return m_stageSamplerSlot[stage];
-    uint32_t index = RegisterBindlessSampler(SamplerFor(stage, material));
+    uint32_t index = RegisterBindlessSampler(SamplerFor(stage, material, screen));
     if (index == ~0u)
         return 0;
     m_stageSamplerKey[stage] = key;
@@ -1128,11 +1235,11 @@ uint32_t Device::FixedSamplerSlot(uint32_t which, VkSampler s)
     return index;
 }
 
-VkSampler Device::SamplerFor(uint32_t stage, bool material)
+VkSampler Device::SamplerFor(uint32_t stage, bool material, bool screen)
 {
     const auto& t = m_tss[stage];
     uint32_t addrU = t[d3d::TSS_ADDRESSU], addrV = t[d3d::TSS_ADDRESSV];
-    uint64_t key = SamplerKey(stage, material);
+    uint64_t key = SamplerKey(stage, material, screen);
     auto it = m_samplers.find(key);
     if (it != m_samplers.end())
         return it->second;
@@ -1152,6 +1259,13 @@ VkSampler Device::SamplerFor(uint32_t stage, bool material)
             ci.maxLod=VK_LOD_CLAMP_NONE;
         } else ci.maxLod=0.f;
     }
+    if (screen) {
+        // Authored one/two-pixel scanlines are display coverage, not pixel art.
+        // Filter the actual footprint in both colour and live original alpha.
+        ci.minFilter = ci.magFilter = VK_FILTER_LINEAR;
+        ci.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        ci.minLod = 0.f; ci.maxLod = VK_LOD_CLAMP_NONE;
+    }
     ci.addressModeU = AddressMode(addrU);
     ci.addressModeV = AddressMode(addrV);
     ci.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -1159,7 +1273,7 @@ VkSampler Device::SamplerFor(uint32_t stage, bool material)
                                                      : VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     // Enhancement: anisotropic filtering for textures the game filters linearly (point-filtered ones stay crisp), as
     // DXVK's forced anisotropy does.
-    if (SceneMipBias() && (material || t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE))
+    if (!screen && SceneMipBias() && (material || t[d3d::TSS_MIPFILTER] != d3d::TFP_NONE))
         ci.mipLodBias = std::log2(float(m_renderScale) / 100.0f);
     if (m_anisotropy > 1 && ci.minFilter == VK_FILTER_LINEAR && ci.magFilter == VK_FILTER_LINEAR) {
         ci.anisotropyEnable = VK_TRUE;

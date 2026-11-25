@@ -11,6 +11,7 @@
 #include "weather_options.h"
 #include "area_profiles.h"
 #include "ambient_policy.h"
+#include "underwater_policy.h"
 #include "surface_attachment.h"
 
 #include <algorithm>
@@ -360,13 +361,15 @@ void Device::RenderDebris(VkCommandBuffer cmd)
 // No dynamic lights, simulation buffers, or extra shadow casters are allocated.
 void Device::RenderAmbientMotes(VkCommandBuffer cmd)
 {
+    UpdateUnderwaterScene();
     const int requested=int(std::clamp(m_ambientStyle,0.f,7.f)+.5f);
     const int style=requested ? requested:areas::Ambient(m_skyPlayfield);
     const bool automatic=requested==0;
     const bool floating=requested>=3 || areas::Ambient(m_skyPlayfield)>=3;
     const bool indoorAllowed=requested>=3 || areas::For(m_skyPlayfield)==areas::Biome::Alien;
     if(m_ambientMotes<=0.f || m_ambientBright<=0.f || !m_ambientPipeline || !m_scene || !m_hdr ||
-       !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !indoorAllowed))return;
+       !m_frameEyeValid || !m_skyPlayfield || (m_indoors && !indoorAllowed && !IsUnderwaterScene()))return;
+    if(automatic && IsUnderwaterScene()){RenderUnderwaterBubbles(cmd);return;}
     if(!m_grassOn)UpdateGrassTiles();
     const float* eye=m_frameEye;
     const float spacing=9.f;
@@ -425,6 +428,8 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
     const uint32_t population=ambient::Population(demand);
     const uint32_t perAnchor=12u*population;
     rf.time[3]=float(m_ambientOriginCount*perAnchor);rf.fall[3]=float(perAnchor);
+    rf.fall[0]=m_windDir[0]*m_windStrength;
+    rf.fall[1]=0.f;rf.fall[2]=m_windDir[1]*m_windStrength;
     // Keep density steps linear above 1 too, instead of saturating the slider.
     rf.curtains[0]=demand/float(population);
     const auto look=requested==0 ? areas::AmbientLook(m_skyPlayfield):areas::MoteLook{{1.f,1.f,1.f},1.f,1.f};
@@ -443,6 +448,40 @@ void Device::RenderAmbientMotes(VkCommandBuffer cmd)
         std::fprintf(m_dumpFile,"# Ambient kinds: dust %u, spores %u, fireflies %u, spirits %u, snow %u, embers %u, ash %u, pollen %u\n",kinds[0],kinds[2],kinds[4],kinds[5],kinds[6],kinds[7],kinds[8],kinds[9]);
         std::fprintf(m_dumpFile,"# Ambient life: %u terrain anchors, density %.2f, night %.2f, automatic %u, profile %d, frequency %.2f, particles %u\n",m_ambientOriginCount,m_ambientMotes,rf.time[2],unsigned(requested==0),style,rf.curtains[0],unsigned(rf.time[3]));
     }
+}
+
+void Device::RenderUnderwaterBubbles(VkCommandBuffer cmd)
+{
+    float ceiling=0;
+    if(!IsUnderwaterScene()||!WaterSurfaceHeight(m_frameEye[0],m_frameEye[2],ceiling))return;
+    float points[128][4]{};uint32_t count=0;float minCeiling=ceiling,maxCeiling=ceiling;
+    const float spacing=4.f;
+    const int cx=int(std::floor(m_frameEye[0]/spacing)),cz=int(std::floor(m_frameEye[2]/spacing));
+    for(int z=-3;z<=3;++z)for(int x=-3;x<=3;++x){
+        if(x*x+z*z>10)continue;
+        const uint32_t seed=uint32_t(cx+x)*73856093u^uint32_t(cz+z)*19349663u;
+        float px=float(cx+x)*spacing+spacing*(.2f+.6f*StrikeHash(seed,1));
+        float pz=float(cz+z)*spacing+spacing*(.2f+.6f*StrikeHash(seed,2)),surface=0;
+        if(!underwater::BubbleSurface(px,pz,surface,[this](float x,float z,float& h){return WaterSurfaceHeight(x,z,h);})||std::fabs(surface-ceiling)>.5f)continue;
+        points[count][0]=px;points[count][1]=std::min(m_frameEye[1]-3.5f,surface-7.f);
+        points[64+count][0]=surface;minCeiling=std::min(minCeiling,surface);maxCeiling=std::max(maxCeiling,surface);
+        points[count][2]=pz;points[count][3]=13.f;++count;
+    }
+    if(!count)return;
+    RainFrame rf{};rf.viewProj=MulMatrix(m_view,m_proj);
+    rf.prevViewProj=m_prevViewProjValid?MulMatrix(m_prevView,m_prevProj):rf.viewProj;
+    rf.view=m_view;std::memcpy(rf.camera,m_frameEye,3*sizeof(float));rf.camera[3]=TaaActive()?1.f:0.f;
+    rf.time[0]=float(m_frameClock);rf.time[1]=float(m_frameClock-std::clamp(m_frameClock-m_ambientDrawClock,0.0,.1));
+    m_ambientDrawClock=m_frameClock;
+    const uint32_t perAnchor=4;
+    rf.time[3]=float(count*perAnchor);rf.fall[3]=float(perAnchor);rf.fall[1]=ceiling;
+    rf.curtains[0]=std::clamp(m_ambientMotes*.5f,0.f,1.f);
+    rf.colour[3]=std::min(ambient::Brightness(m_ambientBright),1.5f);
+    SceneFog(rf.fogColour,rf.fogParams);OurSkyFog(rf.fogColour);
+    rf.viewport[0]=float(m_scene->m_width);rf.viewport[1]=float(m_scene->m_height);
+    rf.viewport[2]=1.f/rf.viewport[0];rf.viewport[3]=1.f/rf.viewport[1];
+    RenderAmbientBatch(cmd,&rf,points,"underwater bubbles");
+    if(m_dumpFile)std::fprintf(m_dumpFile,"# Underwater bubbles: %u anchors, %u particles; surface %.3f, eye %.3f; local ceilings %.3f..%.3f; density %.4f; non-glowing, captured wet coverage with drift margin\n",count,count*perAnchor,ceiling,m_frameEye[1],minCeiling,maxCeiling,rf.curtains[0]);
 }
 
 void Device::RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const float (*points)[4],const char* profile)

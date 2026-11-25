@@ -60,6 +60,14 @@ void AccumulateLight(Light l, vec3 posW, vec3 normalW, vec3 toEye, float sunScal
             l.diffuse.rgb = mix(original, daylight, sunny);
             l.specular.rgb *= mix(vec3(1.0), daylight / max(original,vec3(.04)), sunny);
         }
+        // Inferno also supplies four orange directional fill lights. Keep
+        // their direction and energy, but soften their pervasive tint; local
+        // lava and lamps below retain their source colour and falloff.
+        if(abs(FL.areaSun.w-8.)<.1 && (D.mat.z & MAT_SKY)==0u) {
+            float amount=.85*clamp(FL.areaSky.w/.6,0.,1.);
+            l.diffuse.rgb=mix(l.diffuse.rgb,vec3(dot(l.diffuse.rgb,vec3(.3,.59,.11))),amount);
+            l.ambient.rgb=mix(l.ambient.rgb,vec3(dot(l.ambient.rgb,vec3(.3,.59,.11))),amount);
+        }
     } else {
         vec3 d = l.position.xyz - posW;
         float dist = length(d);
@@ -145,6 +153,7 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
         float up=dot(normalW,normalW)>1e-8 ? normalize(normalW).y : 0.0;
         float ambientLuma=dot(C.ambient.rgb,vec3(.3,.59,.11));
         float irradiance=(.16+.14*max(up,0.0))*(1.0-.85*FL.rainNear.y);
+        irradiance=mix(irradiance,dot(RegionalIrradiance(normalW),vec3(.3,.59,.11)),RegionalLighting());
         float missing=max(irradiance-ambientLuma,0.0);
         vec3 skyColour=vec3(.72,.86,1.0);
         if(FL.skyUp.w>.5) {
@@ -152,6 +161,8 @@ void AccumulateLights(vec3 posW, vec3 normalW, float sunScale, float localScale,
             float luma=dot(sky,vec3(.3,.59,.11));
             if(luma>1e-4) skyColour=clamp(sky/luma,vec3(.55),vec3(1.45));
         }
+        if(abs(FL.areaSun.w-8.)<.1)
+            skyColour=mix(skyColour,vec3(.98,1.,1.02),clamp(FL.areaSky.w/.6,0.,1.));
         ambient+=skyColour*(daylight*missing);
         skyColour=mix(skyColour,skyColour*FL.areaSky.rgb,FL.areaSky.w);
         // Retail ICC supplies ambient 0x7e, above the floor above: that floor

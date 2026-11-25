@@ -17,6 +17,7 @@
 #include "rvk_backend.h"
 #include "rvk_zoning.h"
 #include "presentation_policy.h"
+#include "../window_callback_policy.h"
 
 namespace rvkproxy {
 
@@ -170,6 +171,7 @@ DWORD RawInputType(LPARAM lp)
 
 LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    rvk::presentation::WindowCallbackScope callbackScope;
     // Keep the original procedure with its own HWND: replacing the render window
     // must not send late messages from the old window to the new one's handler.
     const auto previous = reinterpret_cast<WNDPROC>(GetPropW(hwnd, kPreviousWindowProc));
@@ -201,6 +203,8 @@ LRESULT CALLBACK InputWindowProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     }
     if (msg == WM_SIZE)
         BackendWindowResized(hwnd);
+    if (msg == WM_DPICHANGED || msg == WM_DISPLAYCHANGE || msg == WM_WINDOWPOSCHANGED)
+        BackendWindowResized(hwnd); // record only; renderer work remains outside callbacks
     if (msg == WM_DESTROY)
         BackendWindowDestroyed(hwnd);
     // A confirmation screen may wait indefinitely. Keep the window-close
@@ -258,6 +262,11 @@ void InputSetPresentationWindow(HWND window)
 }
 
 bool InputWindowMinimized(HWND window){return g_presentationWindow.load(std::memory_order_acquire)==window&&g_presentationMinimized.load(std::memory_order_acquire);}
+
+void InputClearPresentationWindow(HWND expected)
+{
+    g_presentationWindow.compare_exchange_strong(expected,nullptr,std::memory_order_acq_rel);
+}
 
 void InputLogWindowEvents()
 {

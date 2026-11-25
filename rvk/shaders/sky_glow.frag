@@ -229,7 +229,10 @@ void main()
             vec3 hue=mix(vec3(.68,.79,.91),vec3(.30,.51,.78),up);
             hue/=max(dot(hue,vec3(.3,.59,.11)),.01);
             float energy=dot(sky,vec3(.3,.59,.11));
-            sky=mix(sky,hue*energy,.30);
+            float day=1.-clamp(P.night.z-1.,0.,1.);
+            float fairEnergy=mix(mix(.68,.46,up),mix(.90,.66,up),P.auroraColour.w);
+            energy=mix(energy,max(energy*1.12,fairEnergy),day);
+            sky=mix(sky,hue*energy,mix(.30,.80,day));
             vec3 nightSky=mix(vec3(.025,.045,.08),vec3(.007,.014,.034),up);
             sky=mix(sky,max(sky*.65,nightSky),clamp(P.night.z-1.,0.,1.));
         }

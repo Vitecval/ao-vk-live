@@ -4,11 +4,16 @@
 #include "rvk_zoning.h"
 #include "startup.h"
 #include "native/gui.h"
+#include "native/tooltip_delay.h"
 #include "native/ground.h"
 #include "native/rings.h"
 #include "native/scene.h"
 #include "native/client_build.h"
 #include "presentation_policy.h"
+#include "display_mode_win32.h"
+#include "native/randy_init.h"
+#include "window_callback_policy.h"
+#include "display_dpi_win32.h"
 
 #include <cstdarg>
 #include <cstdio>
@@ -32,6 +37,34 @@ std::vector<DWORD> g_seenThreads;
 int64_t g_drawCalls = 0;
 std::atomic<unsigned> g_backendObjects{0};
 std::atomic<HWND> g_resizePending{nullptr};
+// HWND plus an association generation: a late destroy notification can never
+// stop a newer association, including when several destroy callbacks overlap.
+std::atomic<uint64_t> g_windowAssociation{0},g_destroyPending{0};
+uint32_t g_windowGeneration=0; // updated only while the backend lock is held
+
+HWND TokenWindow(uint64_t token){return reinterpret_cast<HWND>(uintptr_t(uint32_t(token)));}
+void AssociateBackendWindow(HWND window)
+{
+    if(TokenWindow(g_windowAssociation.load(std::memory_order_acquire))==window)return;
+    if(++g_windowGeneration==0)++g_windowGeneration;
+    g_windowAssociation.store((uint64_t(g_windowGeneration)<<32)|uint32_t(reinterpret_cast<uintptr_t>(window)),std::memory_order_release);
+}
+
+void DrainDestroyedWindow()
+{
+    const uint64_t token=g_destroyPending.exchange(0,std::memory_order_acq_rel);
+    if(!token || token!=g_windowAssociation.load(std::memory_order_acquire) || g_rvk.window!=TokenWindow(token))return;
+    g_windowAssociation.store(0,std::memory_order_release);
+    HWND destroyed=TokenWindow(token);
+    InputClearPresentationWindow(destroyed);
+    HWND pending=destroyed;g_resizePending.compare_exchange_strong(pending,nullptr,std::memory_order_acq_rel);
+    ZoningStop();SoundShutdown();rnative::tooltips::Restore();
+    if(g_rvk.device) {
+        RvkLog("shutdown: draining destroyed render window outside callback (%u graphics objects remain)",g_backendObjects.load());
+        g_rvk.device->StopPresentation();
+    }
+    g_rvk.window=nullptr;
+}
 }
 
 void BackendObjectCreated() { ++g_backendObjects; }
@@ -45,23 +78,21 @@ void BackendWindowResized(HWND window)
 
 void BackendWindowDestroyed(HWND window)
 {
-    ComScope scope(ComMethodCount() - 2);
-    if (g_rvk.window != window)
-        return;
-    InputSetPresentationWindow(nullptr);
-    ZoningStop();
-    if (g_rvk.device) {
-        RvkLog("shutdown: render window destroyed (%u graphics objects remain)", g_backendObjects.load());
-        g_rvk.device->StopPresentation();
-    }
-    g_rvk.window = nullptr;
+    const uint64_t token=g_windowAssociation.load(std::memory_order_acquire);
+    if(!token || TokenWindow(token)!=window)return;
+    InputClearPresentationWindow(window);
+    uint64_t pending=g_destroyPending.load(std::memory_order_acquire);
+    while((pending>>32)<(token>>32) &&
+          !g_destroyPending.compare_exchange_weak(pending,token,std::memory_order_acq_rel)) {}
 }
+
+bool BackendCallbackMutationBlocked() noexcept {return rvk::presentation::InsideWindowCallback();}
 
 void BackendObjectReleased()
 {
     --g_backendObjects;
     // No thread joins here: Randy can retain objects until its DLL's static teardown.
-    // Presentation is stopped explicitly by the window's WM_DESTROY instead.
+    // WM_DESTROY queues shutdown; ordinary live COM work drains it outside callbacks.
 }
 
 void CountBackendDraw() { ++g_drawCalls; }
@@ -69,6 +100,13 @@ void CountBackendDraw() { ++g_drawCalls; }
 ComScope::ComScope(unsigned methodIndex)
 {
     EnterCriticalSection(&g_comLock);
+    // Release can run during a DLL's static teardown: never introduce a thread
+    // join there. Ordinary live COM work drains pending destruction safely.
+    const char* method=ComMethodName(methodIndex);
+    if(!rvk::presentation::InsideWindowCallback() && (!method || !std::strstr(method,"::Release"))) {
+        try {DrainDestroyedWindow();}
+        catch(...) {LeaveCriticalSection(&g_comLock);throw;}
+    }
     DWORD tid = GetCurrentThreadId();
     if (tid != g_lastThread) {
         g_lastThread = tid;
@@ -179,11 +217,12 @@ bool RvkState::EnsureDevice(uint32_t width, uint32_t height)
 
 void RvkState::SetWindow(HWND hwnd)
 {
-    if (!hwnd)
+    if (!hwnd || !IsWindow(hwnd))
         return;
     InputAttach(hwnd); // observe minimize/restore before the first presented frame
-    if (window != hwnd) InputSetPresentationWindow(nullptr);
+    if (window != hwnd) InputClearPresentationWindow(window);
     window = hwnd;
+    AssociateBackendWindow(hwnd);
     if (device && device->Window() != hwnd) {
         if (device->InFrame())
             device->EndFrame();
@@ -328,6 +367,7 @@ int RenderingSessionState()
 
 bool RvkState::WindowDrawable()
 {
+    rvk::display::dpi::WindowContext windowCoordinates(window);
     RECT rect{};
     WINDOWPLACEMENT placement{sizeof(placement)};
     const bool minimized=window&&(IsIconic(window)||InputWindowMinimized(window)||
@@ -338,6 +378,14 @@ bool RvkState::WindowDrawable()
     const bool background = rvk::presentation::SuspendForFocus(drawable,InputFocused(),
         rvk_settings::Get("RVK_RenderBg")!=0,RenderingSessionState()==2);
     drawable = drawable && !background;
+    const auto& displayOptions=rvk::display::StartupOptions(rvk_settings::IniPath());
+    if(drawable && rvk::display::HasOverride(displayOptions)){
+        const auto dpi=rvk::display::dpi::Inspect(window);
+        if(!dpi.decision.nativeOverride){
+            rvk::display::DisableOverride(rvk_settings::IniPath(),dpi.decision.reason);
+            RvkLog("display: native override inactive after monitor/DPI change: %s; working game dimensions and saved settings retained",dpi.decision.reason);
+        }
+    }
     HWND pending=window;
     const bool refresh=drawable&&g_resizePending.compare_exchange_strong(pending,nullptr,std::memory_order_acq_rel);
     if(refresh&&device&&!presentationSuspended)device->RefreshPresentation();
@@ -358,6 +406,8 @@ bool RvkState::WindowDrawable()
 
 bool RvkState::Frame()
 {
+    if(rvk::presentation::InsideWindowCallback())return false;
+    rnative::randyinit::DrainPendingResize();
     if (device && window && !device->InFrame() && WindowDrawable())
     {
         static uint64_t contextSerial=0;static int previousContext=-1;
@@ -381,10 +431,12 @@ bool RvkState::Frame()
 
 void RvkState::Present()
 {
+    rvk::display::dpi::WindowContext windowCoordinates(window);
     if (!device || !window)
         return;
     rnative::HangBeat();                         // the game still runs normally while graphics are suspended
     rvk_settings::PollIni(device);              // background clients must still notice the option being disabled
+    SoundFrame(RenderingSessionState()==2);
     if (!WindowDrawable()) {
         if (device->InFrame()) device->EndFrame();   // finish work begun before minimization, once
         // Avoid a busy game loop now that GPU presentation no longer paces it.
@@ -507,8 +559,11 @@ void RvkState::Present()
             if (GetCursorPos(&p) && ScreenToClient(window, &p) && GetClientRect(window, &r) && r.right > 0 &&
                 r.bottom > 0) {
                 pickBefore = device->LastPick().serial;
-                device->RequestPick(float(p.x) / float(r.right), float(p.y) / float(r.bottom));
-                picking = key;
+                const auto point=rvk::presentation::ToFramebuffer(p.x,p.y,device->Width(),device->Height(),uint32_t(r.right),uint32_t(r.bottom));
+                if(point.inside){
+                    device->RequestPick(float(point.x/device->Width()),float(point.y/device->Height()));
+                    picking = key;
+                }
             }
         }
     if (picking) {
@@ -878,7 +933,48 @@ HRESULT RDirectDraw::DoCreateSurface(LPDDSURFACEDESC2 desc, LPDIRECTDRAWSURFACE7
     return r;
 }
 
-static void DesktopMode(DDSURFACEDESC2* d, DWORD width, DWORD height, DWORD bpp)
+static rvk::display::Monitor DisplayMonitor(HWND window=nullptr,bool enumerateModes=true)
+{
+    const auto& options=rvk::display::StartupOptions(rvk_settings::IniPath());
+    auto monitor=rvk::display::Discover(window ? window:g_rvk.window,options,enumerateModes);
+    if(!options.valid || !monitor.preferenceFound) {
+        RvkLog("Display override rejected: %s; original game behavior retained; saved configuration unchanged",
+            !options.valid ? options.error.c_str():"selected monitor is not connected");
+        rvk::display::DisableOverride(rvk_settings::IniPath(),"invalid startup display selection");
+        monitor=rvk::display::Discover(window ? window:g_rvk.window,rvk::display::StartupOptions(rvk_settings::IniPath()),enumerateModes);
+    }
+    return monitor;
+}
+
+static rvk::display::Limits EnumerationLimits()
+{
+    rvk::display::Limits limits;
+    if(g_rvk.device) {
+        const auto& info=g_rvk.device->Info();
+        if(info.maxImageDimension2D) {
+            limits.width=std::min(limits.width,info.maxImageDimension2D);
+            limits.height=std::min(limits.height,info.maxImageDimension2D);
+        }
+        if(info.maxFramebufferWidth)limits.width=std::min(limits.width,info.maxFramebufferWidth);
+        if(info.maxViewportWidth)limits.width=std::min(limits.width,info.maxViewportWidth);
+        if(info.maxViewportHeight)limits.height=std::min(limits.height,info.maxViewportHeight);
+        if(info.maxFramebufferHeight)limits.height=std::min(limits.height,info.maxFramebufferHeight);
+    }
+    return limits;
+}
+
+static rvk::display::Mode CurrentPresentationMode()
+{
+    // A startup monitor preference chooses initial placement/inventory. Once
+    // the user drags a window, current refresh queries follow its actual HWND.
+    if(IsWindow(g_rvk.window)) {
+        auto current=rvk::display::CurrentMode(MonitorFromWindow(g_rvk.window,MONITOR_DEFAULTTONEAREST));
+        if(rvk::display::Dimensions(current.width,current.height))return current;
+    }
+    return DisplayMonitor(nullptr,false).current;
+}
+
+static void DesktopMode(DDSURFACEDESC2* d, DWORD width, DWORD height, DWORD bpp,DWORD refresh)
 {
     std::memset(d, 0, sizeof(*d));
     d->dwSize = sizeof(*d);
@@ -886,32 +982,35 @@ static void DesktopMode(DDSURFACEDESC2* d, DWORD width, DWORD height, DWORD bpp)
     d->dwWidth = width;
     d->dwHeight = height;
     d->lPitch = LONG(width * bpp / 8);
-    d->dwRefreshRate = 60;
+    d->dwRefreshRate = refresh;
     PixelFormatFor(bpp == 16 ? rvk::Format::R5G6B5 : rvk::Format::X8R8G8B8, &d->ddpfPixelFormat);
 }
 
-HRESULT RDirectDraw::DoEnumDisplayModes(DWORD, LPDDSURFACEDESC2 filter, LPVOID ctx, LPDDENUMMODESCALLBACK2 cb)
+HRESULT RDirectDraw::DoEnumDisplayModes(DWORD flags, LPDDSURFACEDESC2 filter, LPVOID ctx, LPDDENUMMODESCALLBACK2 cb)
 {
-    if (!cb) return DDERR_INVALIDPARAMS;
-    static const DWORD sizes[][2] = {{640, 480}, {800, 600}, {1024, 768}, {1280, 720}, {1280, 1024}, {1366, 768},
-                                     {1600, 900}, {1680, 1050}, {1920, 1080}, {1920, 1200}, {2560, 1440}, {3840, 2160}};
-    DWORD dw = DWORD(GetSystemMetrics(SM_CXSCREEN)), dh = DWORD(GetSystemMetrics(SM_CYSCREEN));
-    for (DWORD bpp : {16u, 32u}) {
-        bool desktopListed = false;
-        for (auto& sz : sizes) {
-            if (sz[0] > dw || sz[1] > dh) continue;
-            desktopListed |= sz[0] == dw && sz[1] == dh;
-            DDSURFACEDESC2 d;
-            DesktopMode(&d, sz[0], sz[1], bpp);
-            if (filter && (filter->dwFlags & DDSD_WIDTH) && filter->dwWidth != d.dwWidth) continue;
-            if (filter && (filter->dwFlags & DDSD_HEIGHT) && filter->dwHeight != d.dwHeight) continue;
-            if (cb(&d, ctx) == DDENUMRET_CANCEL) return DD_OK;
+    if (!cb || (flags&~(DDEDM_REFRESHRATES|DDEDM_STANDARDVGAMODES)) ||
+        (filter && filter->dwSize!=sizeof(DDSURFACEDESC2))) return DDERR_INVALIDPARAMS;
+    rvk::display::Filter wanted;
+    if(filter) {
+        wanted.width=(filter->dwFlags&DDSD_WIDTH)!=0;wanted.height=(filter->dwFlags&DDSD_HEIGHT)!=0;
+        wanted.bits=(filter->dwFlags&DDSD_PIXELFORMAT)!=0;wanted.refresh=(filter->dwFlags&DDSD_REFRESHRATE)!=0;
+        wanted.wanted={filter->dwWidth,filter->dwHeight,filter->ddpfPixelFormat.dwRGBBitCount,filter->dwRefreshRate};
+        if(wanted.bits && filter->ddpfPixelFormat.dwSize!=sizeof(DDPIXELFORMAT))return DDERR_INVALIDPARAMS;
+        if(wanted.bits && ((filter->ddpfPixelFormat.dwFlags&(DDPF_RGB|DDPF_FOURCC|DDPF_ALPHAPIXELS))!=DDPF_RGB ||
+            (wanted.wanted.bits!=16 && wanted.wanted.bits!=32)))return DD_OK;
+    }
+    const auto monitor=DisplayMonitor();
+    const auto modes=rvk::display::Enumerate(monitor.modes,monitor.current,wanted,(flags&DDEDM_REFRESHRATES)!=0,EnumerationLimits());
+    for(const auto& mode:modes) {
+        DDSURFACEDESC2 d;DesktopMode(&d,mode.width,mode.height,mode.bits,mode.refresh);
+        if(filter && (filter->dwFlags&DDSD_PITCH) && filter->lPitch!=d.lPitch)continue;
+        if(filter && wanted.bits) {
+            const auto& f=filter->ddpfPixelFormat;
+            if((f.dwRBitMask && f.dwRBitMask!=d.ddpfPixelFormat.dwRBitMask) ||
+               (f.dwGBitMask && f.dwGBitMask!=d.ddpfPixelFormat.dwGBitMask) ||
+               (f.dwBBitMask && f.dwBBitMask!=d.ddpfPixelFormat.dwBBitMask) || f.dwRGBAlphaBitMask)continue;
         }
-        if (!desktopListed) {
-            DDSURFACEDESC2 d;
-            DesktopMode(&d, dw, dh, bpp);
-            if (cb(&d, ctx) == DDENUMRET_CANCEL) return DD_OK;
-        }
+        if(cb(&d,ctx)==DDENUMRET_CANCEL)return DD_OK;
     }
     return DD_OK;
 }
@@ -941,8 +1040,17 @@ HRESULT RDirectDraw::DoGetCaps(LPDDCAPS driver, LPDDCAPS hel)
 HRESULT RDirectDraw::DoGetDisplayMode(LPDDSURFACEDESC2 out)
 {
     if (!out) return DDERR_INVALIDPARAMS;
-    DesktopMode(out, DWORD(GetSystemMetrics(SM_CXSCREEN)), DWORD(GetSystemMetrics(SM_CYSCREEN)), 32);
+    const auto current=CurrentPresentationMode();
+    DesktopMode(out,g_rvk.displayWidth ? g_rvk.displayWidth:current.width,
+        g_rvk.displayHeight ? g_rvk.displayHeight:current.height,m_modeBits,current.refresh);
     return DD_OK;
+}
+
+HRESULT RDirectDraw::DoGetMonitorFrequency(LPDWORD hz)
+{
+    if(!hz)return DDERR_INVALIDPARAMS;
+    *hz=CurrentPresentationMode().refresh;
+    return *hz ? DD_OK:DDERR_UNSUPPORTED;
 }
 
 HRESULT RDirectDraw::DoGetFourCCCodes(LPDWORD count, LPDWORD codes)
@@ -964,14 +1072,38 @@ HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD flags)
     if ((hwnd && !IsWindow(hwnd)) || (!hwnd && !normal) ||
         (normal && (flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE | DDSCL_ALLOWMODEX))))
         return DDERR_INVALIDPARAMS;
-    if (m_borderlessFallback && (!(flags & DDSCL_FULLSCREEN) || hwnd != m_modeWindow))
+    // Alt-tab/resize callbacks retain the working cooperative/window state.
+    // Native layout changes are drained at the next safe frame boundary.
+    if(rvk::presentation::InsideWindowCallback())return DD_OK;
+    const auto monitor=DisplayMonitor(hwnd);
+    const auto& options=rvk::display::StartupOptions(rvk_settings::IniPath());
+    const bool overrideWindowed=options.valid && options.mode==rvk::display::WindowMode::Windowed;
+    const bool overrideBorderless=options.valid && options.mode==rvk::display::WindowMode::Borderless;
+    const bool legacyBorderless=!overrideWindowed && !overrideBorderless &&
+        (flags&(DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE))==(DDSCL_FULLSCREEN|DDSCL_EXCLUSIVE);
+    if (m_borderlessFallback && ((!legacyBorderless && !overrideBorderless && !overrideWindowed) || hwnd != m_modeWindow))
         DoRestoreDisplayMode();
     if (!hwnd) {
         RvkLog("window mode: accepted normal cooperative level without a window (flags 0x%08lx); window association follows during native initialization", flags);
         return DD_OK;
     }
+    if(overrideWindowed || overrideBorderless || options.width || !options.monitor.empty()) {
+        if(!m_borderlessFallback) {
+            m_modeWindow=hwnd;m_modeStyle=GetWindowLongPtrW(hwnd,GWL_STYLE);m_modeExStyle=GetWindowLongPtrW(hwnd,GWL_EXSTYLE);
+            GetWindowRect(hwnd,&m_modeRect);m_borderlessFallback=true;
+        }
+        if(!rvk::display::ApplyWindowOptions(hwnd,options,monitor)) {
+            const char* reason=rvk::display::WindowOptionsFailureReason();
+            if(!reason)reason="window mode application failed";
+            RvkLog("Display override rejected: %s; native DPI override not active; saved configuration unchanged",reason);
+            rvk::display::DisableOverride(rvk_settings::IniPath(),reason);
+            RvkLog("Display window override failed; original window restored; saved configuration unchanged");
+            DoRestoreDisplayMode();
+            return DoSetCooperativeLevel(hwnd,flags); // one retry through unchanged Game behavior
+        }
+    }
     g_rvk.SetWindow(hwnd);
-    if ((flags & (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) == (DDSCL_FULLSCREEN | DDSCL_EXCLUSIVE)) {
+    if (legacyBorderless) {
         // This backend has no VK_EXT_full_screen_exclusive acquisition/release path.
         // Never claim ownership or change the monitor's desktop mode on its behalf.
         if (!m_borderlessFallback) {
@@ -982,12 +1114,11 @@ HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD flags)
             m_borderlessFallback = true;
             RvkLog("fullscreen: exclusive DirectDraw request 0x%08lx unsupported (no Vulkan exclusive ownership); falling back to borderless on the window's monitor; desktop refresh retained",flags);
         }
-        MONITORINFO monitor{sizeof(monitor)};
-        if (!GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitor)) return DDERR_GENERIC;
+        if (!monitor.handle) return DDERR_GENERIC;
         SetWindowLongPtrW(hwnd,GWL_STYLE,(m_modeStyle & ~WS_OVERLAPPEDWINDOW) | WS_POPUP);
         SetWindowLongPtrW(hwnd,GWL_EXSTYLE,m_modeExStyle & ~(WS_EX_CLIENTEDGE | WS_EX_WINDOWEDGE));
-        if (!SetWindowPos(hwnd,nullptr,monitor.rcMonitor.left,monitor.rcMonitor.top,
-            monitor.rcMonitor.right-monitor.rcMonitor.left,monitor.rcMonitor.bottom-monitor.rcMonitor.top,
+        if (!SetWindowPos(hwnd,nullptr,monitor.info.rcMonitor.left,monitor.info.rcMonitor.top,
+            monitor.info.rcMonitor.right-monitor.info.rcMonitor.left,monitor.info.rcMonitor.bottom-monitor.info.rcMonitor.top,
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED)) return DDERR_GENERIC;
     }
     return DD_OK;
@@ -995,7 +1126,9 @@ HRESULT RDirectDraw::DoSetCooperativeLevel(HWND hwnd, DWORD flags)
 
 HRESULT RDirectDraw::DoRestoreDisplayMode()
 {
+    if(rvk::presentation::InsideWindowCallback())return DD_OK;
     if (m_borderlessFallback && IsWindow(m_modeWindow)) {
+        RemovePropW(m_modeWindow,L"AO-VK.DisplayOptionsApplied");
         SetWindowLongPtrW(m_modeWindow,GWL_STYLE,m_modeStyle);
         SetWindowLongPtrW(m_modeWindow,GWL_EXSTYLE,m_modeExStyle);
         SetWindowPos(m_modeWindow,nullptr,m_modeRect.left,m_modeRect.top,
@@ -1003,14 +1136,28 @@ HRESULT RDirectDraw::DoRestoreDisplayMode()
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     }
     m_borderlessFallback = false; m_modeWindow = nullptr;
+    m_modeBits=32;
     g_rvk.displayWidth = g_rvk.displayHeight = 0;
     return DD_OK;
 }
 
 HRESULT RDirectDraw::DoSetDisplayMode(DWORD w, DWORD h, DWORD bpp, DWORD refresh, DWORD flags)
 {
-    if (!w || !h || (bpp != 16 && bpp != 24 && bpp != 32)) return DDERR_INVALIDMODE;
+    if (!rvk::display::Dimensions(w,h,EnumerationLimits()) || (bpp != 16 && bpp != 24 && bpp != 32)) return DDERR_INVALIDMODE;
+    if(rvk::presentation::InsideWindowCallback())return DD_OK;
+    const auto monitor=DisplayMonitor();
+    const auto selection=rvk::display::SelectSize(rvk::display::StartupOptions(rvk_settings::IniPath()),w,h,monitor,EnumerationLimits());
+    if(selection.rejected) {
+        RvkLog("Display size override rejected: %s; keeping game request %lux%lu; saved configuration unchanged",selection.reason,w,h);
+        rvk::display::DisableOverride(rvk_settings::IniPath(),selection.reason);
+        const auto& previous=rvk::display::AppliedWindowState();
+        if(previous.window==g_rvk.window)rvk::display::RestoreWindow(previous);
+    } else if(selection.overridden) {
+        w=selection.width;h=selection.height;
+        RvkLog("Display size override accepted: %lux%lu (%s)",w,h,selection.reason);
+    }
     g_rvk.displayWidth=w; g_rvk.displayHeight=h;
+    m_modeBits=bpp==16 ? 16:32;
     RvkLog("display mode: render size %lux%lu %lu bpp requested refresh %lu flags 0x%lx; desktop mode unchanged (%s)",
         w,h,bpp,refresh,flags,m_borderlessFallback?"borderless fallback, not exclusive":"windowed");
     return DD_OK;
@@ -1075,9 +1222,18 @@ HRESULT RDirect3D::DoEnumDevices(LPD3DENUMDEVICESCALLBACK7 cb, LPVOID ctx)
 
 HRESULT RDirect3D::DoCreateDevice(REFCLSID clsid, LPDIRECTDRAWSURFACE7 target, LPDIRECT3DDEVICE7* out)
 {
+    if(!out)return DDERR_INVALIDPARAMS;
+    *out=nullptr;
     auto* s = static_cast<RSurface*>(target);
-    if (!s || !out || (s->kind != RSurface::Kind::Main && s->kind != RSurface::Kind::RenderTarget))
+    if (!s || (s->kind != RSurface::Kind::Main && s->kind != RSurface::Kind::RenderTarget))
         return DDERR_INVALIDPARAMS;
+    if(rvk::presentation::InsideWindowCallback())return DDERR_SURFACEBUSY;
+    if(s->kind==RSurface::Kind::Main) {
+        if(!g_rvk.EnsureDevice(s->desc.dwWidth,s->desc.dwHeight))return DDERR_OUTOFVIDEOMEMORY;
+        // Surface candidates remain metadata until allocation succeeds. Commit
+        // the actual main extent before RDevice installs its first viewport.
+        g_rvk.mainSurface=s;g_rvk.displayWidth=s->desc.dwWidth;g_rvk.displayHeight=s->desc.dwHeight;
+    }
     if (!g_rvk.device) {
         RvkLog("CreateDevice without an rvk device (no 3D back buffer created yet)");
         return DDERR_GENERIC;
@@ -1139,7 +1295,7 @@ HRESULT WINAPI RvkDirectDrawEnumerateExA(LPDDENUMCALLBACKEXA cb, LPVOID ctx, DWO
     ComScope scope(ComMethodCount() - 1);
     if (!cb) return DDERR_INVALIDPARAMS;
     char desc[] = "Primary Display Driver", name[] = "display";
-    cb(nullptr, desc, name, ctx, nullptr);
+    cb(nullptr, desc, name, ctx, DisplayMonitor(nullptr,false).handle);
     return DD_OK;
 }
 

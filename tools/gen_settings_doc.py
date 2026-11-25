@@ -16,7 +16,7 @@ OUT = os.path.join(ROOT, "docs", "settings.md")
 
 STRING = r'"((?:[^"\\]|\\.)*)"'
 ROW = re.compile(r'\{' + STRING + r',\s*' + STRING + r',\s*' + STRING + r',\s*(\w+),\s*([^,]+),\s*([^,]+),\s*([^,]+),\s*'
-                 r'([^,]+),\s*(nullptr|' + STRING + r'),\s*0(?:,\s*(nullptr|' + STRING + r'))?(?:,\s*' + STRING + r')?\}')
+                 r'([^,]+),\s*(nullptr|' + STRING + r'),\s*0(?:,\s*(nullptr|' + STRING + r'))?(?:,\s*(?:nullptr|' + STRING + r'))?(?:,\s*' + STRING + r')?\}')
 SKY_KEY = re.compile(r'RVK_SKY_KEY\(' + STRING + r',\s*' + STRING + r',\s*(\w+)\)')
 
 
@@ -47,6 +47,7 @@ def block(src, start, end="};"):
 def main():
     src = open(SRC, encoding="utf-8").read()
     table = block(src, "Setting g_settings[] = {", "constexpr uint32_t kCount")
+    table = re.sub(r',\s*\n\s*(?=")', ', ', table) # optional multi-line help text
     header = open(RVK_H, encoding="utf-8").read()
     keys = re.search(r'enum SkyKey : uint32_t \{([^}]*)\}', header).group(1)
     refs = {k: i for i, k in enumerate(re.findall(r'kSky(\w+)', keys))}
@@ -69,7 +70,7 @@ def main():
             continue
         settings.append(dict(name=m.group(1), label=m.group(2), section=m.group(3), type=m.group(4),
                              min=number(m.group(5)), max=number(m.group(6)), step=number(m.group(7)),
-                             default=number(m.group(8)), env=m.group(10), parent=m.group(12), choices=m.group(13)))
+                             default=number(m.group(8)), env=m.group(10), parent=m.group(12), choices=m.group(13),help=m.group(14)))
     expected = len(re.findall(r'^\s*(\{"RVK_|RVK_SKY_KEY\(")', table, re.M))
     if len(settings) != expected:
         sys.exit(f"parsed {len(settings)} of {expected} settings - the table's format changed; fix ROW")
@@ -150,6 +151,7 @@ def main():
             parent = by_name.get(s["parent"]) if s["parent"] and s["parent"] not in always_on else None
             if parent and len(label.split()) <= 4 and ":" not in label:
                 label = f"{parent['label'].split(' (')[0]}: {label[0].lower() + label[1:]}"
+            if s.get('help'):label += "<br>"+s['help']
             label = label.replace("|", "\\|")
             out.append(f"| `{s['name']}` | {label} | {value_range(s)} | {fmt(s['default'], s['type'])} | "
                        f"{'; '.join(notes)} |")

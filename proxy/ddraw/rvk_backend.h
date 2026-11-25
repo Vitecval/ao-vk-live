@@ -40,6 +40,8 @@ void FlushOverlayText();                             // each presented frame (rv
 void WeatherFrame();                              // each presented frame (rvk_weather.cpp)
 void SmokeFrame();                                // each presented frame (rvk_smoke.cpp)
 void TimeFrame();                                 // each presented frame (rvk_time.cpp: RVK_TimeOfDay)
+void SoundFrame(bool live);                       // optional enhanced ambience, including background/off updates
+void SoundShutdown();                            // window teardown, outside the DLL loader lock
 void StatelFrame();                               // each presented frame (rvk_statels.cpp: the playfield's pack)
 void GroundFrame();                               // each presented frame (rvk_ground.cpp: the native ground)
 void SetNativeGroundSetting(bool on);
@@ -55,6 +57,7 @@ void FreeCamWheel(float notches);                 // the mouse wheel while it is
 enum InputOwner : unsigned { kInputFreeCam = 1, kInputConsole = 2, kInputZoning = 4 };
 void InputAttach(HWND window);
 void InputSetPresentationWindow(HWND window);       // initialized Vulkan client area; nullptr releases ownership
+void InputClearPresentationWindow(HWND expected);   // callback-safe CAS; an old window cannot clear its replacement
 void InputLogWindowEvents();                       // bounded diagnostics, outside the window procedure
 void InputBlock(unsigned owner, bool keys, bool mouse);
 bool InputFocused();                              // the game's window is the foreground one
@@ -118,11 +121,13 @@ template<class F> HRESULT ComHresult(F&& call) noexcept
     catch (const std::length_error&) { return E_OUTOFMEMORY; }
 }
 
+bool BackendCallbackMutationBlocked() noexcept; // only generated display/allocation mutations use this before locking
+
 #include "com_stub.gen.h"
 
 void BackendObjectCreated();
 void BackendObjectReleased();                  // diagnostic count only: COM releases can also occur in DLL detach
-void BackendWindowDestroyed(HWND window);       // stop presentation even if the game retains COM objects at exit
+void BackendWindowDestroyed(HWND window);       // callback: atomically clear ownership and queue safe shutdown
 void BackendWindowResized(HWND window);         // observe minimize/restore even when the game stops drawing
 
 // IUnknown for rvk objects: reference counting plus QueryInterface through Cast().
@@ -412,7 +417,7 @@ protected:
     HRESULT DoGetCaps(LPDDCAPS driver, LPDDCAPS hel) override;
     HRESULT DoGetDisplayMode(LPDDSURFACEDESC2 out) override;
     HRESULT DoGetFourCCCodes(LPDWORD count, LPDWORD codes) override;
-    HRESULT DoGetMonitorFrequency(LPDWORD hz) override { if (hz) *hz = 60; return DD_OK; }
+    HRESULT DoGetMonitorFrequency(LPDWORD hz) override;
     HRESULT DoGetVerticalBlankStatus(LPBOOL in) override { if (in) *in = FALSE; return DD_OK; }
     HRESULT DoInitialize(GUID*) override { return DDERR_ALREADYINITIALIZED; }
     HRESULT DoRestoreDisplayMode() override;
@@ -429,6 +434,7 @@ private:
     LONG_PTR m_modeStyle = 0, m_modeExStyle = 0;
     RECT m_modeRect{};
     bool m_borderlessFallback = false;
+    DWORD m_modeBits = 32;
     RDirect3D* m_d3d = nullptr;       // weak: created on demand by QueryInterface
     friend class RDirect3D;
 };

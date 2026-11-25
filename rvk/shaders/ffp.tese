@@ -11,6 +11,7 @@
 #include "constants.glsl"
 #include "ffp_varyings.glsl"
 #include "terrain_rock.glsl"
+#include "snow_surface.glsl"
 #include "rock_shape.glsl"
 
 invariant gl_Position;
@@ -86,6 +87,16 @@ void main()
         }
         posW = p + (D.tess.y * fade * crease) * pullSteep;
         if (fade > 0.0 && D.tess.w > 0.0) posW += TerrainRockRelief(p, vSmoothN, D.tess.w * fade);
+        if(FL.sharedGroundConfig.w>.5 && FL.snow.z>.5 && FL.snow.x>0.){
+            // The original AO passes can carry different shading normals. Use
+            // the same continuous height field in both, so equal-depth lighting
+            // still meets the shell, including chunks with no supplied normals.
+            float up=PowderUp(p.xz);
+            float cover=PowderCover(p.xz)*smoothstep(.65,.90,up);
+            // A few centimetres of rounded powder; paths and steep walls keep
+            // their authored surface. Fade geometry gradually into distant detail.
+            posW.y+=PowderHeight(p.xz)*cover*fade;
+        }
     } else {
         posW = p + D.tess.y * pull;
     }
@@ -96,6 +107,8 @@ void main()
     vPosW = p;
     vec4 pv = C.view * vec4(posW, 1.0);
     gl_Position = C.proj * pv;
+    if((D.mat.z & MAT_CAUSTIC_LIGHT)!=0u)
+        gl_Position=CausticReceiverClip(gl_Position,C.proj,D.tess.w);
     vClip = gl_Position;                         // motion vectors: without the jitter
     if ((C.flags.x & F_HDR) != 0u)
         gl_Position.xy += FL.taa.xy * gl_Position.w;

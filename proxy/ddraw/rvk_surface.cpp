@@ -5,7 +5,10 @@
 // buffer), Texture (one level of a mip chain; CPU shadow per level, uploaded on Unlock) and Plain
 // (system memory / offscreen plain: CPU only).
 #include "rvk_backend.h"
+#include "rvk_settings.h"
 #include "shadow_cache.h"
+#include "display_mode_win32.h"
+#include "window_callback_policy.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -106,12 +109,18 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
     else kind = Kind::Plain;
 
     if (kind == Kind::Primary) {
-        d.dwWidth = g_rvk.displayWidth ? g_rvk.displayWidth : DWORD(GetSystemMetrics(SM_CXSCREEN));
-        d.dwHeight = g_rvk.displayHeight ? g_rvk.displayHeight : DWORD(GetSystemMetrics(SM_CYSCREEN));
+        const auto monitor=rvk::display::Discover(g_rvk.window,rvk::display::StartupOptions(rvk_settings::IniPath()),false);
+        d.dwWidth = g_rvk.displayWidth ? g_rvk.displayWidth : monitor.current.width;
+        d.dwHeight = g_rvk.displayHeight ? g_rvk.displayHeight : monitor.current.height;
     }
     if (!(d.dwFlags & DDSD_WIDTH) && kind != Kind::Primary) {
         RvkLog("CreateSurface without a size (caps 0x%lx)", caps);
         return DDERR_INVALIDPARAMS;
+    }
+    if(kind==Kind::Main && g_rvk.device){
+        const auto& info=g_rvk.device->Info();
+        rvk::display::Limits limits{std::min({info.maxImageDimension2D,info.maxFramebufferWidth,info.maxViewportWidth}),std::min({info.maxImageDimension2D,info.maxFramebufferHeight,info.maxViewportHeight})};
+        if(!rvk::display::Dimensions(d.dwWidth,d.dwHeight,limits))return DDERR_INVALIDMODE;
     }
 
     // Pixel format: as requested, else the display format.
@@ -161,10 +170,13 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
 
     switch (kind) {
     case Kind::Main:
-        if (!g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
+        if(rvk::presentation::InsideWindowCallback())return DDERR_SURFACEBUSY;
+        // Stage native resize candidates without replacing the working GPU
+        // framebuffer. DoSetRenderTarget commits only after all targets exist.
+        if (!g_rvk.device && !g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
             return DDERR_GENERIC;
         }
-        g_rvk.mainSurface = s;
+        if(!g_rvk.mainSurface)g_rvk.mainSurface = s;
         break;
     case Kind::Primary:
         if ((caps & DDSCAPS_FLIP) && (d.dwFlags & DDSD_BACKBUFFERCOUNT) && d.dwBackBufferCount) {
@@ -173,12 +185,13 @@ HRESULT RSurface::Create(RDirectDraw* owner, const DDSURFACEDESC2& requested, RS
             bd.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
             bd.ddsCaps.dwCaps = DDSCAPS_BACKBUFFER | DDSCAPS_3DDEVICE | DDSCAPS_FLIP | DDSCAPS_COMPLEX |
                                 DDSCAPS_VIDEOMEMORY | DDSCAPS_LOCALVIDMEM;
-            if (!g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
+            if(rvk::presentation::InsideWindowCallback())return DDERR_SURFACEBUSY;
+            if (!g_rvk.device && !g_rvk.EnsureDevice(d.dwWidth, d.dwHeight)) {
                 return DDERR_GENERIC;
             }
             auto* back = new RSurface(Kind::Main, bd, owner);
             back->format = format;
-            g_rvk.mainSurface = back;
+            if(!g_rvk.mainSurface)g_rvk.mainSurface = back;
             s->nextLevel = back;
         }
         break;

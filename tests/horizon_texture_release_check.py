@@ -21,5 +21,5 @@ except RuntimeError:pass
 else:raise AssertionError('Texture-removal metadata was allowed with an old bootstrap')
 engine=json.loads((ROOT/'apps/horizon/Assets/engine.json').read_text(encoding='utf-8'))
 pack.verify_full_manifest(ROOT/('build/preview24/release-r'+str(engine['revision']))/'ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip',ROOT/'apps/horizon/Assets/full-manifest.json.gz')
-report={'result':'passed','matchingCatalogue':True,'replacementMismatchRefused':True,'removalMismatchRefused':True,'currentPublishedBundleMatches':True,'retailClientsChanged':False}
+report={'result':'passed','matchingCatalogue':True,'replacementMismatchRefused':True,'removalMismatchRefused':True,'currentBundledPackageMatches':True,'retailClientsChanged':False}
 (out/'RESULTS.json').write_text(json.dumps(report,indent=2),encoding='utf8');print(json.dumps(report))

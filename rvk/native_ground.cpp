@@ -19,6 +19,13 @@ namespace rvk {
 
 using namespace detail;
 
+bool Device::SharedTerrainPatches() const
+{
+    // Shared+ always shades AO's submitted surface, including Penumbra.
+    // Height-field replacement belongs exclusively to Enhanced Ground.
+    return false;
+}
+
 namespace {
 
 // The game's ground format: position, normal, two coordinate sets (IsTerrain).
@@ -220,6 +227,16 @@ void Device::SetNativeGround(std::shared_ptr<const NativeGround> ground)
                     std::memcpy(ix, q, sizeof(q));
                     ix += 6;
                 }
+            // Edge blending also samples the nearest cell across a patch's
+            // border. That neighbour may be just outside the camera frustum;
+            // its material must remain resident while this patch uses it.
+            for(int j=-1;j<=int(P);++j)for(int i=-1;i<=int(P);++i) {
+                if(i!=-1 && j!=-1 && i!=int(P) && j!=int(P))continue;
+                const int x=std::clamp(int(px*P)+i,0,int(g.cellsX)-1);
+                const int z=std::clamp(int(pz*P)+j,0,int(g.cellsZ)-1);
+                const uint16_t tile=g.codes[size_t(z)*g.cellsX+x]&0x3FFFu;
+                if(std::find(p.materialTiles.begin(),p.materialTiles.end(),tile)==p.materialTiles.end())p.materialTiles.push_back(tile);
+            }
             indices->resize(size_t(reinterpret_cast<uint8_t*>(ix) - indices->data()));
             retail->resize(indices->size());
             p.indices = indices;
@@ -273,6 +290,14 @@ uint64_t Device::NativeMapsSignature() const
 
 bool Device::ImprovedTile(const Texture* tile) const
 {
+    // Restore 0.7.7's coherent native transition family for non-snow Shared+.
+    // Its shared world-space detail is independent of per-tile repaint packs.
+    if(SharedGroundPlus() && tile && materials::IsGroundType(tile->m_rdbType) &&
+       !materials::SnowGround(tile->m_rdbType,tile->m_rdbId))
+        return m_skyPlayfield==icc::Playfield && (m_improvedTiles>.5f || m_hdGroundMode>.5f) &&
+            icc::Target(tile->m_rdbType,tile->m_rdbId);
+    if(tile && materials::IsGroundType(tile->m_rdbType) && tile->m_albedoMap && m_pbr.albedoMaps)
+        return true;
     // Tile styling is independent of HD artwork. Off must keep installed HD ground.
     if ((m_sharedTerrain>0.f || m_native.on) && tile && materials::IsGroundType(tile->m_rdbType))
         return m_skyPlayfield==icc::Playfield && (m_improvedTiles>.5f || m_hdGroundMode>.5f) &&
@@ -300,22 +325,43 @@ void Device::MakeNativeCodes()
     std::vector<uint32_t> image(g.tiles.size(), BindlessImage(nullptr)), normal(g.tiles.size(), 0xFFFFu),
         orm(g.tiles.size(), 0xFFFFu);
     std::vector<bool> height(g.tiles.size(), false), authored(g.tiles.size(), false);
+    auto snowTile=[](const Texture* t) { return t && materials::SnowGround(t->m_rdbType,t->m_rdbId); };
+    const bool wasSnow=m_native.hasSnow;
+    m_native.hasSnow=std::any_of(g.tiles.begin(),g.tiles.end(),snowTile);
+    if(wasSnow!=m_native.hasSnow)m_printValid=false;
+    m_frameLightsDirty=true;
     bool anyNormal = false;
     m_native.anyOrm = nullptr;
     m_native.anyHeight = false;
     for (size_t t = 0; t < g.tiles.size(); ++t) {
         Texture* tex = g.tiles[t];
         if (!tex || !tex->m_image) continue;
+        const bool classic=SharedGroundPlus() && !snowTile(tex);
         if (!ImprovedTile(tex)) {
             image[t] = BindlessImage(tex);
             // Original manufactured paving is still authored artwork. Turning
             // custom ICC tiles off must not turn its joints into natural soil.
-            authored[t]=materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId);
+            authored[t]=classic ? materials::ClassicAuthoredGround(tex->m_rdbType,tex->m_rdbId):
+                materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId);
             continue;
         }
         Texture* drawn = tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour ? tex->m_albedoMap : tex;
-        authored[t] = (tex->m_albedoMap && m_pbr.albedoMaps) || materials::DeckGround(tex->m_rdbType, tex->m_rdbId);
-        image[t] = BindlessImage(drawn);
+        // Older 512px technical restorations are not new natural paintings.
+        // They must not suppress continuous HD terrain masters. Preserve
+        // manufactured layouts and independently painted high-resolution tiles.
+        const bool painted=tex->m_albedoMap && m_pbr.albedoMaps && !tex->m_preserveGroundColour &&
+            tex->m_independentGroundPainting;
+        // A natural terrain tile is a transition mask, not an independent
+        // square material. Mixing repainted masks with legacy masks changes
+        // the biome palette and edge placement from cell to cell. Shared HD
+        // uses the original layout only at coarse resolution; all visible
+        // fine material comes from the continuous HD masters in world space.
+        const bool continuousHD=!classic && SharedGroundPlus() && m_hdGroundMode>.5f &&
+            !materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId) &&
+            !(painted && materials::IceGround(tex->m_rdbType,tex->m_rdbId));
+        authored[t] = classic ? ((tex->m_albedoMap && m_pbr.albedoMaps) || materials::DeckGround(tex->m_rdbType,tex->m_rdbId)):
+            (painted && !continuousHD) || materials::AuthoredGround(tex->m_rdbType,tex->m_rdbId);
+        image[t] = BindlessImage(continuousHD ? tex : drawn);
         if (m_pixelLighting && ((tex->m_normalMap && m_normalMaps) || materials::DeckGround(tex->m_rdbType,tex->m_rdbId))) {
             Texture* nm = materials::DeckGround(tex->m_rdbType,tex->m_rdbId) ? m_flatNormal : tex->m_normalMap;
             normal[t] = BindlessImage(nm) & 0xFFFFu;
@@ -346,6 +392,13 @@ void Device::MakeNativeCodes()
         const uint32_t img = image.empty() ? 0u : image[t];
         uint32_t attributes = (t < height.size() && height[t] ? 0x7Fu : 0xFFu) &
                                     (t < authored.size() && authored[t] ? 0xBFu : 0xFFu);
+        if(t<g.tiles.size() && g.tiles[t] && (SharedGroundPlus() && !snowTile(g.tiles[t]) ?
+            materials::ClassicAuthoredGround(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId):
+            materials::AuthoredGround(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId)))
+            attributes &= ~4u; // manufactured layout, distinct from an independently painted natural transition
+        if(t<g.tiles.size() && g.tiles[t] && materials::IceGround(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId))
+            attributes &= ~2u; // physical ice facets are not granular soil/stone
+        if(t<g.tiles.size() && snowTile(g.tiles[t]))attributes &= ~8u;
         if (m_skyPlayfield==icc::Playfield && t<g.tiles.size() && g.tiles[t] && ImprovedTile(g.tiles[t]) && g.tiles[t]->m_albedoMap &&
             icc::Target(g.tiles[t]->m_rdbType,g.tiles[t]->m_rdbId)) {
             attributes &= ~32u;
@@ -559,20 +612,16 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
     // Unknown passes, or an unavailable replacement, always retain AO's draw.
     if ((!base && !light && !combined) || (combined && !m_pixelLighting))
         return false;
+    // As in 0.7.7, Shared+ retains every submitted cutout, overhang and LOD
+    // boundary. Only independent decorations and material residency are handled
+    // here; never consume the original draw or submit replacement ground.
     if (SharedGroundPlus()) {
-        // A height grid cannot reproduce AO's adaptive cliff triangles, void
-        // edges and stitched LOD boundaries. Keep the submitted surface and
-        // apply the tile table in Draw instead. Only decorations are generated.
         if ((combined || light) && m_native.drawnLight != m_frameNumber) {
             EnsurePebbleTable();
             if (NativeMapsSignature() != m_native.mapsSignature) MakeNativeCodes();
             m_native.drawnLight = m_frameNumber;
             m_native.baseRs = m_rs;
             m_native.baseSampler = StageSamplerSlot(combined ? 1 : 0);
-            // Decorations are opaque meshes with their own tile-table material.
-            // Retail's first visible chunk may use a transparent far texture,
-            // a second texture stage, or an equal-depth multiplying light pass.
-            // None of those describe the new rocks above the submitted ground.
             const auto rs=m_rs;
             const auto tss=m_tss;
             Texture* tex1=m_textures[1];
@@ -584,7 +633,6 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
             m_rs[d3d::RS_CULLMODE]=d3d::CULL_CCW;
             m_tss[1][d3d::TSS_COLOROP]=d3d::TOP_DISABLE;
             m_textures[1]=nullptr;
-            // DrawNativeGroundOne reads these three states from baseRs.
             m_native.baseRs[d3d::RS_ALPHABLENDENABLE]=0;
             m_native.baseRs[d3d::RS_ZWRITEENABLE]=1;
             m_native.baseRs[d3d::RS_ZFUNC]=d3d::CMP_LESSEQUAL;
@@ -608,10 +656,8 @@ bool Device::NativeGroundReplaces(uint32_t fvf)
         m_native.baseSampler = StageSamplerSlot(1);
         // DrawNativeGroundOne supplies the native tile table in the spare base
         // slot; a second retail stage would multiply the base in a second time.
-        if (!SharedGroundPlus()) {
-            m_tss[1][d3d::TSS_COLOROP] = d3d::TOP_DISABLE;
-            m_textures[1] = nullptr;
-        }
+        m_tss[1][d3d::TSS_COLOROP] = d3d::TOP_DISABLE;
+        m_textures[1] = nullptr;
         m_native.drawnBase = m_native.drawnLight = m_frameNumber;
         if (m_scenePhase && !m_external) NoteSceneFog();
         m_native.pebblesOnly = false;
@@ -743,7 +789,7 @@ void Device::DrawNativeGround(bool lightPass)
     // In view: a patch's box against the camera's clip planes (all eight corners outside one: left out).
     const d3d::Matrix vp = MulMatrix(m_view, m_proj);
     uint32_t drawn = 0;
-    if (!m_native.pebblesOnly && !SharedGroundPlus()) for (const NativePatch& p : m_native.patches) {
+    for (const NativePatch& p : m_native.patches) {
         if (p.indices->empty()) continue;
         bool outside[6] = {true, true, true, true, true, true};
         for (int k = 0; k < 8; ++k) {
@@ -765,8 +811,12 @@ void Device::DrawNativeGround(bool lightPass)
         // Bindless terrain samples map children directly, bypassing drawn(owner).
         for(uint16_t tile:p.materialTiles)
             if(tile<m_native.ground->tiles.size())
-                if(Texture* owner=m_native.ground->tiles[tile];owner && ImprovedTile(owner))
+                if(Texture* owner=m_native.ground->tiles[tile];owner)
                     owner->m_materialDrawFrame.store(m_frameNumber+1,std::memory_order_relaxed);
+        // Shared+ reads these maps on the game's submitted geometry, even when
+        // it draws no native patch. Missing/evicted maps must be marked too so
+        // the proxy can request them again without a new game texture bind.
+        if(m_native.pebblesOnly || SharedGroundPlus())continue;
         // Tessellated only within kNativeTessDistance (its box): beyond it ffp.tesc splits nothing and ffp.tese moves
         // nothing, the very same triangles - but through the tessellation stages every one of the ground's triangles
         // to the horizon cost the base pass ~2.5 ms at 2560 x 1440 (rvk_demo, Newland Desert). Both passes choose alike.

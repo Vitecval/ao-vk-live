@@ -15,7 +15,7 @@ public:
     { return ComHresult([&]() -> HRESULT { CountComCall(5); ComScope scope(5); return DoCreatePalette(a0, a1, a2, a3); }); }
     virtual HRESULT DoCreatePalette(DWORD a0, LPPALETTEENTRY a1, LPDIRECTDRAWPALETTE* a2, IUnknown* a3) { (void)a0; (void)a1; (void)a2; (void)a3; return StubCall(5); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE CreateSurface(LPDDSURFACEDESC2 a0, LPDIRECTDRAWSURFACE7* a1, IUnknown* a2) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(6); ComScope scope(6); return DoCreateSurface(a0, a1, a2); }); }
+    { if (BackendCallbackMutationBlocked()) { if (a1) *a1 = nullptr; return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(6); ComScope scope(6); return DoCreateSurface(a0, a1, a2); }); }
     virtual HRESULT DoCreateSurface(LPDDSURFACEDESC2 a0, LPDIRECTDRAWSURFACE7* a1, IUnknown* a2) { (void)a0; (void)a1; (void)a2; return StubCall(6); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE DuplicateSurface(LPDIRECTDRAWSURFACE7 a0, LPDIRECTDRAWSURFACE7* a1) final
     { return ComHresult([&]() -> HRESULT { CountComCall(7); ComScope scope(7); return DoDuplicateSurface(a0, a1); }); }
@@ -54,13 +54,13 @@ public:
     { return ComHresult([&]() -> HRESULT { CountComCall(18); ComScope scope(18); return DoInitialize(a0); }); }
     virtual HRESULT DoInitialize(GUID* a0) { (void)a0; return StubCall(18); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE RestoreDisplayMode() final
-    { return ComHresult([&]() -> HRESULT { CountComCall(19); ComScope scope(19); return DoRestoreDisplayMode(); }); }
+    { if (BackendCallbackMutationBlocked()) { return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(19); ComScope scope(19); return DoRestoreDisplayMode(); }); }
     virtual HRESULT DoRestoreDisplayMode() { return StubCall(19); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE SetCooperativeLevel(HWND a0, DWORD a1) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(20); ComScope scope(20); return DoSetCooperativeLevel(a0, a1); }); }
+    { if (BackendCallbackMutationBlocked()) { return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(20); ComScope scope(20); return DoSetCooperativeLevel(a0, a1); }); }
     virtual HRESULT DoSetCooperativeLevel(HWND a0, DWORD a1) { (void)a0; (void)a1; return StubCall(20); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE SetDisplayMode(DWORD a0, DWORD a1, DWORD a2, DWORD a3, DWORD a4) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(21); ComScope scope(21); return DoSetDisplayMode(a0, a1, a2, a3, a4); }); }
+    { if (BackendCallbackMutationBlocked()) { return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(21); ComScope scope(21); return DoSetDisplayMode(a0, a1, a2, a3, a4); }); }
     virtual HRESULT DoSetDisplayMode(DWORD a0, DWORD a1, DWORD a2, DWORD a3, DWORD a4) { (void)a0; (void)a1; (void)a2; (void)a3; (void)a4; return StubCall(21); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE WaitForVerticalBlank(DWORD a0, HANDLE a1) final
     { return ComHresult([&]() -> HRESULT { CountComCall(22); ComScope scope(22); return DoWaitForVerticalBlank(a0, a1); }); }
@@ -252,7 +252,7 @@ public:
     { return ComHresult([&]() -> HRESULT { CountComCall(86); ComScope scope(86); return DoSetClipList(a0, a1); }); }
     virtual HRESULT DoSetClipList(LPRGNDATA a0, DWORD a1) { (void)a0; (void)a1; return StubCall(86); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE SetHWnd(DWORD a0, HWND a1) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(87); ComScope scope(87); return DoSetHWnd(a0, a1); }); }
+    { if (BackendCallbackMutationBlocked()) { return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(87); ComScope scope(87); return DoSetHWnd(a0, a1); }); }
     virtual HRESULT DoSetHWnd(DWORD a0, HWND a1) { (void)a0; (void)a1; return StubCall(87); }
 };
 
@@ -282,7 +282,7 @@ public:
     { return ComHresult([&]() -> HRESULT { CountComCall(98); ComScope scope(98); return DoEnumDevices(a0, a1); }); }
     virtual HRESULT DoEnumDevices(LPD3DENUMDEVICESCALLBACK7 a0, LPVOID a1) { (void)a0; (void)a1; return StubCall(98); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE CreateDevice(REFCLSID a0, LPDIRECTDRAWSURFACE7 a1, LPDIRECT3DDEVICE7* a2) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(99); ComScope scope(99); return DoCreateDevice(a0, a1, a2); }); }
+    { if (BackendCallbackMutationBlocked()) { if (a2) *a2 = nullptr; return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(99); ComScope scope(99); return DoCreateDevice(a0, a1, a2); }); }
     virtual HRESULT DoCreateDevice(REFCLSID a0, LPDIRECTDRAWSURFACE7 a1, LPDIRECT3DDEVICE7* a2) { (void)a0; (void)a1; (void)a2; return StubCall(99); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE CreateVertexBuffer(LPD3DVERTEXBUFFERDESC a0, LPDIRECT3DVERTEXBUFFER7* a1, DWORD a2) final
     { return ComHresult([&]() -> HRESULT { CountComCall(100); ComScope scope(100); return DoCreateVertexBuffer(a0, a1, a2); }); }
@@ -315,7 +315,7 @@ public:
     { return ComHresult([&]() -> HRESULT { CountComCall(110); ComScope scope(110); return DoGetDirect3D(a0); }); }
     virtual HRESULT DoGetDirect3D(LPDIRECT3D7* a0) { (void)a0; return StubCall(110); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE SetRenderTarget(LPDIRECTDRAWSURFACE7 a0, DWORD a1) final
-    { return ComHresult([&]() -> HRESULT { CountComCall(111); ComScope scope(111); return DoSetRenderTarget(a0, a1); }); }
+    { if (BackendCallbackMutationBlocked()) { return DDERR_SURFACEBUSY; } return ComHresult([&]() -> HRESULT { CountComCall(111); ComScope scope(111); return DoSetRenderTarget(a0, a1); }); }
     virtual HRESULT DoSetRenderTarget(LPDIRECTDRAWSURFACE7 a0, DWORD a1) { (void)a0; (void)a1; return StubCall(111); }
     COM_DECLSPEC_NOTHROW HRESULT STDMETHODCALLTYPE GetRenderTarget(LPDIRECTDRAWSURFACE7* a0) final
     { return ComHresult([&]() -> HRESULT { CountComCall(112); ComScope scope(112); return DoGetRenderTarget(a0); }); }

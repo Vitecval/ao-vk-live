@@ -3,6 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <ddraw.h>
+#include <d3d.h>
 #include <cstdio>
 #include <cstdint>
 #include <thread>
@@ -12,7 +13,32 @@ unsigned erases = 0, paints = 0, destroys = 0, keyReleases = 0;
 bool destroyPainting = true;
 bool ProbeErase(HWND window, bool blocked);
 constexpr UINT ProbeMessage = WM_APP + 81;
+constexpr UINT MutationMessage = WM_APP + 82;
+IDirectDraw7* callbackDraw=nullptr;
+IDirect3D7* callback3d=nullptr;
+IDirect3DDevice7* callbackDevice=nullptr;
+IDirectDrawClipper* callbackClipper=nullptr;
+IDirectDrawSurface7* callbackTarget=nullptr;
+bool mutationRejected=false;
 LRESULT CALLBACK LegacyWindow(HWND window, UINT message, WPARAM w, LPARAM l) {
+    if(message==MutationMessage) {
+        DDSURFACEDESC2 desc{};desc.dwSize=sizeof(desc);desc.dwFlags=DDSD_CAPS|DDSD_WIDTH|DDSD_HEIGHT;
+        desc.dwWidth=desc.dwHeight=64;desc.ddsCaps.dwCaps=DDSCAPS_OFFSCREENPLAIN|DDSCAPS_3DDEVICE;
+        auto* surface=reinterpret_cast<IDirectDrawSurface7*>(uintptr_t(1));
+        auto* device=reinterpret_cast<IDirect3DDevice7*>(uintptr_t(1));
+        const HRESULT results[]={
+            callbackDraw->SetCooperativeLevel(window,DDSCL_NORMAL),
+            callbackDraw->SetDisplayMode(64,64,32,0,0),
+            callbackDraw->RestoreDisplayMode(),
+            callbackDraw->CreateSurface(&desc,&surface,nullptr),
+            callbackDevice->SetRenderTarget(callbackTarget,0),
+            callbackClipper->SetHWnd(0,window),
+            callback3d->CreateDevice(IID_IDirect3DHALDevice,callbackTarget,&device),
+        };
+        mutationRejected=!surface && !device;
+        for(HRESULT result:results)mutationRejected&=result==DDERR_SURFACEBUSY;
+        return 2083;
+    }
     if (message == WM_ERASEBKGND) {
         ++erases;
         RECT r{0,0,8,8};
@@ -51,6 +77,23 @@ bool ProbeErase(HWND window, bool blocked) {
     SelectObject(dc,old);DeleteObject(bitmap);DeleteDC(dc);
     return good;
 }
+
+// Hold the real DLL's recursive backend lock on another thread, with a timed
+// safety release. Blocking callback regressions fail timing instead of hanging.
+template<class F> ULONGLONG WithBackendLock(IDirectDraw7* dd,F&& action) {
+    HANDLE entered=CreateEventW(nullptr,TRUE,FALSE,nullptr),release=CreateEventW(nullptr,TRUE,FALSE,nullptr);
+    struct Probe {HANDLE entered,release;} probe{entered,release};
+    std::thread backend([&]{dd->EnumDisplayModes(0,nullptr,&probe,[](DDSURFACEDESC2*,void* context)->HRESULT {
+        auto& p=*static_cast<Probe*>(context);SetEvent(p.entered);WaitForSingleObject(p.release,2000);return DDENUMRET_CANCEL;
+    });});
+    if(WaitForSingleObject(entered,3000)!=WAIT_OBJECT_0) {
+        SetEvent(release);backend.join();CloseHandle(entered);CloseHandle(release);return ~ULONGLONG(0);
+    }
+    std::thread safety([&]{Sleep(600);SetEvent(release);});
+    const ULONGLONG start=GetTickCount64();action();const ULONGLONG elapsed=GetTickCount64()-start;
+    SetEvent(release);backend.join();safety.join();CloseHandle(entered);CloseHandle(release);
+    return elapsed;
+}
 }
 
 int main() {
@@ -78,6 +121,17 @@ int main() {
     desc.ddsCaps.dwCaps=DDSCAPS_PRIMARYSURFACE;
     if(FAILED(dd->CreateSurface(&desc,&primary,nullptr)))return 7;
     if(FAILED(primary->Flip(nullptr,0)))return 8;
+    IDirect3D7* d3d=nullptr;IDirect3DDevice7* device=nullptr;IDirectDrawClipper* clipper=nullptr;
+    if(FAILED(dd->QueryInterface(IID_IDirect3D7,reinterpret_cast<void**>(&d3d))) ||
+       FAILED(d3d->CreateDevice(IID_IDirect3DHALDevice,back,&device)) ||
+       FAILED(dd->CreateClipper(0,&clipper,nullptr)) || FAILED(clipper->SetHWnd(0,window)))return 13;
+    callbackDraw=dd;callback3d=d3d;callbackDevice=device;callbackClipper=clipper;callbackTarget=back;
+    const ULONGLONG mutationMs=WithBackendLock(dd,[&]{good&=SendMessageW(window,MutationMessage,0,0)==2083;});
+    good &=mutationMs<300 && mutationRejected;
+    IDirectDrawSurface7* retained=nullptr;HWND clipWindow=nullptr;
+    good &=SUCCEEDED(device->GetRenderTarget(&retained)) && retained==back;
+    if(retained)retained->Release();
+    good &=SUCCEEDED(clipper->GetHWnd(&clipWindow)) && clipWindow==window;
     // Hold the backend lock on a worker through its real EnumDisplayModes
     // callback. WM_SIZE on the window thread must not wait for that lock.
     HANDLE entered=CreateEventW(nullptr,TRUE,FALSE,nullptr),release=CreateEventW(nullptr,TRUE,FALSE,nullptr);
@@ -109,15 +163,28 @@ int main() {
     good &=ProbeErase(unrelated,true) && ProbeErase(window,false);
     good &=SendMessageW(unrelated,ProbeMessage,0,0)==2082;
     good &=SendMessageW(window,ProbeMessage,0,0)==2081;
+    const ULONGLONG oldDestroyMs=WithBackendLock(dd,[&]{good&=DestroyWindow(window)!=FALSE;});
+    DDSURFACEDESC2 currentMode{};currentMode.dwSize=sizeof(currentMode);
+    good &=oldDestroyMs<300 && SUCCEEDED(dd->GetDisplayMode(&currentMode)) && SUCCEEDED(primary->Flip(nullptr,0));
+    good &=ProbeErase(unrelated,true); // old HWND destruction cannot shut down the replacement
+    window=make();good &=window && ProbeErase(window,false);
     if(FAILED(dd->SetCooperativeLevel(window,DDSCL_NORMAL))||FAILED(primary->Flip(nullptr,0)))return 11;
     good &=ProbeErase(window,true) && ProbeErase(unrelated,false);
-    DestroyWindow(window);
+    const ULONGLONG destroyMs=WithBackendLock(dd,[&]{good&=DestroyWindow(window)!=FALSE;});
+    good &=destroyMs<300;
+    // First safe ordinary COM call drains deferred shutdown after the callback
+    // and backend-lock owner have returned. Release deliberately never joins.
+    good &=SUCCEEDED(dd->GetDisplayMode(&currentMode));
     window=make();
     good &=window && ProbeErase(window,false);
     if(FAILED(dd->SetCooperativeLevel(window,DDSCL_NORMAL))||FAILED(primary->Flip(nullptr,0)))return 9;
     good &=ProbeErase(window,true) && SendMessageW(window,ProbeMessage,0,0)==2081;
+    clipper->Release();device->Release();d3d->Release();
     primary->Release();back->Release();dd->Release();DestroyWindow(window);DestroyWindow(unrelated);
-    good &=destroys==3 && destroyPainting;
+    good &=destroys==4 && destroyPainting;
+    std::printf("Seven callback mutations rejected before lock: %s (%llu ms); old/current destroy while locked: %llu/%llu ms; deferred drain and replacement retained\n",
+        mutationRejected?"PASS":"FAIL",static_cast<unsigned long long>(mutationMs),
+        static_cast<unsigned long long>(oldDestroyMs),static_cast<unsigned long long>(destroyMs));
     std::printf("Vulkan background erase protection: %u/120; startup/unrelated/native WM_PAINT/message forwarding/window replacement: %s\n",passed,good?"PASS":"FAIL");
     return good?0:1;
 }

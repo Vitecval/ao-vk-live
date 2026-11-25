@@ -166,6 +166,17 @@ int main(int argc, char** argv) {
     if(readyGeneration.load()!=0 || captureInput.load())return 35;
     stopping = true;
     if (WaitForSingleObject(thread, 2000) != WAIT_OBJECT_0) return 10;
+    // The hook survives AO replacing its render window; its independent worker
+    // must be recreated, without trying to patch N3 a second time.
+    generation=0;loading=false;loadedGeneration=0;readyGeneration=0;
+    if(!EnsureWindowWorker())return 41;
+    BeginLoading();EndLoading();worlds=4;
+    Sleep(100);
+    if(WaitForSingleObject(thread,0)==WAIT_OBJECT_0)return 42;
+    if(IsWindowVisible(FindWindowW(L"AOVKZoningScreen",L"AO-VK Zoning")) || GetForegroundWindow()!=foreground)return 43;
+    stopping=true;
+    if(WaitForSingleObject(thread,2000)!=WAIT_OBJECT_0)return 44;
+    std::puts("loading worker restarts after a render-window replacement without taking focus");
     CloseHandle(thread); CloseHandle(painted); DestroyWindow(parent);
     std::puts("independent zoning thread closes cleanly, suppresses hidden/background client and never takes focus");
     std::puts("ready screen holds until input, releases after fading, and the next transition with the option off finishes automatically");

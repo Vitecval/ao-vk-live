@@ -33,7 +33,8 @@ float RockEdgeLevel(vec3 a,vec3 b)
 // normals). From its ends alone: the same for both triangles that share it.
 float GroundEdgeLevel(vec3 a, vec3 b, vec3 na, vec3 nb)
 {
-    if (dot(na, na) > 0.0 && dot(nb, nb) > 0.0 && abs(normalize(na).y) > 0.8 && abs(normalize(nb).y) > 0.8) return 1.0;
+    bool powder=FL.sharedGroundConfig.w>.5 && FL.snow.z>.5 && FL.snow.x>0.;
+    if (!powder && dot(na, na) > 0.0 && dot(nb, nb) > 0.0 && abs(normalize(na).y) > 0.8 && abs(normalize(nb).y) > 0.8) return 1.0;
     const float d = distance((a + b) * 0.5, C.eyePos.xyz);
     const float near = 1.0 - clamp(d / max(D.tess.z, 1.0), 0.0, 1.0);
     const float target = 0.35 + 0.02 * d;

@@ -37,7 +37,8 @@ void Device::UpdateSandPrints(VkCommandBuffer cmd)
     const int origin[2] = {int(std::floor(m_frameEye[0] / kPrintCell)) - kPrintN / 2,
                            int(std::floor(m_frameEye[2] / kPrintCell)) - kPrintN / 2};
     const double now = SwayClock();
-    const double dt = m_printValid ? std::clamp(now - m_printTime, 0.0, 1.0) : 0.0;
+    const bool snow=SnowPrintsOn();
+    const double dt = m_printValid ? std::clamp(now - m_printTime, 0.0, snow ? 30.0:1.0) : 0.0;
     m_printTime = now;
     // The prints in the map, the nearest the frame can take (a crowd's more wait, as long as they stay in it).
     const float corner[2] = {float(origin[0]) * kPrintCell, float(origin[1]) * kPrintCell};
@@ -103,9 +104,9 @@ void Device::UpdateSandPrints(VkCommandBuffer cmd)
     struct Push { int32_t origin[4]; float p[4]; } push{};
     push.origin[0] = origin[0]; push.origin[1] = origin[1];
     push.origin[2] = m_printOrigin[0]; push.origin[3] = m_printOrigin[1];
-    push.p[0] = float(std::exp(-dt / kPrintRelax));
+    push.p[0] = float(std::exp(-dt / (snow ? 2.5:kPrintRelax)));
     push.p[1] = float(count);
-    push.p[2] = std::clamp(m_terrainSettings.prints, 0.0f, 1.0f);
+    push.p[2] = std::clamp(snow ? m_snowPrints:m_terrainSettings.prints, 0.0f, 1.0f);
     push.p[3] = m_printValid ? 0.0f : 1.0f;
     vkCmdPushConstants(cmd, m_printLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(push), &push);
     vkCmdDraw(cmd, 3, 1, 0, 0);

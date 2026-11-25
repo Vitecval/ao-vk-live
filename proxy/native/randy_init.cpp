@@ -16,10 +16,17 @@
 #include "native/dxerror.h"
 #include "native/orig_api.gen.h"
 #include "native/vc10.h"
+#include "display_mode_win32.h"
+#include "framebuffer_transaction.h"
+#include "native/resize_queue_policy.h"
+#include "native/main_surface_policy.h"
+#include "window_callback_policy.h"
 
 #include <ddraw.h>
 
 #include <cstring>
+#include <array>
+#include <atomic>
 
 namespace rnative::randyinit {
 
@@ -259,6 +266,84 @@ void ReleaseDevice()
 }
 
 constexpr uint32_t kRandyVtable = 0x95594, kRandy = 0x17D2EC, kRestoreCount = 0x17D334, kDirect3DCopy = 0x17D2A0;
+constexpr uint32_t kEmulationCap=0xB7730,kEmulationCapUser=0xB7734;
+RECT g_workingRect{};
+rvk::display::WindowState g_workingWindow;
+bool g_workingFrame=false;
+bool g_attemptD3dxStarted=false;
+resizequeue::Queue g_pendingResize;
+std::atomic<bool> g_layoutActive{false};
+std::atomic<bool> g_resizeBlocked{false};
+std::atomic<bool> g_restoreWindowPending{false};
+std::atomic<uint64_t> g_requestedLayout{0},g_originalClientLayout{0},g_actualLayout{0},g_previousLayout{0};
+std::atomic<void*> g_mainColor{nullptr},g_primaryColor{nullptr};
+uint64_t SizePair(uint32_t width,uint32_t height){return (uint64_t(width)<<32)|height;}
+void PublishActualSize(uint32_t width,uint32_t height) {
+    g_previousLayout.store(g_actualLayout.exchange(SizePair(width,height),std::memory_order_acq_rel),std::memory_order_release);
+}
+bool RestoreWorkingWindow() {
+    if(rvk::presentation::InsideWindowCallback() || !g_restoreWindowPending.exchange(false,std::memory_order_acq_rel))return false;
+    HWND window=g_workingWindow.window;
+    if(!g_workingFrame || !IsWindow(window))return false;
+    rvk::display::dpi::WindowContext coordinates(window);
+    rvk::display::WindowTrackScope track(window,{uint32_t(g_workingWindow.rect.right-g_workingWindow.rect.left),uint32_t(g_workingWindow.rect.bottom-g_workingWindow.rect.top)});
+    bool restored=rvk::display::RestoreWindow(g_workingWindow);
+    const uint64_t size=g_actualLayout.load(std::memory_order_acquire);
+    const LONG width=LONG(size>>32),height=LONG(uint32_t(size));
+    RECT client{},outer{};
+    if(restored && width && height && GetClientRect(window,&client) &&
+       (client.right!=width || client.bottom!=height) && GetWindowRect(window,&outer)) {
+        // A DPI/non-client change can alter the frame around the restored
+        // rectangle. Keep its saved style, monitor position and exact working
+        // client extent rather than stretching retained framebuffer input.
+        track.SetRequired({uint32_t(outer.right-outer.left+width-client.right),uint32_t(outer.bottom-outer.top+height-client.bottom)});
+        restored=SetWindowPos(window,nullptr,0,0,outer.right-outer.left+width-client.right,
+            outer.bottom-outer.top+height-client.bottom,SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED)!=FALSE;
+    }
+    restored=restored && GetClientRect(window,&client) && client.right==width && client.bottom==height;
+    Log("display rollback window: committed framebuffer %ldx%ld; restored matching client %s; saved style and monitor position retained; no automatic retry",
+        width,height,restored ? "yes":"unavailable");
+    return restored;
+}
+
+struct FrameState {
+    std::array<void*,7> targets{};
+    std::array<float,7> widths{},heights{};
+    RECT rect{};
+    int32_t zBits=0,stencilBits=0;
+    uint32_t caps=0,userCaps=0;
+};
+FrameState CaptureFrame() {
+    FrameState state;
+    for(unsigned i=0;i<7;++i) {
+        state.targets[i]=Global<void*>(kRenderTargets+i*4);
+        state.widths[i]=Global<float>(kWidths+i*4);state.heights[i]=Global<float>(kHeights+i*4);
+    }
+    state.rect=Global<RECT>(kWindowRect);state.zBits=Global<int32_t>(kZBits);state.stencilBits=Global<int32_t>(kStencilBits);
+    state.caps=Global<uint32_t>(kEmulationCap);state.userCaps=Global<uint32_t>(kEmulationCapUser);
+    return state;
+}
+void InstallFrame(const FrameState& state) {
+    for(unsigned i=0;i<7;++i) {
+        Global<void*>(kRenderTargets+i*4)=state.targets[i];
+        Global<float>(kWidths+i*4)=state.widths[i];Global<float>(kHeights+i*4)=state.heights[i];
+    }
+    Global<RECT>(kWindowRect)=state.rect;Global<int32_t>(kZBits)=state.zBits;Global<int32_t>(kStencilBits)=state.stencilBits;
+    Global<uint32_t>(kEmulationCap)=state.caps;Global<uint32_t>(kEmulationCapUser)=state.userCaps;
+}
+void DestroyTargetSet(const std::array<void*,7>& targets) {
+    for(unsigned i=0;i<7;++i)if(targets[i]) {
+        bool duplicate=false;for(unsigned j=0;j<i;++j)duplicate|=targets[j]==targets[i];
+        if(!duplicate){Internal<void(__fastcall*)(void*)>(0x25F39)(targets[i]);vc10::Free(targets[i]);}
+    }
+}
+void TargetSize(void* target,uint32_t& width,uint32_t& height) {
+    width=height=0;
+    if(!target || !*static_cast<void**>(target) || !**static_cast<void***>(target))return;
+    const auto* desc=static_cast<const DDSURFACEDESC2*>(orig::surface_t_GetSurfaceDesc(*static_cast<void**>(target)));
+    if(desc){width=desc->dwWidth;height=desc->dwHeight;}
+}
+bool ReplaceFrameBuffer(vc10::String* error,bool bind,const RECT* previousRect=nullptr);
 
 }  // namespace
 
@@ -278,8 +363,14 @@ void* __fastcall Construct(uint8_t* randy)
     auto** head = static_cast<void**>(vc10::Allocate(0xC));
     head[0] = head[1] = head;
     Field<void*>(randy, 0x28C) = head;
-    for (uint32_t i = 0; i < 7; ++i) Global<float>(kHeights + i * 4) = 256.0f;
-    for (uint32_t i = 0; i < 7; ++i) Global<float>(kWidths + i * 4) = 256.0f;
+    // These are per-target size caches, not the AO viewport size. Preserve the
+    // actual populated target0/5/6 dimensions; untouched features retain their
+    // historical256 default until their own lazy CreateRenderTarget sets them.
+    for(uint32_t i=0;i<7;++i) {
+        uint32_t width=0,height=0;TargetSize(Global<void*>(kRenderTargets+i*4),width,height);
+        Global<float>(kWidths+i*4)=width ? float(width):256.f;
+        Global<float>(kHeights+i*4)=height ? float(height):256.f;
+    }
     orig::Debugger_t_Get();
     Global<uint32_t>(kRestoreCount) = 0;
     Global<void*>(kDirect3DCopy) = Global<void*>(kDirect3D);
@@ -297,12 +388,17 @@ void* __fastcall Construct(uint8_t* randy)
     Internal<void(__fastcall*)(void*)>(0x41EDE)(randy);                     // the device's default states
     Global<void*>(kRandy) = randy;
     MakeDefaultTexture();
+    g_mainColor.store(*static_cast<void**>(Global<void*>(kRenderTargets)),std::memory_order_release);
+    g_primaryColor.store(Global<void*>(kPrimary),std::memory_order_release);
+    g_pendingResize.Register(randy);
     return randy;
 }
 
 // FUN_10043484: Randy_t::~Randy_t - everything Initialize made, in turn.
 void __fastcall Destruct(uint8_t* randy)
 {
+    g_pendingResize.Cancel();g_layoutActive.store(false,std::memory_order_release);g_resizeBlocked.store(false,std::memory_order_release);g_restoreWindowPending.store(false,std::memory_order_release);
+    g_mainColor.store(nullptr,std::memory_order_release);g_primaryColor.store(nullptr,std::memory_order_release);
     Field<uint32_t>(randy, 0) = uint32_t(reinterpret_cast<uintptr_t>(g_orig)) + kRandyVtable;
     Global<void*>(kRandy) = nullptr;
     orig::DynamicVB_c_Get();
@@ -326,24 +422,37 @@ void __fastcall Destruct(uint8_t* randy)
         node = next;
     }
     vc10::Free(head);
+    g_workingFrame=false;g_workingWindow={};g_attemptD3dxStarted=false;
 }
 
 // FUN_10043c48 (RViewPort_t::Resize): a frame buffer of a new size - every render target made again, the device
 // drawing to the new back buffer.
 void __fastcall ResizeFrameBuffer(void* randy, void*, int32_t width, int32_t height)
 {
+    if(!ResizeDisplayEligible())return;
+    if(width<0 || height<0 || !rvk::display::Dimensions(uint32_t(width),uint32_t(height)))return;
+    if(rvk::presentation::InsideWindowCallback()) {
+        g_pendingResize.Enqueue(randy,uint32_t(width),uint32_t(height));return;
+    }
+    if(randy!=Global<void*>(kRandy))return;
     RECT& rect = Global<RECT>(kWindowRect);
-    if (width == rect.right - rect.left && height == rect.bottom - rect.top) return;
+    uint32_t oldWidth=0,oldHeight=0;TargetSize(Global<void*>(kRenderTargets),oldWidth,oldHeight);
+    if(uint32_t(width)==oldWidth && uint32_t(height)==oldHeight)return;
+    const RECT previous=g_workingFrame ? g_workingRect:rect;
     rect.right = rect.left + width;
     rect.bottom = rect.top + height;
-    ReleaseTargets();
     vc10::String error;
     error.init();
-    MakeFrameBuffer(&error);                        // (a failure is not looked at)
-    void* back = orig::Randy_t_GetBackBuffer(randy);
-    if (void* device = Field<void*>(Render(), 0))   // render_t::SetRenderTarget (FUN_100246cc)
-        Check(Com(device, 0x20, *static_cast<void**>(back), DWORD(0)), "render_t::SetRenderTarget: D3D-Call failed",
-              "..\\renderlib\\render_Interface_Surface.cpp", 0x3D2);
+    if(!ReplaceFrameBuffer(&error,true,&previous)) {
+        g_resizeBlocked.store(true,std::memory_order_release);
+        g_restoreWindowPending.store(true,std::memory_order_release);
+        RestoreWorkingWindow();
+        rvk::display::DisableOverride(rnative::IniPath(),"framebuffer resize failed");
+        Log("display resize rejected: requested %dx%d; retained framebuffer %ux%u and prior window; %s",width,height,oldWidth,oldHeight,error.c_str());
+    } else {
+        Field<int32_t>(randy,0x280)=Field<int32_t>(randy,0x284)=0;
+        Log("display resize committed: native framebuffer %dx%d; old target set released only after successful bind",width,height);
+    }
     error.release();
 }
 
@@ -357,25 +466,45 @@ void* __fastcall DeletingDestruct(uint8_t* randy, void*, uint32_t flags)
 
 // FUN_100435e3: the frame buffer (windowed: an offscreen render target 0 the window's size, the primary clipped to
 // the window) and its Z-buffer; then render targets 5 and 6. Also after a resize (FUN_10043c48).
-bool __cdecl MakeFrameBuffer(vc10::String* error)
+static bool BuildFrameBuffer(vc10::String* error)
 {
     const RECT& window = Global<RECT>(kWindowRect);
     const int32_t width = window.right - window.left, height = window.bottom - window.top;
+    if(width<0 || height<0 || !rvk::display::Dimensions(uint32_t(width),uint32_t(height))) {
+        error->assign("Invalid size",12);return false;
+    }
     const uint32_t memory = (Global<int32_t>(kHardwareLevel) ? 0x3800u : 0u) + 0x800u;
     if (!Global<uint8_t>(kFullscreen)) {
         void* rt = vc10::Allocate(0xC);
+        std::memset(rt,0,0xC);Global<void*>(kRenderTargets)=rt;
         Internal<void*(__fastcall*)(void*, void*, uint32_t, uint32_t, uint32_t, uint32_t)>(0x25E84)(
             rt, nullptr, 7, memory | 0x2040, uint32_t(width), uint32_t(height));   // RenderTarget_t
-        Global<void*>(kRenderTargets) = rt;
         if (HWND window = Global<HWND>(kWindow)) {
             void* clipper = nullptr;
-            orig::render_t_CreateClipper(Render(), 0, &clipper, nullptr);
-            Com(clipper, 0x20, DWORD(0), window);   // SetHWnd
+            // The render_t wrapper returns void. Call the underlying DDRAW
+            // HRESULT API so an allocation failure participates in rollback.
+            void* dd=Field<void*>(Render(),8);
+            HRESULT hr=dd ? Com(dd,0x10,DWORD(0),&clipper,static_cast<void*>(nullptr)):E_INVALIDARG;
+            if(hr || !clipper){if(clipper)Com(clipper,0x08);ErrorText(error,hr ? hr:E_OUTOFMEMORY,"Failed to create clipper: ");return false;}
+            hr=Com(clipper, 0x20, DWORD(0), window);   // SetHWnd
             void* primary = *static_cast<void**>(Global<void*>(kPrimary));
-            Check(Com(primary, 0x70, clipper), "render_t::SetClipper: D3D-Call failed",
-                  "..\\renderlib\\render_Interface_Scene.cpp", 0x144);
+            if(!hr)hr=primary ? Com(primary, 0x70, clipper):E_INVALIDARG;
             Com(clipper, 0x08);                     // Release
+            if(hr){ErrorText(error,hr,"Failed to attach clipper: ");return false;}
         }
+    } else {
+        // Preserve the legacy fullscreen chain, but acquire a fresh wrapper so
+        // failure cannot destroy the previous working target set.
+        auto* rt=static_cast<void**>(vc10::Allocate(0xC));std::memset(rt,0,0xC);
+        Global<void*>(kRenderTargets)=rt;rt[0]=NewSurface(nullptr,"BackBuffer");
+        DDSCAPS2 caps{DDSCAPS_BACKBUFFER,0,0,{0}};
+        void* primary=Global<void*>(kPrimary);
+        HRESULT hr=primary ? Com(*static_cast<void**>(primary),0x30,&caps,orig::surface_t_GetSurfacePointer(rt[0])):E_INVALIDARG;
+        if(hr){ErrorText(error,hr,"Failed to acquire back buffer: ");return false;}
+    }
+    uint32_t actualWidth=0,actualHeight=0;TargetSize(Global<void*>(kRenderTargets),actualWidth,actualHeight);
+    if(actualWidth!=uint32_t(width) || actualHeight!=uint32_t(height)) {
+        error->assign("Size mismatch",13);return false;
     }
     const HRESULT hr = Internal<HRESULT(__fastcall*)(void*, void*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                                                      int32_t*, int32_t*, int32_t)>(0x25F5C)(   // its Z-buffer
@@ -385,6 +514,13 @@ bool __cdecl MakeFrameBuffer(vc10::String* error)
         ErrorText(error, hr, "Failed during retry to create the z-buffer: ");
         return false;
     }
+    void* color=*static_cast<void**>(Global<void*>(kRenderTargets));
+    DDSCAPS2 zCaps{DDSCAPS_ZBUFFER,0,0,{0}};void* attached=nullptr;
+    HRESULT attachedResult=Com(*static_cast<void**>(color),0x30,&zCaps,&attached);
+    if(attachedResult || !attached) {
+        ErrorText(error,attachedResult ? attachedResult:E_FAIL,"Replacement depth is not attached: ");return false;
+    }
+    Com(attached,0x08);
     Global<float>(kWidths) = float(width);
     Global<float>(kHeights) = float(height);
     Internal<void(__cdecl*)(int)>(0x42732)(5);      // Randy_t: render targets 5 and 6
@@ -392,12 +528,70 @@ bool __cdecl MakeFrameBuffer(vc10::String* error)
     return true;
 }
 
+namespace {
+bool ReplaceFrameBuffer(vc10::String* error,bool bind,const RECT* previousRect) {
+    FrameState previous=CaptureFrame();if(previousRect)previous.rect=*previousRect;
+    const RECT requested=Global<RECT>(kWindowRect);
+    // A working legacy fullscreen chain owns its attached depth surface. Keep
+    // that chain intact rather than attempting to mutate it transactionally.
+    if(bind && Global<uint8_t>(kFullscreen)) {
+        InstallFrame(previous);error->assign("Legacy fullscr",14);return false;
+    }
+    bool ok=framebuffer::Replace(
+        [&]{for(unsigned i=0;i<7;++i)Global<void*>(kRenderTargets+i*4)=nullptr;Global<uint32_t>(kEmulationCap)=0;},
+        [&]{
+            if(!BuildFrameBuffer(error))return false;
+            for(unsigned i:{5u,6u})if(previous.targets[i] && !Global<void*>(kRenderTargets+i*4))return false;
+            return true;
+        },
+        [&]{
+            if(!bind || !Field<void*>(Render(),0))return true;
+            void* target=Global<void*>(kRenderTargets);void* color=target ? *static_cast<void**>(target):nullptr;
+            HRESULT hr=color ? Com(Field<void*>(Render(),0),0x20,*static_cast<void**>(color),DWORD(0)):E_INVALIDARG;
+            if(hr){ErrorText(error,hr,"Failed to bind replacement: ");return false;}return true;
+        },
+        [&]{
+            auto candidates=CaptureFrame().targets;InstallFrame(previous);DestroyTargetSet(candidates);
+            if(bind && previous.targets[0] && Field<void*>(Render(),0)) {
+                void* color=*static_cast<void**>(previous.targets[0]);
+                if(color)Com(Field<void*>(Render(),0),0x20,*static_cast<void**>(color),DWORD(0));
+            }
+        },
+        [&]{
+            // Viewports hold raw native surface_t pointers, including after
+            // returning from offscreen rendering. Preserve target0's wrapper
+            // before releasing the previous set. Each wrapper owns one COM
+            // lease regardless of its native user count (surface.cpp).
+            if(bind && previous.targets[0] && Global<void*>(kRenderTargets)) {
+                auto& oldColor=*static_cast<void**>(previous.targets[0]);
+                auto& newColor=*static_cast<void**>(Global<void*>(kRenderTargets));
+                framebuffer::PreserveMainSurface(oldColor,newColor,[](void* retained,void* candidate){
+                    std::swap(Field<void*>(retained,0),Field<void*>(candidate,0));
+                    static_cast<uint8_t*>(retained)[0x84]=1;
+                    static_cast<uint8_t*>(candidate)[0x84]=1;
+                });
+            }
+            g_mainColor.store(*static_cast<void**>(Global<void*>(kRenderTargets)),std::memory_order_release);
+            PublishActualSize(uint32_t(requested.right-requested.left),uint32_t(requested.bottom-requested.top));
+            DestroyTargetSet(previous.targets);g_workingRect=requested;g_workingFrame=true;
+            g_workingWindow=rvk::display::CaptureWindow(Global<HWND>(kWindow));});
+    if(!ok && error->size==0)error->assign("Build failed",12);
+    return ok;
+}
+} // namespace
+
+bool __cdecl MakeFrameBuffer(vc10::String* error) {return ReplaceFrameBuffer(error,false);}
+
 // ?Initialize@Randy_t@@SAPAV1@GGAAV?$basic_string...@PAU_GUID@@1_NPAUHWND__@@W4BufferFormat_e@1@@Z: DisplaySystem's
 // way in. `format` (Randy_t::BufferFormat_e): 0 Z24 S8, 1 Z32 (Z24 S8 on a 3dfx), 2 and 3 Z16 (and 16-bit colour in
 // full screen); 16-bit colour always Z16. Null (with `error` set) if the frame buffer can't be made.
-void* __cdecl Initialize(uint16_t width, uint16_t height, vc10::String* error, GUID* adapter, GUID* device,
-                         bool windowed, HWND window, int32_t format)
+static bool InitializeGraphics(uint16_t width, uint16_t height, vc10::String* error, GUID* adapter, GUID* device,
+                               bool windowed, HWND window, int32_t format)
 {
+    Global<void*>(kDirectDraw)=Global<void*>(kDirect3D)=Global<void*>(kDevice)=Global<void*>(kPrimary)=nullptr;
+    for(unsigned i=0;i<7;++i)Global<void*>(kRenderTargets+i*4)=nullptr;
+    Global<uint32_t>(kEmulationCap)=0;
+    g_attemptD3dxStarted=false;g_workingFrame=false;
     NewRender();
     void* render = Render();
     const bool fullscreen = !windowed;
@@ -421,11 +615,14 @@ void* __cdecl Initialize(uint16_t width, uint16_t height, vc10::String* error, G
         ClientToScreen(window, reinterpret_cast<POINT*>(&rect.right));
     }
 
-    Check(Internal<HRESULT(__cdecl*)()>(0x63427)(), "render_t::D3DXInitialize: D3D-Call failed", kDeviceFile, 0x3EE);
+    HRESULT initial=Internal<HRESULT(__cdecl*)()>(0x63427)();
+    if(initial){ErrorText(error,initial,"D3DX initialization failed: ");return false;}
+    g_attemptD3dxStarted=true;
     using CreateFn = HRESULT(WINAPI*)(GUID*, void**, REFIID, IUnknown*);
     Check(Global<CreateFn>(0x8A004)(adapter, &Global<void*>(kDirectDraw), kDirectDraw7, nullptr),
           "render_t::DirectDrawCreateEx: D3D-Call failed", kDeviceFile, 0xF2);
     void* dd = Global<void*>(kDirectDraw);
+    if(!dd){error->assign("No DirectDraw",13);return false;}
     Field<void*>(render, 8) = dd;
     if (dd)
         Check(Com(dd, 0x50, fullscreen ? window : HWND(nullptr), DWORD(fullscreen ? 0x11 : 0x1008)),   // exclusive
@@ -456,7 +653,7 @@ void* __cdecl Initialize(uint16_t width, uint16_t height, vc10::String* error, G
         char text[0x50];
         orig::render_t_D3DXGetErrorString(render, hr, sizeof(text), text);
         error->assign(text, std::strlen(text));
-        return nullptr;
+        return false;
     }
     DDPIXELFORMAT pf;
     std::memset(&pf, 0, sizeof(pf));
@@ -498,22 +695,152 @@ void* __cdecl Initialize(uint16_t width, uint16_t height, vc10::String* error, G
         Check(Com(*static_cast<void**>(primary), 0x30, &caps, out), "render_t::GetAttachedSurface: D3D-Call failed",
               "..\\renderlib\\render_Interface_Surface.cpp", 0x80);
     }
-    if (!MakeFrameBuffer(error)) return nullptr;
+    if (!MakeFrameBuffer(error)) return false;
 
-    if (dd)
-        Check(Com(dd, 0x00, &kDirect3D7, &Global<void*>(kDirect3D)), "render_t::QueryInterface: D3D-Call failed",
-              kDeviceFile, 0x1BB);
+    if (dd) {
+        HRESULT hr=Com(dd,0x00,&kDirect3D7,&Global<void*>(kDirect3D));
+        if(hr){ErrorText(error,hr,"Direct3D query failed: ");return false;}
+    }
     void* d3d = Field<void*>(render, 4) = Global<void*>(kDirect3D);
+    if(!d3d){error->assign("No Direct3D",11);return false;}
     GUID chosen = device ? *device : level == 1 ? kHalDevice : level == 2 ? kTnLHalDevice : kRgbDevice;
     void** target = static_cast<void**>(Global<void*>(kRenderTargets));
     void* surface = target[0] ? *static_cast<void**>(target[0]) : nullptr;
-    if (d3d)
-        Check(Com(d3d, 0x10, &chosen, surface, &Global<void*>(kDevice)), "render_t::CreateDevice: D3D-Call failed",
-              kDeviceFile, 0x52);
+    if (d3d) {
+        HRESULT hr=Com(d3d,0x10,&chosen,surface,&Global<void*>(kDevice));
+        if(hr){ErrorText(error,hr,"Direct3D device creation failed: ");return false;}
+    }
     FindDxt();
     FindCardQuirks();
-    return Construct(static_cast<uint8_t*>(vc10::Allocate(0x298)));
+    return true;
 }
+
+static void CleanupGraphicsAttempt() {
+    if(void* device=Global<void*>(kDevice))Com(device,0x08);
+    Global<void*>(kDevice)=nullptr;
+    DestroyTargetSet(CaptureFrame().targets);
+    for(unsigned i=0;i<7;++i)Global<void*>(kRenderTargets+i*4)=nullptr;
+    if(void* primary=Global<void*>(kPrimary))orig::surface_t_ReleaseDXSurface(primary);
+    Global<void*>(kPrimary)=nullptr;
+    if(void* d3d=Global<void*>(kDirect3D))Com(d3d,0x08);
+    Global<void*>(kDirect3D)=nullptr;
+    if(void* dd=Global<void*>(kDirectDraw)) {Com(dd,0x4C);Com(dd,0x08);} // restore mode/window, Release
+    Global<void*>(kDirectDraw)=nullptr;
+    if(g_attemptD3dxStarted)Internal<HRESULT(__cdecl*)()>(0x6378A)();
+    g_attemptD3dxStarted=false;
+    if(void* render=Render())vc10::Free(render);
+    Global<void*>(kRender)=nullptr;g_workingFrame=false;
+}
+
+void* __cdecl Initialize(uint16_t width,uint16_t height,vc10::String* error,GUID* adapter,GUID* device,
+                         bool windowed,HWND window,int32_t format)
+{
+    if(rvk::presentation::InsideWindowCallback()) {error->assign("Display busy",12);return nullptr;}
+    if(Global<void*>(kRandy)) {error->assign("Device active",13);return nullptr;}
+    g_pendingResize.Cancel();g_layoutActive.store(false,std::memory_order_release);g_resizeBlocked.store(false,std::memory_order_release);g_restoreWindowPending.store(false,std::memory_order_release);
+    const auto originalWindow=rvk::display::CaptureWindow(window);
+    RECT originalClient{};if(IsWindow(window))GetClientRect(window,&originalClient);
+    g_requestedLayout.store(SizePair(width,height),std::memory_order_release);
+    g_originalClientLayout.store(SizePair(uint32_t(originalClient.right),uint32_t(originalClient.bottom)),std::memory_order_release);
+    const uint32_t requestedUserCaps=Global<uint32_t>(kEmulationCapUser);
+    const auto& originalOptions=rvk::display::StartupOptions(rnative::IniPath());
+    bool overrideRequested=originalOptions.mode!=rvk::display::WindowMode::Game || originalOptions.width ||
+        !originalOptions.monitor.empty() || !originalOptions.valid;
+    for(unsigned attempt=0;attempt<2;++attempt) {
+        const auto& options=rvk::display::StartupOptions(rnative::IniPath());
+        const auto monitor=rvk::display::Discover(window,options);
+        auto selected=rvk::display::SelectSize(options,width,height,monitor);
+        if(!options.valid || !monitor.preferenceFound || selected.rejected ||
+           (overrideRequested && attempt==0 && !rvk::display::ApplyWindowOptions(window,options,monitor))) {
+            const char* reason=!options.valid ? options.error.c_str():!monitor.preferenceFound ? "selected monitor is not connected":
+                selected.rejected ? selected.reason:rvk::display::WindowOptionsFailureReason();
+            if(!reason)reason="window mode application failed";
+            Log("startup Display override rejected before allocation: %s; using original game mode; native DPI override not active; saved configuration unchanged",reason);
+            rvk::display::DisableOverride(rnative::IniPath(),reason);
+            rvk::display::RestoreWindow(originalWindow);
+            selected={width,height};
+        }
+        const auto& active=rvk::display::StartupOptions(rnative::IniPath());
+        bool effectiveWindowed=active.mode==rvk::display::WindowMode::Game ? windowed:true;
+        bool ready=false;
+        try {ready=InitializeGraphics(uint16_t(selected.width),uint16_t(selected.height),error,adapter,device,
+                                      effectiveWindowed,window,format);} catch(...) {
+            error->release();error->init();error->assign("Display failed",14);
+        }
+        if(ready) {
+            uint32_t actualWidth=0,actualHeight=0;TargetSize(Global<void*>(kRenderTargets),actualWidth,actualHeight);
+            const auto& chosen=rvk::display::StartupOptions(rnative::IniPath());
+            g_actualLayout.store(SizePair(actualWidth,actualHeight),std::memory_order_release);
+            g_previousLayout.store(SizePair(actualWidth,actualHeight),std::memory_order_release);
+            g_layoutActive.store(chosen.valid && rvk::display::HasOverride(chosen),std::memory_order_release);
+            Log("display initialized: AO requested %ux%u; client %ldx%ld; actual framebuffer %ux%u; mode %s; GetBufferSize uses actual surface description; viewport coverage must match target",
+                unsigned(width),unsigned(height),Global<RECT>(kWindowRect).right-Global<RECT>(kWindowRect).left,
+                Global<RECT>(kWindowRect).bottom-Global<RECT>(kWindowRect).top,actualWidth,actualHeight,
+                effectiveWindowed ? "windowed/borderless":"Game fullscreen chain");
+            return Construct(static_cast<uint8_t*>(vc10::Allocate(0x298)));
+        }
+        Log("display initialization failed: candidate %ux%u; %s",unsigned(selected.width),unsigned(selected.height),error->c_str());
+        CleanupGraphicsAttempt();Global<uint32_t>(kEmulationCapUser)=requestedUserCaps;
+        rvk::display::RestoreWindow(originalWindow);
+        if(!overrideRequested || attempt!=0)return nullptr;
+        rvk::display::DisableOverride(rnative::IniPath(),"custom framebuffer allocation failed; original game retry");
+        error->release();error->init();
+    }
+    return nullptr;
+}
+
+displaylayout::Layout StartupLayout() {
+    displaylayout::Layout layout;layout.active=g_layoutActive.load(std::memory_order_acquire);
+    if(!layout.active)return layout;
+    auto read=[](uint64_t pair,uint32_t& w,uint32_t& h){w=uint32_t(pair>>32);h=uint32_t(pair);};
+    read(g_requestedLayout.load(std::memory_order_acquire),layout.requestedWidth,layout.requestedHeight);
+    read(g_originalClientLayout.load(std::memory_order_acquire),layout.originalClientWidth,layout.originalClientHeight);
+    read(g_actualLayout.load(std::memory_order_acquire),layout.actualWidth,layout.actualHeight);
+    read(g_previousLayout.load(std::memory_order_acquire),layout.previousWidth,layout.previousHeight);
+    RECT client{};HWND window=g_orig ? Global<HWND>(kWindow):nullptr;
+    rvk::display::dpi::WindowContext coordinates(window);
+    if(IsWindow(window) && GetClientRect(window,&client)) {layout.clientWidth=uint32_t(client.right);layout.clientHeight=uint32_t(client.bottom);}
+    return layout;
+}
+bool IsMainSurface(void* surface) {
+    return surface && g_layoutActive.load(std::memory_order_acquire) &&
+        (surface==g_mainColor.load(std::memory_order_acquire) || surface==g_primaryColor.load(std::memory_order_acquire));
+}
+bool ResizeDisplayEligible() {
+    // The DPI opt-in gate belongs only to installations which requested an
+    // override. Default Game retains its existing resize/DPI behavior even
+    // after a recoverable allocation failure.
+    if(!rvk::display::HasOverride(rvk::display::RequestedOptions(rnative::IniPath())))return true;
+    if(g_resizeBlocked.load(std::memory_order_acquire))return false;
+    HWND window=g_orig ? Global<HWND>(kWindow):nullptr;
+    // A minimized/zero client is transient. Retain its last working targets and
+    // pending request without turning a valid startup choice into a rejection.
+    if(!IsWindow(window) || IsIconic(window))return false;
+    const auto dpi=rvk::display::dpi::Inspect(window);
+    if(!dpi.observed.logicalWidth || !dpi.observed.logicalHeight)return false;
+    if(dpi.decision.nativeOverride)return true;
+    g_resizeBlocked.store(true,std::memory_order_release);
+    g_restoreWindowPending.store(true,std::memory_order_release);
+    rvk::display::DisableOverride(rnative::IniPath(),dpi.decision.reason);
+    Log("display native resize retained working targets: %s; saved configuration unchanged",dpi.decision.reason);
+    return false;
+}
+bool DeferResize(void* randy,uint32_t width,uint32_t height) {
+    return ResizeDisplayEligible() && g_pendingResize.Enqueue(randy,width,height);
+}
+bool OwnsRandy(void* randy) {return g_pendingResize.Owns(randy);}
+void DrainPendingResize() {
+    if(!g_orig || rvk::presentation::InsideWindowCallback())return;
+    HWND window=Global<HWND>(kWindow);
+    if(window && (!IsWindow(window) || IsIconic(window)))return;
+    RestoreWorkingWindow();
+    if(!ResizeDisplayEligible()){RestoreWorkingWindow();return;}
+    void* current=Global<void*>(kRandy);
+    auto request=g_pendingResize.Take(current);
+    if(request.owner && request.owner==Global<void*>(kRandy))ResizeFrameBuffer(request.owner,nullptr,int32_t(request.width),int32_t(request.height));
+}
+
+HWND DisplayWindow(){return g_orig ? Global<HWND>(kWindow):nullptr;}
 
 void Install(HMODULE orig)
 {

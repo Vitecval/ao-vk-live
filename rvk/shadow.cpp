@@ -1096,7 +1096,7 @@ bool Device::ShadowReceiver(uint32_t fvf) const
     if (!m_rs[d3d::RS_ALPHABLENDENABLE])
         // The ground's base pass, where a lightmap + lights pass follows (it did last frame): that pass takes the
         // shadow instead (ShadowInLightmap), so local lights can fill shadows in.
-        return (m_groundOne && m_native.combinedPass && SharedGroundPlus()) || !(IsTerrain(fvf) && m_terrainLitPassPrev);
+        return (m_groundOne && m_native.combinedPass && SharedGroundPlus() && !SharedTerrainPatches()) || !(IsTerrain(fvf) && m_terrainLitPassPrev);
     uint32_t src = m_rs[d3d::RS_SRCBLEND], dst = m_rs[d3d::RS_DESTBLEND];
     return (src == d3d::BLEND_SRCALPHA && dst == d3d::BLEND_INVSRCALPHA) || (src == d3d::BLEND_ONE && dst == d3d::BLEND_ZERO);
 }
@@ -1104,7 +1104,7 @@ bool Device::ShadowReceiver(uint32_t fvf) const
 bool Device::IsMultiplyPass() const
 {
     if (m_groundOne)
-        return !(m_native.combinedPass && SharedGroundPlus()); // classic combined stays an opaque material pass
+        return !(m_native.combinedPass && SharedGroundPlus() && !SharedTerrainPatches()); // classic combined stays an opaque material pass
     uint32_t src = m_rs[d3d::RS_SRCBLEND], dst = m_rs[d3d::RS_DESTBLEND];
     return m_rs[d3d::RS_ALPHABLENDENABLE] &&
            ((src == d3d::BLEND_ZERO && dst == d3d::BLEND_SRCCOLOR) || (src == d3d::BLEND_DESTCOLOR && dst == d3d::BLEND_ZERO));
@@ -1113,7 +1113,7 @@ bool Device::IsMultiplyPass() const
 bool Device::IsCombinedTerrainPass() const
 {
     using namespace d3d;
-    if (m_native.drawing) return m_groundOne && m_native.combinedPass && SharedGroundPlus();
+    if (m_native.drawing) return m_groundOne && m_native.combinedPass && SharedGroundPlus() && !SharedTerrainPatches();
     // Retail also submits this lightmap/base layout with fixed-function lighting
     // disabled. Its texture stages and coordinates still define a combined pass.
     return !m_native.drawing && !m_rs[RS_ALPHABLENDENABLE] && m_textures[0] && m_textures[1] &&

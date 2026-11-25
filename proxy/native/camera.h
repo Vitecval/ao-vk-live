@@ -11,5 +11,6 @@ void Install(HMODULE orig);
 // camera turned: user, 2026-10-18). The renderer's fog goes out with it (rvk Device::SetViewRange).
 void SetViewRange(float range);
 void SetSceneryRange(float range);
+void DisplayAspect(void* camera,uint32_t width,uint32_t height,bool fullMain);
 
 }  // namespace rnative::camera

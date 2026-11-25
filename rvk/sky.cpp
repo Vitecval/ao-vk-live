@@ -5,6 +5,7 @@
 // by its climate (phase 3): deserts and wastelands clearer, coasts, islands and forests cloudier (RVK_SkyZones).
 #include "internal.h"
 #include "weather_options.h"
+#include "area_profiles.h"
 
 #include <algorithm>
 #include <chrono>
@@ -103,6 +104,8 @@ void Device::SetSkyPlayfield(uint32_t playfield)
     m_cascadeCount = 0;
     if(m_living || m_livingAttempt) DestroyLiving();
     m_skyPlayfield = playfield;
+    for(auto* lights:{&m_lightsPrev,&m_lightsCur})
+        lights->erase(std::remove_if(lights->begin(),lights->end(),[](const auto& light){return light.lava;}),lights->end());
     m_constantsDirty=m_frameLightsDirty=true; // zone-specific authored light response
     for(auto& beacons:m_shipBeacons)beacons=ShipBeaconSet{};
     m_ambientOriginCount=0;m_ambientRefresh=-1.0;m_ambientPlayfield=~0u;
@@ -135,7 +138,12 @@ float Device::SkyCloudiness() const
     const double t = SkyClock();
     const float v = 0.75f * Noise(t, 5400.0, 17u) + 0.25f * Noise(t, 1500.0, 29u) +
                     m_skyZoneLean * std::clamp(m_cloudParams.zones, 0.0f, 1.0f);
-    return std::clamp((v - 0.25f) / 0.6f, 0.0f, 1.0f);
+    const float amount=std::clamp((v - 0.25f) / 0.6f, 0.0f, 1.0f);
+    const auto biome=areas::For(m_skyPlayfield);
+    if(m_skyStyle>.5f && !m_indoors &&
+        (biome==areas::Biome::Snow || biome==areas::Biome::Volcanic))
+        return .12f+.40f*amount; // open regional Soft skies; explicit weather above still wins
+    return amount;
 }
 
 // The wind's way when the game gives none (its rain's wind gives one): turning slowly over hours, from the clock -
@@ -604,6 +612,15 @@ void Device::DrawSkyGlow()
     push.view[1] = float(m_scene->m_height);
     push.view[2] = ours ? 1.0f : 0.0f;
     std::memcpy(push.sky, m_skyModel, sizeof(push.sky));
+    // Sky style is independent of the optional star population.
+    push.night[2]=ours && m_skyStyle>.5f ? 1.f+std::clamp(NightAmount(),0.f,1.f):0.f;
+    // Penumbra/Inferno deliberately keep a bright, open sky in Soft style.
+    // This is sky art direction only; it never changes the sun clock or exposure.
+    if(ours && m_skyStyle>.5f && !m_indoors) {
+        auto biome=areas::For(m_skyPlayfield);
+        if(biome==areas::Biome::Snow){push.night[2]=1.f+.18f*std::clamp(NightAmount(),0.f,1.f);push.aurora[3]=1.f;}
+        if(biome==areas::Biome::Volcanic){push.night[2]=1.f+.28f*std::clamp(NightAmount(),0.f,1.f);push.aurora[3]=1.f;}
+    }
     // Our night sky (docs/sky-plan.md §2-4): the star frame - turning round a pole 35 degrees up towards +z with the
     // sun's hour, so the stars wheel through the night with it -, how much shows, the shooting star, the aurora.
     if (ours && m_nightSky.stars) {
@@ -622,7 +639,6 @@ void Device::DrawSkyGlow()
         push.star[2][3] = std::clamp(m_nightSky.twinkle, 0.0f, 1.0f);
         push.night[0] = std::max(m_nightSky.galaxy, 0.0f);
         push.night[1] = float(std::fmod(m_frameClock, 3600.0));
-        push.night[2] = m_skyStyle>.5f ? 1.f+std::clamp(NightAmount(),0.f,1.f):0.f;
         push.night[3] = m_auroraNow;
         std::memcpy(push.meteor, m_meteor, sizeof(push.meteor));
         // (The twilight model's slots - unused under our own sky: sky_glow.frag reads them only over the game's - hold

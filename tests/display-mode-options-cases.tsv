@@ -1,0 +1,15 @@
+# name<TAB>Mode<TAB>Width<TAB>Height<TAB>Monitor<TAB>validity; - means absent
+defaults	-	-	-	-	valid
+native1080	Windowed	1920	1080	\\.\DISPLAY1	valid
+native1440	Borderless	2560	1440	\\.\DISPLAY2	valid
+native4k	Borderless	3840	2160	\\.\DISPLAY1	valid
+ultrawide	Windowed	5120	1440	\\.\DISPLAY3	valid
+gamecustom	Game	3440	1440	-	valid
+lowercase	windowed	1920	1080	\\.\display1	valid
+halfdefault	Game	0	1080	-	invalid
+negative	Windowed	-1920	1080	-	invalid
+overflow	Borderless	65536	2160	-	invalid
+partialnumber	Windowed	1920px	1080	-	invalid
+badmode	Exclusive	1920	1080	-	invalid
+badmonitor	Windowed	1920	1080	DISPLAY1	invalid
+emptymonitor	Borderless	0	0	-	valid

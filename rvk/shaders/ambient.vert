@@ -9,7 +9,12 @@ layout(location=3) out vec4 vClip;
 layout(location=4) out vec4 vPrevClip;
 layout(location=5) out float vGlow;
 layout(location=6) flat out float vShape;
-vec3 Position(vec3 origin,float t,float seed,float kind,float variant) {
+vec3 Position(vec3 origin,float t,float seed,float kind,float variant,float ceiling) {
+    if(kind>12.5 && kind<13.5){
+        float span=max(.5,min(8.,ceiling-.08-origin.y));
+        float age=fract(t*(.035+.025*variant)+seed*.173);
+        return origin+vec3(sin(t*.6+seed)*.24,age*span,cos(t*.47+seed*1.7)*.22);
+    }
     // Different small paths rather than a synchronized sheet of sine waves.
     float speed=(.28+.55*fract(seed*2.731))*R.curtains.y, phase=t*speed;
     vec3 spread=vec3(sin(seed*7.17)*3.8,fract(seed*3.17)*1.5,cos(seed*5.37)*3.8);
@@ -22,7 +27,16 @@ vec3 Position(vec3 origin,float t,float seed,float kind,float variant) {
                          1.2+.8*sin(phase*.47+seed),cos(phase*.71+seed)*1.3);
         return origin+spread+(kind>8.5 ? mix(day,insect,R.time.z*.18):day);
     }
-    if(kind>5.5 && kind<8.5) { // snow/ash settle, embers rise, all loop without teleports
+    if(kind>5.5 && kind<6.5) {
+        // Flakes fall through world space and are carried by the same wind as
+        // the vegetation. Each has its own age, fall speed and small curl.
+        float age=fract(t*(.065+.025*variant)+seed*.173);
+        vec2 wind=R.fall.xz;
+        vec2 drift=wind*(age-.5)*(9.+4.*variant);
+        drift+=vec2(sin(t*.8+seed),cos(t*.65+seed*2.))*.45;
+        return origin+spread+vec3(drift.x,5.5-age*6.5,drift.y);
+    }
+    if(kind>6.5 && kind<8.5) { // ash settles, embers rise
         float rise=kind<7.5 && kind>6.5 ? 1.:-1.;
         return origin+spread+vec3(sin(phase*.4+seed)*1.5,2.+rise*1.7*sin(phase*.21+seed),cos(phase*.3+seed));
     }
@@ -36,8 +50,27 @@ void main() {
     uint random=RainHash((id%perAnchor)*7919u+floatBitsToUint(anchor.x)+floatBitsToUint(anchor.z));
     float seed=RainRand(random)*6.2831853;
     float variant=RainRand(random);
-    vec3 p=Position(anchor.xyz,R.time.x,seed,anchor.w,variant),before=Position(anchor.xyz,R.time.y,seed,anchor.w,variant);
-    if(anchor.w>9.5) {
+    float ceiling=anchor.w>12.5 && anchor.w<13.5 ? A.points[64u+id/perAnchor].x:R.fall.y;
+    vec3 p=Position(anchor.xyz,R.time.x,seed,anchor.w,variant,ceiling),before=Position(anchor.xyz,R.time.y,seed,anchor.w,variant,ceiling);
+    if(anchor.w>12.5 && anchor.w<13.5){
+        vShape=5.;vGlow=0.;vColour=vec3(.58,.76,.84);
+        float age=fract(R.time.x*(.035+.025*variant)+seed*.173);
+        float range=distance(p,R.camera.xyz);
+        vAlpha=.18*R.colour.w*smoothstep(0.,.08,age)*(1.-smoothstep(.85,1.,age));
+        vAlpha*=smoothstep(.6,1.5,range)*(1.-smoothstep(10.,16.,range));
+        vAlpha*=smoothstep(.04,.3,ceiling-p.y);
+        vAlpha*=1.-smoothstep(R.curtains.x-.02,R.curtains.x+.02,variant);
+        if(before.y>p.y)before=p; // avoid a motion streak when the bounded lifetime wraps
+        const vec2 corners[6]=vec2[](vec2(-1,-1),vec2(1,-1),vec2(1,1),vec2(-1,-1),vec2(1,1),vec2(-1,1));
+        vCorner=corners[vertex];float radius=.022+.026*variant;
+        vec3 right=vec3(R.view[0][0],R.view[1][0],R.view[2][0]);
+        vec3 up=vec3(R.view[0][1],R.view[1][1],R.view[2][1]);
+        vec3 offset=(right*vCorner.x+up*vCorner.y)*radius;
+        vClip=R.viewProj*vec4(p+offset,1.);vPrevClip=R.prevViewProj*vec4(before+offset,1.);
+        gl_Position=vClip;if(R.camera.w>.5)gl_Position.xy+=FL.taa.xy*gl_Position.w;
+        return;
+    }
+    if(anchor.w>9.5 && anchor.w<12.5) {
         p=anchor.xyz;before=A.points[64u+id].xyz;
         float phase=mod(R.time.x,1.6);
         float flash=phase<.09 || (phase>.19 && phase<.28) ? 1.:.06;
@@ -69,6 +102,7 @@ void main() {
     vShape=snow || ash ? 2.:woodland ? (variant<.58 ? 1.:0.):
            spores ? (variant<.35 ? 2.:variant>.86 ? 3.:0.):
            anchor.w<.5 ? (variant<.36 ? 1.:variant>.88 ? 3.:0.):0.;
+    if(snow)vShape=4.;
     if(snow || ash) {
         // A slow settling flutter, bounded and world anchored.
         p.y-=.35*sin(R.time.x*.35+seed);
@@ -83,6 +117,10 @@ void main() {
     float pulse=.35+.65*pow(.5+.5*sin(R.time.x*(1.3+seed*.1)+seed),2.);
     float distanceToEye=distance(p,R.camera.xyz);
     float opacity=(1.-smoothstep(36.,52.,distanceToEye))*smoothstep(.7,2.,distanceToEye);
+    if(snow){
+        float age=fract(R.time.x*(.065+.025*variant)+seed*.173);
+        opacity*=smoothstep(0.,.08,age)*(1.-smoothstep(.86,1.,age));
+    }
     float density=R.curtains.x;
     if(firefly)density*=.165; // Density 2 has the former 1.5 firefly population.
     opacity*=1.-smoothstep(density-.02,density+.02,RainRand(random));
@@ -93,7 +131,7 @@ void main() {
     if(anchor.w<.5 || snow || ash)opacity*=1.15;
     vec3 tint=mix(vec3(.56,.43,.27),vec3(.72,.78,.52),vegetation);
     if(fleck)tint=vec3(.1,.16,.08);
-    if(snow)tint=vec3(.83,.91,1.);
+    if(snow)tint=vec3(.97,.985,1.);
     if(ash)tint=vec3(.42,.43,.47);
     if(woodland)tint=vec3(.78,.83,.66);
     // Sun/sky-lit particles need daylight contrast against dark foliage.
@@ -112,7 +150,8 @@ void main() {
     vCorner=corners[vertex];
     float radius=spores ? (fleck ? .025:.018):mix(.030,.045,vGlow);
     if(woodland)radius=mix(.038,.027,vGlow);
-    if(snow || ash)radius=.024;
+    if(ash)radius=.024;
+    if(snow)radius=mix(.035,.065,variant);
     if(anchor.w<.5)radius=.036;
     if(spirit || embers)radius=.012;
     radius*=mix(.78,1.24,variant);

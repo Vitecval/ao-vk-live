@@ -21,12 +21,19 @@ inline Biome For(uint32_t id)
     case 4312:return Biome::Marsh;
     case 4880:case 4881:return Biome::Spirit;
     case 4006:case 4320:case 4321:case 4322:case 4324:return Biome::Snow;
-    case 4605:return Biome::Volcanic;
+    case 4005:case 4605:return Biome::Volcanic;
     case 4328:case 4329:case 4330:case 4331:case 4389:case 4390:case 4391:case 4900:return Biome::Ash;
     default:return Biome::General;
     }
 }
 struct Palette { float sky[3], ground[3], sun[3], sideFill; };
+// Inferno's retail red ambient keeps a small heat tint after neutralization.
+// The caller mixes toward the source RGB's own luminance, preserving energy.
+// Leave directional fill, regional palette, lava and local lamps unchanged.
+inline float LegacyAmbientNeutralization(uint32_t id)
+{
+    return For(id)==Biome::Volcanic ? .85f:0.f;
+}
 inline Palette Lighting(uint32_t id)
 {
     if(id==655)return {{.82f,.95f,1.12f},{1.03f,.96f,.84f},{1.035f,1.01f,.96f},.025f};
@@ -37,7 +44,7 @@ inline Palette Lighting(uint32_t id)
     case Biome::Coast:return {{.83f,.96f,1.14f},{.92f,1.f,1.04f},{1.02f,1.f,.98f},.014f};
     case Biome::Spirit:return {{.85f,.91f,1.13f},{.91f,.87f,1.04f},{1.01f,.98f,1.04f},.012f};
     case Biome::Snow:return {{.88f,.98f,1.12f},{.95f,1.f,1.08f},{1.02f,1.f,.97f},.008f};
-    case Biome::Volcanic:return {{.98f,.91f,.88f},{1.16f,.88f,.68f},{1.06f,.98f,.90f},.008f};
+    case Biome::Volcanic:return {{.98f,1.f,1.03f},{1.01f,.99f,.96f},{1.035f,1.f,.97f},.008f};
     case Biome::Ash:return {{.87f,.92f,1.06f},{.94f,.91f,.99f},{1.01f,.98f,1.02f},.006f};
     default:return {{1.f,1.f,1.f},{1.f,.96f,.88f},{1.025f,1.f,.94f},.008f};
     }
@@ -60,7 +67,7 @@ inline int Ambient(uint32_t id)
 struct MoteLook {float colour[3],speed,flutter;};
 inline MoteLook AmbientLook(uint32_t id) {
     switch(For(id)) {
-    case Biome::Snow:return {{.66f,.84f,1.32f},.60f,.65f};
+    case Biome::Snow:return {{.97f,1.01f,1.06f},.78f,.65f};
     case Biome::Spirit:return {{.70f,.86f,1.20f},.55f,1.35f};
     case Biome::Marsh:return {{.78f,1.13f,.71f},.70f,1.20f};
     case Biome::Alien:return {{.65f,1.22f,.78f},.86f,1.45f};

@@ -6,5 +6,6 @@
 namespace rnative::viewport {
 
 void Install(HMODULE orig);
+void PrepareDisplayCamera(void* viewport,void* camera); // shared by projection, pick rays and frustum setup
 
 }  // namespace rnative::viewport

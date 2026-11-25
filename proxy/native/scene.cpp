@@ -2,6 +2,7 @@
 #include "native/scene.h"
 #include "native/cat.h"
 #include "native/diagnostic_walk.h"
+#include "native/attachment_index.h"
 
 #include <cstring>
 #include <string>
@@ -24,6 +25,7 @@ constexpr uint32_t kParent = 0x14;                 // RRefFrame_t: its parent fr
 bool g_active;                                     // Visuals on (hooked here, or driven by viewport.cpp)
 
 void ForgetPages();
+void PruneAttachments();
 
 void* Enter(void* viewport)
 {
@@ -31,6 +33,7 @@ void* Enter(void* viewport)
     g_viewport = viewport;
     ++g_renders;
     ForgetPages();
+    PruneAttachments();
     return previous;
 }
 
@@ -122,7 +125,7 @@ struct Cached {
     uint32_t stamp = 0;
     VisualInfo info;
     // Describe's walk up the frames to a character's attractors (AttachedOwner): its answer, while the attachments
-    // (g_attachGeneration) and the visual's parent are as they were.
+    // (g_attachmentIndex.generation) and the visual's parent are as they were.
     uint32_t attachGeneration = ~0u;
     const void* parent = nullptr;
     const void* attachedOwner = nullptr;
@@ -186,36 +189,13 @@ constexpr uint32_t kFirstChild = 0x1C, kNextSibling = 0x18;   // RRefFrame_t chi
 // character is drawn: frame -> the character's visual (RCATMesh_t's RVisual_t, at +0x3C in it).
 constexpr uint32_t kAttachedMap = 0x1E8 - 0x3C;   // the map, from the visual: allocator, head, size
 constexpr uint32_t kNodeName = 0x0C, kNodeFrames = 0x28, kNodeIsHead = 0x39;
-std::unordered_map<const void*, const void*> g_attachedTo;   // attractor child frame -> character visual
-struct AttachedFrames {
-    uint32_t stamp = 0;                          // g_renders when indexed
-    std::vector<const void*> frames;
-};
-std::unordered_map<const void*, AttachedFrames> g_attachments;   // character visual -> its frames
-uint32_t g_attachGeneration = 0;                // g_attachedTo changed (Describe's cached walks)
+attachments::Index g_attachmentIndex;
 
-void IndexAttachments(const void* character)
+std::vector<const void*> ReadAttachmentFrames(const void* character)
 {
-    AttachedFrames& a = g_attachments[character];
-    if (a.stamp == g_renders && !a.frames.empty())
-        return;                                  // (once a render)
-    a.stamp = g_renders;
-    // The frames read again; the index changed only if they differ from last time (most renders: the same).
-    static std::vector<const void*> frames;
-    frames.clear();
-    const auto apply = [&] {
-        if (frames == a.frames)
-            return;
-        for (const void* f : a.frames) {
-            auto it = g_attachedTo.find(f);
-            if (it != g_attachedTo.end() && it->second == character) g_attachedTo.erase(it);
-        }
-        for (const void* f : frames) g_attachedTo[f] = character;
-        a.frames = frames;
-        ++g_attachGeneration;
-    };
+    std::vector<const void*> frames;
     const void* head = SafeRead(character, kAttachedMap + 4);
-    if (!head) { apply(); return; }
+    if (!head) return frames;
     // In-order walk of the red-black tree (VS2010: head->parent = root; the head node and nil leaves are the head).
     const void* stack[64];
     int depth = 0, nodes = 0;
@@ -247,21 +227,22 @@ void IndexAttachments(const void* character)
                 }
         n = SafeRead(n, 8);                      // right
     }
-    apply();
-    // Characters not drawn for a while: their frames forgotten.
-    if ((g_renders & 1023) == 0)
-        for (auto it = g_attachments.begin(); it != g_attachments.end();) {
-            if (g_renders - it->second.stamp > 2000) {
-                for (const void* f : it->second.frames) {
-                    auto at = g_attachedTo.find(f);
-                    if (at != g_attachedTo.end() && at->second == it->first) g_attachedTo.erase(at);
-                }
-                it = g_attachments.erase(it);
-                ++g_attachGeneration;
-            } else {
-                ++it;
-            }
-        }
+    return frames;
+}
+
+void IndexAttachments(const void* character)
+{
+    g_attachmentIndex.Refresh(character, g_renders,
+        [](const void* owner) { return !std::strcmp(ClassName(owner), "RCATMesh_t"); }, ReadAttachmentFrames);
+}
+
+void PruneAttachments()
+{
+    // This runs even when no character is drawn. Old attractor addresses can
+    // become buildings after zoning; removing the owner invalidates cached
+    // positive ownership as well as the frame index.
+    g_attachmentIndex.Prune(g_renders,
+        [](const void* owner) { return !std::strcmp(ClassName(owner), "RCATMesh_t"); });
 }
 
 // Frame dump diagnostics (NoteDumpRequested): until this render, visuals' frame chains and the attractor index logged.
@@ -277,7 +258,7 @@ void LogChain(const void* visual)
     const void* frame = visual;
     for (int depth = 0; frame && depth < 12; ++depth, frame = SafeRead(frame, kParent)) {
         std::snprintf(part, sizeof(part), "%s%08X %s%s", depth ? " < " : "", unsigned(reinterpret_cast<uintptr_t>(frame)),
-                      ClassName(frame), g_attachedTo.count(frame) ? " [attractor child]" : "");
+                      ClassName(frame), g_attachmentIndex.frames.count(frame) ? " [attractor child]" : "");
         line += part;
     }
     Log("dump chain: %s", line.c_str());
@@ -296,13 +277,17 @@ void LogFrameTree(const void* frame, diagnostics::WalkBudget& budget)
 // The character an object hangs on by an attractor: it, or a frame up its parents, is one's attractor child.
 const void* AttachedOwner(const void* object)
 {
-    if (g_attachedTo.empty())
+    if (g_attachmentIndex.frames.empty())
         return nullptr;
     const void* frame = object;
     for (int depth = 0; frame && depth < 12; ++depth, frame = SafeRead(frame, kParent)) {
-        auto it = g_attachedTo.find(frame);
-        if (it != g_attachedTo.end())
-            return it->second;
+        auto it = g_attachmentIndex.frames.find(frame);
+        if (it != g_attachmentIndex.frames.end()) {
+            const void* owner = it->second;
+            IndexAttachments(owner);        // validates owner and refreshes recycled attachment addresses
+            it = g_attachmentIndex.frames.find(frame);
+            if (it != g_attachmentIndex.frames.end() && it->second == owner) return owner;
+        }
     }
     return nullptr;
 }
@@ -408,7 +393,7 @@ void NoteDumpRequested()
     g_chainLogged.clear();
     diagnostics::WalkBudget budget;
     unsigned roots=0;
-    for (const auto& [character, a] : g_attachments)
+    for (const auto& [character, a] : g_attachmentIndex.owners)
         for (const void* f : a.frames) {
             if (++roots>512 || budget.count==budget.seen.size()) {
                 Log("dump attractor tree: stopped at diagnostic node limit");
@@ -431,7 +416,8 @@ VisualInfo Describe(const void* visual)
         LogChain(visual);
     const void* vtable = *static_cast<const void* const*>(visual);
     Cached& c = g_visuals[visual];
-    if (c.vtable != vtable || g_renders - c.stamp >= 2000) {
+    if (c.vtable != vtable || g_renders - c.stamp >= 2000 ||
+        (c.info.kind == Kind::CharacterPart && c.stamp != g_renders)) {
         c.vtable = vtable;
         c.stamp = g_renders;
         c.info.className = ClassName(visual);
@@ -451,8 +437,11 @@ VisualInfo Describe(const void* visual)
         IndexAttachments(visual);
     } else if (info.kind != Kind::CharacterPart && info.kind != Kind::BlobShadow) {
         const void* parent = SafeRead(visual, kParent);
-        if (c.attachGeneration != g_attachGeneration || c.parent != parent) {
-            c.attachGeneration = g_attachGeneration;
+        // A cached positive answer must be revalidated, even when this visual
+        // and its immediate parent keep their addresses across object reuse.
+        if (c.attachedOwner) IndexAttachments(c.attachedOwner);
+        if (c.attachGeneration != g_attachmentIndex.generation || c.parent != parent) {
+            c.attachGeneration = g_attachmentIndex.generation;
             c.parent = parent;
             c.attachedOwner = AttachedOwner(visual);
         }

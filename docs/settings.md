@@ -17,16 +17,16 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-400 settings, 228 of them in the settings window.
+403 settings, 231 of them in the settings window.
 
 ## Sections
 
-- [General](#general) (19)
+- [General](#general) (20)
 - [Lighting](#lighting) (21)
 - [Day/Night Cycle](#day/night-cycle) (2)
 - [Materials](#materials) (32)
 - [Debug](#debug) (8)
-- [Terrain](#terrain) (25)
+- [Terrain](#terrain) (27)
 - [Plants](#plants) (39)
 - [Water](#water) (22)
 - [Weather](#weather) (49)
@@ -49,6 +49,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_Prepass` | Depth pre-pass | on / off | on | ini only; knob |
 | `RVK_PrepassEq` | Depth pre-pass: what it covers shaded only where it is seen | on / off | on | ini only; switch `RVK_Prepass`; knob |
 | `RVK_UiRate` | Interface refresh rate (0 = every frame) | 0 / 30 / 60 / 90 / 120 | 60 | window |
+| `RVK_InstantTips` | Instant tooltips<br>Show item and interface tooltips without the usual hover delay. | on / off | off | window |
 | `RVK_RenderBg` | Render in Background | on / off | off | window |
 | `RVK_ZoneScreen` | Zoning screen | on / off | on | window |
 | `RVK_ZoneClick` | Zoning screen: Click to continue... | on / off | off | window; switch `RVK_ZoneScreen` |
@@ -153,13 +154,15 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | Setting | What it does | Values | Default | Notes |
 | --- | --- | --- | --- | --- |
 | `RVK_TerrainFar` | Distant terrain: broad rock/soil variation and slope definition | 0 .. 1 | 1 | window; game value 0; knob |
+| `RVK_SnowPowder` | Snow powder: soft white cover that preserves paths | 0 .. 1 | 0.65 | window; switch `RVK_TerraBlend`; game value 0; knob |
+| `RVK_SnowPrints` | Snow footprints: fade after a few seconds | on / off | on | window; switch `RVK_TerraBlend`; game value off; knob |
 | `RVK_GroundOn` | Enhanced ground renderer (overrides Shared Ground and Shared Ground+) | on / off | off | window; game value off; was `RVK_NativeGround` |
 | `RVK_GroundOn` | Ground drawn by ao-vk: every patch of land with its own textures to the horizon, no stutter | on / off | on | window; game value off; was `RVK_NativeGround` |
 | `RVK_ImprovedTiles` | ICC Tiles (off retains HD Ground artwork) | on / off | off | window; game value off; knob |
 | `RVK_GroundOne` | Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower) | on / off | on | ini only; switch `RVK_GroundOn`; knob |
 | `RVK_GroundAo` | Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none) | 0 .. 1 | 0.6 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_GroundSun` | Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |
-| `RVK_GroundRocks` | Ground drawn by ao-vk: rocks and scree at the feet of cliffs and on rough slopes (0 = none, 2 = twice as many) | 0 .. 2 | 1 | window; switch `RVK_GroundOn`; game value 0 |
+| `RVK_GroundRocks` | Ground drawn by ao-vk: rocks and scree at the feet of cliffs and on rough slopes (0 = none, 2 = twice as many) | 0 .. 2 | 0.5 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_Pebbles` | Ground drawn by ao-vk: small loose stones on flat dirt, gravel and sand near you (0 = none, 2 = twice as many) | 0 .. 2 | 2 | window; switch `RVK_GroundOn`; game value 0; was `RVK_GroundPebble` |
 | `RVK_SandRipple` | Ground drawn by ao-vk: wind ripples in loose sand, in depth up close (0 = none) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |
 | `RVK_SandPrints` | Ground drawn by ao-vk: footprints in loose sand, where characters walk (0 = none) | 0 .. 1 | 1 | window; switch `RVK_GroundOn`; game value 0 |

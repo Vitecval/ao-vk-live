@@ -14,9 +14,10 @@ namespace {
 #include "shared-hd-gravel.png.inc"
 #include "shared-hd-sand.png.inc"
 #include "shared-hd-rock.png.inc"
+#include "shared-hd-snow.png.inc"
 }
 struct Device::SharedTerrainMaps {
-    maps::MipChain albedo[5];
+    maps::MipChain albedo[6];
     std::string error;
 };
 std::shared_ptr<Device::SharedTerrainMaps> Device::DecodeSharedTerrain(bool hd)
@@ -24,11 +25,11 @@ std::shared_ptr<Device::SharedTerrainMaps> Device::DecodeSharedTerrain(bool hd)
     std::shared_ptr<SharedTerrainMaps> out;
     try {
         out=std::make_shared<SharedTerrainMaps>();
-        const uint8_t* data[]={kSharedGrass,kSharedDirt,kSharedGravel,kSharedSand,kSharedRock};
-        const size_t sizes[]={sizeof(kSharedGrass),sizeof(kSharedDirt),sizeof(kSharedGravel),sizeof(kSharedSand),sizeof(kSharedRock)};
-        const uint8_t* hdData[]={kHdGrass,kHdDirt,kHdGravel,kHdSand,kHdRock};
-        const size_t hdSizes[]={sizeof(kHdGrass),sizeof(kHdDirt),sizeof(kHdGravel),sizeof(kHdSand),sizeof(kHdRock)};
-        for (unsigned i=0;i<5;++i) {
+        const uint8_t* data[]={kSharedGrass,kSharedDirt,kSharedGravel,kSharedSand,kSharedRock,kHdSnow};
+        const size_t sizes[]={sizeof(kSharedGrass),sizeof(kSharedDirt),sizeof(kSharedGravel),sizeof(kSharedSand),sizeof(kSharedRock),sizeof(kHdSnow)};
+        const uint8_t* hdData[]={kHdGrass,kHdDirt,kHdGravel,kHdSand,kHdRock,kHdSnow};
+        const size_t hdSizes[]={sizeof(kHdGrass),sizeof(kHdDirt),sizeof(kHdGravel),sizeof(kHdSand),sizeof(kHdRock),sizeof(kHdSnow)};
+        for (unsigned i=0;i<6;++i) {
             maps::Image image;
             if (!maps::LoadImageFromMemory(hd ? hdData[i]:data[i],hd ? hdSizes[i]:sizes[i],&image,&out->error)) return out;
             maps::MakeAlbedoChain(image,&out->albedo[i]);
@@ -40,7 +41,7 @@ void Device::PollSharedTerrain()
 {
     if (m_native.on || m_sharedTerrain<=0 || !m_skyPlayfield) return;
     auto poll=[this](SharedTerrain& state,bool hd) {
-    if(state.uploaded==5)return;
+    if(state.uploaded==6)return;
     if (!state.started) {
         MEMORYSTATUSEX memory{}; memory.dwLength=sizeof(memory);
         if (GlobalMemoryStatusEx(&memory) && memory.ullAvailVirtual < (384ull<<20)) return;
@@ -57,7 +58,7 @@ void Device::PollSharedTerrain()
     auto maps=state.decoded;
     if (!maps) {Log("shared terrain: insufficient memory; original ground retained");return;}
     if (!maps->error.empty()) {Log("shared terrain: %s; original ground retained",maps->error.c_str());state.decoded.reset();return;}
-    const unsigned stop=hd ? std::min(state.uploaded+1u,5u):5u;
+    const unsigned stop=hd ? std::min(state.uploaded+1u,6u):6u;
     for (unsigned i=state.uploaded;i<stop;++i) {
         state.images[i]=maps::Upload(*this,maps->albedo[i]);
         if (!state.images[i]) {
@@ -69,10 +70,10 @@ void Device::PollSharedTerrain()
         for (unsigned c=0;c<3;++c) state.means[i][c]=float(mean>>(16-8*c)&255u)/255.0f;
         ++state.uploaded;
     }
-    if(state.uploaded<5)return;
+    if(state.uploaded<6)return;
     state.decoded.reset();
     m_frameLightsDirty=true;
-    Log("shared terrain: five %s master materials uploaded; original tile transitions retained",hd ? "full-HD albedo":"detail");
+    Log("shared terrain: six %s master materials uploaded, including snow; original tile transitions retained",hd ? "full-HD albedo":"detail");
     };
     poll(m_sharedGround,false);
     if(m_hdGroundMode>.5f && SharedGroundPlus())poll(m_hdGroundState,true);
@@ -84,6 +85,9 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     std::memset(fl->hdGround,0,sizeof(fl->hdGround));
     std::memset(fl->hdGroundConfig,0,sizeof(fl->hdGroundConfig));
     std::memset(fl->nativeHeight,0,sizeof(fl->nativeHeight));
+    fl->snow[0]=std::clamp(m_snowPowder,0.f,1.f);
+    fl->snow[1]=std::clamp(m_snowPrints,0.f,1.f);
+    fl->snow[2]=m_native.hasSnow ? 1.f:0.f;fl->snow[3]=2.5f;
     if(SharedGroundPlus() && m_native.heights && m_native.ground) {
         uint32_t slot=BindlessImage(m_native.heights)+1;
         std::memcpy(&fl->nativeHeight[0],&slot,4);
@@ -95,6 +99,9 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     fl->sharedGroundConfig[3]=SharedGroundPlus() ? 1.0f : 0.0f;
     if (m_native.on || m_sharedTerrain<=0 || !m_skyPlayfield) return;
     for (Texture* t:m_sharedGround.images) if (!t) return;
+    const uint32_t snowSlot=BindlessImage(m_sharedGround.images[5])+1;
+    std::memcpy(&fl->hdGround[5][0],&snowSlot,4);
+    for(unsigned c=0;c<3;++c)fl->hdGround[5][c+1]=m_sharedGround.means[5][c];
     for (unsigned i=0;i<5;++i) {
         const uint32_t slot=BindlessImage(m_sharedGround.images[i])+1;
         std::memcpy(&fl->sharedGround[i][0],&slot,sizeof(slot));
@@ -105,7 +112,7 @@ void Device::FillSharedTerrainLights(detail::FrameLights* fl)
     fl->sharedGroundConfig[2]=0.0f;
     if(m_hdGroundMode>.5f && SharedGroundPlus()) {
         for(Texture* t:m_hdGroundState.images)if(!t)return;
-        for(unsigned i=0;i<5;++i) {
+        for(unsigned i=0;i<6;++i) {
             const uint32_t slot=BindlessImage(m_hdGroundState.images[i])+1;
             std::memcpy(&fl->hdGround[i][0],&slot,sizeof(slot));
             for(unsigned c=0;c<3;++c)fl->hdGround[i][c+1]=m_hdGroundState.means[i][c];

@@ -1,5 +1,6 @@
 // rvk backend: IDirect3DDevice7 and IDirect3DVertexBuffer7.
 #include "rvk_backend.h"
+#include "window_callback_policy.h"
 #include "rvk_settings.h"
 #include "native/mesh.h"
 #include "native/scene.h"
@@ -239,6 +240,11 @@ HRESULT RDevice::DoSetRenderTarget(LPDIRECTDRAWSURFACE7 iface, DWORD)
     auto* s = static_cast<RSurface*>(iface);
     if (!s || (s->kind != RSurface::Kind::Main && s->kind != RSurface::Kind::RenderTarget))
         return DDERR_INVALIDPARAMS;
+    if(s->kind==RSurface::Kind::Main){
+        if(rvk::presentation::InsideWindowCallback())return DDERR_SURFACEBUSY;
+        if(!g_rvk.EnsureDevice(s->desc.dwWidth,s->desc.dwHeight))return DDERR_OUTOFVIDEOMEMORY;
+        g_rvk.mainSurface=s;g_rvk.displayWidth=s->desc.dwWidth;g_rvk.displayHeight=s->desc.dwHeight;
+    }
     s->AddRef();
     m_target->Release();
     m_target = s;

@@ -4,6 +4,7 @@
 // outdoor playfields (n3Playfield_t::IsGround): indoors the statels belong to rooms and there is no sun.
 #include "rvk_backend.h"
 #include "rvk_settings.h"
+#include "rvk_sound.h"
 
 #include <windows.h>
 
@@ -48,6 +49,14 @@ bool Resolve()
 }
 
 }  // namespace
+
+bool ReadSoundContext(uint32_t& id,bool& ground) {
+    id=0;ground=false;
+    if(g_gaveUp||!Resolve())return false;
+    const void* pf=g_getPlayfield();if(!pf)return false;
+    uint32_t identity[2]={};g_getResourceId(pf,nullptr,identity);
+    id=identity[1];ground=g_isGround(pf,nullptr);return true;
+}
 
 void StatelFrame()
 {

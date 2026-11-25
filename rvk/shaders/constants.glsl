@@ -12,7 +12,8 @@ struct DrawTransform {
     vec4 sway;                  // plants: model y of the base, 1 / model height, tip sway (world units), 1 = on
     uvec4 lightMask;            // frame lights (bits 0-63 of x, y) that reach the draw's bounding box; z: pushers near it
     vec4 tess;                  // characters' Phong tessellation: level (0 = off), shape (0..1), base vertex (binding 10);
-                                // the native ground's: the most a cell edge, shape, fade distance, cliff rock depth
+                                // the native ground's: the most a cell edge, shape, fade distance, cliff rock depth;
+                                // MAT_CAUSTIC_LIGHT uses only w as its receiver tolerance (no tessellation)
     uvec4 texIdx;               // bindless (set 1): image slots for stage 0, stage 1, bump base, normal map
     uvec4 sampIdx;              // bindless (set 1): sampler slots for stage 0, stage 1, bump, normal
     vec4 icc; // saved glossiness, ICC zone guard, verified identity, reserved
@@ -41,6 +42,21 @@ const uint MAT_ENHANCED_ROCK = 1048576u;
 const uint MAT_ROCK_SHAPE = 2097152u;
 const uint MAT_TEMPLE_BAKE = 4194304u;
 const uint MAT_MATTE_TEMPLE = 8388608u;
+const uint MAT_ICE_SURFACE = 16777216u;
+const uint MAT_READABLE_SIGN = 33554432u;
+const uint MAT_CAUSTIC_LIGHT = 67108864u;
+vec4 CausticReceiverClip(vec4 clip,mat4 projection,float tolerance)
+{
+    // Project a fixed view-distance tolerance, with one representable clip
+    // depth step as the minimum. Screen position and physical geometry stay.
+    float before=clip.z;
+    float correction=abs(projection[2][3])>.5
+        ? projection[3][2]*tolerance/max(clip.w-tolerance,tolerance)
+        : -abs(projection[2][2])*tolerance;
+    float biased=before+correction;
+    clip.z=before>0. ? min(biased,uintBitsToFloat(floatBitsToUint(before)-1u)):biased;
+    return clip;
+}
 const uint MAT_AUTHORED_GROUND = 65536u, MAT_ASPHALT = 131072u;
 const uint MAT_IMMERSIVE_SHIP = 262144u;
 const uint MAT_DISTANT_SCENERY = 524288u;

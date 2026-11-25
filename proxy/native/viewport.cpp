@@ -20,6 +20,10 @@
 #include "native/scene.h"
 #include "native/vc10.h"
 #include "native/xmath.h"
+#include "native/camera.h"
+#include "native/randy_init.h"
+#include "native/main_surface_policy.h"
+#include "window_callback_policy.h"
 
 #include <cstring>
 #include <initializer_list>
@@ -55,6 +59,23 @@ void* Render() { return *g_render; }
 void* Device() { return Field<void*>(Render(), 0); }
 void* Randy() { return *g_randy; }
 
+bool ResolveDisplayRect(uint8_t* vp) {
+    auto layout=randyinit::StartupLayout();
+    displaylayout::Rect asked{Field<uint32_t>(vp,0x1C),Field<uint32_t>(vp,0x20),
+        Field<uint32_t>(vp,0x28),Field<uint32_t>(vp,0x30)};
+    bool main=randyinit::IsMainSurface(Field<void*>(vp,0xB8));
+    if(displaylayout::FullMain(layout,main,asked) && layout.clientWidth && layout.clientHeight &&
+       (layout.clientWidth!=layout.actualWidth || layout.clientHeight!=layout.actualHeight))
+        randyinit::DeferResize(Randy(),layout.clientWidth,layout.clientHeight);
+    auto actual=displaylayout::Effective(layout,main,asked);
+    if(actual.width!=asked.width || actual.height!=asked.height) {
+        Field<uint32_t>(vp,0x24)=Field<uint32_t>(vp,0x28)=actual.width;
+        Field<uint32_t>(vp,0x2C)=Field<uint32_t>(vp,0x30)=actual.height;
+        vp[0x170]=1;
+    }
+    return displaylayout::FullMain(layout,main,actual);
+}
+
 constexpr HRESULT kSurfaceLost = HRESULT(0x887601C2);
 constexpr uint32_t kLastViewport = 0x1BB4EC;        // the viewport whose rectangle the device has
 
@@ -71,14 +92,27 @@ void DeviceMaterial(const void* material)
 // them.
 void __fastcall Update(uint8_t* vp)
 {
+    if(!Randy() || !Render()) {vp[0x170]=1;return;}
+    ResolveDisplayRect(vp);
+    if(rvk::presentation::InsideWindowCallback() && randyinit::OwnsRandy(Randy())) {vp[0x170]=1;return;}
     if (!vp[0x170] && Global<void*>(kLastViewport) == vp) return;
     Global<void*>(kLastViewport) = vp;
     vp[0x170] = 0;
-    const uint8_t* desc = static_cast<const uint8_t*>(orig::surface_t_GetSurfaceDesc(Field<void*>(vp, 0xB8)));
-    const uint32_t surfaceHeight = Field<uint32_t>(const_cast<uint8_t*>(desc), 8);
-    const uint32_t surfaceWidth = Field<uint32_t>(const_cast<uint8_t*>(desc), 0xC);
-    const uint32_t width = Field<uint32_t>(vp, 0x28) <= surfaceWidth ? Field<uint32_t>(vp, 0x28) : surfaceWidth;
-    const uint32_t height = Field<uint32_t>(vp, 0x30) <= surfaceHeight ? Field<uint32_t>(vp, 0x30) : surfaceHeight;
+    const bool fullMain=ResolveDisplayRect(vp);
+    const auto layout=randyinit::StartupLayout();
+    uint32_t surfaceWidth=0,surfaceHeight=0;
+    if(fullMain) {
+        surfaceWidth=layout.actualWidth;surfaceHeight=layout.actualHeight;
+    } else {
+        const uint8_t* desc = static_cast<const uint8_t*>(orig::surface_t_GetSurfaceDesc(Field<void*>(vp, 0xB8)));
+        surfaceHeight = Field<uint32_t>(const_cast<uint8_t*>(desc), 8);
+        surfaceWidth = Field<uint32_t>(const_cast<uint8_t*>(desc), 0xC);
+    }
+    const auto size=framebuffer::MainViewportSize(fullMain,
+        displaylayout::Rect{0,0,Field<uint32_t>(vp,0x28),Field<uint32_t>(vp,0x30)},
+        displaylayout::Rect{0,0,layout.actualWidth,layout.actualHeight},
+        displaylayout::Rect{0,0,surfaceWidth,surfaceHeight});
+    const uint32_t width=size.width,height=size.height;
     Field<uint32_t>(vp, 0x24) = width;
     Field<uint32_t>(vp, 0x2C) = height;
     Field<float>(vp, 0xCC) = 0.0f;                  // D3DVIEWPORT7: x, y, width, height, min z, max z
@@ -88,8 +122,20 @@ void __fastcall Update(uint8_t* vp)
     Field<uint32_t>(vp, 0xC4) = width;
     Field<uint32_t>(vp, 0xC8) = height;
     if (Device()) Com(Device(), 0x34, static_cast<void*>(vp + 0xBC));   // render_t SetViewport (FUN_10023572)
+    if(fullMain) {
+        static void* reported=nullptr;static uint64_t reportedSize=0;
+        uint64_t size=(uint64_t(width)<<32)|height;
+        if(reported!=vp || reportedSize!=size) {
+            const auto layout=randyinit::StartupLayout();
+            Log("display main viewport: D3DVIEWPORT7 %ux%u; requested %ux%u; effective target %ux%u; framebuffer %ux%u; origin %u,%u",
+                width,height,Field<uint32_t>(vp,0x28),Field<uint32_t>(vp,0x30),surfaceWidth,surfaceHeight,
+                layout.actualWidth,layout.actualHeight,Field<uint32_t>(vp,0x1C),Field<uint32_t>(vp,0x20));
+            reported=vp;reportedSize=size;
+        }
+    }
     void* camera = Field<void*>(vp, 0xC);
     if (!camera) return;
+    PrepareDisplayCamera(vp,camera);
     orig::RCamera_t_GetViewMatrix(camera, g_viewMatrix);
     orig::render_t_SetTransformMatrix(Render(), 2, g_viewMatrix);   // VIEW
     // FUN_1004afe5: the view plane window's width over the viewport's, halved.
@@ -278,6 +324,26 @@ void __fastcall SetViewRect(uint8_t* vp, void*, float x, float y, float width, f
 // A new size; the back buffer grown (Randy_t, FUN_10043c48) when it is smaller - or always when `force`.
 void __fastcall Resize(uint8_t* vp, void*, uint32_t width, uint32_t height, bool force)
 {
+    if(!Randy()) {Field<uint32_t>(vp,0x28)=width;Field<uint32_t>(vp,0x30)=height;vp[0x170]=1;return;}
+    if(framebuffer::RetainCallbackResize(rvk::presentation::InsideWindowCallback(),randyinit::OwnsRandy(Randy()),[&]{
+        if(!randyinit::ResizeDisplayEligible())return;
+        const auto callbackLayout=randyinit::StartupLayout();
+        const displaylayout::Rect callbackRect{Field<uint32_t>(vp,0x1C),Field<uint32_t>(vp,0x20),width,height};
+        if(displaylayout::FullMain(callbackLayout,randyinit::IsMainSurface(Field<void*>(vp,0xB8)),callbackRect)) {
+            width=callbackLayout.clientWidth ? callbackLayout.clientWidth:callbackLayout.actualWidth;
+            height=callbackLayout.clientHeight ? callbackLayout.clientHeight:callbackLayout.actualHeight;
+        }
+        if(randyinit::DeferResize(Randy(),width,height)) {
+            Field<uint32_t>(vp,0x28)=width;Field<uint32_t>(vp,0x30)=height;vp[0x170]=1;
+        }
+    }))return; // invalid/minimized requests must never fall through to COM
+    if(!randyinit::ResizeDisplayEligible())return;
+    auto layout=randyinit::StartupLayout();
+    displaylayout::Rect asked{Field<uint32_t>(vp,0x1C),Field<uint32_t>(vp,0x20),width,height};
+    if(displaylayout::FullMain(layout,randyinit::IsMainSurface(Field<void*>(vp,0xB8)),asked)) {
+        width=layout.clientWidth ? layout.clientWidth:layout.actualWidth;
+        height=layout.clientHeight ? layout.clientHeight:layout.actualHeight;
+    }
     if (Field<uint32_t>(vp, 0x24) == width && Field<uint32_t>(vp, 0x2C) == height && !force) return;
     Field<uint32_t>(vp, 0x24) = width;
     Field<uint32_t>(vp, 0x2C) = height;
@@ -297,6 +363,7 @@ void __fastcall Resize(uint8_t* vp, void*, uint32_t width, uint32_t height, bool
 // The direction (on the view plane at distance 1, camera space) through pixel (x, y) of the viewport.
 float* __fastcall CalcPickLine(uint8_t* vp, void*, float* out, uint32_t x, uint32_t y)
 {
+    ResolveDisplayRect(vp);PrepareDisplayCamera(vp,Field<void*>(vp,0xC));
     const float left = ToFloat(Field<uint32_t>(vp, 0x1C)), top = ToFloat(Field<uint32_t>(vp, 0x20));
     const float right = ToFloat(Field<uint32_t>(vp, 0x24) + Field<uint32_t>(vp, 0x1C));
     const float bottom = ToFloat(Field<uint32_t>(vp, 0x2C) + Field<uint32_t>(vp, 0x20));
@@ -312,6 +379,7 @@ float* __fastcall CalcPickLine(uint8_t* vp, void*, float* out, uint32_t x, uint3
 // A world point through view and projection (no divide by w).
 bool __fastcall TransformPointToScreenSpace(uint8_t* vp, void*, const float* point, float* out)
 {
+    ResolveDisplayRect(vp);PrepareDisplayCamera(vp,Field<void*>(vp,0xC));
     xm::M4 view = xm::Identity(), projection = xm::Identity();
     orig::RCamera_t_GetViewMatrix(Field<void*>(vp, 0xC), view.m);
     orig::RCamera_t_GetTransformationMatrix(Field<void*>(vp, 0xC), projection.m);
@@ -519,6 +587,7 @@ void __fastcall Process(uint8_t* vp, void*, void* root)
     }
     occluder::SetFreeCamera(free);
     popin::FrameStart(vp, root);
+    PrepareDisplayCamera(vp,camera);
     orig::RCamera_t_GetViewMatrix(camera, g_viewMatrix);
     orig::render_t_SetTransformMatrix(Render(), 2, g_viewMatrix);
     Field<float>(vp, 0x18) =
@@ -579,6 +648,13 @@ void* __fastcall Delete(void* vp, void*, uint8_t flags)   // FUN_1004c7c8
 }
 
 }  // namespace
+
+void PrepareDisplayCamera(void* viewport,void* camera) {
+    if(!viewport || !camera)return;
+    auto* vp=static_cast<uint8_t*>(viewport);
+    bool fullMain=ResolveDisplayRect(vp);
+    rnative::camera::DisplayAspect(camera,Field<uint32_t>(vp,0x24),Field<uint32_t>(vp,0x2C),fullMain);
+}
 
 void Install(HMODULE orig)
 {

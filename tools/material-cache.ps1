@@ -20,7 +20,7 @@ function Write-AoMaterialBindings([string]$Catalog, [string]$Output, [string]$Cl
             $writer.Write($fields[0])
             foreach ($relative in $fields[1..10]) {
                 if (!$relative) { $writer.Write("`t`t0`t0"); continue }
-                if ($relative -cnotmatch '^randy-vk/packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world)/[A-Za-z0-9_-]+\.png$' -or !$pinned[$relative]) { throw 'Invalid prepared source path.' }
+                if ($relative -cnotmatch '^randy-vk/packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world|penumbra-078|reworked-characters)/[A-Za-z0-9_-]+\.png$' -or !$pinned[$relative]) { throw 'Invalid prepared source path.' }
                 if (!$stamps.ContainsKey($relative)) {
                     $source = if ($Sources.ContainsKey($relative)) { $Sources[$relative] } else { Join-Path $Client $relative }
                     Assert-AoSetupPath $source

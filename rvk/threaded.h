@@ -51,6 +51,7 @@ public:
     uint64_t WorldPresents() const { return m_device.WorldPresents(); }
     uint64_t FreshWorldPresents() const { return m_device.FreshWorldPresents(); }
     uint64_t TemporalEpoch() const { return m_device.TemporalEpoch(); }
+    bool UnderwaterLive(uint32_t zone) const { return m_device.UnderwaterLive(zone); }
     HWND Window() const { return m_window; }
     const DeviceInfo& Info() const { return m_device.Info(); }
     uint32_t Width() const { return m_width; }
@@ -169,7 +170,7 @@ public:
     void SetNormalMaps(bool enable, float strength);
     void SetNormalMap(Texture* texture, Texture* normal);   // the device owns `normal` from here on
     void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha = false);   // ... and these
-    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false);
+    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false, bool independentGroundPainting = false);
     void SetBuildingFamilyReady(uint32_t family, bool ready);
     void SetEmissiveMap(Texture* texture, Texture* emissive);               // ... and this
     void SetLeafArt(Texture* texture, Texture* atlas, Texture* normal);     // ... and these

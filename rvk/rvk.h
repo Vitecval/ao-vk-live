@@ -206,6 +206,11 @@ private:
     Texture* m_ormMap = nullptr;       // PBR material: R occlusion, G roughness, B metallic (owned; SetMaterialMaps)
     Texture* m_albedoMap = nullptr;    // drawn instead of this texture's own pixels (owned; SetMaterialMaps)
     bool m_preserveAlbedoAlpha = false; // replacement RGB keeps the game's coverage / glow mask
+    // Live native screen pixels, with ordinary averaged mips. The game's
+    // original may have only level0 even when replacement colour has a chain.
+    Texture* m_screenMipReference = nullptr;
+    uint32_t m_screenMipUpload = ~0u;
+    uint32_t m_screenMipBuilds = 0;
     Texture* m_emissiveMap = nullptr;  // light the surface gives off, added to it (owned; SetEmissiveMap)
     // A tree canopy's own leaf art (leaves.cpp; owned; SetLeafArt): an atlas of 4 x 4 sprigs (twig base at each cell's
     // bottom middle) drawn in place of this canopy texture's cards, and its normal map; m_leafArtVersion counts changes.
@@ -217,6 +222,7 @@ private:
     uint32_t m_autoMaterial = 0;       // catalog roughness/metallic; 0 means unknown (explicit maps take priority)
     uint32_t m_worldMaterial = 0;      // global architecture profile (top byte: material family)
     bool m_preserveGroundColour = false; // built-in city paving uses original AO RGB
+    bool m_independentGroundPainting = false; // private reviewed or explicit personal painting
     uint32_t m_buildingFamily = 0;     // reviewed artwork readiness group; personal overrides use zero
     uint32_t m_bindless = ~0u;         // its slot in the bindless image array (M1)
     // (Frame dump: its uploads, the frame of the last, and the non-zero bytes of the last whole level 0 - 256 x 256 or
@@ -248,6 +254,8 @@ struct DeviceInfo {
     std::string gpu;
     std::string driver;
     uint32_t apiVersion = 0;
+    uint32_t maxImageDimension2D=0,maxFramebufferWidth=0,maxFramebufferHeight=0;
+    uint32_t maxViewportWidth=0,maxViewportHeight=0;
 };
 
 // The renderer's plain settings (knobs.cpp; docs/audit-2026-10.md §5): each one value a feature reads as it is, set
@@ -311,6 +319,8 @@ struct DeviceInfo {
     X(FarDetail, m_farDetail, C|L)                   /* distant static shading detail saving */ \
     X(HDGround, m_hdGroundMode, C|L)                 /* continuous full-HD terrain albedo */ \
     X(CliffJoin, m_cliffJoin, C|L)                   /* slope-only crest/toe material transition */ \
+    X(SnowPowder, m_snowPowder, C|L)                /* soft snow cover on verified snowy terrain */ \
+    X(SnowPrints, m_snowPrints, C|L)                /* short-lived impressions in powder snow */ \
     X(SkyClouds, m_skyClouds, C)                     /* sky-only cloud enhancement */ \
     X(SkyTraffic, m_skyTraffic, C)                   /* bounded distant cosmetic craft */ \
     X(SkyStyle, m_skyStyle, C|L)                     /* optional soft sky / richer night stars */ \
@@ -409,6 +419,10 @@ public:
     const DeviceInfo& Info() const { return m_info; }
     uint32_t Width() const { return m_width; }
     uint32_t Height() const { return m_height; }
+    uint32_t SceneWidth() const { return m_scene ? m_scene->m_width : 0; }
+    uint32_t SceneHeight() const { return m_scene ? m_scene->m_height : 0; }
+    uint32_t RenderScale() const { return m_renderScale; }
+    bool FrameGenerationActive() const { return m_fg != nullptr; }
 
     void BeginFrame();
     void EndFrame();
@@ -498,7 +512,7 @@ public:
     // `albedo` is drawn instead of the texture's own pixels wherever the texture is used (a higher resolution
     // replacement; its alpha is used too). The device owns both and frees them with the texture; null removes one.
     void SetMaterialMaps(Texture* texture, Texture* orm, Texture* albedo, bool preserveAlpha = false);
-    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false);
+    void SetTextureRdbId(Texture* texture, uint32_t id, uint32_t type = 0, uint32_t buildingFamily = 0, bool preserveGroundColour = false, bool independentGroundPainting = false);
     void SetBuildingFamilyReady(uint32_t family, bool ready);
     // `emissive`: the light a texture's surface gives off (its colour, any resolution), added after the lighting and
     // as bright as PbrSettings::emissive - into the bloom with HDR. Owned by the device as above; null removes it.
@@ -931,10 +945,18 @@ public:
         float fallSpeed = 1.75f;                 // how fast a fall's water falls, x a natural fall's (RVK_WaterSpeed)
         uint32_t quality = 2;                    // 1 low, 2 medium, 3 high: grid density, reflection steps
     };
-    void SetWaterParams(const WaterParams& params) { m_waterParams = params; UpdateWaterReady(); }
+    void SetWaterParams(const WaterParams& params) {
+        if(m_waterParams.enable!=params.enable || m_waterParams.caustics!=params.caustics)m_constantsDirty=true;
+        m_waterParams = params; UpdateWaterReady();
+    }
     void DrawWater(const WaterVertex* vertices, uint32_t vertexCount, const uint16_t* indices, uint32_t indexCount);
     // The water can be drawn (on, HDR on, resources made): the proxy replaces the game's water only then. Any thread.
     bool WaterReady() const { return m_waterReady.load(std::memory_order_relaxed); }
+    bool UnderwaterLive(uint32_t zone) const; // recent captured water/camera context, safe from any thread
+    bool IsUnderwaterScene() const { return m_underwaterScene; } // render thread only
+    bool WaterSurfaceHeight(float x,float z,float& height) const;
+    void UpdateUnderwaterScene();
+    void RenderUnderwaterBubbles(VkCommandBuffer cmd);
 
     // Weather (rain.cpp): the game's weather visuals, drawn by rvk instead. The proxy hands over what the game's
     // weather asks for each frame it is on (VisualRain_t::process: how hard, the wind, its colour); without a hand-off
@@ -1103,6 +1125,7 @@ private:
     friend struct LivingRuntimeProbe;
     friend struct SkinLifetimeCheck;
     friend struct StabilityAuditCheck;
+    friend struct TargetResizeFailureCheck;      // isolated allocation-failure/readback regression
     friend struct SmokeRingCheck;                 // regression fixture: force a flush at the smoke pass
     struct Frame {
         VkCommandBuffer upload = VK_NULL_HANDLE, main = VK_NULL_HANDLE;
@@ -1186,13 +1209,14 @@ private:
     bool CreateFrames(std::string* error);
     Texture* CreateImage(uint32_t width, uint32_t height, Format format, uint32_t levels, bool renderTarget,
                          bool storage = false);
+    Texture* ScreenMipReference(Texture* source);
     friend class ThreadedDevice;
 
     VkDeviceSize Allocate(VkDeviceSize size, VkDeviceSize alignment, void** cpu);
     // Makes sure `bytes` (plus alignment slack) fit in this frame's ring; if not, submits and waits for the
     // work recorded so far and restarts the ring. Call before a group of allocations that belong together.
     void EnsureRingSpace(VkDeviceSize bytes);
-    VkSampler SamplerFor(uint32_t stage, bool material = false);
+    VkSampler SamplerFor(uint32_t stage, bool material = false, bool screen = false);
     void Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32_t vertexCount,
               const uint16_t* indices, uint32_t indexCount);
     void ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride, bool windowGlow = false);
@@ -1281,6 +1305,7 @@ private:
                                                  // in R, G and B, A; 0xFFFF none)
         Texture* anyOrm = nullptr;               // a tile's material map (the lighting pass's stand-in: PBR on)
         bool anyHeight = false;                  // a tile's normal map has a height in its alpha (parallax.glsl)
+        bool hasSnow = false;                    // verified snow/painted snow-path tile family
         Texture* means = nullptr;                // each cell's tile's mean colour (the cliffs' rock tint, filtered)
         uint64_t mapsSignature = 0;              // the tiles' maps and the settings the two textures were made with
         Texture* lightmap = nullptr;
@@ -1289,7 +1314,7 @@ private:
         std::chrono::steady_clock::time_point lightmapSince;   // when this one came
         float lightFit[4] = {};                  // the lightmap as a + b.n of the slope (FitNativeLight): a, b; a = 0 none
         float sun = 1.0f;                        // RVK_GroundSun
-        float rocks = 1.0f;                      // RVK_GroundRocks
+        float rocks = 0.5f;                      // RVK_GroundRocks
         bool clutter = false;                    // the rocks are drawing (ground_clutter.cpp)
         bool tessPatch = false;                  // the patch drawing is near enough to be tessellated (DrawNativeGround)
         uint32_t rocksMade = 0;
@@ -1373,14 +1398,15 @@ private:
     void PollTerrainRock();
     struct SharedTerrainMaps;
     struct SharedTerrain {
-        Texture* images[5]{};
-        float means[5][3]{};
+        Texture* images[6]{};
+        float means[6][3]{};
         bool started = false;
         std::future<std::shared_ptr<SharedTerrainMaps>> pending;
         std::shared_ptr<SharedTerrainMaps> decoded;
         unsigned uploaded=0;
     } m_sharedGround,m_hdGroundState;
     float m_hdGroundMode=0.f;
+    float m_snowPowder=.65f,m_snowPrints=1.f;
     float m_cliffJoin=1.f;
     float m_areaLight=0.f,m_farDetail=0.f;
     float m_skyStyle=0.f,m_skyClouds=0.f,m_skyTraffic=0.f;
@@ -1389,6 +1415,7 @@ private:
     void FillSharedTerrainLights(detail::FrameLights* lights);
     void FillTerrainRockLights(float rock[4], float rock2[4]);
     bool SharedGroundPlus() const { return !m_native.on && m_sharedTerrain>1.0f && m_skyPlayfield!=0; }
+    bool SharedTerrainPatches() const;
     bool ImprovedTile(const Texture* tile) const;
     // Outdoor proof survives camera culling; reset on playfield/indoor entry.
     uint64_t m_daylightWorldSeen = ~0ull;
@@ -1469,6 +1496,7 @@ private:
         std::vector<uint32_t> carrierGroups;     // every group that is the carrier's (sorted): the point shadow pass
         float carrier[3] = {};
         uint32_t cosmeticGroup = ~0u;           // renderer-owned equipment light; never a game carrier
+        bool lava = false;                     // molten surface sample; never follows a character
         float carried = 0.0f;                    // 0..1: counted as a character's light (smoothed over frames)
         uint32_t owner = 0;                      // its carrier (SetDrawVisual owner) when the scene's lights are known
     };
@@ -2606,7 +2634,8 @@ private:
     VkPipeline m_printPipeline = VK_NULL_HANDLE;
     VkPipelineLayout m_printLayout = VK_NULL_HANDLE;
     VkDescriptorSetLayout m_printSetLayout = VK_NULL_HANDLE;
-    bool SandPrintsOn() const { return m_terrainSettings.prints > 0.0f && m_native.on && m_native.ground; }
+    bool SnowPrintsOn() const { return m_snowPrints>0.f && m_native.hasSnow && m_native.ground && (m_native.on || SharedGroundPlus()) && !m_indoors; }
+    bool SandPrintsOn() const { return (m_terrainSettings.prints > 0.0f && m_native.on && m_native.ground) || SnowPrintsOn(); }
     void UpdateSandPrints(VkCommandBuffer cmd);
     void SandPrintLights(float out[3]);
     Texture* m_terrainSunMap = nullptr;
@@ -2679,7 +2708,11 @@ private:
     // The water (water.cpp).
     WaterParams m_waterParams;
     std::atomic<bool> m_waterReady{false};
+    bool m_underwaterScene=false;
+    std::atomic<uint64_t> m_underwaterState{0},m_underwaterStamp{0};
     struct WaterMap {
+        uint32_t contextZone=0,levelWidth=0,levelHeight=0;
+        std::vector<float> surfaceLevels; // finite absolute surface where wet; NaN means dry
         uint64_t key = 0;                        // the mesh's hash
         Texture* texture = nullptr;              // RGBA16F: R height above `base`, G water
         float origin[2] = {}, size[2] = {};      // the map's world x, z origin and size
@@ -2687,6 +2720,8 @@ private:
         float base = 0.0f, texel = 1.0f, extent = 0.0f;
         uint32_t flatTriangles = 0, colour = 0;
         uint64_t lastFrame = 0;
+        int32_t lavaCell[3]={0x7fffffff,0x7fffffff,0x7fffffff};
+        std::vector<std::array<float,3>> lavaPoints;
     };
     std::vector<WaterMap> m_waterMaps;
     struct WaterGrid { uint32_t segments = 0; VkBuffer buffer = VK_NULL_HANDLE; VmaAllocation_T* allocation = nullptr; };
@@ -2711,6 +2746,7 @@ private:
     VkPipeline m_waterPipeline = VK_NULL_HANDLE;
     VkSampler m_waterRepeatSampler = VK_NULL_HANDLE;
     Texture* m_waterDetail = nullptr;            // RG ripple slope, B noise, A cell edges (tiled, mipmapped)
+    Texture* m_lavaDetail = nullptr;             // authored molten surface, shared with the liquid pipeline
     Texture* m_waterSceneCopy = nullptr;         // the scene before the water (once a frame)
     VkImage m_waterDepthCopy = VK_NULL_HANDLE;   // ... and its depth
     VkImageView m_waterDepthCopyView = VK_NULL_HANDLE;
@@ -3438,6 +3474,7 @@ private:
     bool m_glowCleared = false;                  // this frame
     uint32_t m_glowDraws = 0;                    // this frame's draws feeding the glow (frame dumps)
     bool SurfaceSheen(uint32_t fvf) const;   // an added layer on a surface (depth EQUAL): not an effect
+    bool CausticOverlay(uint32_t fvf) const; // proven animated underwater receiver-light field
     bool GlowDraw(uint32_t fvf) const;
     bool GlowOccluder(uint32_t fvf) const;
     bool IsInterfaceDraw(uint32_t fvf,uint32_t primitive,const void* vertices,uint32_t vertexCount) const;
@@ -3738,7 +3775,7 @@ private:
                         uint32_t recordIndex, uint64_t key);
     uint32_t m_constantsFvf = ~0u;
     uint32_t m_constantsTexMask = ~0u;
-    bool m_constantsTerrain = false, m_constantsLabel = false;
+    bool m_constantsTerrain = false, m_constantsLabel = false, m_constantsCaustic = false;
     uint32_t m_constantsFoliageLod = 0;          // FoliageFar: 0 near, 1 far foliage, 2 far plant
     bool m_constantsCharacter = false;
     bool m_constantsOpaque = false;              // the draw's textures are fully opaque (F_CUTOUT omitted; Draw)
@@ -3960,8 +3997,8 @@ private:
     uint32_t BindlessSampler(VkSampler s);       // its slot, registering it on first use
     // A draw's sampler slots without the two map lookups (SamplerFor, then the slot) per sampler: each stage's last
     // sampler state and slot, and the last slot of each fixed sampler (bump, normal map) by handle.
-    uint64_t SamplerKey(uint32_t stage, bool material = false) const;
-    uint32_t StageSamplerSlot(uint32_t stage, bool material = false);
+    uint64_t SamplerKey(uint32_t stage, bool material = false, bool screen = false) const;
+    uint32_t StageSamplerSlot(uint32_t stage, bool material = false, bool screen = false);
     uint32_t FixedSamplerSlot(uint32_t which, VkSampler s);
     uint64_t m_stageSamplerKey[2] = {~0ull, ~0ull};
     uint32_t m_stageSamplerSlot[2] = {};

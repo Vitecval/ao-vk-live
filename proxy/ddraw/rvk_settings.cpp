@@ -8,6 +8,7 @@
 #include "native/occluder.h"
 #include "native/ground.h"
 #include "native/rings.h"
+#include "native/tooltip_delay.h"
 
 #include <windows.h>
 
@@ -39,15 +40,20 @@ struct Setting {
     const char* parent;         // the feature's on / off setting: while it is off this one takes its game value
                                 // (kVanilla; settings not listed there only tune the feature)
     const char* choices;        // Choice: the allowed values, separated by spaces
+    const char* help=nullptr;
 };
 
 // Every renderer option. Order = display order within each section.
 Setting g_settings[] = {
     // name               label                                                     section             type    min    max    step   default env                        value parent           choices
     {"RVK_Enhance",    "All enhancements (Ctrl+Shift+E)", "General", Bool, 0, 1, 1, 1, nullptr, 0},
+    {"RVK_ReworkSound","Reworked Sound","Audio",Bool,0,1,1,0,nullptr,0,nullptr,nullptr,"Adds enhanced regional ambience. Original music, combat sounds and voices are unchanged."},
+    {"RVK_SoundVol","Ambience volume","Audio",Float,0,1,.05f,.6f,nullptr,0,nullptr,nullptr,"Volume of the reworked ambience only. Original music, effects and system volume are unchanged."},
     {"RVK_Prepass",    "Depth pre-pass", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_PrepassEq",  "Depth pre-pass: what it covers shaded only where it is seen", "General", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_Prepass"},
     {"RVK_UiRate", "Interface refresh rate (0 = every frame)", "General", Choice, 0, 120, 1, 60, nullptr, 0, nullptr, "0 30 60 90 120"},
+    {"RVK_InstantTips", "Instant tooltips", "General", Bool, 0, 1, 1, 0, nullptr, 0, nullptr, nullptr,
+        "Show item and interface tooltips without the usual hover delay."},
     {"RVK_RenderBg", "Render in Background", "General", Bool, 0, 1, 1, 0, nullptr, 0},
     {"RVK_ZoneScreen", "Zoning screen", "General", Bool, 0, 1, 1, 1, nullptr, 0},
     {"RVK_ZoneClick", "Zoning screen: Click to continue...", "General", Bool, 0, 1, 1, 0, nullptr, 0, "RVK_ZoneScreen"},
@@ -108,6 +114,8 @@ Setting g_settings[] = {
     {"RVK_TerraRough", "Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail)", "Materials", Float, 0, 1, .05f, .6f, nullptr, 0},
     {"RVK_HDGround", "HD Ground Textures", "Materials",Bool,0,1,1,0,nullptr,0},
     {"RVK_CliffJoin","Cliff edge softness","Materials",Float,0,1,.1f,1,nullptr,0,"RVK_TerraBlend"},
+    {"RVK_SnowPowder","Snow powder: soft white cover that preserves paths","Terrain",Float,0,1,.05f,.65f,nullptr,0,"RVK_TerraBlend"},
+    {"RVK_SnowPrints","Snow footprints: fade after a few seconds","Terrain",Bool,0,1,1,1,nullptr,0,"RVK_TerraBlend"},
     {"RVK_WearDebug", "Building weathering diagnostics: Off / Counters / Pixel coverage", "Debug", Choice, 0, 2, 1, 0, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowDepth", "Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows)", "Materials", Choice, 0, 2, 1, 1, nullptr, 0, nullptr, "0 1 2"},
     {"RVK_WindowActivity", "Window lights: slow apartment activity (off uses static light states)", "Materials", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_WindowDepth"},
@@ -130,7 +138,7 @@ Setting g_settings[] = {
     {"RVK_GroundOne",  "Ground drawn by ao-vk: in one pass - its texture and its light together (off: the game's two passes, the same look, slower)", "Terrain", Bool, 0, 1, 1, 1, nullptr, 0, "RVK_GroundOn"},
     {"RVK_GroundAo",   "Ground drawn by ao-vk: valleys and the feet of cliffs darker, as less of the sky reaches them (0 = none)", "Terrain", Float, 0, 1, 0.05f, 0.6f, nullptr, 0, "RVK_GroundOn"},
     {"RVK_GroundSun",  "Ground drawn by ao-vk: slopes lit from where the sun is now, not where it was when the hour's light was made (0 = as made)", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_GroundOn"},
-    {"RVK_GroundRocks", "Ground drawn by ao-vk: rocks and scree at the feet of cliffs and on rough slopes (0 = none, 2 = twice as many)", "Terrain", Float, 0, 2, 0.25f, 1, nullptr, 0, "RVK_GroundOn"},
+    {"RVK_GroundRocks", "Ground drawn by ao-vk: rocks and scree at the feet of cliffs and on rough slopes (0 = none, 2 = twice as many)", "Terrain", Float, 0, 2, 0.25f, .5f, nullptr, 0, "RVK_GroundOn"},
     {"RVK_Pebbles", "Ground drawn by ao-vk: small loose stones on flat dirt, gravel and sand near you (0 = none, 2 = twice as many)", "Terrain", Float, 0, 2, 0.25f, 2, nullptr, 0, "RVK_GroundOn"},
     {"RVK_SandRipple", "Ground drawn by ao-vk: wind ripples in loose sand, in depth up close (0 = none)", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_GroundOn"},
     {"RVK_SandPrints", "Ground drawn by ao-vk: footprints in loose sand, where characters walk (0 = none)", "Terrain", Float, 0, 1, 0.1f, 1, nullptr, 0, "RVK_GroundOn"},
@@ -495,6 +503,7 @@ const Vanilla kVanilla[] = {
     {"RVK_AreaLight",0},{"RVK_HDGround",0},{"RVK_SceneryFill",0},{"RVK_FarDetail",0},{"RVK_SkyStyle",0},
     {"RVK_ShipLights",0},{"RVK_ShipLightPower",0},{"RVK_SkyClouds",0},{"RVK_SkyTraffic",0},
     {"RVK_CliffJoin",0},
+    {"RVK_SnowPowder",0}, {"RVK_SnowPrints",0},
     {"RVK_LightGlow",0}, {"RVK_AmbientMotes",0}, {"RVK_AmbientBright",0},
     {"RVK_WindowDepth", 0},
     {"RVK_WindowActivity", 1},
@@ -667,17 +676,17 @@ float V(const char* name)
     }
     const bool cyber = Stored("RVK_ModernTex") == 2.0f && Stored("RVK_Enhance") != 0.0f;
     if (std::strcmp(name, "RVK_TerraBlend") == 0) return cyber && Stored("RVK_GroundOn")==0 ? s->value : 0.0f;
-    // Shared Ground+ keeps the retail surface boundaries; geometric rounding
-    // and cliff displacement can detach it from overlapping AO terrain decals.
+    // Shared Ground+ uses these geometry controls for Penumbra's native
+    // patches; other regions retain their submitted surface boundaries.
     if (plus && std::strcmp(name,"RVK_Pebbles")==0) return 0.15f;
     if (plus && (std::strcmp(name,"RVK_GroundAo")==0 || std::strcmp(name,"RVK_GroundSun")==0 ||
                  std::strcmp(name,"RVK_DuneLight")==0 || std::strcmp(name,"RVK_GroundBlend")==0 ||
                  std::strcmp(name,"RVK_SandRipple")==0 || std::strcmp(name,"RVK_RippleDepth")==0 ||
                  std::strcmp(name,"RVK_SandGlint")==0 || std::strcmp(name,"RVK_SandPrints")==0 ||
-                 std::strcmp(name,"RVK_GroundTess")==0 || std::strcmp(name,"RVK_CliffDepth")==0 ||
                  std::strcmp(name,"RVK_WaterRipple")==0)) return 0.0f;
     if (plus && (std::strcmp(name,"RVK_GroundRocks")==0 || std::strcmp(name,"RVK_GroundOne")==0 ||
-                 std::strcmp(name,"RVK_GroundGrain")==0)) return s->value;
+                 std::strcmp(name,"RVK_GroundGrain")==0 || std::strcmp(name,"RVK_GroundTess")==0 ||
+                 std::strcmp(name,"RVK_CliffDepth")==0)) return s->value;
     const bool characterMaterials = Stored("RVK_AutoMat") != 0.0f && Stored("RVK_MatStrength") > 0.0f &&
                                     Stored("RVK_Enhance") != 0.0f;
     const bool worldMaterials = (Stored("RVK_TerrainHD") > 0.0f || Stored("RVK_BuildingHD") > 0.0f) && Stored("RVK_Enhance") != 0.0f;
@@ -910,6 +919,8 @@ void Apply(const Setting& s, rvk::ThreadedDevice* d)
 // Puts one setting into effect: each device call takes the setting and its partners.
 void ApplyOne(const Setting& s, rvk::ThreadedDevice* d)
 {
+    if(std::strcmp(s.name,"RVK_ReworkSound")==0 || std::strcmp(s.name,"RVK_SoundVol")==0)return; // SoundFrame reads saved audio choices independently of graphics.
+    if(std::strcmp(s.name,"RVK_InstantTips")==0){rnative::tooltips::SetInstant(V(s.name)!=0);return;}
     if (!d) return;
     const char* n = s.name;
     auto is = [n](const char* a) { return std::strcmp(n, a) == 0; };
@@ -1668,6 +1679,7 @@ bool PresetApply(uint32_t i)
 {
     Load();
     if (i >= kPresetCount) return false;
+    Set("RVK_ReworkSound",0.f);
     Set("RVK_ZoneScreen", 1.0f);
     Set("RVK_SkipHugeShadows", 0.0f);
     if (i == 0) {
@@ -1778,6 +1790,7 @@ bool Info(uint32_t index, RvkSettingInfo* out, bool* hidden)
     out->defaultValue = s.defaultValue;
     out->parent = AlwaysOn(s.parent) ? nullptr : s.parent;
     out->choices = s.choices;
+    out->help = s.help;
     if (hidden) *hidden = Hidden(s);
     return true;
 }
@@ -1828,10 +1841,11 @@ int RvkSettings_Get(uint32_t index, RvkSettingInfo* out)
     out->step = s.step;
     out->value = SettingValue(s);
     out->defaultValue = s.defaultValue;
-    if (out->size >= sizeof(RvkSettingInfo)) {
+    if (out->size >= offsetof(RvkSettingInfo,help)) {
         out->parent = AlwaysOn(s.parent) ? nullptr : s.parent;   // (grouped by their section instead)
         out->choices = s.choices;
     }
+    if(out->size>=sizeof(RvkSettingInfo))out->help=s.help;
     return 1;
 }
 

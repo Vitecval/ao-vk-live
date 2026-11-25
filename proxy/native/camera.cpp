@@ -17,10 +17,13 @@
 #include "native/xmath.h"
 #include "native/view_ranges.h"
 #include "native/occlusion_policy.h"
+#include "native/display_layout_policy.h"
+#include "native/viewport.h"
 
 #include <atomic>
 #include <cmath>
 #include <cstring>
+#include <array>
 
 namespace rnative::camera {
 
@@ -54,6 +57,29 @@ constexpr uint32_t kLeft = 0xA4, kTop = 0xA8, kRight = 0xAC, kBottom = 0xB0, kFr
 constexpr uint32_t kLight = 0xA4, kLightBytes = 0x68, kType = 0x10C, kIndex = 0x110, kEnabled = 0x118;
 constexpr uint32_t kPosition = kLight + 0x34, kDirection = kLight + 0x40, kRange = kLight + 0x4C,
                    kTheta = kLight + 0x60, kPhi = kLight + 0x64;
+
+struct DisplayProjection {
+    void* camera=nullptr;
+    displaylayout::Window source{},applied{};
+    bool active=false;
+    uint32_t width=0,height=0;
+};
+std::array<DisplayProjection,64> g_displayProjection{}; // bounded; no per-frame/callback allocations
+displaylayout::Window ReadWindow(void* c) {
+    return {Field<float>(c,kLeft),Field<float>(c,kTop),Field<float>(c,kRight),Field<float>(c,kBottom),Field<float>(c,kAspect)};
+}
+void WriteWindow(void* c,displaylayout::Window w) {
+    Field<float>(c,kLeft)=w.left;Field<float>(c,kTop)=w.top;Field<float>(c,kRight)=w.right;
+    Field<float>(c,kBottom)=w.bottom;Field<float>(c,kAspect)=w.aspect;
+}
+bool SameWindow(displaylayout::Window a,displaylayout::Window b) {
+    return std::fabs(a.left-b.left)<1e-6f && std::fabs(a.right-b.right)<1e-6f && std::fabs(a.top-b.top)<1e-6f &&
+        std::fabs(a.bottom-b.bottom)<1e-6f && std::fabs(a.aspect-b.aspect)<1e-6f;
+}
+DisplayProjection* Projection(void* c) {
+    for(auto& state:g_displayProjection)if(state.camera==c)return &state;
+    return nullptr;
+}
 
 void SetVtable(Frame* f, uint32_t vtable) { Field<uintptr_t>(f, 0) = reinterpret_cast<uintptr_t>(g_orig) + vtable; }
 const float* World(void* f) { return static_cast<const float*>(orig::RRefFrame_t_GetWorldMatrix(f)); }
@@ -102,10 +128,12 @@ void SetWindow(Frame* c, float fov, float aspect)
     Field<float>(c, kTop) = top;
     Field<float>(c, kBottom) = -t / aspect;
     Field<float>(c, kAspect) = t / top;
+    if(auto* state=Projection(c)){state->source=state->applied=ReadWindow(c);state->active=false;}
 }
 
 void InitCameraPart(Frame* c)                      // what every constructor sets after RRefFrame_t's
 {
+    if(auto* state=Projection(c))*state={};
     SetVtable(c, kCameraVtable);
     std::memset(c + kSphere, 0, 12);
     std::memset(c + kForward, 0, 6 * 12);
@@ -139,6 +167,7 @@ void* __fastcall CopyCamera(Frame* c, void*, Frame* from)      // FUN_1002a785
     orig::RRefFrame_t_RRefFrame_t_34(c, from);
     InitCameraPart(c);
     std::memcpy(c + kLeft, from + kLeft, kSphere - kLeft);     // the window, planes and aspect
+    if(auto* state=Projection(from);state && state->active && SameWindow(ReadWindow(from),state->applied))WriteWindow(c,state->source);
     Field<void*>(c, kOccluder) = nullptr;
     Field<void*>(c, kViewport) = nullptr;
     c[kOne] = 1;
@@ -173,6 +202,7 @@ void* __fastcall CloneCamera(Frame* c)              // vtable slot 3 (FUN_1002bb
 
 void __fastcall DestroyCamera(Frame* c)              // FUN_1002a869
 {
+    if(auto* state=Projection(c))*state={};
     SetVtable(c, kCameraVtable);
     if (Global<void*>(kCurrentCamera) == c) Global<void*>(kCurrentCamera) = nullptr;
     DestroyFrame(c);
@@ -190,7 +220,10 @@ void __fastcall ArchiveCamera(Frame* c, void*, void* archive)   // vtable slot 1
     orig::RRefFrame_t_Archive(c, archive);
     const serialize::Api& s = serialize::Get();
     void* stream = s.getStream(archive, nullptr);
-    for (int i = 0; i < 6; ++i) s.addFloat(stream, nullptr, kWindowNames[i], Field<float>(c, kLeft + 4 * i));
+    auto window=ReadWindow(c);
+    if(auto* state=Projection(c);state && state->active && SameWindow(window,state->applied))window=state->source;
+    const float savedWindow[4]={window.left,window.top,window.right,window.bottom};
+    for (int i = 0; i < 6; ++i) s.addFloat(stream, nullptr, kWindowNames[i], i<4 ? savedWindow[i]:Field<float>(c,kLeft+4*i));
 }
 
 void __fastcall GetViewPlaneWindow(Frame* c, void*, float* left, float* top, float* right, float* bottom)
@@ -241,6 +274,7 @@ void RotatedBy(const float* v, const float* q, float* out)   // FUN_1002bb8a
 // FUN_1002adf7: the matrices, the sphere around the frustum, the planes, the debugger's view of it and the occluder.
 void __fastcall SetupFrustum(Frame* c, void*, void* viewport)
 {
+    rnative::viewport::PrepareDisplayCamera(viewport,c);
     Global<void*>(kCurrentCamera) = c;
     xm::M4 projection;
     GetTransformationMatrix(c, nullptr, projection.m);
@@ -613,6 +647,31 @@ void __fastcall ProcessLight(Frame* l)
 }
 
 }  // namespace
+
+void DisplayAspect(void* camera,uint32_t width,uint32_t height,bool fullMain) {
+    if(!camera)return;
+    auto* state=Projection(camera);
+    if(!fullMain) {
+        if(state && state->active) {
+            if(SameWindow(ReadWindow(camera),state->applied))WriteWindow(camera,state->source);
+            state->active=false;
+        }
+        return;
+    }
+    const auto current=ReadWindow(camera);
+    if(!state) {
+        for(auto& slot:g_displayProjection)if(!slot.camera || !slot.active){state=&slot;*state={camera,current,current,false};break;}
+    }
+    if(!state)return;
+    if(!state->active || !SameWindow(current,state->applied))state->source=current;
+    state->applied=displaylayout::PreserveHorizontal(state->source,width,height);
+    WriteWindow(camera,state->applied);state->active=true;
+    if(state->width!=width || state->height!=height) {
+        Log("display main camera: viewport %ux%u; horizontal window %.6f..%.6f retained; vertical %.6f..%.6f; aspect %.6f",
+            width,height,state->applied.left,state->applied.right,state->applied.bottom,state->applied.top,state->applied.aspect);
+        state->width=width;state->height=height;
+    }
+}
 
 void Install(HMODULE orig)
 {

@@ -8,6 +8,9 @@
 #include "terrain_materials.h"
 #include "area_profiles.h"
 #include "interior_lighting.h"
+#include "environment_materials.h"
+#include "foliage_alpha.h"
+#include "caustic_policy.h"
 
 #include <algorithm>
 #include <bit>
@@ -506,7 +509,7 @@ void Device::FillFrameLights(FrameLights* fl, bool dump)
     if(dump && m_dumpFile)std::fprintf(m_dumpFile,"# Area lighting: zone %u, strength %.2f, daylight %.2f, active %.2f; soft sky %u, night %.2f\n",m_skyPlayfield,m_areaLight,EnhancedDaylight(),areaWeight,unsigned(m_skyStyle>.5f),NightAmount());
     fl->windowLife[3]=std::clamp(m_globalShiny,0.f,1.f);
     fl->terrain2[3] = std::clamp(m_terrainSettings.grain, 0.0f, 1.0f);
-    fl->terrain3[0] = SharedGroundPlus() ? 0.0f : m_native.on ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
+    fl->terrain3[0] = SharedTerrainPatches() ? 1.0f : SharedGroundPlus() ? 0.0f : m_native.on ? 1.0f : std::clamp(m_terrainSettings.blend, 0.0f, 1.0f);
     fl->terrain3[1] = m_normalMaps && m_pixelLighting ? 0.04f * std::clamp(m_terrainSettings.parallax, 0.0f, 2.0f) : 0.0f;
     fl->terrain3[2] = std::clamp(m_terrainSettings.parallaxSteps, 0.25f, 4.0f);
     fl->terrain3[3] = m_native.anyHeight && fl->terrain3[1] > 0.0f ? 1.0f : 0.0f;
@@ -850,6 +853,8 @@ bool Device::SwayParams(uint32_t primitive, uint32_t fvf, uint32_t stride, const
     // SwayHoles(mean alpha) = 0). Most blended statics of plant size are such props - not split, kept on
     // the GPU and in the depth pre-pass.
     if (m_textures[0]->m_opaque)
+        return false;
+    if (foliage::AuthoredScreen(m_textures[0]->m_rdbType, m_textures[0]->m_rdbId))
         return false;
     // Nor a soft card - a lamp's glow or beam, smoke, a halo: no hard edges between leaf and hole (leaves.cpp).
     if (!m_textures[0]->m_alphaMask.empty() && m_textures[0]->m_alphaHardEdges < 0.002f)
@@ -1725,6 +1730,16 @@ bool Device::SurfaceSheen(uint32_t fvf) const
            (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW;
 }
 
+bool Device::CausticOverlay(uint32_t fvf) const
+{
+    const Texture* texture=m_textures[0];
+    return texture && m_hdr && m_target==m_scene && caustics::Receiver(texture->m_rdbType,texture->m_rdbId,
+        (fvf & d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW,
+        m_rs[d3d::RS_ALPHABLENDENABLE] && m_rs[d3d::RS_SRCBLEND]==d3d::BLEND_ONE &&
+            m_rs[d3d::RS_DESTBLEND]==d3d::BLEND_ONE,
+        m_rs[d3d::RS_ZENABLE]!=0,m_rs[d3d::RS_ZWRITEENABLE]!=0,m_rs[d3d::RS_ZFUNC]==d3d::CMP_EQUAL);
+}
+
 bool Device::GlowDraw(uint32_t fvf) const
 {
     if (m_bloomStrength<=0.f || m_effectGlow <= 0.0f || m_target != m_scene || !m_rs[d3d::RS_ALPHABLENDENABLE] ||
@@ -2139,6 +2154,7 @@ void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride
     VkViewport vp;
     VkRect2D scissor;
     ViewportState(&vp, &scissor);
+    const bool causticOverlay=CausticOverlay(fvf);
     if (std::memcmp(&vp, &c.viewport, sizeof(vp)) != 0) {
         vkCmdSetViewport(cmd, 0, 1, &vp);
         c.viewport = vp;
@@ -2176,6 +2192,7 @@ void Device::ApplyDynamicState(uint32_t primitive, uint32_t fvf, uint32_t stride
     if (WaterWritesDepth(fvf))
         zWrite = 1;
     uint32_t zFunc = m_rs[d3d::RS_ZFUNC];
+    if(causticOverlay)zFunc=d3d::CMP_LESSEQUAL;
     // Its own depth is already in the buffer (the pre-pass, same coverage, same positions: invariant): only where it
     // is equal is this draw seen, and nothing is left to write. Without a depth write the test runs before the shader
     // even when the shader can discard - with one it ran after, so every see-through fragment of a plant card in front
@@ -2592,6 +2609,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
 {
     if (!m_inFrame || !vertexCount)
         return;
+    // Off removes only this proven receiver-light role. Skipping is exact:
+    // a zero colour-scale bit pattern means "unscaled" in the fixed-function shader.
+    if(CausticOverlay(fvf) && caustics::Gain(m_hdr,m_waterParams.enable,m_waterParams.caustics)<=0.f)
+        return;
     const bool interfaceDraw=IsInterfaceDraw(fvf,primitive,vertices,vertexCount);
     if(primitive==d3d::TriangleList && SuppressLivingOriginal(fvf,vertices,vertexCount,indices,indexCount))return;
     // The game's ground, drawn by rvk from the playfield's data instead (native_ground.cpp): its own draws skipped.
@@ -2793,6 +2814,12 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             const bool ours = ++m_skyDraws == 1 && ProcSkyReady();
             if (ours)
                 DrawSkyGlow();
+            if(ProcSkyReady() && m_skyStyle>.5f && m_drawVisualName &&
+               std::strstr(m_drawVisualName,"VisualGloomySky_t")) {
+                NoteDuskSky(primitive,vertexCount);
+                if(m_dumpFile)std::fprintf(m_dumpFile,"  (legacy gloomy sky: not drawn - Soft skies)\n");
+                return;
+            }
             if (ours && primitive == d3d::TriangleList && m_rs[d3d::RS_LIGHTING] && !m_rs[d3d::RS_ALPHABLENDENABLE] &&
                 vertexCount >= 100) {
                 const Texture* t = m_textures[0];
@@ -3029,7 +3056,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
 
     // Two-pass foliage: the queued edges go before a draw that writes no depth (the effects drawn over the scene came
     // after the foliage, edges included, before).
-    if (!m_edges.empty() && !(m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE]))
+    if (!m_edges.empty() && (!(m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE]) ||
+        (m_textures[0] && foliage::AuthoredScreen(m_textures[0]->m_rdbType, m_textures[0]->m_rdbId))))
         FlushEdges();
     // Render targets bound as textures must be readable; layout changes can't happen inside rendering.
     bool needTransition = false;
@@ -3225,7 +3253,13 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                          m_rs[d3d::RS_ALPHABLENDENABLE] && !m_rs[d3d::RS_ALPHATESTENABLE] &&
                          m_rs[d3d::RS_SRCBLEND] == d3d::BLEND_SRCALPHA && m_rs[d3d::RS_DESTBLEND] == d3d::BLEND_INVSRCALPHA;
     if (cutoutTexture) ++m_opaqueDraws;
-    bool textureHoles = m_textures[0] && !m_textures[0]->m_opaque;   // foliage (below) needs a texture with holes
+    // Soft billboard scanlines/glows also have alpha, but no leaf boundaries.
+    // Match CanopyKind: they must not receive leaf backlighting or foliage LOD.
+    const bool authoredScreen = m_textures[0] &&
+        foliage::AuthoredScreen(m_textures[0]->m_rdbType, m_textures[0]->m_rdbId);
+    const bool causticOverlay=CausticOverlay(fvf);
+    bool textureHoles = m_textures[0] && foliage::HasFoliageEdges(m_textures[0]->m_rdbType,
+        m_textures[0]->m_rdbId, m_textures[0]->m_opaque, m_textures[0]->m_alphaHardEdges);
     // The ground's base pass (unlit, the texture the lighting pass multiplies): its local-light fraction and motion
     // attachments are replaced by that pass (depth-equal, right after) or are zero anyway, so don't write them here
     // - the ground covers much of the screen and is overdrawn, so those writes are pure bandwidth.
@@ -3336,7 +3370,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // The texture's own normal map (F_NORMALMAP), when it is the surface (stage 0, plain coordinates) of a per-pixel
     // lit draw; for the ground's lightmap pass, the normal map of its chunk's base texture (as the generated normals).
     Texture* normalMap = nullptr;
-    bool surfaceStage0 = m_pixelLighting && m_textures[0] && !terrain && m_rs[d3d::RS_LIGHTING] &&
+    bool surfaceStage0 = !causticOverlay && m_pixelLighting && m_textures[0] && !terrain && m_rs[d3d::RS_LIGHTING] &&
                          m_tss[0][d3d::TSS_COLOROP] != d3d::TOP_DISABLE &&
                          !(m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS] & 256u) &&
                          (m_tss[0][d3d::TSS_TEXCOORDINDEX] & 0xFFFF0000u) == 0;
@@ -3366,7 +3400,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     }
     // Its emissive map: stage 0's, wherever that texture is drawn as the surface (lit or not; not the ground's passes).
     m_drawEmissive = nullptr;
-    if (m_pbr.enabled && m_pbr.emissive > 0.0f && m_textures[0] && m_textures[0]->m_emissiveMap && !terrain &&
+    if (!causticOverlay && m_pbr.enabled && m_pbr.emissive > 0.0f && m_textures[0] && m_textures[0]->m_emissiveMap && !terrain &&
         (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW &&
         m_tss[0][d3d::TSS_COLOROP] != d3d::TOP_DISABLE && !(m_tss[0][d3d::TSS_TEXTURETRANSFORMFLAGS] & 256u) &&
         (m_tss[0][d3d::TSS_TEXCOORDINDEX] & 0xFFFF0000u) == 0)
@@ -3381,7 +3415,8 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                    m_constantsFoliageLod != foliageLod || m_constantsNormalMap != normalMap ||
                    m_constantsCharacter != m_drawIsCharacter || m_constantsOpaque != cutoutTexture ||
                    m_constantsHoles != textureHoles || m_constantsSkyScenery != skyScenery ||
-                   m_constantsBlend != m_rs[d3d::RS_ALPHABLENDENABLE] || m_constantsDecal != m_drawIsBlobShadow;
+                   m_constantsBlend != m_rs[d3d::RS_ALPHABLENDENABLE] || m_constantsDecal != m_drawIsBlobShadow ||
+                   m_constantsCaustic != causticOverlay;
     if (m_dumpFile && rewrite) {                 // (frame dump: what made it so)
         const bool why[kRewhy] = {m_constantsDirty, m_constantsGeneration != m_ringGeneration, m_constantsFvf != fvf,
                                   m_constantsTexMask != texMask, m_constantsTerrain != terrain,
@@ -3402,6 +3437,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     m_constantsTexMask = texMask;
     m_constantsTerrain = terrain;
     m_constantsLabel = m_drawIsLabel;
+    m_constantsCaustic = causticOverlay;
     m_constantsCarrier = carrier;
     m_constantsBumpBase = m_drawBumpBase;
     m_constantsFoliageLod = foliageLod;
@@ -3426,6 +3462,15 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     Copy4(c.matSpecular, m_material.specular);
     Copy4(c.matEmissive, m_material.emissive);
     ArgbToFloat(m_rs[d3d::RS_AMBIENT], c.ambient);
+    // Inferno's legacy ambient is 0xA23232 in the retail capture: it paints
+    // every shadow red. Neutralize that light at the same luminance, retaining
+    // material colours and the orange illumination of actual lava and lamps.
+    if (!m_indoors && m_loginScene<.5f && VisualKind(m_drawVisualKind)!=VisualKind::Sky &&
+        areas::For(m_skyPlayfield)==areas::Biome::Volcanic) {
+        const float amount=areas::LegacyAmbientNeutralization(m_skyPlayfield)*std::clamp(m_areaLight*EnhancedDaylight()/ .6f,0.f,1.f);
+        const float energy=.3f*c.ambient[0]+.59f*c.ambient[1]+.11f*c.ambient[2];
+        for (int i=0;i<3;++i)c.ambient[i]+=(energy-c.ambient[i])*amount;
+    }
     // (A thunderstorm's sky: dimmer than the clear day's the ambient holds - the ground's light pass's too: its shade,
     // ffp FlatShade, takes the storm's sky with the lightmap only, and the pass adds the ambient to it - by night, under
     // the night's dark lightmap, nearly all its light: in a night storm the land stood lit under black characters,
@@ -3494,6 +3539,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     c.vtx[0] = fvf;
     // (The game's stars - the sky's point lists, added - faded in as the sky darkens: sky.cpp UpdateSunClock.)
     float colorScale = m_drawColorScale;
+    if(causticOverlay)colorScale*=caustics::Gain(m_hdr,m_waterParams.enable,m_waterParams.caustics);
     if (primitive == d3d::PointList && VisualKind(m_drawVisualKind) == VisualKind::Sky && m_scenePhase && !m_external)
         colorScale *= std::max(m_starsShown, 1e-6f);   // (0's bits mean "as drawn")
     std::memcpy(&c.vtx[1], &colorScale, 4);
@@ -3525,7 +3571,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (m_rs[d3d::RS_LIGHTING] && (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW) flags |= F_LIGHTING;
     // The authored login studio was baked/tuned for D3D's vertex lighting.
     // Keep its original light interpolation and colour balance with HD art.
-    if ((flags & F_LIGHTING) && m_pixelLighting && m_loginScene<.5f) flags |= F_PERPIXEL;
+    if ((flags & F_LIGHTING) && m_pixelLighting && m_loginScene<.5f && !causticOverlay) flags |= F_PERPIXEL;
     if (m_lightingDebug) flags |= F_DEBUGLIGHT;
     // Login/creation scenes use a separate camera and local studio lights.
     // Their own D3D lights must not be replaced by the previous world frame's
@@ -3583,7 +3629,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // Blended (not additive) with depth writes, as the game draws most statics: the see-through parts must not write
     // depth or motion - plants' quads would show in the ambient occlusion and smear in the motion blur. Fragments
     // nearly invisible anyway are dropped; a plant's (ffp.vert vCutout) below half, like its shadow.
-    if (solid3d && !cutoutTexture && m_rs[d3d::RS_ALPHABLENDENABLE] && !m_rs[d3d::RS_ALPHATESTENABLE] &&
+    if (solid3d && !authoredScreen && !cutoutTexture && m_rs[d3d::RS_ALPHABLENDENABLE] && !m_rs[d3d::RS_ALPHATESTENABLE] &&
         m_rs[d3d::RS_SRCBLEND] == d3d::BLEND_SRCALPHA && m_rs[d3d::RS_DESTBLEND] == d3d::BLEND_INVSRCALPHA)
         flags |= F_CUTOUT;
     if (m_rs[d3d::RS_ALPHABLENDENABLE] && m_rs[d3d::RS_SRCBLEND] == d3d::BLEND_SRCALPHA &&
@@ -3736,7 +3782,10 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // own passes), labels, particles or water.
     {
         uint32_t zf = m_rs[d3d::RS_ZFUNC];
-        m_drawSplit = m_foliageEdges && m_rendering && m_drawMayDiscard && !m_external && !m_drawIsLabel && !m_drawGpu &&
+        // A screen's wash must stay before its additive scanlines. Its whole
+        // alpha range can be below the foliage core, so deferring its edges
+        // would move the entire display over effects submitted after it.
+        m_drawSplit = !authoredScreen && m_foliageEdges && m_rendering && m_drawMayDiscard && !m_external && !m_drawIsLabel && !m_drawGpu &&
                       !m_drawIsCharacter && tessLevel <= 0.0f && (fvf & d3d::FVF_POSITION_MASK) != d3d::FVF_XYZRHW &&
                       TopologyClassOf(primitive) == 2 && m_rs[d3d::RS_ZENABLE] && m_rs[d3d::RS_ZWRITEENABLE] &&
                       (zf == d3d::CMP_LESS || zf == d3d::CMP_LESSEQUAL) && m_rs[d3d::RS_ALPHABLENDENABLE] &&
@@ -3842,8 +3891,14 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.tess[1] = m_tessShape;
         dt.tess[2] = float(vbOffset / layout.stride);
         m_drawTess = true;
-    } else if (m_native.drawing && !SharedGroundPlus() && !m_native.clutter && m_native.tessPatch && m_tessSupported && primitive == d3d::TriangleList &&
-               (m_terrainSettings.round > 0.0f || (m_terrainSettings.depth > 0.0f && TerrainRockOn()))) {
+    } else if (terrain && SharedGroundPlus() && !m_native.drawing && m_native.hasSnow && m_snowPowder>0.f &&
+               m_tessSupported && primitive==d3d::TriangleList && dt.terrainAt[3]>.5f && dt.terrainAt[1]<1.5f &&
+               dt.terrain[1]!=0.f) {
+        dt.tess[0]=8.f;dt.tess[1]=0.f;dt.tess[2]=35.f;dt.tess[3]=0.f;
+        m_drawTess=true;
+    } else if (m_native.drawing && !m_native.clutter && m_native.tessPatch && m_tessSupported && primitive == d3d::TriangleList &&
+               (m_terrainSettings.round > 0.0f || (m_terrainSettings.depth > 0.0f && TerrainRockOn()) ||
+                (SharedGroundPlus() && m_native.hasSnow && m_snowPowder>0.f))) {
         // The native ground (ffp.tesc): each edge split by its length and distance, the vertex normals its shape, the
         // rock pushed out of the cliffs - the same in both passes, so the lighting pass's equal depth test still meets
         // the base pass's.
@@ -3975,14 +4030,22 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     const bool originalAlpha1 = originalAlpha && m_textures[1] == m_textures[0];
     if (m_textures[1] && m_textures[1]->m_preserveAlbedoAlpha && !originalAlpha1)
         texStage1 = m_textures[1];
+    // A replacement may have mips while the live original supplying its alpha
+    // has only level0. One-pixel screen scanlines then alias despite filtered
+    // replacement RGB. Keep a freshly updated native mip reference instead.
+    Texture* nativeScreen0 = originalAlpha || texStage0 == m_textures[0] ? ScreenMipReference(m_textures[0]) : m_textures[0];
+    Texture* nativeScreen1 = texStage1 == m_textures[1] ? ScreenMipReference(m_textures[1]) : m_textures[1];
+    if (texStage0 == m_textures[0]) texStage0 = nativeScreen0;
+    if (texStage1 == m_textures[1]) texStage1 = nativeScreen1;
     Texture* bumpBase = drawn(m_drawBumpBase);
     Texture* normalTex = normalMap ? normalMap : m_flatNormal;
     dt.texIdx[0] = BindlessImage(texStage0);
     dt.texIdx[1] = BindlessImage(texStage1);
     dt.texIdx[2] = BindlessImage(bumpBase);
     dt.texIdx[3] = BindlessImage(normalTex);
-    dt.sampIdx[0] = StageSamplerSlot(0, texStage0 && texStage0!=m_textures[0] && texStage0!=m_blackTexture);
-    dt.sampIdx[1] = StageSamplerSlot(1, texStage1 && texStage1!=m_textures[1] && texStage1!=m_blackTexture);
+    dt.sampIdx[0] = StageSamplerSlot(0, texStage0 && texStage0!=m_textures[0] && texStage0!=m_blackTexture, authoredScreen);
+    dt.sampIdx[1] = StageSamplerSlot(1, texStage1 && texStage1!=m_textures[1] && texStage1!=m_blackTexture,
+        m_textures[1] && foliage::AuthoredScreen(m_textures[1]->m_rdbType, m_textures[1]->m_rdbId));
     dt.sampIdx[2] = FixedSamplerSlot(0, m_bumpSampler);
     dt.sampIdx[3] = FixedSamplerSlot(1, m_normalSampler);
     const Texture* iccBase = m_drawBumpBase ? m_drawBumpBase : m_textures[0];
@@ -4199,8 +4262,15 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     if (combinedTerrain) dt.mat[2] |= kMatCombined;
     const Texture* groundSurface = terrain ? (m_drawBumpBase ? m_drawBumpBase : m_textures[0]) : nullptr;
     if (groundSurface && m_skyPlayfield) {
-        if (ImprovedTile(groundSurface) && ((groundSurface->m_albedoMap && m_pbr.albedoMaps) ||
-            materials::DeckGround(groundSurface->m_rdbType,groundSurface->m_rdbId)))
+        const bool classic=SharedGroundPlus() && materials::IsGroundType(groundSurface->m_rdbType) &&
+            !materials::SnowGround(groundSurface->m_rdbType,groundSurface->m_rdbId);
+        const bool authored=classic ? ((groundSurface->m_albedoMap && m_pbr.albedoMaps) ||
+            materials::DeckGround(groundSurface->m_rdbType,groundSurface->m_rdbId)):
+            ((groundSurface->m_albedoMap && m_pbr.albedoMaps &&
+            groundSurface->m_independentGroundPainting &&
+            (!(SharedGroundPlus() && m_hdGroundMode>.5f) || materials::IceGround(groundSurface->m_rdbType,groundSurface->m_rdbId))) ||
+            materials::AuthoredGround(groundSurface->m_rdbType,groundSurface->m_rdbId));
+        if (ImprovedTile(groundSurface) && authored)
             dt.mat[2] |= kMatAuthoredGround;
         else if (materials::AsphaltGround(groundSurface->m_rdbType, groundSurface->m_rdbId) &&
                  m_terrainHD > 0.0f)
@@ -4230,12 +4300,23 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
             }
         }
         if (kind == 8 && surfaceStage0) dt.mat[2] |= kMatHonedStone;
+        if (surfaceStage0 && environment::Ice(mineralSurface->m_rdbType,mineralSurface->m_rdbId) &&
+            mineralSurface->m_ormMap && mineralSurface->m_albedoMap) {
+            // A reviewed ice material carries its own roughness. Generic stone
+            // classification must not turn clear ice into matte limestone.
+            dt.mat[2] &= ~(kMatMineral|kMatHonedStone|kMatEnhancedRock|kMatRockShape);
+            dt.mat[2] |= kMatIceSurface;
+        }
     }
     // Authored ground already has its own surface detail. Do not stamp global
     // grain over painted paving, metal decks or other carefully masked materials.
     if (m_skyPlayfield && terrain && m_terrainHD > 0.0f && !m_drawOrm && !normalMap) dt.mat[2] |= kMatTerrainHD;
+    if (m_hdr && m_target==m_scene && !terrain && !m_drawIsCharacter &&
+        (fvf & d3d::FVF_POSITION_MASK)!=d3d::FVF_XYZRHW && m_textures[0] &&
+        environment::ReadableGridSign(m_textures[0]->m_rdbType,m_textures[0]->m_rdbId))
+        dt.mat[2] |= kMatReadableSign;
     if (originalAlpha) {
-        dt.texIdx[2] = BindlessImage(m_textures[0]);
+        dt.texIdx[2] = BindlessImage(nativeScreen0);
         dt.sampIdx[2] = dt.sampIdx[0];
         dt.mat[2] |= kMatOriginalAlpha;
         if (originalAlpha1) dt.mat[2] |= kMatOriginalAlpha1;
@@ -4285,6 +4366,12 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     } else {
         dt.mat[3] = dt.mat[0];
     }
+    if(causticOverlay) {
+        dt.mat[2]|=kMatCausticLight;
+        // This untessellated light field borrows only the unused relief-depth
+        // component, tagged by its role; image slots remain valid descriptors.
+        dt.tess[3]=caustics::kReceiverTolerance;
+    }
     // GPU-driven M2: this draw's record, and the frame's two arrays (bindings 0 = constants, 12 = records) pushed
     // once per frame's command buffer. The record index travels in firstInstance (gl_InstanceIndex).
     if(m_dumpFile && (dt.mat[2]&kMatTempleBake))
@@ -4300,7 +4387,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // Opaque authored emitters replace the glow at their covered pixels, just
     // like window interiors. This preserves both their halo and occlusion of
     // an older light behind them; ordinary walls only occlude.
-    const bool sourceGlow = m_lightGlow>0.f && !m_drawIsCharacter &&
+    const bool sourceGlow = m_lightGlow>0.f && !m_drawIsCharacter && !(dt.mat[2]&kMatReadableSign) &&
         ((dt.mat[2]&(kMatEmissive|kMatImmersiveShip))!=0u || std::max({m_material.emissive.r,m_material.emissive.g,m_material.emissive.b})>.05f);
     if(m_farDetail>0.f && !terrain && !m_drawIsCharacter && !m_drawIsLabel &&
        (VisualKind(m_drawVisualKind)==VisualKind::Static || (m_drawMesh && m_drawMesh->skyScenery)))dt.mat[2]|=kMatDistantScenery;

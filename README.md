@@ -1,10 +1,12 @@
-# Rubi-Ka Horizon 0.7.8
+# Rubi-Ka Horizon 0.7.9
+
+Fixes installing Full graphics with the new texture collection.
 
 Clearer world, armor and creature artwork, smoother Shared Terrain+ hills and cliffs, enhanced snow, gentler Penumbra and Inferno lighting, and optional natural ambience. Display controls offer monitor, resolution and windowed or borderless choices. Existing preferences are preserved.
 
 Choose Full graphics for the complete reviewed texture collection. Choose AnarchyHD world artwork and Reworked character artwork to use the new paintings; Lite avoids the large texture downloads.
 
-[Download Rubi-Ka Horizon](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe) · [Player patch notes](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.7.8)
+[Download Rubi-Ka Horizon](https://github.com/Vitecval/ao-vk-live/releases/latest/download/Rubi-Ka-Horizon-Setup.exe) · [Player patch notes](https://github.com/Vitecval/ao-vk-live/releases/tag/v0.7.9)
 
 ## AO-VK Live Preview 24 engine
 

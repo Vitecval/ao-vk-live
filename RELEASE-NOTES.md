@@ -1,3 +1,7 @@
+Rubi-Ka Horizon 0.7.9
+
+Fixes installing Full graphics with the new texture collection.
+
 Rubi-Ka Horizon 0.7.8
 
 A brighter, more detailed Rubi-Ka and Shadowlands.

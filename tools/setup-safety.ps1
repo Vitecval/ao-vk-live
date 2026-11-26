@@ -92,6 +92,10 @@ function Write-AoSetupFailure($ErrorRecord) {
 function Test-AoSetupAssetPath([string]$Relative) {
     if($Relative -cmatch '^randy-vk/audio/ambience/((grid|city|desert|forest|cold|inferno|underwater)\.wav|manifest\.json|CREDITS\.txt)$'){return $true}
     if($Relative -cmatch '^randy-vk/packs/EnhancedRocks/(rock_face_03_(diff_2k|nor_gl_2k|arm_1k)\.jpg|rock-face-03-source\.json)$'){return $true}
+    if($Relative -ceq 'randy-vk/packs/ao-penumbra-078/CREDITS.txt'){return $true}
+    # Published078 character PNGs and the exact bootstrap metadata only. Keep
+    # decoded native references, arbitrary subfolders and other file types out.
+    if($Relative -cmatch '^randy-vk/packs/ao-reworked-characters/([A-Za-z0-9_-]+\.png|CREDITS\.txt|LICENSE-TEXTURES\.md|manifest\.json|prompts\.json|README\.md|SOURCE-ART-INVENTORY\.json)$'){return $true}
     return $Relative -cmatch '^randy-vk/(mesh-ids\.bin|cache/materials/([a-f0-9]{16}\.rvkm|recipes\.tsv|bindings\.tsv)|loading/[A-Za-z0-9_-]+\.png|packs/ao-((modern|cyber)-icc|icc-enhanced-original|cyber-characters|cyber-world|penumbra-078)/(source-art/)?[A-Za-z0-9_-]+\.(png|json|md)|living/[A-Za-z0-9_.-]+\.(lrs|lrm|lrg|ini|txt|json))$'
 }
 function Assert-AoTransaction($Journal, [string]$Client, [scriptblock]$ProgressCallback) {

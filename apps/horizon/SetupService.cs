@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Horizon {
  public static class SetupService {
-  public const string Version="0.7.8";
+  public const string Version="0.7.9";
   public static string PackageRoot=Path.Combine(App.StateRoot,"packages");
   static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=32000000};}
   public static string ExePath{get{return Assembly.GetExecutingAssembly().Location;}}

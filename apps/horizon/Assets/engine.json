@@ -1,9 +1,9 @@
 {
-  "revision": 72,
-  "version": "0.7.8",
-  "fullSetupBytes": 205344208,
+  "revision": 73,
+  "version": "0.7.9",
+  "fullSetupBytes": 205344387,
   "rendererSha256": "6687e6b62778780f82c220d5c9f4d81af5a3d9e97866f0fe84877032e60a8c29",
-  "fullSetupSha256": "25e0b9e4ca2626a15f7c28d42387f0329884a0cd4cb2817115fe0c35c084e561",
+  "fullSetupSha256": "7f21f561e38a19bf658f031cfdf6cdd1743db2eb3e7e67ca005017bff8637840",
   "sourceCommit": "5ecd5256d2a5e9f49f58cf3286fd0ebabbeed3a8",
   "rendererSourceManifestSha256": "5faafe001abac4609a825bcd5d834ca138ae493ef67d001d4062f4cac59fcd83",
   "cacheWarmSha256": "57c26cff619c03b0ede77d03aa3da581ee171e4635dbbde3b602433fa931df34",

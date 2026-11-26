@@ -18,7 +18,7 @@ namespace Horizon {
   public string Tag,Name,Url,DownloadUrl,Sha256;public long Bytes;
  }
  public static class UpdateService {
-  public const string VersionTag="v0.7.8";
+  public const string VersionTag="v0.7.9";
   public const string Repository="https://github.com/Vitecval/ao-vk-live";
   public const string DownloadName="Rubi-Ka-Horizon-Setup.exe";
   public const string PermanentDownload=Repository+"/releases/latest/download/"+DownloadName;

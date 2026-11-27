@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace Horizon {
  public static class SetupService {
-  public const string Version="0.7.9";
+  public const string Version="0.8.0";
   public static string PackageRoot=Path.Combine(App.StateRoot,"packages");
   static JavaScriptSerializer Json(){return new JavaScriptSerializer{MaxJsonLength=32000000};}
   public static string ExePath{get{return Assembly.GetExecutingAssembly().Location;}}
@@ -98,7 +98,7 @@ namespace Horizon {
    }
   }
   public static async Task Run(string action,string client,string edition,Action<string,int> progress,bool skipMemoryChange=false){
-   if(!new[]{"Install","Update","Repair","Uninstall","Reset settings"}.Contains(action))throw new ArgumentException("Unknown setup action.");
+   if(!new[]{"Install","Update","Update existing","Repair","Uninstall","Reset settings"}.Contains(action))throw new ArgumentException("Unknown setup action.");
    if(edition!="lite"&&edition!="full")throw new ArgumentException("Choose Lite or Full HD.");
    await Task.Run(()=>{
     string report=GuardUnder(App.StateRoot,Path.Combine(App.StateRoot,"last-setup.log"));
@@ -109,6 +109,7 @@ namespace Horizon {
     try{
     preparation("Checking saved setup files…",-1);
     AssertSelectedClientClosed(client);
+    if(action=="Update existing"&&UpdateService.InstalledGraphicsEdition(client)!=edition)throw new IOException("The existing graphics installation changed or was removed. Nothing was installed.");
     string core=EnsureCore(preparation),taskRoot=Path.Combine(App.StateRoot,"tasks");Directory.CreateDirectory(taskRoot);
     string task=GuardUnder(taskRoot,Path.Combine(taskRoot,Guid.NewGuid().ToString("N")));Directory.CreateDirectory(task);
     CheckDirectorySafety(PackageRoot);Directory.CreateDirectory(PackageRoot);
@@ -128,7 +129,7 @@ namespace Horizon {
       if(rel.Equals("manifest.json",StringComparison.OrdinalIgnoreCase)){
        byte[] manifestBytes=new UTF8Encoding(false).GetBytes(App.ResourceText(edition+"-manifest.json"));using(var manifestStream=new MemoryStream(manifestBytes)){string pin=Hash(manifestStream,manifestStream.Length);RefreshCachedFile(package,target,pin,p=>File.WriteAllBytes(p,manifestBytes));}continue;
       }
-      string resource=rel.Equals("install-live.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.InstallLive.ps1":rel.Equals("material-cache.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.MaterialCache.ps1":null;
+      string resource=rel.Equals("install-live.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.InstallLive.ps1":rel.Equals("material-cache.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.MaterialCache.ps1":rel.Equals("setup-safety.ps1",StringComparison.OrdinalIgnoreCase)?"Horizon.SetupSafety.ps1":null;
       if(resource!=null){
        // Installer resources are independently verified against the bundled
        // bootstrap. The legacy work bucket keeps existing ZIPs reusable.
@@ -140,9 +141,10 @@ namespace Horizon {
       }
       string expectedCore=coreHashes[rel.Replace('\\','/')];RefreshCachedFile(package,target,expectedCore,p=>File.Copy(file,p));
      }
+     if(action=="Update existing"&&UpdateService.InstalledGraphicsEdition(client)!=edition)throw new IOException("The existing graphics installation changed or was removed. Nothing was installed.");
      string script=Path.Combine(task,"operation.ps1"),installer=Path.Combine(package,action=="Reset settings"?"reset-settings.ps1":"install-live.ps1");
      string args=" -ClientDir "+PS(Path.GetFullPath(client));
-     if(action!="Reset settings")args+=" -PackageDir "+PS(package)+(action=="Uninstall"?" -Uninstall":action=="Update"||action=="Repair"?" -Upgrade":"")+(action=="Repair"?" -VerifyAllAssets":"")+(skipMemoryChange?" -DisableLargeAddressAware":"");
+     if(action!="Reset settings")args+=" -PackageDir "+PS(package)+(action=="Uninstall"?" -Uninstall":action=="Update"||action=="Update existing"||action=="Repair"?" -Upgrade":"")+(action=="Update existing"?" -RequireExisting":"")+(action=="Repair"?" -VerifyAllAssets":"")+(skipMemoryChange?" -DisableLargeAddressAware":"");
      string body="$ErrorActionPreference='Stop'\r\n$ProgressPreference='SilentlyContinue'\r\ntry {\r\n$cb={param($message,$percent=-1,$detail=$null) [Console]::WriteLine('HORIZON|'+(@{message=[string]$message;percent=[int]$percent}|ConvertTo-Json -Compress))}\r\n& "+PS(installer)+args+" -ProgressCallback $cb | Out-Null\r\n[Console]::WriteLine('HORIZON_DONE')\r\nexit 0\r\n} catch {[Console]::Error.WriteLine($_.Exception.Message);exit 1}\r\n";
      File.WriteAllText(script,body,new UTF8Encoding(true));
      string host=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"SysWOW64","WindowsPowerShell","v1.0","powershell.exe");

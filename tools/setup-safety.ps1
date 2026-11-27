@@ -35,7 +35,19 @@ function Get-AoSetupHash([string]$Path) {
     Assert-AoSetupPath $Path
     if ([IO.Directory]::Exists($Path)) { throw "An installer file path is occupied by a folder: $Path." }
     if (![IO.File]::Exists($Path)) { return $null }
-    return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    # Full setup checks tens of thousands of files. Stream the same SHA-256
+    # directly, avoiding a PowerShell provider/cmdlet invocation for each one.
+    # Read sharing still excludes writers/removal while a file is verified;
+    # path/link guards and every transaction/backup hash check remain intact.
+    $hash=$null;$stream=$null
+    try {
+        $hash=[Security.Cryptography.SHA256]::Create()
+        $stream=[IO.File]::Open($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+        return [BitConverter]::ToString($hash.ComputeHash($stream)).Replace('-','').ToLowerInvariant()
+    } finally {
+        if ($stream) { $stream.Dispose() }
+        if ($hash) { $hash.Dispose() }
+    }
 }
 function Assert-AoSetupFolderIdle([string]$Directory) {
     # Recovery runs before the package can be read. It must still respect a

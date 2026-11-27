@@ -17,7 +17,13 @@ namespace Horizon {
    var soundCatalog=Catalog.Load();var sound=soundCatalog.settings.Single(s=>s.key=="RVK_ReworkSound");
    if(sound.type!=0||sound.defaultValue!=0||sound.min!=0||sound.max!=1||sound.Title!="Reworked Sound"||!sound.Quick)throw new Exception("Reworked Sound must be a visible default-off toggle.");
    if(soundCatalog.presets.Any(p=>!p.values.ContainsKey("RVK_ReworkSound")||p.values["RVK_ReworkSound"]!=0))throw new Exception("A shipped preset enables Reworked Sound without an explicit choice.");
-   var checks=new List<string>();var old=Definitions(Option("A",1),Option("Personal",1));var current=Definitions(Option("A",1),Option("Personal",1),Option("New",1),Option("Another"));string directory=Path.Combine(root,"named-presets"),client=Path.Combine(root,"client-one"),second=Path.Combine(root,"client-two");Directory.CreateDirectory(directory);
+   var checks=new List<string>();
+   foreach(var key in new[]{"RVK_TerrainHD","RVK_BuildingHD"}){
+    var material=soundCatalog.settings.Single(s=>s.key==key);
+    Check(material.defaultValue==1&&material.Normalize(material.defaultValue)==1,"Fresh catalog enables material loading: "+key,checks);
+    Check(soundCatalog.presets.All(p=>!p.values.ContainsKey(key)),"Quality presets preserve the explicit material choice: "+key,checks);
+   }
+   var old=Definitions(Option("A",1),Option("Personal",1));var current=Definitions(Option("A",1),Option("Personal",1),Option("New",1),Option("Another"));string directory=Path.Combine(root,"named-presets"),client=Path.Combine(root,"client-one"),second=Path.Combine(root,"client-two");Directory.CreateDirectory(directory);
    var store=new PresetStore(directory);var custom=store.SaveNamed(client,"Night play",old);Check(custom.values.Count==2&&custom.values["A"]==1,"Named preset captures the current catalog values",checks);
    var reopened=new PresetStore(directory);Check(reopened.ActiveCustom(client).Name=="Night play"&&reopened.ActiveCustom(second)==null,"Named presets and selected client survive restart without selecting another client",checks);
    Check(reopened.Missing(client,current).SetEquals(new[]{"New","Another"}),"New catalog options remain unreviewed in an old custom preset",checks);
@@ -96,7 +102,10 @@ namespace Horizon {
     window.ReportSender=(report,cancel)=>{requests++;firstRetryId=report.Id;throw new IOException("Test service unavailable");};sendReport.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(20);
     Check(sendReport.IsEnabled&&title.IsEnabled&&description.Text.Contains("failed request")&&message.Text.Contains("unavailable")&&Convert.ToString(sendReport.Content)=="Send report","Failed send keeps the form and permits retry instead of showing success",checks);
     window.ReportSender=(report,cancel)=>{Check(report.Id==firstRetryId&&report.Id!=reportId,"Retry retains the prepared ID while a new report gets a fresh ID",checks);return Task.FromResult("Report accepted.");};sendReport.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(20);
-    window.PreviewPage("Graphics");filter.SelectedItem="Common settings";window.Width=920;window.Height=610;Capture(window,Path.Combine(root,"graphics-minimum.png"));window.WindowState=WindowState.Minimized;await Task.Delay(100);Check(window.TrayLaunchEnabled,"Tray menu includes Launch Anarchy Online for the selected ready client",checks);
+    window.PreviewPage("Graphics");filter.SelectedItem="Common settings";window.Width=920;window.Height=610;Capture(window,Path.Combine(root,"graphics-minimum.png"));
+    var trayOption=(System.Windows.Controls.CheckBox)window.FindName("MinimizeToTrayOption");trayOption.IsChecked=true;trayOption.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+    Check(window.MinimizeToTrayEnabled,"Feature fixture explicitly opts into tray minimization through its real control",checks);
+    window.WindowState=WindowState.Minimized;await Task.Delay(100);Check(window.TrayLaunchEnabled,"Tray menu includes Launch Anarchy Online for the selected ready client",checks);
     File.WriteAllText(Path.Combine(root,"FEATURE-UI-RESULTS.json"),new JavaScriptSerializer().Serialize(new{result="passed",checks,suggestionsSent=false,gameLaunched=false,retailClientsChanged=false}));
    }finally{window.Close();}
   }

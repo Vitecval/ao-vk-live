@@ -10,16 +10,7 @@ namespace Horizon {
  public static class SelfTests {
   static readonly List<string> Passed=new List<string>();
   static void Check(bool value,string message){if(!value)throw new Exception(message);Passed.Add(message);}
-  public static async Task Tray(string root){
-   App.RenderingPreview=true;var w=new MainWindow{Left=-3000,Top=-3000,ShowActivated=false,ShowInTaskbar=false};
-   try{w.Show();await Task.Delay(100);for(int i=0;i<3;i++){
-    w.WindowState=System.Windows.WindowState.Minimized;await Task.Delay(100);
-    if(w.IsVisible||!w.TrayVisible)throw new Exception("Minimize did not hide the window and register the tray icon.");
-    w.RestoreFromTray();await Task.Delay(100);
-    if(!w.IsVisible||w.WindowState!=System.Windows.WindowState.Normal||w.TrayVisible)throw new Exception("Tray restore did not restore the existing window.");
-   }File.WriteAllText(Path.Combine(root,"TRAY-TEST-RESULTS.json"),"{\"result\":\"passed\",\"minimizeRestoreCycles\":3,\"retailClientsChanged\":false}");}
-   finally{w.Close();}
-  }
+  public static Task Tray(string root){return MainWindow.TrayPreferenceChecks(root);}
   public static void Run(string root){
    PresetTests.Run(root);
    var activity=new SetupActivity();var start=new DateTime(2026,11,16,0,0,0,DateTimeKind.Utc);

@@ -21,8 +21,10 @@
     <Compile Include="SettingsStore.cs"/><Compile Include="SetupService.cs"/><Compile Include="SettingRow.cs"/><Compile Include="SelfTests.cs"/>
     <Compile Include="UpdateService.cs"/><Compile Include="IssueReports.cs"/>
     <Compile Include="UpdateTests.cs"/>
+    <Compile Include="AppOnlyUpdateTests.cs"/>
     <Compile Include="SingleInstance.cs"/><Compile Include="InstallDetection.cs"/>
     <Compile Include="SetupActivity.cs"/>
+    <Compile Include="TrayBehavior.cs"/>
     <Compile Include="KeybindHelp.cs"/>
     <Compile Include="PresetStore.cs"/>
     <Compile Include="PresetControls.cs"/><Compile Include="Suggestions.cs"/>
@@ -35,6 +37,7 @@
     <Resource Include="Assets\graphics-versions.json"/>
     <Resource Include="Assets\core-files.json"/><Resource Include="Assets\temporary-assets.txt.gz"/>
     <EmbeddedResource Include="..\..\tools\install-live.ps1"><LogicalName>Horizon.InstallLive.ps1</LogicalName></EmbeddedResource>
+    <EmbeddedResource Include="..\..\tools\setup-safety.ps1"><LogicalName>Horizon.SetupSafety.ps1</LogicalName></EmbeddedResource>
     <EmbeddedResource Include="..\..\tools\material-cache.ps1"><LogicalName>Horizon.MaterialCache.ps1</LogicalName></EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

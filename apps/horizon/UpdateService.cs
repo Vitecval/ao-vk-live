@@ -18,7 +18,7 @@ namespace Horizon {
   public string Tag,Name,Url,DownloadUrl,Sha256;public long Bytes;
  }
  public static class UpdateService {
-  public const string VersionTag="v0.7.9";
+  public const string VersionTag="v0.8.0";
   public const string Repository="https://github.com/Vitecval/ao-vk-live";
   public const string DownloadName="Rubi-Ka-Horizon-Setup.exe";
   public const string PermanentDownload=Repository+"/releases/latest/download/"+DownloadName;
@@ -74,13 +74,35 @@ namespace Horizon {
    finally{if(File.Exists(partial))File.Delete(SetupService.GuardUnder(folder,partial));}
   }
   public static string PrepareHandoff(string downloaded,HorizonRelease release,string client,string edition,bool skipMemoryChange){
-   if(SetupService.Hash(downloaded)!=release.Sha256)throw new IOException("The downloaded update changed. Download it again.");ValidateBundle(downloaded);SetupService.AssertSelectedClientClosed(client);
+   if(SetupService.Hash(downloaded)!=release.Sha256)throw new IOException("The downloaded update changed. Download it again.");ValidateBundle(downloaded);
+   client=string.IsNullOrWhiteSpace(client)?"":Path.GetFullPath(client);
+   string installedEdition=InstalledGraphicsEdition(client);if(installedEdition.Length>0)edition=installedEdition;
    string ticket=SetupService.GuardUnder(Path.Combine(App.StateRoot,"updates"),Path.Combine(Path.GetDirectoryName(downloaded),"handoff-"+Guid.NewGuid().ToString("N")+".json"));
-   using(var process=Process.GetCurrentProcess()){File.WriteAllText(ticket,Json().Serialize(new Dictionary<string,object>{{"format",1},{"parentPid",process.Id},{"parentStartUtc",process.StartTime.ToUniversalTime().Ticks},{"createdUtc",DateTime.UtcNow.Ticks},{"tag",release.Tag},{"sha256",release.Sha256},{"client",Path.GetFullPath(client)},{"edition",edition},{"skipMemoryChange",skipMemoryChange}}),Encoding.UTF8);}return ticket;
+   using(var process=Process.GetCurrentProcess()){File.WriteAllText(ticket,Json().Serialize(new Dictionary<string,object>{{"format",1},{"updateScope",installedEdition.Length>0?"app-and-existing-graphics":"app"},{"parentPid",process.Id},{"parentStartUtc",process.StartTime.ToUniversalTime().Ticks},{"createdUtc",DateTime.UtcNow.Ticks},{"tag",release.Tag},{"sha256",release.Sha256},{"client",client},{"edition",edition},{"skipMemoryChange",skipMemoryChange}}),Encoding.UTF8);}return ticket;
   }
   internal static Dictionary<string,object> ReadHandoff(string ticket){
    ticket=SetupService.GuardUnder(Path.Combine(App.StateRoot,"updates"),ticket);if(new FileInfo(ticket).Length>16384)throw new IOException("Invalid update handoff.");var t=Json().Deserialize<Dictionary<string,object>>(File.ReadAllText(ticket));
-   if(Convert.ToInt32(t["format"])!=1||(string)t["tag"]!=VersionTag||SetupService.Hash(SetupService.ExePath)!=(string)t["sha256"]||Math.Abs((DateTime.UtcNow-new DateTime(Convert.ToInt64(t["createdUtc"]),DateTimeKind.Utc)).TotalMinutes)>10||!new[]{"lite","full"}.Contains((string)t["edition"]))throw new IOException("The update handoff expired or does not match this installer. No graphics files changed.");return t;
+   if(Convert.ToInt32(t["format"])!=1||(string)t["tag"]!=VersionTag||SetupService.Hash(SetupService.ExePath)!=(string)t["sha256"]||Math.Abs((DateTime.UtcNow-new DateTime(Convert.ToInt64(t["createdUtc"]),DateTimeKind.Utc)).TotalMinutes)>10||!new[]{"lite","full"}.Contains((string)t["edition"]))throw new IOException("The update handoff expired or does not match this installer. No graphics files changed.");
+   object scope;if(t.TryGetValue("updateScope",out scope)&&(!(scope is string)||!new[]{"app","app-and-existing-graphics"}.Contains((string)scope)))throw new IOException("This update action is not supported. No graphics files changed.");
+   if(!t.ContainsKey("client")||!(t["client"] is string))throw new IOException("Invalid update folder reference.");
+   // Legacy senders supplied no scope. Update only a verified installation;
+   // their remembered edition must never cause a fresh installation.
+   if(!t.ContainsKey("updateScope"))t["updateScope"]="app-and-existing-graphics";return t;
+  }
+  internal static string InstalledGraphicsEdition(string client){
+   try{
+    if(string.IsNullOrWhiteSpace(client))return "";
+    string path=SetupService.GuardUnder(client,Path.Combine(client,"ao-vk-live.install.json"));if(new FileInfo(path).Length>32000000)return "";
+    var receipt=new JavaScriptSerializer{MaxJsonLength=32000000}.Deserialize<Dictionary<string,object>>(File.ReadAllText(path));
+    if(Convert.ToString(receipt["product"])!="AO-VK Live"||!string.Equals(Convert.ToString(receipt["clientDirectory"]).TrimEnd('\\','/'),Path.GetFullPath(client).TrimEnd('\\','/'),StringComparison.OrdinalIgnoreCase))return "";
+    string edition=Convert.ToString(receipt["edition"]);if(edition!="lite"&&edition!="full")return "";
+    var addon=receipt["addon"] as Dictionary<string,object>;if(addon==null)return "";
+    string loader=receipt.ContainsKey("loaderDirectory")&&!string.IsNullOrWhiteSpace(Convert.ToString(receipt["loaderDirectory"]))?Convert.ToString(receipt["loaderDirectory"]):client;
+    foreach(string name in new[]{"ao-vk.dll","ddraw.dll"}){
+     string file=SetupService.GuardUnder(name=="ddraw.dll"?loader:client,Path.Combine(name=="ddraw.dll"?loader:client,name));
+     if(!addon.ContainsKey(name)||!File.Exists(file)||!string.Equals(SetupService.Hash(file),Convert.ToString(addon[name]),StringComparison.OrdinalIgnoreCase))return "";
+    }return edition;
+   }catch{return "";}
   }
   internal static void WaitForParent(Dictionary<string,object> ticket){try{using(var p=Process.GetProcessById(Convert.ToInt32(ticket["parentPid"]))){if(p.StartTime.ToUniversalTime().Ticks!=Convert.ToInt64(ticket["parentStartUtc"]))throw new IOException("The update parent process changed.");if(!p.WaitForExit(30000))throw new IOException("Close the previous Horizon window before applying this update.");}}catch(ArgumentException){/* The matching parent has already exited. */}}
   internal static bool GraphicsCurrent(string client,string edition){
@@ -88,7 +110,8 @@ namespace Horizon {
     var json=new JavaScriptSerializer{MaxJsonLength=32000000};string path=SetupService.GuardUnder(client,Path.Combine(client,"ao-vk-live.install.json"));if(new FileInfo(path).Length>32000000)return false;
     var manifest=json.Deserialize<Dictionary<string,object>>(App.ResourceText(edition+"-manifest.json"));var receipt=json.Deserialize<Dictionary<string,object>>(File.ReadAllText(path));
     if((string)receipt["edition"]!=edition||Convert.ToString(receipt["build"])!=Convert.ToString(manifest["build"]))return false;
-    foreach(var p in (Dictionary<string,object>)manifest["addon"])if(SetupService.Hash(Path.Combine(client,p.Key))!=(string)p.Value)return false;
+    string loader=receipt.ContainsKey("loaderDirectory")&&!string.IsNullOrWhiteSpace(Convert.ToString(receipt["loaderDirectory"]))?Convert.ToString(receipt["loaderDirectory"]):client;
+    foreach(var p in (Dictionary<string,object>)manifest["addon"]){string root=p.Key=="ddraw.dll"?loader:client;if(SetupService.Hash(SetupService.GuardUnder(root,Path.Combine(root,p.Key)))!=(string)p.Value)return false;}
     var expected=(Dictionary<string,object>)manifest["assets"];var owned=(Dictionary<string,object>)receipt["assets"];foreach(var p in expected){if(p.Key=="randy-vk/mesh-ids.bin"&&!owned.ContainsKey(p.Key))continue;if(!owned.ContainsKey(p.Key)||Convert.ToString(owned[p.Key])!=Convert.ToString(p.Value))return false;}
     // A removed texture/cache entry also requires the install transaction to
     // retire the owned old file. Only the generated bindings index is extra.

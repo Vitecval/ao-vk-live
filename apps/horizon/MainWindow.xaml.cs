@@ -28,12 +28,18 @@ namespace Horizon {
   string client="";bool busy,ready;
   bool checkingUpdate,downloadingUpdate,graphicsUpdate,sendingReport,reportAccepted;HorizonRelease availableUpdate;string downloadedUpdate="";IssueReport preparedReport;
   internal Func<IssueReport,CancellationToken,Task<string>> ReportSender=IssueReports.Send;
+  internal Func<string> AppInstaller=SetupService.InstallApp;
+  internal Action<string> ClientClosedCheck=SetupService.AssertSelectedClientClosed;
+  internal Func<string,string,string,Action<string,int>,bool,Task> GraphicsSetupRunner=SetupService.Run;
+  internal Action<string,string> UpdatedProcessStarter=(file,args)=>Process.Start(new ProcessStartInfo(file,args){UseShellExecute=true});
+  internal Action UpdateWindowCloser;
+  bool appUpdateExit;
   readonly CancellationTokenSource lifetime=new CancellationTokenSource();
   InstalledState detected;string detectedKey="";bool detecting,memoryEdited;
   bool MemoryChanged{get{return memoryEdited&&(detected==null||!detected.MemoryEnabled.HasValue||detected.MemoryEnabled.Value!=(MemoryOption.IsChecked==true));}}
   readonly string preferences=Path.Combine(App.StateRoot,"preferences.json");
   public MainWindow(){
-   InitializeComponent();App.Trace("Interface loaded");catalog=Catalog.Load();App.Trace("Settings catalogue loaded");
+   InitializeComponent();UpdateWindowCloser=Close;App.Trace("Interface loaded");catalog=Catalog.Load();App.Trace("Settings catalogue loaded");
    foreach(var s in catalog.settings)s.Value=s.defaultValue;
    AddNav("Graphics","\uE713");AddNav("Display","\uE7F4");AddNav("Installation","\uE896");AddNav("Updates","\uE895");AddNav("Patch notes","\uE8A5");AddNav("Suggestions","\uE82F");AddNav("Report issue","\uE90A");AddNav("About","\uE946");
    SidebarVersion.Text=SetupService.Version;AboutVersion.Text=SetupService.Version+" · Stable release";CurrentVersionText.Text="Running Horizon: "+SetupService.Version;
@@ -43,15 +49,15 @@ namespace Horizon {
    saveTimer.Tick+=(s,e)=>{saveTimer.Stop();SavePending();};refreshTimer.Tick+=async(s,e)=>{if(!busy){RefreshSettings(false);await RefreshInstalled(false);UpdateState();}};
    activityTimer.Tick+=(s,e)=>OperationTiming.Text=activity.Timing(DateTime.UtcNow);
    string chosen=App.ClientArgument;
-   if(File.Exists(preferences)){try{var p=new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(File.ReadAllText(preferences));if(chosen.Length==0&&p.ContainsKey("client"))chosen=p["client"];if(p.ContainsKey("work"))SetupService.PackageRoot=p["work"];if(p.ContainsKey("autoUpdates"))AutoUpdates.IsChecked=p["autoUpdates"]!="false";}catch{}}
+   if(File.Exists(preferences)){try{var p=new JavaScriptSerializer().Deserialize<Dictionary<string,string>>(File.ReadAllText(preferences));LoadTrayPreference(p);if(chosen.Length==0&&p.ContainsKey("client"))chosen=p["client"];if(p.ContainsKey("work"))SetupService.PackageRoot=p["work"];if(p.ContainsKey("autoUpdates"))AutoUpdates.IsChecked=p["autoUpdates"]!="false";}catch{}}
    WorkFolder.Text=SetupService.PackageRoot;
    MemoryOption.Click+=(s,e)=>{memoryEdited=true;UpdateState();};
    LiteChoice.Checked+=Edition_Changed;FullChoice.Checked+=Edition_Changed;
-   ready=true;App.Trace("Reading selected AO folder");if(chosen.Length>0)Choose(chosen,false);else UpdateState();App.Trace("AO folder ready");
+   ready=true;App.Trace("Reading selected AO folder");if(chosen.Length>0&&App.UpdateTicket.Length==0)Choose(chosen,false);else UpdateState();App.Trace("AO folder ready");
    ShowPage(chosen.Length==0?"Installation":"Graphics");Filter();refreshTimer.Start();
    if(store==null){var ignored=RefreshInstalled(true);}
-   Closing+=(s,e)=>{if(App.RenderingPreview)return;if(busy){e.Cancel=true;MessageBox.Show(this,"Setup is still working. Keep Horizon open until it finishes so it can verify or recover the operation.","Setup in progress",MessageBoxButton.OK,MessageBoxImage.Information);}else if(!SavePending()){e.Cancel=MessageBox.Show(this,"The last changes could not be saved. Close and discard only those unsaved changes?","Unsaved changes",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes;if(!e.Cancel)pending.Clear();}};
-   StateChanged+=(s,e)=>{if(WindowState==WindowState.Minimized)HideInTray();else{trayRestoreState=WindowState;if(trayIcon!=null)trayIcon.Visible=false;}};
+   Closing+=(s,e)=>{if(appUpdateExit||App.RenderingPreview)return;if(busy){e.Cancel=true;MessageBox.Show(this,"Setup is still working. Keep Horizon open until it finishes so it can verify or recover the operation.","Setup in progress",MessageBoxButton.OK,MessageBoxImage.Information);}else if(!SaveChangesForClose()){e.Cancel=MessageBox.Show(this,"The last changes could not be saved. Close and discard only those unsaved changes?","Unsaved changes",MessageBoxButton.YesNo,MessageBoxImage.Question)!=MessageBoxResult.Yes;if(!e.Cancel)pending.Clear();}};
+   StateChanged+=(s,e)=>HandleTrayWindowStateChanged();
    Closed+=(s,e)=>{saveTimer.Stop();refreshTimer.Stop();activityTimer.Stop();lifetime.Cancel();if(trayIcon!=null){trayIcon.Visible=false;trayIcon.Dispose();}if(trayImage!=null)trayImage.Dispose();};
    Loaded+=async(s,e)=>{if(App.RenderingPreview)return;if(App.UpdateTicket.Length>0){await FinishDownloadedUpdate();return;}if(AutoUpdates.IsChecked==true){try{await Task.Delay(1500,lifetime.Token);await CheckForUpdates(false);}catch(OperationCanceledException){}}};
   }
@@ -67,6 +73,7 @@ namespace Horizon {
   internal bool TrayVisible{get{return trayIcon!=null&&trayIcon.Visible;}}
   internal void RestoreFromTray(){var restore=trayRestoreState;Show();WindowState=restore;if(trayIcon!=null)trayIcon.Visible=false;if(!App.RenderingPreview)Activate();}
   void HideInTray(){
+   if(!MinimizeToTrayEnabled)return;
    try{
     if(trayIcon==null){
      trayImage=System.Drawing.Icon.ExtractAssociatedIcon(SetupService.ExePath)??(System.Drawing.Icon)System.Drawing.SystemIcons.Application.Clone();
@@ -153,6 +160,7 @@ namespace Horizon {
    try{store.Save(pending);presets?.RecordEdits(client,pending);int count=pending.Count;pending.Clear();RefreshPresetReview();Status(count==1?"Setting saved.":count+" settings saved.","AO reads saved changes automatically, including while it's in the background.");UpdateState();return true;}
    catch(Exception ex){Status("The change could not be saved.",ex.Message+" Your other settings are preserved.");return false;}
   }
+  internal bool SaveChangesForClose(){return appUpdateExit||SavePending();}
   public void Status(string title,string detail){SaveStatus.Text=title;SaveDetail.Text=detail;}
   void Filter(){if(!ready||catalog==null)return;string text=Search.Text.Trim(),section=SectionFilter.SelectedItem as string??"Common settings";
    bool keybinds=section=="Keybinds";KeybindsView.Visibility=keybinds?Visibility.Visible:Visibility.Collapsed;SettingsList.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;PresetControls.Visibility=keybinds?Visibility.Collapsed:Visibility.Visible;
@@ -174,15 +182,15 @@ namespace Horizon {
   async Task Operation(string action){
    if(busy)return;if(store==null){Status("Choose an AO folder first.","Use Change folder or Browse on the Installation page.");return;}if(!SavePending())return;
    if((action=="Install"||action=="Update"||action=="Repair")&&LiteChoice.IsChecked!=true&&FullChoice.IsChecked!=true){ShowPage("Installation");Status("Choose Lite or Full HD first.","Lite keeps the original textures. Full HD installs the new artwork.");return;}
-   try{SetupService.AssertSelectedClientClosed(client);}catch(Exception ex){Status("Close this AO client before setup.",ex.Message);return;}
+   try{ClientClosedCheck(client);}catch(Exception ex){Status("Close this AO client before setup.",ex.Message);return;}
    if((action=="Uninstall"||action=="Reset settings")&&MessageBox.Show(this,action=="Uninstall"?"Remove the graphics add-on from this AO folder? Personal files and preferences are kept.":"Reset graphics preferences to their defaults? The current settings file is backed up first. Close AO and its launcher before continuing.",action=="Uninstall"?"Remove graphics":"Reset settings",MessageBoxButton.OKCancel,MessageBoxImage.Question)!=MessageBoxResult.OK)return;
    busy=true;ShowPage("Installation");StartSetupActivity("Checking saved setup files before "+action.ToLowerInvariant()+"…");UpdateState();
    OperationText.Text=action=="Repair"?"Checking the installed files. Full HD includes the artwork and prepared cache; this can take several minutes.":"Preparing setup…";
    Status(action=="Repair"?"Repair in progress…":"Setup in progress…","Settings are temporarily locked while setup checks this installation.");
    try{
     SavePreferences();
-    if((action=="Install"||action=="Update")&&!SetupService.AppInstalled){OperationText.Text="Installing the Horizon application…";await Task.Run(()=>SetupService.InstallApp());}
-    await SetupService.Run(action,client,FullChoice.IsChecked==true?"full":"lite",(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>ReportSetupActivity(message,percent))),MemoryOption.IsChecked!=true);
+    if((action=="Install"||action=="Update")&&!SetupService.AppInstalled){OperationText.Text="Installing the Horizon application…";await Task.Run(AppInstaller);}
+    await GraphicsSetupRunner(action,client,FullChoice.IsChecked==true?"full":"lite",(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>ReportSetupActivity(message,percent))),MemoryOption.IsChecked!=true);
     OperationText.Text=action=="Uninstall"?"Graphics removed. Your preferences and personal files were preserved.":action=="Reset settings"?"Settings reset. Defaults will be created when AO starts again.":"Installation finished. You can launch AO from the sidebar.";
     if(action=="Reset settings")store=new SettingsStore(client,catalog.settings);RefreshSettings(true);Status("Finished.",OperationText.Text);
    }catch(Exception ex){OperationText.Text=ex.Message;StopSetupActivity();Status("Setup did not finish.","Your installation remains protected by the existing recovery checks. See the setup log for details.");MessageBox.Show(this,ex.Message,"Horizon setup",MessageBoxButton.OK,MessageBoxImage.Information);}
@@ -196,10 +204,10 @@ namespace Horizon {
   }
   async void Repair_Click(object s,RoutedEventArgs e){await Operation("Repair");}async void Reset_Click(object s,RoutedEventArgs e){await Operation("Reset settings");}async void Uninstall_Click(object s,RoutedEventArgs e){await Operation("Uninstall");}
   async void InstallApp_Click(object s,RoutedEventArgs e){await InstallAppOnly();}
-  async Task InstallAppOnly(){if(busy)return;busy=true;UpdateState();try{SavePreferences();var target=await Task.Run(()=>SetupService.InstallApp());Status("Horizon installed in your Start menu.",target);}catch(Exception ex){Status("The app could not be installed.",ex.Message);}finally{busy=false;await RefreshInstalled(true);UpdateState();}}
+  async Task InstallAppOnly(){if(busy)return;busy=true;UpdateState();try{SavePreferences();var target=await Task.Run(AppInstaller);Status("Horizon installed in your Start menu.",target);}catch(Exception ex){Status("The app could not be installed.",ex.Message);}finally{busy=false;await RefreshInstalled(true);UpdateState();}}
   void Launch_Click(object s,RoutedEventArgs e){if(store==null||busy)return;if(!SavePending()){RestoreFromTray();return;}try{Process.Start(new ProcessStartInfo(Path.Combine(client,"Anarchy.exe")){WorkingDirectory=client,UseShellExecute=true});}catch(Exception ex){RestoreFromTray();Status("AO could not be launched.",ex.Message);}}
   void OpenData_Click(object s,RoutedEventArgs e){Process.Start(new ProcessStartInfo("explorer.exe","\""+App.StateRoot+"\""){UseShellExecute=true});}
-  void SavePreferences(){File.WriteAllText(preferences,new JavaScriptSerializer().Serialize(new Dictionary<string,string>{{"client",client},{"work",SetupService.PackageRoot},{"autoUpdates",AutoUpdates.IsChecked==true?"true":"false"}}));}
+  void SavePreferences(){File.WriteAllText(preferences,new JavaScriptSerializer().Serialize(new Dictionary<string,string>{{"client",client},{"work",SetupService.PackageRoot},{"autoUpdates",AutoUpdates.IsChecked==true?"true":"false"},{"minimizeToTray",MinimizeToTrayEnabled?"true":"false"}}));}
   void AutoUpdates_Click(object s,RoutedEventArgs e){try{SavePreferences();}catch(Exception ex){Status("Could not save the update preference.",ex.Message);}}
   async void CheckUpdates_Click(object s,RoutedEventArgs e){await CheckForUpdates(true);}
   async Task CheckForUpdates(bool manual){
@@ -210,9 +218,9 @@ namespace Horizon {
     if(availableUpdate==null||availableUpdate.Tag!=release.Tag||availableUpdate.Sha256!=release.Sha256)downloadedUpdate="";availableUpdate=release;
     bool needsGraphics=selected==client&&detected!=null&&detected.GraphicsPresent&&!detected.GraphicsCurrent,needsApp=detected!=null&&!detected.AppCurrent;
     graphicsUpdate=!newer&&(needsGraphics||needsApp);
-    ApplyUpdateButton.Visibility=newer||graphicsUpdate?Visibility.Visible:Visibility.Collapsed;ApplyUpdateButton.Content=newer?(downloadedUpdate.Length>0?"Apply update":"Download update"):needsGraphics?(needsApp?"Update app + graphics":"Update graphics"):detected!=null&&detected.AppPresent?"Update installed app":"Install Horizon app";
+    ApplyUpdateButton.Visibility=newer||graphicsUpdate?Visibility.Visible:Visibility.Collapsed;ApplyUpdateButton.Content=newer?(downloadedUpdate.Length>0?"Apply app update":"Download app update"):needsGraphics?(needsApp?"Update app + graphics":"Update graphics"):detected!=null&&detected.AppPresent?"Update installed app":"Install Horizon app";
     UpdateMessage.Text=newer?"Horizon "+release.Tag.TrimStart('v')+" is available.":needsGraphics?"The running app is up to date. The selected graphics need an update.":needsApp?"The running app is up to date; install or update its Start-menu copy.":selected.Length==0?"Horizon is up to date. No AO folder is selected.":detected!=null&&!detected.GraphicsPresent?"Horizon is up to date. Graphics are not installed in this AO folder.":"Horizon app and selected graphics are up to date.";
-    UpdateDetail.Text=newer?"Download: "+(release.Bytes/1000000.0).ToString("0.0",CultureInfo.InvariantCulture)+" MB. The app verifies the download before you apply it.":"Checked GitHub's latest stable app and this installation against the bundled graphics. No texture packs were downloaded.";
+    UpdateDetail.Text=newer?"Download: "+(release.Bytes/1000000.0).ToString("0.0",CultureInfo.InvariantCulture)+" MB. Installed graphics are updated too, keeping their Lite or Full HD edition. Missing graphics stay uninstalled.":"Checked GitHub's latest stable app and this installation against the bundled graphics. No texture packs were downloaded.";
     SetUpdateNotice(newer||needsGraphics||(needsApp&&detected!=null&&detected.AppPresent),newer?"Horizon "+release.Tag.TrimStart('v')+" is available.":needsGraphics?"An update is available for your selected AO graphics.":"An update is available for the installed Horizon app.");
     if(!manual&&(newer||needsGraphics))Status("A Horizon update is available.","Use View updates above to open the Updates page. Your game continues running.");
    }catch(OperationCanceledException){if(!lifetime.IsCancellationRequested){UpdateMessage.Text="The update check timed out.";UpdateDetail.Text="Try again when the connection is available. AO is unchanged.";}}
@@ -225,27 +233,55 @@ namespace Horizon {
    var release=availableUpdate;if(release==null||UpdateService.Compare(release.Tag,UpdateService.VersionTag)<=0)return;
    if(downloadedUpdate.Length==0){
     downloadingUpdate=true;UpdateState();UpdateProgress.Visibility=Visibility.Visible;UpdateMessage.Text="Downloading Horizon…";long last=0;
-    try{downloadedUpdate=await UpdateService.Download(release,(done,total)=>{long now=Environment.TickCount;if(done!=total&&now-last<100)return;last=now;Dispatcher.BeginInvoke(new Action(()=>{UpdateProgress.Value=100.0*done/total;UpdateDetail.Text=(done/1000000.0).ToString("0.0")+" / "+(total/1000000.0).ToString("0.0")+" MB";}));},lifetime.Token);ApplyUpdateButton.Content="Apply update";UpdateMessage.Text="Update downloaded and verified.";UpdateDetail.Text="Close the selected AO client and launcher, then apply. Horizon will restart; settings and texture downloads are kept.";}
+    try{downloadedUpdate=await UpdateService.Download(release,(done,total)=>{long now=Environment.TickCount;if(done!=total&&now-last<100)return;last=now;Dispatcher.BeginInvoke(new Action(()=>{UpdateProgress.Value=100.0*done/total;UpdateDetail.Text=(done/1000000.0).ToString("0.0")+" / "+(total/1000000.0).ToString("0.0")+" MB";}));},lifetime.Token);ApplyUpdateButton.Content="Apply app update";UpdateMessage.Text="App update downloaded and verified.";UpdateDetail.Text="Apply to update Horizon and any already-installed graphics. Missing graphics stay uninstalled.";}
     catch(OperationCanceledException){if(!lifetime.IsCancellationRequested){UpdateMessage.Text="The update download timed out.";UpdateDetail.Text="Try again. Nothing was installed.";}}
     catch(Exception ex){UpdateMessage.Text="Update was not installed.";UpdateDetail.Text=ex.Message;}
     finally{downloadingUpdate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}return;
    }
-   if(store==null){UpdateMessage.Text="Choose your AO folder before applying the update.";return;}if(!SavePending())return;
-   try{SavePreferences();string ticket=UpdateService.PrepareHandoff(downloadedUpdate,release,client,FullChoice.IsChecked==true?"full":"lite",MemoryOption.IsChecked!=true);Process.Start(new ProcessStartInfo(downloadedUpdate,"--finish-update \""+ticket+"\" --state-root \""+App.StateRoot+"\" --client \""+client+"\""){UseShellExecute=true,WorkingDirectory=Path.GetDirectoryName(downloadedUpdate)});Close();}
-   catch(Exception ex){UpdateMessage.Text="Could not apply the update.";UpdateDetail.Text=ex.Message;}
+   await ApplyDownloadedAppUpdate();
   }
-  async Task FinishDownloadedUpdate(){
+  internal Task ApplyDownloadedAppUpdate(){
+   if(downloadedUpdate.Length==0||availableUpdate==null)return Task.CompletedTask;
+   if(pending.Count>0){UpdateMessage.Text="Wait for your graphics changes to finish saving, then apply the app update.";return Task.CompletedTask;}
+   try{
+    saveTimer.Stop();SavePreferences();
+    string ticket=UpdateService.PrepareHandoff(downloadedUpdate,availableUpdate,client,FullChoice.IsChecked==true?"full":"lite",MemoryOption.IsChecked!=true);
+    appUpdateExit=true;
+    UpdatedProcessStarter(downloadedUpdate,"--finish-update \""+ticket+"\" --state-root \""+App.StateRoot+"\"");
+    UpdateWindowCloser();
+   }catch(Exception ex){appUpdateExit=false;UpdateMessage.Text="Could not apply the app update.";UpdateDetail.Text=ex.Message;}
+   return Task.CompletedTask;
+  }
+  internal async Task FinishDownloadedUpdate(){
    ShowPage("Updates");busy=true;StartSetupActivity("Applying the verified Horizon update…");UpdateState();UpdateProgress.Visibility=Visibility.Visible;UpdateProgress.IsIndeterminate=true;UpdateMessage.Text="Applying the verified Horizon update…";
    try{
-    var ticket=await Task.Run(()=>UpdateService.ReadHandoff(App.UpdateTicket));string target=(string)ticket["client"],edition=(string)ticket["edition"];Choose(target,false);FullChoice.IsChecked=edition=="full";LiteChoice.IsChecked=edition=="lite";MemoryOption.IsChecked=!Convert.ToBoolean(ticket["skipMemoryChange"]);
-    string installed=await Task.Run(()=>{SetupService.AssertSelectedClientClosed(target);return SetupService.InstallApp();});
-    bool current=await Task.Run(()=>UpdateService.GraphicsCurrent(target,edition));
-    if(!current){UpdateMessage.Text="Horizon updated. Updating the selected AO graphics…";await SetupService.Run(File.Exists(Path.Combine(target,"ao-vk-live.install.json"))?"Update":"Install",target,edition,(message,percent)=>Dispatcher.BeginInvoke(new Action(()=>{ReportSetupActivity(message,percent);UpdateDetail.Text=message;UpdateProgress.IsIndeterminate=percent<0;if(percent>=0)UpdateProgress.Value=percent;})),Convert.ToBoolean(ticket["skipMemoryChange"]));}
-    SavePreferences();SetUpdateNotice(false,"");UpdateMessage.Text="Update finished.";UpdateDetail.Text=current?"The bundled graphics are already installed; no texture verification or download was needed.":"Horizon and the selected AO graphics are updated.";
-    // Start the installed app, so future launches use the updated Start-menu copy.
-    using(var parent=Process.GetCurrentProcess())Process.Start(new ProcessStartInfo(installed,"--state-root \""+App.StateRoot+"\" --client \""+target+"\" --wait-horizon-parent "+parent.Id+" "+parent.StartTime.ToUniversalTime().Ticks){UseShellExecute=true});busy=false;Close();
-   }catch(Exception ex){ReportSetupActivity(ex.Message,-1);UpdateMessage.Text="The update could not finish.";UpdateDetail.Text=ex.Message+" Any completed Horizon app update is kept; AO graphics use the installer's recovery checks.";App.Trace("Update failed: "+ex.Message);}
+    var ticket=await Task.Run(()=>UpdateService.ReadHandoff(App.UpdateTicket));await CompleteAppUpdate(ticket);
+   }catch(Exception ex){ReportSetupActivity(ex.Message,-1);UpdateMessage.Text="The app update could not finish.";UpdateDetail.Text=ex.Message;App.Trace("Update failed: "+ex.Message);}
    finally{StopSetupActivity();busy=false;UpdateProgress.IsIndeterminate=false;UpdateProgress.Visibility=Visibility.Collapsed;UpdateState();}
+  }
+  internal async Task CompleteAppUpdate(Dictionary<string,object> ticket){
+   object scope;string intent=ticket.TryGetValue("updateScope",out scope)?scope as string:"app-and-existing-graphics";
+   if(intent!="app"&&intent!="app-and-existing-graphics")throw new IOException("Unsupported app update action.");
+   string target=ticket.ContainsKey("client")?ticket["client"] as string:"";if(target==null)throw new IOException("Invalid update folder reference.");
+   saveTimer.Stop();string installed=await Task.Run(AppInstaller);
+   client=target;SavePreferences();string outcome="Graphics are not installed; no textures were downloaded.";
+   try{
+    string edition=intent=="app-and-existing-graphics"?UpdateService.InstalledGraphicsEdition(target):"";
+    if(edition.Length>0){
+     outcome="Your installed graphics already match this update.";
+     if(!UpdateService.GraphicsCurrent(target,edition)){
+      ClientClosedCheck(target);
+      if(UpdateService.InstalledGraphicsEdition(target)==edition){
+       bool skipMemory=ticket.ContainsKey("skipMemoryChange")&&Convert.ToBoolean(ticket["skipMemoryChange"]);
+       await GraphicsSetupRunner("Update existing",target,edition,(message,percent)=>Dispatcher.Invoke(()=>ReportSetupActivity(message,percent)),skipMemory);
+       outcome="Your installed "+(edition=="full"?"Full HD":"Lite")+" graphics were updated too.";
+      }else outcome="Graphics were removed or changed; they were left untouched.";
+     }
+    }else if(target.Length>0&&File.Exists(Path.Combine(target,"ao-vk.dll")))outcome="Existing graphics could not be verified. Use Installation to check them; they were left untouched.";
+   }catch(Exception ex){throw new IOException("Horizon was updated, but its graphics update could not finish. "+ex.Message+" Use Updates to retry after closing the selected game and launcher.",ex);}
+   SetUpdateNotice(false,"");UpdateMessage.Text="Horizon updated.";UpdateDetail.Text=outcome;
+   string args;using(var parent=Process.GetCurrentProcess())args="--state-root \""+App.StateRoot+"\" --app-update-complete --wait-horizon-parent "+parent.Id+" "+parent.StartTime.ToUniversalTime().Ticks;
+   appUpdateExit=true;try{UpdatedProcessStarter(installed,args);busy=false;UpdateWindowCloser();}catch{appUpdateExit=false;throw;}
   }
   void PrepareReport_Click(object s,RoutedEventArgs e){
    if(sendingReport||reportAccepted)return;SetReportAccepted(false);try{preparedReport=IssueReports.Prepare(client,IssueTitle.Text,IssueDescription.Text,IncludeLogs.IsChecked==true);ReportPreview.Text=preparedReport.Body;ReportReviewBlock.Visibility=Visibility.Visible;SendReportButton.IsEnabled=true;OpenReportButton.IsEnabled=true;ReportMessage.Text="Review the report below. Send report emails these excerpts to dev@asyncstuff.com through asyncstuff.com. A ZIP is also saved locally.";}

@@ -1,11 +1,11 @@
 {
-  "revision": 73,
-  "version": "0.7.9",
-  "fullSetupBytes": 205344387,
-  "rendererSha256": "6687e6b62778780f82c220d5c9f4d81af5a3d9e97866f0fe84877032e60a8c29",
-  "fullSetupSha256": "7f21f561e38a19bf658f031cfdf6cdd1743db2eb3e7e67ca005017bff8637840",
-  "sourceCommit": "5ecd5256d2a5e9f49f58cf3286fd0ebabbeed3a8",
-  "rendererSourceManifestSha256": "5faafe001abac4609a825bcd5d834ca138ae493ef67d001d4062f4cac59fcd83",
-  "cacheWarmSha256": "57c26cff619c03b0ede77d03aa3da581ee171e4635dbbde3b602433fa931df34",
+  "revision": 74,
+  "version": "0.8.0",
+  "fullSetupBytes": 205346491,
+  "rendererSha256": "134fa471d96db5408d3054af084e5a3835d483d83f62451a042d4a6ef4d06db9",
+  "fullSetupSha256": "33e803c42d194363ef09d458ee037e11fbd35dc90c8b93565df2cf7cb9afec26",
+  "sourceCommit": "22e61e5e32207e1929e6d33d3c5311bc238cdba2",
+  "rendererSourceManifestSha256": "fb43afda1c2d57b35d6e533536ea0ce7815e4426bd10fe9925c7fd416e946838",
+  "cacheWarmSha256": "a8432b866c468b704d30647838dbbea5cd47c2e1f9d94629ef521c2c6b53ecea",
   "privateTest": false
 }

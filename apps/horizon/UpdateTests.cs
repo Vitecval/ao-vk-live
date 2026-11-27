@@ -48,6 +48,11 @@ namespace Horizon {
    string updates=Path.Combine(root,"updates","test");Directory.CreateDirectory(updates);string download=Path.Combine(updates,UpdateService.DownloadName);File.Copy(SetupService.ExePath,download);
    var current=new HorizonRelease{Tag=UpdateService.VersionTag,Sha256=SetupService.Hash(download),Bytes=new FileInfo(download).Length};
    string ticket=UpdateService.PrepareHandoff(download,current,clientDir,"lite",true);var t=UpdateService.ReadHandoff(ticket);Check((string)t["client"]==clientDir&&(bool)t["skipMemoryChange"],"Update handoff preserves the selected client, edition and memory preference");
+   Check((string)t["updateScope"]=="app","Absent graphics keep the handoff app-only");
+   t.Remove("updateScope");File.WriteAllText(ticket,json.Serialize(t));Check((string)UpdateService.ReadHandoff(ticket)["updateScope"]=="app-and-existing-graphics","Legacy handoffs may update existing graphics but never request installation");
+   t["updateScope"]="graphics";File.WriteAllText(ticket,json.Serialize(t));Refused(()=>UpdateService.ReadHandoff(ticket),"Unsupported graphics intent cannot enter the app updater");
+   t["updateScope"]="app";File.WriteAllText(ticket,json.Serialize(t));
+   string noClientTicket=UpdateService.PrepareHandoff(download,current,"","full",false);Check((string)UpdateService.ReadHandoff(noClientTicket)["client"]=="","App updates work without an AO folder and do not infer graphics installation from Full selection");
    t["createdUtc"]=DateTime.UtcNow.AddHours(-1).Ticks;File.WriteAllText(ticket,json.Serialize(t));Refused(()=>UpdateService.ReadHandoff(ticket),"An expired update handoff is refused before writes");
    t["createdUtc"]=DateTime.UtcNow.Ticks;t["sha256"]=new string('b',64);File.WriteAllText(ticket,json.Serialize(t));Refused(()=>UpdateService.ReadHandoff(ticket),"A changed update executable is refused before writes");
    using(var p=System.Diagnostics.Process.GetCurrentProcess()){t["parentPid"]=p.Id;t["parentStartUtc"]=0L;Refused(()=>UpdateService.WaitForParent(t),"PID reuse cannot cause the updater to wait for an unrelated process");}

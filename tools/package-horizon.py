@@ -12,8 +12,8 @@ def verify_full_manifest(core,resource):
   actual=json.loads(archive.read(names[0]).decode('utf-8-sig'))
  if actual!=expected:raise RuntimeError('The bundled Full manifest differs from the app texture catalogue. Rebuild the matching graphics bootstrap and cache before packaging.')
 def main():
- p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'build/horizon-preview/minimal/Rubi-Ka Horizon Setup.exe');a=p.parse_args()
- source=ROOT/'build/horizon-preview/app/Rubi-Ka Horizon.exe'
+ p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'build/horizon-preview/minimal/Rubi-Ka Horizon Setup.exe');p.add_argument('--app',type=Path,default=ROOT/'build/horizon-preview/app/Rubi-Ka Horizon.exe');a=p.parse_args()
+ source=a.app.resolve()
  metadata=json.loads((ROOT/'apps/horizon/Assets/engine.json').read_text(encoding='utf8'))
  core=ROOT/('build/preview24/release-r'+str(metadata['revision']))/'ao-vk-live-0.6.0-preview.24-windows-x86-full-setup.zip'
  pin={'sha256':metadata['fullSetupSha256']}

@@ -3,6 +3,7 @@ param(
     [string]$PackageDir = $PSScriptRoot,
     [string]$LoaderDir = '',
     [switch]$Upgrade,
+    [switch]$RequireExisting,
     [switch]$Uninstall,
     [switch]$VerifyAllAssets,
     [switch]$DisableLargeAddressAware,
@@ -73,6 +74,19 @@ if (Test-Path -LiteralPath $receiptPath) {
     }
     if (!$LoaderDir -and $receipt.loaderDirectory) { $LoaderDir = [string]$receipt.loaderDirectory }
 }
+function Assert-ExistingGraphicsForUpdate {
+    if (!$RequireExisting) { return }
+    if (!$Upgrade -or $Uninstall -or !$receipt -or $receipt.edition -cne $manifest.edition -or (Get-AoSetupHash $receiptPath) -ine $receiptObserved) {
+        throw 'The installed graphics changed or were removed. Nothing was installed.'
+    }
+    $existingLoader = if ($LoaderDir) { Get-AoSetupDirectory $LoaderDir 'Existing graphics loader folder' } else { $client }
+    foreach ($name in @('ao-vk.dll','ddraw.dll')) {
+        $base = if ($name -eq 'ddraw.dll') { $existingLoader } else { $client }
+        $expected = [string]$receipt.addon.$name
+        if (!$expected -or (Get-AoSetupHash (Join-Path $base $name)) -ine $expected) { throw 'The installed graphics changed or were removed. Nothing was installed.' }
+    }
+}
+Assert-ExistingGraphicsForUpdate
 $meshRelative = 'randy-vk/mesh-ids.bin'
 $preserveMeshIndex = $false
 if ($manifest.meshIndex -or $manifest.setupRevision -ge 4 -or
@@ -308,7 +322,7 @@ if ($Uninstall) {
 }
 foreach ($item in $manifest.client.PSObject.Properties) {
     $target = Join-Path $client $item.Name
-    if (!(Test-Path -LiteralPath $target) -or (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $item.Value) {
+    if (!(Test-Path -LiteralPath $target) -or (Get-AoSetupHash $target) -ine $item.Value) {
         throw "Unsupported or modified $($item.Name). This package requires the audited classic live client."
     }
 }
@@ -350,7 +364,7 @@ foreach ($target in $targets) {
     $spec = $fileSpecs[$target]
     $verifiedSourceFiles++
     if ($ProgressCallback -and $verifiedSourceFiles % 128 -eq 1) { & $ProgressCallback "Verifying textures and files: $verifiedSourceFiles / $($targets.Count)" -1 }
-    if ($spec.asset -and !$spec.generated -and !$spec.retire -and !$spec.unchanged -and (Get-FileHash -LiteralPath (Join-Path $package $spec.relative) -Algorithm SHA256).Hash -ine $spec.hash) {
+    if ($spec.asset -and !$spec.generated -and !$spec.retire -and !$spec.unchanged -and (Get-AoSetupHash (Join-Path $package $spec.relative)) -ine $spec.hash) {
         throw "Package integrity check failed for $($spec.relative)."
     }
 }
@@ -358,7 +372,7 @@ foreach ($target in $targets) {
 foreach ($target in $unchangedTargets) {
     if ($fileSpecs[$target].asset) { continue } # No write is made to verified unchanged artwork.
     $name = Split-Path -Leaf $target
-    if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ine $fileSpecs[$target].hash) {
+    if ((Get-AoSetupHash $target) -ine $fileSpecs[$target].hash) {
         throw 'A graphics file changed during the preflight checks. Try the update again.'
     }
 }
@@ -429,18 +443,18 @@ try {
             [IO.File]::WriteAllText($temp, '') # Filled after all source stages exist.
         } elseif ($fileSpecs[$target].special) {
             [IO.File]::WriteAllBytes($temp, $fileSpecs[$target].bytes)
-            $preparedHash = (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash
+            $preparedHash = (Get-AoSetupHash $temp)
             if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Executable memory-patch staging verification failed.' }
         } else {
             Copy-Item -LiteralPath (Join-Path $package $fileSpecs[$target].relative) -Destination $temp
             $preparedHash = if ($fileSpecs[$target].asset -and $null -ne $assetVerified) {
                 Get-AoIndexedAssetHash $temp $fileSpecs[$target].relative $assetVerified
-            } else { (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash }
+            } else { (Get-AoSetupHash $temp) }
             if ($preparedHash -ine $fileSpecs[$target].hash) { throw 'Copy verification failed.' }
         }
         # Reuse this just-verified staged hash instead of rereading the entire
         # Full HD artwork a second time. Commit still rechecks original files.
-        $stageHashes[$target] = if ($preparedHash) { $preparedHash } else { (Get-FileHash -LiteralPath $temp -Algorithm SHA256).Hash }
+        $stageHashes[$target] = if ($preparedHash) { $preparedHash } else { (Get-AoSetupHash $temp) }
         if ($fileSpecs[$target].relative) { $stageSources[$fileSpecs[$target].relative] = $temp }
     }
     if ($manifest.preparedMaterials) {
@@ -466,6 +480,7 @@ try {
         $before=if ($target -ieq $receiptPath) { $receiptObserved } else { $fileSpecs[$target].observedHash }
         $entries.Add(@{target=$target;stage=$staged[$i];before=$before;after=$stageHashes[$target]})
     }
+    Assert-ExistingGraphicsForUpdate
     Invoke-AoSetupTransaction $client $loader ($entries.ToArray()) $ProgressCallback
     if ($null -ne $assetVerified) {
         try {

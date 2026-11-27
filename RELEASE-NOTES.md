@@ -1,3 +1,15 @@
+Rubi-Ka Horizon 0.8.0
+
+Updating Horizon also updates graphics when they are already installed, keeping your Lite or Full HD edition. If graphics are not installed, updating the app leaves them uninstalled.
+
+Added a Minimize to system tray choice in About. It is off by default.
+
+Sped up setup file checks while keeping installation and recovery protections.
+
+Fixed HD textures staying missing after memory cleanup. Terrain and Building Materials start enabled for new settings. Your saved choices are kept.
+
+Immersive ships and added sky traffic now stay out of Shadowlands.
+
 Rubi-Ka Horizon 0.7.9
 
 Fixes installing Full graphics with the new texture collection.

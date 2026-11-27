@@ -12,19 +12,21 @@ using System.Windows.Threading;
 [assembly: AssemblyTitle("Rubi-Ka Horizon")]
 [assembly: AssemblyProduct("Rubi-Ka Horizon")]
 [assembly: AssemblyVersion("0.7.0.0")]
-[assembly: AssemblyFileVersion("0.7.9.0")]
+[assembly: AssemblyFileVersion("0.8.0.0")]
 namespace Horizon {
  public partial class App:Application {
   public static string StateRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"RubiKaHorizon");
   public static string ClientArgument="";
   public static bool RenderingPreview;
   public static string UpdateTicket="";
+  public static bool AppUpdateComplete;
   SingleInstance instance;
   protected override void OnStartup(StartupEventArgs e){
    base.OnStartup(e);
    // A static companion should not compete with the game's GPU.
    RenderOptions.ProcessRenderMode=RenderMode.SoftwareOnly;
    for(int i=0;i<e.Args.Length;i++){
+    if(e.Args[i]=="--app-update-complete")AppUpdateComplete=true;
     if(e.Args[i]=="--state-root"&&i+1<e.Args.Length)StateRoot=Path.GetFullPath(e.Args[++i]);
     else if(e.Args[i]=="--client"&&i+1<e.Args.Length)ClientArgument=e.Args[++i];
     else if(e.Args[i]=="--finish-update"&&i+1<e.Args.Length)UpdateTicket=e.Args[++i];
@@ -37,6 +39,7 @@ namespace Horizon {
    if(Array.IndexOf(e.Args,"--uninstall-app")>=0){try{if(MessageBox.Show("Remove the Horizon application? AO graphics, preferences and downloaded files will stay in place. Use Installation → Remove graphics first if you also want to remove the graphics add-on.","Uninstall Rubi-Ka Horizon",MessageBoxButton.OKCancel,MessageBoxImage.Question)==MessageBoxResult.OK)SetupService.RemoveApp();Shutdown(0);}catch(Exception ex){MessageBox.Show(ex.Message,"Rubi-Ka Horizon");Shutdown(1);}return;}
    if(Array.IndexOf(e.Args,"--self-test")>=0){try{SelfTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}return;}
    if(Array.IndexOf(e.Args,"--self-test-updates")>=0){RunUpdateTests();return;}
+   if(Array.IndexOf(e.Args,"--self-test-app-only-updates")>=0){RunAppOnlyUpdateTests();return;}
    if(Array.IndexOf(e.Args,"--self-test-tray")>=0){RunTrayTests();return;}
    if(Array.IndexOf(e.Args,"--self-test-feature-ui")>=0){RunFeatureUiTests();return;}
    if(Array.IndexOf(e.Args,"--self-test-tooltips-ui")>=0){RunTooltipUiTests();return;}
@@ -66,6 +69,7 @@ namespace Horizon {
   public static string ResourceText(string name){bool compressed=name.EndsWith("-manifest.json",StringComparison.Ordinal)||name=="temporary-assets.txt";using(var source=GetResourceStream(new Uri("/Rubi-Ka Horizon;component/Assets/"+name+(compressed?".gz":""),UriKind.Relative)).Stream){using(Stream data=compressed?(Stream)new GZipStream(source,CompressionMode.Decompress,true):source)using(var r=new StreamReader(data,Encoding.UTF8))return r.ReadToEnd();}}
   async void RunSetupTests(string stock){try{await SelfTests.Setup(StateRoot,stock);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"SETUP-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunUpdateTests(){try{await UpdateTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"UPDATE-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
+  async void RunAppOnlyUpdateTests(){try{await AppOnlyUpdateTests.Run(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"APP-ONLY-UPDATE-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunTrayTests(){try{await SelfTests.Tray(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TRAY-TEST-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunFeatureUiTests(){try{await PresetTests.Ui(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"FEATURE-UI-FAILURE.txt"),ex.ToString());Shutdown(1);}}
   async void RunTooltipUiTests(){try{await PresetTests.TooltipUi(StateRoot);Shutdown(0);}catch(Exception ex){File.WriteAllText(Path.Combine(StateRoot,"TOOLTIP-UI-FAILURE.txt"),ex.ToString());Shutdown(1);}}

@@ -1,10 +1,23 @@
 #pragma once
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
 
 namespace rvk::ship {
+// Shadowlands playfields use the same 4000..4999 family as the ambient policy,
+// including gardens, snow, volcanic regions and unclassified SL interiors.
+// Saved ship/traffic choices remain available when returning to Rubi-Ka.
+constexpr bool EnvironmentAllowed(uint32_t playfield, bool indoors) {
+    return playfield!=0 && !indoors && !(playfield>=4000 && playfield<5000);
+}
+constexpr bool ImmersiveEnabled(float requested, uint32_t playfield, bool indoors) {
+    return requested>.5f && EnvironmentAllowed(playfield,indoors);
+}
+inline float TrafficDensity(float requested, uint32_t playfield, bool indoors) {
+    return EnvironmentAllowed(playfield,indoors) ? std::clamp(requested,0.f,2.f):0.f;
+}
 // Existing authored hull identities used by navigation lights too. These may
 // move despite N3 reporting a Static visual; their old poses must not persist.
 constexpr bool Hull(uint32_t type, uint32_t id) {

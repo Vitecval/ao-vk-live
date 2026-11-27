@@ -3520,7 +3520,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
                              : 0.0f;
     }
     if (skyScenery)                              // (the far sky's haze: exponential below)
-        c.fogParams[2] = (m_immersiveShips>.5f ? .72f:1.f) / kSkySceneryHaze;
+        c.fogParams[2] = (ship::ImmersiveEnabled(m_immersiveShips,m_skyPlayfield,m_indoors) ? .72f:1.f) / kSkySceneryHaze;
     ArgbToFloat(m_rs[d3d::RS_TEXTUREFACTOR], c.tfactor);
     c.misc[0] = m_material.power;
     c.misc[1] = float(m_rs[d3d::RS_ALPHAREF] & 0xFF);
@@ -4002,11 +4002,18 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
     // A texture's albedo map (SetMaterialMaps) is drawn in its place.
     auto drawn = [this, normalMap](Texture* t) {
         if (!t) return m_blackTexture;
-        if (t->MaterialsState()==Texture::MaterialState::Ready &&
+        // Cached AO draw state can keep this owner bound after its cold HD set
+        // was evicted. Signal a new visible request even without child maps;
+        // the proxy services at most eight such owners per frame. Requiring
+        // Ready here stranded an evicted owner until AO explicitly rebound it.
+        const auto materialState=t->MaterialsState();
+        if ((materialState==Texture::MaterialState::Evicted &&
+             (m_pbr.albedoMaps || m_normalMaps || m_pbr.enabled)) ||
+            (materialState==Texture::MaterialState::Ready &&
             ((m_pbr.albedoMaps && t->m_albedoMap && !t->m_preserveGroundColour) ||
              (m_normalMaps && t->m_normalMap && normalMap==t->m_normalMap) ||
              (m_pbr.enabled && t->m_ormMap && m_drawOrm==t->m_ormMap) ||
-             (m_pbr.enabled && m_pbr.emissive>0 && t->m_emissiveMap && m_drawEmissive==t->m_emissiveMap)))
+             (m_pbr.enabled && m_pbr.emissive>0 && t->m_emissiveMap && m_drawEmissive==t->m_emissiveMap))))
             t->m_materialDrawFrame.store(m_frameNumber+1, std::memory_order_relaxed);
         // Manufactured ground keeps AO's exact colour and markings. The authored
         // normal/ORM maps still supply the upgraded relief and polished finish.
@@ -4349,7 +4356,7 @@ void Device::Draw(uint32_t primitive, uint32_t fvf, const void* vertices, uint32
         dt.mat[2]|=kMatTempleBake;
     if (VisualKind(m_drawVisualKind) == VisualKind::Sky || (m_drawMesh && m_drawMesh->skyScenery))
         dt.mat[2] |= kMatSky;                    // (the sky and its scenery: kept inside the far plane, ffp.vert)
-    if(m_immersiveShips>.5f) {
+    if(ship::ImmersiveEnabled(m_immersiveShips,m_skyPlayfield,m_indoors)) {
         const Texture* hull=m_textures[0];
         const bool knownHull=hull && ship::Hull(hull->m_rdbType,hull->m_rdbId);
         if(knownHull || (m_drawMesh && m_drawMesh->skyScenery)) {

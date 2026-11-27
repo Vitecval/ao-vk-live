@@ -17,11 +17,12 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 - A setting renamed or given a new default carries over once (`kMigrations`); its old names are listed.
 - *knob*: a plain value set through the generic path (`rvk.h` `RVK_FLOAT_KNOBS`, `RVK_BOOL_KNOBS`).
 
-403 settings, 231 of them in the settings window.
+405 settings, 233 of them in the settings window.
 
 ## Sections
 
 - [General](#general) (20)
+- [Audio](#audio) (2)
 - [Lighting](#lighting) (21)
 - [Day/Night Cycle](#day/night-cycle) (2)
 - [Materials](#materials) (32)
@@ -65,6 +66,13 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_ImmersiveShips` | Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas | on / off | off | window; game value off; knob |
 | `RVK_ShipLights` | Immersive Ships: brighter navigation markings and clearer distant hulls; buildings and trees reach up to 15% farther within loaded areas: ship navigation lights | on / off | on | window; switch `RVK_ImmersiveShips`; game value off; knob |
 | `RVK_ShipLightPower` | Ship navigation lights: nearby ship light strength | 0 .. 1 | 0.6 | window; switch `RVK_ShipLights`; game value 0; knob |
+
+## Audio
+
+| Setting | What it does | Values | Default | Notes |
+| --- | --- | --- | --- | --- |
+| `RVK_ReworkSound` | Reworked Sound<br>Adds enhanced regional ambience. Original music, combat sounds and voices are unchanged. | on / off | off | window |
+| `RVK_SoundVol` | Ambience volume<br>Volume of the reworked ambience only. Original music, effects and system volume are unchanged. | 0 .. 1 | 0.6 | window |
 
 ## Lighting
 
@@ -120,7 +128,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_ICCArtwork` | World surface artwork: AnarchyHD / Enhanced Original | 0 / 1 | 0 | window; switch `RVK_ModernTex`; knob |
 | `RVK_ICCGlossiness` | World texture style: Original / AnarchyHD: iCC Glossiness | 0 .. 1 | 0.5 | window; switch `RVK_ModernTex`; knob |
 | `RVK_GlobalShiny` | Global Shiny | 0 .. 1 | 0.5 | window; game value 1; knob |
-| `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_TerrainHD` | Global terrain detail | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_TerraBlend` | Terrain: Original / Shared Ground / Shared Ground+ (native terrain, classic lighting, no ripples; GroundOn overrides) | 0 .. 2 | 1 | window; game value 0; knob |
 | `RVK_TerraRough` | Surface roughness: bumps and grit in Shared Ground+ (0 smooth, 1 previous detail) | 0 .. 1 | 0.6 | window; game value 1; knob |
 | `RVK_HDGround` | HD Ground Textures | on / off | off | window; game value off; knob |
@@ -128,7 +136,7 @@ by hand; run the script after changing a setting (`--check` tells whether this f
 | `RVK_WindowDepth` | Window interiors: Off / Medium (Subtle) / Maximum (Strong) (experimental, global exterior windows) | 0 / 1 / 2 | 1 | window; game value 0; knob |
 | `RVK_WindowActivity` | Window lights: slow apartment activity (off uses static light states) | on / off | on | window; switch `RVK_WindowDepth`; game value on; knob |
 | `RVK_BuildWear` | Building Weathering: Off / Low / Medium / High | 0 / 1 / 2 / 3 | 0 | window; game value 0; knob |
-| `RVK_BuildingHD` | Global building materials | 0 .. 1 | 0 | window; game value 0; knob |
+| `RVK_BuildingHD` | Global building materials | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_EnhancedRocks` | Enhanced Rocks | 0 .. 1 | 1 | window; game value 0; knob |
 | `RVK_RockShape` | Enhanced Rocks: legacy rock shape (disabled) | 0 .. 1 | 0 | ini only; switch `RVK_EnhancedRocks`; game value 0; knob |
 | `RVK_AutoMat` | Character & equipment materials | on / off | off | window; game value off; knob |

@@ -13,6 +13,7 @@
 #include "ambient_policy.h"
 #include "underwater_policy.h"
 #include "surface_attachment.h"
+#include "ship_shadow_policy.h"
 
 #include <algorithm>
 #include <cmath>
@@ -507,7 +508,7 @@ void Device::RenderAmbientBatch(VkCommandBuffer cmd,const void* frame,const floa
 void Device::CaptureShipBeacons(uint32_t primitive,const FvfLayout& layout,const void* vertices,uint32_t vertexCount,
                                 const uint16_t* indices,uint32_t indexCount,uint64_t key)
 {
-    if(m_immersiveShips<=.5f || m_shipLights<=.5f || !m_skyPlayfield || m_indoors || !vertices || layout.offset[0]<0)return;
+    if(!ship::ImmersiveEnabled(m_immersiveShips,m_skyPlayfield,m_indoors) || m_shipLights<=.5f || !vertices || layout.offset[0]<0)return;
     if(primitive<d3d::TriangleList || primitive>d3d::TriangleFan)return;
     ShipBeaconSet* set=nullptr;
     for(auto& s:m_shipBeacons)if(s.key==key && s.seen!=~0ull){set=&s;break;}
@@ -579,7 +580,7 @@ void Device::FillShipLights(FrameLights* fl)
     std::memset(fl->shipLightPos,0,sizeof(fl->shipLightPos));
     std::memset(fl->shipLightColour,0,sizeof(fl->shipLightColour));
     std::memset(fl->shipLightConfig,0,sizeof(fl->shipLightConfig));
-    if(m_immersiveShips<=.5f || m_shipLights<=.5f || m_shipLightPower<=0.f || !m_skyPlayfield || m_indoors)return;
+    if(!ship::ImmersiveEnabled(m_immersiveShips,m_skyPlayfield,m_indoors) || m_shipLights<=.5f || m_shipLightPower<=0.f)return;
     struct Candidate{float distance;const float* point;};Candidate candidates[48];unsigned count=0;
     for(const auto& set:m_shipBeacons)if(!set.skyCamera && set.seen!=~0ull && set.seen+1>=m_frameNumber)
         for(const auto& p:set.points){float d=0;for(int k=0;k<3;++k)d+=(p[k]-m_frameEye[k])*(p[k]-m_frameEye[k]);
@@ -598,7 +599,7 @@ void Device::FillShipLights(FrameLights* fl)
 
 void Device::RenderShipBeacons(VkCommandBuffer cmd)
 {
-    if(m_immersiveShips<=.5f || m_shipLights<=.5f || !m_skyPlayfield || m_indoors || !m_ambientPipeline || !m_scene || !m_hdr || !m_frameEyeValid)return;
+    if(!ship::ImmersiveEnabled(m_immersiveShips,m_skyPlayfield,m_indoors) || m_shipLights<=.5f || !m_ambientPipeline || !m_scene || !m_hdr || !m_frameEyeValid)return;
     unsigned total=0;
     for(const auto& set:m_shipBeacons)if(set.seen==m_frameNumber) {
         float points[128][4]={};

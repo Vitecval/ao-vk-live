@@ -443,3 +443,11 @@ target_include_directories(stability_leak_check PRIVATE third_party)
 target_link_libraries(stability_leak_check PRIVATE rvk psapi)
 
 target_link_options(stability_leak_check PRIVATE "/MAP:${CMAKE_CURRENT_BINARY_DIR}/stability_leak_check.map")
+
+add_executable(ship_environment_check tests/ship_environment_check.cpp)
+target_include_directories(ship_environment_check PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+if(MSVC OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+ target_compile_options(ship_environment_check PRIVATE /UNDEBUG)
+else()
+ target_compile_options(ship_environment_check PRIVATE -UNDEBUG)
+endif()

@@ -6888,8 +6888,37 @@ int main(int argc, char** argv)
         }
         okay=okay && active->MaterialsState()==Texture::MaterialState::Ready && active->MaterialDrawFrame()>280;
         okay=okay && cold->MaterialsState()==Texture::MaterialState::Evicted && alias->MaterialsState()==Texture::MaterialState::Evicted;
+        // AO may replay already-bound state without asking its RSurface for a
+        // texture again. Real draws must request the evicted set themselves.
+        // This fixture services that request through the same material upload
+        // API; it does not claim to exercise the proxy worker/decode queue.
+        dev.SetHdr(false);dev.SetNormalMaps(false,1);pbr.enabled=false;pbr.albedoMaps=false;dev.SetPbr(pbr);
+        dev.SetTexture(0,cold); // keep this binding throughout both missing-map draws
+        auto drawBound=[&]() {
+            dev.BeginFrame();dev.SetViewport({0,0,g_width,g_height,0,1});dev.Clear(CLEAR_TARGET|CLEAR_ZBUFFER,0xff101010,1);
+            dev.DrawPrimitive(TriangleStrip,kFvfMesh,plane,4);dev.EndFrame();
+            std::vector<uint32_t> pixels(size_t(g_width)*g_height);
+            if(!dev.ReadPixels(nullptr,pixels.data())){okay=false;return uint32_t(0);}
+            return pixels[size_t(g_height/2)*g_width+g_width/2];
+        };
+        const uint32_t disabledPixel=drawBound();
+        const bool disabledQuiet=cold->MaterialsState()==Texture::MaterialState::Evicted && cold->MaterialDrawFrame()==0;
+        pbr.enabled=true;pbr.albedoMaps=true;dev.SetPbr(pbr);
+        const uint32_t missingPixel=drawBound();
+        const bool requested=cold->MaterialsState()==Texture::MaterialState::Evicted && cold->MaterialDrawFrame()>300;
+        const bool aliasNotRequested=alias->MaterialDrawFrame()==0;
+        okay=okay && disabledQuiet && requested && aliasNotRequested;
         maps::Replace(dev,cold,decoded);dev.ShareMaterialMaps(alias,cold);
         okay=okay && cold->MaterialsState()==Texture::MaterialState::Ready && alias->MaterialsState()==Texture::MaterialState::Ready;
+        const uint32_t recoveredPixel=drawBound();
+        auto channel=[](uint32_t p,unsigned shift){return int((p>>shift)&255);};
+        const int colourDelta=std::abs(channel(recoveredPixel,16)-channel(missingPixel,16))+
+            std::abs(channel(recoveredPixel,8)-channel(missingPixel,8))+std::abs(channel(recoveredPixel,0)-channel(missingPixel,0));
+        const bool recoveredColour=channel(recoveredPixel,8)>channel(recoveredPixel,16)+15 && colourDelta>30;
+        okay=okay && recoveredColour;
+        std::printf("Material cached binding: disabled-quiet %u; visible-request %u; untouched-alias %u; native %08x; recovered %08x; delta %d; recovered-colour %u (disabled %08x)\n",
+            unsigned(disabledQuiet),unsigned(requested),unsigned(aliasNotRequested),missingPixel,recoveredPixel,colourDelta,unsigned(recoveredColour),disabledPixel);
+        dev.SetTexture(0,nullptr);
         dev.DestroyTexture(active);dev.DestroyTexture(cold);dev.DestroyTexture(alias);
         std::printf("Material cache: %s (constant controls compacted, cold shared maps retired, active HD protected, reload ready)\n",okay?"passed":"FAILED");
         return okay?0:1;

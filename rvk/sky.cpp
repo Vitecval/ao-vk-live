@@ -6,6 +6,7 @@
 #include "internal.h"
 #include "weather_options.h"
 #include "area_profiles.h"
+#include "ship_shadow_policy.h"
 
 #include <algorithm>
 #include <chrono>
@@ -654,7 +655,7 @@ void Device::DrawSkyGlow()
         push.view[3]=outdoors && !m_cloudParams.enable ? std::clamp(m_skyClouds,0.f,1.f):0.f;
         for(int i=0;i<3;++i)push.sky[8+i]=-m_trueSunDir[i];
         if(!SunKnown()){push.sky[8]=.4f;push.sky[9]=.7f;push.sky[10]=.5f;}
-        push.sky[11]=outdoors ? std::clamp(m_skyTraffic,0.f,2.f):0.f;
+        push.sky[11]=ship::TrafficDensity(m_skyTraffic,m_skyPlayfield,m_indoors);
         push.sky[12]=float(m_skyPlayfield);push.sky[13]=std::clamp(NightAmount(),0.f,1.f);
         push.night[1]=float(std::fmod(m_frameClock,7200.0));
         if(m_dumpFile)std::fprintf(m_dumpFile,"# Sky enhancements: clouds %.0f; traffic %.0f; sky-only, no ground shadows or illumination changes\n",push.view[3],push.sky[11]);

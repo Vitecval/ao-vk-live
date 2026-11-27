@@ -75,6 +75,17 @@ int main(int argc,char** argv) {
     if(!set||!get||!count||!preset||!effective)return 2;
     auto check=[](bool ok,const char* why){if(!ok){std::printf("FAILED %s\n",why);std::exit(3);}};
     auto info=[&](const char* name){for(uint32_t i=0;i<count();++i){RvkSettingInfo s{};s.size=sizeof(s);if(get(i,&s)&&std::strcmp(s.name,name)==0)return s;}check(false,name);return RvkSettingInfo{};};
+    if(argc==4 && std::strcmp(argv[1],"--check-material-defaults")==0) {
+        const float terrain=float(std::atof(argv[2])),building=float(std::atof(argv[3]));
+        check(info("RVK_TerrainHD").defaultValue==1 && info("RVK_BuildingHD").defaultValue==1,"fresh material loader defaults enabled");
+        auto retained=[&](){check(std::fabs(info("RVK_TerrainHD").value-terrain)<.001f && std::fabs(info("RVK_BuildingHD").value-building)<.001f,"missing defaults initialize; explicit personal material choices retained");};
+        retained();
+        for(unsigned i=0;i<4;++i){check(preset(i)!=0,"apply quality preset");retained();}
+        set("RVK_Enhance",0);check(effective("RVK_TerrainHD")==0&&effective("RVK_BuildingHD")==0,"Original graphics still disables effective materials");
+        set("RVK_Enhance",1);retained();
+        check(std::fabs(effective("RVK_TerrainHD")-terrain)<.001f&&std::fabs(effective("RVK_BuildingHD")-building)<.001f,"restoring enhancements restores material choices");
+        std::puts("PASS material defaults, missing-key initialization, personal choices, presets and Original mode");return 0;
+    }
     if(argc>1&&(std::strcmp(argv[1],"--save-sound")==0||std::strcmp(argv[1],"--check-sound")==0)) {
         auto s=info("RVK_ReworkSound");check(s.type==0&&s.defaultValue==0&&s.min==0&&s.max==1&&!s.parent&&std::strcmp(s.label,"Reworked Sound")==0,"default-off independent audio toggle");
         auto volume=info("RVK_SoundVol");check(volume.type==2&&std::abs(volume.defaultValue-.6f)<.001f&&volume.min==0&&volume.max==1&&!volume.parent,"independent ambience volume metadata");
